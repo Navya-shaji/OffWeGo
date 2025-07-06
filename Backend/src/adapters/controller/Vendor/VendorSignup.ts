@@ -7,35 +7,32 @@ import { Request,Response } from "express";
 export class VendorSignupController{
     constructor(private RegistervendorUsecase:VendorRegisterUseCase){}
 
-    async VendorSignup(req:Request,res:Response):Promise<void>{
-        try {
-            const formData:RegistervendorDto=req.body
+  async VendorSignup(req: Request, res: Response): Promise<void> {
+    try {
+      const { name, email, phone, password, confirmPassword } = req.body;
+      const file = req.file;
 
-            if(!formData.email || !formData.name || !formData.documentUrl || !formData.password || !formData.phone){
-                res.status(HttpStatus.BAD_REQUEST).json({
-                    success:false,
-                    message:"All fields are required"
-                })
-                return 
-            }
+      if (!name || !email || !phone || !password || !confirmPassword || !file) {
+        res.status(400).json({ success: false, message: "All fields are required" });
+        return;
+      }
 
-            const otpSent=await this.RegistervendorUsecase.execute(formData)
+      // You can store document URL or path in DB
+      const documentUrl = `/uploads/${file.filename}`;
 
-            res.status(HttpStatus.CREATED).json({
-                success:true,
-                message:"OTP Sent to your email address",
-                data:{
-                    email:formData.email,
-                    vendorName:formData.name,
-                    vendorPhone:formData.phone,
-                    vendordoc:formData.documentUrl
-                }
-            })
-        } catch (error) {
-      console.error("Registration error:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Registration failed",
+      // Forward data to use case or DB logic
+      res.status(201).json({
+        success: true,
+        message: "Vendor registered successfully",
+        data: {
+          name,
+          email,
+          phone,
+          documentUrl,
+        },
       });
+    } catch (err) {
+      res.status(500).json({ success: false, message: "Registration failed" });
     }
-}}
+  }
+}

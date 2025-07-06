@@ -7,6 +7,8 @@ import { UserRoute } from "./framework/routes/user/userRoute";
 import { AdminRoute } from "./framework/routes/Admin/adminRoute";
 import morgan from 'morgan'
 import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
+import path from "path";
+
 export class App {
   private app: Express;
   private database: ConnectDB;
@@ -30,7 +32,8 @@ export class App {
 
   private setMiddlewares(): void {
     this.app.use(express.json());
-    this.app.use(morgan('dev'))
+    this.app.use(morgan('dev'));
+     this.app.use("/uploads", express.static(path.join(__dirname, "..", "uploads"))); 
   }
 
   private setUserRoutes(): void {

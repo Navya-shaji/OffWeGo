@@ -26,6 +26,7 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.523.0",
     "motion": "^12.19.2",
+    "multer": "^2.0.1",
     "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -43,6 +44,7 @@
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@tailwindcss/postcss": "^4.1.11",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.0.4",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

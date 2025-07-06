@@ -66,7 +66,7 @@ export default function Signup() {
       <div className="flex flex-col md:flex-row w-full max-w-5xl shadow-xl rounded-2xl bg-white overflow-hidden border border-gray-200">
         
        <div
-  className="md:w-1/2 h-64 md:h-auto relative bg-cover bg-center"
+  className="md:w-1/2 h-64  md:h-auto relative bg-cover bg-center"
   style={{ backgroundImage: 'url("/images/signup.jpg")' }}
 >
   <div className="absolute inset-0 bg-black bg-opacity-40"></div>
