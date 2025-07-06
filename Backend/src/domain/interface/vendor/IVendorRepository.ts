@@ -3,6 +3,8 @@ export interface IVendorRepository {
   createVendor(Vendor: Vendor): Promise<Vendor>;
   findByEmail(email: string): Promise<Vendor | null>;
   findByPhone(phone: string): Promise<Vendor | null>;
+  updateStatus(email: string, newStatus: string): Promise<void>;
+  findByStatus(status: string): Promise<Vendor[]>;
   findById(id: string): Promise<Vendor | null>;
   findPendingVendors(): Promise<Vendor[]>;
   approveVendor(id: string): Promise<Vendor | null>;

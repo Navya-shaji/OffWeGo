@@ -1,7 +1,6 @@
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository"; 
-import { VendorModel } from "../../../framework/database/Models/vendorModel"; 
+import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { VendorModel } from "../../../framework/database/Models/vendorModel";
 import { Vendor } from "../../../domain/entities/vendorEntities";
-
 
 export class VendorRepository implements IVendorRepository {
   async createVendor(vendorData: Vendor): Promise<Vendor> {
@@ -22,6 +21,10 @@ export class VendorRepository implements IVendorRepository {
   async findById(id: string): Promise<Vendor | null> {
     const vendor = await VendorModel.findById(id);
     return vendor ? this.toVendorEntity(vendor) : null;
+  }
+
+  async updateStatus(email: string, newStatus: string): Promise<void> {
+    await VendorModel.updateOne({ email }, { $set: { status: newStatus } });
   }
 
   async findPendingVendors(): Promise<Vendor[]> {
@@ -50,9 +53,11 @@ export class VendorRepository implements IVendorRepository {
   async updateLastLogin(id: string, date: Date): Promise<void> {
     await VendorModel.findByIdAndUpdate(id, { lastLogin: date });
   }
+  async findByStatus(status: string): Promise<Vendor[]> {
+    return await VendorModel.find({ status });
+  }
 
   private toVendorEntity = (doc: any): Vendor => ({
-    
     name: doc.name,
     email: doc.email,
     phone: doc.phone,
@@ -64,6 +69,6 @@ export class VendorRepository implements IVendorRepository {
     role: doc.role,
     lastLogin: doc.lastLogin,
     isAdmin: doc.isAdmin,
-    googleVerified: doc.googleVerified
+    googleVerified: doc.googleVerified,
   });
 }

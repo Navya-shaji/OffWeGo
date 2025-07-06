@@ -21,7 +21,7 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
     if (!documentUrl || typeof documentUrl !== "string") {
       throw new Error("Document is required for vendor Registration");
     }
-        const newVendor = await this.vendorRepository.createVendor(vendorInput);
+    const newVendor = await this.vendorRepository.createVendor({...vendorInput,status:"pending"});
     const otp=this.otpService.generateOtp()
     await this.otpService.storeOtp(email,otp)
     await this.otpService.sendOtpEmail(email,otp)
