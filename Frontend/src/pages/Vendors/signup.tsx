@@ -6,14 +6,14 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 import { vendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
-import OtpVendorModal from "@/components/vendor/OtpModalVendor"; 
+import OtpVendorModal from "@/components/vendor/OtpModalVendor";
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 
 export default function VendorSignup() {
   const [document, setDocument] = useState<File | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
-  // const [emailForOtp, setEmailForOtp] = useState("");
-  const [vendorData, setUserData] = useState<VendorSignupSchema | null>(null);
-
+  const [vendorData, setVendorData] = useState<VendorSignupSchema | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     register,
@@ -29,29 +29,30 @@ export default function VendorSignup() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("phone", data.phone);
-    formData.append("password", data.password);
-    formData.append("confirmPassword", data.confirmPassword);
-    formData.append("document", document);
-
     try {
-      const response = await vendorRegister(formData);
+      setIsUploading(true);
+
+      const documentUrl = await uploadToCloudinary(document); 
+
+      const payload = {
+        ...data,
+        document: documentUrl, 
+      };
+
+      const response = await vendorRegister(payload);
 
       if (response.data.success) {
-  toast.success("Vendor registered! Please verify OTP from email.");
-  setUserData(data); 
-  setShowOtpModal(true);
-}
- else {
+        toast.success("Vendor registered! Please verify OTP.");
+        setVendorData(data);
+        setShowOtpModal(true);
+      } else {
         toast.error(response.data.message || "Registration failed.");
       }
     } catch (error) {
-      const err = error as Error;
-      toast.error(err.message || "Something went wrong.");
-    }
+      console.error("Error during registration:", error);
+      toast.error("Something went wrong during signup.");
+    } finally {
+      setIsUploading(false);     }
   };
 
   return (
@@ -59,97 +60,62 @@ export default function VendorSignup() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded shadow-md w-full max-w-md"
-        encType="multipart/form-data"
       >
         <h2 className="text-2xl font-bold mb-4 text-center">Vendor Signup</h2>
 
-        {/* Name */}
-        <div className="mb-3">
-          <input
-            type="text"
-            {...register("name")}
-            placeholder="Name"
-            className="input"
-          />
-          {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
-        </div>
+        <input {...register("name")} className="input mb-3" placeholder="Name" />
+        {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
 
-        {/* Phone */}
-        <div className="mb-3">
-          <input
-            type="text"
-            {...register("phone")}
-            placeholder="Phone"
-            className="input"
-          />
-          {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
-        </div>
+        <input {...register("phone")} className="input mb-3" placeholder="Phone" />
+        {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
 
-        {/* Email */}
-        <div className="mb-3">
-          <input
-            type="email"
-            {...register("email")}
-            placeholder="Email"
-            className="input"
-          />
-          {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
-        </div>
+        <input {...register("email")} className="input mb-3" placeholder="Email" />
+        {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
 
-        {/* Password */}
-        <div className="mb-3">
-          <input
-            type="password"
-            {...register("password")}
-            placeholder="Password"
-            className="input"
-          />
-          {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
-        </div>
+        <input
+          type="password"
+          {...register("password")}
+          className="input mb-3"
+          placeholder="Password"
+        />
+        {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
 
-        {/* Confirm Password */}
-        <div className="mb-3">
-          <input
-            type="password"
-            {...register("confirmPassword")}
-            placeholder="Confirm Password"
-            className="input"
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-xs">{errors.confirmPassword.message}</p>
-          )}
-        </div>
+        <input
+          type="password"
+          {...register("confirmPassword")}
+          className="input mb-3"
+          placeholder="Confirm Password"
+        />
+        {errors.confirmPassword && (
+          <p className="text-red-500 text-xs">{errors.confirmPassword.message}</p>
+        )}
 
-        {/* Document Upload */}
-        <div className="mb-3">
-          <input
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png"
-            onChange={(e) => setDocument(e.target.files?.[0] || null)}
-            className="input"
-          />
-        </div>
+        <input
+          type="file"
+          accept=".jpg,.jpeg,.png,.pdf"
+          onChange={(e) => setDocument(e.target.files?.[0] || null)}
+          className="input mb-3"
+        />
+        {!document && <p className="text-red-500 text-xs mb-2">Document is required</p>}
 
-        {/* Submit */}
         <button
           type="submit"
+          disabled={isUploading}
           className="w-full bg-blue-700 text-white py-2 rounded hover:bg-blue-800"
         >
-          Sign Up
+          {isUploading ? "Uploading..." : "Sign Up"}
         </button>
 
         <ToastContainer />
       </form>
 
-      {/* OTP Modal */}
       {showOtpModal && vendorData && (
-  <OtpVendorModal
-    isOpen={showOtpModal}
-    onClose={() => setShowOtpModal(false)}
-    vendorData={vendorData} 
-  />
-)}
-
+        <OtpVendorModal
+          isOpen={showOtpModal}
+          onClose={() => setShowOtpModal(false)}
+          vendorData={vendorData}
+        />
+      )}
     </div>
   );
 }

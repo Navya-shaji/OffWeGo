@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Users,
   Plus,
   MapPin,
   Grid3x3,
   UserCheck,
-  FileText
+  FileText,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -14,21 +16,27 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+  const [showRequestsDropdown, setShowRequestsDropdown] = useState(false);
+
   const menuItems = [
     { icon: Grid3x3, label: 'Dashboard' },
     { icon: Users, label: 'Users' },
     { icon: UserCheck, label: 'Vendors' },
     { icon: MapPin, label: 'Destinations' },
-    { icon: FileText, label: 'Request' }
   ];
 
+  const handleRequestClick = () => {
+    setShowRequestsDropdown((prev) => !prev);
+  };
+
+  const handleSubTabClick = (label: string) => {
+    setActiveTab(label);
+  };
+
   return (
-    <div className="w-64 bg-white shadow-lg relative">
+    <div className="w-64 bg-white shadow-lg relative h-screen overflow-y-auto">
       <div className="p-6">
-        <div className="flex items-center space-x-2">
-          <div className="text-2xl font-bold text-gray-800">OffWeGo 🕊️</div>
-       
-        </div>
+        <div className="text-2xl font-bold text-gray-800">OffWeGo 🕊️</div>
       </div>
 
       <nav className="mt-6">
@@ -44,6 +52,47 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             <span className="text-gray-700">{item.label}</span>
           </button>
         ))}
+
+        {/* Requests Dropdown */}
+        <button
+          onClick={handleRequestClick}
+          className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+            activeTab.includes('Request') ? 'bg-gray-100 border-r-4 border-black' : ''
+          }`}
+        >
+          <FileText className="w-5 h-5 mr-3 text-gray-600" />
+          <span className="text-gray-700 flex-1">Requests</span>
+          {showRequestsDropdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+
+        {showRequestsDropdown && (
+          <div className="ml-10">
+            <button
+              onClick={() => handleSubTabClick('Pending Requests')}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === 'Pending Requests' ? 'text-black font-semibold' : 'text-gray-600'
+              }`}
+            >
+              Pending
+            </button>
+            <button
+              onClick={() => handleSubTabClick('Approved Requests')}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === 'Approved Requests' ? 'text-black font-semibold' : 'text-gray-600'
+              }`}
+            >
+              Approved
+            </button>
+            <button
+              onClick={() => handleSubTabClick('Rejected Requests')}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === 'Rejected Requests' ? 'text-black font-semibold' : 'text-gray-600'
+              }`}
+            >
+              Rejected
+            </button>
+          </div>
+        )}
       </nav>
 
       <div className="absolute bottom-4 left-4">

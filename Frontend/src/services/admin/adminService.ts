@@ -8,3 +8,25 @@ export const adminLogin=async(email:string,password:string)=>{
     })
     return response.data.admin
 }
+export const getVendorsByStatus = async (
+  status: "pending" | "approved" | "rejected"
+) => {
+  const response = await axiosInstance.get(`/admin/vendors/status/${status}`);
+  return response.data.vendors; 
+};
+
+
+export const getPendingVendors = async () => {
+  const response = await axiosInstance.get("/admin/vendors/pending");
+  return response.data.vendors; // assuming this is how backend responds
+};
+export const getPendingVendorsCount = async () => {
+  const response = await axiosInstance.get("/admin/vendors/pending/count");
+  return response.data.count;
+};
+export const updateVendorStatus = async (vendorId: string, status: "approved" | "rejected") => {
+  const response = await axiosInstance.patch(`/admin/vendors/status/${vendorId}`, {
+    status,
+  });
+  return response.data;
+};

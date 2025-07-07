@@ -80,6 +80,12 @@ async findByEmail(email: string): Promise<Vendor | null> {
     const vendors = await VendorModel.find({ status });
     return vendors.map(this.toVendorEntity);
   }
+  // framework/database/mongodb/repositories/vendorRepository.ts
+
+async getAllVendors(): Promise<Vendor[]> {
+  return await VendorModel.find(); // Or apply sorting/filtering if needed
+}
+
 
   private toVendorEntity = (doc: any): Vendor => ({
     _id: doc._id.toString(), // ✅ ensure this is included

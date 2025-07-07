@@ -2,13 +2,9 @@ import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";  // your axios setup
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 
-export const vendorRegister = async (formData: FormData) => {
+export const vendorRegister = async (data: VendorSignupSchema & { document: string }) => {
   try {
-    const res = await axiosInstance.post("/vendor/signup", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const res = await axiosInstance.post("/vendor/signup", data); 
     return res;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -17,6 +13,7 @@ export const vendorRegister = async (formData: FormData) => {
     throw new Error("Unknown error during vendor registration.");
   }
 };
+
 
 export const VerifyOtp = async (vendorData: VendorSignupSchema, otp: string) => {
   try {

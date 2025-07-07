@@ -12,4 +12,5 @@ export interface IVendorRepository {
   approveVendor(id: string): Promise<Vendor | null>;
   rejectVendor(id: string): Promise<Vendor | null>;
   updateLastLogin(id: string, date: Date): Promise<void>;
+   getAllVendors(): Promise<Vendor[]>;
 }

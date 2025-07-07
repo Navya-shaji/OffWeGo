@@ -8,27 +8,35 @@ import { GetVendorByEmailUseCase } from "../../../useCases/admin/Vendor/getVendo
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase";
 import { UpdateVendorstatusController } from "../../../adapters/controller/Admin/updateVendorController";
-
-//Repositories...........................................
-
-const adminRepository=new AdminRepository()
-const vendorRepository=new VendorRepository()
-
-
-//Services..............................................
-const hashPassword=new HashPassword()
-const jwtService=new JwtSevice()
-
-//useCases................................................
-
-const adminLoginuseCase=new AdminLoginuseCase(adminRepository,hashPassword,jwtService)
-const adminvendorfindByemailUsecase= new GetVendorByEmailUseCase(vendorRepository)
-const updateVendorStatusUseCase=new UpdateVendorstatusUseCase(vendorRepository)
+import { AdminVendorApprovalUseCase } from "../../../useCases/vendor/Signup/AdminApprovalUseCase"; 
+import { AdminGetAllVendorController } from "../../../adapters/controller/Admin/getAllVendorsController";
+import { GetAllVendorsUseCase } from "../../../useCases/admin/Vendor/getAllVendorsUsecase";
+import { GetVendorsByStatusController } from "../../../adapters/controller/Admin/getVendorByStatusController"; 
 
 
+// Repositories
+const adminRepository = new AdminRepository();
+const vendorRepository = new VendorRepository();
 
-//Controller................................................
 
-export const  adminController=new AdminController(adminLoginuseCase)
-export const  adminVendorController=new AdminVendorController(adminvendorfindByemailUsecase)
-export const updateVendorStatusController=new UpdateVendorstatusController(updateVendorStatusUseCase)
+// Services
+const hashPassword = new HashPassword();
+const jwtService = new JwtSevice();
+
+
+// Use Cases
+const adminLoginuseCase = new AdminLoginuseCase(adminRepository, hashPassword, jwtService);
+const adminvendorfindByemailUsecase = new GetVendorByEmailUseCase(vendorRepository);
+const updateVendorStatusUseCase = new UpdateVendorstatusUseCase(vendorRepository);
+const adminVendorApprovalUseCase = new AdminVendorApprovalUseCase(vendorRepository);
+const getAllVendorsUsecase=new GetAllVendorsUseCase(vendorRepository)
+
+
+
+// Controllers
+export const adminController = new AdminController(adminLoginuseCase);
+export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase);
+export const updateVendorStatusController = new UpdateVendorstatusController(updateVendorStatusUseCase);
+export const getAllVendorsController = new AdminGetAllVendorController(getAllVendorsUsecase);
+
+export const getVendorsByStatusController = new GetVendorsByStatusController(vendorRepository);

@@ -1,15 +1,6 @@
+import type { User } from "@/interface/userInterface"
 import {createSlice} from "@reduxjs/toolkit"
 
-interface User{
-     name:string,
-    email:string,
-    phone:number,
-    _id:string,
-    profileImage?:string,
-    role:"user"|"admin",
-    is_blocked:boolean
-    googleVerified: boolean
-}
 
 const initialState:{user:User|null}={
     user:null

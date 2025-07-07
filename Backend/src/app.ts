@@ -33,7 +33,7 @@ export class App {
   private setMiddlewares(): void {
     this.app.use(express.json());
     this.app.use(morgan('dev'));
-     this.app.use("/uploads", express.static(path.join(__dirname, "..", "uploads"))); 
+    
   }
 
   private setUserRoutes(): void {
