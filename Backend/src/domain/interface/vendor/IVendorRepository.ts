@@ -1,9 +1,11 @@
 import { Vendor } from "../../entities/vendorEntities";
+
 export interface IVendorRepository {
   createVendor(Vendor: Vendor): Promise<Vendor>;
   findByEmail(email: string): Promise<Vendor | null>;
   findByPhone(phone: string): Promise<Vendor | null>;
-  updateStatus(email: string, newStatus: string): Promise<void>;
+  updateVendorStatus(id: string, status: "approved" | "rejected"): Promise<Vendor | null>;
+  updateVendorStatusByEmail(email: string, status: "approved" | "rejected"): Promise<Vendor | null>; 
   findByStatus(status: string): Promise<Vendor[]>;
   findById(id: string): Promise<Vendor | null>;
   findPendingVendors(): Promise<Vendor[]>;

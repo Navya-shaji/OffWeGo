@@ -14,6 +14,7 @@ import { UpdateVendorstatusController } from "../../../adapters/controller/Admin
 const adminRepository=new AdminRepository()
 const vendorRepository=new VendorRepository()
 
+
 //Services..............................................
 const hashPassword=new HashPassword()
 const jwtService=new JwtSevice()
@@ -23,6 +24,7 @@ const jwtService=new JwtSevice()
 const adminLoginuseCase=new AdminLoginuseCase(adminRepository,hashPassword,jwtService)
 const adminvendorfindByemailUsecase= new GetVendorByEmailUseCase(vendorRepository)
 const updateVendorStatusUseCase=new UpdateVendorstatusUseCase(vendorRepository)
+
 
 
 //Controller................................................

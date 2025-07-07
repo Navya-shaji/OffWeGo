@@ -18,7 +18,7 @@ export class AdminVendorController {
       res.status(200).json({ success: true, vendor: safeVendor });
     } catch (error) {
       const err = error as Error;
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
         success: false,
         message: err.message,
       });

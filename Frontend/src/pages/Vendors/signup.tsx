@@ -5,9 +5,15 @@ import { vendorRegister } from "@/services/vendor/vendorService";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
-import { vendorSignupSchema } from "@/Types/vendor/auth/Tsignup"; 
+import { vendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
+import OtpVendorModal from "@/components/vendor/OtpModalVendor"; 
+
 export default function VendorSignup() {
   const [document, setDocument] = useState<File | null>(null);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  // const [emailForOtp, setEmailForOtp] = useState("");
+  const [vendorData, setUserData] = useState<VendorSignupSchema | null>(null);
+
 
   const {
     register,
@@ -33,13 +39,17 @@ export default function VendorSignup() {
 
     try {
       const response = await vendorRegister(formData);
+
       if (response.data.success) {
-        toast.success("Vendor registered! Please verify OTP from email.");
-      } else {
+  toast.success("Vendor registered! Please verify OTP from email.");
+  setUserData(data); 
+  setShowOtpModal(true);
+}
+ else {
         toast.error(response.data.message || "Registration failed.");
       }
     } catch (error) {
-      const err=error as Error
+      const err = error as Error;
       toast.error(err.message || "Something went wrong.");
     }
   };
@@ -130,6 +140,16 @@ export default function VendorSignup() {
 
         <ToastContainer />
       </form>
+
+      {/* OTP Modal */}
+      {showOtpModal && vendorData && (
+  <OtpVendorModal
+    isOpen={showOtpModal}
+    onClose={() => setShowOtpModal(false)}
+    vendorData={vendorData} 
+  />
+)}
+
     </div>
   );
 }

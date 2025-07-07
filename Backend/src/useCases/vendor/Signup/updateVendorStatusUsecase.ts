@@ -1,9 +1,17 @@
+import { Vendor } from "../../../domain/entities/vendorEntities";
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
 
-export class UpdateVendorstatusUseCase{
-    constructor(private vendorRepository:IVendorRepository){}
+export class UpdateVendorstatusUseCase {
+  constructor(private vendorRepository: IVendorRepository) {}
 
-    async execute(email:string,status:string):Promise<void>{
-         await this.vendorRepository.updateStatus(email,status) 
+  async execute(email: string, status: "approved" | "rejected"): Promise<Vendor | null> {
+    const vendor = await this.vendorRepository.findByEmail(email);
+
+    if (!vendor || !vendor._id) {
+      return null;
     }
+
+    const updatedVendor = await this.vendorRepository.updateVendorStatus(vendor._id, status);
+    return updatedVendor;
+  }
 }

@@ -6,12 +6,17 @@ export class VendorRepository implements IVendorRepository {
   async createVendor(vendorData: Vendor): Promise<Vendor> {
     const vendor = new VendorModel(vendorData);
     const savedVendor = await vendor.save();
-    return savedVendor.toObject() as Vendor;
+    return this.toVendorEntity(savedVendor);
   }
-  async findByEmail(email: string): Promise<Vendor | null> {
-    const vendor = await VendorModel.findOne({ email });
-    return vendor ? this.toVendorEntity(vendor) : null;
-  }
+
+async findByEmail(email: string): Promise<Vendor | null> {
+  const normalizedEmail = email.toLowerCase().trim();
+  console.log("🔍 Searching for vendor:", normalizedEmail);
+
+  const vendor = await VendorModel.findOne({ email: normalizedEmail });
+  return vendor ? this.toVendorEntity(vendor) : null;
+}
+
 
   async findByPhone(phone: string): Promise<Vendor | null> {
     const vendor = await VendorModel.findOne({ phone });
@@ -23,8 +28,25 @@ export class VendorRepository implements IVendorRepository {
     return vendor ? this.toVendorEntity(vendor) : null;
   }
 
-  async updateStatus(email: string, newStatus: string): Promise<void> {
-    await VendorModel.updateOne({ email }, { $set: { status: newStatus } });
+  async updateVendorStatus(id: string, status: "approved" | "rejected"): Promise<Vendor | null> {
+    const updatedVendor = await VendorModel.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+    return updatedVendor ? this.toVendorEntity(updatedVendor) : null;
+  }
+
+  async updateVendorStatusByEmail(
+    email: string,
+    status: "approved" | "rejected"
+  ): Promise<Vendor | null> {
+    const updatedVendor = await VendorModel.findOneAndUpdate(
+      { email },
+      { $set: { status } },
+      { new: true }
+    );
+    return updatedVendor ? this.toVendorEntity(updatedVendor) : null;
   }
 
   async findPendingVendors(): Promise<Vendor[]> {
@@ -53,11 +75,14 @@ export class VendorRepository implements IVendorRepository {
   async updateLastLogin(id: string, date: Date): Promise<void> {
     await VendorModel.findByIdAndUpdate(id, { lastLogin: date });
   }
+
   async findByStatus(status: string): Promise<Vendor[]> {
-    return await VendorModel.find({ status });
+    const vendors = await VendorModel.find({ status });
+    return vendors.map(this.toVendorEntity);
   }
 
   private toVendorEntity = (doc: any): Vendor => ({
+    _id: doc._id.toString(), // ✅ ensure this is included
     name: doc.name,
     email: doc.email,
     phone: doc.phone,

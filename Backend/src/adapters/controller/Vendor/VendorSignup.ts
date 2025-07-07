@@ -1,11 +1,10 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVendorUseCase"; 
-import { Request,Response } from "express";
+import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVendorUseCase";
+import { Request, Response } from "express";
 
-
-export class VendorSignupController{
-    constructor(private RegistervendorUsecase:VendorRegisterUseCase){}
+export class VendorSignupController {
+  constructor(private RegistervendorUsecase: VendorRegisterUseCase) {}
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
     try {
@@ -13,26 +12,39 @@ export class VendorSignupController{
       const file = req.file;
 
       if (!name || !email || !phone || !password || !confirmPassword || !file) {
-        res.status(400).json({ success: false, message: "All fields are required" });
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "All fields are required" });
         return;
       }
 
-      // You can store document URL or path in DB
       const documentUrl = `/uploads/${file.filename}`;
 
-      // Forward data to use case or DB logic
-      res.status(201).json({
+      const vendorData: RegistervendorDto = {
+        name,
+        email,
+        phone,
+        password,
+        documentUrl,
+      };
+
+      const newVendor = await this.RegistervendorUsecase.execute(vendorData);
+
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "Vendor registered successfully",
+        message: "Vendor registered successfully. OTP sent to email.",
         data: {
-          name,
-          email,
-          phone,
-          documentUrl,
+          name: newVendor.name,
+          email: newVendor.email,
+          phone: newVendor.phone,
+          documentUrl: newVendor.documentUrl,
         },
       });
-    } catch (err) {
-      res.status(500).json({ success: false, message: "Registration failed" });
+    } catch (err: any) {
+      console.error(" Error in VendorSignup:", err.message);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: err.message || "Registration failed" });
     }
   }
 }
