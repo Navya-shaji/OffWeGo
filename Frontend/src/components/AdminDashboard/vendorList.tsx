@@ -6,7 +6,7 @@ interface VendorListProps {
   vendors?: Vendor[];
   bgColor: string;
   showActions?: boolean;
-  onAction?: (email: string, status: 'approved' | 'rejected') => void;
+  onAction?: (vendorId: string, status: 'approved' | 'rejected') => void;
 }
 
 const VendorList: React.FC<VendorListProps> = ({
@@ -14,12 +14,12 @@ const VendorList: React.FC<VendorListProps> = ({
   vendors = [],
   bgColor,
   showActions = false,
-  onAction
+  onAction,
 }) => {
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
-      {!vendors ? (
+      {vendors.length === 0 ? (
         <p className="text-gray-500">No vendors found.</p>
       ) : (
         vendors.map((vendor) => (
@@ -33,16 +33,16 @@ const VendorList: React.FC<VendorListProps> = ({
             {vendor.status && <p><strong>Status:</strong> {vendor.status}</p>}
 
             {showActions && vendor.status === 'pending' && onAction && (
-              <div className="mt-2">
+              <div className="mt-2 flex gap-2">
                 <button
-                  onClick={() => onAction(vendor.email, 'approved')}
-                  className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                  className="px-3 py-1 bg-green-500 text-white rounded"
+                  onClick={() => onAction(vendor._id, 'approved')}
                 >
-                  Approve
+                  Accept
                 </button>
                 <button
-                  onClick={() => onAction(vendor.email, 'rejected')}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
+                  className="px-3 py-1 bg-red-500 text-white rounded"
+                  onClick={() => onAction(vendor._id, 'rejected')}
                 >
                   Reject
                 </button>

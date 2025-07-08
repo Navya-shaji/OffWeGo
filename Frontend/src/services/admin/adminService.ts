@@ -18,7 +18,7 @@ export const getVendorsByStatus = async (
 
 export const getPendingVendors = async () => {
   const response = await axiosInstance.get("/admin/vendors/pending");
-  return response.data.vendors; // assuming this is how backend responds
+  return response.data.vendors; 
 };
 export const getPendingVendorsCount = async () => {
   const response = await axiosInstance.get("/admin/vendors/pending/count");

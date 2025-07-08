@@ -7,7 +7,7 @@ export class UpdateVendorstatusController {
 
   async VendorStatusController(req: Request, res: Response): Promise<void> {
     try {
-      const email = req.params.email.toString().trim();
+      const vendorId = req.params.id.toString().trim(); 
       const { status } = req.body;
 
       if (!["approved", "rejected"].includes(status)) {
@@ -18,7 +18,7 @@ export class UpdateVendorstatusController {
         return;
       }
 
-      const updated = await this.updateVendorstatususecase.execute(email, status);
+      const updated = await this.updateVendorstatususecase.executeById(vendorId, status);
 
       if (updated) {
         res.status(HttpStatus.OK).json({

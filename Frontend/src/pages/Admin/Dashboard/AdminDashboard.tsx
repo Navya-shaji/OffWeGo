@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Sidebar from "@/components/AdminDashboard/sidebar";
-import VendorRequests from "@/components/AdminDashboard/vendorRequests"; // This component shows filtered vendors
+import VendorRequests from "@/components/AdminDashboard/vendorRequests"; 
 import Navbar from "@/components/AdminDashboard/navbar";
 
 const AdminLayout = () => {

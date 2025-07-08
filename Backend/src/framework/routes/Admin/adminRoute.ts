@@ -23,7 +23,7 @@ export class AdminRoute {
       adminVendorController.getvendorByEmail(req, res);
     });
     this.adminRouter.patch(
-      "/vendors/:email/status",
+      "/vendors/status/:id",
       (req: Request, res: Response) => {
         updateVendorStatusController.VendorStatusController(req, res);
       }

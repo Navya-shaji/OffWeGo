@@ -4,6 +4,7 @@ import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepos
 export class UpdateVendorstatusUseCase {
   constructor(private vendorRepository: IVendorRepository) {}
 
+ 
   async execute(email: string, status: "approved" | "rejected"): Promise<Vendor | null> {
     const vendor = await this.vendorRepository.findByEmail(email);
 
@@ -12,6 +13,12 @@ export class UpdateVendorstatusUseCase {
     }
 
     const updatedVendor = await this.vendorRepository.updateVendorStatus(vendor._id, status);
+    return updatedVendor;
+  }
+
+
+  async executeById(id: string, status: "approved" | "rejected"): Promise<Vendor | null> {
+    const updatedVendor = await this.vendorRepository.updateVendorStatus(id, status);
     return updatedVendor;
   }
 }

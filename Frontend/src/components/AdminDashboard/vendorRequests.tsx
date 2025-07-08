@@ -5,9 +5,10 @@ import type { Vendor } from "@/interface/vendorInterface";
 
 interface Props {
   filter: "pending" | "approved" | "rejected";
+  onTabChange?: (tab: string) => void;
 }
 
-const VendorRequests: React.FC<Props> = ({ filter }) => {
+const VendorRequests: React.FC<Props> = ({ filter ,onTabChange}) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,18 +27,22 @@ const VendorRequests: React.FC<Props> = ({ filter }) => {
     fetchVendors();
   }, [filter]);
 
-  const handleStatusChange = async (
-    vendorId: string,
-    newStatus: "approved" | "rejected"
-  ) => {
-    try {
-      await updateVendorStatus(vendorId, newStatus);
-      toast.success(`Vendor ${newStatus}`);
-      fetchVendors();
-    } catch {
-      toast.error("Failed to update status");
+ const handleStatusChange = async (
+  vendorId: string,
+  newStatus: "approved" | "rejected"
+) => {
+  try {
+    await updateVendorStatus(vendorId, newStatus);
+    toast.success(`Vendor ${newStatus}`);
+    if (newStatus === "approved" && onTabChange) {
+      onTabChange("Approved Requests"); // switch tab after approval
+    } else {
+      fetchVendors(); // refresh same tab
     }
-  };
+  } catch {
+    toast.error("Failed to update status");
+  }
+};
 
   return (
     <div className="p-6">
