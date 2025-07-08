@@ -8,7 +8,7 @@ export class UserLoginController {
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-     
+
       if (!email || !password) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -18,7 +18,16 @@ export class UserLoginController {
       }
 
       const { token, user } = await this.loginUserUseCase.execute({ email, password });
-      
+
+    
+     if (user && user.status?.toLowerCase().includes("block")) {
+
+        res.status(HttpStatus.FORBIDDEN).json({
+          success: false,
+          message: "Your account has been blocked by admin",
+        });
+        return;
+      }
 
       res.status(HttpStatus.OK).json({
         success: true,

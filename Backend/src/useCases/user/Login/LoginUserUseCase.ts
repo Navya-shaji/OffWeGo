@@ -11,13 +11,22 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     private tokenService: ITokenService
   ) {}
 
-  async execute(
-    data: LoginDTo
-  ): Promise<{ token: string; user: { id: string, email: string,username:string } }> {
+  async execute(data: LoginDTo): Promise<{
+    token: string;
+    user: { id: string; email: string; username: string; status: string };
+  }> {
     const { email, password } = data;
+
     const user = await this.userRepository.findByEmail(email);
-   
     if (!user) throw new Error("User Not Found");
+
+    if (
+      user.status?.toLowerCase() === "blocked" ||
+      user.status?.toLowerCase() === "block"
+    ) {
+      throw new Error("Your account has been blocked by the admin");
+    }
+
     const isPasswordValid = await this.hashService.compare(
       password,
       user.password
@@ -27,13 +36,17 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     const token = this.tokenService.generateToken({
       id: user._id,
       email: user.email,
-    
     });
+    console.log("User Status:", user.status);
 
     return {
       token,
-      user: { id: user._id?.toString() ?? "", email: user.email ,username:user.name },
-        
+      user: {
+        id: user._id?.toString() ?? "",
+        email: user.email,
+        username: user.name,
+        status: user.status ?? "active",
+      },
     };
   }
 }

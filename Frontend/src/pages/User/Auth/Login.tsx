@@ -8,8 +8,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
 
-export default function AdminLogin() {
+export default function UserLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -25,21 +27,36 @@ export default function AdminLogin() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       const response = await userLogin(data);
-      const userData = response.data.user;
+      const userData = response.user;
+
+      if (!userData) {
+        throw new Error("User data missing from response");
+      }
 
       dispatch(
         login({
           user: {
-            username: userData.name,
+            username: userData.username,
             email: userData.email,
           },
         })
       );
 
-      navigate("/admin/dashboard");
-    } catch (error) {
-      console.error("Login failed", error);
-    }
+      navigate("/");
+  } catch (err) {
+  const axiosError = err as AxiosError<{ message: string }>;
+
+  const backendMessage = axiosError.response?.data?.message;
+  const message = backendMessage || axiosError.message || "Login failed. Please try again.";
+
+  if (message.toLowerCase().includes("blocked")) {
+    toast.error("❌ Your account is blocked by the admin");
+  } else {
+    toast.error(`⚠️ ${message}`);
+  }
+}
+
+
   };
 
   return (
@@ -48,18 +65,14 @@ export default function AdminLogin() {
         {/* Left panel - black box */}
         <div className="bg-black text-white md:w-1/2 flex flex-col justify-center items-center p-8 space-y-2 text-center">
           <h1 className="text-4xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
-            Admin Portal
+            user side
           </h1>
-          <p className="text-sm text-gray-300 mt-2">
-            Manage your dashboard and stay updated
-          </p>
+          <p className="text-sm text-gray-300 mt-2">explore here</p>
         </div>
 
         {/* Right panel - login form */}
         <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
-            Admin Login
-          </h2>
+          <h2 className="text-3xl font-bold text-center text-blue-900 mb-6"></h2>
 
           <form
             onSubmit={handleSubmit(onSubmit)}

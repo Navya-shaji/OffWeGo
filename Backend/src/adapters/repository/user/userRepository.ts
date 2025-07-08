@@ -25,4 +25,13 @@ export class UserRepository implements IUserRepository {
     const users = await UserModel.find();
     return users as User[];
   }
+   async updateUserStatus(userId: string, status: "active" | "block"): Promise<void> {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    user.status = status;
+    await user.save();
+  }
 }

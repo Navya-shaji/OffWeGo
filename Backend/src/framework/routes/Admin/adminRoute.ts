@@ -6,6 +6,7 @@ import {
   getAllVendorsController,
   getVendorsByStatusController,
   updateVendorStatusController,
+  userstatusController,
 } from "../../../framework/Di/admin/adminInjection";
 
 export class AdminRoute {
@@ -38,8 +39,14 @@ export class AdminRoute {
         getVendorsByStatusController.getVendorsByStatus(req, res);
       }
     );
-    this.adminRouter.get("/users",(req:Request,res:Response)=>{
-      getAllUsersController.getAllUsers(req,res)
+    this.adminRouter.get("/users", (req: Request, res: Response) => {
+      getAllUsersController.getAllUsers(req, res);
+    });
+    this.adminRouter.patch("/user/status/:id", (req: Request, res: Response) =>
+      userstatusController.updateStatus(req, res)
+    );
+    this.adminRouter.get("/vendors",(req:Request,res:Response)=>{
+      getAllVendorsController.getAllVendors(req,res)
     })
   }
 }

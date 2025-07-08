@@ -32,7 +32,9 @@ export class App {
 
   private setMiddlewares(): void {
     this.app.use(express.json());
+    
     this.app.use(morgan('dev'));
+    
     
   }
 

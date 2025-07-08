@@ -6,5 +6,6 @@ export interface IUserRepository {
   findByPhone(phone: string) : Promise<User | null>;
   updatePassword(email: string, newHashedPassword: string): Promise<void>;
   getAllUsers(): Promise<User[]>;
+  updateUserStatus(userId: string, status: "active" | "block"): Promise<void>;
    
 }

@@ -34,7 +34,7 @@ export const VerifyOtp = async (userData:SignupSchema,otp:string) => {
 export const userLogin = async (formData: LoginFormData) => {
   try {
     const res = await axiosInstance.post("/login", formData);
-    return res;
+    return res.data; 
   } catch (error) {
     console.error("Error while client login", error);
     if (isAxiosError(error)) {
@@ -43,6 +43,7 @@ export const userLogin = async (formData: LoginFormData) => {
     throw new Error("Unexpected error during login");
   }
 };
+
 
 export const registerGoogleUser=async (user:{username:string,email:string})=>{
   try{

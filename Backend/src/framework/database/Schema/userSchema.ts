@@ -8,11 +8,11 @@ export const userSchema = new Schema({
   password: { type: String },
   profileImage: { type: String },
   createdAt: { type: Date },
-  status: {
-    type: String,
-    enum: ["active", "block"],
-    default: "active"
-  },
+status: {
+  type: String,
+  enum: ["active", "blocked"], 
+  default: "active",
+},
   role: {
     type: String,
     enum: ["user", "vendor", "admin"],
