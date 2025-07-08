@@ -1,5 +1,5 @@
 import { isAxiosError } from "axios";
-import axiosInstance from "@/axios/instance";  // your axios setup
+import axiosInstance from "@/axios/instance";  
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 
 export const vendorRegister = async (data: VendorSignupSchema & { document: string }) => {

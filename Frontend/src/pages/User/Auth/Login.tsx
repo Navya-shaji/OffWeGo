@@ -8,9 +8,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
-import { GoogleSignup } from "@/components/signup/googleSignup";
 
-export default function Login() {
+export default function AdminLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -22,6 +21,7 @@ export default function Login() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
   const onSubmit = async (data: LoginFormData) => {
     try {
       const response = await userLogin(data);
@@ -36,45 +36,29 @@ export default function Login() {
         })
       );
 
-      localStorage.setItem(
-        "authUser",
-        JSON.stringify({
-          isAuthenticated: true,
-          user: {
-            username: userData.name,
-            email: userData.email,
-            phone: userData.phone,
-          },
-        })
-      );
-
-      navigate("/home");
+      navigate("/admin/dashboard");
     } catch (error) {
       console.error("Login failed", error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-100 via-white to-sky-100 p-6">
-      <div className="flex flex-col md:flex-row w-full max-w-4xl shadow-xl rounded-2xl bg-white overflow-hidden border border-gray-200">
-        <div
-          className="md:w-1/2 h-64 md:h-auto relative bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/login.jpg')" }}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-          <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6 py-10">
-            <h1 className="text-4xl font-extrabold italic text-white mb-3">
-              Welcome Back
-            </h1>
-            <p className="text-white text-sm max-w-xs">
-              Log in to continue your journey with OffWeGo
-            </p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-white via-blue-50 to-sky-100 p-6">
+      <div className="flex flex-col md:flex-row w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden bg-white">
+        {/* Left panel - black box */}
+        <div className="bg-black text-white md:w-1/2 flex flex-col justify-center items-center p-8 space-y-2 text-center">
+          <h1 className="text-4xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
+            Admin Portal
+          </h1>
+          <p className="text-sm text-gray-300 mt-2">
+            Manage your dashboard and stay updated
+          </p>
         </div>
 
+        {/* Right panel - login form */}
         <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
           <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
-            Login
+            Admin Login
           </h2>
 
           <form
@@ -84,7 +68,7 @@ export default function Login() {
             <input
               {...register("email")}
               placeholder="Email"
-              className="input"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
             {errors.email && (
               <p className="text-red-500 text-xs">{errors.email.message}</p>
@@ -95,7 +79,7 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="Password"
-                className="input pr-10"
+                className="w-full px-4 py-2 border rounded-md pr-10 focus:outline-none focus:ring focus:ring-blue-300"
               />
               <span
                 className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
@@ -112,24 +96,24 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-blue-900 text-white font-semibold py-2 rounded text-sm hover:bg-blue-800 transition duration-200 shadow-md"
+              className="w-full bg-blue-800 text-white font-semibold py-2 rounded-md hover:bg-blue-900 transition duration-200 shadow-md"
             >
               Login
             </button>
           </form>
-          <GoogleSignup />
-          <p className="text-sm text-right text-blue-600 hover:underline cursor-pointer mt-2">
-            <Link to="/forgot-password">Forgot Password?</Link>
-          </p>
 
           <p className="text-sm text-center text-gray-600 mt-4">
             Don’t have an account?{" "}
-            <a
-              href="/signup"
+            <Link
+              to="/admin/signup"
               className="text-blue-800 font-semibold hover:underline"
             >
               Sign up
-            </a>
+            </Link>
+          </p>
+
+          <p className="text-sm text-center text-blue-600 hover:underline mt-2">
+            <Link to="/admin/forgot-password">Forgot Password?</Link>
           </p>
         </div>
       </div>

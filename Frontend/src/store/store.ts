@@ -1,14 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from '../store/slice/user/authSlice'
 import adminAuthReducer from "../store/slice/Admin/adminAuthSlice"
-
+import vendorAuthReducer from "../store/slice/vendor/vendorSlice"
 import vendorReducer from '../store/slice/vendor/vendorSlice';
+
 const store=configureStore({
     reducer:{
       
         auth:authReducer,
         adminAuth:adminAuthReducer,
-        vendor: vendorReducer
+        vendor: vendorReducer,
+        vendorAuth: vendorAuthReducer
     }
 })
 
