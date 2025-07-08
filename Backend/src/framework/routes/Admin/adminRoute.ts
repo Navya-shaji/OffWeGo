@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import {
   adminController,
   adminVendorController,
+  getAllUsersController,
   getAllVendorsController,
   getVendorsByStatusController,
   updateVendorStatusController,
@@ -37,5 +38,8 @@ export class AdminRoute {
         getVendorsByStatusController.getVendorsByStatus(req, res);
       }
     );
+    this.adminRouter.get("/users",(req:Request,res:Response)=>{
+      getAllUsersController.getAllUsers(req,res)
+    })
   }
 }

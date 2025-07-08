@@ -5,4 +5,6 @@ export interface IUserRepository {
   createUser(user: User): Promise<User>;
   findByPhone(phone: string) : Promise<User | null>;
   updatePassword(email: string, newHashedPassword: string): Promise<void>;
+  getAllUsers(): Promise<User[]>;
+   
 }

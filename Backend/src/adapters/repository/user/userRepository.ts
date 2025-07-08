@@ -21,4 +21,8 @@ export class UserRepository implements IUserRepository {
       { $set: { password: newHashedPassword } }
     );
   }
+  async getAllUsers(): Promise<User[]> {
+    const users = await UserModel.find();
+    return users as User[];
+  }
 }

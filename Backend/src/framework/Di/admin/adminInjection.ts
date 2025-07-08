@@ -12,11 +12,15 @@ import { AdminVendorApprovalUseCase } from "../../../useCases/vendor/Signup/Admi
 import { AdminGetAllVendorController } from "../../../adapters/controller/Admin/getAllVendorsController";
 import { GetAllVendorsUseCase } from "../../../useCases/admin/Vendor/getAllVendorsUsecase";
 import { GetVendorsByStatusController } from "../../../adapters/controller/Admin/getVendorByStatusController"; 
+import { GetAllUsers } from "../../../useCases/admin/user/getAllUserUsecase";
+import { AdminGetAllUserController } from "../../../adapters/controller/Admin/getAllUsers";
+import { UserRepository } from "../../../adapters/repository/user/userRepository";
 
 
 // Repositories
 const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
+const userRepository=new UserRepository()
 
 
 // Services
@@ -30,7 +34,7 @@ const adminvendorfindByemailUsecase = new GetVendorByEmailUseCase(vendorReposito
 const updateVendorStatusUseCase = new UpdateVendorstatusUseCase(vendorRepository);
 const adminVendorApprovalUseCase = new AdminVendorApprovalUseCase(vendorRepository);
 const getAllVendorsUsecase=new GetAllVendorsUseCase(vendorRepository)
-
+const getallusers=new GetAllUsers(userRepository)
 
 
 // Controllers
@@ -38,5 +42,5 @@ export const adminController = new AdminController(adminLoginuseCase);
 export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase);
 export const updateVendorStatusController = new UpdateVendorstatusController(updateVendorStatusUseCase);
 export const getAllVendorsController = new AdminGetAllVendorController(getAllVendorsUsecase);
-
+export const getAllUsersController=new AdminGetAllUserController(getallusers)
 export const getVendorsByStatusController = new GetVendorsByStatusController(vendorRepository);
