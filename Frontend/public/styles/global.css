@@ -1,0 +1,33 @@
+/* globals.css */
+:root {
+  --primary: 14 93% 55%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 14% 75%;
+  --secondary-foreground: 0 0% 0%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 220 20% 20%;
+
+  --accent: 40 100% 50%;
+  --accent-foreground: 0 0% 0%;
+
+  --muted: 210 16% 93%;
+  --muted-foreground: 215 20% 25%;
+
+  --background: 0 0% 100%;
+  --foreground: 220 20% 20%;
+
+  --sidebar-background: 210 30% 98%;
+  --sidebar-foreground: 220 20% 20%;
+  --sidebar-primary: 14 93% 55%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 40 100% 50%;
+  --sidebar-accent-foreground: 0 0% 0%;
+  --sidebar-border: 210 16% 90%;
+  --sidebar-ring: 210 16% 80%;
+
+  --input: 210 16% 93%;
+  --border: 210 16% 80%;
+  --ring: 210 16% 75%;
+}
