@@ -2,11 +2,8 @@ export interface Vendor {
   _id: string;
   name: string;
   email: string;
-  phone: string;
-  profileImage?: string;
+  phone?: string;
+  status: "pending" | "approved" | "rejected" | "blocked";
+  createdAt?: string;
   documentUrl: string;
-  status: "pending" | "approved" | "rejected";
-  document:string;
-  createdAt?: Date;
-  
 }
