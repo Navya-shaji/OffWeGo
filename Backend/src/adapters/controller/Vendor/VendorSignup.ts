@@ -19,9 +19,10 @@ export class VendorSignupController {
         return;
       }
 
-      const result = await cloudinary.uploader.upload(document, {
-        folder: "vendor_documents",
-      });
+      console.log("Uploading document:", document);
+const result = await cloudinary.uploader.upload(document, {
+  folder: "vendor_documents",
+});
 
       const documentUrl = result.secure_url;
 

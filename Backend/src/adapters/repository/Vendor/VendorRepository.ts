@@ -10,12 +10,13 @@ export class VendorRepository implements IVendorRepository {
   }
 
 async findByEmail(email: string): Promise<Vendor | null> {
-  const normalizedEmail = email.toLowerCase().trim();
-  console.log("🔍 Searching for vendor:", normalizedEmail);
+  const vendor = await VendorModel.findOne({
+    email: { $regex: new RegExp(`^${email.trim()}$`, "i") }, 
+  });
 
-  const vendor = await VendorModel.findOne({ email: normalizedEmail });
   return vendor ? this.toVendorEntity(vendor) : null;
 }
+
 
 
   async findByPhone(phone: string): Promise<Vendor | null> {

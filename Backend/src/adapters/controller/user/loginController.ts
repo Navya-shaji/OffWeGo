@@ -8,7 +8,7 @@ export class UserLoginController {
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-
+     
       if (!email || !password) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -18,6 +18,7 @@ export class UserLoginController {
       }
 
       const { token, user } = await this.loginUserUseCase.execute({ email, password });
+      
 
       res.status(HttpStatus.OK).json({
         success: true,

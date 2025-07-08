@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { VerifyOtp } from "@/services/vendor/vendorService";
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 import { toast } from "react-toastify";
@@ -13,6 +14,35 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
   const [otp, setOtp] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+
+    if (isVerified) {
+      interval = setInterval(async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:1212/vendor/status?email=${vendorData.email}`
+          );
+          const data = await response.json();
+          console.log(data)
+          console.log(data.status)
+          if (data.status === "approved") {
+            clearInterval(interval);
+            toast.success("Your account has been approved!");
+            navigate("/vendor/login");
+          }
+        } catch (error) {
+          console.error("Error checking vendor status:", error);
+        }
+      }, 5000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isVerified, vendorData.email]); 
 
   if (!isOpen) return null;
 
@@ -26,6 +56,7 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
     try {
       await VerifyOtp(vendorData, otp);
       setIsVerified(true);
+      toast.success("OTP Verified!");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {

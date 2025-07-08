@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import {
+  vendorloginController,
   vendorsignupcontroller,
+  vendorstatusCheckController,
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
 
@@ -20,5 +22,11 @@ export class VendorRoute {
     this.vendorRouter.post("/verify-otp", (req, res) =>
       vendorVerifyOtpController.verifyOtp(req, res)
     );
+    this.vendorRouter.get("/status",(req:Request,res:Response)=>{
+      vendorstatusCheckController.checkStatus(req,res)
+    })
+    this.vendorRouter.post("/login",(req:Request,res:Response)=>{
+      vendorloginController.login(req,res)
+    })
   }
 }
