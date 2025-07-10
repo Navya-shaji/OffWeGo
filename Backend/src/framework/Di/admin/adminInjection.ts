@@ -16,12 +16,18 @@ import { AdminGetAllUserController } from "../../../adapters/controller/Admin/ge
 import { UserRepository } from "../../../adapters/repository/user/userRepository";
 import { UpdateUserUseCase } from "../../../useCases/admin/user/updateUserusecase";
 import { AdminUpdateUserStatusController } from "../../../adapters/controller/Admin/UpdateUserByAdminController";
+import { GetAllDestinationController } from "../../../adapters/controller/Destination/getDestinationController";
+import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
+import { CreateDestinationController } from "../../../adapters/controller/Destination/CreateDestinationController";
+import { CreateDestination } from "../../../useCases/Destination/createDestinationUsecase";
+import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 
 
 // Repositories
 const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
 const userRepository=new UserRepository()
+const destinationRepository=new DestinationRepository()
 
 
 // Services
@@ -36,6 +42,8 @@ const updateVendorStatusUseCase = new UpdateVendorstatusUseCase(vendorRepository
 const getAllVendorsUsecase=new GetAllVendorsUseCase(vendorRepository)
 const getallusers=new GetAllUsers(userRepository)
 const updateUserusecase=new UpdateUserUseCase(userRepository)
+const createdestinationusecase=new CreateDestination(destinationRepository)
+const getallDestinations=new GetAllDestinations(destinationRepository)
 
 
 // Controllers
@@ -43,6 +51,8 @@ export const adminController = new AdminController(adminLoginuseCase);
 export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase);
 export const updateVendorStatusController = new UpdateVendorstatusController(updateVendorStatusUseCase);
 export const getAllVendorsController = new AdminGetAllVendorController(getAllVendorsUsecase);
-export const getAllUsersController=new AdminGetAllUserController(getallusers)
+export const getAllUsersController=new AdminGetAllUserController(getallusers);
 export const getVendorsByStatusController = new GetVendorsByStatusController(vendorRepository);
-export const userstatusController=new AdminUpdateUserStatusController(updateUserusecase)
+export const userstatusController=new AdminUpdateUserStatusController(updateUserusecase);
+export const destinationController=new CreateDestinationController(createdestinationusecase);
+export const getDestinationController=new GetAllDestinationController(getallDestinations)

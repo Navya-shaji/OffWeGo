@@ -2,8 +2,10 @@ import { Request, Response, Router } from "express";
 import {
   adminController,
   adminVendorController,
+  destinationController,
   getAllUsersController,
   getAllVendorsController,
+  getDestinationController,
   getVendorsByStatusController,
   updateVendorStatusController,
   userstatusController,
@@ -47,6 +49,12 @@ export class AdminRoute {
     );
     this.adminRouter.get("/vendors",(req:Request,res:Response)=>{
       getAllVendorsController.getAllVendors(req,res)
+    })
+    this.adminRouter.post('/Add-Destinations',(req:Request,res:Response)=>{
+      destinationController.addDestination(req,res)
+    })
+    this.adminRouter.get('/destinations',(req:Request,res:Response)=>{
+      getDestinationController.getAllDestination(req,res)
     })
   }
 }
