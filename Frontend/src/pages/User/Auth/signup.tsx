@@ -11,7 +11,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleSignup } from "@/components/signup/googleSignup";
 
-
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -63,25 +62,30 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-orange-100 via-sky-100 to-white p-6">
-      <div className="flex flex-col md:flex-row w-full max-w-5xl shadow-xl rounded-2xl bg-white overflow-hidden border border-gray-200">
-        
-       <div
-  className="md:w-1/2 h-64  md:h-auto relative bg-cover bg-center"
-  style={{ backgroundImage: 'url("/images/signup.jpg")' }}
->
-  <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-  <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6 py-10">
-    <h1 className="text-4xl font-extrabold italic text-white mb-3">OffWeGo</h1>
-    <p className="text-white text-sm max-w-xs">
-      "Travel is the only investment that makes you richer with memories, not possessions."
-    </p>
-  </div>
-</div>
+      <div className="w-[70%] h-[80vh] flex flex-col md:flex-row shadow-xl rounded-2xl bg-white overflow-hidden border border-gray-200">
+        <div
+          className="md:w-1/2 h-64 md:h-auto relative bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url("/images/signup.jpg")',
+            backgroundSize: "cover",
+            backgroundPosition: "center center",
+            minHeight: "400px",
+          }}
+        >
+          <div className="absolute inset-0 bg-opacity-40"></div>
+          <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6 py-10">
+            <h1 className="text-4xl font-extrabold italic text-black mb-6">
+              OffWeGo
+            </h1>
+            <p className="text-black max-w-xl">
+              "Travel is the only investment that makes you richer with
+              memories, not possessions."
+            </p>
+          </div>
+        </div>
 
-
-  
         <div className="w-full md:w-1/2 p-8 flex flex-col justify-center relative">
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
+          <h2 className="text-4xl font-bold text-center text-black mb-12 font-serif">
             Get Started Now
           </h2>
 
@@ -146,7 +150,7 @@ export default function Signup() {
 
             <button
               type="submit"
-              className="w-full bg-blue-900 text-white font-semibold py-2 rounded text-sm hover:bg-blue-800 transition duration-200 shadow-md"
+              className="w-full bg-black text-white font-semibold py-2 rounded text-sm hover:bg-black transition duration-200 shadow-md"
             >
               Signup
             </button>
@@ -156,7 +160,7 @@ export default function Signup() {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-800 font-semibold hover:underline"
+              className="text-black-800 font-semibold hover:underline"
             >
               Log in
             </Link>
