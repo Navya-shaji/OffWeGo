@@ -2,7 +2,7 @@ export interface Destination {
   id: string;
   name: string;
   description: string;
-  imageUrl: string;
+  imageUrls: string[];  // ✅ Corrected key and type
   location: string;
   coordinates: {
     lat: number;

@@ -4,6 +4,12 @@ import VendorRequests from "@/components/AdminDashboard/vendorRequests";
 import Navbar from "@/components/AdminDashboard/navbar";
 import UserList from "@/components/AdminDashboard/userList"; 
 import VendorList from "@/components/AdminDashboard/vendorDetails";
+import { CreateDestination } from "../Destination/CreateDestination";
+import { DestinationTable } from "../Destination/GetDestination";
+
+
+
+
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
 
@@ -31,6 +37,8 @@ const AdminLayout = () => {
 
         {activeTab === "Users" && <UserList />} 
         {activeTab === "Vendors" && <VendorList />}
+        {activeTab === 'Add Destination' && <CreateDestination />} 
+      {activeTab === "Destinations" && <DestinationTable />}
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ export class AdminRoute {
     this.adminRouter.get("/vendors",(req:Request,res:Response)=>{
       getAllVendorsController.getAllVendors(req,res)
     })
-    this.adminRouter.post('/Add-Destinations',(req:Request,res:Response)=>{
+    this.adminRouter.post('/create-destination',(req:Request,res:Response)=>{
       destinationController.addDestination(req,res)
     })
     this.adminRouter.get('/destinations',(req:Request,res:Response)=>{
