@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  getAllVendors,
-  updateVendorStatus,
-} from "@/services/admin/adminVendorService";
+import { getAllVendors,updateVendorStatus,} from "@/services/admin/adminVendorService";
 import type { Vendor } from "@/interface/vendorInterface";
 
 const VendorList: React.FC = () => {
@@ -57,7 +54,7 @@ const VendorList: React.FC = () => {
         <table className="min-w-full border border-gray-300 rounded-md">
           <thead className="bg-gray-100">
             <tr>
-              <th className="border px-4 py-2">#</th>
+              <th className="border px-4 py-2"></th>
               <th className="border px-4 py-2">Name</th>
               <th className="border px-4 py-2">Email</th>
               <th className="border px-4 py-2">Phone</th>

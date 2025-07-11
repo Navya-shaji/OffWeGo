@@ -118,7 +118,7 @@ export default function UserLogin() {
           <p className="text-sm text-center text-gray-600 mt-4">
             Don’t have an account?{" "}
             <Link
-              to="/admin/signup"
+              to="/signup"
               className="text-blue-800 font-semibold hover:underline"
             >
               Sign up
@@ -126,7 +126,7 @@ export default function UserLogin() {
           </p>
 
           <p className="text-sm text-center text-blue-600 hover:underline mt-2">
-            <Link to="/admin/forgot-password">Forgot Password?</Link>
+            <Link to="/forgot-password">Forgot Password?</Link>
           </p>
         </div>
       </div>

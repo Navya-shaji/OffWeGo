@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  getAllUsers,
-  updateUserStatus,
-} from "@/services/admin/adminUserService";
+import {getAllUsers,updateUserStatus,} from "@/services/admin/adminUserService";
 import type { User } from "@/interface/userInterface";
 
 const UserList: React.FC = () => {
@@ -39,7 +36,7 @@ const UserList: React.FC = () => {
       );
     } catch (err) {
       console.error("Failed to update status", err);
-      // Optional: show toast or alert
+      
     }
   };
 
@@ -60,7 +57,7 @@ const UserList: React.FC = () => {
         <table className="min-w-full border border-gray-300 rounded-md">
           <thead className="bg-gray-100">
             <tr>
-              <th className="border px-4 py-2">#</th>
+              <th className="border px-4 py-2"></th>
               <th className="border px-4 py-2">Name</th>
               <th className="border px-4 py-2">Email</th>
               <th className="border px-4 py-2">Phone</th>

@@ -1,9 +1,16 @@
+
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+type User = {
+  username?: string;
+  email?: string;
+  imageUrl?: string;
+};
+
 type AuthState = {
   isAuthenticated: boolean;
-  user: { username?: string; email?: string; imageUrl?: string } | null;
+  user: User | null;
 };
 
 const initialState: AuthState = {
@@ -15,31 +22,25 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (
-      state,
-      action: PayloadAction<{
-        user: { username: string; email: string; imageUrl?: string };
-      }>
-    ) => {
+    login: (state, action: PayloadAction<{ user: User }>) => {
       state.isAuthenticated = true;
       state.user = action.payload.user;
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("user");
     },
-    setAuthFromStorage: (state) => {
-      const storedAuth = localStorage.getItem("isAuthenticated");
-      const storedUser = localStorage.getItem("user");
-      state.isAuthenticated = storedAuth === "true";
-      state.user = storedUser ? JSON.parse(storedUser) : null;
+    setUserFromSession: (state, action: PayloadAction<{ user: User | null }>) => {
+      if (action.payload.user) {
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      } else {
+        state.isAuthenticated = false;
+        state.user = null;
+      }
     },
   },
 });
 
-export const { login, logout, setAuthFromStorage } = authSlice.actions;
+export const { login, logout, setUserFromSession } = authSlice.actions;
 export default authSlice.reducer;

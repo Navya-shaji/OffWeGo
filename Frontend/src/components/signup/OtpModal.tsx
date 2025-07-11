@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { resendOtp, VerifyOtp } from "@/services/user/userService";
-
 import type { SignupSchema } from "@/Types/User/auth/Tsignup";
 
 

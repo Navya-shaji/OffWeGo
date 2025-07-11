@@ -8,8 +8,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 
 export const updateUserStatus = async (
   userId: string,
-  status: "active" | "blocked"
-) => {
+  status: "active" | "blocked") => {
   const response = await axiosInstance.patch(`/admin/user/status/${userId}`, {
     status,
   });

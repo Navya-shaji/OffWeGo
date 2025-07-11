@@ -1,25 +1,29 @@
+// src/components/Header.tsx
 import React, { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAppSelector, useAppDispatch } from "@/hooks";
-import { logout, setAuthFromStorage } from "@/store/slice/user/authSlice";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { Link } from "react-router-dom";
+import { logout, setUserFromSession } from "@/store/slice/user/authSlice";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useAppDispatch();
-  
-  // Get auth state from Redux
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-  console.log("Header user:", user);
 
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+  // On initial mount, restore user from localStorage (or session storage)
   useEffect(() => {
-    dispatch(setAuthFromStorage());
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      dispatch(setUserFromSession({ user: JSON.parse(storedUser) }));
+    }
   }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
-    window.location.reload(); // optional: redirect to login
+    localStorage.removeItem("user");
+    window.location.reload(); // Optional: or use navigate("/login")
   };
 
   return (
@@ -43,7 +47,7 @@ const Header: React.FC = () => {
             ))}
           </nav>
 
-          {/* Auth Actions */}
+          {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {!isAuthenticated ? (
               <>

@@ -1,14 +1,11 @@
 import { useState } from "react";
 import Sidebar from "@/components/AdminDashboard/sidebar";
-import VendorRequests from "@/components/AdminDashboard/vendorRequests"; 
+import VendorRequests from "@/components/AdminDashboard/vendorRequests";
 import Navbar from "@/components/AdminDashboard/navbar";
-import UserList from "@/components/AdminDashboard/userList"; 
+import UserList from "@/components/AdminDashboard/userList";
 import VendorList from "@/components/AdminDashboard/vendorDetails";
 import { CreateDestination } from "../Destination/CreateDestination";
 import { DestinationTable } from "../Destination/GetDestination";
-
-
-
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -20,7 +17,7 @@ const AdminLayout = () => {
         <Navbar />
 
         {activeTab === "Dashboard" && (
-          <h1 className="text-2xl font-bold p-6">Welcome to Dashboard</h1>
+          <h1 className="text-2xl font-serif p-6">Welcome to Dashboard</h1>
         )}
 
         {activeTab === "Pending Requests" && (
@@ -35,10 +32,10 @@ const AdminLayout = () => {
           <VendorRequests filter="rejected" />
         )}
 
-        {activeTab === "Users" && <UserList />} 
+        {activeTab === "Users" && <UserList />}
         {activeTab === "Vendors" && <VendorList />}
-        {activeTab === 'Add Destination' && <CreateDestination />} 
-      {activeTab === "Destinations" && <DestinationTable />}
+        {activeTab === "Add Destination" && <CreateDestination />}
+        {activeTab === "Destinations" && <DestinationTable />}
       </div>
     </div>
   );

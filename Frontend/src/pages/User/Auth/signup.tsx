@@ -10,13 +10,14 @@ import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleSignup } from "@/components/signup/googleSignup";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { setOtpData, closeOtpModal } from "@/store/slice/user/otpSlice";
 
 export default function Signup() {
+  const dispatch = useAppDispatch();
+  const { isOpen } = useAppSelector((state) => state.otp);
   const [showPassword, setShowPassword] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [otpData, setOtpData] = useState(null);
-  console.log(modalMessage, otpData);
+
   const {
     register,
     handleSubmit,
@@ -30,11 +31,12 @@ export default function Signup() {
     try {
       const response = await UserRegister(data);
       if (response.data.success) {
-        setModalMessage(
-          response.data.message || "OTP sent to your email address"
+        dispatch(
+          setOtpData({
+            message: response.data.message || "OTP sent to your email",
+            userData: response.data.data || null,
+          })
         );
-        setOtpData(response.data.data || null);
-        setIsOpen(true);
         toast.success(
           "Registration successful! Please check your email for the OTP.",
           {
@@ -155,7 +157,9 @@ export default function Signup() {
               Signup
             </button>
           </form>
+
           <GoogleSignup />
+
           <p className="text-sm text-center text-gray-600 mt-4">
             Already have an account?{" "}
             <Link
@@ -168,7 +172,7 @@ export default function Signup() {
 
           <OtpModal
             isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
+            onClose={() => dispatch(closeOtpModal())}
             userData={watch()}
           />
         </div>
