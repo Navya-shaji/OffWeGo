@@ -29,17 +29,16 @@ export const fetchAllDestinations = async () => {
     throw new Error("An unexpected error occurred while fetching destinations");
   }
 };
-
-export const updateDestination=async()=>{
+export const updateDestination = async (id: string, data: DestinationInterface) => {
   try {
-    const res=await axiosInstance.put('/admin/edit');
-    console.log("updated",res)
-    return res.data
+    const res = await axiosInstance.put(`/admin/edit/${id}`, data); // ✅ Use actual ID
+    console.log("✅ Updated:", res);
+    return res.data;
   } catch (error) {
-    console.error("Error fetching destinations:", error);
+    console.error("❌ Error updating destination:", error);
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.error || "Failed to fetch destinations");
+      throw new Error(error.response?.data?.error || "Failed to update destination");
     }
-    throw new Error("An unexpected error occurred while fetching destinations");
+    throw new Error("An unexpected error occurred while updating destination");
   }
-}
+};

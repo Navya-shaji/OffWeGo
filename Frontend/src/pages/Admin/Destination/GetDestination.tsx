@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchAllDestinations, updateDestination } from "@/services/Destination/destinationService";
+import {
+  fetchAllDestinations,
+  updateDestination,
+} from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { Edit, Trash2 } from "lucide-react";
+import { EditDestinationModal } from "./destinationModal";
 
 export const DestinationTable = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
@@ -9,18 +13,9 @@ export const DestinationTable = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<DestinationInterface | null>(null);
 
-  const handleEdit = (dest: DestinationInterface) => {
-    setSelectedDestination(dest);
-    setIsEditModalOpen(true);
-  };
-
-  const handleDelete = (dest: DestinationInterface) => {
-    console.log("Delete destination:", dest);
-  };
-
   const fetchData = async () => {
     try {
-      const data = await fetchAllDestinations();
+      const data: DestinationInterface[] = await fetchAllDestinations();
       setDestinations(data);
     } catch (err) {
       console.error("Failed to fetch destinations:", err);
@@ -33,16 +28,27 @@ export const DestinationTable = () => {
     fetchData();
   }, []);
 
+  const handleEdit = (dest: DestinationInterface) => {
+    setSelectedDestination(dest);
+    setIsEditModalOpen(true);
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDestination) return;
+    console.log("🔷 handleUpdate started");
+
+    if (!selectedDestination?.id) {
+      console.warn("⚠️ No selectedDestination or missing id", selectedDestination);
+      return;
+    }
 
     try {
-      await updateDestination();
+      await updateDestination(selectedDestination.id, selectedDestination);
+      console.log("✅ Updated destination:", selectedDestination.id);
       await fetchData();
       setIsEditModalOpen(false);
     } catch (err) {
-      console.error("Update failed:", err);
+      console.error("❌ Update failed:", err);
     }
   };
 
@@ -64,17 +70,29 @@ export const DestinationTable = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {destinations.map((dest, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="h-16 w-16">
-                    {dest.imageUrls?.[0] ? (
-                      <img src={dest.imageUrls[0]} alt={dest.name} className="h-16 w-16 object-cover rounded-lg" />
-                    ) : (
-                      <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">No Image</div>
-                    )}
-                  </div>
-                </td>
+            {destinations.map((dest) => (
+              <tr key={dest.id} className="hover:bg-gray-50">
+ <td className="px-6 py-4">
+  <div className="h-16 w-16">
+    {Array.isArray(dest.imageUrls) && dest.imageUrls[0] ? (
+      <img
+        src={dest.imageUrls[0]}
+        alt={dest.name}
+        className="h-16 w-16 object-cover rounded-lg border"
+        onError={(e) => {
+          e.currentTarget.style.display = "none"; // or show a fallback here
+        }}
+      />
+    ) : (
+      <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
+        No Image
+      </div>
+    )}
+  </div>
+</td>
+
+
+
                 <td className="px-6 py-4">{dest.name}</td>
                 <td className="px-6 py-4">{dest.location}</td>
                 <td className="px-6 py-4 max-w-xs">{dest.description}</td>
@@ -88,7 +106,7 @@ export const DestinationTable = () => {
                       <Edit size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(dest)}
+                      onClick={() => console.log("Delete logic here")}
                       className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg"
                       title="Delete"
                     >
@@ -102,90 +120,16 @@ export const DestinationTable = () => {
         </table>
       </div>
 
-   
+    
       {isEditModalOpen && selectedDestination && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg">
-            <h2 className="text-xl font-bold mb-4">Edit Destination</h2>
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Name"
-                value={selectedDestination.name}
-                onChange={(e) => setSelectedDestination({ ...selectedDestination, name: e.target.value })}
-              />
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Location"
-                value={selectedDestination.location}
-                onChange={(e) => setSelectedDestination({ ...selectedDestination, location: e.target.value })}
-              />
-              <textarea
-                className="w-full border p-2 rounded"
-                placeholder="Description"
-                value={selectedDestination.description}
-                onChange={(e) => setSelectedDestination({ ...selectedDestination, description: e.target.value })}
-              />
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Image URL"
-                value={selectedDestination.imageUrls?.[0] || ""}
-                onChange={(e) =>
-                  setSelectedDestination({
-                    ...selectedDestination,
-                    imageUrls: [e.target.value],
-                  })
-                }
-              />
-              <div className="flex gap-2">
-                <input
-                  className="w-1/2 border p-2 rounded"
-                  type="number"
-                  placeholder="Latitude"
-                  value={selectedDestination.coordinates?.lat ?? ""}
-                  onChange={(e) =>
-                    setSelectedDestination({
-                      ...selectedDestination,
-                      coordinates: {
-                        ...selectedDestination.coordinates,
-                        lat: parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                />
-                <input
-                  className="w-1/2 border p-2 rounded"
-                  type="number"
-                  placeholder="Longitude"
-                  value={selectedDestination.coordinates?.lng ?? ""}
-                  onChange={(e) =>
-                    setSelectedDestination({
-                      ...selectedDestination,
-                      coordinates: {
-                        ...selectedDestination.coordinates,
-                        lng: parseFloat(e.target.value),
-                      },
-                    })
-                  }
-                />
-              </div>
+  <EditDestinationModal
+    destination={selectedDestination}
+    onClose={() => setIsEditModalOpen(false)}
+    onChange={(updated) => setSelectedDestination(updated)}
+    onSubmit={handleUpdate}
+  />
+)}
 
-              <div className="flex justify-end gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 rounded"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

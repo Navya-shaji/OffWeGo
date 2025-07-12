@@ -70,7 +70,7 @@ const UserList: React.FC = () => {
             {filteredUsers.map((user, idx) => (
               <tr key={user._id} className="text-center hover:bg-gray-50">
                 <td className="border px-4 py-2">{idx + 1}</td>
-                <td className="border px-4 py-2">{user.username}</td>
+                <td className="border px-4 py-2">{user.name}</td>
                 <td className="border px-4 py-2">{user.email}</td>
                 <td className="border px-4 py-2">{user.phone || "N/A"}</td>
                 <td className="border px-4 py-2">
