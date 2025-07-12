@@ -14,6 +14,9 @@ import { VerifyResetOtpController } from "../../../adapters/controller/user/Veri
 import { forgotPasswordController } from "../../../adapters/controller/user/forgotPasswordController";
 import { UserResetPasswordController } from "../../../adapters/controller/user/resetPasswordController";
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
+import { GetAllDestinationController } from "../../../adapters/controller/Destination/getDestinationController";
+import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
+import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 import { JwtSevice } from "../../services/jwtService";
 
 
@@ -22,7 +25,8 @@ import { JwtSevice } from "../../services/jwtService";
 const userRepository = new UserRepository();
 const authRepository=new AuthRepository()
 const otpService = new OtpService();
-const hashPassword=new HashPassword()
+const hashPassword=new HashPassword();
+const destinationRepository=new DestinationRepository();
 const jwtService=new JwtSevice
 
 
@@ -32,6 +36,8 @@ const googleSignupUseCase = new GoogleSignupUseCase(authRepository,userRepositor
 const verifyOtpUsecase = new VerifyOtpUseCase(otpService,hashPassword,userRepository);
 const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtService)
 const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
+const getallDestinations=new GetAllDestinations(destinationRepository)
+
 
 
 // Controllers
@@ -41,4 +47,5 @@ export const userLoginController =new UserLoginController(loginUserUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase);
 export const verifyingOtpController = new VerifyResetOtpController(otpService);
 export const forgotpassController = new forgotPasswordController(otpService);
-export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase)
+export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);
+export const getDestinationController=new GetAllDestinationController(getallDestinations)

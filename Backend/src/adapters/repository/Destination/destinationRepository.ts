@@ -1,4 +1,4 @@
-// infrastructure/repositories/admin/DestinationRepository.ts
+
 import { IDestinationRepository } from "../../../domain/interface/admin/IDestinationInterface";
 import { Destination } from "../../../domain/entities/DestinationEntity"; 
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel"; 
@@ -11,7 +11,7 @@ export class DestinationRepository implements IDestinationRepository {
       id: created._id.toString(),
       name: created.name,
       description: created.description,
-      imageUrls: created.imageUrls, // ✅ fixed
+      imageUrls: created.imageUrls, 
       location: created.location,
       coordinates: {
         lat: created.coordinates.lat,
@@ -26,7 +26,7 @@ export class DestinationRepository implements IDestinationRepository {
       id: d._id.toString(),
       name: d.name,
       description: d.description,
-      imageUrls: d.imageUrls,  // ✅ fixed
+      imageUrls: d.imageUrls,  
       location: d.location,
       coordinates: {
         lat: d.coordinates.lat,

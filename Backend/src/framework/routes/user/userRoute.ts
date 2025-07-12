@@ -7,6 +7,7 @@ import {
   forgotpassController,
   verifyingOtpController,
   resetPasswordController,
+  getDestinationController,
 } from "../../Di/user/userInjections";
 
 export class UserRoute {
@@ -40,5 +41,8 @@ export class UserRoute {
     this.userRouter.post("/reset-password", (req: Request, res: Response) =>
       resetPasswordController.resetPassword(req, res)
     );
+    this.userRouter.get("/destinations",(req:Request,res:Response)=>{
+      getDestinationController.getAllDestination(req,res)
+    })
   }
 }
