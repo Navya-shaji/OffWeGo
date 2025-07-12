@@ -3,6 +3,7 @@ import {
   adminController,
   adminVendorController,
   destinationController,
+  editDestinationController,
   getAllUsersController,
   getAllVendorsController,
   getDestinationController,
@@ -55,6 +56,9 @@ export class AdminRoute {
     })
     this.adminRouter.get('/destinations',(req:Request,res:Response)=>{
       getDestinationController.getAllDestination(req,res)
+    })
+    this.adminRouter.put('/edit/:id',(req:Request,res:Response)=>{
+      editDestinationController.editDestinationHandler(req,res)
     })
   }
 }

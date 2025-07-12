@@ -34,4 +34,12 @@ export class DestinationRepository implements IDestinationRepository {
       },
     }));
   }
+  async edit(destination: Destination): Promise<void> {
+    await DestinationModel.findByIdAndUpdate(destination.id, destination, { new: true });
+  }
+  
+  async delete(id: string): Promise<void> {
+    await DestinationModel.findByIdAndDelete(id);
+  }
 }
+

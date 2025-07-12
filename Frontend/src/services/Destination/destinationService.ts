@@ -29,3 +29,17 @@ export const fetchAllDestinations = async () => {
     throw new Error("An unexpected error occurred while fetching destinations");
   }
 };
+
+export const updateDestination=async()=>{
+  try {
+    const res=await axiosInstance.put('/admin/edit');
+    console.log("updated",res)
+    return res.data
+  } catch (error) {
+    console.error("Error fetching destinations:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || "Failed to fetch destinations");
+    }
+    throw new Error("An unexpected error occurred while fetching destinations");
+  }
+}

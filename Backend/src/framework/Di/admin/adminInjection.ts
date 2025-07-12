@@ -21,6 +21,8 @@ import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinat
 import { CreateDestinationController } from "../../../adapters/controller/Destination/CreateDestinationController";
 import { CreateDestination } from "../../../useCases/Destination/createDestinationUsecase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
+import { EditDestination } from "../../../useCases/Destination/editDestinationUsecase";
+import { EditDestinationController } from "../../../adapters/controller/Destination/editDestinationController";
 
 
 // Repositories
@@ -44,6 +46,8 @@ const getallusers=new GetAllUsers(userRepository)
 const updateUserusecase=new UpdateUserUseCase(userRepository)
 const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
+const editDestination=new EditDestination()
+
 
 
 // Controllers
@@ -55,4 +59,5 @@ export const getAllUsersController=new AdminGetAllUserController(getallusers);
 export const getVendorsByStatusController = new GetVendorsByStatusController(vendorRepository);
 export const userstatusController=new AdminUpdateUserStatusController(updateUserusecase);
 export const destinationController=new CreateDestinationController(createdestinationusecase);
-export const getDestinationController=new GetAllDestinationController(getallDestinations)
+export const getDestinationController=new GetAllDestinationController(getallDestinations);
+export const editDestinationController=new EditDestinationController(editDestination)
