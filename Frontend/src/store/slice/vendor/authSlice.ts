@@ -20,7 +20,7 @@ export const vendorAuthSlice = createSlice({
   name: "vendorAuth",
   initialState,
   reducers: {
-    vendorLogin: (
+    Login: (
       state,
       action: PayloadAction<{ vendor: Vendor; token: string }>
     ) => {
@@ -54,7 +54,7 @@ export const vendorAuthSlice = createSlice({
 });
 
 export const {
-  vendorLogin,
+  Login,
   vendorLogout,
   setVendorAuthFromStorage,
 } = vendorAuthSlice.actions;

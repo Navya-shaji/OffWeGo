@@ -6,4 +6,5 @@ export interface Vendor {
   status: "pending" | "approved" | "rejected" | "blocked";
   createdAt?: string;
   documentUrl: string;
+  isBlocked:boolean
 }

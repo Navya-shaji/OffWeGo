@@ -16,3 +16,15 @@ export const updateVendorStatus = async (
   });
   return response.data;
 };
+
+
+
+export const updateVendorBlockStatus = async (
+  vendorId: string,
+  isBlocked: boolean
+) => {
+  const response = await axiosInstance.patch(`/admin/vendors/isBlocked/${vendorId}`, {
+    isBlocked,
+  });
+  return response.data;
+};

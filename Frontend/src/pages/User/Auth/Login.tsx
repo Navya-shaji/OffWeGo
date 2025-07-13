@@ -50,7 +50,7 @@ export default function UserLogin() {
   const message = backendMessage || axiosError.message || "Login failed. Please try again.";
 
   if (message.toLowerCase().includes("blocked")) {
-    toast.error("❌ Your account is blocked by the admin");
+    toast.error(" Your account is blocked by the admin");
   } else {
     toast.error(`⚠️ ${message}`);
   }
