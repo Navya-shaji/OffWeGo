@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import {
-  fetchAllDestinations,
-  updateDestination,
-} from "@/services/Destination/destinationService";
+import {fetchAllDestinations,updateDestination,} from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit } from "lucide-react";
 import { EditDestinationModal } from "./destinationModal";
 
 export const DestinationTable = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<DestinationInterface | null>(null);
+  const [selectedDestination, setSelectedDestination] =
+    useState<DestinationInterface | null>(null);
 
   const fetchData = async () => {
     try {
@@ -38,7 +36,10 @@ export const DestinationTable = () => {
     console.log("🔷 handleUpdate started");
 
     if (!selectedDestination?.id) {
-      console.warn("⚠️ No selectedDestination or missing id", selectedDestination);
+      console.warn(
+        "⚠️ No selectedDestination or missing id",
+        selectedDestination
+      );
       return;
     }
 
@@ -48,7 +49,7 @@ export const DestinationTable = () => {
       await fetchData();
       setIsEditModalOpen(false);
     } catch (err) {
-      console.error("❌ Update failed:", err);
+      console.error(" Update failed:", err);
     }
   };
 
@@ -62,36 +63,44 @@ export const DestinationTable = () => {
         <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Image
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Location
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Description
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {destinations.map((dest) => (
               <tr key={dest.id} className="hover:bg-gray-50">
- <td className="px-6 py-4">
-  <div className="h-16 w-16">
-    {Array.isArray(dest.imageUrls) && dest.imageUrls[0] ? (
-      <img
-        src={dest.imageUrls[0]}
-        alt={dest.name}
-        className="h-16 w-16 object-cover rounded-lg border"
-        onError={(e) => {
-          e.currentTarget.style.display = "none"; // or show a fallback here
-        }}
-      />
-    ) : (
-      <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
-        No Image
-      </div>
-    )}
-  </div>
-</td>
-
-
+                <td className="px-6 py-4">
+                  <div className="h-16 w-16">
+                    {Array.isArray(dest.imageUrls) && dest.imageUrls[0] ? (
+                      <img
+                        src={dest.imageUrls[0]}
+                        alt={dest.name}
+                        className="h-16 w-16 object-cover rounded-lg border"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none"; // or show a fallback here
+                        }}
+                      />
+                    ) : (
+                      <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                </td>
 
                 <td className="px-6 py-4">{dest.name}</td>
                 <td className="px-6 py-4">{dest.location}</td>
@@ -105,13 +114,7 @@ export const DestinationTable = () => {
                     >
                       <Edit size={16} />
                     </button>
-                    <button
-                      onClick={() => console.log("Delete logic here")}
-                      className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+
                   </div>
                 </td>
               </tr>
@@ -120,16 +123,14 @@ export const DestinationTable = () => {
         </table>
       </div>
 
-    
       {isEditModalOpen && selectedDestination && (
-  <EditDestinationModal
-    destination={selectedDestination}
-    onClose={() => setIsEditModalOpen(false)}
-    onChange={(updated) => setSelectedDestination(updated)}
-    onSubmit={handleUpdate}
-  />
-)}
-
+        <EditDestinationModal
+          destination={selectedDestination}
+          onClose={() => setIsEditModalOpen(false)}
+          onChange={(updated) => setSelectedDestination(updated)}
+          onSubmit={handleUpdate}
+        />
+      )}
     </div>
   );
 };

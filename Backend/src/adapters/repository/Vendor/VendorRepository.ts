@@ -9,15 +9,12 @@ export class VendorRepository implements IVendorRepository {
     return this.toVendorEntity(savedVendor);
   }
 
-async findByEmail(email: string): Promise<Vendor | null> {
-  const vendor = await VendorModel.findOne({
-    email: { $regex: new RegExp(`^${email.trim()}$`, "i") }, 
-  });
-
-  return vendor ? this.toVendorEntity(vendor) : null;
-}
-
-
+  async findByEmail(email: string): Promise<Vendor | null> {
+    const vendor = await VendorModel.findOne({
+      email: { $regex: new RegExp(`^${email.trim()}$`, "i") },
+    });
+    return vendor ? this.toVendorEntity(vendor) : null;
+  }
 
   async findByPhone(phone: string): Promise<Vendor | null> {
     const vendor = await VendorModel.findOne({ phone });
@@ -30,18 +27,11 @@ async findByEmail(email: string): Promise<Vendor | null> {
   }
 
   async updateVendorStatus(id: string, status: "approved" | "rejected"): Promise<Vendor | null> {
-    const updatedVendor = await VendorModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const updatedVendor = await VendorModel.findByIdAndUpdate(id, { status }, { new: true });
     return updatedVendor ? this.toVendorEntity(updatedVendor) : null;
   }
 
-  async updateVendorStatusByEmail(
-    email: string,
-    status: "approved" | "rejected"
-  ): Promise<Vendor | null> {
+  async updateVendorStatusByEmail(email: string, status: "approved" | "rejected"): Promise<Vendor | null> {
     const updatedVendor = await VendorModel.findOneAndUpdate(
       { email },
       { $set: { status } },
@@ -82,14 +72,26 @@ async findByEmail(email: string): Promise<Vendor | null> {
     return vendors.map(this.toVendorEntity);
   }
 
-async getAllVendors(): Promise<Vendor[]> {
-  return await VendorModel.find(); 
-  
-}
+  async getAllVendors(): Promise<Vendor[]> {
+    const vendors = await VendorModel.find();
+    return vendors.map(this.toVendorEntity);
+  }
 
+  async updateVendorStatusByAdmin(
+    vendorId: string,
+    status: "blocked" | "unblocked"
+  ): Promise<void> {
+    const vendor = await VendorModel.findById(vendorId);
+    if (!vendor) {
+      throw new Error("Vendor not found");
+    }
+
+    vendor.isBlocked = status === "blocked";
+    await vendor.save();
+  }
 
   private toVendorEntity = (doc: any): Vendor => ({
-    _id: doc._id.toString(), 
+    _id: doc._id.toString(),
     name: doc.name,
     email: doc.email,
     phone: doc.phone,
@@ -102,5 +104,6 @@ async getAllVendors(): Promise<Vendor[]> {
     lastLogin: doc.lastLogin,
     isAdmin: doc.isAdmin,
     googleVerified: doc.googleVerified,
+    isBlocked: doc.isBlocked
   });
 }

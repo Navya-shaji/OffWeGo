@@ -10,6 +10,7 @@ import {
   getVendorsByStatusController,
   updateVendorStatusController,
   userstatusController,
+  vendorblockUnblockController,
 } from "../../../framework/Di/admin/adminInjection";
 
 export class AdminRoute {
@@ -59,6 +60,9 @@ export class AdminRoute {
     })
     this.adminRouter.put('/edit/:id',(req:Request,res:Response)=>{
       editDestinationController.editDestinationHandler(req,res)
+    })
+    this.adminRouter.patch("/vendors/isBlocked/:id",(req:Request,res:Response)=>{
+      vendorblockUnblockController.updateStatus(req,res)
     })
   }
 }

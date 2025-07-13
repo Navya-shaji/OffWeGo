@@ -23,6 +23,8 @@ import { CreateDestination } from "../../../useCases/Destination/createDestinati
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 import { EditDestination } from "../../../useCases/Destination/editDestinationUsecase";
 import { EditDestinationController } from "../../../adapters/controller/Destination/editDestinationController";
+import { AdminVenodrBlockandUnblockController } from "../../../adapters/controller/Admin/VenodrBlockAndUnblockController";
+import { UpdateVendorUsecase } from "../../../useCases/admin/Vendor/updateVendorUsecase";
 
 
 // Repositories
@@ -47,7 +49,7 @@ const updateUserusecase=new UpdateUserUseCase(userRepository)
 const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const editDestination=new EditDestination()
-
+const vendorblockUnblockUsecase=new UpdateVendorUsecase(vendorRepository)
 
 
 // Controllers
@@ -60,4 +62,5 @@ export const getVendorsByStatusController = new GetVendorsByStatusController(ven
 export const userstatusController=new AdminUpdateUserStatusController(updateUserusecase);
 export const destinationController=new CreateDestinationController(createdestinationusecase);
 export const getDestinationController=new GetAllDestinationController(getallDestinations);
-export const editDestinationController=new EditDestinationController(editDestination)
+export const editDestinationController=new EditDestinationController(editDestination);
+export const vendorblockUnblockController=new AdminVenodrBlockandUnblockController(vendorblockUnblockUsecase)
