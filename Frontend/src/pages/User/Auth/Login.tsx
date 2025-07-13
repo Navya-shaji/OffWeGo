@@ -29,9 +29,7 @@ export default function UserLogin() {
       const response = await userLogin(data);
       const userData = response.user;
 
-      if (!userData) {
-        throw new Error("User data missing from response");
-      }
+      if (!userData) throw new Error("User data missing from response");
 
       dispatch(
         login({
@@ -43,56 +41,58 @@ export default function UserLogin() {
       );
 
       navigate("/");
-  } catch (err) {
-  const axiosError = err as AxiosError<{ message: string }>;
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message: string }>;
+      const backendMessage = axiosError.response?.data?.message;
+      const message =
+        backendMessage || axiosError.message || "Login failed. Please try again.";
 
-  const backendMessage = axiosError.response?.data?.message;
-  const message = backendMessage || axiosError.message || "Login failed. Please try again.";
-
-  if (message.toLowerCase().includes("blocked")) {
-    toast.error(" Your account is blocked by the admin");
-  } else {
-    toast.error(`⚠️ ${message}`);
-  }
-}
-
-
+      if (message.toLowerCase().includes("blocked")) {
+        toast.error("Your account is blocked by the admin");
+      } else {
+        toast.error(` ${message}`);
+      }
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-white via-blue-50 to-sky-100 p-6">
-      <div className="flex flex-col md:flex-row w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden bg-white">
-        {/* Left panel - black box */}
-        <div className="bg-black text-white md:w-1/2 flex flex-col justify-center items-center p-8 space-y-2 text-center">
-          <h1 className="text-4xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
-            user side
-          </h1>
-          <p className="text-sm text-gray-300 mt-2">explore here</p>
+      <div className="flex flex-col md:flex-row w-full max-w-5xl h-[85vh] shadow-2xl rounded-2xl bg-white overflow-hidden border border-gray-200">
+        {/* Left image/panel */}
+        <div
+          className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center"
+          style={{ backgroundImage: 'url("/images/userLogin.jpeg")' }}
+        >
+          <div className="absolute inset-0  bg-opacity-40" />
+         
         </div>
 
-        {/* Right panel - login form */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-6"></h2>
+        {/* Right login form panel */}
+        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
+          <h2 className="text-3xl font-serif text-center text-black mb-6"> User Login</h2>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 max-w-sm mx-auto w-full"
-          >
-            <input
-              {...register("email")}
-              placeholder="Email"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-xs">{errors.email.message}</p>
-            )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-sm mx-auto w-full">
+            {/* Email input */}
+            <div>
+              <input
+                {...register("email")}
+                placeholder="Email"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {errors.email ? (
+                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+              ) : (
+                <div className="h-[16px]" />
+              )}
+            </div>
 
+            {/* Password input */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="Password"
-                className="w-full px-4 py-2 border rounded-md pr-10 focus:outline-none focus:ring focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <span
                 className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
@@ -100,27 +100,26 @@ export default function UserLogin() {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </span>
-              {errors.password && (
-                <p className="text-red-500 text-xs">
-                  {errors.password.message}
-                </p>
+              {errors.password ? (
+                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+              ) : (
+                <div className="h-[16px]" />
               )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-blue-800 text-white font-semibold py-2 rounded-md hover:bg-blue-900 transition duration-200 shadow-md"
+              className="w-full bg-blue-800 text-white font-semibold py-2 rounded text-sm hover:bg-blue-900 transition duration-200 shadow-md"
             >
               Login
             </button>
           </form>
 
+          {/* Footer Links */}
           <p className="text-sm text-center text-gray-600 mt-4">
             Don’t have an account?{" "}
-            <Link
-              to="/signup"
-              className="text-blue-800 font-semibold hover:underline"
-            >
+            <Link to="/signup" className="text-blue-800 font-semibold hover:underline">
               Sign up
             </Link>
           </p>

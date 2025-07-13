@@ -3,7 +3,7 @@ import { IUserLoginUseCase } from "../../../domain/interface/usecaseInterface/IL
 import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
-
+import { mapNumericRoleToString } from "../../../utilities/mapping"; 
 export class UserLoginUseCase implements IUserLoginUseCase {
   constructor(
     private userRepository: IUserRepository,
@@ -13,7 +13,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
 
   async execute(data: LoginDTo): Promise<{
     token: string;
-    user: { id: string; email: string; username: string; status: string };
+    user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' };
   }> {
     const { email, password } = data;
 
@@ -27,17 +27,17 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       throw new Error("Your account has been blocked by the admin");
     }
 
-    const isPasswordValid = await this.hashService.compare(
-      password,
-      user.password
-    );
+    const isPasswordValid = await this.hashService.compare(password, user.password);
     if (!isPasswordValid) throw new Error("Invalid credentials");
+
+ 
+    const role = typeof user.role === 'number' ? mapNumericRoleToString(user.role) : user.role;
 
     const token = this.tokenService.generateToken({
       id: user._id,
       email: user.email,
+      role, 
     });
-    console.log("User Status:", user.status);
 
     return {
       token,
@@ -46,6 +46,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
         email: user.email,
         username: user.name,
         status: user.status ?? "active",
+        role,
       },
     };
   }

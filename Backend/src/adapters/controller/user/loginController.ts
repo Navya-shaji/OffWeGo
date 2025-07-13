@@ -19,23 +19,31 @@ export class UserLoginController {
 
       const { token, user } = await this.loginUserUseCase.execute({ email, password });
 
-    
-     if (user && user.status?.toLowerCase().includes("block")) {
-
+      // ✅ Check if role is admin
+      if (user.role?.toLowerCase() === "admin") {
         res.status(HttpStatus.FORBIDDEN).json({
           success: false,
-          message: "Your account has been blocked by admin",
+          message: "Admins are not allowed to log in from user portal",
         });
         return;
       }
 
+      // ✅ Check if account is blocked
+      if (user.status?.toLowerCase().includes("block")) {
+        res.status(HttpStatus.FORBIDDEN).json({
+          success: false,
+          message: "Your account has been blocked by the admin",
+        });
+        return;
+      }
+
+      // ✅ Allow user login
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Login successful",
         token,
         user,
       });
-
     } catch (error: any) {
       console.error("Login error:", error);
       res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
