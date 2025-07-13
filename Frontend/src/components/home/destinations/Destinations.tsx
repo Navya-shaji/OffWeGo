@@ -72,7 +72,7 @@ export const Destinations = () => {
         </h2>
 
         <div className="relative">
-          {/* Navigation Arrows */}
+        
           <button
             onClick={prevSlide}
             className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-200"
@@ -89,7 +89,6 @@ export const Destinations = () => {
             <ChevronRight className="w-6 h-6 text-gray-600" />
           </button>
 
-          {/* Carousel Container */}
           <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-in-out"
@@ -117,10 +116,10 @@ export const Destinations = () => {
                         </div>
                       )}
                       
-                      {/* Gradient Overlay */}
+                  
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                       
-                      {/* Content Overlay */}
+                  
                       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                         <h3 className="text-2xl font-bold mb-1">
                           {dest.name}, {dest.location}
