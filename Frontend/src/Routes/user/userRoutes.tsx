@@ -17,6 +17,7 @@ const UserRoute = () => {
       <Route path="/verify-reset-otp" element={<VerifyResetOtp/>}/>
       <Route path="/reset-password" element={<ResetPassword/>}/>
 
+    
       <Route
         path="/home"
         element={

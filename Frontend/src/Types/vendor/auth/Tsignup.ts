@@ -16,12 +16,11 @@ export const vendorSignupSchema = z
       .string()
       .min(1, "Confirm Password is required"),
 
-    // If using file upload via formData, you may skip document validation here
     documentUrl: z
       .string()
       .min(1, "Document is required")
       .url("Must be a valid URL")
-      .optional(), // remove this if you always require a document
+      .optional(), 
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",

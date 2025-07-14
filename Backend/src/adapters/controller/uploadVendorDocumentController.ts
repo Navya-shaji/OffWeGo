@@ -1,4 +1,4 @@
-// uploadVendorDocumentController.ts
+
 import { Request, Response } from "express";
 import cloudinary from "../../utilities/cloud"; 
 

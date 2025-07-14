@@ -13,7 +13,7 @@ export class AdminLoginuseCase implements IAdminLoginUseCase {
 
   async execute(
   data: LoginDTo
-): Promise<{ token: string; admin: { id: string; email: string; role: 'admin' | 'user' | 'vendor' } }> {
+): Promise<{ accessToken: string; refreshToken: string; admin: { id: string; email: string; role: 'admin' | 'user' | 'vendor' } }> {
   const { email, password } = data;
 
   const admin = await this.adminRepository.findByEmail(email);
@@ -22,18 +22,22 @@ export class AdminLoginuseCase implements IAdminLoginUseCase {
   const isPasswordValid = await this.hashService.compare(password, admin.password);
   if (!isPasswordValid) throw new Error("Invalid email or password");
 
-  const token = this.tokenService.generateToken({
+  const payload = {
     id: admin._id,
     email: admin.email,
     role: admin.role,
-  });
+  };
+
+const accessToken = this.tokenService.generateAccessToken(payload);
+  const refreshToken = this.tokenService.generateRefreshToken(payload);
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     admin: {
       id: admin._id?.toString() ?? "",
       email: admin.email,
-      role: admin.role, 
+      role: admin.role,
     },
   };
 }

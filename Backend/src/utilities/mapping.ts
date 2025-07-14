@@ -1,5 +1,3 @@
-
-
 export function mapNumericRoleToString(role: number): 'user' | 'vendor' | 'admin' {
   switch (role) {
     case 0:

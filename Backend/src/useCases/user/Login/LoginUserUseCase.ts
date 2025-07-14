@@ -4,6 +4,7 @@ import { IPasswordService } from "../../../domain/interface/serviceInterface/Iha
 import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
 import { mapNumericRoleToString } from "../../../utilities/mapping"; 
+
 export class UserLoginUseCase implements IUserLoginUseCase {
   constructor(
     private userRepository: IUserRepository,
@@ -12,7 +13,8 @@ export class UserLoginUseCase implements IUserLoginUseCase {
   ) {}
 
   async execute(data: LoginDTo): Promise<{
-    token: string;
+    accessToken: string;
+    refreshToken: string;
     user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' };
   }> {
     const { email, password } = data;
@@ -30,17 +32,20 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     const isPasswordValid = await this.hashService.compare(password, user.password);
     if (!isPasswordValid) throw new Error("Invalid credentials");
 
- 
     const role = typeof user.role === 'number' ? mapNumericRoleToString(user.role) : user.role;
 
-    const token = this.tokenService.generateToken({
+    const payload = {
       id: user._id,
       email: user.email,
-      role, 
-    });
+      role,
+    };
+
+    const accessToken = this.tokenService.generateAccessToken(payload);
+    const refreshToken = this.tokenService.generateRefreshToken(payload);
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user._id?.toString() ?? "",
         email: user.email,

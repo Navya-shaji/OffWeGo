@@ -7,12 +7,22 @@ import { toast } from "react-hot-toast";
 import { useAppDispatch } from "@/hooks";
 import { loginAdmin } from "@/store/slice/Admin/adminAuthSlice";
 import {AdminloginSchema,type AdminLoginFormData,} from "@/Types/Admin/Login/LoginzodSchema";
+import { useAppSelector } from "@/hooks";
+import { useEffect } from "react";
 
 
 export default function AdminLogin() {
+const isAuthenticated = useAppSelector((state) => state.adminAuth.isAuthenticated);
+
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  useEffect(()=>{
+    if(isAuthenticated){
+      navigate("/admin/dashboard",{replace:true})
+    }
+  },[isAuthenticated])
 
   const {register,handleSubmit,formState: { errors },} = useForm<AdminLoginFormData>({
     resolver: zodResolver(AdminloginSchema),

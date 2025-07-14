@@ -10,12 +10,20 @@ import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
+// import { useEffect } from "react";
+// import { useAppSelector } from "@/hooks";
 
 export default function UserLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  // const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate("/home", { replace: true });
+  //   }
+  // }, [isAuthenticated]);
   const {
     register,
     handleSubmit,
@@ -40,12 +48,14 @@ export default function UserLogin() {
         })
       );
 
-      navigate("/");
+      navigate("/",{ replace: true });
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
       const backendMessage = axiosError.response?.data?.message;
       const message =
-        backendMessage || axiosError.message || "Login failed. Please try again.";
+        backendMessage ||
+        axiosError.message ||
+        "Login failed. Please try again.";
 
       if (message.toLowerCase().includes("blocked")) {
         toast.error("Your account is blocked by the admin");
@@ -64,14 +74,19 @@ export default function UserLogin() {
           style={{ backgroundImage: 'url("/images/userLogin.jpeg")' }}
         >
           <div className="absolute inset-0  bg-opacity-40" />
-         
         </div>
 
         {/* Right login form panel */}
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <h2 className="text-3xl font-serif text-center text-black mb-6"> User Login</h2>
+          <h2 className="text-3xl font-serif text-center text-black mb-6">
+            {" "}
+            User Login
+          </h2>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-sm mx-auto w-full">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 max-w-sm mx-auto w-full"
+          >
             {/* Email input */}
             <div>
               <input
@@ -80,7 +95,9 @@ export default function UserLogin() {
                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               {errors.email ? (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
               ) : (
                 <div className="h-[16px]" />
               )}
@@ -101,7 +118,9 @@ export default function UserLogin() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </span>
               {errors.password ? (
-                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
               ) : (
                 <div className="h-[16px]" />
               )}
@@ -119,7 +138,10 @@ export default function UserLogin() {
           {/* Footer Links */}
           <p className="text-sm text-center text-gray-600 mt-4">
             Don’t have an account?{" "}
-            <Link to="/signup" className="text-blue-800 font-semibold hover:underline">
+            <Link
+              to="/signup"
+              className="text-blue-800 font-semibold hover:underline"
+            >
               Sign up
             </Link>
           </p>

@@ -1,6 +1,4 @@
 import axiosInstance from "@/axios/instance";
-
-
 export const adminLogin=async(email:string,password:string)=>{
     const response=await axiosInstance.post("admin/login",{
         email,
@@ -20,10 +18,7 @@ export const getPendingVendors = async () => {
   const response = await axiosInstance.get("/admin/vendors/pending");
   return response.data.vendors; 
 };
-export const getPendingVendorsCount = async () => {
-  const response = await axiosInstance.get("/admin/vendors/pending/count");
-  return response.data.count;
-};
+
 export const updateVendorStatus = async (vendorId: string, status: "approved" | "rejected") => {
   const response = await axiosInstance.patch(`/admin/vendors/status/${vendorId}`, {
     status,

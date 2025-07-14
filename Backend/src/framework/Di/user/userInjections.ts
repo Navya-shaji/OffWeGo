@@ -43,8 +43,8 @@ const getallDestinations=new GetAllDestinations(destinationRepository)
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase);
 export const verifyOtpController = new UserVerifyOtpController(verifyOtpUsecase);
-export const userLoginController =new UserLoginController(loginUserUseCase);
-export const googleSignupController=new GoogleSignupController(googleSignupUseCase);
+export const userLoginController =new UserLoginController(loginUserUseCase,jwtService);
+export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const verifyingOtpController = new VerifyResetOtpController(otpService);
 export const forgotpassController = new forgotPasswordController(otpService);
 export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);

@@ -1,3 +1,5 @@
 export interface ITokenService {
-  generateToken(payload: object): string;
+  generateAccessToken(payload: object): string;
+  generateRefreshToken(payload: object): string;
+
 }

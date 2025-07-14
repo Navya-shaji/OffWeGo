@@ -21,10 +21,17 @@ export class UserRepository implements IUserRepository {
       { $set: { password: newHashedPassword } }
     );
   }
-  async getAllUsers(): Promise<User[]> {
-    const users = await UserModel.find();
-    return users as User[];
-  }
+async getAllUsers(skip: number, limit: number): Promise<{ users: User[], totalUsers: number }> {
+  const users = await UserModel.find()
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const totalUsers = await UserModel.countDocuments();
+
+  return { users, totalUsers };
+}
+
    async updateUserStatus(userId: string, status: "active" | "block"): Promise<void> {
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -33,5 +40,8 @@ export class UserRepository implements IUserRepository {
 
     user.status = status;
     await user.save();
+  }
+    async countUsers(): Promise<number> {
+    return await UserModel.countDocuments();
   }
 }

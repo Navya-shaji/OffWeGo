@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IResetPasswordUseCase } from "../../../domain/interface/usecaseInterface/IResetPasswordUseCase";
 
 export class UserResetPasswordController {
-  constructor(private resetPasswordUseCase: ResetPasswordUseCase) {}
+  constructor(private resetPasswordUseCase: IResetPasswordUseCase) {}
 
   async resetPassword(req: Request, res: Response): Promise<void> {
   const { email,  newPassword } = req.body;

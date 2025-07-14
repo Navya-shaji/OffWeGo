@@ -65,7 +65,7 @@ const VendorList: React.FC<VendorListProps> = ({
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded-md text-sm transition"
                     onClick={() => onAction(vendor._id, "rejected")}
                   >
-                    ❌ Reject
+                     Reject
                   </button>
                 </div>
               )}

@@ -30,7 +30,7 @@ export class UserRoute {
       userLoginController.loginUser(req, res);
     });
     this.userRouter.post("/google-signup", (req: Request, res: Response) => {
-      googleSignupController.googleSignup(req, res);
+      googleSignupController.googleSignin(req, res);
     });
     this.userRouter.post("/verify-reset-otp", (req:Request, res:Response) =>
       verifyingOtpController.verifyResetOtp(req, res)

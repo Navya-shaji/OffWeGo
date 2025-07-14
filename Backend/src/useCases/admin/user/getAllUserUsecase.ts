@@ -1,15 +1,14 @@
-import { UserRepository } from "../../../adapters/repository/user/userRepository";
+
 import { User } from "../../../domain/entities/userEntity";
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
 
-export class GetAllUsers{
-    private userRepository:IUserRepository
+export class GetAllUsers {
+  constructor(private userRepository: IUserRepository) {}
 
-    constructor(userRepository:IUserRepository){
-        this.userRepository=userRepository
-    }
-    async execute():Promise<User[]>{
-        return await this.userRepository.getAllUsers()
-    }
-
+  async execute({ skip, limit }: { skip: number; limit: number }): Promise<{
+    users: User[];
+    totalUsers: number;
+  }> {
+    return await this.userRepository.getAllUsers(skip, limit);
+  }
 }
