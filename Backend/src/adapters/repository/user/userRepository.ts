@@ -1,6 +1,7 @@
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
 import { User } from "../../../domain/entities/userEntity";
 import { UserModel } from "../../../framework/database/Models/userModel";
+import { Profile } from "../../../domain/dto/user/profileDto";
 
 export class UserRepository implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
@@ -43,5 +44,8 @@ async getAllUsers(skip: number, limit: number): Promise<{ users: User[], totalUs
   }
     async countUsers(): Promise<number> {
     return await UserModel.countDocuments();
+  }
+  async getProfileByEmail(email:string): Promise<Profile | null>{
+    return await UserModel.findOne({email})
   }
 }

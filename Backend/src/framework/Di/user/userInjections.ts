@@ -17,6 +17,8 @@ import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPassword
 import { GetAllDestinationController } from "../../../adapters/controller/Destination/getDestinationController";
 import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
+import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
+import { UserProfileController } from "../../../adapters/controller/user/userProfileController";
 import { JwtSevice } from "../../services/jwtService";
 
 
@@ -37,6 +39,7 @@ const verifyOtpUsecase = new VerifyOtpUseCase(otpService,hashPassword,userReposi
 const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtService)
 const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
 const getallDestinations=new GetAllDestinations(destinationRepository)
+const userprofile=new UserProfileUsecase(userRepository)
 
 
 
@@ -48,4 +51,5 @@ export const googleSignupController=new GoogleSignupController(googleSignupUseCa
 export const verifyingOtpController = new VerifyResetOtpController(otpService);
 export const forgotpassController = new forgotPasswordController(otpService);
 export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);
-export const getDestinationController=new GetAllDestinationController(getallDestinations)
+export const getDestinationController=new GetAllDestinationController(getallDestinations);
+export const userprofileController=new UserProfileController(userprofile)

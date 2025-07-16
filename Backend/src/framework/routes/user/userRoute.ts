@@ -8,6 +8,7 @@ import {
   verifyingOtpController,
   resetPasswordController,
   getDestinationController,
+  userprofileController,
 } from "../../Di/user/userInjections";
 
 export class UserRoute {
@@ -43,6 +44,9 @@ export class UserRoute {
     );
     this.userRouter.get("/destinations",(req:Request,res:Response)=>{
       getDestinationController.getAllDestination(req,res)
+    })
+    this.userRouter.get("/profile",(req:Request,res:Response)=>{
+      userprofileController.GetProfile(req,res)
     })
   }
 }
