@@ -13,7 +13,7 @@ const store=configureStore({
         vendor: vendorReducer,
         vendorAuth: vendorAuthReducer,
         destination:DestinationReducer,
-         otp: otpReducer
+        otp: otpReducer
     }
 })
 
