@@ -1,11 +1,9 @@
-
-
 import { Request, Response } from "express";
-import { GetAllVendorsUseCase } from "../../../useCases/admin/Vendor/getAllVendorsUsecase"; 
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IGetAllVendorsUseCase } from "../../../domain/interface/admin/IGetAllVendorsUseCase";
 
 export class AdminGetAllVendorController {
-  constructor(private getAllVendorsUseCase: GetAllVendorsUseCase) {}
+  constructor(private getAllVendorsUseCase: IGetAllVendorsUseCase) {}
 
   async getAllVendors(req: Request, res: Response): Promise<void> {
     try {

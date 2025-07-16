@@ -1,9 +1,9 @@
 import {Request,Response} from "express"
-import { CreateDestination } from "../../../useCases/Destination/createDestinationUsecase"
 import { HttpStatus } from "../../../domain/statusCode/statuscode"
+import { ICreateDestinationUsecase } from "../../../domain/interface/destination/ICreateDestinationUsecase"
 
 export class CreateDestinationController{
-    constructor(private createDestination :CreateDestination){}
+    constructor(private createDestination :ICreateDestinationUsecase){}
     async addDestination(req:Request,res:Response){
         try {
             const result=await this.createDestination.execute(req.body)

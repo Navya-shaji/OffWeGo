@@ -1,10 +1,10 @@
 import { Request,Response } from "express";
-import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IGetAllDestinations } from "../../../domain/interface/destination/IGetAllDestinations";
 
 
 export class GetAllDestinationController{
-    constructor(private getDestination:GetAllDestinations){}
+    constructor(private getDestination:IGetAllDestinations){}
     async getAllDestination(req:Request,res:Response){
         try{
             const result =await this.getDestination.execute()

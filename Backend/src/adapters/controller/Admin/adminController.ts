@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import { AdminLoginuseCase } from "../../../useCases/admin/Login/AdminLoginuseCase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-
+import { IAdminLoginUseCase } from "../../../domain/interface/admin/IAdminUsecase"; 
 export class AdminController {
-  constructor(private adminLoginuseCase: AdminLoginuseCase) {}
+  constructor(private adminLoginuseCase: IAdminLoginUseCase) {}
 
   async login(req: Request, res: Response): Promise<void> {
     try {

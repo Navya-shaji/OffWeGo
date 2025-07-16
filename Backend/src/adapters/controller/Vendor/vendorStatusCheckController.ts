@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IVendorStatusCheckUseCase } from "../../../domain/interface/vendor/IVendorStatusCheckUseCase";
 
 export class VendorStatusCheckController {
-  constructor(private vendorStatusCheckUseCase: VendorStatusCheckUseCase) {}
+  constructor(private vendorStatusCheckUseCase: IVendorStatusCheckUseCase) {}
 
   async checkStatus(req: Request, res: Response): Promise<void> {
     const { email } = req.query;

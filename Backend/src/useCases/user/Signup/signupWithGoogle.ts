@@ -1,6 +1,7 @@
 import { AuthRepository } from "../../../adapters/repository/user/authRepository";
 import { User } from "../../../domain/entities/userEntity";
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { mapToUser } from "../../../mappers/User/userMapper";
 
 export class GoogleSignupUseCase{
     constructor(
@@ -10,19 +11,21 @@ export class GoogleSignupUseCase{
 
     async execute(googleToken:string):Promise<User>{
         const googleUser=await this.authRepository.signupWithGoogle(googleToken)
+        const user=mapToUser(googleUser)
         const existingUser=await this.userRepository.findByEmail(googleUser.email)
-        if(existingUser) return existingUser
+        if(existingUser) return mapToUser(existingUser)
 
         const newUser:User={
             name:googleUser.name,
             email:googleUser.email,
             phone:googleUser.phone,
+            profileImage: googleUser.profileImage,
             password:"",
             role:"user"
         }
 
         const savedUser=await this.userRepository.createUser(newUser)
-        return savedUser
+        return mapToUser(savedUser)
     }
 }
 

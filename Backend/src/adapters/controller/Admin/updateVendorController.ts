@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IUpdateVendorStatusUseCase } from "../../../domain/interface/admin/IUpdateVendorstatusUseCase";
 
 export class UpdateVendorstatusController {
-  constructor(private updateVendorstatususecase: UpdateVendorstatusUseCase) {}
+  constructor(private updateVendorstatususecase: IUpdateVendorStatusUseCase) {}
 
   async VendorStatusController(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id.toString().trim(); 
+      const vendorId = req.params.id.toString().trim();
       const { status } = req.body;
 
       if (!["approved", "rejected"].includes(status)) {
@@ -18,7 +18,10 @@ export class UpdateVendorstatusController {
         return;
       }
 
-      const updated = await this.updateVendorstatususecase.executeById(vendorId, status);
+      const updated = await this.updateVendorstatususecase.executeById(
+        vendorId,
+        status
+      );
 
       if (updated) {
         res.status(HttpStatus.OK).json({
@@ -32,7 +35,6 @@ export class UpdateVendorstatusController {
           message: "Vendor not found",
         });
       }
-
     } catch (error) {
       console.error("Error updating vendor status:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 
-
 export class forgotPasswordController {
   constructor(private otpService: IOtpService) {}
   async forgotPassword(req: Request, res: Response): Promise<void> {

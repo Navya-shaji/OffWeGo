@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase"; 
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto"; 
+import { IVendorLoginUsecase } from "../../../domain/interface/vendor/IVendorLoginUsecase";
 
 export class VendorLoginController {
-  constructor(private vendorLoginUseCase: VendorLoginUsecase) {}
+  constructor(private vendorLoginUseCase: IVendorLoginUsecase) {}
 
   async login(req: Request, res: Response) {
     try {

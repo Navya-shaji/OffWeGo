@@ -5,7 +5,7 @@ import type { DestinationInterface } from "@/interface/destinationInterface";
 export const addDestination = async (data: DestinationInterface) => {
   try {
     const res = await axiosInstance.post("/admin/create-destination", data);
-    console.log("Destination Added:", res);
+    
     return res.data;
   } catch (error) {
     console.error("Error adding destination:", error);
@@ -19,7 +19,7 @@ export const addDestination = async (data: DestinationInterface) => {
 export const fetchAllDestinations = async () => {
   try {
     const res = await axiosInstance.get("/admin/destinations");
-    console.log("Fetched Destinations:", res);
+    
     return res.data;
   } catch (error) {
     console.error("Error fetching destinations:", error);

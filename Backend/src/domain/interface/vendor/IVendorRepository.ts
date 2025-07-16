@@ -1,26 +1,17 @@
-import { Vendor } from "../../entities/vendorEntities";
+import { IVendorModel } from "../../../framework/database/Models/vendorModel";
+import { RegistervendorDto } from "../../dto/Vendor/RegisterVendorDto";
 
 export interface IVendorRepository {
-  createVendor(Vendor: Vendor): Promise<Vendor>;
-  findByEmail(email: string): Promise<Vendor | null>;
-  findByPhone(phone: string): Promise<Vendor | null>;
-  updateVendorStatus(
-    id: string,
-    status: "approved" | "rejected"
-  ): Promise<Vendor | null>;
-  updateVendorStatusByEmail(
-    email: string,
-    status: "approved" | "rejected"
-  ): Promise<Vendor | null>;
-  findByStatus(status: string): Promise<Vendor[]>;
-  findById(id: string): Promise<Vendor | null>;
-  findPendingVendors(): Promise<Vendor[]>;
-  approveVendor(id: string): Promise<Vendor | null>;
-  rejectVendor(id: string): Promise<Vendor | null>;
-
-  getAllVendors(): Promise<Vendor[]>;
-  updateVendorStatusByAdmin(
-    vendorId: string,
-    status: "blocked" | "unblocked"
-  ): Promise<void>;
+  createVendor(data: RegistervendorDto): Promise<IVendorModel>;
+  findByEmail(email: string): Promise<IVendorModel | null>;
+  findByPhone(phone: string): Promise<IVendorModel | null>;
+  updateVendorStatus(id: string, status: "approved" | "rejected"): Promise<IVendorModel | null>;
+  updateVendorStatusByEmail(email: string, status: "approved" | "rejected"): Promise<IVendorModel | null>;
+  findByStatus(status: string): Promise<IVendorModel[]>;
+  findById(id: string): Promise<IVendorModel | null>;
+  findPendingVendors(): Promise<IVendorModel[]>;
+  approveVendor(id: string): Promise<IVendorModel | null>;
+  rejectVendor(id: string): Promise<IVendorModel | null>;
+  getAllVendors(): Promise<IVendorModel[]>;
+  updateVendorStatusByAdmin(vendorId: string, status: "blocked" | "unblocked"): Promise<void>;
 }

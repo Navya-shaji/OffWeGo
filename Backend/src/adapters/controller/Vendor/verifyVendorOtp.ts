@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IVerifyOtpVendorUsecase } from "../../../domain/interface/vendor/IVerifyOtpVendorUseCase";
 
 export class VendorVerifyOtpController {
-  constructor(private vendorVerifyOtpUseCase: verifyOtpUsecase) {}
+  constructor(private vendorVerifyOtpUseCase: IVerifyOtpVendorUsecase) {}
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {

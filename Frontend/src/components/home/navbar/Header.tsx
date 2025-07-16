@@ -27,10 +27,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 w-full">
+    <header className="bg-amber-50 backdrop-blur-sm shadow-sm sticky top-4 z-50 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <h1 className="text-2xl font-extrabold font-serif bg-gradient-to-r from-coral-500 to-black bg-clip-text text-transparent">
+          <h1 className="text-3xl font-extrabold font-serif bg-gradient-to-r from-coral-500 to-black bg-clip-text text-transparent">
             OffeGo
           </h1>
 

@@ -10,9 +10,7 @@ export class VendorLoginUsecase {
     private tokenService: ITokenService
   ) {}
 
-  async execute(
-    data: LoginDTo
-  ): Promise<{
+  async execute(data: LoginDTo): Promise<{
     accessToken: string;
     refreshToken: string;
     vendor: { id: string; email: string; name: string };
@@ -21,7 +19,9 @@ export class VendorLoginUsecase {
 
     console.log(" Login attempt for:", email);
 
-    const vendor = await this.vendorRepository.findByEmail(email.toLowerCase().trim());
+    const vendor = await this.vendorRepository.findByEmail(
+      email.toLowerCase().trim()
+    );
     console.log("Vendor from DB:", vendor);
 
     if (!vendor) {
@@ -34,7 +34,10 @@ export class VendorLoginUsecase {
       return null;
     }
 
-    const isPasswordValid = await this.hashService.compare(password, vendor.password);
+    const isPasswordValid = await this.hashService.compare(
+      password,
+      vendor.password
+    );
     console.log(" Password Valid:", isPasswordValid);
 
     if (!isPasswordValid) {

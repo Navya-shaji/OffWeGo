@@ -33,7 +33,7 @@ export const DestinationTable = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("🔷 handleUpdate started");
+    console.log(" handleUpdate started");
 
     if (!selectedDestination?.id) {
       console.warn(
@@ -45,7 +45,7 @@ export const DestinationTable = () => {
 
     try {
       await updateDestination(selectedDestination.id, selectedDestination);
-      console.log("✅ Updated destination:", selectedDestination.id);
+      console.log(" Updated destination:", selectedDestination.id);
       await fetchData();
       setIsEditModalOpen(false);
     } catch (err) {

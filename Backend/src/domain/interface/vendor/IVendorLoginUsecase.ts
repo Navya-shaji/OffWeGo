@@ -1,13 +1,15 @@
 import { LoginDTo } from "../../dto/user/LoginDto";
 
-export interface IAdminLoginUseCase {
-  execute(data: LoginDTo): Promise<{
+export interface IVendorLoginUsecase {
+  execute(
+    data: LoginDTo
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
-    admin: {
+    vendor: {
       id: string;
       email: string;
-      role: string;
+      name: string;
     };
-  }>;
+  } | null>;
 }

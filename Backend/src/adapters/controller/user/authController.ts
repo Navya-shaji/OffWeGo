@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IGoogleSignupUseCase } from "../../../domain/interface/usecaseInterface/IgoogleSignupUsecase"; 
+import { IGoogleSignupUseCase } from "../../../domain/interface/usecaseInterface/IgoogleSignupUsecase";
 import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
 
 export class GoogleSignupController {
@@ -30,12 +30,11 @@ export class GoogleSignupController {
         });
         return;
       }
-
+      
       const payload = { userId: user._id, role: user.role };
       const accessToken = this.tokenService.generateAccessToken(payload);
       const refreshToken = this.tokenService.generateRefreshToken(payload);
 
- 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -50,7 +49,7 @@ export class GoogleSignupController {
         user,
       });
     } catch (error) {
-        const err=error as Error
+      const err = error as Error;
       console.error("Google signin failed:", err);
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { UpdateUserUseCase } from "../../../useCases/admin/user/updateUserusecase"; 
 import { HttpStatus } from "../../../domain/statusCode/statuscode"; 
+import { IUpdateUserUseCase } from "../../../domain/interface/admin/IUpdateUserUseCase";
 
 export class AdminUpdateUserStatusController {
-  constructor(private updateUserStatusUseCase: UpdateUserUseCase) {}
+  constructor(private updateUserStatusUseCase: IUpdateUserUseCase) {}
 
   async updateStatus(req: Request, res: Response): Promise<void> {
     try {

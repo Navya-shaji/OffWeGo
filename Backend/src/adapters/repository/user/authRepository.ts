@@ -35,14 +35,7 @@ export class AuthRepository implements IAuthRepository {
       throw new Error("User creation or retrieval failed");
     }
 
-  return {
-  name: userDoc.name,
-  email: userDoc.email,
-  profileImage: userDoc.profileImage,
-  phone: userDoc.phone || 0,
-  password: userDoc.password || "",
-  role: userDoc.role || "user",
-};
+  return userDoc
 
   }
 }
