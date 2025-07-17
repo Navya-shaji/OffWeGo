@@ -1,18 +1,18 @@
-// src/components/Header.tsx
 import React, { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { logout, setUserFromSession } from "@/store/slice/user/authSlice";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const dispatch = useAppDispatch();
-
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  // On initial mount, restore user from localStorage (or session storage)
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -23,7 +23,13 @@ const Header: React.FC = () => {
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("user");
-    window.location.reload(); // Optional: or use navigate("/login")
+    setIsUserDropdownOpen(false);
+    window.location.reload();
+  };
+
+  const handleProfileClick = () => {
+    setIsUserDropdownOpen(false);
+    navigate("/profile");
   };
 
   return (
@@ -62,20 +68,41 @@ const Header: React.FC = () => {
                 </Button>
               </>
             ) : (
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-700 font-medium">
-                  Hello, {user?.username || "User"}
-                </span>
-                {user?.imageUrl && (
-                  <img
-                    src={user.imageUrl}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+              <div className="relative">
+                <div
+                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                >
+                  <span className="text-gray-700 font-medium">
+                    Hello, {user?.username || "User"}
+                  </span>
+                  {user?.imageUrl && (
+                    <img
+                      src={user.imageUrl}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  )}
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                </div>
+
+                {/* Desktop User Dropdown */}
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg w-48 z-20">
+                    <button
+                      onClick={handleProfileClick}
+                      className="block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors"
+                    >
+                      Profile
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors border-t"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 )}
-                <Button variant="ghost" onClick={handleLogout}>
-                  Logout
-                </Button>
               </div>
             )}
           </div>
@@ -83,7 +110,7 @@ const Header: React.FC = () => {
           {/* Mobile Menu Button */}
           <button
             className="md:hidden"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -117,7 +144,7 @@ const Header: React.FC = () => {
                 </div>
               ) : (
                 <div className="pt-4 space-y-2">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 px-3 py-2">
                     <span className="text-gray-700 font-medium">
                       Hello, {user?.username || "User"}
                     </span>
@@ -129,9 +156,18 @@ const Header: React.FC = () => {
                       />
                     )}
                   </div>
-                  <Button variant="ghost" onClick={handleLogout} className="w-full justify-start">
+                  <button
+                    onClick={handleProfileClick}
+                    className="block w-full text-left px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
+                  >
+                    Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
+                  >
                     Logout
-                  </Button>
+                  </button>
                 </div>
               )}
             </nav>
