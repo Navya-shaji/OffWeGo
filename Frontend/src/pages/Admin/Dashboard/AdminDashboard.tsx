@@ -6,6 +6,7 @@ import UserList from "@/components/AdminDashboard/userList";
 import VendorList from "@/components/AdminDashboard/vendorDetails";
 import { CreateDestination } from "../Destination/CreateDestination";
 import { DestinationTable } from "../Destination/GetDestination";
+import { CategoryForm } from "../category/category";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -36,6 +37,8 @@ const AdminLayout = () => {
         {activeTab === "Vendors" && <VendorList />}
         {activeTab === "Add Destination" && <CreateDestination />}
         {activeTab === "Destinations" && <DestinationTable />}
+       {activeTab === "Create Category" && <CategoryForm />}
+
       </div>
     </div>
   );

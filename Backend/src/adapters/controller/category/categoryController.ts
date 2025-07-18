@@ -8,7 +8,7 @@ export class CreateCatogoryController{
     async createCategory(req:Request,res:Response){
         try {
             console.log("haiii")
-            console.log(req.body)
+             console.log("Incoming:", req.body); 
             const result=await this.createcategory.execute(req.body)
             console.log(result)
             res.status(HttpStatus.CREATED).json({result})

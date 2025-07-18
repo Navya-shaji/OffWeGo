@@ -4,6 +4,7 @@ import adminAuthReducer from "../store/slice/Admin/adminAuthSlice"
 import vendorAuthReducer from "../store/slice/vendor/vendorSlice"
 import vendorReducer from '../store/slice/vendor/vendorSlice';
 import DestinationReducer from "../store/slice/Destination/destinationSlice"
+import CategoryReducer from '../store/slice/category/categorySlice'
 import otpReducer from "./slice/user/otpSlice"; 
 const store=configureStore({
     reducer:{
@@ -13,6 +14,7 @@ const store=configureStore({
         vendor: vendorReducer,
         vendorAuth: vendorAuthReducer,
         destination:DestinationReducer,
+        category:CategoryReducer,
         otp: otpReducer
     }
 })

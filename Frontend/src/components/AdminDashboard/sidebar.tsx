@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Users,
-  Plus,
-  MapPin,
-  Grid3x3,
-  UserCheck,
-  FileText,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import {Users,Plus,MapPin,Grid3x3,UserCheck,FileText, ChevronDown, ChevronUp,List,FolderPlus,} from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -17,6 +8,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const [showRequestsDropdown, setShowRequestsDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); 
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
@@ -27,6 +19,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   const handleRequestClick = () => {
     setShowRequestsDropdown((prev) => !prev);
+  };
+
+  const handleCategoryClick = () => {
+    setShowCategoryDropdown((prev) => !prev);
   };
 
   const handleSubTabClick = (label: string) => {
@@ -55,6 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
 
+        {/* -------------------- Requests Dropdown -------------------- */}
         <button
           onClick={handleRequestClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -103,6 +100,51 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               }`}
             >
               Rejected
+            </button>
+          </div>
+        )}
+
+        {/* -------------------- Category Dropdown -------------------- */}
+        <button
+          onClick={handleCategoryClick}
+          className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+            activeTab.includes("Category")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+          }`}
+        >
+          <Grid3x3 className="w-5 h-5 mr-3 text-gray-600" />
+          <span className="text-gray-700 flex-1">Category</span>
+          {showCategoryDropdown ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
+
+        {showCategoryDropdown && (
+          <div className="ml-10">
+            <button
+              onClick={() => handleSubTabClick("Create Category")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "Create Category"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <FolderPlus className="inline-block mr-2 w-4 h-4" />
+              Create Category
+            </button>
+            <button
+              onClick={() => handleSubTabClick("All Categories")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "All Categories"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <List className="inline-block mr-2 w-4 h-4" />
+              All Categories
             </button>
           </div>
         )}
