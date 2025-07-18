@@ -15,7 +15,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
   async execute(data: LoginDTo): Promise<{
     accessToken: string;
     refreshToken: string;
-    user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' };
+    user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' ;phone:string};
   }> {
     const { email, password } = data;
 
@@ -52,6 +52,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
         username: user.name,
         status: user.status ?? "active",
         role,
+        phone:user.phone.toString(),
       },
     };
   }

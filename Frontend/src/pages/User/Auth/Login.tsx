@@ -10,20 +10,13 @@ import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
-// import { useEffect } from "react";
-// import { useAppSelector } from "@/hooks";
+
 
 export default function UserLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  // const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigate("/home", { replace: true });
-  //   }
-  // }, [isAuthenticated]);
   const {
     register,
     handleSubmit,
@@ -32,23 +25,19 @@ export default function UserLogin() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      const response = await userLogin(data);
-      const userData = response.user;
+const onSubmit = async (data: LoginFormData) => {
+  try {
+    const response = await userLogin(data);
 
-      if (!userData) throw new Error("User data missing from response");
+    dispatch(
+      login({
+        user: response.user, 
+        token: response.accessToken,
+      })
+    );
 
-      dispatch(
-        login({
-          user: {
-            username: userData.username,
-            email: userData.email,
-          },
-        })
-      );
+    navigate("/", { replace: true });
 
-      navigate("/",{ replace: true });
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
       const backendMessage = axiosError.response?.data?.message;

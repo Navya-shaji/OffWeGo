@@ -1,4 +1,4 @@
-// DestinationRepository.ts
+
 import { IDestinationRepository } from "../../../domain/interface/admin/IDestinationInterface";
 import { DestinationModel, IDestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { CreateDestinationDTO } from "../../../domain/dto/admin/DestinationDTO";

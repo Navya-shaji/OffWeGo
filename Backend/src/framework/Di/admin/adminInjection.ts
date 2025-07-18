@@ -25,6 +25,9 @@ import { EditDestination } from "../../../useCases/Destination/editDestinationUs
 import { EditDestinationController } from "../../../adapters/controller/Destination/editDestinationController";
 import { AdminVenodrBlockandUnblockController } from "../../../adapters/controller/Admin/VenodrBlockAndUnblockController";
 import { UpdateVendorUsecase } from "../../../useCases/admin/Vendor/updateVendorUsecase";
+import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
+import { CreateCatogoryController } from "../../../adapters/controller/category/categoryController";
+import { CategoryRepository } from "../../../adapters/repository/category/categoryRepository";
 
 
 // Repositories
@@ -32,6 +35,7 @@ const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
 const userRepository=new UserRepository()
 const destinationRepository=new DestinationRepository()
+const catogoryRepo=new CategoryRepository()
 
 
 // Services
@@ -50,6 +54,7 @@ const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const editDestination=new EditDestination()
 const vendorblockUnblockUsecase=new UpdateVendorUsecase(vendorRepository)
+const createcategoryUsecase=new CreateCategory(catogoryRepo)
 
 
 // Controllers
@@ -64,3 +69,4 @@ export const destinationController=new CreateDestinationController(createdestina
 export const getDestinationController=new GetAllDestinationController(getallDestinations);
 export const editDestinationController=new EditDestinationController(editDestination);
 export const vendorblockUnblockController=new AdminVenodrBlockandUnblockController(vendorblockUnblockUsecase)
+export const catogoryController=new CreateCatogoryController(createcategoryUsecase)

@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import {
   adminController,
   adminVendorController,
+  catogoryController,
   destinationController,
   editDestinationController,
   getAllUsersController,
@@ -63,6 +64,9 @@ export class AdminRoute {
     })
     this.adminRouter.patch("/vendors/isBlocked/:id",(req:Request,res:Response)=>{
       vendorblockUnblockController.updateStatus(req,res)
+    })
+    this.adminRouter.post("/create-categories",(req:Request,res:Response)=>{
+      catogoryController.createCategory(req,res)
     })
   }
 }
