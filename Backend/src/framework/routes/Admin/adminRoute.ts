@@ -6,6 +6,7 @@ import {
   createBannerController,
   destinationController,
   editDestinationController,
+  getallbannercontroller,
   getallCategoryController,
   getAllUsersController,
   getAllVendorsController,
@@ -75,6 +76,9 @@ export class AdminRoute {
     })
     this.adminRouter.post("/create-banner",(req:Request,res:Response)=>{
       createBannerController.CreateBanner(req,res)
+    })
+    this.adminRouter.get("/banner",(req:Request,res:Response)=>{
+      getallbannercontroller.getBanners(req,res)
     })
   }
 }
