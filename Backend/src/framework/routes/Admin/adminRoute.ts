@@ -3,6 +3,7 @@ import {
   adminController,
   adminVendorController,
   catogoryController,
+  createBannerController,
   destinationController,
   editDestinationController,
   getallCategoryController,
@@ -71,6 +72,9 @@ export class AdminRoute {
     })
     this.adminRouter.get("/categories",(req:Request,res:Response)=>{
       getallCategoryController.getCategories(req,res)
+    })
+    this.adminRouter.post("/create-banner",(req:Request,res:Response)=>{
+      createBannerController.CreateBanner(req,res)
     })
   }
 }

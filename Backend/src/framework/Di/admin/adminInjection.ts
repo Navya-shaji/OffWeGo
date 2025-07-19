@@ -30,6 +30,9 @@ import { CreateCatogoryController } from "../../../adapters/controller/category/
 import { CategoryRepository } from "../../../adapters/repository/category/categoryRepository";
 import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
 import { GetAllCategoryController } from "../../../adapters/controller/category/getAllCategoryController";
+import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";
+import { CreateBannercontroller } from "../../../adapters/controller/Banner/bannerCreateController";
+import { BannerRepository } from "../../../adapters/repository/banner/BannerRepository";
 
 
 // Repositories
@@ -38,6 +41,7 @@ const vendorRepository = new VendorRepository();
 const userRepository=new UserRepository()
 const destinationRepository=new DestinationRepository()
 const catogoryRepo=new CategoryRepository()
+const bannerRepo=new BannerRepository()
 
 
 // Services
@@ -58,6 +62,7 @@ const editDestination=new EditDestination()
 const vendorblockUnblockUsecase=new UpdateVendorUsecase(vendorRepository)
 const createcategoryUsecase=new CreateCategory(catogoryRepo)
 const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
+const createbannerUsecase=new CreateBanner(bannerRepo)
 
 
 // Controllers
@@ -73,4 +78,5 @@ export const getDestinationController=new GetAllDestinationController(getallDest
 export const editDestinationController=new EditDestinationController(editDestination);
 export const vendorblockUnblockController=new AdminVenodrBlockandUnblockController(vendorblockUnblockUsecase);
 export const catogoryController=new CreateCatogoryController(createcategoryUsecase);
-export const getallCategoryController=new GetAllCategoryController(getAllcategoryUsecase)
+export const getallCategoryController=new GetAllCategoryController(getAllcategoryUsecase);
+export const createBannerController=new CreateBannercontroller(createbannerUsecase)
