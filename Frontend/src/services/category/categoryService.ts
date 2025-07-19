@@ -21,7 +21,7 @@ export const addCategory=async (data:Category)=>{
 export const getCategory=async()=>{
 
     try {
-        console.log("haiii")
+        
         const res=await axiosInstance.get("/admin/categories")
         return res.data
     } catch (error) {

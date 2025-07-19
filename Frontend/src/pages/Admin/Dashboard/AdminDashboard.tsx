@@ -9,6 +9,7 @@ import { DestinationTable } from "../Destination/GetDestination";
 import { CategoryForm } from "../category/category";
 import { CategoryTable } from '../category/getAllCategory'
 import  CreateBanner from "../banner/createBanner";
+import { BannerForm } from "../banner/bannerForm";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -42,6 +43,7 @@ const AdminLayout = () => {
        {activeTab === "Create Category" && <CategoryForm />}
        {activeTab=="All Categories" && <CategoryTable/>}
        {activeTab=="Add Banner" && <CreateBanner/>}
+       {activeTab=="All Banners" && <BannerForm/>}
 
       </div>
     </div>
