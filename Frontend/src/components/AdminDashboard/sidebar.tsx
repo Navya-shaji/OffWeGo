@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-import {Users,Plus,MapPin,Grid3x3,UserCheck,FileText, ChevronDown, ChevronUp,List,FolderPlus,} from "lucide-react";
+import {
+  Users,
+  Plus,
+  MapPin,
+  Grid3x3,
+  UserCheck,
+  FileText,
+  ChevronDown,
+  ChevronUp,
+  List,
+  FolderPlus,
+} from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -8,7 +19,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const [showRequestsDropdown, setShowRequestsDropdown] = useState(false);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); 
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showBannerDropdown, setShowBannerDropdown] = useState(false);
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
@@ -149,6 +161,50 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </div>
         )}
       </nav>
+      {/* -------------------- Banner Dropdown -------------------- */}
+      <button
+        onClick={() => setShowBannerDropdown((prev) => !prev)}
+        className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+          activeTab.includes("Banner")
+            ? "bg-gray-100 border-r-4 border-black"
+            : ""
+        }`}
+      >
+        <FileText className="w-5 h-5 mr-3 text-gray-600" />
+        <span className="text-gray-700 flex-1">Banner</span>
+        {showBannerDropdown ? (
+          <ChevronUp className="w-4 h-4" />
+        ) : (
+          <ChevronDown className="w-4 h-4" />
+        )}
+      </button>
+
+      {showBannerDropdown && (
+        <div className="ml-10">
+          <button
+            onClick={() => handleSubTabClick("Add Banner")}
+            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+              activeTab === "Add Banner"
+                ? "text-black font-semibold"
+                : "text-gray-600"
+            }`}
+          >
+            <FolderPlus className="inline-block mr-2 w-4 h-4" />
+            Add Banner
+          </button>
+          <button
+            onClick={() => handleSubTabClick("All Banners")}
+            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+              activeTab === "All Banners"
+                ? "text-black font-semibold"
+                : "text-gray-600"
+            }`}
+          >
+            <List className="inline-block mr-2 w-4 h-4" />
+            All Banners
+          </button>
+        </div>
+      )}
 
       <div className="absolute bottom-4 left-4">
         <button

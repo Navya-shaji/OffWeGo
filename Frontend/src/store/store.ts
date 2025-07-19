@@ -5,6 +5,7 @@ import vendorAuthReducer from "../store/slice/vendor/vendorSlice"
 import vendorReducer from '../store/slice/vendor/vendorSlice';
 import DestinationReducer from "../store/slice/Destination/destinationSlice"
 import CategoryReducer from '../store/slice/category/categorySlice'
+import BannerReducer from '../store/slice/Banner/BannerSlice'
 import otpReducer from "./slice/user/otpSlice"; 
 const store=configureStore({
     reducer:{
@@ -15,6 +16,7 @@ const store=configureStore({
         vendorAuth: vendorAuthReducer,
         destination:DestinationReducer,
         category:CategoryReducer,
+        banner:BannerReducer,
         otp: otpReducer
     }
 })
