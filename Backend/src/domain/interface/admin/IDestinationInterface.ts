@@ -7,4 +7,5 @@ export interface IDestinationRepository {
   getAllDestinations(): Promise<IDestinationModel[]>;
   edit(destination: IDestinationModel): Promise<void>;
   delete(id: string): Promise<void>;
+  getDestination(id:string):Promise<IDestinationModel |null>
 }

@@ -19,4 +19,8 @@ export class DestinationRepository implements IDestinationRepository {
   async delete(id: string): Promise<void> {
     await DestinationModel.findByIdAndDelete(id);
   }
+ async getDestination(id: string): Promise<IDestinationModel | null> {
+  return await DestinationModel.findById(id);
+}
+
 }

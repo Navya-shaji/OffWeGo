@@ -20,7 +20,8 @@ import { DestinationRepository } from "../../../adapters/repository/Destination/
 import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
 import { UserProfileController } from "../../../adapters/controller/user/userProfileController";
 import { JwtSevice } from "../../services/jwtService";
-
+import { GetSingleDestinationController } from "../../../adapters/controller/Destination/GetSingleDestinationController";
+import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
 
 
 // Setup Repos and Services
@@ -40,7 +41,7 @@ const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtServi
 const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const userprofile=new UserProfileUsecase(userRepository)
-
+const getsingleDestinationusecase=new GetDestination(destinationRepository)
 
 
 // Controllers
@@ -52,4 +53,5 @@ export const verifyingOtpController = new VerifyResetOtpController(otpService);
 export const forgotpassController = new forgotPasswordController(otpService);
 export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);
 export const getDestinationController=new GetAllDestinationController(getallDestinations);
-export const userprofileController=new UserProfileController(userprofile)
+export const userprofileController=new UserProfileController(userprofile);
+export const getSingledestinationController=new GetSingleDestinationController(getsingleDestinationusecase)
