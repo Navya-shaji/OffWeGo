@@ -5,6 +5,7 @@ import {
   catogoryController,
   destinationController,
   editDestinationController,
+  getallCategoryController,
   getAllUsersController,
   getAllVendorsController,
   getDestinationController,
@@ -67,6 +68,9 @@ export class AdminRoute {
     })
     this.adminRouter.post("/create-categories",(req:Request,res:Response)=>{
       catogoryController.createCategory(req,res)
+    })
+    this.adminRouter.get("/categories",(req:Request,res:Response)=>{
+      getallCategoryController.getCategories(req,res)
     })
   }
 }
