@@ -8,7 +8,7 @@ export const categorySchema = new Schema({
   description: {
     type: String,
   },
-  image_Urls: {
+  imageUrl: {
     type: String,
   },
   type: {

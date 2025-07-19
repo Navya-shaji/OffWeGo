@@ -8,6 +8,7 @@ export class CreateCategory{
 
     async execute(data:CreateCategoryDto):Promise<Category>{
         const created=await this.categoryRepo.createCategory(data)
+        console.log("created one is ",created)
         return mapToCatrgoryDto(created)
     }
 }

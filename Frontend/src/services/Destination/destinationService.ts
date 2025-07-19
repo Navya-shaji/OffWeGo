@@ -31,8 +31,8 @@ export const fetchAllDestinations = async () => {
 };
 export const updateDestination = async (id: string, data: DestinationInterface) => {
   try {
-    const res = await axiosInstance.put(`/admin/edit/${id}`, data); // ✅ Use actual ID
-    console.log("✅ Updated:", res);
+    const res = await axiosInstance.put(`/admin/edit/${id}`, data); 
+    console.log(" Updated:", res);
     return res.data;
   } catch (error) {
     console.error("❌ Error updating destination:", error);

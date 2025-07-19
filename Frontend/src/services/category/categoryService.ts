@@ -17,3 +17,18 @@ export const addCategory=async (data:Category)=>{
         throw new Error("An unexpected error occured while adding category")
     }
 }
+
+export const getCategory=async()=>{
+
+    try {
+        console.log("haiii")
+        const res=await axiosInstance.get("/admin/categories")
+        return res.data
+    } catch (error) {
+    if (isAxiosError(error)) {
+        console.log("err")
+      throw new Error(error.response?.data?.error || "Failed to fetch categories");
+    }
+    throw new Error("An unexpected error occurred while fetching categories");
+    }
+}
