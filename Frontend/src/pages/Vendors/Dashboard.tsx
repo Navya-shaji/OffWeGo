@@ -1,7 +1,8 @@
 import Navbar from "@/components/vendor/navbar";
 import VendorSidebar from "@/components/vendor/sidebar";
 import { useState } from "react";
-import {Profile} from "./Profile";
+import {Profile} from "./Vendorprofile";
+import { DestinationTable } from "../Admin/Destination/GetDestination";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -19,9 +20,9 @@ function Dashboard() {
       
         <div className="flex-1 p-6 overflow-y-auto">
           {activeTab === "Profile" && <Profile/>}
-          {activeTab === "Add Package" && <div>Add Package Form</div>}
+          {activeTab === "Add Package" &&  <div>Add Package</div>}
           {activeTab === "All Packages" && <div>All Packages List</div>}
-          {activeTab === "All Destinations" && <div>Destinations List</div>}
+          {activeTab === "All Destinations" && <DestinationTable/>}
         </div>
       </div>
     </div>

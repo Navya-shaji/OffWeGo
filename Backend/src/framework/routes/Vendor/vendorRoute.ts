@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import {
+  createPackageController,
   vendorDestinationController,
   vendorloginController,
   vendorProfilecontroller,
@@ -35,6 +36,9 @@ export class VendorRoute {
     })
     this.vendorRouter.get('/destinations',(req:Request,res:Response)=>{
       vendorDestinationController.getAllDestination(req,res)
+    })
+    this.vendorRouter.post("/add-Package",(req:Request,res:Response)=>{
+      createPackageController.addPackage(req,res)
     })
   } 
 }
