@@ -10,6 +10,9 @@ export interface IVendorLoginUsecase {
       id: string;
       email: string;
       name: string;
+      status: string;         
+      documentUrl: string;   
+      phone:string
     };
   } | null>;
 }

@@ -1,8 +1,5 @@
-
 import type { Vendor } from "@/interface/vendorInterface";
-import { createSlice, type PayloadAction} from "@reduxjs/toolkit";
-
-
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 type VendorAuthState = {
   isAuthenticated: boolean;
@@ -20,43 +17,39 @@ export const vendorAuthSlice = createSlice({
   name: "vendorAuth",
   initialState,
   reducers: {
-    Login: (
+    login: (
       state,
       action: PayloadAction<{ vendor: Vendor; token: string }>
     ) => {
       state.isAuthenticated = true;
       state.vendor = action.payload.vendor;
       state.token = action.payload.token;
-
-      localStorage.setItem("vendor-auth", "true");
-      localStorage.setItem("vendor", JSON.stringify(action.payload.vendor));
-      localStorage.setItem("vendor-token", action.payload.token);
     },
-    vendorLogout: (state) => {
+    logout: (state) => {
       state.isAuthenticated = false;
       state.vendor = null;
       state.token = null;
-
-      localStorage.removeItem("vendor-auth");
-      localStorage.removeItem("vendor");
-      localStorage.removeItem("vendor-token");
     },
-    setVendorAuthFromStorage: (state) => {
-      const storedAuth = localStorage.getItem("vendor-auth");
-      const storedVendor = localStorage.getItem("vendor");
-      const storedToken = localStorage.getItem("vendor-token");
-
-      state.isAuthenticated = storedAuth === "true";
-      state.vendor = storedVendor ? JSON.parse(storedVendor) : null;
-      state.token = storedToken ?? null;
+    setVendorFromSession: (
+      state,
+      action: PayloadAction<{
+        vendor: Vendor | null;
+        token: string | null;
+      }>
+    ) => {
+      if (action.payload.vendor && action.payload.token) {
+        state.isAuthenticated = true;
+        state.vendor = action.payload.vendor;
+        state.token = action.payload.token;
+      } else {
+        state.isAuthenticated = false;
+        state.vendor = null;
+        state.token = null;
+      }
     },
   },
 });
 
-export const {
-  Login,
-  vendorLogout,
-  setVendorAuthFromStorage,
-} = vendorAuthSlice.actions;
+export const { login, logout, setVendorFromSession } = vendorAuthSlice.actions;
 
 export default vendorAuthSlice.reducer;

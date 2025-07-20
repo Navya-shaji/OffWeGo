@@ -3,22 +3,22 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { IVendorProfileUseCase } from "../../../domain/interface/vendor/IvendorProfileUsecase";
 
-export class VendorProfileController{
-    constructor(private vendorprofileusecase:IVendorProfileUseCase){}
+export class VendorProfileController {
+  constructor(private vendorprofileusecase: IVendorProfileUseCase) {}
 
-    async GetProfile(req:Request,res:Response):Promise<void>{
-        try {
-            const {email}=req.query;
-            if(typeof email !=="string"){
-                res.status(HttpStatus.BAD_REQUEST).json({
-                    success:false,
-                    message:"email is Required  and must be string"
-                })
-                return 
-            }
+  async GetProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.query;
+      if (typeof email !== "string") {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "email is Required  and must be string",
+        });
+        return;
+      }
 
-            const result=await this.vendorprofileusecase.execute(email)
-if (result) {
+      const result = await this.vendorprofileusecase.execute(email);
+      if (result) {
         res.status(HttpStatus.OK).json({
           success: true,
           message: "Profile fetched successfully",
@@ -37,5 +37,5 @@ if (result) {
         message: "Internal server error",
       });
     }
-    }
+  }
 }

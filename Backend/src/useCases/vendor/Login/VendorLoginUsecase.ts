@@ -13,7 +13,14 @@ export class VendorLoginUsecase {
   async execute(data: LoginDTo): Promise<{
     accessToken: string;
     refreshToken: string;
-    vendor: { id: string; email: string; name: string };
+    vendor: {
+      id: string;
+      email: string;
+      name: string;
+      status: string;
+      documentUrl: string;
+      phone:string
+    };
   } | null> {
     const { email, password } = data;
 
@@ -63,6 +70,9 @@ export class VendorLoginUsecase {
         id: vendor._id?.toString() ?? "",
         email: vendor.email,
         name: vendor.name,
+        phone:vendor.phone,
+        status: vendor.status,
+        documentUrl: vendor.documentUrl,
       },
     };
   }

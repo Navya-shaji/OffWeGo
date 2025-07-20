@@ -6,7 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { toast } from "react-toastify";
-import { Login } from "@/store/slice/vendor/authSlice"; 
+import { login } from "@/store/slice/vendor/authSlice"; 
 import { vendorLogin } from "@/services/vendor/VendorLoginService";
 import type { AxiosError } from "axios";
 import type { Vendor } from "@/interface/vendorInterface";
@@ -30,6 +30,7 @@ export default function VendorLogin() {
     try {
       const response = await vendorLogin(data.email, data.password);
       const rawVendor = response.vendor;
+      console.log("Raw",rawVendor)
 
       if (!rawVendor) {
         toast.error("Vendor not found");
@@ -41,16 +42,9 @@ export default function VendorLogin() {
         return;
       }
 
-      const vendorData: Vendor = {
-        _id: rawVendor.id,
-        email: rawVendor.email,
-        name: rawVendor.name ?? "",
-        status: "approved",
-        documentUrl: "",
-        isBlocked: false,
-      };
+      const vendorData: Vendor = rawVendor;
 
-      dispatch(Login({ vendor: vendorData, token: response.accessToken }));
+      dispatch(login({ vendor: vendorData, token: response.accessToken }));
       toast.success("Login successful");
       navigate("/vendor/profile", { replace: true });
 
