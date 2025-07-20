@@ -101,6 +101,7 @@ export const DestinationTable = () => {
                     )}
                   </div>
                 </td>
+                
 
                 <td className="px-6 py-4">{dest.name}</td>
                 <td className="px-6 py-4">{dest.location}</td>

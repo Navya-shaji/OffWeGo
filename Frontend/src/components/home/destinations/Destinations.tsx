@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const Destinations = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
@@ -23,8 +24,8 @@ export const Destinations = () => {
     };
 
     updateCardsPerView();
-    window.addEventListener('resize', updateCardsPerView);
-    return () => window.removeEventListener('resize', updateCardsPerView);
+    window.addEventListener("resize", updateCardsPerView);
+    return () => window.removeEventListener("resize", updateCardsPerView);
   }, []);
 
   useEffect(() => {
@@ -72,7 +73,6 @@ export const Destinations = () => {
         </h2>
 
         <div className="relative">
-        
           <button
             onClick={prevSlide}
             className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-200"
@@ -93,7 +93,9 @@ export const Destinations = () => {
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{
-                transform: `translateX(-${currentIndex * (100 / cardsPerView)}%)`,
+                transform: `translateX(-${
+                  currentIndex * (100 / cardsPerView)
+                }%)`,
               }}
             >
               {destinations.map((dest, idx) => (
@@ -102,7 +104,10 @@ export const Destinations = () => {
                   className="flex-shrink-0 px-3"
                   style={{ width: `${100 / cardsPerView}%` }}
                 >
-                  <div className="relative group cursor-pointer">
+                  <Link
+                    to={`/destination/${dest.id}`}
+                    className="relative group cursor-pointer block"
+                  >
                     <div className="relative h-80 rounded-2xl overflow-hidden shadow-lg">
                       {dest.imageUrls?.length > 0 ? (
                         <img
@@ -112,14 +117,14 @@ export const Destinations = () => {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                          <span className="text-gray-500 text-lg">No Image Available</span>
+                          <span className="text-gray-500 text-lg">
+                            No Image Available
+                          </span>
                         </div>
                       )}
-                      
-                  
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                      
-                  
+
                       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                         <h3 className="text-2xl font-bold mb-1">
                           {dest.name}, {dest.location}
@@ -129,7 +134,7 @@ export const Destinations = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -138,12 +143,14 @@ export const Destinations = () => {
 
         {/* Dots Indicator */}
         <div className="flex justify-center mt-8 space-x-2">
-          {Array.from({ length: Math.ceil(destinations.length / cardsPerView) }).map((_, idx) => (
+          {Array.from({
+            length: Math.ceil(destinations.length / cardsPerView),
+          }).map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
               className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
+                idx === currentIndex ? "bg-blue-600" : "bg-gray-300"
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />

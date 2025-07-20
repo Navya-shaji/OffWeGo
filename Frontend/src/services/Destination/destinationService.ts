@@ -42,3 +42,17 @@ export const updateDestination = async (id: string, data: DestinationInterface) 
     throw new Error("An unexpected error occurred while updating destination");
   }
 };
+
+export const getsingleDestination=async(id:string)=>{
+  try {
+    const res=await axiosInstance.get(`destination/${id}`)
+    console.log(res)
+    return res.data
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || "Failed to update destination");
+    }
+    throw new Error("An unexpected error occurred while updating destination");
+  }
+  }
+

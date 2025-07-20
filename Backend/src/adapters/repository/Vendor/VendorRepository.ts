@@ -67,4 +67,7 @@ export class VendorRepository implements IVendorRepository {
     vendor.isBlocked = status === "blocked";
     await vendor.save();
   }
+    async getProfileByEmail(email:string): Promise<RegistervendorDto | null>{
+      return await VendorModel.findOne({email})
+    }
 }

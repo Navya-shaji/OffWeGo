@@ -17,6 +17,10 @@ import { VendorStatusCheckController } from "../../../adapters/controller/Vendor
 
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
 import { VendorLoginController } from "../../../adapters/controller/Vendor/vendorLoginController";
+
+import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
+import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
+
 import { JwtSevice } from "../../services/jwtService";
 
 
@@ -34,6 +38,7 @@ const getVendorByEmailUsecase = new GetVendorByEmailUseCase(vendorRepository);
 const updateVendorstatususecase = new UpdateVendorstatusUseCase(vendorRepository); 
 const vendorStatusUseCase = new VendorStatusCheckUseCase(vendorRepository);
 const vendorloginusecase=new VendorLoginUsecase(vendorRepository,hashPassword,jwtService)
+const vendorProfileusecase=new VendorProfileUsecase(vendorRepository)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -42,4 +47,5 @@ export const updateVendorStatusController = new UpdateVendorstatusController(upd
 export const updateVendorstatusController = new UpdateVendorstatusController(updateVendorstatusUsecase);
 export const adminVendorController = new AdminVendorController(getVendorByEmailUsecase);
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
-export const vendorloginController=new VendorLoginController(vendorloginusecase)
+export const vendorloginController=new VendorLoginController(vendorloginusecase);
+export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase)

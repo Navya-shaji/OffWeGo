@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   vendorloginController,
+  vendorProfilecontroller,
   vendorsignupcontroller,
   vendorstatusCheckController,
   vendorVerifyOtpController,
@@ -27,6 +28,9 @@ export class VendorRoute {
     })
     this.vendorRouter.post("/login",(req:Request,res:Response)=>{
       vendorloginController.login(req,res)
+    })
+    this.vendorRouter.get("/profile",(req:Request,res:Response)=>{
+      vendorProfilecontroller.GetProfile(req,res)
     })
   }
 }

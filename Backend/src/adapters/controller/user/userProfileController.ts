@@ -8,7 +8,7 @@ export class UserProfileController {
   async GetProfile(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.query;  
-      console.log("Query email:", req.query.email); // Confirm the email reaches controller
+      console.log("Query email:", req.query.email); 
 
 
       if (typeof email !== "string") {

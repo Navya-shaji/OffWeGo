@@ -14,4 +14,5 @@ export interface IVendorRepository {
   rejectVendor(id: string): Promise<IVendorModel | null>;
   getAllVendors(): Promise<IVendorModel[]>;
   updateVendorStatusByAdmin(vendorId: string, status: "blocked" | "unblocked"): Promise<void>;
+  getProfileByEmail(email:string): Promise<RegistervendorDto | null>;
 }
