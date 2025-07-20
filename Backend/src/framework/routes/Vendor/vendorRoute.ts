@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import {
+  vendorDestinationController,
   vendorloginController,
   vendorProfilecontroller,
   vendorsignupcontroller,
@@ -32,5 +33,8 @@ export class VendorRoute {
     this.vendorRouter.get("/profile",(req:Request,res:Response)=>{
       vendorProfilecontroller.GetProfile(req,res)
     })
-  }
+    this.vendorRouter.get('/destinations',(req:Request,res:Response)=>{
+      vendorDestinationController.getAllDestination(req,res)
+    })
+  } 
 }

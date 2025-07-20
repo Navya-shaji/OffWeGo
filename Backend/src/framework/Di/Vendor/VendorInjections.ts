@@ -21,7 +21,11 @@ import { VendorLoginController } from "../../../adapters/controller/Vendor/vendo
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 
+import { GetAllDestinationController } from "../../../adapters/controller/Destination/getDestinationController";
+import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
+
 import { JwtSevice } from "../../services/jwtService";
+import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 
 
 //  Setup Repository and Services
@@ -29,6 +33,7 @@ const vendorRepository = new VendorRepository();
 const otpService = new OtpService();
 const hashPassword = new HashPassword();
 const jwtService = new JwtSevice();
+const destinationRepo=new DestinationRepository()
 
 //  Use Cases
 const vendorSignupUsecase = new VendorRegisterUseCase(vendorRepository, otpService,hashPassword);
@@ -39,6 +44,7 @@ const updateVendorstatususecase = new UpdateVendorstatusUseCase(vendorRepository
 const vendorStatusUseCase = new VendorStatusCheckUseCase(vendorRepository);
 const vendorloginusecase=new VendorLoginUsecase(vendorRepository,hashPassword,jwtService)
 const vendorProfileusecase=new VendorProfileUsecase(vendorRepository)
+const getAlldestinationusecase=new GetAllDestinations(destinationRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -48,4 +54,5 @@ export const updateVendorstatusController = new UpdateVendorstatusController(upd
 export const adminVendorController = new AdminVendorController(getVendorByEmailUsecase);
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
-export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase)
+export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase);
+export const vendorDestinationController=new GetAllDestinationController(getAlldestinationusecase)
