@@ -1,51 +1,47 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "@/axios/instance";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/slice/user/authSlice";
+import { registerGoogleUser } from "@/services/user/userService";
 
 export function GoogleSignup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
-      <div style={{ transform: "scale(1.2)", transformOrigin: "top center" }}>
+    <div className="flex flex-col items-center mt-6 space-y-4">
+      <div className="w-full flex items-center gap-2">
+        <hr className="flex-grow border-t border-gray-300" />
+        <span className="text-gray-500 text-sm">or continue with</span>
+        <hr className="flex-grow border-t border-gray-300" />
+      </div>
+
+      <div className="scale-105">
         <GoogleLogin
           onSuccess={async (credentialResponse) => {
             const token = credentialResponse.credential;
             if (!token) {
-              console.error("No token received from Google");
+              toast.error("No token received from Google");
               return;
             }
 
             try {
-              const res = await axiosInstance.post("/google-signup", {
-                token,
-              });
-              const userData = res.data.user;
+              const res = await registerGoogleUser(token);
+              const { user, accessToken } = res.data;
 
-              if (userData) {
+              if (user && accessToken) {
                 dispatch(
                   login({
                     user: {
-                      username: userData.name,
-                      email: userData.email,
+                      id: user.id,
+                      username: user.name,
+                      email: user.email,
+                      phone: user.phone,
+                      status: user.status,
+                      role: user.role,
                     },
-                  })
-                );
-
-                localStorage.setItem(
-                  "authUser",
-                  JSON.stringify({
-                    isAuthenticated: true,
-                    user: {
-                      username: userData.name,
-                      email: userData.email,
-                      phone: userData.phone,
-                      imageUrl: userData.imageUrl,
-                    },
+                    token: accessToken,
                   })
                 );
 
@@ -55,8 +51,7 @@ export function GoogleSignup() {
                 toast.error("Signup failed");
               }
             } catch (error) {
-              console.error("Google signup error:", error);
-              toast.error("Server error during Google signup");
+             console.log(error)
             }
           }}
           onError={() => {

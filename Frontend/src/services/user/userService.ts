@@ -45,9 +45,9 @@ export const userLogin = async (formData: LoginFormData) => {
 };
 
 
-export const registerGoogleUser=async (user:{username:string,email:string})=>{
+export const registerGoogleUser=async (token: string)=>{
   try{
-    const res=await axiosInstance.post("/google-signup",user)
+    const res=await axiosInstance.post("/google-signup",{ token })
     return res
   }catch(error){
      console.error("Error while Google signup", error);
@@ -57,9 +57,12 @@ export const registerGoogleUser=async (user:{username:string,email:string})=>{
     throw new Error("Unexpected error during Google signup");
   }
 }
+
+
 export const resendOtp=async(email:string)=>{
   try {
     const res=await axiosInstance.post("/resend-otp",{email})
+    console.log(res)
     return res.data
   }catch (error) {
     console.log("error while  resend otp", error);

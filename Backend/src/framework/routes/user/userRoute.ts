@@ -10,6 +10,7 @@ import {
   getDestinationController,
   userprofileController,
   getSingledestinationController,
+  resendOtpController,
 } from "../../Di/user/userInjections";
 
 export class UserRoute {
@@ -51,6 +52,9 @@ export class UserRoute {
     })
     this.userRouter.get("/destination/:id",(req:Request,res:Response)=>{
       getSingledestinationController.getSingleDestinationController(req,res)
+    })
+    this.userRouter.post("/resend-otp",(req:Request,res:Response)=>{
+      resendOtpController.resendOtp(req,res)
     })
   }
 }

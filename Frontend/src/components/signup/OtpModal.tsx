@@ -4,12 +4,7 @@ import toast from "react-hot-toast";
 import { resendOtp, VerifyOtp } from "@/services/user/userService";
 import type { SignupSchema } from "@/Types/User/auth/Tsignup";
 
-
-export default function OtpModal({
-  isOpen,
-  onClose,
-  userData,
-}: {
+export default function OtpModal({  isOpen, onClose, userData,}: {
   isOpen: boolean;
   onClose: () => void;
   userData: SignupSchema;
@@ -74,21 +69,30 @@ export default function OtpModal({
 
   if (!isOpen) return null;
 
-  const formatTime = (s: number) => `${Math.floor(s / 60)}:${s % 60 < 10 ? "0" : ""}${s % 60}`;
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60)}:${s % 60 < 10 ? "0" : ""}${s % 60}`;
 
   return (
     <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
         <div className="bg-orange-100 p-5 pb-12 relative rounded-b-[60%] text-center">
-          <button onClick={onClose} className="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-xl">
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-xl"
+          >
             &times;
           </button>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Verify OTP</h2>
-          <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" className="w-20 h-20 mx-auto" />
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png"
+            className="w-20 h-20 mx-auto"
+          />
         </div>
 
         <div className="p-8 -mt-8">
-          <p className="text-sm text-center text-gray-600 mb-6">We sent a 6-digit code to your email.</p>
+          <p className="text-sm text-center text-gray-600 mb-6">
+            We sent a 6-digit code to your email.
+          </p>
           <div className="flex justify-between gap-3 mb-6">
             {otp.map((digit, i) => (
               <input
@@ -116,7 +120,9 @@ export default function OtpModal({
           <p className="text-xs text-center mt-2 text-gray-500">
             Didn’t receive the code?{" "}
             <span
-              className={`cursor-pointer ${timeLeft === 0 ? "text-black hover:underline" : "text-gray-400"}`}
+              className={`cursor-pointer ${
+                timeLeft === 0 ? "text-black hover:underline" : "text-gray-400"
+              }`}
               onClick={timeLeft === 0 ? handleResend : undefined}
             >
               Resend

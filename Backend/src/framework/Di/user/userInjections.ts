@@ -22,6 +22,8 @@ import { UserProfileController } from "../../../adapters/controller/user/userPro
 import { JwtSevice } from "../../services/jwtService";
 import { GetSingleDestinationController } from "../../../adapters/controller/Destination/GetSingleDestinationController";
 import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
+import { ResendOtpController } from "../../../adapters/controller/user/resendOtpController";
+import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
 
 
 // Setup Repos and Services
@@ -42,6 +44,7 @@ const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const userprofile=new UserProfileUsecase(userRepository)
 const getsingleDestinationusecase=new GetDestination(destinationRepository)
+const resendotpusecase=new ResendOtpUsecase(otpService)
 
 
 // Controllers
@@ -54,4 +57,5 @@ export const forgotpassController = new forgotPasswordController(otpService);
 export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);
 export const getDestinationController=new GetAllDestinationController(getallDestinations);
 export const userprofileController=new UserProfileController(userprofile);
-export const getSingledestinationController=new GetSingleDestinationController(getsingleDestinationusecase)
+export const getSingledestinationController=new GetSingleDestinationController(getsingleDestinationusecase);
+export const resendOtpController=new ResendOtpController(resendotpusecase);
