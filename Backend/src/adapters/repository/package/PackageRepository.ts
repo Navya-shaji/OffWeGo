@@ -6,4 +6,7 @@ export class PackageRepository implements IPackageRepository{
     async createPackage(data: Package): Promise<IPackageModel> {
         return await packageModel.create(data)
     }
+    async getAllPackages(): Promise<IPackageModel[]> {
+        return packageModel.find()
+    }
 }

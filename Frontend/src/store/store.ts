@@ -7,6 +7,7 @@ import DestinationReducer from "../store/slice/Destination/destinationSlice"
 import CategoryReducer from '../store/slice/category/categorySlice'
 import BannerReducer from '../store/slice/Banner/BannerSlice'
 import otpReducer from "./slice/user/otpSlice"; 
+import packageReducer from './slice/packages/packageSlice'
 const store=configureStore({
     reducer:{
       
@@ -17,7 +18,8 @@ const store=configureStore({
         destination:DestinationReducer,
         category:CategoryReducer,
         banner:BannerReducer,
-        otp: otpReducer
+        otp: otpReducer,
+        package:packageReducer
     }
 })
 

@@ -3,4 +3,5 @@ import { Package } from "../../entities/packageEntity";
 
 export interface IPackageRepository{
     createPackage(data:Package):Promise<IPackageModel>
+    getAllPackages():Promise<IPackageModel[]>
 }

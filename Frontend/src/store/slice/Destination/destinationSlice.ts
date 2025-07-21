@@ -61,7 +61,7 @@ export const destinationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ADD
+    
       .addCase(addDestination.pending, (state) => {
         state.loading = true;
         state.error = null;

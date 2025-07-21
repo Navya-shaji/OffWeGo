@@ -30,6 +30,8 @@ import { DestinationRepository } from "../../../adapters/repository/Destination/
 import { CreatePackagesUseCase } from "../../../useCases/package/addPackageUsecase";
 import { CreatePackagecontroller } from "../../../adapters/controller/packages/addPackageController";
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
+import { GetAllPackageController } from "../../../adapters/controller/packages/getAllPackageController";
+import { GetAllPackages } from "../../../useCases/package/getAllPackageUsecase";
 
 
 //  Setup Repository and Services
@@ -50,7 +52,8 @@ const vendorStatusUseCase = new VendorStatusCheckUseCase(vendorRepository);
 const vendorloginusecase=new VendorLoginUsecase(vendorRepository,hashPassword,jwtService);
 const vendorProfileusecase=new VendorProfileUsecase(vendorRepository);
 const getAlldestinationusecase=new GetAllDestinations(destinationRepo);
-const createPackageUsecase=new CreatePackagesUseCase(packageRepo)
+const createPackageUsecase=new CreatePackagesUseCase(packageRepo);
+const getallPackageUsecase=new GetAllPackages(packageRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -62,4 +65,5 @@ export const vendorstatusCheckController =new  VendorStatusCheckController(vendo
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase);
 export const vendorDestinationController=new GetAllDestinationController(getAlldestinationusecase);
-export const createPackageController=new CreatePackagecontroller(createPackageUsecase)
+export const createPackageController=new CreatePackagecontroller(createPackageUsecase);
+export const getallPackageController=new GetAllPackageController(getallPackageUsecase)
