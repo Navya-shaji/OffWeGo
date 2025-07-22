@@ -309,7 +309,7 @@ const AddPackage: React.FC = () => {
                         <div>
                           <Label
                             htmlFor="price"
-                            className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
+                            className="text-sm font-medium text-gray-700 mb-2  items-center gap-1"
                           >
                             <span className="text-green-600">₹</span>
                             Base Price
@@ -330,7 +330,7 @@ const AddPackage: React.FC = () => {
                         <div>
                           <Label
                             htmlFor="duration"
-                            className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-1"
+                            className="text-sm font-medium text-gray-700 mb-2 items-center gap-1"
                           >
                             <Clock className="h-4 w-4 text-blue-600" />
                             Duration (days)
@@ -414,7 +414,7 @@ const AddPackage: React.FC = () => {
                     <div className="space-y-6">
                       {/* Select Hotels */}
                       <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                        <Label className="text-sm font-medium text-gray-700 mb-2 items-center gap-2">
                           <Building className="h-4 w-4 text-green-600" />
                           Select Hotels
                         </Label>
@@ -442,7 +442,7 @@ const AddPackage: React.FC = () => {
                         </p>
                       </div>
 
-                      {/* Select Activities */}
+                     
                       <div>
                         <Label className="text-sm font-medium text-gray-700 mb-2 items-center gap-2">
                           <MapPin className="h-4 w-4 text-blue-600" />

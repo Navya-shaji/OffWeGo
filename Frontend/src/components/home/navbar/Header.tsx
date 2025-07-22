@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { logout, setUserFromSession } from "@/store/slice/user/authSlice";
+import { logout } from "@/store/slice/user/authSlice";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,9 +15,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      dispatch(setUserFromSession({ user: JSON.parse(storedUser) }));
-    }
+    console.log(storedUser);
   }, [dispatch]);
 
   const handleLogout = () => {
@@ -40,24 +38,28 @@ const Header: React.FC = () => {
             OffeGo
           </h1>
 
-          {/* Desktop Nav */}
           <nav className="hidden md:flex space-x-8">
-            {["Home", "Destinations", "Articles", "Buddy Travel", "Search"].map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
-              >
-                {item}
-              </a>
-            ))}
+            {["Home", "Destinations", "Articles", "Buddy Travel", "Search"].map(
+              (item) => (
+                <a
+                  key={item}
+                  href="#"
+                  className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
+                >
+                  {item}
+                </a>
+              )
+            )}
           </nav>
 
-          {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {!isAuthenticated ? (
               <>
-                <Button variant="ghost" className="text-gray-700 hover:text-coral-500" asChild>
+                <Button
+                  variant="ghost"
+                  className="text-gray-700 hover:text-coral-500"
+                  asChild
+                >
                   <Link to="/login">Login</Link>
                 </Button>
                 <Button
@@ -76,17 +78,9 @@ const Header: React.FC = () => {
                   <span className="text-gray-700 font-medium">
                     Hello, {user?.username || "User"}
                   </span>
-                  {user?.imageUrl && (
-                    <img
-                      src={user.imageUrl}
-                      alt="Profile"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  )}
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </div>
 
-                {/* Desktop User Dropdown */}
                 {isUserDropdownOpen && (
                   <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg w-48 z-20">
                     <button
@@ -107,21 +101,29 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
 
-        {/* Mobile Nav */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <nav className="flex flex-col space-y-2">
-              {["Home", "Destinations", "Articles", "Buddy Travel", "Search"].map((item) => (
+              {[
+                "Home",
+                "Destinations",
+                "Articles",
+                "Buddy Travel",
+                "Search",
+              ].map((item) => (
                 <a
                   key={item}
                   href="#"
@@ -132,7 +134,11 @@ const Header: React.FC = () => {
               ))}
               {!isAuthenticated ? (
                 <div className="pt-4 space-y-2">
-                  <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
                     <Link to="/login">Login</Link>
                   </Button>
                   <Button
@@ -148,13 +154,6 @@ const Header: React.FC = () => {
                     <span className="text-gray-700 font-medium">
                       Hello, {user?.username || "User"}
                     </span>
-                    {user?.imageUrl && (
-                      <img
-                        src={user.imageUrl}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    )}
                   </div>
                   <button
                     onClick={handleProfileClick}
