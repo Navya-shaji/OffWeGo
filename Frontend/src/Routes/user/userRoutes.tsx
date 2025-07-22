@@ -23,7 +23,7 @@ const UserRoute = () => {
 
     
       <Route
-        path="/home"
+        path="/"
         element={
           <ProtectedRoute>
             <Home />

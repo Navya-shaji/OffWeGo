@@ -13,6 +13,8 @@ import {
   resendOtpController,
   getpackageByDestinationController,
 } from "../../Di/user/userInjections";
+import { JwtSevice } from "../../services/jwtService";
+const TokenService = new JwtSevice();
 
 export class UserRoute {
   public userRouter: Router;

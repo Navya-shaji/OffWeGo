@@ -89,7 +89,7 @@ const Profile = () => {
               </div>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button className="flex-1 bg-gradient-to-r bg-black text-white px-6 py-3 rounded-xl font-semibold bg-black transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <button className="flex-1 bg-gradient-to-r text-white px-6 py-3 rounded-xl font-semibold bg-black transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                   Edit Profile
                 </button>
                 <button className="flex-1 bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
