@@ -17,7 +17,7 @@ const initialState: AuthState = {
 
 
 export const loginAdmin = createAsyncThunk<
-  { admin: AdminUser; token: string },
+  { admin: AdminUser; accessToken: string },
   { email: string; password: string },
   { rejectValue: string }
 >("adminAuth/login", async ({ email, password }, thunkAPI) => {
@@ -59,11 +59,11 @@ const adminAuthSlice = createSlice({
       loginAdmin.fulfilled,
       (
         state,
-        action: PayloadAction<{ admin: AdminUser; token: string }>
+        action: PayloadAction<{ admin: AdminUser; accessToken: string }>
       ) => {
         state.isAuthenticated = true;
         state.admin = action.payload.admin;
-        state.token = action.payload.token;
+        state.token = action.payload.accessToken;
       }
     );
     builder.addCase(loginAdmin.rejected, (state) => {

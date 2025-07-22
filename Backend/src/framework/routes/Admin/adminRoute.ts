@@ -17,6 +17,10 @@ import {
   vendorblockUnblockController,
 } from "../../../framework/Di/admin/adminInjection";
 
+import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
+import { JwtSevice } from "../../services/jwtService";
+const TokenService = new JwtSevice();
+
 export class AdminRoute {
   public adminRouter: Router;
 
@@ -29,6 +33,9 @@ export class AdminRoute {
     this.adminRouter.post("/login", (req: Request, res: Response) => {
       adminController.login(req, res);
     });
+
+    this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
+    
     this.adminRouter.get("/vendors/:email", (req: Request, res: Response) => {
       adminVendorController.getvendorByEmail(req, res);
     });

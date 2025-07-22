@@ -75,7 +75,6 @@ export const destinationSlice = createSlice({
         state.error = action.payload ?? "Unknown error during add";
       })
 
-      // FETCH
       .addCase(fetchDestinations.pending, (state) => {
         state.loading = true;
         state.error = null;

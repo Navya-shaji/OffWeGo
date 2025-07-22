@@ -9,4 +9,7 @@ export class PackageRepository implements IPackageRepository{
     async getAllPackages(): Promise<IPackageModel[]> {
         return packageModel.find()
     }
+  async getPackagesByDestination(destination: string): Promise<IPackageModel[]> {
+    return await  packageModel.find({ destination });
+  }
 }

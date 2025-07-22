@@ -1,12 +1,12 @@
 import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository";
-import { Package } from "../../domain/entities/packageEntity";
-import { mapToPackageDto } from "../../mappers/packages/mapTopackages";
+import { IPackageModel } from "../../framework/database/Models/packageModel";
+import { IGetPackageUsecase } from "../../domain/interface/vendor/IGetPackageUsecase";
 
-export class GetAllPackages {
+export class GetAllPackages implements IGetPackageUsecase {
     constructor(private packageRepo: IPackageRepository) {}
 
-    async execute(): Promise<Package[]> {
-        const packages = await this.packageRepo.getAllPackages();
-        return packages.map(mapToPackageDto);
+    async execute(): Promise<IPackageModel[]> {
+        return await this.packageRepo.getAllPackages(); 
     }
 }
+

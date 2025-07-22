@@ -68,7 +68,7 @@ export const Destinations = () => {
   return (
     <div className="relative bg-gray-50 py-16 px-4">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 mb-12 text-left">
+        <h2 className="text-3xl font-serif text-gray-900 mb-12 text-left">
           Iconic places you need to see
         </h2>
 
@@ -141,7 +141,7 @@ export const Destinations = () => {
           </div>
         </div>
 
-        {/* Dots Indicator */}
+     
         <div className="flex justify-center mt-8 space-x-2">
           {Array.from({
             length: Math.ceil(destinations.length / cardsPerView),

@@ -44,5 +44,6 @@ export class VendorRoute {
     this.vendorRouter.get("/packages",(req:Request,res:Response)=>{
       getallPackageController.getAllPackage(req,res)
     })
+    
   } 
 }

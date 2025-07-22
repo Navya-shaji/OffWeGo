@@ -4,7 +4,7 @@ export const adminLogin=async(email:string,password:string)=>{
         email,
         password
     })
-    return response.data.admin
+    return response.data
 }
 export const getVendorsByStatus = async (
   status: "pending" | "approved" | "rejected"

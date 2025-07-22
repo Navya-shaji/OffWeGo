@@ -5,15 +5,14 @@ import Navbar from "@/components/profile/navbar";
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   
-  console.log(user);
-  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navbar/>
       <div className="flex">
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+
+            <div className="bg-gradient-to-r bg-black px-8 py-6">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                   <span className="text-2xl font-bold text-white">
@@ -78,7 +77,7 @@ const Profile = () => {
                       type="tel"
                       value={user?.phone || ""}
                       readOnly
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-blue-400 transition-colors duration-200"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none  transition-colors duration-200"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +89,7 @@ const Profile = () => {
               </div>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <button className="flex-1 bg-gradient-to-r bg-black text-white px-6 py-3 rounded-xl font-semibold bg-black transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                   Edit Profile
                 </button>
                 <button className="flex-1 bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">

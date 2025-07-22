@@ -1,5 +1,5 @@
-import { Package } from "../../entities/packageEntity";
+import { IPackageModel } from "../../../framework/database/Models/packageModel";
 
-export interface IGetPackageUsecase{
-    execute():Promise<Package[]|null>
+export interface IGetPackageUsecase {
+  execute(destination?: string): Promise<IPackageModel[]>;
 }

@@ -45,7 +45,7 @@ const Navbar = () => {
                     }
                     className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
                   >
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-r bg-black rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
                         {user?.username?.charAt(0).toUpperCase() || "U"}
                       </span>

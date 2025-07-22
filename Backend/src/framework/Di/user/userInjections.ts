@@ -24,7 +24,9 @@ import { GetSingleDestinationController } from "../../../adapters/controller/Des
 import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
 import { ResendOtpController } from "../../../adapters/controller/user/resendOtpController";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
-
+import { PackageController } from "../../../adapters/repository/Destination/getPackageByDestinationController";
+import { GetPackageUsecase } from "../../../useCases/Destination/GetPackageByDestinationUsecase";
+import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
 
 // Setup Repos and Services
 const userRepository = new UserRepository();
@@ -33,18 +35,20 @@ const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const destinationRepository=new DestinationRepository();
 const jwtService=new JwtSevice
+const packageRepo=new PackageRepository()
 
 
 // Use Cases
 const registerUsecase = new RegisterUserUseCase(userRepository, otpService);
 const googleSignupUseCase = new GoogleSignupUseCase(authRepository,userRepository);
 const verifyOtpUsecase = new VerifyOtpUseCase(otpService,hashPassword,userRepository);
-const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtService)
-const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
-const getallDestinations=new GetAllDestinations(destinationRepository)
-const userprofile=new UserProfileUsecase(userRepository)
-const getsingleDestinationusecase=new GetDestination(destinationRepository)
-const resendotpusecase=new ResendOtpUsecase(otpService)
+const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtService);
+const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword);
+const getallDestinations=new GetAllDestinations(destinationRepository);
+const userprofile=new UserProfileUsecase(userRepository);
+const getsingleDestinationusecase=new GetDestination(destinationRepository);
+const resendotpusecase=new ResendOtpUsecase(otpService);
+const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
 
 
 // Controllers
@@ -59,3 +63,4 @@ export const getDestinationController=new GetAllDestinationController(getallDest
 export const userprofileController=new UserProfileController(userprofile);
 export const getSingledestinationController=new GetSingleDestinationController(getsingleDestinationusecase);
 export const resendOtpController=new ResendOtpController(resendotpusecase);
+export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);

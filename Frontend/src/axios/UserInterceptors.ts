@@ -4,7 +4,7 @@ import { logout } from "@/store/slice/user/authSlice";
 
 export const setupUserInterceptor = () => {
   axiosInstance.interceptors.request.use(config => {
-    const token = store.getState().auth.user?.token; 
+   const token = store.getState().auth.token;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
