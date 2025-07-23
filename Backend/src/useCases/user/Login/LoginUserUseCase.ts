@@ -3,7 +3,7 @@ import { IUserLoginUseCase } from "../../../domain/interface/usecaseInterface/IL
 import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
-import { mapNumericRoleToString } from "../../../utilities/mapping"; 
+import { mapNumericRoleToString } from "../../../mappers/User/mapping"; 
 
 export class UserLoginUseCase implements IUserLoginUseCase {
   constructor(

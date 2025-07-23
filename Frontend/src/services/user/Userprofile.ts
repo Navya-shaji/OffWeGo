@@ -14,3 +14,18 @@ export const getProfile=async()=>{
         
     }
 }
+
+
+
+export const editProfile = async (id: string, updatedData: { username: string; phone: string }) => {
+  try {
+    const res = await axiosInstance.patch(`/profile/${id}`, updatedData); 
+    return res.data;
+  } catch (error) {
+    console.error("Error while editing profile page:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || "Failed to edit profile.");
+    }
+    throw new Error("An unexpected error occurred while editing the profile.");
+  }
+};

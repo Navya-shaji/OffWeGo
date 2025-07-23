@@ -12,6 +12,7 @@ import {
   getSingledestinationController,
   resendOtpController,
   getpackageByDestinationController,
+  getusereditProfile,
 } from "../../Di/user/userInjections";
 import { JwtSevice } from "../../services/jwtService";
 const TokenService = new JwtSevice();
@@ -61,6 +62,9 @@ export class UserRoute {
     })
     this.userRouter.get("/destination/:id",(req:Request,res:Response)=>{
       getpackageByDestinationController.getPackages(req,res)
+    })
+    this.userRouter.patch("/profile/:id",(req:Request,res:Response)=>{
+      getusereditProfile.editProfileHandler(req,res)
     })
   }
 }

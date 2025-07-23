@@ -27,6 +27,8 @@ import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase
 import { PackageController } from "../../../adapters/repository/Destination/getPackageByDestinationController";
 import { GetPackageUsecase } from "../../../useCases/Destination/GetPackageByDestinationUsecase";
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
+import { EditUserProfileController } from "../../../adapters/controller/user/EditProfileController"; 
+import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
 
 // Setup Repos and Services
 const userRepository = new UserRepository();
@@ -49,6 +51,7 @@ const userprofile=new UserProfileUsecase(userRepository);
 const getsingleDestinationusecase=new GetDestination(destinationRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
 const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
+const edituserProfile=new EditUserProfile()
 
 
 // Controllers
@@ -64,3 +67,4 @@ export const userprofileController=new UserProfileController(userprofile);
 export const getSingledestinationController=new GetSingleDestinationController(getsingleDestinationusecase);
 export const resendOtpController=new ResendOtpController(resendotpusecase);
 export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
+export const getusereditProfile=new EditUserProfileController(edituserProfile);
