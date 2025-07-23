@@ -8,6 +8,7 @@ import VerifyResetOtp from "@/components/Login/otp-verification ";
 import ResetPassword from "@/components/Login/reset password";
 import Profile from "@/pages/User/profile/profile";
 import {DestinationDetail}from "@/pages/Admin/Destination/destinationSinglePage";
+import { Destinations } from "@/components/home/destinations/Destinations";
 
 const UserRoute = () => {
   return (
@@ -19,6 +20,7 @@ const UserRoute = () => {
       <Route path="/verify-reset-otp" element={<VerifyResetOtp/>}/>
       <Route path="/reset-password" element={<ResetPassword/>}/>
       <Route path="/profile" element={<Profile/>}/>
+      <Route path="/destinations" element={<Destinations/>}/>
       <Route path="/destination/:id" element={<DestinationDetail />} />
 
     

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
+
 import { logout } from "@/store/slice/user/authSlice";
 
 const Header: React.FC = () => {
@@ -39,15 +41,30 @@ const Header: React.FC = () => {
           </h1>
 
           <nav className="hidden md:flex space-x-8">
-            {["Home", "Destinations", "Articles", "Buddy Travel", "Search"].map(
-              (item) => (
-                <a
-                  key={item}
-                  href="#"
+            {[
+              { name: "Home", path: "/" },
+              { name: "Destinations", path: "/#destinations" },
+              { name: "Articles", path: "/articles" },
+              { name: "Buddy Travel", path: "/buddy-travel" },
+              { name: "Search", path: "/search" },
+            ].map((item) =>
+              item.name === "Destinations" ? (
+                <HashLink
+                  smooth
+                  key={item.name}
+                  to={item.path}
                   className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
                 >
-                  {item}
-                </a>
+                  {item.name}
+                </HashLink>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
+                >
+                  {item.name}
+                </Link>
               )
             )}
           </nav>
