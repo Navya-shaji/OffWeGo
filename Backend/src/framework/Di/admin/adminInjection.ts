@@ -7,10 +7,10 @@ import { JwtSevice } from "../../services/jwtService";
 import { GetVendorByEmailUseCase } from "../../../useCases/admin/Vendor/getVendorByEmailUsecase";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase";
-import { UpdateVendorstatusController } from "../../../adapters/controller/Admin/updateVendorController";
-import { AdminGetAllVendorController } from "../../../adapters/controller/Admin/getAllVendorsController";
+// import { UpdateVendorstatusController } from "../../../adapters/controller/Admin/updateVendorController";
+// import { AdminGetAllVendorController } from "../../../adapters/controller/Admin/getAllVendorsController";
 import { GetAllVendorsUseCase } from "../../../useCases/admin/Vendor/getAllVendorsUsecase";
-import { GetVendorsByStatusController } from "../../../adapters/controller/Admin/getVendorByStatusController"; 
+// import { GetVendorsByStatusController } from "../../../adapters/controller/Admin/getVendorByStatusController"; 
 import { GetAllUsers } from "../../../useCases/admin/user/getAllUserUsecase";
 import { AdminGetAllUserController } from "../../../adapters/controller/Admin/getAllUsers";
 import { UserRepository } from "../../../adapters/repository/user/userRepository";
@@ -23,7 +23,7 @@ import { CreateDestination } from "../../../useCases/Destination/createDestinati
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 import { EditDestination } from "../../../useCases/Destination/editDestinationUsecase";
 import { EditDestinationController } from "../../../adapters/controller/Destination/editDestinationController";
-import { AdminVenodrBlockandUnblockController } from "../../../adapters/controller/Admin/VenodrBlockAndUnblockController";
+// import { AdminVenodrBlockandUnblockController } from "../../../adapters/controller/Admin/VenodrBlockAndUnblockController";
 import { UpdateVendorUsecase } from "../../../useCases/admin/Vendor/updateVendorUsecase";
 import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
 import { CreateCatogoryController } from "../../../adapters/controller/category/categoryController";
@@ -69,16 +69,15 @@ const getbannerUsecase=new GetAllBanners(bannerRepo)
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
-export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase);
-export const updateVendorStatusController = new UpdateVendorstatusController(updateVendorStatusUseCase);
-export const getAllVendorsController = new AdminGetAllVendorController(getAllVendorsUsecase);
+export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase,getAllVendorsUsecase,updateVendorStatusUseCase,vendorblockUnblockUsecase,vendorRepository);
+// export const getAllVendorsController = new AdminGetAllVendorController(getAllVendorsUsecase);
 export const getAllUsersController=new AdminGetAllUserController(getallusers);
-export const getVendorsByStatusController = new GetVendorsByStatusController(vendorRepository);
+// export const getVendorsByStatusController = new GetVendorsByStatusController(vendorRepository);
 export const userstatusController=new AdminUpdateUserStatusController(updateUserusecase);
 export const destinationController=new CreateDestinationController(createdestinationusecase);
 export const getDestinationController=new GetAllDestinationController(getallDestinations);
 export const editDestinationController=new EditDestinationController(editDestination);
-export const vendorblockUnblockController=new AdminVenodrBlockandUnblockController(vendorblockUnblockUsecase);
+// export const vendorblockUnblockController=new AdminVenodrBlockandUnblockController(vendorblockUnblockUsecase);
 export const catogoryController=new CreateCatogoryController(createcategoryUsecase);
 export const getallCategoryController=new GetAllCategoryController(getAllcategoryUsecase);
 export const createBannerController=new CreateBannercontroller(createbannerUsecase);

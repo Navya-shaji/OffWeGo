@@ -9,16 +9,16 @@ import {
   getallbannercontroller,
   getallCategoryController,
   getAllUsersController,
-  getAllVendorsController,
+  // getAllVendorsController,
   getDestinationController,
-  getVendorsByStatusController,
-  updateVendorStatusController,
+  // getVendorsByStatusController,
   userstatusController,
-  vendorblockUnblockController,
+  // vendorblockUnblockController,
 } from "../../../framework/Di/admin/adminInjection";
 
 import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
 import { JwtSevice } from "../../services/jwtService";
+// import { updateVendorStatusController } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtSevice();
 
 export class AdminRoute {
@@ -43,19 +43,19 @@ export class AdminRoute {
   this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
 
   this.adminRouter.get("/vendors/:email", (req: Request, res: Response) => {
-    adminVendorController.getvendorByEmail(req, res);
+    adminVendorController.getVendorByEmail(req,res)
   });
 
   this.adminRouter.patch("/vendors/status/:id", (req: Request, res: Response) => {
-    updateVendorStatusController.VendorStatusController(req, res);
+    adminVendorController.updateVendorApprovalStatus(req,res)
   });
 
   this.adminRouter.get("/vendors", (req: Request, res: Response) => {
-    getAllVendorsController.getAllVendors(req, res);
+    adminVendorController.getAllVendors(req, res);
   });
 
   this.adminRouter.get("/vendors/status/:status", (req: Request, res: Response) => {
-    getVendorsByStatusController.getVendorsByStatus(req, res);
+    adminVendorController.getVendorsByStatus(req, res);
   });
 
   this.adminRouter.get("/users", (req: Request, res: Response) => {
@@ -75,7 +75,7 @@ export class AdminRoute {
   });
 
   this.adminRouter.patch("/vendors/isBlocked/:id", (req: Request, res: Response) => {
-    vendorblockUnblockController.updateStatus(req, res);
+    adminVendorController.blockOrUnblockVendor(req,res)
   });
 
   this.adminRouter.post("/create-categories", (req: Request, res: Response) => {

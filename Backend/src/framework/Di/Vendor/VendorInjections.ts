@@ -1,6 +1,6 @@
 import { VendorSignupController } from "../../../adapters/controller/Vendor/VendorSignup";
 import { VendorVerifyOtpController } from "../../../adapters/controller/Vendor/verifyVendorOtp";
-import { UpdateVendorstatusController } from "../../../adapters/controller/Admin/updateVendorController";
+// import { UpdateVendorstatusController } from "../../../adapters/controller/Admin/updateVendorController";
 
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { OtpService } from "../../services/otpService";
@@ -10,8 +10,8 @@ import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVen
 import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUsecase";
 import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase"; 
 import { GetVendorByEmailUseCase } from "../../../useCases/admin/Vendor/getVendorByEmailUsecase";
+// import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
 import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
-
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
 import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/vendorStatusCheckController";
 
@@ -58,9 +58,9 @@ const getallPackageUsecase=new GetAllPackages(packageRepo)
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
 export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVerifyOtpUseCase);
-export const updateVendorStatusController = new UpdateVendorstatusController(updateVendorstatususecase); 
-export const updateVendorstatusController = new UpdateVendorstatusController(updateVendorstatusUsecase);
-export const adminVendorController = new AdminVendorController(getVendorByEmailUsecase);
+// export const updateVendorStatusController = new AdminVendorController(updateVendorstatususecase); 
+// export const updateVendorstatusController = new AdminVendorController(updateVendorstatusUsecase);
+// export const adminVendorController = new AdminVendorController(getVendorByEmailUsecase);
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase);

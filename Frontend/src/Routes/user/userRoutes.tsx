@@ -19,7 +19,11 @@ const UserRoute = () => {
       <Route path="/forgot-password" element={<Forgotpassword/>}/>
       <Route path="/verify-reset-otp" element={<VerifyResetOtp/>}/>
       <Route path="/reset-password" element={<ResetPassword/>}/>
-      <Route path="/profile" element={<Profile/>}/>
+      <Route path="/profile"   element={
+          <ProtectedRoute>
+          <Profile/>
+          </ProtectedRoute>
+        }/>
       <Route path="/destinations" element={<Destinations/>}/>
       <Route path="/destination/:id" element={<DestinationDetail />} />
 
