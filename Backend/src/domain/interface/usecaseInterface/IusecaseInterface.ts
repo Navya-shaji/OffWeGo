@@ -1,4 +1,6 @@
-import { User } from "../../entities/userEntity";
-export interface IregisterUserUseCase{
-execute(userData: User, otp: string): Promise<boolean>;
+
+import { RegisterDTO } from "../../dto/user/userDto";
+
+export interface IregisterUserUseCase {
+  execute(userData: RegisterDTO): Promise<boolean>;
 }

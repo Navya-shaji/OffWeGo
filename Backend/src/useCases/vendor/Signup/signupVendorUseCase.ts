@@ -4,12 +4,13 @@ import { IPasswordService } from "../../../domain/interface/serviceInterface/Iha
 import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
 import { IRegisterVendorUseCase } from "../../../domain/interface/vendor/IVendorUsecase";
+import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 
 export class VendorRegisterUseCase implements IRegisterVendorUseCase {
   constructor(
     private vendorRepository: IVendorRepository,
     private otpService: IOtpService,
-    private hashService: IPasswordService // 👈 inject this
+    private hashService: IPasswordService
   ) {}
 
   async execute(vendorInput: RegistervendorDto): Promise<Vendor> {
@@ -25,23 +26,23 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
       throw new Error("Document is required for vendor Registration");
     }
 
-    const hashedPassword = await this.hashService.hashPassword(password); // ✅ Hash password
-
+    const hashedPassword = await this.hashService.hashPassword(password);
     const otp = this.otpService.generateOtp();
     console.log("Generated OTP:", otp);
 
-    const newVendor = await this.vendorRepository.createVendor({
+    // 👇 Construct the correct input for creation
+    const createdDoc = await this.vendorRepository.createVendor({
       name,
       email,
       phone,
-      password: hashedPassword, // ✅ store hashed password
+      password: hashedPassword,
       documentUrl,
-      status: "pending",
+      status: "pending"
     });
 
     await this.otpService.storeOtp(email, otp);
     await this.otpService.sendOtpEmail(email, otp);
 
-    return newVendor;
+    return mapToVendor(createdDoc);
   }
 }

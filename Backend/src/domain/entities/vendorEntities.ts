@@ -12,4 +12,5 @@ export interface Vendor {
   lastLogin?: Date;
   isAdmin?: boolean;
   googleVerified?: boolean;
+  isBlocked?: boolean;
 }

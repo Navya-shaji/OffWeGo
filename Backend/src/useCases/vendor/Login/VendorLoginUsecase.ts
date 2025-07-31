@@ -10,48 +10,69 @@ export class VendorLoginUsecase {
     private tokenService: ITokenService
   ) {}
 
-  async execute(
-    data: LoginDTo
-  ): Promise<{ token: string; vendor: { id: string; email: string; name: string } } | null> {
+  async execute(data: LoginDTo): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    vendor: {
+      id: string;
+      email: string;
+      name: string;
+      status: string;
+      documentUrl: string;
+      phone:string
+    };
+  } | null> {
     const { email, password } = data;
 
-    console.log("🔍 Login attempt for:", email);
+    console.log(" Login attempt for:", email);
 
-    const vendor = await this.vendorRepository.findByEmail(email.toLowerCase().trim());
-    console.log("✅ Vendor from DB:", vendor);
+    const vendor = await this.vendorRepository.findByEmail(
+      email.toLowerCase().trim()
+    );
+    console.log("Vendor from DB:", vendor);
 
     if (!vendor) {
-      console.log("❌ Vendor not found");
+      console.log(" Vendor not found");
       return null;
     }
 
     if (vendor.status !== "approved") {
-      console.log(`❌ Vendor status is '${vendor.status}', not approved`);
+      console.log(`Vendor status is '${vendor.status}', not approved`);
       return null;
     }
 
-    const isPasswordValid = await this.hashService.compare(password, vendor.password);
-    console.log("🔐 Password Valid:", isPasswordValid);
+    const isPasswordValid = await this.hashService.compare(
+      password,
+      vendor.password
+    );
+    console.log(" Password Valid:", isPasswordValid);
 
     if (!isPasswordValid) {
-      console.log("❌ Password mismatch");
+      console.log(" Password mismatch");
       return null;
     }
 
-    const token = this.tokenService.generateToken({
+    const payload = {
       id: vendor._id,
       email: vendor.email,
       role: "vendor",
-    });
+    };
 
-    console.log("✅ Token generated");
+    const accessToken = this.tokenService.generateAccessToken(payload);
+    const refreshToken = this.tokenService.generateRefreshToken(payload);
+
+    console.log(" Tokens generated");
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       vendor: {
         id: vendor._id?.toString() ?? "",
         email: vendor.email,
         name: vendor.name,
+        phone:vendor.phone,
+        status: vendor.status,
+        documentUrl: vendor.documentUrl,
       },
     };
   }

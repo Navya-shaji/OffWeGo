@@ -3,6 +3,7 @@ import { IUserLoginUseCase } from "../../../domain/interface/usecaseInterface/IL
 import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
+import { mapNumericRoleToString } from "../../../mappers/User/mapping"; 
 
 export class UserLoginUseCase implements IUserLoginUseCase {
   constructor(
@@ -12,8 +13,9 @@ export class UserLoginUseCase implements IUserLoginUseCase {
   ) {}
 
   async execute(data: LoginDTo): Promise<{
-    token: string;
-    user: { id: string; email: string; username: string; status: string };
+    accessToken: string;
+    refreshToken: string;
+    user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' ;phone:string};
   }> {
     const { email, password } = data;
 
@@ -27,25 +29,30 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       throw new Error("Your account has been blocked by the admin");
     }
 
-    const isPasswordValid = await this.hashService.compare(
-      password,
-      user.password
-    );
+    const isPasswordValid = await this.hashService.compare(password, user.password);
     if (!isPasswordValid) throw new Error("Invalid credentials");
 
-    const token = this.tokenService.generateToken({
+    const role = typeof user.role === 'number' ? mapNumericRoleToString(user.role) : user.role;
+
+    const payload = {
       id: user._id,
       email: user.email,
-    });
-    console.log("User Status:", user.status);
+      role,
+    };
+
+    const accessToken = this.tokenService.generateAccessToken(payload);
+    const refreshToken = this.tokenService.generateRefreshToken(payload);
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user._id?.toString() ?? "",
         email: user.email,
         username: user.name,
         status: user.status ?? "active",
+        role,
+        phone:user.phone.toString(),
       },
     };
   }

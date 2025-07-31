@@ -2,7 +2,7 @@ import { User } from "../../../domain/entities/userEntity";
 import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
 import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-import { HashPassword } from "../../../framework/services/hashPassword";
+
 
 export class VerifyOtpUseCase {
   private hashService: IPasswordService;

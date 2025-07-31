@@ -8,6 +8,7 @@ const initialState: VendorState = {
   pendingVendors: [],
   approvedVendors: [],
   rejectedVendors: [],
+  
 };
 export const vendorSlice = createSlice({
  name: 'vendorSlice',

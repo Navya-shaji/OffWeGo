@@ -1,9 +1,13 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { UserLoginUseCase } from "../../../useCases/user/Login/LoginUserUseCase";
+import { IUserLoginUseCase } from "../../../domain/interface/usecaseInterface/ILoginUserUseCaseInterface";
+import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
 
 export class UserLoginController {
-  constructor(private loginUserUseCase: UserLoginUseCase) {}
+  constructor(
+    private loginUserUseCase: IUserLoginUseCase,
+    private tokenService: ITokenService
+  ) {}
 
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
@@ -17,25 +21,45 @@ export class UserLoginController {
         return;
       }
 
-      const { token, user } = await this.loginUserUseCase.execute({ email, password });
+      const result = await this.loginUserUseCase.execute({ email, password });
+      const user = result.user;
 
-    
-     if (user && user.status?.toLowerCase().includes("block")) {
-
+     
+      if (user.role?.toLowerCase() === "admin") {
         res.status(HttpStatus.FORBIDDEN).json({
           success: false,
-          message: "Your account has been blocked by admin",
+          message: "Admins are not allowed to log in from user portal",
         });
         return;
       }
 
+      if (user.status?.toLowerCase().includes("block")) {
+        res.status(HttpStatus.FORBIDDEN).json({
+          success: false,
+          message: "Your account has been blocked by the admin",
+        });
+        return;
+      }
+
+      
+      const payload = { userId: user.id, role: user.role };
+      const accessToken = this.tokenService.generateAccessToken(payload);
+      const refreshToken = this.tokenService.generateRefreshToken(payload);
+
+   
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000, 
+      });
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Login successful",
-        token,
+        accessToken,
         user,
       });
-
     } catch (error: any) {
       console.error("Login error:", error);
       res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({

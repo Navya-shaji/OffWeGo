@@ -1,11 +1,11 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVendorUseCase";
 import { Request, Response } from "express";
 import cloudinary from "../../../utilities/cloud";
+import { IRegisterVendorUseCase } from "../../../domain/interface/vendor/IVendorUsecase";
 
 export class VendorSignupController {
-  constructor(private RegistervendorUsecase: VendorRegisterUseCase) {}
+  constructor(private RegistervendorUsecase: IRegisterVendorUseCase) {}
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
     try {
@@ -32,6 +32,7 @@ const result = await cloudinary.uploader.upload(document, {
         phone,
         password,
         documentUrl,
+        
       };
 
       const newVendor = await this.RegistervendorUsecase.execute(vendorData);

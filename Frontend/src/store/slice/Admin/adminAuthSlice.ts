@@ -1,68 +1,78 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { adminLogin } from "@/services/admin/adminService";
+import type { AdminUser } from "@/Types/Admin/Login/Login type";
 
-
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { adminLogin } from '@/services/admin/adminService'; 
-
-type AdminUser = {
-  email: string;
-};
-
-type AuthState = {
+interface AuthState {
   isAuthenticated: boolean;
   admin: AdminUser | null;
-};
-
+  token: string | null;
+}
 
 const initialState: AuthState = {
   isAuthenticated: false,
   admin: null,
+  token: null,
 };
 
 
 export const loginAdmin = createAsyncThunk<
-  AdminUser,                                 
-  { email: string; password: string },       
-  { rejectValue: string }>(
-  '/login',
-  async ({ email, password }, thunkAPI) => {
-    try {
-      const admin = await adminLogin(email, password); 
-      return admin;
-    } catch (err) {
-        console.log(err)
-      return thunkAPI.rejectWithValue('Login failed');
-    }
+  { admin: AdminUser; accessToken: string },
+  { email: string; password: string },
+  { rejectValue: string }
+>("adminAuth/login", async ({ email, password }, thunkAPI) => {
+  try {
+    const response = await adminLogin(email, password);
+    return response;
+  } catch (err) {
+    console.error(err);
+    return thunkAPI.rejectWithValue("Login failed");
   }
-);
-
+});
 
 const adminAuthSlice = createSlice({
-  name: 'AdminAuth',
+  name: "adminAuth",
   initialState,
   reducers: {
     logout: (state) => {
       state.isAuthenticated = false;
       state.admin = null;
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('admin');
+      state.token = null;
     },
-    setAdminAuthfromstorage: (state) => {
-      const storedAuth = localStorage.getItem('isAuthenticated');
-      const storedAdmin = localStorage.getItem('admin');
-      state.isAuthenticated = storedAuth === 'true';
-      state.admin = storedAdmin ? JSON.parse(storedAdmin) : null;
+    setAdminFromSession: (
+      state,
+      action: PayloadAction<{ admin: AdminUser | null; token?: string | null }>
+    ) => {
+      if (action.payload.admin) {
+        state.isAuthenticated = true;
+        state.admin = action.payload.admin;
+        state.token = action.payload.token ?? null;
+      } else {
+        state.isAuthenticated = false;
+        state.admin = null;
+        state.token = null;
+      }
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loginAdmin.fulfilled, (state, action: PayloadAction<AdminUser>) => {
-      state.isAuthenticated = true;
-      state.admin = action.payload;
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('admin', JSON.stringify(action.payload));
+    builder.addCase(
+      loginAdmin.fulfilled,
+      (
+        state,
+        action: PayloadAction<{ admin: AdminUser; accessToken: string }>
+      ) => {
+        state.isAuthenticated = true;
+        state.admin = action.payload.admin;
+        state.token = action.payload.accessToken;
+      }
+    );
+    builder.addCase(loginAdmin.rejected, (state) => {
+      state.isAuthenticated = false;
+      state.admin = null;
+      state.token = null;
     });
   },
 });
 
-export const { logout, setAdminAuthfromstorage } = adminAuthSlice.actions;
+export const { logout, setAdminFromSession } = adminAuthSlice.actions;
 export default adminAuthSlice.reducer;

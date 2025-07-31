@@ -4,4 +4,5 @@ export interface RegistervendorDto{
     phone:string,
     password:string,
     documentUrl:string
+    status?:string
 }

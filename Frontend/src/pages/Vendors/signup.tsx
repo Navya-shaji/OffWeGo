@@ -9,17 +9,20 @@ import { vendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 import OtpVendorModal from "@/components/vendor/OtpModalVendor";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { Link } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function VendorSignup() {
   const [document, setDocument] = useState<File | null>(null);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [vendorData, setVendorData] = useState<VendorSignupSchema | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+
   } = useForm<VendorSignupSchema>({
     resolver: zodResolver(vendorSignupSchema),
   });
@@ -34,11 +37,7 @@ export default function VendorSignup() {
       setIsUploading(true);
       const documentUrl = await uploadToCloudinary(document);
 
-      const payload = {
-        ...data,
-        document: documentUrl,
-      };
-
+      const payload = { ...data, document: documentUrl };
       const response = await vendorRegister(payload);
 
       if (response.data.success) {
@@ -57,27 +56,26 @@ export default function VendorSignup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-100 via-purple-100 to-white p-6">
-      <div className="flex flex-col md:flex-row w-full max-w-5xl shadow-xl rounded-2xl bg-white overflow-hidden border border-gray-200">
-        
-        {/* Left Side with Image */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-orange-100 via-sky-100 to-white p-6">
+      <div className="w-[70%] h-[90vh] flex flex-col md:flex-row shadow-xl rounded-2xl bg-white overflow-hidden border border-gray-200">
+        {/* Left Image Section */}
         <div
           className="md:w-1/2 h-64 md:h-auto relative bg-cover bg-center"
-          style={{ backgroundImage: 'url("/images/vendor.jpg")' }}
+          style={{ backgroundImage: 'url("/images/vendorSignup.jpeg")' }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          <div className="absolute inset-0 bg-opacity-40"></div>
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6 py-10">
-            <h1 className="text-4xl font-extrabold italic text-white mb-3">OffWeGo</h1>
-            <p className="text-white text-sm max-w-xs">
+            <h1 className="text-4xl font-extrabold italic text-black mb-6">OffWeGo</h1>
+            <p className="text-black max-w-xl">
               "We verify for quality. You deliver the best!"
             </p>
           </div>
         </div>
 
-        {/* Right Side Form */}
+        {/* Form Section */}
         <div className="w-full md:w-1/2 p-8 flex flex-col justify-center relative">
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
-            Vendor Signup
+          <h2 className="text-4xl font-bold text-center text-black mb-12 font-serif">
+            Become a Verified Vendor
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-sm mx-auto w-full">
@@ -90,11 +88,26 @@ export default function VendorSignup() {
             <input {...register("email")} placeholder="Email" className="input" />
             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
 
-            <input type="password" {...register("password")} placeholder="Password" className="input" />
-            {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                placeholder="Password"
+                className="input pr-10"
+              />
+              <span
+                className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </span>
+              {errors.password && (
+                <p className="text-red-500 text-xs">{errors.password.message}</p>
+              )}
+            </div>
 
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               {...register("confirmPassword")}
               placeholder="Confirm Password"
               className="input"
@@ -114,7 +127,7 @@ export default function VendorSignup() {
             <button
               type="submit"
               disabled={isUploading}
-              className="w-full bg-blue-900 text-white font-semibold py-2 rounded text-sm hover:bg-blue-800 transition duration-200 shadow-md"
+              className="w-full bg-black text-white font-semibold py-2 rounded text-sm hover:bg-gray-900 transition duration-200 shadow-md"
             >
               {isUploading ? "Uploading..." : "Sign Up"}
             </button>
@@ -122,20 +135,20 @@ export default function VendorSignup() {
 
           <p className="text-sm text-center text-gray-600 mt-4">
             Already have an account?{" "}
-            <Link to="/vendor/login" className="text-blue-800 font-semibold hover:underline">
+            <Link to="/vendor/login" className="text-black font-semibold hover:underline">
               Log in
             </Link>
           </p>
+
+          {showOtpModal && vendorData && (
+            <OtpVendorModal
+              isOpen={showOtpModal}
+              onClose={() => setShowOtpModal(false)}
+              vendorData={vendorData}
+            />
+          )}
         </div>
       </div>
-
-      {showOtpModal && vendorData && (
-        <OtpVendorModal
-          isOpen={showOtpModal}
-          onClose={() => setShowOtpModal(false)}
-          vendorData={vendorData}
-        />
-      )}
       <ToastContainer />
     </div>
   );

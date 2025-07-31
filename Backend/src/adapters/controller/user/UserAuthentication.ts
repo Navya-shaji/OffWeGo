@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { RegisterUserUseCase } from "../../../useCases/user/Signup/signupUserUsecase";
 import { RegisterDTO } from "../../../domain/dto/user/userDto";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IregisterUserUseCase } from "../../../domain/interface/usecaseInterface/IusecaseInterface";
 
 export class UserRegisterController {
-  constructor(private registerUserUseCase: RegisterUserUseCase) {}
+  constructor(private registerUserUseCase: IregisterUserUseCase) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
     try {
