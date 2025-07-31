@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import {
   adminController,
+  AdminuserController,
   adminVendorController,
   catogoryController,
   createBannerController,
@@ -8,17 +9,13 @@ import {
   editDestinationController,
   getallbannercontroller,
   getallCategoryController,
-  getAllUsersController,
-  // getAllVendorsController,
+
   getDestinationController,
-  // getVendorsByStatusController,
-  userstatusController,
-  // vendorblockUnblockController,
+
 } from "../../../framework/Di/admin/adminInjection";
 
 import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
 import { JwtSevice } from "../../services/jwtService";
-// import { updateVendorStatusController } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtSevice();
 
 export class AdminRoute {
@@ -59,11 +56,11 @@ export class AdminRoute {
   });
 
   this.adminRouter.get("/users", (req: Request, res: Response) => {
-    getAllUsersController.getAllUsers(req, res);
+    AdminuserController.getAllUsers(req, res);
   });
 
   this.adminRouter.patch("/user/status/:id", (req: Request, res: Response) => {
-    userstatusController.updateStatus(req, res);
+    AdminuserController.updateStatus(req, res);
   });
 
   this.adminRouter.post('/create-destination', (req: Request, res: Response) => {

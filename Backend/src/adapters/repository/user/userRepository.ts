@@ -22,12 +22,8 @@ export class UserRepository implements IUserRepository {
       { $set: { password: newHashedPassword } }
     );
   }
-async getAllUsers(skip: number, limit: number): Promise<{ users: User[], totalUsers: number }> {
+async getAllUsers(): Promise<{ users: User[], totalUsers: number }> {
   const users = await UserModel.find()
-    .skip(skip)
-    .limit(limit)
-    .lean();
-
   const totalUsers = await UserModel.countDocuments();
 
   return { users, totalUsers };

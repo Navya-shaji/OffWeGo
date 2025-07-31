@@ -1,13 +1,10 @@
 import { User } from "../../../domain/entities/userEntity";
+import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-
-export class GetAllUsers {
+export class GetAllUsers implements IGetAllUser {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute({ skip, limit }: { skip: number; limit: number }): Promise<{
-    users: User[];
-    totalUsers: number;
-  }> {
-    return await this.userRepository.getAllUsers(skip, limit);
+  async execute(): Promise<{ users: User[]; totalUsers: number }> {
+    return await this.userRepository.getAllUsers(); // no pagination
   }
 }

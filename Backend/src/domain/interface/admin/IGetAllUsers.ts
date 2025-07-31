@@ -1,7 +1,7 @@
 import { User } from "../../entities/userEntity";
 
 export interface IGetAllUser{
-    execute(params: { skip: number; limit: number }): Promise<{
+    execute(): Promise<{
     users: User[];
     totalUsers: number;
   }>;
