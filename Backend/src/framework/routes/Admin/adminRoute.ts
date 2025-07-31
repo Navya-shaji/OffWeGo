@@ -3,14 +3,10 @@ import {
   adminController,
   AdminuserController,
   adminVendorController,
+  bannerController,
   catogoryController,
-  createBannerController,
   destinationController,
-  editDestinationController,
-  getallbannercontroller,
-  getallCategoryController,
-
-  getDestinationController,
+  
 
 } from "../../../framework/Di/admin/adminInjection";
 
@@ -34,7 +30,7 @@ export class AdminRoute {
 
 
   this.adminRouter.get('/destinations', (req: Request, res: Response) => {
-    getDestinationController.getAllDestination(req, res);
+    destinationController.getAllDestination(req, res);
   });
 
   this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
@@ -68,7 +64,7 @@ export class AdminRoute {
   });
 
   this.adminRouter.put('/edit/:id', (req: Request, res: Response) => {
-    editDestinationController.editDestinationHandler(req, res);
+    destinationController.editDestinationHandler(req, res);
   });
 
   this.adminRouter.patch("/vendors/isBlocked/:id", (req: Request, res: Response) => {
@@ -80,15 +76,15 @@ export class AdminRoute {
   });
 
   this.adminRouter.get("/categories", (req: Request, res: Response) => {
-    getallCategoryController.getCategories(req, res);
+    catogoryController.getCategories(req, res);
   });
 
   this.adminRouter.post("/create-banner", (req: Request, res: Response) => {
-    createBannerController.CreateBanner(req, res);
+    bannerController.CreateBanner(req, res);
   });
 
   this.adminRouter.get("/banner", (req: Request, res: Response) => {
-    getallbannercontroller.getBanners(req, res);
+    bannerController.getBanners(req, res);
   });
 }
 

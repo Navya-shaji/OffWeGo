@@ -7,14 +7,13 @@ import {
   forgotpassController,
   verifyingOtpController,
   resetPasswordController,
-  getDestinationController,
   userprofileController,
-  getSingledestinationController,
   resendOtpController,
   getpackageByDestinationController,
   getusereditProfile,
 } from "../../Di/user/userInjections";
 import { JwtSevice } from "../../services/jwtService";
+import { destinationController } from "../../Di/admin/adminInjection";
 const TokenService = new JwtSevice();
 
 export class UserRoute {
@@ -49,13 +48,13 @@ export class UserRoute {
       resetPasswordController.resetPassword(req, res)
     );
     this.userRouter.get("/destinations",(req:Request,res:Response)=>{
-      getDestinationController.getAllDestination(req,res)
+      destinationController.getAllDestination(req,res)
     })
     this.userRouter.get("/profile",(req:Request,res:Response)=>{
       userprofileController.GetProfile(req,res)
     })
     this.userRouter.get("/destination/:id",(req:Request,res:Response)=>{
-      getSingledestinationController.getSingleDestinationController(req,res)
+      destinationController.getSingleDestinationController(req,res)
     })
     this.userRouter.post("/resend-otp",(req:Request,res:Response)=>{
       resendOtpController.resendOtp(req,res)

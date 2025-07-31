@@ -1,14 +1,13 @@
 import { Router, Request, Response } from "express";
 import {
-  createPackageController,
-  getallPackageController,
-  vendorDestinationController,
+  packagecontroller,
   vendorloginController,
   vendorProfilecontroller,
   vendorsignupcontroller,
   vendorstatusCheckController,
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
+import { destinationController } from "../../Di/admin/adminInjection";
 
 export class VendorRoute {
   public vendorRouter: Router;
@@ -36,13 +35,13 @@ export class VendorRoute {
       vendorProfilecontroller.GetProfile(req,res)
     })
     this.vendorRouter.get('/destinations',(req:Request,res:Response)=>{
-      vendorDestinationController.getAllDestination(req,res)
+      destinationController.getAllDestination(req,res)
     })
     this.vendorRouter.post("/add-Package",(req:Request,res:Response)=>{
-      createPackageController.addPackage(req,res)
+      packagecontroller.addPackage(req,res)
     })
     this.vendorRouter.get("/packages",(req:Request,res:Response)=>{
-      getallPackageController.getAllPackage(req,res)
+      packagecontroller.getAllPackage(req,res)
     })
     
   } 

@@ -11,25 +11,23 @@ import { GetAllVendorsUseCase } from "../../../useCases/admin/Vendor/getAllVendo
 import { GetAllUsers } from "../../../useCases/admin/user/getAllUserUsecase";
 import { UserRepository } from "../../../adapters/repository/user/userRepository";
 import { UpdateUserUseCase } from "../../../useCases/admin/user/updateUserusecase";
-import { GetAllDestinationController } from "../../../adapters/controller/Destination/getDestinationController";
 import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
-import { CreateDestinationController } from "../../../adapters/controller/Destination/CreateDestinationController";
 import { CreateDestination } from "../../../useCases/Destination/createDestinationUsecase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 import { EditDestination } from "../../../useCases/Destination/editDestinationUsecase";
-import { EditDestinationController } from "../../../adapters/controller/Destination/editDestinationController";
 import { UpdateVendorUsecase } from "../../../useCases/admin/Vendor/updateVendorUsecase";
 import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
 import { CreateCatogoryController } from "../../../adapters/controller/category/categoryController";
 import { CategoryRepository } from "../../../adapters/repository/category/categoryRepository";
 import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
-import { GetAllCategoryController } from "../../../adapters/controller/category/getAllCategoryController";
 import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";
-import { CreateBannercontroller } from "../../../adapters/controller/Banner/bannerCreateController";
 import { BannerRepository } from "../../../adapters/repository/banner/BannerRepository";
 import { GetAllBanners } from "../../../useCases/banner/getAllBannerUsecase";
-import { GetAllBannerController } from "../../../adapters/controller/Banner/GetAllBannerController";
 import { AdminUserController } from "../../../adapters/controller/Admin/AdminUserController";
+import { Bannercontroller } from "../../../adapters/controller/Banner/BannerController";
+import { DestinationController } from "../../../adapters/controller/Destination/DestinationController";
+import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
+
 
 // Repositories
 const adminRepository = new AdminRepository();
@@ -60,16 +58,19 @@ const createcategoryUsecase=new CreateCategory(catogoryRepo)
 const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
 const createbannerUsecase=new CreateBanner(bannerRepo)
 const getbannerUsecase=new GetAllBanners(bannerRepo)
+const getDestinationsingleUsecase = new GetDestination(destinationRepository);
 
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
 export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase,getAllVendorsUsecase,updateVendorStatusUseCase,vendorblockUnblockUsecase,vendorRepository);
 export const AdminuserController=new AdminUserController(getallusers,updateUserusecase);
-export const destinationController=new CreateDestinationController(createdestinationusecase);
-export const getDestinationController=new GetAllDestinationController(getallDestinations);
-export const editDestinationController=new EditDestinationController(editDestination);
-export const catogoryController=new CreateCatogoryController(createcategoryUsecase);
-export const getallCategoryController=new GetAllCategoryController(getAllcategoryUsecase);
-export const createBannerController=new CreateBannercontroller(createbannerUsecase);
-export const getallbannercontroller=new GetAllBannerController(getbannerUsecase)
+export const destinationController = new DestinationController(
+  createdestinationusecase,
+  editDestination,           
+  getallDestinations,        
+  getDestinationsingleUsecase 
+)
+export const catogoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase);
+export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase);
+

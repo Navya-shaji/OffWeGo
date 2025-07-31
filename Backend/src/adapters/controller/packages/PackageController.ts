@@ -1,18 +1,29 @@
-
-import { Request, Response } from "express";
 import { ICreatePackage } from "../../../domain/interface/vendor/IAddPackageUsecase";
+import { IGetPackageUsecase } from "../../../domain/interface/vendor/IGetPackageUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { Request,Response } from "express";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 
-export class CreatePackagecontroller {
-  constructor(private createPackage: ICreatePackage) {}
+export class PackageController{
+    constructor(private getPackage:IGetPackageUsecase ,
+        private createPackage: ICreatePackage
+    ){}
+    async getAllPackage(req:Request,res:Response){
+        try {
+            const result=await this.getPackage.execute()
+            res.status(HttpStatus.OK).json(result)
+        } catch (error) {
+          res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({message:"failed to get Destinations"})
 
-  async addPackage(req: Request, res: Response) {
+        }
+    }
+
+     async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
       console.log("Package Data:", packageData);
 
-      // Validate ObjectId is actually an id, not a name
+      
       const destination = await DestinationModel.findById(packageData.destinationId);
 
       if (!destination) {

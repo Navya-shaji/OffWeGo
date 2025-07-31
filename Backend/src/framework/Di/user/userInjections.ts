@@ -14,13 +14,11 @@ import { VerifyResetOtpController } from "../../../adapters/controller/user/Veri
 import { forgotPasswordController } from "../../../adapters/controller/user/forgotPasswordController";
 import { UserResetPasswordController } from "../../../adapters/controller/user/resetPasswordController";
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
-import { GetAllDestinationController } from "../../../adapters/controller/Destination/getDestinationController";
 import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
 import { UserProfileController } from "../../../adapters/controller/user/userProfileController";
 import { JwtSevice } from "../../services/jwtService";
-import { GetSingleDestinationController } from "../../../adapters/controller/Destination/GetSingleDestinationController";
 import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
 import { ResendOtpController } from "../../../adapters/controller/user/resendOtpController";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
@@ -62,9 +60,7 @@ export const googleSignupController=new GoogleSignupController(googleSignupUseCa
 export const verifyingOtpController = new VerifyResetOtpController(otpService);
 export const forgotpassController = new forgotPasswordController(otpService);
 export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);
-export const getDestinationController=new GetAllDestinationController(getallDestinations);
 export const userprofileController=new UserProfileController(userprofile);
-export const getSingledestinationController=new GetSingleDestinationController(getsingleDestinationusecase);
 export const resendOtpController=new ResendOtpController(resendotpusecase);
 export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
 export const getusereditProfile=new EditUserProfileController(edituserProfile);
