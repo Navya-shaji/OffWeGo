@@ -86,6 +86,9 @@ export class AdminRoute {
   this.adminRouter.get("/banner", (req: Request, res: Response) => {
     bannerController.getBanners(req, res);
   });
+  this.adminRouter.delete('/destination/:id',(req:Request,res:Response)=>{
+    destinationController.deleteDestinationController(req,res)
+  })
 }
 
 }

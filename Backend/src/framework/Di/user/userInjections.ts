@@ -3,7 +3,6 @@ import { UserRegisterController } from "../../../adapters/controller/user/UserAu
 import { UserRepository } from "../../../adapters/repository/user/userRepository";
 import { OtpService } from "../../services/otpService";
 import { VerifyOtpUseCase } from "../../../useCases/user/Signup/VerifyOtpUseCase";
-import { UserVerifyOtpController } from "../../../adapters/controller/user/userVerifyOtp";
 import { HashPassword } from "../../services/hashPassword";
 import { UserLoginController } from "../../../adapters/controller/user/loginController";
 import { UserLoginUseCase } from "../../../useCases/user/Login/LoginUserUseCase";
@@ -20,13 +19,13 @@ import { UserProfileUsecase } from "../../../useCases/user/profile/createProfile
 import { UserProfileController } from "../../../adapters/controller/user/userProfileController";
 import { JwtSevice } from "../../services/jwtService";
 import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
-import { ResendOtpController } from "../../../adapters/controller/user/resendOtpController";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
 import { PackageController } from "../../../adapters/repository/Destination/getPackageByDestinationController";
 import { GetPackageUsecase } from "../../../useCases/Destination/GetPackageByDestinationUsecase";
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
 import { EditUserProfileController } from "../../../adapters/controller/user/EditProfileController"; 
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
+
 
 // Setup Repos and Services
 const userRepository = new UserRepository();
@@ -53,14 +52,12 @@ const edituserProfile=new EditUserProfile()
 
 
 // Controllers
-export const userRegisterController = new UserRegisterController(registerUsecase);
-export const verifyOtpController = new UserVerifyOtpController(verifyOtpUsecase);
+export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase);
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const verifyingOtpController = new VerifyResetOtpController(otpService);
 export const forgotpassController = new forgotPasswordController(otpService);
 export const resetPasswordController=new UserResetPasswordController(resetPasswordUseCase);
 export const userprofileController=new UserProfileController(userprofile);
-export const resendOtpController=new ResendOtpController(resendotpusecase);
 export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
 export const getusereditProfile=new EditUserProfileController(edituserProfile);

@@ -4,13 +4,15 @@ import { ICreateDestinationUsecase } from "../../../domain/interface/destination
 import { IEditDestinationUseCase } from "../../../domain/interface/destination/IEditDestination";
 import { IGetAllDestinations } from "../../../domain/interface/destination/IGetAllDestinations";
 import { IgetDestinationUSecase } from "../../../domain/interface/destination/IGetDestinationUsecase";
+import { IDeleteDestinationUseCase } from "../../../domain/interface/destination/IDeleteDestinationUsecase";
 
 export class DestinationController {
   constructor(
     private createDestination: ICreateDestinationUsecase,
     private editDestination: IEditDestinationUseCase,
     private getDestination: IGetAllDestinations,
-    private destinationUsecase: IgetDestinationUSecase
+    private destinationUsecase: IgetDestinationUSecase,
+    private deleteDestinationusecase:IDeleteDestinationUseCase
   ) {}
   async addDestination(req: Request, res: Response) {
     try {
@@ -65,6 +67,18 @@ export class DestinationController {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "failed to get Destinations" });
+    }
+  }
+  async deleteDestinationController(req:Request,res:Response){
+    try {
+      const { id } = req.params;
+const result = await this.deleteDestinationusecase.execute(id);
+
+
+      return res.status(HttpStatus.OK).json(result)
+
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({message:"Failed to delete Destination"})
     }
   }
 }
