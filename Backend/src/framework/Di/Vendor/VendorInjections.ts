@@ -20,6 +20,9 @@ import { GetAllPackages } from "../../../useCases/package/getAllPackageUsecase";
 import { EditPackage } from "../../../useCases/package/EditPackageUsecase";
 import { DeletePackage } from "../../../useCases/package/DeletePackageUsecase";
 import { EditVendorProfile } from "../../../useCases/vendor/profile/Edit profileUsecase";
+import { PackageWiseGroupingController } from "../../../adapters/controller/packages/PackageWiseGroupingController";
+import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
+import { PackageWiseGrouping } from "../../../adapters/repository/package/PackagewiseGroupingRepository";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -28,6 +31,7 @@ const hashPassword = new HashPassword();
 const jwtService = new JwtSevice();
 const destinationRepo=new DestinationRepository()
 const packageRepo=new PackageRepository()
+const groupRepo=new PackageWiseGrouping()
 
 //  Use Cases
 const vendorSignupUsecase = new VendorRegisterUseCase(vendorRepository, otpService,hashPassword);
@@ -40,6 +44,7 @@ const getallPackageUsecase=new GetAllPackages(packageRepo);
 const editpackage=new EditPackage()
 const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
+const packagewisegroupusecase=new CreatePackageWiseGroup(groupRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -48,4 +53,5 @@ export const vendorstatusCheckController =new  VendorStatusCheckController(vendo
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage)
+export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase)
 

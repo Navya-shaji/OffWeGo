@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   packagecontroller,
+  packagewisegroupcontroller,
   vendorloginController,
   vendorProfilecontroller,
   vendorsignupcontroller,
@@ -51,6 +52,9 @@ export class VendorRoute {
     })
     this.vendorRouter.patch("/profile/:id",(req:Request,res:Response)=>{
       vendorProfilecontroller.EditProfile(req,res)
+    })
+    this.vendorRouter.post("/package-groups",(req:Request,res:Response)=>{
+      packagewisegroupcontroller.CreatePackageWiseGrouping(req,res)
     })
   } 
 }
