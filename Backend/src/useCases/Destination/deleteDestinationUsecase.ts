@@ -4,7 +4,13 @@ import { IDestinationRepository } from "../../domain/interface/admin/IDestinatio
 export class DeleteDestination{
     constructor(private destinationRepo:IDestinationRepository){}
 
-async execute(destination: Destination): Promise<void> {
-  return this.destinationRepo.delete(destination.id); 
-}
+
+    const result = await DestinationModel.findByIdAndDelete(id);
+
+    if (!result) {
+      throw new Error("Destination not found");
+    }
+
+    return { success: true, message: "Destination deleted successfully" };
+  }
 }

@@ -1,14 +1,12 @@
 import { Request, Response, Router } from "express";
 import {
   userRegisterController,
-  verifyOtpController,
   userLoginController,
   googleSignupController,
   forgotpassController,
   verifyingOtpController,
   resetPasswordController,
   userprofileController,
-  resendOtpController,
   getpackageByDestinationController,
   getusereditProfile,
 } from "../../Di/user/userInjections";
@@ -30,7 +28,7 @@ export class UserRoute {
     });
 
     this.userRouter.post("/verify-otp", (req: Request, res: Response) => {
-      verifyOtpController.verifyOtp(req, res);
+      userRegisterController.verifyOtp(req, res);
     });
     this.userRouter.post("/login", (req: Request, res: Response) => {
       userLoginController.loginUser(req, res);
@@ -57,7 +55,7 @@ export class UserRoute {
       destinationController.getSingleDestinationController(req,res)
     })
     this.userRouter.post("/resend-otp",(req:Request,res:Response)=>{
-      resendOtpController.resendOtp(req,res)
+      userRegisterController.resendOtp(req,res)
     })
     this.userRouter.get("/destination/:id",(req:Request,res:Response)=>{
       getpackageByDestinationController.getPackages(req,res)

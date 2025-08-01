@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { RegisterDTO } from "../../../domain/dto/user/userDto";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { IregisterUserUseCase } from "../../../domain/interface/usecaseInterface/IusecaseInterface";
+import { IVerifyOtpUseCase } from "../../../domain/interface/usecaseInterface/IVerifyOtpUseCase";
+import { IResendOtpUsecase } from "../../../domain/interface/userRepository/IResendOtpUsecase";
 
 export class UserRegisterController {
-  constructor(private registerUserUseCase: IregisterUserUseCase) {}
+  constructor(private registerUserUseCase: IregisterUserUseCase,private verifyOtpUseCase: IVerifyOtpUseCase,private resendOtpUseCase: IResendOtpUsecase) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
     try {
@@ -34,6 +36,62 @@ export class UserRegisterController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Registration failed",
+      });
+    }
+  }
+  
+   async verifyOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { userData, otp } = req.body;
+
+      if (!otp || !userData?.email) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email and OTP are required",
+        });
+        return;
+      }
+
+      const verifiedUser = await this.verifyOtpUseCase.execute(userData, otp);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "OTP verified successfully",
+        data: verifiedUser,
+      });
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "OTP verification failed",
+      });
+    }
+  }
+
+  async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Email is required to resend OTP",
+        });
+        return;
+      }
+
+      const result = await this.resendOtpUseCase.execute(email);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "OTP resent successfully",
+        data: result,
+      });
+    } catch (error: any) {
+      console.error("Resend OTP error:", error);
+      res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error?.message || "Failed to resend OTP",
       });
     }
   }
