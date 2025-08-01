@@ -12,4 +12,7 @@ export class PackageRepository implements IPackageRepository{
   async getPackagesByDestination(destination: string): Promise<IPackageModel[]> {
     return await  packageModel.find({ destination });
   }
+    async delete(id: string): Promise<void> {
+      await packageModel.findByIdAndDelete(id);
+    }
 }

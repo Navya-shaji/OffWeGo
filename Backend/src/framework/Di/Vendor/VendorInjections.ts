@@ -6,8 +6,6 @@ import { OtpService } from "../../services/otpService";
 import { HashPassword } from "../../services/hashPassword";
 import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVendorUseCase";
 import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUsecase";
-import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase"; 
-import { GetVendorByEmailUseCase } from "../../../useCases/admin/Vendor/getVendorByEmailUsecase";
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
 import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/vendorStatusCheckController";
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
@@ -20,6 +18,7 @@ import { CreatePackagesUseCase } from "../../../useCases/package/addPackageUseca
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
 import { GetAllPackages } from "../../../useCases/package/getAllPackageUsecase";
 import { EditPackage } from "../../../useCases/package/EditPackageUsecase";
+import { DeletePackage } from "../../../useCases/package/DeletePackageUsecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -38,6 +37,7 @@ const vendorProfileusecase=new VendorProfileUsecase(vendorRepository);
 const createPackageUsecase=new CreatePackagesUseCase(packageRepo);
 const getallPackageUsecase=new GetAllPackages(packageRepo);
 const editpackage=new EditPackage()
+const deletepackage=new DeletePackage(packageRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -45,5 +45,5 @@ export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVer
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase);
-export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage)
+export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage)
 

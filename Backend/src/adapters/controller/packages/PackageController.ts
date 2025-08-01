@@ -4,11 +4,13 @@ import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { Request,Response } from "express";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { IEditPackageUsecase } from "../../../domain/interface/vendor/IPackageEditUsecase";
+import { IDeletePackagenUseCase } from "../../../domain/interface/vendor/IPackageDeleteUsecase";
 
 export class PackageController{
     constructor(private getPackage:IGetPackageUsecase ,
         private createPackage: ICreatePackage,
-        private editpackage:IEditPackageUsecase
+        private editpackage:IEditPackageUsecase,
+        private deletepackage:IDeletePackagenUseCase
     ){}
     async getAllPackage(req:Request,res:Response){
         try {
@@ -64,6 +66,22 @@ export class PackageController{
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success:false,
         message:"Package updation failed"
+      })
+    }
+  }
+  
+  async deletePackage(req:Request,res:Response){
+    try {
+      const {id} =req.params
+      const result=await this.deletepackage.execute(id)
+      res.status(HttpStatus.OK).json({
+        success:true,
+        message:"Deleted package successfully"
+      })
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success:false,
+        messege:"Failed to delte package"
       })
     }
   }

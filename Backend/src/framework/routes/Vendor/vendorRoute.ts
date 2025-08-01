@@ -46,6 +46,8 @@ export class VendorRoute {
     this.vendorRouter.put("/packages/:id",(req:Request,res:Response)=>{
       packagecontroller.EditPackage(req,res)
     })
-    
+    this.vendorRouter.delete("/packages/:id",(req:Request,res:Response)=>{
+      packagecontroller.deletePackage(req,res)
+    })
   } 
 }
