@@ -1,5 +1,6 @@
 import { IBannerCreateUsecase } from "../../../domain/interface/Banner/IBannerCreateUsecase";
 import { IEditBannerUsecase } from "../../../domain/interface/Banner/IBannerEditUsecase";
+import { IDeleteBannerUsecase } from "../../../domain/interface/Banner/IDeleteBannerUSecase";
 import { IGetBannerUsecase } from "../../../domain/interface/Banner/IGetAllBannnersUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { Request, Response } from "express";
@@ -7,7 +8,8 @@ export class Bannercontroller {
   constructor(
     private createBanner: IBannerCreateUsecase,
     private getbannerUsecase: IGetBannerUsecase,
-    private  editBanner:IEditBannerUsecase
+    private  editBanner:IEditBannerUsecase,
+    private deleteBanner:IDeleteBannerUsecase
   ) {}
 
   async CreateBanner(req: Request, res: Response) {
@@ -47,6 +49,21 @@ export class Bannercontroller {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success:false,
         message:"Banner updation failed"
+      })
+    }
+  }
+  async BannerDelete(req:Request,res:Response){
+    try {
+      const {id}=req.params
+      const result=this.deleteBanner.execute(id)
+      res.status(HttpStatus.OK).json({
+        success:true,
+        message:"Banner deleted successsfully"
+      })
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success:false,
+        message:"Banner deletion failed"
       })
     }
   }

@@ -98,6 +98,9 @@ export class AdminRoute {
   this.adminRouter.put("/banner/:id",(req:Request,res:Response)=>{
     bannerController.EditBanner(req,res)
   })
+  this.adminRouter.delete("/banner/:id",(req:Request,res:Response)=>{
+    bannerController.BannerDelete(req,res)
+  })
 }
 
 }

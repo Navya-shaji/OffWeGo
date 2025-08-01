@@ -31,6 +31,7 @@ import { DeleteDestination } from "../../../useCases/Destination/deleteDestinati
 import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
 import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
+import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
 // Repositories
 const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
@@ -65,6 +66,7 @@ const deleteDestinationusecase=new DeleteDestination()
 const editCategory=new EditCategory()
 const deleteCategory=new DeleteCategory()
 const editbanner=new EditBanner()
+const deleteBanner=new DeleteBanner()
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
@@ -78,5 +80,5 @@ export const destinationController = new DestinationController(
   deleteDestinationusecase
 )
 export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory);
-export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner);
+export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner);
 
