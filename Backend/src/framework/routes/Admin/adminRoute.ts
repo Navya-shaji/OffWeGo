@@ -89,6 +89,9 @@ export class AdminRoute {
   this.adminRouter.delete('/destination/:id',(req:Request,res:Response)=>{
     destinationController.deleteDestinationController(req,res)
   })
+  this.adminRouter.put("/category/:id",(req:Request,res:Response)=>{
+    catogoryController.EditCategory(req,res)
+  })
 }
 
 }
