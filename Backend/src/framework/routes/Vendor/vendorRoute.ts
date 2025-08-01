@@ -56,5 +56,8 @@ export class VendorRoute {
     this.vendorRouter.post("/package-groups",(req:Request,res:Response)=>{
       packagewisegroupcontroller.CreatePackageWiseGrouping(req,res)
     })
+    this.vendorRouter.get("/package-group/:id",(req:Request,res:Response)=>{
+      packagewisegroupcontroller.GetPackageWiseGroups(req,res)
+    })
   } 
 }

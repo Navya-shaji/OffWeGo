@@ -23,6 +23,7 @@ import { EditVendorProfile } from "../../../useCases/vendor/profile/Edit profile
 import { PackageWiseGroupingController } from "../../../adapters/controller/packages/PackageWiseGroupingController";
 import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
 import { PackageWiseGrouping } from "../../../adapters/repository/package/PackagewiseGroupingRepository";
+import { GetAllPackageWiseGroup } from "../../../useCases/package/GetAllPackageWiseGroupsusecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -45,6 +46,7 @@ const editpackage=new EditPackage()
 const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
 const packagewisegroupusecase=new CreatePackageWiseGroup(groupRepo)
+const getallpackagewisegroups=new GetAllPackageWiseGroup(groupRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -53,5 +55,5 @@ export const vendorstatusCheckController =new  VendorStatusCheckController(vendo
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage)
-export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase)
+export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups)
 
