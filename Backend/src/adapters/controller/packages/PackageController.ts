@@ -3,10 +3,12 @@ import { IGetPackageUsecase } from "../../../domain/interface/vendor/IGetPackage
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { Request,Response } from "express";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
+import { IEditPackageUsecase } from "../../../domain/interface/vendor/IPackageEditUsecase";
 
 export class PackageController{
     constructor(private getPackage:IGetPackageUsecase ,
-        private createPackage: ICreatePackage
+        private createPackage: ICreatePackage,
+        private editpackage:IEditPackageUsecase
     ){}
     async getAllPackage(req:Request,res:Response){
         try {
@@ -44,6 +46,25 @@ export class PackageController{
         message: "Failed to create package",
         error: error instanceof Error ? error.message : "Unknown error",
       });
+    }
+  }
+  async EditPackage(req:Request,res:Response){
+    try {
+      const packageId=req.params.id
+      const packageData=req.body
+
+      const result=await this.editpackage.execute(packageId,packageData)
+
+      res.status(HttpStatus.OK).json({
+        success:true,
+        message:"Package updated successfully",
+        data:result
+      })
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success:false,
+        message:"Package updation failed"
+      })
     }
   }
 }

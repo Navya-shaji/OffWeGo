@@ -43,6 +43,9 @@ export class VendorRoute {
     this.vendorRouter.get("/packages",(req:Request,res:Response)=>{
       packagecontroller.getAllPackage(req,res)
     })
+    this.vendorRouter.put("/packages/:id",(req:Request,res:Response)=>{
+      packagecontroller.EditPackage(req,res)
+    })
     
   } 
 }
