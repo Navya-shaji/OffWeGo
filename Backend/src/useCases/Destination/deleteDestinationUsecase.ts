@@ -1,8 +1,9 @@
-import { IDeleteDestinationUseCase } from "../../domain/interface/destination/IDeleteDestinationUsecase"; 
-import { DestinationModel } from "../../framework/database/Models/deestinationModel"; 
+import { Destination } from "../../domain/entities/DestinationEntity";
+import { IDestinationRepository } from "../../domain/interface/admin/IDestinationInterface";
 
-export class DeleteDestination implements IDeleteDestinationUseCase {
-  async execute(id: string): Promise<{ success: boolean; message: string }> {
+export class DeleteDestination{
+    constructor(private destinationRepo:IDestinationRepository){}
+
 
     const result = await DestinationModel.findByIdAndDelete(id);
 

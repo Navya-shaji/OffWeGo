@@ -25,7 +25,7 @@ export class AdminUserController {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  }
+  } 
 
   async updateStatus(req: Request, res: Response): Promise<void> {
     try {
