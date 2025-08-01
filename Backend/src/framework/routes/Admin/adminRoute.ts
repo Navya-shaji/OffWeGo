@@ -4,7 +4,7 @@ import {
   AdminuserController,
   adminVendorController,
   bannerController,
-  catogoryController,
+  categoryController,
   destinationController,
   
 
@@ -72,11 +72,11 @@ export class AdminRoute {
   });
 
   this.adminRouter.post("/create-categories", (req: Request, res: Response) => {
-    catogoryController.createCategory(req, res);
+    categoryController.createCategory(req, res);
   });
 
   this.adminRouter.get("/categories", (req: Request, res: Response) => {
-    catogoryController.getCategories(req, res);
+    categoryController.getCategories(req, res);
   });
 
   this.adminRouter.post("/create-banner", (req: Request, res: Response) => {
@@ -90,7 +90,10 @@ export class AdminRoute {
     destinationController.deleteDestinationController(req,res)
   })
   this.adminRouter.put("/category/:id",(req:Request,res:Response)=>{
-    catogoryController.EditCategory(req,res)
+    categoryController.EditCategory(req,res)
+  })
+  this.adminRouter.delete("/category/:id",(req:Request,res:Response)=>{
+    categoryController.DeleteCategory(req,res)
   })
 }
 
