@@ -3,12 +3,12 @@ import Sidebar from "@/components/AdminDashboard/sidebar";
 import VendorRequests from "@/components/AdminDashboard/vendorRequests";
 import Navbar from "@/components/AdminDashboard/navbar";
 import UserList from "@/components/AdminDashboard/userList";
-import VendorList from "@/components/AdminDashboard/vendorDetails";
+import { VendorList } from "@/components/AdminDashboard/vendorDetails";
 import { CreateDestination } from "../Destination/CreateDestination";
-import { DestinationTable } from "../Destination/GetDestination";
+import { DestinationTable } from "@/pages/Admin/Destination/GetDestination";
 import { CategoryForm } from "../category/category";
-import { CategoryTable } from '../category/getAllCategory'
-import  CreateBanner from "../banner/createBanner";
+import { CategoryTable } from "../category/getAllCategory";
+import CreateBanner from "../banner/createBanner";
 import { BannerForm } from "../banner/bannerForm";
 
 const AdminLayout = () => {
@@ -40,11 +40,10 @@ const AdminLayout = () => {
         {activeTab === "Vendors" && <VendorList />}
         {activeTab === "Add Destination" && <CreateDestination />}
         {activeTab === "Destinations" && <DestinationTable />}
-       {activeTab === "Create Category" && <CategoryForm />}
-       {activeTab=="All Categories" && <CategoryTable/>}
-       {activeTab=="Add Banner" && <CreateBanner/>}
-       {activeTab=="All Banners" && <BannerForm/>}
-
+        {activeTab === "Create Category" && <CategoryForm />}
+        {activeTab == "All Categories" && <CategoryTable />}
+        {activeTab == "Add Banner" && <CreateBanner />}
+        {activeTab == "All Banners" && <BannerForm />}
       </div>
     </div>
   );

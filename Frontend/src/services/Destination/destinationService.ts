@@ -85,3 +85,14 @@ export const getPackagesByDestination = async (
     throw new Error("An unexpected error occurred while updating destination");
   }
 };
+
+export const deleteDestination = async (id: string): Promise<void> => {
+  try {
+    const response = await axiosInstance.delete(`/admin/destination/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log("Error inside deleteDestination", error);
+    throw error;
+  }
+};
+

@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import {fetchAllDestinations,updateDestination,} from "@/services/Destination/destinationService";
+import {
+  fetchAllDestinations,
+  updateDestination,
+  deleteDestination,
+} from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import { Edit } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { EditDestinationModal } from "./destinationModal";
 
 export const DestinationTable = () => {
@@ -29,6 +33,22 @@ export const DestinationTable = () => {
   const handleEdit = (dest: DestinationInterface) => {
     setSelectedDestination(dest);
     setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this destination?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteDestination(id);
+      alert("Destination deleted successfully");
+      await fetchData();
+    } catch (error) {
+      console.error("Failed to delete destination:", error);
+      alert("Failed to delete destination");
+    }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -91,7 +111,7 @@ export const DestinationTable = () => {
                         alt={dest.name}
                         className="h-16 w-16 object-cover rounded-lg border"
                         onError={(e) => {
-                          e.currentTarget.style.display = "none"; // or show a fallback here
+                          e.currentTarget.style.display = "none";
                         }}
                       />
                     ) : (
@@ -101,7 +121,6 @@ export const DestinationTable = () => {
                     )}
                   </div>
                 </td>
-                
 
                 <td className="px-6 py-4">{dest.name}</td>
                 <td className="px-6 py-4">{dest.location}</td>
@@ -110,12 +129,17 @@ export const DestinationTable = () => {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => handleEdit(dest)}
-                      className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg"
+                      className="p-2 text-black hover:text-black hover:bg-blue-50 rounded-lg"
                       title="Edit"
                     >
                       <Edit size={16} />
                     </button>
-
+                    <button
+                      onClick={() => handleDelete(dest.id)}
+                      className="p-2 text-black hover:text-black hover:bg-blue-50 rounded-lg"
+                    >
+                      <Trash size={16} />
+                    </button>
                   </div>
                 </td>
               </tr>

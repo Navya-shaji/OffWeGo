@@ -3,7 +3,7 @@ import VendorSidebar from "@/components/vendor/sidebar";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Profile } from "./Vendorprofile";
-import { DestinationTable } from "../Admin/Destination/GetDestination";
+import  {DestinationTable}  from "../Admin/Destination/GetDestination";
 import AddPackage from "./package-add";
 import PackagesTable from "./package-table";
 import { fetchPackages } from "@/store/slice/packages/packageSlice";

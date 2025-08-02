@@ -1,13 +1,14 @@
 import type { VendorListProps } from "@/interface/vendorList";
 import React from "react";
 
-const VendorList: React.FC<VendorListProps> = ({
+const VendorCardList: React.FC<VendorListProps> = ({
   title,
   vendors = [],
   bgColor = "bg-white",
   showActions = false,
   onAction,
 }) => {
+  console.log("vendors",vendors)
   return (
     <div className="mt-10 px-4 md:px-8">
       <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2 mb-6">
@@ -59,7 +60,7 @@ const VendorList: React.FC<VendorListProps> = ({
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white py-1.5 rounded-md text-sm transition"
                     onClick={() => onAction(vendor._id, "approved")}
                   >
-                    ✅ Accept
+                     Accept
                   </button>
                   <button
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded-md text-sm transition"
@@ -77,4 +78,4 @@ const VendorList: React.FC<VendorListProps> = ({
   );
 };
 
-export default VendorList;
+export default VendorCardList;
