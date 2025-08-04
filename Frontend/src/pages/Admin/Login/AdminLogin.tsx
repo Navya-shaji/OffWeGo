@@ -21,6 +21,8 @@ const isAuthenticated = useAppSelector((state) => state.adminAuth.isAuthenticate
   useEffect(()=>{
     if(isAuthenticated){
       navigate("/admin/dashboard",{replace:true})
+    }else{
+      navigate('/admin/login')
     }
   },[isAuthenticated])
 

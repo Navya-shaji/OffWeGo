@@ -102,8 +102,11 @@ export class AdminRoute {
   this.adminRouter.delete("/banner/:id",(req:Request,res:Response)=>{
     bannerController.BannerDelete(req,res)
   })
-  this.adminRouter.post("/subscription",(req:Request,res:Response)=>{
+  this.adminRouter.post("/create-subscription",(req:Request,res:Response)=>{
     subscriptionController.createSubscription(req,res)
+  })
+  this.adminRouter.get("/subscriptions",(req:Request,res:Response)=>{
+    subscriptionController.getAllSubscriptions(req,res)
   })
 }
 

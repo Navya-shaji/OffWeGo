@@ -10,6 +10,7 @@ import { CategoryForm } from "../category/category";
 import { CategoryTable } from "../category/getAllCategory";
 import CreateBanner from "../banner/createBanner";
 import { BannerForm } from "../banner/bannerForm";
+import AddSubscription from "@/components/AdminDashboard/CreateSubscription";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -44,6 +45,7 @@ const AdminLayout = () => {
         {activeTab == "All Categories" && <CategoryTable />}
         {activeTab == "Add Banner" && <CreateBanner />}
         {activeTab == "All Banners" && <BannerForm />}
+        {activeTab=="Create Subscription" && <AddSubscription/>}
       </div>
     </div>
   );

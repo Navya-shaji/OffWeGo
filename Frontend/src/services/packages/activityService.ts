@@ -5,9 +5,9 @@ export interface Activity {
   destinationId: string
 }
 
-// Mock API - Replace with your actual API endpoints
+
 export const fetchActivities = async (destinationId?: string): Promise<Activity[]> => {
-  // Simulate API delay
+
   await new Promise((resolve) => setTimeout(resolve, 800))
 
   const mockActivities: Activity[] = [
