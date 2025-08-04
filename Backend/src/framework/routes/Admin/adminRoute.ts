@@ -6,6 +6,7 @@ import {
   bannerController,
   categoryController,
   destinationController,
+  subscriptionController,
   
 
 } from "../../../framework/Di/admin/adminInjection";
@@ -100,6 +101,9 @@ export class AdminRoute {
   })
   this.adminRouter.delete("/banner/:id",(req:Request,res:Response)=>{
     bannerController.BannerDelete(req,res)
+  })
+  this.adminRouter.post("/subscription",(req:Request,res:Response)=>{
+    subscriptionController.createSubscription(req,res)
   })
 }
 

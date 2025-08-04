@@ -32,6 +32,10 @@ import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
 import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
+import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
+import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
+
 // Repositories
 const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
@@ -39,6 +43,7 @@ const userRepository=new UserRepository()
 const destinationRepository=new DestinationRepository()
 const catogoryRepo=new CategoryRepository()
 const bannerRepo=new BannerRepository()
+const subscriptionrepo=new SubscriptionPlanRepository()
 
 
 // Services
@@ -67,6 +72,7 @@ const editCategory=new EditCategory()
 const deleteCategory=new DeleteCategory()
 const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
+const subscriptionusecase=new CreateSubscriptionPlanUseCase(subscriptionrepo)
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
@@ -81,4 +87,5 @@ export const destinationController = new DestinationController(
 )
 export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory);
 export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner);
+export const subscriptionController=new SubscriptionController(subscriptionusecase)
 
