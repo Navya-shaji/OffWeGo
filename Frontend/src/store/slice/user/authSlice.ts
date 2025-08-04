@@ -2,12 +2,14 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 type User = {
   id: string;
-  name: string;     
+  username: string;
   email: string;
   status: string;
   role: string;
   phone: string;
+  imageUrl?: string; 
 };
+
 
 
 

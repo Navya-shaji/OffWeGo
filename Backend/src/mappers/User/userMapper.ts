@@ -6,6 +6,6 @@ export const mapToUser = (user: User) => ({
   email: user.email,
   password: user.password,
   phone: user.phone,
-  profileImage: user.profileImage,
+  profileImage: user.imageUrl,
   role: user.role,
 });

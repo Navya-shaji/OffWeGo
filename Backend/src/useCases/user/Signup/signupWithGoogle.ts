@@ -19,7 +19,6 @@ export class GoogleSignupUseCase{
             name:googleUser.name,
             email:googleUser.email,
             phone:googleUser.phone,
-            profileImage: googleUser.profileImage,
             password:"",
             role:"user"
         }

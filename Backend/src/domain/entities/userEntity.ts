@@ -8,7 +8,7 @@ export interface User{
     password:string,
     role:'user'| 'admin',
     status?:'active'|'block',
-    profileImage?:string
+    imageUrl?:string
     createdAt?:Date,
     updatedAt?:Date,
     lastLogin?:Date,

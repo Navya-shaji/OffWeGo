@@ -13,19 +13,19 @@ import { VerifyResetOtpController } from "../../../adapters/controller/user/Veri
 import { forgotPasswordController } from "../../../adapters/controller/user/forgotPasswordController";
 import { UserResetPasswordController } from "../../../adapters/controller/user/resetPasswordController";
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
-import { GetAllDestinations } from "../../../useCases/Destination/getAllDestinationUsecase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
 import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
 import { UserProfileController } from "../../../adapters/controller/user/userProfileController";
 import { JwtSevice } from "../../services/jwtService";
-import { GetDestination } from "../../../useCases/Destination/getDestinationDetailUsecase";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
 import { PackageController } from "../../../adapters/repository/Destination/getPackageByDestinationController";
 import { GetPackageUsecase } from "../../../useCases/Destination/GetPackageByDestinationUsecase";
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
 import { EditUserProfileController } from "../../../adapters/controller/user/EditProfileController"; 
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
-
+import { CreateBooking } from "../../../useCases/Booking/BookingUsecase";
+import { BookingController } from "../../../adapters/controller/Booking/BookingController";
+import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
 
 // Setup Repos and Services
 const userRepository = new UserRepository();
@@ -34,7 +34,8 @@ const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const destinationRepository=new DestinationRepository();
 const jwtService=new JwtSevice
-const packageRepo=new PackageRepository()
+const packageRepo=new PackageRepository();
+const bookingRepo=new BookingRepository()
 
 
 // Use Cases
@@ -43,12 +44,11 @@ const googleSignupUseCase = new GoogleSignupUseCase(authRepository,userRepositor
 const verifyOtpUsecase = new VerifyOtpUseCase(otpService,hashPassword,userRepository);
 const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtService);
 const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword);
-const getallDestinations=new GetAllDestinations(destinationRepository);
 const userprofile=new UserProfileUsecase(userRepository);
-const getsingleDestinationusecase=new GetDestination(destinationRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
 const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
 const edituserProfile=new EditUserProfile()
+const createbookingusecase=new CreateBooking(bookingRepo)
 
 
 // Controllers
@@ -61,3 +61,4 @@ export const resetPasswordController=new UserResetPasswordController(resetPasswo
 export const userprofileController=new UserProfileController(userprofile);
 export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
 export const getusereditProfile=new EditUserProfileController(edituserProfile);
+export const bookingcontroller = new BookingController(createbookingusecase);

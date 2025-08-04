@@ -17,7 +17,10 @@ export const getProfile=async()=>{
 
 
 
-export const editProfile = async (id: string, updatedData: { username: string; phone: string }) => {
+export const editProfile = async (
+  id: string,
+  updatedData: { username: string; phone: string; imageUrl?: string }
+) => {
   try {
     const res = await axiosInstance.patch(`/profile/${id}`, updatedData); 
     return res.data;
@@ -29,3 +32,4 @@ export const editProfile = async (id: string, updatedData: { username: string; p
     throw new Error("An unexpected error occurred while editing the profile.");
   }
 };
+

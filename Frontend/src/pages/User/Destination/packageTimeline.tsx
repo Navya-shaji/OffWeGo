@@ -1,19 +1,47 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import {Calendar,MapPin,Clock,Building,Activity,Camera,ArrowLeft,CalendarDays,CreditCard,Star,Wifi,Car,Utensils,Shield,CheckCircle,Heart,Share2,} from "lucide-react"
+import { useSelector } from "react-redux" // Import useSelector
+import type { RootState } from "@/store/store" // Import RootState
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  Building,
+  Activity,
+  Camera,
+  ArrowLeft,
+  CalendarDays,
+  CreditCard,
+  Star,
+  Wifi,
+  Car,
+  Utensils,
+  Shield,
+  CheckCircle,
+  Heart,
+  Share2,
+  Loader2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import Navbar from "@/components/profile/navbar"
-import type { Package } from "@/interface/PackageInterface"
+import Navbar from "@/components/profile/navbar" 
+import type { Package } from "@/interface/PackageInterface" 
 
 export const PackageTimeline = () => {
   const { state } = useLocation()
   const navigate = useNavigate()
   const selectedPackage = state?.selectedPackage as Package
+
+  const userId = useSelector((state: RootState) => state.auth.user?.id) 
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
+  const [isBookingLoading, setIsBookingLoading] = useState(false) 
+  const [bookingError, setBookingError] = useState<string | null>(null) 
 
   useEffect(() => {
     if (!selectedPackage) navigate(-1)
@@ -39,8 +67,13 @@ export const PackageTimeline = () => {
       </div>
     )
   }
-  const formatCurrency = (amount: number) =>new Intl.NumberFormat("en-IN", {
-      style: "currency",currency: "INR", maximumFractionDigits: 0,  }).format(amount)
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount)
 
   const itinerary = Array.from({ length: selectedPackage.duration }, (_, i) => {
     const perDay = Math.ceil(selectedPackage.activities.length / selectedPackage.duration)
@@ -52,6 +85,35 @@ export const PackageTimeline = () => {
     }
   })
 
+  const handleBooking = async () => {
+    console.log("A")
+    if (!userId) {
+      setBookingError("User not logged in. Please log in to book a package.")
+      return
+    }
+    if (!selectedDate) {
+      setBookingError("Please select a travel date.")
+      return
+    }
+
+    setIsBookingLoading(true)
+    setBookingError(null)
+
+    try {
+      navigate("/booking", {
+   state: {
+     selectedPackage, 
+   },
+ })
+      alert("success")
+    } catch (error:any) {
+      console.error("Booking failed:", error)
+      setBookingError(error.response?.data?.message || "Failed to book package. Please try again.")
+    } finally {
+      setIsBookingLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
       <Navbar />
@@ -59,18 +121,28 @@ export const PackageTimeline = () => {
         <div className="absolute inset-0 z-20 flex items-center">
           <div className="max-w-7xl mx-auto px-4 w-full">
             <div className="flex items-center gap-4 mb-6">
-              <Button variant="outline" size="sm"   onClick={() => navigate(-1)}className="bg-white/20 backdrop-blur-sm border-white/30 text-black hover:bg-white/30 transition-all duration-300" >
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="bg-white/20 backdrop-blur-sm border-white/30 text-black hover:bg-white/30 transition-all duration-300"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
               <div className="flex gap-2">
-                <Button  variant="outline" size="sm" onClick={() => setIsLiked(!isLiked)}  className="bg-white/20 backdrop-blur-sm border-white/30 text-black hover:bg-white/30 transition-all duration-300" >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsLiked(!isLiked)}
+                  className="bg-white/20 backdrop-blur-sm border-white/30 text-black hover:bg-white/30 transition-all duration-300"
+                >
                   <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                 className="bg-white/20 backdrop-blur-sm border-white/30 text-black hover:bg-white/30 transition-all duration-300"
+                  className="bg-white/20 backdrop-blur-sm border-white/30 text-black hover:bg-white/30 transition-all duration-300"
                 >
                   <Share2 className="h-4 w-4" />
                 </Button>
@@ -88,18 +160,14 @@ export const PackageTimeline = () => {
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   <span>4.8 (124 reviews)</span>
                 </div>
-                
               </div>
             </div>
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           <div className="lg:col-span-2 space-y-8">
-           
             <Card className="shadow-xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-xl">
@@ -110,7 +178,6 @@ export const PackageTimeline = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-8">
-             
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {[
                     {
@@ -152,8 +219,6 @@ export const PackageTimeline = () => {
                     </div>
                   ))}
                 </div>
-
-             
                 {selectedPackage.images?.length > 0 && (
                   <div className="space-y-6">
                     <h3 className="text-2xl font-bold flex items-center gap-3 text-gray-800">
@@ -199,16 +264,23 @@ export const PackageTimeline = () => {
                     </div>
                   </div>
                 )}
-
-           
                 <div className="space-y-4">
                   <h3 className="text-xl font-bold text-gray-800">What's Included</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                      { icon: <Wifi className="h-5 w-5" />, label: "Free WiFi" },
+                      {
+                        icon: <Wifi className="h-5 w-5" />,
+                        label: "Free WiFi",
+                      },
                       { icon: <Car className="h-5 w-5" />, label: "Transport" },
-                      { icon: <Utensils className="h-5 w-5" />, label: "All Meals" },
-                      { icon: <Shield className="h-5 w-5" />, label: "Insurance" },
+                      {
+                        icon: <Utensils className="h-5 w-5" />,
+                        label: "All Meals",
+                      },
+                      {
+                        icon: <Shield className="h-5 w-5" />,
+                        label: "Insurance",
+                      },
                     ].map((amenity, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
                         <div className="text-green-600">{amenity.icon}</div>
@@ -219,8 +291,6 @@ export const PackageTimeline = () => {
                 </div>
               </CardContent>
             </Card>
-
-       
             <Card className="shadow-xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-xl">
@@ -232,7 +302,7 @@ export const PackageTimeline = () => {
               </CardHeader>
               <CardContent className="p-8 space-y-8">
                 {itinerary.map((day, i) => (
-                  <div key={i} className="relative group">
+                  <div key={day.day} className="relative group">
                     {i < itinerary.length - 1 && (
                       <div className="absolute left-8 top-16 w-0.5 h-full bg-gradient-to-b from-blue-300 to-purple-300 opacity-30"></div>
                     )}
@@ -247,8 +317,6 @@ export const PackageTimeline = () => {
                         <h3 className="font-bold text-xl mb-4 text-gray-800">
                           Day {day.day}: {day.title}
                         </h3>
-
-                       
                         <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
                           <div className="flex items-center gap-2 mb-2">
                             <Building className="h-5 w-5 text-blue-600" />
@@ -262,7 +330,6 @@ export const PackageTimeline = () => {
                           </div>
                           <p className="text-sm text-gray-600">{day.hotel.address}</p>
                         </div>
-
                         <div className="space-y-3">
                           <h4 className="font-semibold text-gray-800 flex items-center gap-2">
                             <Activity className="h-4 w-4 text-green-600" />
@@ -290,9 +357,7 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
           </div>
-
           <div className="space-y-6">
-         
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm sticky top-6">
               <CardHeader className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white p-6">
                 <CardTitle className="flex items-center gap-3">
@@ -329,8 +394,6 @@ export const PackageTimeline = () => {
                 )}
               </CardContent>
             </Card>
-
-            
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white p-6">
                 <CardTitle className="flex items-center gap-3">
@@ -350,9 +413,7 @@ export const PackageTimeline = () => {
                     <span className="text-gray-600">Duration:</span>
                     <span className="font-semibold">{selectedPackage.duration} days</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    
-                  </div>
+                  <div className="flex justify-between items-center"></div>
                 </div>
                 <Separator className="my-4" />
                 <div className="flex justify-between items-center text-xl font-bold">
@@ -361,17 +422,23 @@ export const PackageTimeline = () => {
                 </div>
                 <Button
                   className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                  disabled={!selectedDate}
+                  disabled={!selectedDate || isBookingLoading}
+                  onClick={handleBooking}
                 >
+                  {isBookingLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
                   <CreditCard className="h-6 w-6 mr-3" />
                   Book This Package
                 </Button>
                 {!selectedDate && (
                   <p className="text-sm text-gray-500 text-center mt-2">Please select a travel date to proceed</p>
                 )}
+                {bookingError && (
+                  <p className="text-sm text-red-500 text-center mt-2" role="alert">
+                    {bookingError}
+                  </p>
+                )}
               </CardContent>
             </Card>
-
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white p-6">
                 <CardTitle>Package Highlights</CardTitle>
@@ -411,7 +478,6 @@ export const PackageTimeline = () => {
                 ))}
               </CardContent>
             </Card>
-         
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import {
   userprofileController,
   getpackageByDestinationController,
   getusereditProfile,
+  bookingcontroller,
 } from "../../Di/user/userInjections";
 import { JwtSevice } from "../../services/jwtService";
 import { destinationController } from "../../Di/admin/adminInjection";
@@ -62,6 +63,9 @@ export class UserRoute {
     })
     this.userRouter.patch("/profile/:id",(req:Request,res:Response)=>{
       getusereditProfile.editProfileHandler(req,res)
+    })
+    this.userRouter.post("/bookings/:packageId",(req:Request,res:Response)=>{
+      bookingcontroller.createBooking(req,res)
     })
   }
 }
