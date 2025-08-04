@@ -1,5 +1,6 @@
+// 👇 Your imports remain unchanged
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { getsingleDestination } from "@/services/Destination/destinationService";
@@ -9,7 +10,6 @@ import { MapPin } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/store/store";
 import { fetchPackages } from "@/store/slice/packages/packageSlice";
-import PackagesTable from "@/pages/Vendors/package-table";
 import Navbar from "@/components/profile/navbar";
 
 export const DestinationDetail = () => {
@@ -18,12 +18,11 @@ export const DestinationDetail = () => {
     null
   );
   const [loading, setLoading] = useState(true);
-
   const dispatch = useDispatch<AppDispatch>();
   const { packages, loading: packagesLoading } = useSelector(
     (state: RootState) => state.package
   );
-
+  const navigate = useNavigate();
   const relevantPackages = packages.filter((pkg) => pkg.destinationId === id);
 
   useEffect(() => {
@@ -71,14 +70,13 @@ export const DestinationDetail = () => {
               <h1 className="text-4xl font-bold text-gray-900">
                 {destination.name}
               </h1>
-
               <div className="flex items-center text-gray-600">
                 <MapPin className="h-4 w-4 mr-1" />
                 <span>{destination.location}</span>
               </div>
             </div>
 
-            {/* Image Gallery */}
+           
             {Array.isArray(destination.imageUrls) &&
               destination.imageUrls.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -103,6 +101,8 @@ export const DestinationDetail = () => {
                   )}
                 </div>
               )}
+
+           
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-900">
                 Tour Overview
@@ -116,6 +116,7 @@ export const DestinationDetail = () => {
               <h2 className="text-2xl font-bold text-gray-900">
                 Available Packages
               </h2>
+
               {packagesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -124,7 +125,38 @@ export const DestinationDetail = () => {
                   </span>
                 </div>
               ) : relevantPackages.length > 0 ? (
-                <PackagesTable packages={relevantPackages} />
+                <div className="space-y-4">
+                  <div className="text-gray-700 text-lg font-semibold">
+                    Total Packages: {relevantPackages.length}
+                  </div>
+                  <ul className="space-y-4">
+                    {relevantPackages.map((pkg) => (
+                      <li
+                        key={pkg.id}
+                        className="flex items-center gap-4 p-4 border rounded-xl bg-white shadow-sm"
+                      >
+                        <span className="bg-blue-600 text-white font-bold text-sm rounded-full h-8 w-8 flex items-center justify-center">
+                          {pkg.packageName.charAt(0)}
+                        </span>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-gray-900">
+                            {pkg.packageName}
+                          </h4>
+                        </div>
+                        <button
+                          className="text-blue-600 font-semibold hover:underline"
+                          onClick={() => {
+                            navigate("/timeline", {
+                              state: { selectedPackage: pkg },
+                            });
+                          }}
+                        >
+                          View Details
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : (
                 <div className="bg-white rounded-2xl shadow-sm border p-16 text-center">
                   <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -139,6 +171,8 @@ export const DestinationDetail = () => {
               )}
             </div>
           </div>
+
+          {/* Tour Map */}
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
@@ -153,7 +187,6 @@ export const DestinationDetail = () => {
                     <strong>Longitude:</strong> {destination.coordinates.lng}
                   </p>
                 </div>
-
                 <div className="h-64 w-full rounded-lg overflow-hidden">
                   <MapContainer
                     center={[

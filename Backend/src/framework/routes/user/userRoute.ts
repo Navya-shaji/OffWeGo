@@ -24,7 +24,7 @@ export class UserRoute {
 
   private setRoutes(): void {
     this.userRouter.post("/signup", (req: Request, res: Response) => {
-      userRegisterController.registerUser(req, res);
+      userRegisterController.registerUser(req,res)
     });
 
     this.userRouter.post("/verify-otp", (req: Request, res: Response) => {

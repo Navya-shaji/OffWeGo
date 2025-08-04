@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addPackage } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; 
+
 import {
   Plus,
   Clock,
@@ -105,18 +107,28 @@ const AddPackage: React.FC = () => {
     setFormData((prev) => ({ ...prev, selectedActivities }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const newImages = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newImages].slice(0, 5),
-      }));
+ const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (!files) return;
+
+  const fileArray = Array.from(files).slice(0, 5 - formData.images.length);
+  const uploadedUrls: string[] = [];
+
+  for (const file of fileArray) {
+    try {
+      const url = await uploadToCloudinary(file);
+      uploadedUrls.push(url);
+    } catch (error) {
+      console.error("Failed to upload image:", error);
     }
-  };
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    images: [...prev.images, ...uploadedUrls].slice(0, 5),
+  }));
+};
+
 
   const removeImage = (index: number) => {
     setFormData((prev) => ({
