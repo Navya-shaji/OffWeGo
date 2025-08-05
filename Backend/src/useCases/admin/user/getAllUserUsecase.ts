@@ -8,7 +8,7 @@ export class GetAllUsers implements IGetAllUser {
   async execute(page: number, limit: number): Promise<{ users: User[]; totalUsers: number }> {
     const skip = (page - 1) * limit;
 
-   
+    
     const users = await this.userRepository.getAllUsers(skip, limit, { role: "user" });
 
     

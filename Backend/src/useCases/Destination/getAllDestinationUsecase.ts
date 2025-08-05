@@ -5,8 +5,13 @@ import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper
 export class GetAllDestinations {
   constructor(private  destinationRepo: IDestinationRepository) {}
 
-  async execute(): Promise<Destination[]> {
-   const destination=await this.destinationRepo.getAllDestinations()
-   return destination.map(mapToDestinationDto)
+  async execute(page:number,limit:number): Promise<{destinations:Destination[],totalDestinations:number}> {
+    const skip=(page-1) *limit
+   const destination=await this.destinationRepo.getAllDestinations(skip,limit)
+   const totalDestinations=await this.destinationRepo.countDestinations()
+   return {
+    destinations:destination.map(mapToDestinationDto),
+    totalDestinations:totalDestinations
+   }
   }
 }

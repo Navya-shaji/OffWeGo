@@ -4,8 +4,9 @@ import { CreateDestinationDTO } from "../../dto/admin/DestinationDTO";
 
 export interface IDestinationRepository {
   createDestination(data: CreateDestinationDTO): Promise<IDestinationModel>;
-  getAllDestinations(): Promise<IDestinationModel[]>;
+  getAllDestinations(skip: number, limit: number): Promise<IDestinationModel[]>;
   edit(destination: IDestinationModel): Promise<void>;
+  countDestinations(): Promise<number>;
   delete(id: string): Promise<void>;
   getDestination(id:string):Promise<IDestinationModel |null>
 }

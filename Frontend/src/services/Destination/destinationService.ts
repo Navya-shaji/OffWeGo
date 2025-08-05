@@ -19,11 +19,18 @@ export const addDestination = async (data: DestinationInterface) => {
   }
 };
 
-export const fetchAllDestinations = async () => {
+export const fetchAllDestinations = async (page:number=1,
+    limit:number=10):Promise<{destinations:DestinationInterface[];totalDestinations:number;totalPages:number;currentPage:number}>=> {
   try {
-    const res = await axiosInstance.get("/admin/destinations");
+    
+    const res = await axiosInstance.get("/admin/destinations",{params:{page,limit}});
 
-    return res.data;
+    return {
+      destinations:res.data.destinations,
+      totalDestinations:res.data.totalDestinations,
+      totalPages:res.data.totalPages,
+      currentPage:res.data.currentPage
+    }
   } catch (error) {
     console.error("Error fetching destinations:", error);
     if (isAxiosError(error)) {
@@ -43,7 +50,7 @@ export const updateDestination = async (
     console.log(" Updated:", res);
     return res.data;
   } catch (error) {
-    console.error("❌ Error updating destination:", error);
+    console.error(" Error updating destination:", error);
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.error || "Failed to update destination"

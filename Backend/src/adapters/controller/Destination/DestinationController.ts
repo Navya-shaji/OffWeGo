@@ -49,7 +49,9 @@ export class DestinationController {
   }
   async getAllDestination(req: Request, res: Response) {
     try {
-      const result = await this.getDestination.execute();
+      const page=parseInt(req.query.page as string) || 1;
+      const limit=parseInt(req.query.limit as string) ||10
+      const result = await this.getDestination.execute(page,limit);
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res

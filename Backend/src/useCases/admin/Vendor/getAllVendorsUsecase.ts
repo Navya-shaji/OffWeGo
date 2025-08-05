@@ -1,4 +1,3 @@
-// src/usecases/vendor/GetAllVendorsUseCase.ts
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
 import { Vendor } from "../../../domain/entities/vendorEntities";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";

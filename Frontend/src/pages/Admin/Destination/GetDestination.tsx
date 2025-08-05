@@ -7,6 +7,7 @@ import {
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { Edit, Trash } from "lucide-react";
 import { EditDestinationModal } from "./destinationModal";
+import Pagination from "@/components/pagination/pagination";
 
 export const DestinationTable = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
@@ -14,21 +15,32 @@ export const DestinationTable = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] =
     useState<DestinationInterface | null>(null);
-
+const [page,setPage]=useState(1)
+const [totalPages,settotalPages]=useState(1)
   const fetchData = async () => {
-    try {
-      const data: DestinationInterface[] = await fetchAllDestinations();
-      setDestinations(data);
-    } catch (err) {
-      console.error("Failed to fetch destinations:", err);
-    } finally {
-      setLoading(false);
+  try {
+    const data = await fetchAllDestinations(page, 10);
+
+    if (Array.isArray(data?.destinations)) {
+      setDestinations(data.destinations);
+    } else {
+      console.error("destinations is not an array:", data.destinations);
+      setDestinations([]); 
     }
-  };
+
+    const total = Number(data?.totalDestinations || 0);
+    settotalPages(Math.ceil(total / 10));
+  } catch (err) {
+    console.error("Failed to fetch destinations:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const handleEdit = (dest: DestinationInterface) => {
     setSelectedDestination(dest);
@@ -156,6 +168,7 @@ export const DestinationTable = () => {
           onSubmit={handleUpdate}
         />
       )}
+      <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>
   );
 };
