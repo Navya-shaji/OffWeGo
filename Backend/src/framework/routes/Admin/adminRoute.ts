@@ -4,8 +4,9 @@ import {
   AdminuserController,
   adminVendorController,
   bannerController,
-  catogoryController,
+  categoryController,
   destinationController,
+  subscriptionController,
   
 
 } from "../../../framework/Di/admin/adminInjection";
@@ -72,11 +73,11 @@ export class AdminRoute {
   });
 
   this.adminRouter.post("/create-categories", (req: Request, res: Response) => {
-    catogoryController.createCategory(req, res);
+    categoryController.createCategory(req, res);
   });
 
   this.adminRouter.get("/categories", (req: Request, res: Response) => {
-    catogoryController.getCategories(req, res);
+    categoryController.getCategories(req, res);
   });
 
   this.adminRouter.post("/create-banner", (req: Request, res: Response) => {
@@ -86,6 +87,27 @@ export class AdminRoute {
   this.adminRouter.get("/banner", (req: Request, res: Response) => {
     bannerController.getBanners(req, res);
   });
+  this.adminRouter.delete('/destination/:id',(req:Request,res:Response)=>{
+    destinationController.deleteDestinationController(req,res)
+  })
+  this.adminRouter.put("/category/:id",(req:Request,res:Response)=>{
+    categoryController.EditCategory(req,res)
+  })
+  this.adminRouter.delete("/category/:id",(req:Request,res:Response)=>{
+    categoryController.DeleteCategory(req,res)
+  })
+  this.adminRouter.put("/banner/:id",(req:Request,res:Response)=>{
+    bannerController.EditBanner(req,res)
+  })
+  this.adminRouter.delete("/banner/:id",(req:Request,res:Response)=>{
+    bannerController.BannerDelete(req,res)
+  })
+  this.adminRouter.post("/create-subscription",(req:Request,res:Response)=>{
+    subscriptionController.createSubscription(req,res)
+  })
+  this.adminRouter.get("/subscriptions",(req:Request,res:Response)=>{
+    subscriptionController.getAllSubscriptions(req,res)
+  })
 }
 
 }

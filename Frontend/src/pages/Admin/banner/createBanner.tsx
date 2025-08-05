@@ -81,67 +81,90 @@ const CreateBanner: React.FC = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 shadow-md rounded-xl bg-white space-y-6">
-      <h2 className="text-2xl font-bold">Create Banner</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <ToastContainer position="top-right" autoClose={3000} />
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            placeholder="Enter banner title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+    <div className="flex items-center justify-center py-10 px-4">
+      <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
+
+        {/* Header */}
+        <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
+          <h2 className="text-2xl font-bold">Create Banner</h2>
+          <p className="text-sm text-gray-300 mt-1">Add a new promotional banner</p>
         </div>
 
-        <div>
-          <Label htmlFor="video">Upload Video</Label>
-          <Input
-            id="video"
-            type="file"
-            accept="video/*"
-            onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                setVideo(e.target.files[0]);
-                setVideoUrl("");
-              }
-            }}
-          />
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <ToastContainer position="top-right" autoClose={3000} />
+
+          {/* Title */}
+          <div>
+            <Label htmlFor="title" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Banner Title <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="title"
+              placeholder="Enter banner title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black transition"
+            />
+          </div>
+
+          {/* Upload */}
+          <div>
+            <Label htmlFor="video" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Upload Video <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="video"
+              type="file"
+              accept="video/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setVideo(e.target.files[0]);
+                  setVideoUrl("");
+                }
+              }}
+              className="w-full border border-gray-300 rounded-lg"
+            />
+            <Button
+              type="button"
+              onClick={handleUpload}
+              className="mt-3"
+              disabled={loading || !video}
+            >
+              {loading ? "Uploading..." : "Upload Video"}
+            </Button>
+
+            {videoUrl && (
+              <div className="mt-4">
+                <video
+                  src={videoUrl}
+                  controls
+                  className="w-full rounded-lg border border-gray-300"
+                  style={{ maxHeight: "300px" }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Switch */}
+          <div className="flex items-center gap-4">
+            <Label htmlFor="active" className="text-sm font-semibold text-gray-700">
+              Active
+            </Label>
+            <Switch id="active" checked={action} onCheckedChange={setAction} />
+          </div>
+
+          {/* Submit */}
           <Button
-            type="button"
-            onClick={handleUpload}
-            className="mt-2"
-            disabled={loading || !video}
+            type="submit"
+            className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"
+            disabled={loading || !videoUrl}
           >
-            {loading ? "Uploading..." : "Upload Video"}
+            {loading ? "Creating..." : "Create Banner"}
           </Button>
-          {videoUrl && (
-            <div className="mt-3">
-              <video
-                src={videoUrl}
-                controls
-                className="w-full rounded-lg"
-                style={{ maxHeight: "300px" }}
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Label htmlFor="active">Active</Label>
-          <Switch id="active" checked={action} onCheckedChange={setAction} />
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading || !videoUrl}
-        >
-          {loading ? "Creating..." : "Create Banner"}
-        </Button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

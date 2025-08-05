@@ -121,7 +121,7 @@ export class OtpService implements IOtpService {
             <div class="otp">${otp}</div>
           </div>
 
-          <p style="color: #555;">This OTP is valid for <strong>5 minutes</strong>. Please don't share it with anyone.</p>
+          <p style="color: #555;">This OTP is valid for <strong>1 minutes</strong>. Please don't share it with anyone.</p>
 
           <div class="footer">
             Need help? <a href="mailto:support@offwego.com">Contact Support</a><br/>

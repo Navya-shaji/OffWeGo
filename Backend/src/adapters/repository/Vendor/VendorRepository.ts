@@ -51,8 +51,8 @@ export class VendorRepository implements IVendorRepository {
     return await VendorModel.find({ status });
   }
 
-  async getAllVendors(): Promise<IVendorModel[]> {
-    return await VendorModel.find();
+  async getAllVendors(skip: number, limit: number, filter: Record<string, any> = {}): Promise<IVendorModel[]> {
+    return await VendorModel.find(filter).skip(skip).limit(limit);
   }
 
   async updateVendorStatusByAdmin(
@@ -69,5 +69,8 @@ export class VendorRepository implements IVendorRepository {
   }
     async getProfileByEmail(email:string): Promise<RegistervendorDto | null>{
       return await VendorModel.findOne({email})
+    }
+    async countVendors(filter:Record<string,any>={}):Promise<number>{
+      return await VendorModel.countDocuments(filter)
     }
 }

@@ -1,13 +1,13 @@
-// src/App.tsx
 import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import UserRoute from "./Routes/user/userRoutes";
 import AdminRoute from "./Routes/Admin/adminRoutes";
 import VendorRoute from "./Routes/Vendor/vendorRoutes";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { setUserFromSession } from "@/store/slice/user/authSlice"; // ✅ import this
+import { setUserFromSession } from "@/store/slice/user/authSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -39,7 +39,7 @@ function App() {
   return (
     <>
       <RouterProvider router={route} />
-      <Toaster />
+      <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
 }

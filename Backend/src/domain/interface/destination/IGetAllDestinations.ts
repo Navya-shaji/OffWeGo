@@ -1,5 +1,5 @@
 import { Destination } from "../../entities/DestinationEntity";
 
 export interface IGetAllDestinations{
-    execute():Promise<Destination[]|null>
+    execute(page:number,limit:number):Promise<{destinations:Destination[],totalDestinations:number}>
 }

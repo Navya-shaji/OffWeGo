@@ -12,7 +12,8 @@ export interface IVendorRepository {
   findPendingVendors(): Promise<IVendorModel[]>;
   approveVendor(id: string): Promise<IVendorModel | null>;
   rejectVendor(id: string): Promise<IVendorModel | null>;
-  getAllVendors(): Promise<IVendorModel[]>;
-  updateVendorStatusByAdmin(vendorId: string, status: "blocked" | "unblocked"): Promise<void>;
+ getAllVendors(skip: number, limit: number, filter?: Record<string, any>): Promise<IVendorModel[]>;  updateVendorStatusByAdmin(vendorId: string, status: "blocked" | "unblocked"): Promise<void>;
   getProfileByEmail(email:string): Promise<RegistervendorDto | null>;
+    countVendors(filter?: Record<string, any>): Promise<number>;
+
 }

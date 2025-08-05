@@ -17,12 +17,12 @@ export default function VerifyResetOtp() {
   }, [searchParams]);
 
   const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Allow only digits
+    if (!/^\d*$/.test(value)) return; 
     const updatedOtp = [...otp];
     updatedOtp[index] = value;
     setOtp(updatedOtp);
 
-    // Move to next box if input exists
+    
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }

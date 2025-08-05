@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   packagecontroller,
+  packagewisegroupcontroller,
   vendorloginController,
   vendorProfilecontroller,
   vendorsignupcontroller,
@@ -43,6 +44,20 @@ export class VendorRoute {
     this.vendorRouter.get("/packages",(req:Request,res:Response)=>{
       packagecontroller.getAllPackage(req,res)
     })
-    
+    this.vendorRouter.put("/packages/:id",(req:Request,res:Response)=>{
+      packagecontroller.EditPackage(req,res)
+    })
+    this.vendorRouter.delete("/packages/:id",(req:Request,res:Response)=>{
+      packagecontroller.deletePackage(req,res)
+    })
+    this.vendorRouter.patch("/profile/:id",(req:Request,res:Response)=>{
+      vendorProfilecontroller.EditProfile(req,res)
+    })
+    this.vendorRouter.post("/package-groups",(req:Request,res:Response)=>{
+      packagewisegroupcontroller.CreatePackageWiseGrouping(req,res)
+    })
+    this.vendorRouter.get("/package-group/:id",(req:Request,res:Response)=>{
+      packagewisegroupcontroller.GetPackageWiseGroups(req,res)
+    })
   } 
 }

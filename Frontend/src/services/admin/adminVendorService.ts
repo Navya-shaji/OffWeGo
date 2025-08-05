@@ -1,9 +1,19 @@
 import axiosInstance from "@/axios/instance";
 import type { Vendor } from "@/interface/vendorInterface";
 
-export const getAllVendors = async (): Promise<Vendor[]> => {
-  const response = await axiosInstance.get("/admin/vendors");
-  return response.data.vendors;
+export const getAllVendors = async (  page: number = 1,
+  limit: number = 10): Promise<{vendors:Vendor[];
+    totalvendors: number;
+  totalPages: number;
+  currentPage: number;
+  }> => {
+  const response = await axiosInstance.get("/admin/vendors",{params: { page, limit },});
+  return {
+    vendors:response.data.vendors,
+    totalvendors:response.data.totalvendors,
+    totalPages:response.data.totalPages,
+    currentPage:response.data.currentPage
+  }
 };
 
 

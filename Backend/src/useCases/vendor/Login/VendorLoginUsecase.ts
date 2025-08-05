@@ -19,7 +19,8 @@ export class VendorLoginUsecase {
       name: string;
       status: string;
       documentUrl: string;
-      phone:string
+      phone:string,
+     isBlocked: boolean 
     };
   } | null> {
     const { email, password } = data;
@@ -73,6 +74,7 @@ export class VendorLoginUsecase {
         phone:vendor.phone,
         status: vendor.status,
         documentUrl: vendor.documentUrl,
+        isBlocked: vendor.isBlocked ?? false
       },
     };
   }

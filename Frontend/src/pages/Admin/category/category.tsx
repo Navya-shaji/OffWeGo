@@ -1,9 +1,9 @@
 import type React from "react";
 import { useState } from "react";
-import { Upload, X } from "lucide-react";
+import {  X } from "lucide-react";
 import { addCategory } from "@/services/category/categoryService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
-import type { Category } from "@/interface/categoryInterface";
+import type { CategoryType } from "@/interface/categoryInterface";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -54,13 +54,13 @@ export const CategoryForm = () => {
     try {
       const imageUrl = await uploadToCloudinary(image);
 
-      const category: Category = {
+      const category: CategoryType = { 
         name,
         description,
         imageUrl,
         type: {
           main: typeMain,
-          sub: typeSub,
+          sub: typeSub
         },
       };
 
@@ -86,113 +86,98 @@ export const CategoryForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="relative bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-2">
-              Add Category
-            </h1>
-            <p className="text-slate-400">
-              Create a new category for your collection
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <ToastContainer position="top-right" autoClose={3000} />
-
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-300">
-                Category Name *
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter category name"
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-300">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter category description"
-                rows={3}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-              />
-            </div>
-
-            {/* Image Upload */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-300">
-                Category Image *
-              </label>
-              {!imagePreview ? (
-                <div className="relative group">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-600/50 rounded-xl bg-slate-900/30">
-                    <Upload className="w-6 h-6 text-slate-400 mb-2" />
-                    <p className="text-sm text-slate-400">
-                      Click to upload image
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      PNG, JPG up to 10MB
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="relative group">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-32 object-cover rounded-xl border border-slate-600/50"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <MainCategorySelect typeMain={typeMain} setTypeMain={setTypeMain} />
-
-            <SubCategory
-              typeMain={typeMain}
-              typeSub={typeSub}
-              setTypeSub={setTypeSub}
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-semibold disabled:opacity-50 transition-all"
-            >
-              {loading ? "Creating..." : "Create Category"}
-            </button>
-
-            {error && (
-              <div className="p-3 bg-red-500/20 text-red-300 text-sm rounded-md border border-red-500/30">
-                {error}
-              </div>
-            )}
-          </form>
-        </div>
-      </div>
+   <div className="flex items-center justify-center pt-10">
+  <div className="w-full max-w-3xl bg-white border border-black rounded-xl shadow-lg">
+    
+    <div className="bg-black text-white rounded-t-xl px-6 py-4">
+      <h1 className="text-2xl font-bold">Add New Category</h1>
+      <p className="text-sm text-blue-300">Create and manage your product categories</p>
     </div>
+
+    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <ToastContainer position="top-right" autoClose={3000} />
+
+     
+      <div>
+        <label className="block text-sm font-semibold text-black mb-1">
+          Category Name *
+        </label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+          placeholder="e.g. Electronics"
+        />
+      </div>
+
+     
+      <div>
+        <label className="block text-sm font-semibold text-black mb-1">
+          Description
+        </label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+          rows={3}
+          placeholder="Short description of the category"
+        />
+      </div>
+
+      
+      <div>
+        <label className="block text-sm font-semibold text-black mb-1">
+          Category Image *
+        </label>
+        {!imagePreview ? (
+          <div className="relative border border-gray-300 rounded-md bg-gray-100 h-32 flex items-center justify-center text-gray-500 text-sm cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+            Click to upload image (JPG/PNG)
+          </div>
+        ) : (
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-full h-32 object-cover rounded-md border border-gray-300"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+    
+      <MainCategorySelect typeMain={typeMain} setTypeMain={setTypeMain} />
+      <SubCategory typeMain={typeMain} typeSub={typeSub} setTypeSub={setTypeSub} />
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-black text-white py-3 px-6 rounded-md font-semibold hover:bg-gray-900 disabled:opacity-50"
+      >
+        {loading ? "Creating..." : "Add Category"}
+      </button>
+
+      {error && (
+        <div className="p-3 text-sm text-red-600 bg-red-100 border border-red-300 rounded-md">
+          {error}
+        </div>
+      )}
+    </form>
+  </div>
+</div>
+
   );
 };

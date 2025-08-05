@@ -17,6 +17,7 @@ export class AdminVendorController {
 
   async getVendorByEmail(req: Request, res: Response): Promise<void> {
     try {
+      
       const email = req.params.email.toLowerCase().trim();
       const vendor = await this.getVendorByEmailUseCase.execute(email);
 
@@ -35,10 +36,22 @@ export class AdminVendorController {
     }
   }
 
-  async getAllVendors(req: Request, res: Response): Promise<void> {
+ async getAllVendors(req: Request, res: Response): Promise<void> {
     try {
-      const vendors = await this.getAllVendorsUseCase.execute();
-      res.status(HttpStatus.OK).json({ success: true, vendors });
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+        const { vendors, totalvendors } = await this.getAllVendorsUseCase.execute(page,limit);
+
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        vendors,
+        totalvendors,
+        page,
+        totalPages: Math.ceil(totalvendors / limit),
+        currentPage: page
+      });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,

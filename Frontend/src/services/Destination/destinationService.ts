@@ -19,21 +19,44 @@ export const addDestination = async (data: DestinationInterface) => {
   }
 };
 
-export const fetchAllDestinations = async () => {
+export const fetchAllDestinations = async (
+  page: number = 1,
+  limit: number = 5
+): Promise<{
+  destinations: DestinationInterface[];
+  totalDestinations: number;
+  totalPages: number;
+  currentPage: number;
+}> => {
   try {
-    const res = await axiosInstance.get("/admin/destinations");
+    const res = await axiosInstance.get("/admin/destinations", {
+      params: { page, limit },
+    });
 
-    return res.data;
+    const { destinations, totalDestinations, totalPages, currentPage } = res.data;
+
+    if (!Array.isArray(destinations)) {
+      console.error("Expected destinations to be an array, got:", destinations);
+      return {
+        destinations: [],
+        totalDestinations: 0,
+        totalPages: 1,
+        currentPage: 1,
+      };
+    }
+
+    return {
+      destinations,
+      totalDestinations,
+      totalPages,
+      currentPage,
+    };
   } catch (error) {
     console.error("Error fetching destinations:", error);
-    if (isAxiosError(error)) {
-      throw new Error(
-        error.response?.data?.error || "Failed to fetch destinations"
-      );
-    }
-    throw new Error("An unexpected error occurred while fetching destinations");
+    throw new Error("Failed to fetch destinations");
   }
 };
+
 export const updateDestination = async (
   id: string,
   data: DestinationInterface
@@ -43,7 +66,7 @@ export const updateDestination = async (
     console.log(" Updated:", res);
     return res.data;
   } catch (error) {
-    console.error("❌ Error updating destination:", error);
+    console.error(" Error updating destination:", error);
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.error || "Failed to update destination"
@@ -85,3 +108,14 @@ export const getPackagesByDestination = async (
     throw new Error("An unexpected error occurred while updating destination");
   }
 };
+
+export const deleteDestination = async (id: string): Promise<void> => {
+  try {
+    const response = await axiosInstance.delete(`/admin/destination/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log("Error inside deleteDestination", error);
+    throw error;
+  }
+};
+

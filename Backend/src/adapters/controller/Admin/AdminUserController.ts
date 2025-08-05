@@ -12,12 +12,16 @@ export class AdminUserController {
 
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
-      const { users, totalUsers } = await this.getAllUserUsecase.execute();
+      const page=parseInt(req.query.page as string)|| 1;
+      const limit=parseInt(req.query.limit as string )||10
+      const { users, totalUsers } = await this.getAllUserUsecase.execute(page,limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
         users,
         totalUsers,
+        currentPage:page,
+        totalPages:Math.ceil(totalUsers/limit)
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -25,7 +29,7 @@ export class AdminUserController {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  }
+  } 
 
   async updateStatus(req: Request, res: Response): Promise<void> {
     try {

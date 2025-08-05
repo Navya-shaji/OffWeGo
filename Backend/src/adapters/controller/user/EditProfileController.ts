@@ -18,7 +18,14 @@ export class EditUserProfileController{
             return res.status(HttpStatus.OK).json({
                 success:true,
                 message:"User Profile Updated successfully",
-                data:{...result, username:result?.name}
+               data: {
+  id: result?._id,
+  username: result?.name,
+  email: result?.email,
+  phone: result?.phone,
+  imageUrl: result?.imageUrl, 
+}
+
             })
 
         } catch (error) {

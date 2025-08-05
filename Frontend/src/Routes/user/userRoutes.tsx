@@ -9,6 +9,7 @@ import ResetPassword from "@/components/Login/reset password";
 import Profile from "@/pages/User/profile/profile";
 import {DestinationDetail}from "@/pages/Admin/Destination/destinationSinglePage";
 import { Destinations } from "@/components/home/destinations/Destinations";
+import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
 
 const UserRoute = () => {
   return (
@@ -26,7 +27,7 @@ const UserRoute = () => {
         }/>
       <Route path="/destinations" element={<Destinations/>}/>
       <Route path="/destination/:id" element={<DestinationDetail />} />
-
+<Route path="/timeline" element={<PackageTimeline />} />
     
       <Route
         path="/"

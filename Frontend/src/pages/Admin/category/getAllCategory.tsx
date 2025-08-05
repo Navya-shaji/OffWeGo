@@ -1,65 +1,82 @@
-import { getCategory } from "@/services/category/categoryService";
-import type { Category } from "@/interface/categoryInterface";
 import { useEffect, useState } from "react";
+import { getCategory } from "@/services/category/categoryService";
+import type { CategoryType } from "@/interface/categoryInterface";
+import ReusableTable from "@/components/Modular/Table";
+
+import Pagination from "@/components/pagination/pagination";
 
 export const CategoryTable = () => {
-  const [category, setCategory] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      const data: Category[] = await getCategory();
-      setCategory(data);
-    } catch (error) {
-      console.error("failed to fetch categories", error);
-    } finally {
-      setLoading(false);
-    }
+  const [category, setCategory] = useState<CategoryType[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, settotalPages] = useState(1);
+  const fetchCategories = async () => {
+    const response = await getCategory(page, 5);
+    setCategory(response.categories);
+    const total = Number(response?.totalCategories || 0);
+    settotalPages(Math.ceil(total / 5));
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchCategories();
+  }, [page]);
+
+  interface Column {
+    accessorKey?: string;
+    header: string;
+    cell: (info: any) => React.ReactNode;
+  }
+
+  const columns: Column[] = [
+    {
+      accessorKey: "imageUrl",
+      header: "Image",
+      cell: (info: { getValue: () => string }) => (
+        <img
+          src={info.getValue() as string}
+          alt="category"
+          className="h-10 w-16 object-cover rounded"
+        />
+      ),
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: (info: { getValue: () => string }) => info.getValue(),
+    },
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: (info: { getValue: () => string }) => info.getValue(),
+    },
+
+    {
+      accessorKey: "type.main",
+      header: "Type",
+      cell: (info: { row: { original: CategoryType } }) =>
+        info.row.original.type?.main || "Nothing",
+    },
+    {
+      accessorKey: "type.sub",
+      header: "Sub Types",
+      cell: (info: { row: { original: CategoryType } }) => {
+        const sub = info.row.original.type?.sub;
+        return Array.isArray(sub)
+          ? sub.join(", ")
+          : typeof sub === "string"
+          ? sub
+          : "";
+      },
+    },
+    
+  ];
+  
 
   return (
-    <div className="p-4 overflow-x-auto">
-      <h2 className="text-2xl font-semibold mb-4 text-center">Category Table</h2>
-      {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : (
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
-          <thead className="bg-gray-100 text-gray-700 text-left">
-            <tr>
-              <th className="p-3 border-b">Image</th>
-              <th className="p-3 border-b">Name</th>
-              <th className="p-3 border-b">Description</th>
-              <th className="p-3 border-b">Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {category.map((cat) => (
-              <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
-                <td className="p-3 border-b">
-                  {cat.imageUrl ? (
-                    <img
-                      src={cat.imageUrl}
-                      alt={cat.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-sm text-gray-400">No image</span>
-                  )}
-                </td>
-                <td className="p-3 border-b">{cat.name}</td>
-                <td className="p-3 border-b">{cat.description}</td>
-                <td className="p-3 border-b">
-                  {cat.type.main}, {cat.type.sub}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Category Listing</h2>
+      <ReusableTable data={category} columns={columns} />
+
+      <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>
   );
 };
