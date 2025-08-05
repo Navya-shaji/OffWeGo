@@ -1,32 +1,33 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllUsers, updateUserStatus } from "@/services/admin/adminUserService";
 import type { User } from "@/interface/userInterface";
 import ReusableTable from "../Modular/Table";
-import {type ColumnDef } from "@tanstack/react-table";
+import Pagination from "../pagination/pagination";
+import type { ColumnDef } from "@tanstack/react-table";
 
-const UserList: React.FC = () => {
+const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const fetchUsers = async (currentPage: number) => {
+  const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await getAllUsers(currentPage, 10);
-      setUsers(res.users);
-      setTotalPages(res.totalPages);
-    } catch (err) {
-      console.error("Error fetching users:", err);
-      setError("Failed to fetch users");
+      const response = await getAllUsers(page, 10);
+      setUsers(response.users);
+      setTotalPages(Math.ceil(response.totalUsers / 10));
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setError("Failed to fetch users.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers(page);
+    fetchUsers();
   }, [page]);
 
   const handleActionChange = async (userId: string, newStatus: "active" | "blocked") => {
@@ -38,11 +39,9 @@ const UserList: React.FC = () => {
         )
       );
     } catch (err) {
-      console.error("Failed to update status", err);
+      console.error("Failed to update user status", err);
     }
   };
-
-  const filteredUsers = users.filter((user) => user.role === "user");
 
   const columns: ColumnDef<User>[] = [
     {
@@ -105,27 +104,8 @@ const UserList: React.FC = () => {
   return (
     <div className="p-4">
       <h2 className="text-2xl font-semibold mb-4">All Users</h2>
-      <ReusableTable data={filteredUsers} columns={columns} />
-
-      <div className="flex justify-center items-center gap-4 mt-6">
-        <button
-          disabled={page <= 1}
-          onClick={() => setPage((prev) => prev - 1)}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {page} of {totalPages}
-        </span>
-        <button
-          disabled={page >= totalPages}
-          onClick={() => setPage((prev) => prev + 1)}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      <ReusableTable data={users} columns={columns} />
+      <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>
   );
 };

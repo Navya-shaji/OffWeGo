@@ -22,11 +22,8 @@ export class UserRepository implements IUserRepository {
       { $set: { password: newHashedPassword } }
     );
   }
-async getAllUsers(): Promise<{ users: User[], totalUsers: number }> {
-  const users = await UserModel.find()
-  const totalUsers = await UserModel.countDocuments();
-
-  return { users, totalUsers };
+async getAllUsers(skip: number, limit: number, filter: Record<string, any> = {}): Promise<User[]> {
+  return await UserModel.find(filter).skip(skip).limit(limit);
 }
 
    async updateUserStatus(userId: string, status: "active" | "block"): Promise<void> {
@@ -38,9 +35,9 @@ async getAllUsers(): Promise<{ users: User[], totalUsers: number }> {
     user.status = status;
     await user.save();
   }
-    async countUsers(): Promise<number> {
-    return await UserModel.countDocuments();
-  }
+async countUsers(filter: Record<string, any> = {}): Promise<number> {
+  return await UserModel.countDocuments(filter);
+}
   async getProfileByEmail(email:string): Promise<Profile | null>{
     return await UserModel.findOne({email})
   }
