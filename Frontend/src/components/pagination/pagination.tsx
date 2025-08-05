@@ -1,9 +1,9 @@
 import React from "react";
 
 interface PaginationProps {
-  total: number; // Total number of pages
-  current: number; // Current active page
-  setPage: (page: number) => void; // Function to update current page
+  total: number; 
+  current: number; 
+  setPage: (page: number) => void; 
 }
 
 const Pagination: React.FC<PaginationProps> = ({ total, current, setPage }) => {

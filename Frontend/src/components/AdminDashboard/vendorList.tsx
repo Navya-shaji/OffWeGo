@@ -1,81 +1,123 @@
-import type { VendorListProps } from "@/interface/vendorList";
-import React from "react";
+import { useEffect, useState } from "react";
+import ReusableTable from "../Modular/Table";
+import { getAllVendors, updateVendorBlockStatus } from "@/services/admin/adminVendorService";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { Vendor } from "@/interface/vendorInterface";
+import Pagination from "../pagination/pagination";
 
-const VendorCardList: React.FC<VendorListProps> = ({
-  title,
-  vendors = [],
-  bgColor = "bg-white",
-  showActions = false,
-  onAction,
-}) => {
-  console.log("vendors",vendors)
+export const VendorList = () => {
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getAllVendors(page, 10);
+        setVendors(result.vendors);
+        setTotalPages(result.totalPages); // ✅ directly from API
+      } catch (error) {
+        console.error("Error fetching vendors:", error);
+      }
+    };
+
+    fetchData();
+  }, [page]);
+
+  const handleBlockToggle = async (vendorId: string, currentStatus: boolean) => {
+    try {
+      const updated = await updateVendorBlockStatus(vendorId, !currentStatus);
+      console.log(updated)
+      setVendors((prev) =>
+        prev.map((v) => (v._id === vendorId ? { ...v, isBlocked: !currentStatus } : v))
+      );
+    } catch (err) {
+      console.error("Failed to update vendor status", err);
+    }
+  };
+
+  const columns: ColumnDef<Vendor>[] = [
+    {
+      id: "index",
+      header: "#",
+      cell: ({ row }) => row.index + 1 + (page - 1) * 10,
+    },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone", header: "Phone" },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const color =
+          status === "approved"
+            ? "text-green-600"
+            : status === "rejected"
+            ? "text-red-500"
+            : "text-yellow-500";
+        return <span className={color}>{status}</span>;
+      },
+    },
+    {
+      header: "Blocked Status",
+      cell: ({ row }) => {
+        const blocked = row.original.isBlocked;
+        return (
+          <span className={blocked ? "text-red-500" : "text-green-600"}>
+            {blocked ? "Blocked" : "Unblocked"}
+          </span>
+        );
+      },
+    },
+    {
+      header: "Document",
+      cell: ({ row }) => {
+        const url = row.original.documentUrl;
+        return (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            View
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created At",
+      cell: ({ row }) => {
+        const date = new Date(row.original.createdAt ?? "");
+        return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
+      },
+    },
+    {
+      header: "Actions",
+      cell: ({ row }) => (
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!row.original.isBlocked}
+            onChange={() =>
+              handleBlockToggle(row.original._id, row.original.isBlocked)
+            }
+            className="sr-only peer"
+          />
+          <div className="w-14 h-8 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-all duration-300" />
+          <span className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full shadow-md transform peer-checked:translate-x-6 transition-transform duration-300" />
+        </label>
+      ),
+    },
+  ];
+
   return (
-    <div className="mt-10 px-4 md:px-8">
-      <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2 mb-6">
-        {title}
-      </h2>
-
-      {vendors.length === 0 ? (
-        <p className="text-gray-500 italic">No vendors found.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {vendors.map((vendor) => (
-            <div
-              key={vendor._id}
-              className={`rounded-xl p-5 shadow-md border ${bgColor} transition hover:shadow-lg`}
-            >
-              <div className="space-y-2">
-                <p className="text-lg font-medium text-black">
-                  <strong>Name:</strong> {vendor.name}
-                </p>
-                <p className="text-sm text-gray-600">
-                  <strong>Email:</strong> {vendor.email}
-                </p>
-                {vendor.phone && (
-                  <p className="text-sm text-gray-600">
-                    <strong>Phone:</strong> {vendor.phone}
-                  </p>
-                )}
-                {vendor.status && (
-                  <p className="text-sm">
-                    <strong>Status:</strong>{" "}
-                    <span
-                      className={`px-2 py-0.5 rounded text-white text-xs ${
-                        vendor.status === "approved"
-                          ? "bg-green-600"
-                          : vendor.status === "rejected"
-                          ? "bg-red-500"
-                          : "bg-yellow-500"
-                      }`}
-                    >
-                      {vendor.status}
-                    </span>
-                  </p>
-                )}
-              </div>
-
-              {showActions && vendor.status === "pending" && onAction && (
-                <div className="mt-4 flex gap-3">
-                  <button
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-1.5 rounded-md text-sm transition"
-                    onClick={() => onAction(vendor._id, "approved")}
-                  >
-                     Accept
-                  </button>
-                  <button
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-1.5 rounded-md text-sm transition"
-                    onClick={() => onAction(vendor._id, "rejected")}
-                  >
-                     Reject
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">All Vendors</h1>
+      <ReusableTable<Vendor> data={vendors} columns={columns} />
+      <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>
   );
 };
-
-export default VendorCardList;

@@ -3,22 +3,28 @@ import ReusableTable from "../Modular/Table";
 import { getAllVendors,  updateVendorBlockStatus } from "@/services/admin/adminVendorService";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Vendor } from "@/interface/vendorInterface";
+import Pagination from "../pagination/pagination";
 
 export const VendorList = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
+    const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await getAllVendors();
-        setVendors(result);
+        const result = await getAllVendors(page,10);
+        setVendors(result.vendors);
+        setTotalPages(Math.ceil(result.totalvendors / 10));
+
       } catch (error) {
         console.error("Error fetching vendors:", error);
+        
       }
     };
 
     fetchData();
-  }, []);
+  }, [page]);
 
   const handleBlockToggle = async (vendorId: string, currentStatus: boolean) => {
     try {
@@ -113,6 +119,7 @@ export const VendorList = () => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">All Vendors</h1>
       <ReusableTable<Vendor> data={vendors} columns={columns} />
+         <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>
   );
 };

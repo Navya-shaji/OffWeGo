@@ -1,5 +1,6 @@
 import { Vendor } from "../../entities/vendorEntities";
 
 export interface IGetAllVendorsUseCase{
-    execute():Promise<Vendor[]|null>
+    execute( page: number,
+    limit: number):Promise<{vendors:Vendor[],totalvendors: number}>
 }

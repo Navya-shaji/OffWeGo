@@ -21,4 +21,5 @@ export interface Vendor {
     subscribedAt: Date;
     expiresAt: Date;
   };
+  
 }
