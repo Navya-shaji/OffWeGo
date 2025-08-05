@@ -1,83 +1,87 @@
-import type React from "react"
-import { toast } from "react-toastify"
-import { useAppDispatch, useAppSelector } from "@/hooks"
-import { useState } from "react"
-import { addSubscription } from "@/store/slice/Subscription/subscription"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { isAxiosError } from "axios"
+import type React from "react";
+import { toast, ToastContainer } from "react-toastify";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { useState } from "react";
+import { addSubscription } from "@/store/slice/Subscription/subscription";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { isAxiosError } from "axios";
 
 export default function AddSubscriptionForm() {
-  const dispatch = useAppDispatch()
-  const { status, error } = useAppSelector((state) => state.subscription)
-  const loading = status === "loading"
+  const dispatch = useAppDispatch();
+  const { status, error } = useAppSelector((state) => state.subscription);
+  const loading = status === "loading";
 
   const [formData, setFormData] = useState({
     name: "",
-    description: "", 
+    description: "",
     commissionRate: "",
     price: "",
     durationInDays: "",
-  })
-const notify = () => toast("subscription added ");
+  });
+
+  const notify = () => toast("Subscription added");
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       await dispatch(
         addSubscription({
           name: formData.name,
-          description: formData.description, 
           commissionRate: Number(formData.commissionRate),
           price: Number(formData.price),
           durationInDays: Number(formData.durationInDays),
-        }),
-      ).unwrap()
-notify();
-    
+        })
+      ).unwrap();
+      notify();
 
       setFormData({
         name: "",
-        description: "", 
+        description: "",
         commissionRate: "",
         price: "",
         durationInDays: "",
-      })
+      });
     } catch (error) {
-      console.error("Full error adding subscription:", error)
+      console.error("Full error adding subscription:", error);
       if (isAxiosError(error)) {
-        console.error("Axios response data:", error.response?.data)
-        throw new Error(error.response?.data?.error || "Failed to add subscription")
+        console.error("Axios response data:", error.response?.data);
+        toast.error(error.response?.data?.error || "Failed to add subscription");
+      } else {
+        toast.error("An unexpected error occurred");
       }
-      throw new Error("An unexpected error occurred while adding subscription")
     }
-  }
+  };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Add Subscription Plan</CardTitle>
-        <CardDescription>Fill in the details for the new subscription plan.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+    <div className="flex items-center justify-center py-10 px-4">
+      <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
+
+        {/* Header */}
+        <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
+          <h2 className="text-2xl font-bold">Add Subscription Plan</h2>
+          <p className="text-sm text-gray-300 mt-1">
+            Fill in the details for the new subscription plan.
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <ToastContainer position="top-right" autoClose={3000} />
+
+          <div>
+            <Label htmlFor="name" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Plan Name <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="name"
               type="text"
@@ -89,8 +93,10 @@ notify();
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+          <div>
+            <Label htmlFor="description" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Description <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="description"
               type="text"
@@ -102,8 +108,10 @@ notify();
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+          <div>
+            <Label htmlFor="commissionRate" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Commission Rate (%) <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="commissionRate"
               type="number"
@@ -117,8 +125,10 @@ notify();
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="price">Price</Label>
+          <div>
+            <Label htmlFor="price" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Price <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="price"
               type="number"
@@ -131,8 +141,10 @@ notify();
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="durationInDays">Duration (Days)</Label>
+          <div>
+            <Label htmlFor="durationInDays" className="text-sm font-semibold text-gray-700 mb-1 block">
+              Duration (Days) <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="durationInDays"
               type="number"
@@ -145,12 +157,17 @@ notify();
             />
           </div>
 
-          <Button type="submit" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"
+            disabled={loading}
+          >
             {loading ? "Adding..." : "Add Subscription"}
           </Button>
+
           {error && <p className="text-red-500 text-sm">{error}</p>}
         </form>
-      </CardContent>
-    </Card>
-  )
+      </div>
+    </div>
+  );
 }

@@ -15,7 +15,7 @@ export const VendorList = () => {
       try {
         const result = await getAllVendors(page, 10);
         setVendors(result.vendors);
-        setTotalPages(result.totalPages); // ✅ directly from API
+        setTotalPages(result.totalPages); 
       } catch (error) {
         console.error("Error fetching vendors:", error);
       }

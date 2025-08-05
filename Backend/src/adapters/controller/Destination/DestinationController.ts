@@ -51,8 +51,14 @@ export class DestinationController {
     try {
       const page=parseInt(req.query.page as string) || 1;
       const limit=parseInt(req.query.limit as string) ||5
-      const result = await this.getDestination.execute(page,limit);
-      res.status(HttpStatus.OK).json(result);
+      const{destinations,totalDestinations}=await this.getDestination.execute(page,limit)
+      res.status(HttpStatus.OK).json({
+        success:true,
+        destinations,
+        totalDestinations,
+        currentPage:page,
+        totalPages:Math.ceil(totalDestinations/limit)
+      });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

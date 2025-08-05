@@ -10,33 +10,37 @@ import { EditDestinationModal } from "./destinationModal";
 import Pagination from "@/components/pagination/pagination";
 
 export const DestinationTable = () => {
-  const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
+const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] =
     useState<DestinationInterface | null>(null);
-const [page,setPage]=useState(1)
-const [totalPages,settotalPages]=useState(1)
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const fetchData = async () => {
-  try {
-    const data = await fetchAllDestinations(page, 5);
+    setLoading(true);
+    try {
+      const data = await fetchAllDestinations(page, 5);
 
-    if (Array.isArray(data?.destinations)) {
-      setDestinations(data.destinations);
-    } else {
-      console.error("destinations is not an array:", data.destinations);
-      setDestinations([]); 
+      const { destinations, totalDestinations } = data;
+      console.log("Fetched Data:", data);
+
+      if (Array.isArray(destinations)) {
+        setDestinations(destinations);
+        setTotalPages(Math.ceil((totalDestinations || 0) / 5));
+      } else {
+        console.error("Expected destinations to be an array:", destinations);
+        setDestinations([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch destinations:", err);
+      setDestinations([]);
+    } finally {
+      setLoading(false);
     }
-
-    const total = Number(data?.totalDestinations || 0);
-    settotalPages(Math.ceil(total / 5));
-  } catch (err) {
-    console.error("Failed to fetch destinations:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchData();
@@ -56,7 +60,7 @@ const [totalPages,settotalPages]=useState(1)
     try {
       await deleteDestination(id);
       alert("Destination deleted successfully");
-      await fetchData();
+      fetchData();
     } catch (error) {
       console.error("Failed to delete destination:", error);
       alert("Failed to delete destination");
@@ -65,23 +69,18 @@ const [totalPages,settotalPages]=useState(1)
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(" handleUpdate started");
 
     if (!selectedDestination?.id) {
-      console.warn(
-        "No selectedDestination or missing id",
-        selectedDestination
-      );
+      console.warn("Missing selectedDestination or ID");
       return;
     }
 
     try {
       await updateDestination(selectedDestination.id, selectedDestination);
-      console.log(" Updated destination:", selectedDestination.id);
-      await fetchData();
+      fetchData();
       setIsEditModalOpen(false);
     } catch (err) {
-      console.error(" Update failed:", err);
+      console.error("Update failed:", err);
     }
   };
 
@@ -95,67 +94,65 @@ const [totalPages,settotalPages]=useState(1)
         <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Image
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Description
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {destinations.map((dest) => (
-              <tr key={dest.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="h-16 w-16">
-                    {Array.isArray(dest.imageUrls) && dest.imageUrls[0] ? (
-                      <img
-                        src={dest.imageUrls[0]}
-                        alt={dest.name}
-                        className="h-16 w-16 object-cover rounded-lg border"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                </td>
-
-                <td className="px-6 py-4">{dest.name}</td>
-                <td className="px-6 py-4">{dest.location}</td>
-                <td className="px-6 py-4 max-w-xs">{dest.description}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(dest)}
-                      className="p-2 text-black hover:text-black hover:bg-blue-50 rounded-lg"
-                      title="Edit"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(dest.id)}
-                      className="p-2 text-black hover:text-black hover:bg-blue-50 rounded-lg"
-                    >
-                      <Trash size={16} />
-                    </button>
-                  </div>
+            {Array.isArray(destinations) && destinations.length > 0 ? (
+              destinations.map((dest) => (
+                <tr key={dest.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="h-16 w-16">
+                      {Array.isArray(dest.imageUrls) && dest.imageUrls.length > 0 ? (
+                        <img
+                          src={dest.imageUrls[0]}
+                          alt={dest.name}
+                          className="h-16 w-16 object-cover rounded-lg border"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
+                          No Image
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">{dest.name}</td>
+                  <td className="px-6 py-4">{dest.location}</td>
+                  <td className="px-6 py-4 max-w-xs">{dest.description}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(dest)}
+                        className="p-2 hover:bg-blue-50 rounded-lg"
+                        title="Edit"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(dest.id)}
+                        className="p-2 hover:bg-red-50 rounded-lg"
+                        title="Delete"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="text-center py-4 text-gray-500">
+                  No destinations found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -168,6 +165,7 @@ const [totalPages,settotalPages]=useState(1)
           onSubmit={handleUpdate}
         />
       )}
+
       <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>
   );

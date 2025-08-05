@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
 
-        {/* Requests Dropdown (not changed) */}
+       
         <button
           onClick={handleRequestClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -125,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </div>
         )}
 
-        {/* Category Dropdown (not changed) */}
+      
         <button
           onClick={handleCategoryClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${

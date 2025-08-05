@@ -7,6 +7,7 @@ import {
   List,
   ChevronDown,
   ChevronUp,
+  Plus,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -19,6 +20,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   const menuItems = [
     { icon: User, label: "Profile" },
+    {icon :Plus,label:"Add Destination"},
     { icon: MapPin, label: "All Destinations" },
   ];
 
@@ -33,7 +35,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   return (
     <div className="w-64 bg-white shadow-lg relative h-screen overflow-y-auto">
       <div className="p-6">
-        <div className="text-2xl font-bold text-gray-800">Vendor Panel 🎒</div>
+        <div className="text-2xl font-bold text-gray-800">Vendor Panel </div>
       </div>
 
       <nav className="mt-6">
@@ -52,7 +54,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
 
-        {/* -------------------- Package Dropdown -------------------- */}
+       
         <button
           onClick={handlePackageClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${

@@ -67,9 +67,7 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
                
                 <td className="px-6 py-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-xs">{pkg.packageName.charAt(0)}</span>
-                    </div>
+                    
                     <div className="min-w-0">
                       <h3 className="font-semibold text-gray-900 mb-1">{pkg.packageName}</h3>
                       <p className="text-sm text-gray-600 line-clamp-2">{pkg.description}</p>

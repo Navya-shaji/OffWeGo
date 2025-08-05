@@ -19,28 +19,44 @@ export const addDestination = async (data: DestinationInterface) => {
   }
 };
 
-export const fetchAllDestinations = async (page:number=1,
-    limit:number=5):Promise<{destinations:DestinationInterface[];totalDestinations:number;totalPages:number;currentPage:number}>=> {
+export const fetchAllDestinations = async (
+  page: number = 1,
+  limit: number = 5
+): Promise<{
+  destinations: DestinationInterface[];
+  totalDestinations: number;
+  totalPages: number;
+  currentPage: number;
+}> => {
   try {
-    
-    const res = await axiosInstance.get("/admin/destinations",{params:{page,limit}});
+    const res = await axiosInstance.get("/admin/destinations", {
+      params: { page, limit },
+    });
+
+    const { destinations, totalDestinations, totalPages, currentPage } = res.data;
+
+    if (!Array.isArray(destinations)) {
+      console.error("Expected destinations to be an array, got:", destinations);
+      return {
+        destinations: [],
+        totalDestinations: 0,
+        totalPages: 1,
+        currentPage: 1,
+      };
+    }
 
     return {
-      destinations:res.data.destinations,
-      totalDestinations:res.data.totalDestinations,
-      totalPages:res.data.totalPages,
-      currentPage:res.data.currentPage
-    }
+      destinations,
+      totalDestinations,
+      totalPages,
+      currentPage,
+    };
   } catch (error) {
     console.error("Error fetching destinations:", error);
-    if (isAxiosError(error)) {
-      throw new Error(
-        error.response?.data?.error || "Failed to fetch destinations"
-      );
-    }
-    throw new Error("An unexpected error occurred while fetching destinations");
+    throw new Error("Failed to fetch destinations");
   }
 };
+
 export const updateDestination = async (
   id: string,
   data: DestinationInterface

@@ -77,7 +77,7 @@ const AddPackage: React.FC = () => {
           ]);
         setHotels(hotelsData);
         setActivities(activitiesData);
-        setDestinations(destinationsData);
+        setDestinations(destinationsData.destinations);
       } catch (error) {
         console.error("Failed to load data:", error);
       } finally {
