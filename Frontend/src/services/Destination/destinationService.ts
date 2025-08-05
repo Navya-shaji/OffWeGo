@@ -20,7 +20,7 @@ export const addDestination = async (data: DestinationInterface) => {
 };
 
 export const fetchAllDestinations = async (page:number=1,
-    limit:number=10):Promise<{destinations:DestinationInterface[];totalDestinations:number;totalPages:number;currentPage:number}>=> {
+    limit:number=5):Promise<{destinations:DestinationInterface[];totalDestinations:number;totalPages:number;currentPage:number}>=> {
   try {
     
     const res = await axiosInstance.get("/admin/destinations",{params:{page,limit}});

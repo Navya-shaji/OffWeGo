@@ -19,7 +19,7 @@ const [page,setPage]=useState(1)
 const [totalPages,settotalPages]=useState(1)
   const fetchData = async () => {
   try {
-    const data = await fetchAllDestinations(page, 10);
+    const data = await fetchAllDestinations(page, 5);
 
     if (Array.isArray(data?.destinations)) {
       setDestinations(data.destinations);
@@ -29,7 +29,7 @@ const [totalPages,settotalPages]=useState(1)
     }
 
     const total = Number(data?.totalDestinations || 0);
-    settotalPages(Math.ceil(total / 10));
+    settotalPages(Math.ceil(total / 5));
   } catch (err) {
     console.error("Failed to fetch destinations:", err);
   } finally {
@@ -69,7 +69,7 @@ const [totalPages,settotalPages]=useState(1)
 
     if (!selectedDestination?.id) {
       console.warn(
-        "⚠️ No selectedDestination or missing id",
+        "No selectedDestination or missing id",
         selectedDestination
       );
       return;

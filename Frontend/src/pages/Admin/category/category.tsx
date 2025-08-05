@@ -114,7 +114,7 @@ export const CategoryForm = () => {
               />
             </div>
 
-            {/* Description */}
+            
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-300">
                 Description
@@ -128,7 +128,6 @@ export const CategoryForm = () => {
               />
             </div>
 
-            {/* Image Upload */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-300">
                 Category Image *
