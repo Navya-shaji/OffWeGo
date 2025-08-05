@@ -3,5 +3,5 @@ export interface Subscription {
   commissionRate: number;
   price: number;
   durationInDays: number;
- 
+  description: string;
 }
