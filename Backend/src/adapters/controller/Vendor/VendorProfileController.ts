@@ -44,16 +44,23 @@ export class VendorProfileController {
   }
   async EditProfile(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
-      const userData = req.body;
-      console.log(userData,userId)
+      const VendorId = req.params.id;
+      const VendorDataData = req.body;
+      console.log(VendorDataData, VendorId);
 
-      const result = await this.editProfile.execute(userId, userData);
-console.log(result)
+      const result = await this.editProfile.execute(VendorId, VendorDataData);
+      console.log(result);
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Vendor Profile Updated successfully",
-        data: { ...result, username: result?.name },
+        data: { 
+          id:result?._id,
+          name:result?.name,
+          email:result?.email,
+          phone:result?.phone,
+          profile_img:result?.profileImage,
+          document:result?.documentUrl
+        },
       });
     } catch (error) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

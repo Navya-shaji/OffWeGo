@@ -20,7 +20,8 @@ export class VendorLoginUsecase {
       status: string;
       documentUrl: string;
       phone:string,
-     isBlocked: boolean 
+     isBlocked: boolean ,
+     profileImage:string
     };
   } | null> {
     const { email, password } = data;
@@ -64,18 +65,19 @@ export class VendorLoginUsecase {
 
     console.log(" Tokens generated");
 
-    return {
-      accessToken,
-      refreshToken,
-      vendor: {
-        id: vendor._id?.toString() ?? "",
-        email: vendor.email,
-        name: vendor.name,
-        phone:vendor.phone,
-        status: vendor.status,
-        documentUrl: vendor.documentUrl,
-        isBlocked: vendor.isBlocked ?? false
-      },
-    };
+ return {
+  accessToken,
+  refreshToken,
+  vendor: {
+    id: vendor.id,
+    email: vendor.email,
+    name: vendor.name,
+    status: vendor.status,
+    documentUrl: vendor.documentUrl,
+    phone: vendor.phone,
+    isBlocked: vendor.isBlocked ?? false,
+    profileImage: vendor.profileImage ? vendor.profileImage.toString() : "",
+  },
+};;
   }
 }

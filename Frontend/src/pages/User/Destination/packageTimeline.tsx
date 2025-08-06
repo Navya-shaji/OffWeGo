@@ -58,7 +58,7 @@ export const PackageTimeline = () => {
           <p className="text-gray-600">The package you're looking for doesn't exist.</p>
           <Button
             onClick={() => navigate(-1)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r bg-black text-white px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
@@ -106,10 +106,16 @@ export const PackageTimeline = () => {
    },
  })
       alert("success")
-    } catch (error:any) {
-      console.error("Booking failed:", error)
-      setBookingError(error.response?.data?.message || "Failed to book package. Please try again.")
-    } finally {
+   } catch (error) {
+  if (error instanceof Error) {
+    console.error("Booking failed:", error);
+    setBookingError(error.message || "Failed to book package. Please try again.");
+  } else {
+    console.error("Booking failed:", error);
+    setBookingError("Failed to book package. Please try again.");
+  }
+}
+ finally {
       setIsBookingLoading(false)
     }
   }
@@ -169,7 +175,7 @@ export const PackageTimeline = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <Card className="shadow-xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-6">
+              <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-xl">
                   <div className="p-2 bg-white/20 rounded-lg">
                     <MapPin className="h-6 w-6" />
@@ -222,7 +228,7 @@ export const PackageTimeline = () => {
                 {selectedPackage.images?.length > 0 && (
                   <div className="space-y-6">
                     <h3 className="text-2xl font-bold flex items-center gap-3 text-gray-800">
-                      <div className="p-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg">
+                      <div className="p-2 bg-gradient-to-r bg-black rounded-lg">
                         <Camera className="h-6 w-6 text-white" />
                       </div>
                       Photo Gallery
@@ -292,7 +298,7 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
             <Card className="shadow-xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 text-white p-6">
+              <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-xl">
                   <div className="p-2 bg-white/20 rounded-lg">
                     <Calendar className="h-6 w-6" />
@@ -304,7 +310,7 @@ export const PackageTimeline = () => {
                 {itinerary.map((day, i) => (
                   <div key={day.day} className="relative group">
                     {i < itinerary.length - 1 && (
-                      <div className="absolute left-8 top-16 w-0.5 h-full bg-gradient-to-b from-blue-300 to-purple-300 opacity-30"></div>
+                      <div className="absolute left-8 top-16 w-0.5 h-full  bg-black opacity-30"></div>
                     )}
                     <div className="flex gap-6">
                       <div className="relative">
@@ -359,7 +365,7 @@ export const PackageTimeline = () => {
           </div>
           <div className="space-y-6">
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm sticky top-6">
-              <CardHeader className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white p-6">
+              <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle className="flex items-center gap-3">
                   <div className="p-2 bg-white/20 rounded-lg">
                     <CalendarDays className="h-6 w-6" />
@@ -395,7 +401,7 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white p-6">
+              <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle className="flex items-center gap-3">
                   <div className="p-2 bg-white/20 rounded-lg">
                     <CreditCard className="h-6 w-6" />
@@ -440,7 +446,7 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white p-6">
+              <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle>Package Highlights</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">

@@ -50,7 +50,7 @@ export class VendorRoute {
     this.vendorRouter.delete("/packages/:id",(req:Request,res:Response)=>{
       packagecontroller.deletePackage(req,res)
     })
-    this.vendorRouter.patch("/profile/:id",(req:Request,res:Response)=>{
+    this.vendorRouter.put("/profile/:id",(req:Request,res:Response)=>{
       vendorProfilecontroller.EditProfile(req,res)
     })
     this.vendorRouter.post("/package-groups",(req:Request,res:Response)=>{

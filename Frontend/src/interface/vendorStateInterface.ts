@@ -4,4 +4,5 @@ export interface VendorState {
   pendingVendors: Vendor[];
   approvedVendors: Vendor[];
   rejectedVendors: Vendor[];
+  currentVendor:Vendor|null
 }
