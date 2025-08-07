@@ -19,7 +19,7 @@ export const getProfile=async()=>{
 
 export const editProfile = async (
   id: string,
-  updatedData: { username: string; phone: string; imageUrl?: string }
+  updatedData: { name: string; phone: string; imageUrl?: string }
 ) => {
   try {
     const res = await axiosInstance.patch(`/profile/${id}`, updatedData); 

@@ -49,7 +49,7 @@ export class VendorProfileController {
       console.log(VendorDataData, VendorId);
 
       const result = await this.editProfile.execute(VendorId, VendorDataData);
-      console.log(result);
+      
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Vendor Profile Updated successfully",

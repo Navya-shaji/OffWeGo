@@ -2,7 +2,7 @@ import type * as React from "react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { updateUserProfile } from "@/store/slice/user/authSlice"; // ✅ Correct import
+import { updateUserProfile } from "@/store/slice/user/authSlice";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,23 +29,22 @@ export default function EditProfileModal({
 }: EditProfileModalProps) {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("user", user);
 
-  const [username, setUsername] = useState(user?.username || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [phone, setPhone] = useState(user?.phone || "");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
-    user?.imageUrl || null
-  );
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setUsername(user?.username || "");
-    setEmail(user?.email || "");
-    setPhone(user?.phone || "");
-    setImagePreviewUrl(user?.imageUrl || null);
+    if (user) {
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setImagePreviewUrl(user.imageUrl || null);
+    }
   }, [user]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,9 +56,6 @@ export default function EditProfileModal({
         setImagePreviewUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
-    } else {
-      setSelectedFile(null);
-      setImagePreviewUrl(user?.imageUrl || null);
     }
   };
 
@@ -68,40 +64,32 @@ export default function EditProfileModal({
     setIsLoading(true);
     setError(null);
 
-    if (!user || !user.id) {
-      console.error(" User or user.id is missing!", user);
-      setError("Unable to update profile. User ID not found.");
+    if (!user?.id) {
+      setError("User ID is missing");
       setIsLoading(false);
       return;
     }
 
     try {
       let newImageUrl = user.imageUrl;
-
       if (selectedFile) {
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
       const updated = await editProfile(user.id, {
-        username,
-        phone,
+        name:username,
+        phone:phone,
         imageUrl: newImageUrl,
       });
 
-      const updatedUser = {
-        ...user,
-        username: updated.username ?? user.username,
-        phone: updated.phone ?? user.phone,
-        email: updated.email ?? user.email,
-        imageUrl: newImageUrl ?? user.imageUrl,
-        id: updated.id || user.id,
-      };
+     
 
-      dispatch(updateUserProfile(updatedUser));
+      
+      dispatch(updateUserProfile(updated.data));
       onClose();
     } catch (error) {
-      console.error("Error updating:", error);
-      setError("Update failed");
+      console.error(" Error updating profile:", error);
+      setError("Update failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +101,7 @@ export default function EditProfileModal({
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
+            Make changes to your profile. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -141,6 +129,7 @@ export default function EditProfileModal({
               />
             </div>
           </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
               Username
@@ -153,6 +142,7 @@ export default function EditProfileModal({
               disabled={isLoading}
             />
           </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="email" className="text-right">
               Email
@@ -161,11 +151,11 @@ export default function EditProfileModal({
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="col-span-3"
               disabled
+              className="col-span-3"
             />
           </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="phone" className="text-right">
               Phone

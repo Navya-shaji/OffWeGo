@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("Redux user:", user);
+ 
 
   const [isEditOpen, setEditOpen] = useState(false);
   if (!user) return null;

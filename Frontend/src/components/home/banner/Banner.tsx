@@ -1,26 +1,55 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
+import Slider from "react-slick";
+import { getBanner } from "@/services/Banner/bannerService"; // Your actual service import
 import { Button } from "@/components/ui/button";
+import type { BannerInterface } from "@/interface/bannerInterface"; // Your actual interface import
+
+// Import react-slick CSS
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const Banner: React.FC = () => {
+  const [banners, setBanners] = useState<BannerInterface[]>([]);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 100);
+    const fetchBanner = async () => {
+      try {
+        const data = await getBanner();
+        console.log("Fetched banners:", data);
+        setBanners(data);
+      } catch (error) {
+        console.error("Error fetching banners:", error);
+      }
+    };
+    fetchBanner();
+
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
     return () => clearTimeout(timer);
   }, []);
 
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    autoplay: true,
+    speed: 800,
+    autoplaySpeed: 5000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    swipe: true,
+    swipeToSlide: true,
+    draggable: true,
+  };
+
+  const activeBanners = banners.filter((b) => b.action);
+
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
-      <div className="absolute top-10 left-10 w-16 h-16 opacity-30">
-        <div className="w-full h-full bg-green-500 rounded-full transform -rotate-12 animate-float"></div>
-      </div>
-      <div className="absolute top-32 right-20 w-12 h-12 opacity-40">
-        <div className="w-full h-full bg-green-400 rounded-full transform rotate-45 animate-float-delayed"></div>
-      </div>
-      <div className="absolute bottom-20 left-16 w-10 h-10 opacity-35">
-        <div className="w-full h-full bg-green-600 rounded-full transform -rotate-45 animate-float"></div>
-      </div>
-
       <div className="container mx-auto px-6 py-12 min-h-screen flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
           {/* Left Content */}
@@ -42,16 +71,12 @@ const Banner: React.FC = () => {
                 Discover Santorini
               </h3>
             </div>
-
-            {/* Description */}
             <p className="text-gray-700 text-base md:text-lg leading-relaxed max-w-xl">
               From iconic white-washed homes to golden sunsets over the sea,
               Santorini is more than a destination—it's a feeling. Let the
               journey shape your soul.
             </p>
           </div>
-
-          {/* Right Content - Image Section */}
           <div
             className={`relative transition-all duration-700 delay-300 ${
               isVisible
@@ -59,68 +84,57 @@ const Banner: React.FC = () => {
                 : "opacity-0 translate-x-4"
             }`}
           >
-            {/* Main Background Image */}
-            <div className="relative">
-              <div
-                className="w-full h-96 bg-cover bg-center rounded-lg shadow-2xl"
-                style={{
-                  backgroundImage:
-                    "url(https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=800&h=600&fit=crop)",
-                }}
-              >
-                <div className="absolute inset-0 bg-black/20 rounded-lg"></div>
-
-                {/* Traveler silhouette overlay */}
-                <div className="absolute bottom-6 right-6 text-white">
-                  <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
-                    <p className="text-sm font-medium">Adventure Awaits</p>
-                  </div>
+            <div className="relative w-full h-96 rounded-lg shadow-2xl overflow-hidden">
+              {activeBanners.length > 1 ? (
+                <Slider {...sliderSettings}>
+                  {activeBanners.map((banner) => (
+                    <div key={banner.id} className="w-full h-96">
+                      <video
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        controls={false}
+                      >
+                        <source
+                          src={banner.Banner_video_url}
+                          type="video/mp4"
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  ))}
+                </Slider>
+              ) : activeBanners.length === 1 ? (
+                <div className="w-full h-96">
+                  <video
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    controls={false}
+                  >
+                    <source
+                      src={activeBanners[0].Banner_video_url}
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
-              </div>
-
-              {/* Polaroid Photos */}
-              <div className="absolute -top-8 -left-8 transform rotate-12 animate-float">
-                <div className="bg-white p-3 shadow-lg rounded-sm">
-                  <div
-                    className="w-32 h-24 bg-cover bg-center"
-                    style={{
-                      backgroundImage:
-                        "url(https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop)",
-                    }}
-                  ></div>
+              ) : (
+                <div className="w-full h-96 bg-gray-200 flex items-center justify-center text-gray-500">
+                  No active banners
                 </div>
+              )}
+              <div className="absolute bottom-6 right-6">
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                  BOOK NOW
+                </Button>
               </div>
-
-              <div className="absolute -bottom-6 -left-12 transform -rotate-6 animate-float-delayed">
-                <div className="bg-white p-3 shadow-lg rounded-sm">
-                  <div
-                    className="w-28 h-20 bg-cover bg-center"
-                    style={{
-                      backgroundImage:
-                        "url(https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop)",
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="absolute -top-4 -right-8 transform rotate-6 animate-float">
-                <div className="bg-white p-3 shadow-lg rounded-sm">
-                  <div
-                    className="w-24 h-18 bg-cover bg-center"
-                    style={{
-                      backgroundImage:
-                        "url(https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=400&h=300&fit=crop)",
-                    }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Book Now Button */}
-            <div className="absolute bottom-8 right-8">
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
-                BOOK NOW
-              </Button>
             </div>
           </div>
         </div>

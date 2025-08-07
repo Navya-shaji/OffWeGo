@@ -9,9 +9,9 @@ export class EditUserProfileController {
     try {
       const userId = req.params.id;
       const userData = req.body;
-console.log(userData)
-      const result = await this.editUserProfile.execute(userId, userData);
 
+      const result = await this.editUserProfile.execute(userId, userData);
+    
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "User Profile Updated successfully",

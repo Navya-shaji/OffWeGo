@@ -47,6 +47,12 @@ export const vendorAuthSlice = createSlice({
         state.token = null;
       }
     },
+    updateVendorProfile: (state, action: PayloadAction<Partial<Vendor>>) => {
+  if (state.vendor && action.payload) {
+    state.vendor = { ...state.vendor, ...action.payload };
+  }
+},
+    
   },
 });
 

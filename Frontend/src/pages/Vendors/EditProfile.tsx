@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
-import { editProfile } from "@/services/vendor/vendorProfile"; 
-import { updateVendor } from "@/store/slice/vendor/vendorSlice";
+import { editProfile } from "@/services/vendor/vendorProfile";
+import { login } from "@/store/slice/vendor/authSlice";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -29,33 +29,32 @@ export default function EditVendorProfileModal({
 }: EditProfileModalProps) {
   const dispatch = useDispatch();
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
+  const token = useSelector((state: RootState) => state.vendorAuth.token);
 
   const [name, setName] = useState(vendor?.name || "");
-  const [email] = useState(vendor?.email || ""); // Keep email readonly
+  const [email] = useState(vendor?.email || "");
   const [phone, setPhone] = useState(vendor?.phone || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(vendor?.profileImage || null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
+    vendor?.profileImage || null
+  );
+  console.log("imagePreview", imagePreviewUrl);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setName(vendor?.name || "");
-    setPhone(vendor?.phone || "");
-    setImagePreviewUrl(vendor?.profileImage || null);
+    if (vendor) {
+      setName(vendor.name || "");
+      setPhone(vendor.phone || "");
+      setImagePreviewUrl(vendor.profileImage || null);
+    }
   }, [vendor]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setSelectedFile(null);
-      setImagePreviewUrl(vendor?.profileImage || null);
+      setImagePreviewUrl(URL.createObjectURL(file));
     }
   };
 
@@ -65,7 +64,7 @@ export default function EditVendorProfileModal({
     setError(null);
 
     if (!vendor || !vendor.id) {
-      setError("Unable to update profile. Vendor ID not found.");
+      setError("Vendor ID missing");
       setIsLoading(false);
       return;
     }
@@ -81,23 +80,9 @@ export default function EditVendorProfileModal({
         phone,
         profileImage: newImageUrl,
       });
-      console.log("Hhhsdhgs",updated)
 
-      const updatedVendor = {
-        ...vendor,
-        name:updated.name ?? vendor.name,
-        phone:updated.phone ?? vendor.phone,
-        profileImage:updated.profileImage ?? vendor.profileImage,
-        email:updated.email??updated.email ?? vendor.email,
-        id:updated.id||vendor.id,
-        documenturl:updated.documentUrl ?? vendor.documentUrl,
-        status:updated.status??vendor.status,
-        blocked:updated.isBlocked??vendor.isBlocked
-        
-    
-      };
-console.log("updated",updatedVendor)
-      dispatch(updateVendor({ id: vendor.id, updatedData: updatedVendor }));
+      dispatch(login({ vendor: updated.data, token }));
+
       onClose();
     } catch (error) {
       console.error("Error updating:", error);
@@ -119,9 +104,9 @@ console.log("updated",updatedVendor)
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="flex flex-col items-center gap-4">
             <div className="h-24 w-24 rounded-full overflow-hidden border border-gray-300">
-              {imagePreviewUrl ? (
+              {imagePreviewUrl || vendor?.profileImage ? (
                 <img
-                  src={imagePreviewUrl}
+                  src={imagePreviewUrl || vendor?.profileImage}
                   alt="Vendor Avatar"
                   className="w-full h-full object-cover"
                 />

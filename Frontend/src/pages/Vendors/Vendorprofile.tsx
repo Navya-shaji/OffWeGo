@@ -6,12 +6,10 @@ import EditVendorProfileModal from "./EditProfile";
 
 export const Profile = () => {
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
-  console.log(vendor);
+ 
   const [isEditOpen, setEditOpen] = useState(false);
 
-  if (!vendor) {
-    return <p className="text-gray-500">No vendor logged in.</p>;
-  }
+  if (!vendor) return null
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -54,23 +52,23 @@ export const Profile = () => {
             </div>
             <div>
               <h2 className="text-lg font-medium text-gray-900">
-                {vendor.name}
+                {vendor?.name || ""}
               </h2>
-              <p className="text-sm text-gray-500">{vendor.email}</p>
+              <p className="text-sm text-gray-500">{vendor?.email||""}</p>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="flex justify-between items-center py-3">
               <span className="text-sm font-medium text-gray-600">Name</span>
-              <span className="text-sm text-gray-900">{vendor.name}</span>
+              <span className="text-sm text-gray-900">{vendor?.name}</span>
             </div>
 
             <div className="flex justify-between items-center py-3">
               <span className="text-sm font-medium text-gray-600">
                 Email account
               </span>
-              <span className="text-sm text-gray-900">{vendor.email}</span>
+              <span className="text-sm text-gray-900">{vendor?.email}</span>
             </div>
 
             <div className="flex justify-between items-center py-3">
