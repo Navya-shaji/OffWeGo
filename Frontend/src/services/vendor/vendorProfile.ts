@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 
 export const vendorProfile = async (email: string) => {
   try {
-    const res = await axiosInstance.get("/vendor/profile", {
+    const res = await axiosInstance.get("/api/vendor/profile", {
       params: { email }, 
     });
     return res.data;
@@ -26,7 +26,7 @@ export const editProfile = async (
   }
 ) => {
   try {
-    const res = await axiosInstance.put(`/vendor/profile/${id}`, updatedData);
+    const res = await axiosInstance.put(`/api/vendor/profile/${id}`, updatedData);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

@@ -37,6 +37,7 @@ export class CreateCatogoryController {
         .json({ message: "failed to get category" });
     }
   }
+
   async EditCategory(req: Request, res: Response) {
     try {
       const categoryId = req.params.id;
@@ -55,6 +56,7 @@ export class CreateCatogoryController {
       });
     }
   }
+  
   async DeleteCategory(req: Request, res: Response) {
     try {
       const { id } = req.params;

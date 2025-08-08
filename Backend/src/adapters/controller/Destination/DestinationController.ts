@@ -14,6 +14,7 @@ export class DestinationController {
     private destinationUsecase: IgetDestinationUSecase,
     private deleteDestinationusecase: IDeleteDestinationUseCase
   ) {}
+
   async addDestination(req: Request, res: Response) {
     try {
       const result = await this.createDestination.execute(req.body);
@@ -47,6 +48,7 @@ export class DestinationController {
       });
     }
   }
+
   async getAllDestination(req: Request, res: Response) {
     try {
       const page=parseInt(req.query.page as string) || 1;
@@ -65,6 +67,7 @@ export class DestinationController {
         .json({ message: "failed to get Destinations" });
     }
   }
+
   async getSingleDestinationController(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -77,6 +80,7 @@ export class DestinationController {
         .json({ message: "failed to get Destinations" });
     }
   }
+  
   async deleteDestinationController(req: Request, res: Response) {
     try {
       const { id } = req.params;

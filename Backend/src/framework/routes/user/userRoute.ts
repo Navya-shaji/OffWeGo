@@ -3,12 +3,8 @@ import {
   userRegisterController,
   userLoginController,
   googleSignupController,
-  forgotpassController,
-  verifyingOtpController,
-  resetPasswordController,
   userprofileController,
   getpackageByDestinationController,
-  getusereditProfile,
   bookingcontroller,
 } from "../../Di/user/userInjections";
 import { JwtSevice } from "../../services/jwtService";
@@ -38,13 +34,13 @@ export class UserRoute {
       googleSignupController.googleSignin(req, res);
     });
     this.userRouter.post("/verify-reset-otp", (req:Request, res:Response) =>
-      verifyingOtpController.verifyResetOtp(req, res)
+      userLoginController.verifyResetOtp(req, res)
     );
     this.userRouter.post("/forgot-password", (req: Request, res: Response) =>
-      forgotpassController.forgotPassword(req, res)
+      userLoginController.forgotPassword(req, res)
     );
     this.userRouter.post("/reset-password", (req: Request, res: Response) =>
-      resetPasswordController.resetPassword(req, res)
+      userLoginController.resetPassword(req, res)
     );
     this.userRouter.get("/destinations",(req:Request,res:Response)=>{
       destinationController.getAllDestination(req,res)
@@ -62,7 +58,7 @@ export class UserRoute {
       getpackageByDestinationController.getPackages(req,res)
     })
     this.userRouter.patch("/profile/:id",(req:Request,res:Response)=>{
-      getusereditProfile.editProfileHandler(req,res)
+      userprofileController.editProfileHandler(req,res)
     })
     this.userRouter.post("/bookings/:packageId",(req:Request,res:Response)=>{
       bookingcontroller.createBooking(req,res)

@@ -30,7 +30,7 @@ export class GoogleSignupController {
         });
         return;
       }
-      
+
       const payload = { userId: user._id, role: user.role };
       const accessToken = this.tokenService.generateAccessToken(payload);
       const refreshToken = this.tokenService.generateRefreshToken(payload);
@@ -39,7 +39,7 @@ export class GoogleSignupController {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
       });
 
       res.status(HttpStatus.OK).json({

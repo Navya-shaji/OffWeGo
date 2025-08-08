@@ -5,7 +5,7 @@ import type { CategoryType } from "@/interface/categoryInterface";
 export const addCategory = async (data: CategoryType) => {
   try {
     console.log("Sending category data:", data);
-    const res = await axiosInstance.post("admin/create-categories", data);
+    const res = await axiosInstance.post("/api/admin/create-categories", data);
     console.log(res);
     return res.data;
   } catch (error) {
@@ -27,7 +27,7 @@ export const getCategory = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/admin/categories", {
+    const res = await axiosInstance.get("/api/admin/categories", {
       params: { page, limit },
     });
     return {
@@ -49,7 +49,7 @@ export const getCategory = async (
 
 export const editCategory = async (id: string, updatedData: CategoryType) => {
   try {
-    const res = await axiosInstance.put(`/admin/category/${id}`, updatedData);
+    const res = await axiosInstance.put(`/api/admin/category/${id}`, updatedData);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -60,7 +60,7 @@ export const editCategory = async (id: string, updatedData: CategoryType) => {
 };
 export const deleteCategory = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`/admin/category/${id}`);
+    const response = await axiosInstance.delete(`/api/admin/category/${id}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

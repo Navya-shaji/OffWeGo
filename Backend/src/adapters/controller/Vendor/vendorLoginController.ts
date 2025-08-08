@@ -32,7 +32,8 @@ export class VendorLoginController {
       if (vendor.isBlocked) {
         res.status(HttpStatus.FORBIDDEN).json({
           success: false,
-          message: "Admins are not allowed to log in from Vendor portal",
+          code: "VENDOR_BLOCKED",
+          message: "Your account has been blocked by the admin ",
         });
         return;
       }
@@ -41,7 +42,7 @@ export class VendorLoginController {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
       });
 
       return res.status(HttpStatus.OK).json({

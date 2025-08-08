@@ -11,7 +11,7 @@ export const getAllUsers = async (
   totalPages: number;
   currentPage: number;
 }> => {
-  const response = await axiosInstance.get("/admin/users", {
+  const response = await axiosInstance.get("/api/admin/users", {
     params: { page, limit },
   });
 
@@ -25,7 +25,7 @@ export const getAllUsers = async (
 export const updateUserStatus = async (
   userId: string,
   status: "active" | "blocked") => {
-  const response = await axiosInstance.patch(`/admin/user/status/${userId}`, {
+  const response = await axiosInstance.patch(`/api/admin/user/status/${userId}`, {
     status,
   });
   return response.data;

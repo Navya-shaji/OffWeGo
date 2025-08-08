@@ -5,7 +5,7 @@ import { isAxiosError } from "axios";
 
 export const UserRegister = async (formData: SignupSchema) => {
   try {
-    const res = await axiosInstance.post("/signup",  formData );
+    const res = await axiosInstance.post("/api/signup",  formData );
     return res;
   } catch (error) {
     console.log("error while client login", error);
@@ -19,7 +19,7 @@ export const UserRegister = async (formData: SignupSchema) => {
 
 export const VerifyOtp = async (userData:SignupSchema,otp:string) => {
   try {
-    const res = await axiosInstance.post("/verify-otp", { userData,otp} );
+    const res = await axiosInstance.post("/api/verify-otp", { userData,otp} );
     return res;
   } catch (error) {
     console.log("error while  verify otp", error);
@@ -33,7 +33,7 @@ export const VerifyOtp = async (userData:SignupSchema,otp:string) => {
 
 export const userLogin = async (formData: LoginFormData) => {
   try {
-    const res = await axiosInstance.post("/login", formData);
+    const res = await axiosInstance.post("/api/login", formData);
     return res.data; 
   } catch (error) {
     console.error("Error while client login", error);
@@ -47,7 +47,7 @@ export const userLogin = async (formData: LoginFormData) => {
 
 export const registerGoogleUser=async (token: string)=>{
   try{
-    const res=await axiosInstance.post("/google-signup",{ token })
+    const res=await axiosInstance.post("/api/google-signup",{ token })
     return res
   }catch(error){
      console.error("Error while Google signup", error);
@@ -61,7 +61,7 @@ export const registerGoogleUser=async (token: string)=>{
 
 export const resendOtp=async(email:string)=>{
   try {
-    const res=await axiosInstance.post("/resend-otp",{email})
+    const res=await axiosInstance.post("/api/resend-otp",{email})
     console.log(res)
     return res.data
   }catch (error) {

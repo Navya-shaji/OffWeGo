@@ -7,7 +7,7 @@ export const getAllVendors = async (  page: number = 1,
   totalPages: number;
   currentPage: number;
   }> => {
-  const response = await axiosInstance.get("/admin/vendors",{params: { page, limit },});
+  const response = await axiosInstance.get("/api/admin/vendors",{params: { page, limit },});
   return {
     vendors:response.data.vendors,
     totalvendors:response.data.totalvendors,
@@ -21,7 +21,7 @@ export const updateVendorStatus = async (
   vendorId: string,
   status: "approved" | "blocked"
 ) => {
-  const response = await axiosInstance.patch(`/admin/vendor/status/${vendorId}`, {
+  const response = await axiosInstance.patch(`/api/admin/vendor/status/${vendorId}`, {
     status,
   });
   return response.data;
@@ -33,7 +33,7 @@ export const updateVendorBlockStatus = async (
   vendorId: string,
   isBlocked: boolean
 ) => {
-  const response = await axiosInstance.patch(`/admin/vendors/isBlocked/${vendorId}`, {
+  const response = await axiosInstance.patch(`/api/admin/vendors/isBlocked/${vendorId}`, {
     isBlocked,
   });
   return response.data;

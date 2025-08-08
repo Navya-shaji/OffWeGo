@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 
 export const sendOtpForReset= async (email:string)=>{
     try {
-        const res= await axiosInstance.post("/forgot-password",{email})
+        const res= await axiosInstance.post("/api/forgot-password",{email})
         console.log(res)
         return res.data
     } catch (error) {
@@ -17,7 +17,7 @@ export const sendOtpForReset= async (email:string)=>{
 
 export const verifyOtpForReset=async(email:string,otp:string)=>{
     try {
-        const res=await axiosInstance.post("/verify-reset-otp",{email,otp})
+        const res=await axiosInstance.post("/api/verify-reset-otp",{email,otp})
         return res.data
     } catch (error) {
         console.error(error)
@@ -31,7 +31,7 @@ export const verifyOtpForReset=async(email:string,otp:string)=>{
 export const resetPassword = async (email: string, password: string) => {
   try {
     console.log("Sending to backend:", { email, newPassword: password });
-    const res = await axiosInstance.post("/reset-password", {
+    const res = await axiosInstance.post("/api/reset-password", {
       email,
       newPassword: password,
     });

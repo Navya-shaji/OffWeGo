@@ -24,17 +24,17 @@ export class AdminRoute {
   }
 
   private setRoutes(): void {
- 
-  this.adminRouter.post("/login", (req: Request, res: Response) => {
-    adminController.login(req, res);
-  });
+    
+    this.adminRouter.post("/login", (req: Request, res: Response) => {
+      adminController.login(req, res);
+    });
+    this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
 
 
   this.adminRouter.get('/destinations', (req: Request, res: Response) => {
     destinationController.getAllDestination(req, res);
   });
 
-  this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
 
   this.adminRouter.get("/vendors/:email", (req: Request, res: Response) => {
     adminVendorController.getVendorByEmail(req,res)

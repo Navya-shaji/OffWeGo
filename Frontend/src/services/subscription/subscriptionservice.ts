@@ -5,7 +5,7 @@ import type { Subscription } from "@/interface/subscription"
 export const addSubscription = async (data: Subscription) => {
   try {
     console.log("Sending subscription data:", data)
-    const res = await axiosInstance.post("admin/create-subscription", data)
+    const res = await axiosInstance.post("/api/admin/create-subscription", data)
     console.log(res)
     return res.data
   } catch (error) {
@@ -19,7 +19,7 @@ export const addSubscription = async (data: Subscription) => {
 
 export const getSubscriptions = async () => {
   try {
-    const res = await axiosInstance.get("/admin/subscriptions")
+    const res = await axiosInstance.get("/api/admin/subscriptions")
     return res.data
   } catch (error) {
     if (isAxiosError(error)) {

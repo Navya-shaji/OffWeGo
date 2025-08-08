@@ -11,12 +11,11 @@ import { userLogin } from "@/services/user/userService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
 
-
 export default function UserLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-
+  const notify = () => toast("Login successfull ");
   const {
     register,
     handleSubmit,
@@ -25,19 +24,18 @@ export default function UserLogin() {
     resolver: zodResolver(loginSchema),
   });
 
-const onSubmit = async (data: LoginFormData) => {
-  try {
-    const response = await userLogin(data);
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await userLogin(data);
 
-    dispatch(
-      login({
-        user: response.user, 
-        token: response.accessToken,
-      })
-    );
-
-    navigate("/", { replace: true });
-
+      dispatch(
+        login({
+          user: response.user,
+          token: response.accessToken,
+        })
+      );
+      notify();
+      navigate("/", { replace: true });
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
       const backendMessage = axiosError.response?.data?.message;
@@ -57,7 +55,6 @@ const onSubmit = async (data: LoginFormData) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-white via-blue-50 to-sky-100 p-6">
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[85vh] shadow-2xl rounded-2xl bg-white overflow-hidden border border-gray-200">
-        {/* Left image/panel */}
         <div
           className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center"
           style={{ backgroundImage: 'url("/images/userLogin.jpeg")' }}
@@ -65,7 +62,6 @@ const onSubmit = async (data: LoginFormData) => {
           <div className="absolute inset-0  bg-opacity-40" />
         </div>
 
-        {/* Right login form panel */}
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
           <h2 className="text-3xl font-serif text-center text-black mb-6">
             {" "}
@@ -76,7 +72,6 @@ const onSubmit = async (data: LoginFormData) => {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4 max-w-sm mx-auto w-full"
           >
-            {/* Email input */}
             <div>
               <input
                 {...register("email")}
@@ -92,7 +87,6 @@ const onSubmit = async (data: LoginFormData) => {
               )}
             </div>
 
-            {/* Password input */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -115,7 +109,6 @@ const onSubmit = async (data: LoginFormData) => {
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-blue-800 text-white font-semibold py-2 rounded text-sm hover:bg-blue-900 transition duration-200 shadow-md"
@@ -124,7 +117,6 @@ const onSubmit = async (data: LoginFormData) => {
             </button>
           </form>
 
-          {/* Footer Links */}
           <p className="text-sm text-center text-gray-600 mt-4">
             Don’t have an account?{" "}
             <Link
