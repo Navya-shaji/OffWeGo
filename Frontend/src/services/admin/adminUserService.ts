@@ -30,3 +30,10 @@ export const updateUserStatus = async (
   });
   return response.data;
 };
+export const searchUser=async(query:string)=>{
+  const response=await axiosInstance.get('/api/admin/user/search',{
+    params: { q: query }
+  })
+  return response.data.data
+
+}

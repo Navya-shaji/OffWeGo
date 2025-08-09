@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import { getAllUsers, updateUserStatus } from "@/services/admin/adminUserService";
+import {
+  getAllUsers,
+  searchUser,
+  updateUserStatus,
+} from "@/services/admin/adminUserService";
 import type { User } from "@/interface/userInterface";
 import ReusableTable from "../Modular/Table";
 import Pagination from "../pagination/pagination";
 import type { ColumnDef } from "@tanstack/react-table";
+import { SearchBar } from "../Modular/searchbar";
 
 const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,12 +30,30 @@ const UserList = () => {
       setLoading(false);
     }
   };
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      const allUsers = await getAllUsers(page, 10);
+      setUsers(allUsers.users);
+      return;
+    }
+
+    try {
+      const response = await searchUser(query);
+      setUsers(response || []);
+    } catch (error) {
+      console.error("Error during search:", error);
+      setUsers([]);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
   }, [page]);
 
-  const handleActionChange = async (userId: string, newStatus: "active" | "blocked") => {
+  const handleActionChange = async (
+    userId: string,
+    newStatus: "active" | "blocked"
+  ) => {
     try {
       await updateUserStatus(userId, newStatus);
       setUsers((prev) =>
@@ -44,22 +67,10 @@ const UserList = () => {
   };
 
   const columns: ColumnDef<User>[] = [
-    {
-      header: "#",
-      cell: ({ row }) => (page - 1) * 10 + row.index + 1,
-    },
-    {
-      header: "Name",
-      accessorKey: "name",
-    },
-    {
-      header: "Email",
-      accessorKey: "email",
-    },
-    {
-      header: "Phone",
-      cell: ({ row }) => row.original.phone || "N/A",
-    },
+    { header: "#", cell: ({ row }) => (page - 1) * 10 + row.index + 1 },
+    { header: "Name", accessorKey: "name" },
+    { header: "Email", accessorKey: "email" },
+    { header: "Phone", cell: ({ row }) => row.original.phone || "N/A" },
     {
       header: "Status",
       cell: ({ row }) =>
@@ -98,12 +109,19 @@ const UserList = () => {
     },
   ];
 
-  if (loading) return <p className="p-4 text-gray-600 italic">Loading users...</p>;
+  if (loading)
+    return <p className="p-4 text-gray-600 italic">Loading users...</p>;
   if (error) return <p className="p-4 text-red-600 font-medium">{error}</p>;
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-semibold mb-4">All Users</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold">All Users</h2>
+        <div className="w-60">
+          <SearchBar placeholder="Search users..." onSearch={handleSearch} />
+        </div>
+      </div>
+
       <ReusableTable data={users} columns={columns} />
       <Pagination total={totalPages} current={page} setPage={setPage} />
     </div>

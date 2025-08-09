@@ -5,6 +5,7 @@ import { IGetAllVendorsUseCase } from "../../../domain/interface/admin/IGetAllVe
 import { IUpdateVendorStatusUseCase } from "../../../domain/interface/admin/IUpdateVendorstatusUseCase";
 import { IUpdateVendorUsecase } from "../../../domain/interface/admin/IUpdateVendorUsecase";
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { ISearchVendorUSecase } from "../../../domain/interface/admin/ISearchVendorUseCase";
 
 export class AdminVendorController {
   constructor(
@@ -12,7 +13,8 @@ export class AdminVendorController {
     private _getAllVendorsUseCase: IGetAllVendorsUseCase,
     private _updateVendorStatusUseCase: IUpdateVendorStatusUseCase,
     private _updateVendorUseCase: IUpdateVendorUsecase,
-    private _vendorRepository: IVendorRepository
+    private _vendorRepository: IVendorRepository,
+    private _searchvendorusecase: ISearchVendorUSecase
   ) {}
 
   async getVendorByEmail(req: Request, res: Response): Promise<void> {
@@ -141,6 +143,30 @@ export class AdminVendorController {
         message: `Vendor has been ${
           isBlocked ? "blocked" : "unblocked"
         } successfully.`,
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+  async searchVendor(req: Request, res: Response): Promise<void> {
+  console.log("✅ Entered searchVendor controller");
+    try {
+      const query = req.query.q;
+      console.log("Query:", req.query);
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message: "The query will be string",
+        });
+        return;
+      }
+
+      const vendor = await this._searchvendorusecase.execute(query);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: vendor,
       });
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({

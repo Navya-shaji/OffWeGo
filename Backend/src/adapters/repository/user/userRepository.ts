@@ -50,7 +50,7 @@ export class UserRepository implements IUserRepository {
   }
   async searchUser(query:string):Promise<User[]>{
     const regex=new RegExp(query,"i")
-    return UserModel.find({name:{$regex:regex},status:'active'}).select('name email ').limit(10).exec()
+    return UserModel.find({name:{$regex:regex}}).select('name email ').limit(10).exec()
 
   }
 }

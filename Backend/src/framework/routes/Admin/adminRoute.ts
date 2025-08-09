@@ -29,6 +29,9 @@ export class AdminRoute {
     this.adminRouter.post(AdminRoutes.LOGIN, (req: Request, res: Response) => {
       adminController.login(req, res);
     });
+    this.adminRouter.get(AdminRoutes.SEARCH_VENDOR,(req:Request,res:Response)=>{
+      adminVendorController.searchVendor(req,res)
+    })
     this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
 
 
@@ -48,7 +51,6 @@ export class AdminRoute {
   this.adminRouter.get(AdminRoutes.GET_ALL_VENDORS, (req: Request, res: Response) => {
     adminVendorController.getAllVendors(req, res);
   });
-
   this.adminRouter.get(AdminRoutes.GET_VENDOR_BY_STATUS, (req: Request, res: Response) => {
     adminVendorController.getVendorsByStatus(req, res);
   });

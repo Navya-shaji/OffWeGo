@@ -21,5 +21,6 @@ export const AdminRoutes={
     DELETE_BANNER:'/banner/:id',
     CREATE_SUBSCRIPTION:'/create-subscription',
     GET_ALL_SUBSCRIPTIONS:'/subscriptions',
-    SEARCH_USER:'/search'
+    SEARCH_USER:'/user/search',
+    SEARCH_VENDOR:'/vendors/search'
 }
