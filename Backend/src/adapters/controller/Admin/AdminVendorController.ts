@@ -152,7 +152,6 @@ export class AdminVendorController {
     }
   }
   async searchVendor(req: Request, res: Response): Promise<void> {
-  console.log("✅ Entered searchVendor controller");
     try {
       const query = req.query.q;
       console.log("Query:", req.query);

@@ -87,7 +87,9 @@ export class AdminRoute {
   this.adminRouter.get(AdminRoutes.GET_ALL_CATEGORIES, (req: Request, res: Response) => {
     categoryController.getCategories(req, res);
   });
-
+  this.adminRouter.get(AdminRoutes.SEARCH_CATEGORY,(req:Request,res:Response)=>{
+    categoryController.SearchCategory(req,res)
+  })
   this.adminRouter.post(AdminRoutes.CREATE_BANNER, (req: Request, res: Response) => {
     bannerController.CreateBanner(req, res);
   });

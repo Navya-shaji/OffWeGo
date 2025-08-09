@@ -50,6 +50,7 @@ export const getCategory = async (
 export const editCategory = async (id: string, updatedData: CategoryType) => {
   try {
     const res = await axiosInstance.put(`/api/admin/category/${id}`, updatedData);
+    console.log(res)
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

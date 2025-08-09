@@ -1,6 +1,7 @@
 import { ICategoryRepository } from "../../../domain/interface/category/ICategoryRepository";
 import { CategoryModel,ICategoryModel } from "../../../framework/database/Models/categoryModel";
 import { CreateCategoryDto } from "../../../domain/dto/admin/CategoryDto";
+import { Category } from "../../../domain/entities/categoryEntity";
 
 
 export class CategoryRepository implements ICategoryRepository{
@@ -18,5 +19,9 @@ export class CategoryRepository implements ICategoryRepository{
     }
     async countCategory(): Promise<number> {
        return await CategoryModel.countDocuments()
+    }
+    async searchCategory(query:string):Promise<Category[]>{
+    const regex=new RegExp(query,"i")
+    return CategoryModel.find({name:{$regex:regex}}).select('name description ').limit(10).exec()
     }
 }

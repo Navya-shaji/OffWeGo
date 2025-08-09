@@ -23,5 +23,6 @@ export const AdminRoutes={
     GET_ALL_SUBSCRIPTIONS:'/subscriptions',
     SEARCH_USER:'/user/search',
     SEARCH_VENDOR:'/vendors/search',
-    SEARCH_DESTINATION:'/destination/search'
+    SEARCH_DESTINATION:'/destination/search',
+    SEARCH_CATEGORY:'/category/search'
 }

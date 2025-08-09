@@ -39,6 +39,7 @@ import { GetAllSubscription } from "../../../useCases/subscription/GetSubscripti
 import { SearchUserUSeCase } from "../../../useCases/admin/user/SearchUserUSecase";
 import { SearchVendorUsecase } from "../../../useCases/admin/Vendor/SearchVendorUsecase";
 import { SearchDestination } from "../../../useCases/Destination/searchDestinationUsecase";
+import { SearchCategoryUsecase } from "../../../useCases/category/searchcategoryUSecase";
 
 // Repositories
 const adminRepository = new AdminRepository();
@@ -81,6 +82,7 @@ const getallsubscriptions=new GetAllSubscription(subscriptionrepo)
 const searchuserusecase=new SearchUserUSeCase(userRepository)
 const searchvendorusecase=new SearchVendorUsecase(vendorRepository)
 const searchdestinationusecase=new SearchDestination(destinationRepository)
+const searchcategory=new SearchCategoryUsecase(catogoryRepo)
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
@@ -94,7 +96,7 @@ export const destinationController = new DestinationController(
   deleteDestinationusecase,
   searchdestinationusecase
 )
-export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory);
+export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
 export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner);
 export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions)
 
