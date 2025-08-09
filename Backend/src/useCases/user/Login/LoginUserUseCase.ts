@@ -42,7 +42,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
 
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
-console.log("User imageUrl:", user.imageUrl);
+
 
     return {
       accessToken,

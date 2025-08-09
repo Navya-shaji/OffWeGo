@@ -27,7 +27,7 @@ export class PackageController {
   async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
-      console.log("Package Data:", packageData);
+   
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
@@ -42,7 +42,7 @@ export class PackageController {
       packageData.destination = destination._id;
 
       const result = await this.createPackage.execute(packageData);
-      console.log("Created Package:", result);
+      
 
       res.status(HttpStatus.CREATED).json({ result });
     } catch (error) {

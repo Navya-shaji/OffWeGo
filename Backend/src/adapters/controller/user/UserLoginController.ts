@@ -98,7 +98,7 @@ export class UserLoginController {
   async verifyResetOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp } = req.body;
-      console.log(req.body)
+      
 
    if (!email || typeof email !== "string" || !otp || typeof otp !== "string") {
 

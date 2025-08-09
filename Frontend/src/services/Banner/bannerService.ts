@@ -21,7 +21,7 @@ export const getBanner = async () => {
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      console.log("err");
+    
       throw new Error(
         error.response?.data?.error || "Failed to fetch categories"
       );

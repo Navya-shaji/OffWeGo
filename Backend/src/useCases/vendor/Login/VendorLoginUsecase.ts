@@ -19,27 +19,22 @@ export class VendorLoginUsecase {
       name: string;
       status: string;
       documentUrl: string;
-      phone:string,
-     isBlocked: boolean ,
-     profileImage:string
+      phone: string;
+      isBlocked: boolean;
+      profileImage: string;
     };
   } | null> {
     const { email, password } = data;
 
-    console.log(" Login attempt for:", email);
-
     const vendor = await this.vendorRepository.findByEmail(
       email.toLowerCase().trim()
     );
-    console.log("Vendor from DB:", vendor);
 
     if (!vendor) {
-      console.log(" Vendor not found");
       return null;
     }
 
     if (vendor.status !== "approved") {
-      console.log(`Vendor status is '${vendor.status}', not approved`);
       return null;
     }
 
@@ -47,10 +42,8 @@ export class VendorLoginUsecase {
       password,
       vendor.password
     );
-    console.log(" Password Valid:", isPasswordValid);
 
     if (!isPasswordValid) {
-      console.log(" Password mismatch");
       return null;
     }
 
@@ -63,21 +56,19 @@ export class VendorLoginUsecase {
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
-    console.log(" Tokens generated");
-
- return {
-  accessToken,
-  refreshToken,
-  vendor: {
-    id: vendor.id,
-    email: vendor.email,
-    name: vendor.name,
-    status: vendor.status,
-    documentUrl: vendor.documentUrl,
-    phone: vendor.phone,
-    isBlocked: vendor.isBlocked ?? false,
-    profileImage: vendor.profileImage ? vendor.profileImage.toString() : "",
-  },
-};;
+    return {
+      accessToken,
+      refreshToken,
+      vendor: {
+        id: vendor.id,
+        email: vendor.email,
+        name: vendor.name,
+        status: vendor.status,
+        documentUrl: vendor.documentUrl,
+        phone: vendor.phone,
+        isBlocked: vendor.isBlocked ?? false,
+        profileImage: vendor.profileImage ? vendor.profileImage.toString() : "",
+      },
+    };
   }
 }

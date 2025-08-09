@@ -13,7 +13,7 @@ export class SubscriptionController {
     try {
       const { name, description, price, durationInDays, commissionRate } =
         req.body;
-      console.log("Subscription", req.body);
+     
 
       if (
         !name ||

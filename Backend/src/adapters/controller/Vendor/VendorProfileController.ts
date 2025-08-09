@@ -46,7 +46,7 @@ export class VendorProfileController {
     try {
       const VendorId = req.params.id;
       const VendorDataData = req.body;
-      console.log(VendorDataData, VendorId);
+     
 
       const result = await this.editProfile.execute(VendorId, VendorDataData);
       

@@ -8,7 +8,7 @@ export const UserRegister = async (formData: SignupSchema) => {
     const res = await axiosInstance.post("/api/signup",  formData );
     return res;
   } catch (error) {
-    console.log("error while client login", error);
+   
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error);
     }
@@ -22,7 +22,7 @@ export const VerifyOtp = async (userData:SignupSchema,otp:string) => {
     const res = await axiosInstance.post("/api/verify-otp", { userData,otp} );
     return res;
   } catch (error) {
-    console.log("error while  verify otp", error);
+   
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error);
     }
@@ -62,10 +62,10 @@ export const registerGoogleUser=async (token: string)=>{
 export const resendOtp=async(email:string)=>{
   try {
     const res=await axiosInstance.post("/api/resend-otp",{email})
-    console.log(res)
+ 
     return res.data
   }catch (error) {
-    console.log("error while  resend otp", error);
+    
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error);
     }

@@ -63,7 +63,7 @@ export const updateDestination = async (
 ) => {
   try {
     const res = await axiosInstance.put(`/api/admin/edit/${id}`, data);
-    console.log(" Updated:", res);
+  
     return res.data;
   } catch (error) {
     console.error(" Error updating destination:", error);
@@ -79,7 +79,7 @@ export const updateDestination = async (
 export const getsingleDestination = async (id: string) => {
   try {
     const res = await axiosInstance.get(`/api/destination/${id}`);
-    console.log(res);
+    
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -114,7 +114,7 @@ export const deleteDestination = async (id: string): Promise<void> => {
     const response = await axiosInstance.delete(`/api/admin/destination/${id}`);
     return response.data;
   } catch (error) {
-    console.log("Error inside deleteDestination", error);
+    console.error("Error inside deleteDestination", error);
     throw error;
   }
 };

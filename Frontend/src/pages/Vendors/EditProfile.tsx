@@ -38,7 +38,7 @@ export default function EditVendorProfileModal({
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
     vendor?.profileImage || null
   );
-  console.log("imagePreview", imagePreviewUrl);
+ 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

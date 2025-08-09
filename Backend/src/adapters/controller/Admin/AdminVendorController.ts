@@ -154,7 +154,7 @@ export class AdminVendorController {
   async searchVendor(req: Request, res: Response): Promise<void> {
     try {
       const query = req.query.q;
-      console.log("Query:", req.query);
+    
       if (typeof query !== "string" || !query.trim()) {
         res.status(HttpStatus.BAD_REQUEST).json({
           message: "The query will be string",

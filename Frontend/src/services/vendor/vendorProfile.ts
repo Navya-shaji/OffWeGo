@@ -9,7 +9,7 @@ export const vendorProfile = async (email: string) => {
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      console.log(error.response?.data); 
+     
       throw new Error(error.response?.data?.message || "Vendor login failed");
     }
     throw new Error("An unexpected error occurred during vendor login");

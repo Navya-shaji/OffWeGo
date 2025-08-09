@@ -23,7 +23,7 @@ export const VerifyOtp = async (vendorData: VendorSignupSchema, otp: string) => 
     });
     return res;
   } catch (error) {
-    console.log("Error while verifying OTP:", error);
+  
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "OTP verification failed");
     }

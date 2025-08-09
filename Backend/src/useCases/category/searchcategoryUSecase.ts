@@ -7,7 +7,7 @@ export class SearchCategoryUsecase implements ISearchCategoryUsecase{
 
     async execute(query: string): Promise<Category[]> {
         const result=this.categoryRepo.searchCategory(query)
-        console.log(result)
+       
         return result
     }
 }

@@ -10,8 +10,7 @@ export const createBooking = async (
         packageId,
         selectedDate,
     });
-    console.log("Haii")
-  console.log("Calling createBooking with packageId:", packageId);
+  
   return response.data;
 };
 

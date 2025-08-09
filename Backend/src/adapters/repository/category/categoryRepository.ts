@@ -22,6 +22,6 @@ export class CategoryRepository implements ICategoryRepository{
     }
     async searchCategory(query:string):Promise<Category[]>{
     const regex=new RegExp(query,"i")
-    return CategoryModel.find({name:{$regex:regex}}).select('name description ').limit(10).exec()
+    return CategoryModel.find({name:{$regex:regex}}).select('name description imageUrl type').limit(10).exec()
     }
 }

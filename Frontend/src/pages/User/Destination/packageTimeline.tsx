@@ -86,7 +86,7 @@ export const PackageTimeline = () => {
   })
 
   const handleBooking = async () => {
-    console.log("A")
+ 
     if (!userId) {
       setBookingError("User not logged in. Please log in to book a package.")
       return

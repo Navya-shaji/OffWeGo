@@ -6,7 +6,7 @@ import type { Package } from "@/interface/PackageInterface";
 export const addPackage= async (data: Package) => {
   try {
     const res = await axiosInstance.post("/api/vendor/add-Package", data);
-    console.log("res",res)
+  
     
     return res.data;
   } catch (error) {

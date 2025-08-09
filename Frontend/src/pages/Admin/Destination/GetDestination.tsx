@@ -110,7 +110,7 @@ export const DestinationTable = () => {
 
   return (
    <div className="p-4">
-  {/* Header and Search */}
+  
   <div className="flex justify-between items-center mb-4">
     <h2 className="text-xl font-semibold">All Destinations</h2>
     <div className="w-60">
