@@ -13,7 +13,7 @@ import { VendorLoginController } from "../../../adapters/controller/Vendor/vendo
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 import { JwtSevice } from "../../services/jwtService";
-import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
+import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { CreatePackagesUseCase } from "../../../useCases/package/addPackageUsecase";
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
 import { GetAllPackages } from "../../../useCases/package/getAllPackageUsecase";

@@ -42,7 +42,7 @@ export class OtpService implements IOtpService {
   }
 
   async sendOtpEmail(email: string, otp: string): Promise<void> {
-    console.log(`Sending OTP to ${email}...`);
+    
 
     const transporter = nodemailer.createTransport({
       service: "Gmail",

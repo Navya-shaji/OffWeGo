@@ -1,4 +1,5 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
+import { Vendor } from "../../../domain/entities/vendorEntities";
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
 import { VendorModel } from "../../../framework/database/Models/vendorModel";
 import { IVendorModel } from "../../../framework/database/Models/vendorModel"; 
@@ -73,4 +74,18 @@ export class VendorRepository implements IVendorRepository {
     async countVendors(filter:Record<string,any>={}):Promise<number>{
       return await VendorModel.countDocuments(filter)
     }
+  async searchVendor(query: string): Promise<Vendor[]> {
+  const regex = new RegExp(query, "i");
+
+  const vendors = await VendorModel.find({ name: { $regex: regex } })
+    .select("name email _id phone password documentUrl subscription") 
+    .limit(10)
+    .lean(); 
+
+  return vendors.map(v => ({
+    ...v,
+    _id: v._id.toString(), 
+  }));
+}
+
 }

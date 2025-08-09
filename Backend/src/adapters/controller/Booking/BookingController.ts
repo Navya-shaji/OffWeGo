@@ -6,9 +6,9 @@ export class BookingController {
     constructor(private createBookingUseCase: ICreateBookingUseCase) {}
     
     async createBooking(req: Request, res: Response): Promise<void> {
-      console.log("haii")
+
     try {
-        console.log("body",req.body)
+        
       const packageId = req.params.packageId;
 
       const { userId, selectedDate } = req.body;

@@ -1,0 +1,16 @@
+export const UserRoutes={
+    SIGNUP:'/signup',
+    VERIFY_OTP:'/verify-otp',
+    LOGIN:'/login',
+    GOOGLE_SIGNUP:'/google-signup',
+    VERIFY_REESET_OTP:'/verify-reset-otp',
+    FORGOT_PASSWORD:'/forgot-password',
+    RESET_PASSWORD:'/reset-password',
+    GET_ALL_DESTINATIONS:'/destinations',
+    PROFILE:'/profile',
+    GET_SINGLE_DESTINATION:'/destination/:id',
+    RESEND_OTP:'/resend-otp',
+    GET_ALL_PACKAGES:'/destination/:id',
+    EDIT_PROFILE:'/profile/:id',
+    CREATE_BOOKING:'/bookings/:packageId'
+}

@@ -5,24 +5,35 @@ import { IGetAllVendorsUseCase } from "../../../domain/interface/admin/IGetAllVe
 import { IUpdateVendorStatusUseCase } from "../../../domain/interface/admin/IUpdateVendorstatusUseCase";
 import { IUpdateVendorUsecase } from "../../../domain/interface/admin/IUpdateVendorUsecase";
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { ISearchVendorUSecase } from "../../../domain/interface/admin/ISearchVendorUseCase";
 
 export class AdminVendorController {
   constructor(
-    private getVendorByEmailUseCase: IGetVendorByEmailUseCase,
-    private getAllVendorsUseCase: IGetAllVendorsUseCase,
-    private updateVendorStatusUseCase: IUpdateVendorStatusUseCase,
-    private updateVendorUseCase: IUpdateVendorUsecase,
-    private vendorRepository: IVendorRepository
+    private _getVendorByEmailUseCase: IGetVendorByEmailUseCase,
+    private _getAllVendorsUseCase: IGetAllVendorsUseCase,
+    private _updateVendorStatusUseCase: IUpdateVendorStatusUseCase,
+    private _updateVendorUseCase: IUpdateVendorUsecase,
+    private _vendorRepository: IVendorRepository,
+    private _searchvendorusecase: ISearchVendorUSecase
   ) {}
 
   async getVendorByEmail(req: Request, res: Response): Promise<void> {
     try {
-      
-      const email = req.params.email.toLowerCase().trim();
-      const vendor = await this.getVendorByEmailUseCase.execute(email);
+      const email = req.query.email?.toString().toLowerCase().trim();
+
+      if (!email) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Email is required" });
+        return;
+      }
+
+      const vendor = await this._getVendorByEmailUseCase.execute(email);
 
       if (!vendor) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Vendor not found" });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: "Vendor not found" });
         return;
       }
 
@@ -36,13 +47,13 @@ export class AdminVendorController {
     }
   }
 
- async getAllVendors(req: Request, res: Response): Promise<void> {
+  async getAllVendors(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-        const { vendors, totalvendors } = await this.getAllVendorsUseCase.execute(page,limit);
-
+      const { vendors, totalvendors } =
+        await this._getAllVendorsUseCase.execute(page, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -50,7 +61,7 @@ export class AdminVendorController {
         totalvendors,
         page,
         totalPages: Math.ceil(totalvendors / limit),
-        currentPage: page
+        currentPage: page,
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -64,7 +75,7 @@ export class AdminVendorController {
     const status = req.params.status as "pending" | "approved" | "rejected";
 
     try {
-      const vendors = await this.vendorRepository.findByStatus(status);
+      const vendors = await this._vendorRepository.findByStatus(status);
       res.status(HttpStatus.OK).json({ success: true, vendors });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -87,7 +98,10 @@ export class AdminVendorController {
         return;
       }
 
-      const updated = await this.updateVendorStatusUseCase.executeById(vendorId, status);
+      const updated = await this._updateVendorStatusUseCase.executeById(
+        vendorId,
+        status
+      );
 
       if (updated) {
         res.status(HttpStatus.OK).json({
@@ -122,11 +136,36 @@ export class AdminVendorController {
         return;
       }
 
-      await this.updateVendorUseCase.execute(vendorId, isBlocked);
+      await this._updateVendorUseCase.execute(vendorId, isBlocked);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: `Vendor has been ${isBlocked ? "blocked" : "unblocked"} successfully.`,
+        message: `Vendor has been ${
+          isBlocked ? "blocked" : "unblocked"
+        } successfully.`,
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+  async searchVendor(req: Request, res: Response): Promise<void> {
+    try {
+      const query = req.query.q;
+    
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message: "The query will be string",
+        });
+        return;
+      }
+
+      const vendor = await this._searchvendorusecase.execute(query);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: vendor,
       });
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({

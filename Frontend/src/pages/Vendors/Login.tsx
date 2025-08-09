@@ -30,7 +30,7 @@ export default function VendorLogin() {
     try {
       const response = await vendorLogin(data.email, data.password);
       const rawVendor = response.vendor;
-      console.log("Raw",rawVendor)
+     
 
       if (!rawVendor) {
         toast.error("Vendor not found");

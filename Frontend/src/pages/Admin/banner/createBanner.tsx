@@ -84,17 +84,17 @@ const CreateBanner: React.FC = () => {
     <div className="flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
 
-        {/* Header */}
+        
         <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
           <h2 className="text-2xl font-bold">Create Banner</h2>
           <p className="text-sm text-gray-300 mt-1">Add a new promotional banner</p>
         </div>
 
-        {/* Form */}
+        
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <ToastContainer position="top-right" autoClose={3000} />
 
-          {/* Title */}
+         
           <div>
             <Label htmlFor="title" className="text-sm font-semibold text-gray-700 mb-1 block">
               Banner Title <span className="text-red-500">*</span>
@@ -109,7 +109,7 @@ const CreateBanner: React.FC = () => {
             />
           </div>
 
-          {/* Upload */}
+          
           <div>
             <Label htmlFor="video" className="text-sm font-semibold text-gray-700 mb-1 block">
               Upload Video <span className="text-red-500">*</span>
@@ -147,7 +147,7 @@ const CreateBanner: React.FC = () => {
             )}
           </div>
 
-          {/* Switch */}
+        
           <div className="flex items-center gap-4">
             <Label htmlFor="active" className="text-sm font-semibold text-gray-700">
               Active
@@ -155,7 +155,7 @@ const CreateBanner: React.FC = () => {
             <Switch id="active" checked={action} onCheckedChange={setAction} />
           </div>
 
-          {/* Submit */}
+          
           <Button
             type="submit"
             className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"

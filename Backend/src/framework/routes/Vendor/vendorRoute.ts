@@ -9,6 +9,8 @@ import {
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
 import { destinationController } from "../../Di/admin/adminInjection";
+import { VendorRoutes } from "../Constants/VendorRouteConstants";
+ 
 
 export class VendorRoute {
   public vendorRouter: Router;
@@ -19,44 +21,44 @@ export class VendorRoute {
   }
 
   private setRoutes(): void {
-    this.vendorRouter.post("/signup", (req: Request, res: Response) => {
+    this.vendorRouter.post(VendorRoutes.SIGNUP, (req: Request, res: Response) => {
       vendorsignupcontroller.VendorSignup(req, res);
     });
 
-    this.vendorRouter.post("/verify-otp", (req, res) =>
+    this.vendorRouter.post(VendorRoutes.VERIFY_OTP, (req, res) =>
       vendorVerifyOtpController.verifyOtp(req, res)
     );
-    this.vendorRouter.get("/status",(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.CHECK_STATUS,(req:Request,res:Response)=>{
       vendorstatusCheckController.checkStatus(req,res)
     })
-    this.vendorRouter.post("/login",(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.LOGIN,(req:Request,res:Response)=>{
       vendorloginController.login(req,res)
     })
-    this.vendorRouter.get("/profile",(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.PROFILE,(req:Request,res:Response)=>{
       vendorProfilecontroller.GetProfile(req,res)
     })
-    this.vendorRouter.get('/destinations',(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.DESTINATIONS,(req:Request,res:Response)=>{
       destinationController.getAllDestination(req,res)
     })
-    this.vendorRouter.post("/add-Package",(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.ADD_PACKAGE,(req:Request,res:Response)=>{
       packagecontroller.addPackage(req,res)
     })
-    this.vendorRouter.get("/packages",(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.ALL_PACKAGES,(req:Request,res:Response)=>{
       packagecontroller.getAllPackage(req,res)
     })
-    this.vendorRouter.put("/packages/:id",(req:Request,res:Response)=>{
+    this.vendorRouter.put(VendorRoutes.EDIT_PACKAGE,(req:Request,res:Response)=>{
       packagecontroller.EditPackage(req,res)
     })
-    this.vendorRouter.delete("/packages/:id",(req:Request,res:Response)=>{
+    this.vendorRouter.delete(VendorRoutes.DELET_PACKAGE,(req:Request,res:Response)=>{
       packagecontroller.deletePackage(req,res)
     })
-    this.vendorRouter.patch("/profile/:id",(req:Request,res:Response)=>{
+    this.vendorRouter.put(VendorRoutes.EDIT_PROFILE,(req:Request,res:Response)=>{
       vendorProfilecontroller.EditProfile(req,res)
     })
-    this.vendorRouter.post("/package-groups",(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.PACKAGE_WISE_GROUPING,(req:Request,res:Response)=>{
       packagewisegroupcontroller.CreatePackageWiseGrouping(req,res)
     })
-    this.vendorRouter.get("/package-group/:id",(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.PACKAGE_WISE_GROUPS,(req:Request,res:Response)=>{
       packagewisegroupcontroller.GetPackageWiseGroups(req,res)
     })
   } 

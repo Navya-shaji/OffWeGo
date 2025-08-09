@@ -1,5 +1,5 @@
 export interface Destination {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   imageUrls: string[];  

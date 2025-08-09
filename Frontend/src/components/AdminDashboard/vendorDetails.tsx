@@ -1,37 +1,61 @@
 import { useEffect, useState } from "react";
 import ReusableTable from "../Modular/Table";
-import { getAllVendors,  updateVendorBlockStatus } from "@/services/admin/adminVendorService";
+import {
+  getAllVendors,
+  searchVendor,
+  updateVendorBlockStatus,
+} from "@/services/admin/adminVendorService";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Vendor } from "@/interface/vendorInterface";
 import Pagination from "../pagination/pagination";
+import { SearchBar } from "../Modular/searchbar";
 
 export const VendorList = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
-    const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+
+      const handleSearch=async(query:string)=>{
+      if(!query.trim()){
+        const allVendors=await getAllVendors(page,10);
+        setVendors(allVendors.vendors)
+        return 
+      }
+      try {
+        const response=await searchVendor(query)
+        setVendors(response||[])
+      } catch (error) {
+        console.error(error)
+        setVendors([])
+      }
+    }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await getAllVendors(page,10);
+        const result = await getAllVendors(page, 10);
         setVendors(result.vendors);
         setTotalPages(Math.ceil(result.totalvendors / 10));
-
       } catch (error) {
         console.error("Error fetching vendors:", error);
-        
       }
     };
 
     fetchData();
   }, [page]);
 
-  const handleBlockToggle = async (vendorId: string, currentStatus: boolean) => {
+  const handleBlockToggle = async (
+    vendorId: string,
+    currentStatus: boolean
+  ) => {
     try {
       const updated = await updateVendorBlockStatus(vendorId, !currentStatus);
-      console.log(updated)
+      console.log(updated);
       setVendors((prev) =>
-        prev.map((v) => (v._id === vendorId ? { ...v, isBlocked: !currentStatus } : v))
+        prev.map((v) =>
+          v._id === vendorId ? { ...v, isBlocked: !currentStatus } : v
+        )
       );
     } catch (err) {
       console.error("Failed to update vendor status", err);
@@ -116,11 +140,19 @@ export const VendorList = () => {
   ];
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">All Vendors</h1>
-      <ReusableTable<Vendor> data={vendors} columns={columns} />
-         <Pagination total={totalPages} current={page} setPage={setPage} />
+<div className="p-4">
+  <h1 className="text-2xl font-bold mb-4">All Vendors</h1>
+
+ 
+  <div className="flex justify-end mb-4">
+    <div className="w-60">
+      <SearchBar placeholder="Search Vendors..." onSearch={handleSearch} />
     </div>
+  </div>
+
+  <ReusableTable<Vendor> data={vendors} columns={columns} />
+  <Pagination total={totalPages} current={page} setPage={setPage} />
+</div>
+
   );
 };
-

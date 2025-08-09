@@ -1,4 +1,4 @@
-import { AuthRepository } from "../../../adapters/repository/user/authRepository";
+import { AuthRepository } from "../../../adapters/repository/user/AuthRepository";
 import { User } from "../../../domain/entities/userEntity";
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
 import { mapToUser } from "../../../mappers/User/userMapper";

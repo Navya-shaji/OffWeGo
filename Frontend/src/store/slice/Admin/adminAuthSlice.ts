@@ -1,5 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk,type  PayloadAction } from "@reduxjs/toolkit";
 import { adminLogin } from "@/services/admin/adminService";
 import type { AdminUser } from "@/Types/Admin/Login/Login type";
 
@@ -9,12 +8,15 @@ interface AuthState {
   token: string | null;
 }
 
-const initialState: AuthState = {
-  isAuthenticated: false,
-  admin: null,
-  token: null,
-};
 
+const storedToken = localStorage.getItem("adminToken");
+const storedAdmin = localStorage.getItem("adminData");
+
+const initialState: AuthState = {
+  isAuthenticated: !!storedToken,
+  admin: storedAdmin ? JSON.parse(storedAdmin) : null,
+  token: storedToken,
+};
 
 export const loginAdmin = createAsyncThunk<
   { admin: AdminUser; accessToken: string },
@@ -23,6 +25,11 @@ export const loginAdmin = createAsyncThunk<
 >("adminAuth/login", async ({ email, password }, thunkAPI) => {
   try {
     const response = await adminLogin(email, password);
+
+    // Save token & admin to localStorage
+    localStorage.setItem("adminToken", response.accessToken);
+    localStorage.setItem("adminData", JSON.stringify(response.admin));
+
     return response;
   } catch (err) {
     console.error(err);
@@ -38,19 +45,30 @@ const adminAuthSlice = createSlice({
       state.isAuthenticated = false;
       state.admin = null;
       state.token = null;
+
+      // Remove from storage
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminData");
     },
     setAdminFromSession: (
       state,
       action: PayloadAction<{ admin: AdminUser | null; token?: string | null }>
     ) => {
-      if (action.payload.admin) {
+      if (action.payload.admin && action.payload.token) {
         state.isAuthenticated = true;
         state.admin = action.payload.admin;
-        state.token = action.payload.token ?? null;
+        state.token = action.payload.token;
+
+        // Save to storage
+        localStorage.setItem("adminToken", action.payload.token);
+        localStorage.setItem("adminData", JSON.stringify(action.payload.admin));
       } else {
         state.isAuthenticated = false;
         state.admin = null;
         state.token = null;
+
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminData");
       }
     },
   },

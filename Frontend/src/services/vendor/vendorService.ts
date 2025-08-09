@@ -4,7 +4,7 @@ import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 
 export const vendorRegister = async (data: VendorSignupSchema & { document: string }) => {
   try {
-    const res = await axiosInstance.post("/vendor/signup", data); 
+    const res = await axiosInstance.post("/api/vendor/signup", data); 
     return res;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -17,13 +17,13 @@ export const vendorRegister = async (data: VendorSignupSchema & { document: stri
 
 export const VerifyOtp = async (vendorData: VendorSignupSchema, otp: string) => {
   try {
-    const res = await axiosInstance.post("/vendor/verify-otp", {
+    const res = await axiosInstance.post("/api/vendor/verify-otp", {
       email: vendorData.email,
       otp,
     });
     return res;
   } catch (error) {
-    console.log("Error while verifying OTP:", error);
+  
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "OTP verification failed");
     }

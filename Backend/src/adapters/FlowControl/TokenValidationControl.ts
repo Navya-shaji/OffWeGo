@@ -31,7 +31,7 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
       }
 
       const decoded = await tokenService.verifyToken(token);
-      console.log("Middleware reached: verifyTokenAndCheckBlackList");
+     
 
       req.user = decoded; 
       next(); 

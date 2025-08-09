@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IAdminLoginUseCase } from "../../../domain/interface/admin/IAdminUsecase"; 
+import { IAdminLoginUseCase } from "../../../domain/interface/admin/IAdminUsecase";
+
 export class AdminController {
-  constructor(private adminLoginuseCase: IAdminLoginUseCase) {}
+  constructor(private _adminLoginuseCase: IAdminLoginUseCase) {}
 
   async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-      const result = await this.adminLoginuseCase.execute({ email, password });
+      const result = await this._adminLoginuseCase.execute({ email, password });
 
       if (result.admin.role !== "admin") {
         res.status(HttpStatus.FORBIDDEN).json({
@@ -20,7 +21,7 @@ export class AdminController {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
       });
 
       res.status(HttpStatus.OK).json({
@@ -28,6 +29,7 @@ export class AdminController {
         accessToken: result.accessToken,
         admin: result.admin,
       });
+      
     } catch (error) {
       const err = error as Error;
       console.error("Admin Login Error:", err.message);

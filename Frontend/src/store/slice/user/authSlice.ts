@@ -50,11 +50,12 @@ export const authSlice = createSlice({
       state.token = null;
     }
   },
-  updateUserProfile: (state, action: PayloadAction<User>) => {
-    if (state.user) {
-      state.user = { ...state.user, ...action.payload };
-    }
+ updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
+  if (state.user) {
+    state.user = { ...state.user, ...action.payload };
   }
+}
+
 }
 
 });

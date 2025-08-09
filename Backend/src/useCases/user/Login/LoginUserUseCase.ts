@@ -15,7 +15,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
   async execute(data: LoginDTo): Promise<{
     accessToken: string;
     refreshToken: string;
-    user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' ;phone:string};
+    user: { id: string; email: string; username: string; status: string; role: 'user' | 'vendor' | 'admin' ;phone:string;imageUrl:string};
   }> {
     const { email, password } = data;
 
@@ -43,6 +43,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     const accessToken = this.tokenService.generateAccessToken(payload);
     const refreshToken = this.tokenService.generateRefreshToken(payload);
 
+
     return {
       accessToken,
       refreshToken,
@@ -53,6 +54,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
         status: user.status ?? "active",
         role,
         phone:user.phone.toString(),
+        imageUrl:user.imageUrl ?? ""
       },
     };
   }

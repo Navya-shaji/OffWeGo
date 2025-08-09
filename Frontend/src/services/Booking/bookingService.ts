@@ -5,23 +5,22 @@ export const createBooking = async (
     packageId: string,
     selectedDate: string
 ) => {
-    const response = await axiosInstance.post(`/bookings/${packageId}`, {
+    const response = await axiosInstance.post(`/api/bookings/${packageId}`, {
         userId,
         packageId,
         selectedDate,
     });
-    console.log("Haii")
-  console.log("Calling createBooking with packageId:", packageId);
+  
   return response.data;
 };
 
 export const getUserBookings = async (userId: string) => {
-  const response = await axiosInstance.get(`/bookings/user/${userId}`);
+  const response = await axiosInstance.get(`/api/bookings/user/${userId}`);
   return response.data.bookings;
 };
 
 export const getAllBookings = async () => {
-  const response = await axiosInstance.get("/admin/bookings");
+  const response = await axiosInstance.get("/api/admin/bookings");
   return response.data.bookings;
 };
 
@@ -29,11 +28,11 @@ export const updateBooking = async (
   bookingId: string,
   updateData: { selectedDate?: string; status?: string }
 ) => {
-  const response = await axiosInstance.patch(`/bookings/${bookingId}`, updateData);
+  const response = await axiosInstance.patch(`/api/bookings/${bookingId}`, updateData);
   return response.data;
 };
 
 export const deleteBooking = async (bookingId: string) => {
-  const response = await axiosInstance.delete(`/bookings/${bookingId}`);
+  const response = await axiosInstance.delete(`/api/bookings/${bookingId}`);
   return response.data;
 };

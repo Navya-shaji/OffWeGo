@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 
 export const getProfile=async()=>{
     try {
-        const res=await axiosInstance.get('/profile')
+        const res=await axiosInstance.get('/api/profile')
         return res.data
     } catch (error) {
         console.error("Error while getting profile page ")
@@ -19,10 +19,10 @@ export const getProfile=async()=>{
 
 export const editProfile = async (
   id: string,
-  updatedData: { username: string; phone: string; imageUrl?: string }
+  updatedData: { name: string; phone: string; imageUrl?: string }
 ) => {
   try {
-    const res = await axiosInstance.patch(`/profile/${id}`, updatedData); 
+    const res = await axiosInstance.patch(`/api/profile/${id}`, updatedData); 
     return res.data;
   } catch (error) {
     console.error("Error while editing profile page:", error);

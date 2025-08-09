@@ -4,9 +4,9 @@ import type { CategoryType } from "@/interface/categoryInterface";
 
 export const addCategory = async (data: CategoryType) => {
   try {
-    console.log("Sending category data:", data);
-    const res = await axiosInstance.post("admin/create-categories", data);
-    console.log(res);
+   
+    const res = await axiosInstance.post("/api/admin/create-categories", data);
+   
     return res.data;
   } catch (error) {
     console.error("error adding category", error);
@@ -27,7 +27,7 @@ export const getCategory = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/admin/categories", {
+    const res = await axiosInstance.get("/api/admin/categories", {
       params: { page, limit },
     });
     return {
@@ -38,7 +38,7 @@ export const getCategory = async (
     };
   } catch (error) {
     if (isAxiosError(error)) {
-      console.log("err");
+      
       throw new Error(
         error.response?.data?.error || "Failed to fetch categories"
       );
@@ -49,7 +49,8 @@ export const getCategory = async (
 
 export const editCategory = async (id: string, updatedData: CategoryType) => {
   try {
-    const res = await axiosInstance.put(`/admin/category/${id}`, updatedData);
+    const res = await axiosInstance.put(`/api/admin/category/${id}`, updatedData);
+   
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -60,7 +61,7 @@ export const editCategory = async (id: string, updatedData: CategoryType) => {
 };
 export const deleteCategory = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`/admin/category/${id}`);
+    const response = await axiosInstance.delete(`/api/admin/category/${id}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -69,3 +70,18 @@ export const deleteCategory = async (id: string) => {
     throw new Error("Failed to delete category");
   }
 };
+export const searchCategory = async (query: string) => {
+  try {
+    const response = await axiosInstance.get("/api/admin/category/search", {
+      params: { q: query },
+    });
+   
+    return response.data.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || "Failed to search category");
+    }
+    throw new Error("Failed to search category");
+  }
+};
+

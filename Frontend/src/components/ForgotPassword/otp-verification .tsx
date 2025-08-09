@@ -66,7 +66,7 @@ export default function VerifyResetOtp() {
           Enter the 6-digit OTP sent to your email.
         </p>
 
-        {/* OTP Boxes */}
+        
         <div className="flex justify-between mb-6">
           {otp.map((digit, index) => (
             <input

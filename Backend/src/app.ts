@@ -39,13 +39,13 @@ export class App {
   }
 
   private setUserRoutes(): void {
-    this.app.use("/", new UserRoute().userRouter);
+    this.app.use("/api", new UserRoute().userRouter);
   }
   private setAdminRoutes():void{
-    this.app.use("/admin",new AdminRoute().adminRouter)
+    this.app.use("/api/admin",new AdminRoute().adminRouter)
   }
   private setVendorRoutes():void{
-    this.app.use("/vendor",new VendorRoute().vendorRouter)
+    this.app.use("/api/vendor",new VendorRoute().vendorRouter)
   }
 
   public async listen(): Promise<void> {

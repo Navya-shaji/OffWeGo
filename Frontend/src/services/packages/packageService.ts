@@ -5,8 +5,8 @@ import type { Package } from "@/interface/PackageInterface";
 
 export const addPackage= async (data: Package) => {
   try {
-    const res = await axiosInstance.post("/vendor/add-Package", data);
-    console.log("res",res)
+    const res = await axiosInstance.post("/api/vendor/add-Package", data);
+  
     
     return res.data;
   } catch (error) {
@@ -20,7 +20,7 @@ export const addPackage= async (data: Package) => {
 
 export const fetchAllPackages = async () => {
   try {
-    const res = await axiosInstance.get("/vendor/packages");
+    const res = await axiosInstance.get("/api/vendor/packages");
     
     return res.data;
   } catch (error) {

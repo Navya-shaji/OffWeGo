@@ -5,7 +5,7 @@ import type { Package } from "@/interface/PackageInterface";
 
 export const addDestination = async (data: DestinationInterface) => {
   try {
-    const res = await axiosInstance.post("/admin/create-destination", data);
+    const res = await axiosInstance.post("/api/admin/create-destination", data);
 
     return res.data;
   } catch (error) {
@@ -29,7 +29,7 @@ export const fetchAllDestinations = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/admin/destinations", {
+    const res = await axiosInstance.get("/api/admin/destinations", {
       params: { page, limit },
     });
 
@@ -62,8 +62,8 @@ export const updateDestination = async (
   data: DestinationInterface
 ) => {
   try {
-    const res = await axiosInstance.put(`/admin/edit/${id}`, data);
-    console.log(" Updated:", res);
+    const res = await axiosInstance.put(`/api/admin/edit/${id}`, data);
+  
     return res.data;
   } catch (error) {
     console.error(" Error updating destination:", error);
@@ -78,8 +78,8 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-    const res = await axiosInstance.get(`destination/${id}`);
-    console.log(res);
+    const res = await axiosInstance.get(`/api/destination/${id}`);
+    
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -96,7 +96,7 @@ export const getPackagesByDestination = async (
 ): Promise<Package[]> => {
   try {
     const response = await axiosInstance.get(
-      `/destination/${destinationId}`
+      `/api/destination/${destinationId}`
     );
     return response.data;
   } catch (error) {
@@ -111,11 +111,17 @@ export const getPackagesByDestination = async (
 
 export const deleteDestination = async (id: string): Promise<void> => {
   try {
-    const response = await axiosInstance.delete(`/admin/destination/${id}`);
+    const response = await axiosInstance.delete(`/api/admin/destination/${id}`);
     return response.data;
   } catch (error) {
-    console.log("Error inside deleteDestination", error);
+    console.error("Error inside deleteDestination", error);
     throw error;
   }
 };
 
+export const searchDestination=async(query:string)=>{
+const response=await axiosInstance.get('/api/admin/destination/search',{
+  params:{q:query}
+})
+return response.data.data
+}

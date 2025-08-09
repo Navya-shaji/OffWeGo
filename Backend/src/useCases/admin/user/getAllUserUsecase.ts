@@ -5,13 +5,15 @@ import { IUserRepository } from "../../../domain/interface/userRepository/IuserR
 export class GetAllUsers implements IGetAllUser {
   constructor(private userRepository: IUserRepository) {}
 
-  async execute(page: number, limit: number): Promise<{ users: User[]; totalUsers: number }> {
+  async execute(
+    page: number,
+    limit: number
+  ): Promise<{ users: User[]; totalUsers: number }> {
     const skip = (page - 1) * limit;
 
-    
-    const users = await this.userRepository.getAllUsers(skip, limit, { role: "user" });
-
-    
+    const users = await this.userRepository.getAllUsers(skip, limit, {
+      role: "user",
+    });
     const totalUsers = await this.userRepository.countUsers({ role: "user" });
 
     return { users, totalUsers };

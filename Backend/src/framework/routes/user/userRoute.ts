@@ -3,17 +3,15 @@ import {
   userRegisterController,
   userLoginController,
   googleSignupController,
-  forgotpassController,
-  verifyingOtpController,
-  resetPasswordController,
   userprofileController,
   getpackageByDestinationController,
-  getusereditProfile,
   bookingcontroller,
 } from "../../Di/user/userInjections";
 import { JwtSevice } from "../../services/jwtService";
 import { destinationController } from "../../Di/admin/adminInjection";
+import { UserRoutes } from "../Constants/UserRouteConstants";
 const TokenService = new JwtSevice();
+
 
 export class UserRoute {
   public userRouter: Router;
@@ -24,47 +22,47 @@ export class UserRoute {
   }
 
   private setRoutes(): void {
-    this.userRouter.post("/signup", (req: Request, res: Response) => {
+    this.userRouter.post(UserRoutes.SIGNUP, (req: Request, res: Response) => {
       userRegisterController.registerUser(req,res)
     });
 
-    this.userRouter.post("/verify-otp", (req: Request, res: Response) => {
+    this.userRouter.post(UserRoutes.VERIFY_OTP, (req: Request, res: Response) => {
       userRegisterController.verifyOtp(req, res);
     });
-    this.userRouter.post("/login", (req: Request, res: Response) => {
+    this.userRouter.post(UserRoutes.LOGIN, (req: Request, res: Response) => {
       userLoginController.loginUser(req, res);
     });
-    this.userRouter.post("/google-signup", (req: Request, res: Response) => {
+    this.userRouter.post(UserRoutes.GOOGLE_SIGNUP, (req: Request, res: Response) => {
       googleSignupController.googleSignin(req, res);
     });
-    this.userRouter.post("/verify-reset-otp", (req:Request, res:Response) =>
-      verifyingOtpController.verifyResetOtp(req, res)
+    this.userRouter.post(UserRoutes.VERIFY_REESET_OTP, (req:Request, res:Response) =>
+      userLoginController.verifyResetOtp(req, res)
     );
-    this.userRouter.post("/forgot-password", (req: Request, res: Response) =>
-      forgotpassController.forgotPassword(req, res)
+    this.userRouter.post(UserRoutes.FORGOT_PASSWORD, (req: Request, res: Response) =>
+      userLoginController.forgotPassword(req, res)
     );
-    this.userRouter.post("/reset-password", (req: Request, res: Response) =>
-      resetPasswordController.resetPassword(req, res)
+    this.userRouter.post(UserRoutes.RESET_PASSWORD, (req: Request, res: Response) =>
+      userLoginController.resetPassword(req, res)
     );
-    this.userRouter.get("/destinations",(req:Request,res:Response)=>{
+    this.userRouter.get(UserRoutes.GET_ALL_DESTINATIONS,(req:Request,res:Response)=>{
       destinationController.getAllDestination(req,res)
     })
-    this.userRouter.get("/profile",(req:Request,res:Response)=>{
+    this.userRouter.get(UserRoutes.PROFILE,(req:Request,res:Response)=>{
       userprofileController.GetProfile(req,res)
     })
-    this.userRouter.get("/destination/:id",(req:Request,res:Response)=>{
+    this.userRouter.get(UserRoutes.GET_SINGLE_DESTINATION,(req:Request,res:Response)=>{
       destinationController.getSingleDestinationController(req,res)
     })
-    this.userRouter.post("/resend-otp",(req:Request,res:Response)=>{
+    this.userRouter.post(UserRoutes.RESEND_OTP,(req:Request,res:Response)=>{
       userRegisterController.resendOtp(req,res)
     })
-    this.userRouter.get("/destination/:id",(req:Request,res:Response)=>{
+    this.userRouter.get(UserRoutes.GET_ALL_PACKAGES,(req:Request,res:Response)=>{
       getpackageByDestinationController.getPackages(req,res)
     })
-    this.userRouter.patch("/profile/:id",(req:Request,res:Response)=>{
-      getusereditProfile.editProfileHandler(req,res)
+    this.userRouter.patch(UserRoutes.EDIT_PROFILE,(req:Request,res:Response)=>{
+      userprofileController.editProfileHandler(req,res)
     })
-    this.userRouter.post("/bookings/:packageId",(req:Request,res:Response)=>{
+    this.userRouter.post(UserRoutes.CREATE_BOOKING,(req:Request,res:Response)=>{
       bookingcontroller.createBooking(req,res)
     })
   }

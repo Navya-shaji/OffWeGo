@@ -4,6 +4,7 @@ import { IDeleteBannerUsecase } from "../../../domain/interface/Banner/IDeleteBa
 import { IGetBannerUsecase } from "../../../domain/interface/Banner/IGetAllBannnersUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { Request, Response } from "express";
+
 export class Bannercontroller {
   constructor(
     private createBanner: IBannerCreateUsecase,
@@ -33,6 +34,7 @@ export class Bannercontroller {
         .json({ message: "Failed to get the banner" });
     }
   }
+
   async EditBanner(req:Request,res:Response){
     try {
       const BannerId=req.params.id
@@ -52,6 +54,7 @@ export class Bannercontroller {
       })
     }
   }
+  
   async BannerDelete(req:Request,res:Response){
     try {
       const {id}=req.params

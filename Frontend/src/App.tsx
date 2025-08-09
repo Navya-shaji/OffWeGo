@@ -5,21 +5,21 @@ import "react-toastify/dist/ReactToastify.css";
 import UserRoute from "./Routes/user/userRoutes";
 import AdminRoute from "./Routes/Admin/adminRoutes";
 import VendorRoute from "./Routes/Vendor/vendorRoutes";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { setUserFromSession } from "@/store/slice/user/authSlice";
+// import { useDispatch } from "react-redux";
+// import { useEffect } from "react";
+// import { setUserFromSession } from "@/store/slice/user/authSlice";
 
 function App() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      dispatch(setUserFromSession({ user: JSON.parse(storedUser) }));
-    } else {
-      dispatch(setUserFromSession({ user: null }));
-    }
-  }, [dispatch]);
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   if (storedUser) {
+  //     dispatch(setUserFromSession({ user: JSON.parse(storedUser) }));
+  //   } else {
+  //     dispatch(setUserFromSession({ user: null }));
+  //   }
+  // }, [dispatch]);
 
   const route = createBrowserRouter([
     {
