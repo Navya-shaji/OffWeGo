@@ -14,7 +14,7 @@ import {
 import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
 import { JwtSevice } from "../../services/jwtService";
 const TokenService = new JwtSevice();
-import { AdminRoutes } from "../Constants/AdminRouteContants";
+import { AdminRoutes } from "../Constants/AdminRouteConstants";
 
 export class AdminRoute {
   public adminRouter: Router;
