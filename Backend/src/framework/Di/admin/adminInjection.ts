@@ -1,6 +1,6 @@
 import { AdminRepository } from "../../../adapters/repository/Admin/AdminRepository";
 import { AdminLoginuseCase } from "../../../useCases/admin/Login/AdminLoginuseCase";
-import { AdminController } from "../../../adapters/controller/Admin/adminController";
+import { AdminController } from "../../../adapters/controller/Admin/AdminController";
 import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
 import { HashPassword } from "../../services/hashPassword";
 import { JwtSevice } from "../../services/jwtService";
@@ -36,6 +36,7 @@ import { SubscriptionController } from "../../../adapters/controller/Subscriptio
 import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
+import { SearchUserUSeCase } from "../../../useCases/admin/user/SearchUserUSecase";
 
 // Repositories
 const adminRepository = new AdminRepository();
@@ -75,11 +76,12 @@ const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
 const subscriptionusecase=new CreateSubscriptionPlanUseCase(subscriptionrepo)
 const getallsubscriptions=new GetAllSubscription(subscriptionrepo)
+const searchuser=new SearchUserUSeCase(userRepository)
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
 export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase,getAllVendorsUsecase,updateVendorStatusUseCase,vendorblockUnblockUsecase,vendorRepository);
-export const AdminuserController=new AdminUserController(getallusers,updateUserusecase);
+export const AdminuserController=new AdminUserController(getallusers,updateUserusecase,searchuser);
 export const destinationController = new DestinationController(
   createdestinationusecase,
   editDestination,           

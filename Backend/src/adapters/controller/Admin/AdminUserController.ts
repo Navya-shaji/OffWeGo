@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
 import { IUpdateUserUseCase } from "../../../domain/interface/admin/IUpdateUserUseCase";
+import { ISearchUserUsecase } from "../../../domain/interface/admin/ISerachUSerUsecase";
 
 export class AdminUserController {
   constructor(
     private _getAllUserUsecase: IGetAllUser,
-    private _updateUserStatusUseCase: IUpdateUserUseCase
+    private _updateUserStatusUseCase: IUpdateUserUseCase,
+    private _searchUserUsecase:ISearchUserUsecase
   ) {}
 
   async getAllUsers(req: Request, res: Response): Promise<void> {
@@ -47,6 +49,28 @@ export class AdminUserController {
       });
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+  async searchUser(req:Request,res:Response):Promise<void>{
+    try {
+      const query=req.query.q
+      if(typeof query!=='string' || !query.trim()){
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message:"The query will be string"
+        })
+        return 
+      }
+      const users=await this._searchUserUsecase.execute(query)
+
+      res.status(HttpStatus.OK).json({
+        success:true,
+        data:users
+      })
+    } catch (error) {
+       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: error instanceof Error ? error.message : "Unknown error",
       });

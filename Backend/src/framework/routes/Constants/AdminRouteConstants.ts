@@ -20,6 +20,6 @@ export const AdminRoutes={
     EDIT_BANNER:'/banner/:id',
     DELETE_BANNER:'/banner/:id',
     CREATE_SUBSCRIPTION:'/create-subscription',
-    GET_ALL_SUBSCRIPTIONS:'/subscriptions'
-
+    GET_ALL_SUBSCRIPTIONS:'/subscriptions',
+    SEARCH_USER:'/search'
 }

@@ -22,11 +22,18 @@ export class UserRepository implements IUserRepository {
       { $set: { password: newHashedPassword } }
     );
   }
-async getAllUsers(skip: number, limit: number, filter: Record<string, any> = {}): Promise<User[]> {
-  return await UserModel.find(filter).skip(skip).limit(limit);
-}
+  async getAllUsers(
+    skip: number,
+    limit: number,
+    filter: Record<string, any> = {}
+  ): Promise<User[]> {
+    return await UserModel.find(filter).skip(skip).limit(limit);
+  }
 
-   async updateUserStatus(userId: string, status: "active" | "block"): Promise<void> {
+  async updateUserStatus(
+    userId: string,
+    status: "active" | "block"
+  ): Promise<void> {
     const user = await UserModel.findById(userId);
     if (!user) {
       throw new Error("User not found");
@@ -35,10 +42,15 @@ async getAllUsers(skip: number, limit: number, filter: Record<string, any> = {})
     user.status = status;
     await user.save();
   }
-async countUsers(filter: Record<string, any> = {}): Promise<number> {
-  return await UserModel.countDocuments(filter);
-}
-  async getProfileByEmail(email:string): Promise<Profile | null>{
-    return await UserModel.findOne({email})
+  async countUsers(filter: Record<string, any> = {}): Promise<number> {
+    return await UserModel.countDocuments(filter);
+  }
+  async getProfileByEmail(email: string): Promise<Profile | null> {
+    return await UserModel.findOne({ email });
+  }
+  async searchUser(query:string):Promise<User[]>{
+    const regex=new RegExp(query,"i")
+    return UserModel.find({name:{$regex:regex},status:'active'}).select('name email ').limit(10).exec()
+
   }
 }

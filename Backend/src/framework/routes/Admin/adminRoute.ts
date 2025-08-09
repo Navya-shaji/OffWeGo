@@ -57,6 +57,9 @@ export class AdminRoute {
     AdminuserController.getAllUsers(req, res);
   });
 
+  this.adminRouter.get(AdminRoutes.SEARCH_USER,(req:Request,res:Response)=>{
+    AdminuserController.searchUser(req,res)
+  })
   this.adminRouter.patch(AdminRoutes.UPDATE_USER_STATUS, (req: Request, res: Response) => {
     AdminuserController.updateStatus(req, res);
   });
