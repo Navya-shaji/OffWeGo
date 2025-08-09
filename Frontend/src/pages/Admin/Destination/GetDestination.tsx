@@ -3,14 +3,16 @@ import {
   fetchAllDestinations,
   updateDestination,
   deleteDestination,
+  searchDestination,
 } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { Edit, Trash } from "lucide-react";
 import { EditDestinationModal } from "./destinationModal";
 import Pagination from "@/components/pagination/pagination";
+import { SearchBar } from "@/components/Modular/searchbar";
 
 export const DestinationTable = () => {
-const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
+  const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -18,6 +20,26 @@ const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
     useState<DestinationInterface | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+
+    const handleSearch = async (query: string) => {
+      if (!query.trim()) {
+        const allDestinations = await fetchAllDestinations(page,5)
+        setDestinations(allDestinations.destinations);
+        return;
+      }
+  
+      try {
+        const response = await searchDestination(query);
+        setDestinations(response || []);
+      } catch (error) {
+        console.error("Error during search:", error);
+        setDestinations([]);
+      }
+    };
+
+
+
 
   const fetchData = async () => {
     setLoading(true);
@@ -59,11 +81,11 @@ const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
 
     try {
       await deleteDestination(id);
-      alert("Destination deleted successfully");
+      
       fetchData();
     } catch (error) {
       console.error("Failed to delete destination:", error);
-      alert("Failed to delete destination");
+      
     }
   };
 
@@ -87,86 +109,102 @@ const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   if (loading) return <p className="text-center py-4">Loading...</p>;
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">All Destinations</h2>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {Array.isArray(destinations) && destinations.length > 0 ? (
-              destinations.map((dest) => (
-                <tr key={dest.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="h-16 w-16">
-                      {Array.isArray(dest.imageUrls) && dest.imageUrls.length > 0 ? (
-                        <img
-                          src={dest.imageUrls[0]}
-                          alt={dest.name}
-                          className="h-16 w-16 object-cover rounded-lg border"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
-                          No Image
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">{dest.name}</td>
-                  <td className="px-6 py-4">{dest.location}</td>
-                  <td className="px-6 py-4 max-w-xs">{dest.description}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(dest)}
-                        className="p-2 hover:bg-blue-50 rounded-lg"
-                        title="Edit"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(dest.id)}
-                        className="p-2 hover:bg-red-50 rounded-lg"
-                        title="Delete"
-                      >
-                        <Trash size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-4 text-gray-500">
-                  No destinations found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {isEditModalOpen && selectedDestination && (
-        <EditDestinationModal
-          destination={selectedDestination}
-          onClose={() => setIsEditModalOpen(false)}
-          onChange={(updated) => setSelectedDestination(updated)}
-          onSubmit={handleUpdate}
-        />
-      )}
-
-      <Pagination total={totalPages} current={page} setPage={setPage} />
+   <div className="p-4">
+  {/* Header and Search */}
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-xl font-semibold">All Destinations</h2>
+    <div className="w-60">
+      <SearchBar placeholder="Search destinations..." onSearch={handleSearch} />
     </div>
-  );
+  </div>
+
+  <div className="overflow-x-auto">
+    <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow">
+      <thead className="bg-gray-50">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Image
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Name
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Location
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Description
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {Array.isArray(destinations) && destinations.length > 0 ? (
+          destinations.map((dest) => (
+            <tr key={dest.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4">
+                <div className="h-16 w-16">
+                  {Array.isArray(dest.imageUrls) && dest.imageUrls.length > 0 ? (
+                    <img
+                      src={dest.imageUrls[0]}
+                      alt={dest.name}
+                      className="h-16 w-16 object-cover rounded-lg border"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400">
+                      No Image
+                    </div>
+                  )}
+                </div>
+              </td>
+              <td className="px-6 py-4">{dest.name}</td>
+              <td className="px-6 py-4">{dest.location}</td>
+              <td className="px-6 py-4 max-w-xs">{dest.description}</td>
+              <td className="px-6 py-4">
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(dest)}
+                    className="p-2 hover:bg-blue-50 rounded-lg"
+                    title="Edit"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(dest.id)}
+                    className="p-2 hover:bg-red-50 rounded-lg"
+                    title="Delete"
+                  >
+                    <Trash size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={5} className="text-center py-4 text-gray-500">
+              No destinations found.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+
+  {isEditModalOpen && selectedDestination && (
+    <EditDestinationModal
+      destination={selectedDestination}
+      onClose={() => setIsEditModalOpen(false)}
+      onChange={(updated) => setSelectedDestination(updated)}
+      onSubmit={handleUpdate}
+    />
+  )}
+
+  <Pagination total={totalPages} current={page} setPage={setPage} />
+</div>
+  )
 };

@@ -1,5 +1,6 @@
 import { IDestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { CreateDestinationDTO } from "../../dto/admin/DestinationDTO";
+import { Destination } from "../../entities/DestinationEntity";
 
 
 export interface IDestinationRepository {
@@ -9,4 +10,5 @@ export interface IDestinationRepository {
   countDestinations(): Promise<number>;
   delete(id: string): Promise<void>;
   getDestination(id:string):Promise<IDestinationModel |null>
+  searchDestination(query:string):Promise<Destination[]>
 }

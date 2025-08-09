@@ -119,3 +119,9 @@ export const deleteDestination = async (id: string): Promise<void> => {
   }
 };
 
+export const searchDestination=async(query:string)=>{
+const response=await axiosInstance.get('/api/admin/destination/search',{
+  params:{q:query}
+})
+return response.data.data
+}

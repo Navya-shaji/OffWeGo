@@ -73,7 +73,9 @@ export class AdminRoute {
   this.adminRouter.put(AdminRoutes.EDIT_DESTINATION, (req: Request, res: Response) => {
     destinationController.editDestinationHandler(req, res);
   });
-
+  this.adminRouter.get(AdminRoutes.SEARCH_DESTINATION,(req:Request,res:Response)=>{
+    destinationController.searchDestination(req,res)
+  })
   this.adminRouter.patch(AdminRoutes.BLOCK_UNBLOCK_VENDOR, (req: Request, res: Response) => {
     adminVendorController.blockOrUnblockVendor(req,res)
   });

@@ -33,7 +33,8 @@ export const BannerForm = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
       
-
+  <h2 className="text-xl font-bold mb-4">Banner Listing</h2>
+  
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm border border-gray-200 rounded-md overflow-hidden">
           <thead className="bg-gray-50 text-gray-700">

@@ -22,5 +22,6 @@ export const AdminRoutes={
     CREATE_SUBSCRIPTION:'/create-subscription',
     GET_ALL_SUBSCRIPTIONS:'/subscriptions',
     SEARCH_USER:'/user/search',
-    SEARCH_VENDOR:'/vendors/search'
+    SEARCH_VENDOR:'/vendors/search',
+    SEARCH_DESTINATION:'/destination/search'
 }
