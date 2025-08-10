@@ -9,6 +9,8 @@ import PackagesTable from "./package-table";
 import { fetchPackages } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import { CreateDestination } from "../Admin/Destination/CreateDestination";
+import CreateHotel from "./add-Hotel";
+import HotelsTable from "./getAllHotels";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -32,6 +34,8 @@ function Dashboard() {
           {activeTab === "All Packages" && <PackagesTable packages={packages} />}
           {activeTab === "All Destinations" && <DestinationTable />}
           {activeTab=="Add Destination" && <CreateDestination/>}
+          {activeTab=='Create Hotel' && <CreateHotel/>}
+          {activeTab=='All Hotels' && <HotelsTable/>}
         </div>
       </div>
     </div>

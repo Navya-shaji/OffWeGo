@@ -66,6 +66,9 @@ export class VendorRoute {
     this.vendorRouter.post(VendorRoutes.CREATE_HOTEL,(req:Request,res:Response)=>{
       hotelcontroller.createHotels(req,res)
     })
+    this.vendorRouter.get(VendorRoutes.HOTELS,(req:Request,res:Response)=>{
+     hotelcontroller.getHotels(req,res)
+   })
     this.vendorRouter.post(VendorRoutes.CREATE_ACTIVITY,(req:Request,res:Response)=>{
       activitycontroller.createActivities(req,res)
     })
