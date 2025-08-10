@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
+  activitycontroller,
+  hotelcontroller,
   packagecontroller,
   packagewisegroupcontroller,
   vendorloginController,
@@ -60,6 +62,12 @@ export class VendorRoute {
     })
     this.vendorRouter.get(VendorRoutes.PACKAGE_WISE_GROUPS,(req:Request,res:Response)=>{
       packagewisegroupcontroller.GetPackageWiseGroups(req,res)
+    })
+    this.vendorRouter.post(VendorRoutes.CREATE_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.createHotels(req,res)
+    })
+    this.vendorRouter.post(VendorRoutes.CREATE_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.createActivities(req,res)
     })
   } 
 }

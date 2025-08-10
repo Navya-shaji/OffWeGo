@@ -11,5 +11,7 @@ export const VendorRoutes={
     DELET_PACKAGE:'/packages/:id',
     EDIT_PROFILE:'/profile/:id',
     PACKAGE_WISE_GROUPING:'/package-groups',
-    PACKAGE_WISE_GROUPS:'/package-group/:id'
+    PACKAGE_WISE_GROUPS:'/package-group/:id',
+    CREATE_HOTEL:'/add-hotel',
+    CREATE_ACTIVITY:'/add-activity'
 }

@@ -24,6 +24,12 @@ import { PackageWiseGroupingController } from "../../../adapters/controller/pack
 import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
 import { PackageWiseGrouping } from "../../../adapters/repository/package/PackagewiseGroupingRepository";
 import { GetAllPackageWiseGroup } from "../../../useCases/package/GetAllPackageWiseGroupsusecase";
+import { CreateHotelUsecase } from "../../../useCases/Hotel/createHotelUsecase";
+import { HotelRepository } from "../../../adapters/repository/Hotel/HotelRepository";
+import { ActivityRepository } from "../../../adapters/repository/Activity/ActivityRepository";
+import { HotelController } from "../../../adapters/controller/packages/HotelController";
+import { ActivityController } from "../../../adapters/controller/packages/ActivityController";
+import { createActivityUsecase } from "../../../useCases/Activity/createActivityUsecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -33,6 +39,8 @@ const jwtService = new JwtSevice();
 const destinationRepo=new DestinationRepository()
 const packageRepo=new PackageRepository()
 const groupRepo=new PackageWiseGrouping()
+const hotelRepo=new HotelRepository()
+const activityRepo=new ActivityRepository()
 
 //  Use Cases
 const vendorSignupUsecase = new VendorRegisterUseCase(vendorRepository, otpService,hashPassword);
@@ -47,6 +55,8 @@ const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
 const packagewisegroupusecase=new CreatePackageWiseGroup(groupRepo)
 const getallpackagewisegroups=new GetAllPackageWiseGroup(groupRepo)
+const createHotelUsecase=new CreateHotelUsecase(hotelRepo)
+const createactivityUsecase=new createActivityUsecase(activityRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -54,6 +64,7 @@ export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVer
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
-export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage)
-export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups)
-
+export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage);
+export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
+export const hotelcontroller=new HotelController(createHotelUsecase);
+export const activitycontroller=new ActivityController(createactivityUsecase)

@@ -1,0 +1,12 @@
+import { Schema } from "mongoose";
+
+export const HotelSchema=new Schema({
+    hotelId: { type: String, required: true },
+        name: { type: String, required: true },
+        address: { type: String, required: true },
+        rating: { type: Number, required: true },
+        destinationId: {
+          type: String,
+          required: true,
+        }
+})
