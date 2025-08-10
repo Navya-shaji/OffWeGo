@@ -1,6 +1,7 @@
 export interface Activity {
-  activityId: string;
+  activityId?: string;
   title: string;
   description: string;
-  destinationId: string;
+  destinationId?: string;
+  imageUrl?:string
 }

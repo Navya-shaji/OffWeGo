@@ -11,6 +11,8 @@ import type { AppDispatch, RootState } from "@/store/store";
 import { CreateDestination } from "../Admin/Destination/CreateDestination";
 import CreateHotel from "./add-Hotel";
 import HotelsTable from "./getAllHotels";
+import AddActivity from "./add-Activity";
+import ActivitiesTable from "./getAllActivities";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -36,6 +38,8 @@ function Dashboard() {
           {activeTab=="Add Destination" && <CreateDestination/>}
           {activeTab=='Create Hotel' && <CreateHotel/>}
           {activeTab=='All Hotels' && <HotelsTable/>}
+          {activeTab=='Create Activity' && <AddActivity/>}
+          {activeTab=='All Activities' && <ActivitiesTable/>}
         </div>
       </div>
     </div>

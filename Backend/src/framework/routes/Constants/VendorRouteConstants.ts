@@ -14,5 +14,6 @@ export const VendorRoutes={
     PACKAGE_WISE_GROUPS:'/package-group/:id',
     CREATE_HOTEL:'/add-hotel',
     CREATE_ACTIVITY:'/add-activity',
-    HOTELS:'/hotels'
+    HOTELS:'/hotels',
+    ACTIVITIES:'/activities'
 }

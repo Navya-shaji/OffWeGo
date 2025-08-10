@@ -5,5 +5,6 @@ export const mapToActivityDto=(doc:IActivityModel):Activity=>({
     activityId:doc.activityId,
     title:doc.title,
     description:doc.description,
-    destinationId:doc.destinationId
+    destinationId:doc.destinationId,
+    imageUrl:doc.imageUrl
 })

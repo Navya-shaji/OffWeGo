@@ -10,6 +10,7 @@ export interface Activity {
   title: string;
   description: string;
   destinationId ?: string;
+  imageUrl:string
 }
 
 
