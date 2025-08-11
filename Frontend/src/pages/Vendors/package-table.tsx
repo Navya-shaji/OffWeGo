@@ -91,9 +91,9 @@ console.log("First package", packages)
 
                 
                 <td className="px-6 py-4">
-                  {/* {pkg.hotelDetails && pkg.hotelDetails.length > 0 ? (
+                  {pkg.hotels && pkg.hotels.length > 0 ? (
                     <div className="space-y-1">
-                      {pkg.hotelDetails.slice(0, 2).map((hotel) => (
+                      {pkg.hotels.slice(0, 2).map((hotel) => (
                         <div key={hotel.hotelId} className="flex items-center gap-2 text-sm">
                           <Building className="w-3 h-3 text-blue-600 flex-shrink-0" />
                           <span className="font-medium text-gray-900 truncate max-w-32">{hotel.name}</span>
@@ -105,20 +105,17 @@ console.log("First package", packages)
                           )}
                         </div>
                       ))}
-                      {pkg.hotelDetails.length > 2 && (
-                        <div className="text-xs text-gray-500">+{pkg.hotelDetails.length - 2} more</div>
+                      {pkg.hotels.length > 2 && (
+                        <div className="text-xs text-gray-500">+{pkg.hotels.length - 2} more</div>
                       )}
                     </div>
                   ) : (
                     <div className="text-sm text-gray-400 italic">No hotels</div>
-                  )} */}
-                  <td>
-      {pkg.hotelDetails?.map(h => h.name).join(", ") || "No hotels"}
-    </td>
+                  )}
                 </td>
 
                
-                {/* <td className="px-6 py-4">
+                <td className="px-6 py-4">
                   {pkg.activities && pkg.activities.length > 0 ? (
                     <div className="space-y-1">
                       {pkg.activities.slice(0, 2).map((activity) => (
@@ -134,11 +131,9 @@ console.log("First package", packages)
                   ) : (
                     <div className="text-sm text-gray-400 italic">No activities</div>
                   )}
-                </td> */}
+                </td>
 
-                <td>
-      
-    </td>
+               
               </tr>
             ))}
           </tbody>

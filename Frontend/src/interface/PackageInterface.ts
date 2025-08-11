@@ -24,6 +24,6 @@ export interface Package {
   startDate: Date;
   endDate: Date;
   images: string[];
-  hotelDetails: Hotel[];
+  hotels: Hotel[];
   activities: Activity[];
 }
