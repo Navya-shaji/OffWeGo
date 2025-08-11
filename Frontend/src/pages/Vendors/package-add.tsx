@@ -23,7 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 
-// Import your actual services
+
 import { getAllHotel } from "@/services/Hotel/HotelService";
 import { getActivities } from "@/services/Activity/ActivityService"; 
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
@@ -156,10 +156,11 @@ const AddPackage: React.FC = () => {
         setDestinations(destinationsResult);
         setLoadingDestinations(false);
 
-        // Load hotels
+        
         let hotelsResult = [];
         try {
           const hotelsResponse = await getAllHotel();
+          
           hotelsResult = extractApiData(hotelsResponse);
         } catch (hotelsError) {
           console.error("Error loading hotels:", hotelsError);
@@ -168,7 +169,6 @@ const AddPackage: React.FC = () => {
         setAllHotels(hotelsResult);
         setLoadingHotels(false);
 
-        // Load activities
         let activitiesResult = [];
         try {
           const activitiesResponse = await getActivities();

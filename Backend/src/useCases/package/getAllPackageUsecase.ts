@@ -8,6 +8,6 @@ export class GetAllPackages implements IGetPackageUsecase {
   async execute(): Promise<IPackageModel[]> {
     const packages = await this.packageRepo.getAllPackages();
     console.log("packages usecase", packages);
-    return packages;
+    return packages
   }
 }

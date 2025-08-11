@@ -17,12 +17,8 @@ export const packageSchema = new Schema(
       type: [String],
       required: true,
     },
-    hotels: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Hotel",
-      },
-    ],
+hotels: [{ type: Schema.Types.ObjectId, ref: "Hotel" }],
+
     activities: [
       {
         type: Schema.Types.ObjectId,

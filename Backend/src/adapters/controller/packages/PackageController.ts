@@ -41,7 +41,7 @@ export class PackageController {
       packageData.destinationId = destination._id;
 
       let createdPackage = await this.createPackage.execute(packageData);
-
+console.log("createdPackage",createdPackage)
       res.status(HttpStatus.CREATED).json({ result: createdPackage });
     } catch (error) {
       console.error(error);
