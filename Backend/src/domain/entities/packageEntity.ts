@@ -1,5 +1,5 @@
-import { Activity } from "./ActivityEntity";
 import { Hotel } from "./HotelEntity";
+import { Activity } from "./ActivityEntity";
 
 export interface Package {
   id: string;
@@ -11,6 +11,7 @@ export interface Package {
   startDate: Date;
   endDate: Date;
   images: string[];
-  hotelDetails: Hotel[];
-  activities: Activity[];
+
+  hotels: Hotel[]; 
+  activities: Activity[]; 
 }

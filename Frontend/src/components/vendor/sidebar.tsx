@@ -41,7 +41,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       </div>
 
       <nav className="mt-6">
-        {/* Main Menu Items */}
+     
         {menuItems.map((item, index) => (
           <button
             key={index}

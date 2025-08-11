@@ -1,9 +1,9 @@
-import { Package } from "../../domain/entities/packageEntity"; 
+import { Package } from "../../domain/entities/packageEntity";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
 
 export const mapToPackageDto = (doc: IPackageModel): Package => ({
   id: doc._id.toString(),
-  destinationId: doc.destinationId,
+  destinationId: doc.destinationId.toString(),
   packageName: doc.packageName,
   description: doc.description,
   price: doc.price,
@@ -11,17 +11,17 @@ export const mapToPackageDto = (doc: IPackageModel): Package => ({
   startDate: doc.startDate,
   endDate: doc.endDate,
   images: doc.images,
-  hotelDetails: doc.hotelDetails.map(hotel => ({
-    hotelId: hotel.hotelId,
+  hotels: doc.hotels.map(hotel => ({
+    
     name: hotel.name,
     address: hotel.address,
     rating: hotel.rating,
-    destinationId: hotel.destinationId,
+   
   })),
   activities: doc.activities.map(activity => ({
-    activityId: activity.activityId,
+   
     title: activity.title,
     description: activity.description,
-    destinationId: activity.destinationId,
+   
   })),
 });

@@ -34,7 +34,7 @@ export const fetchAllDestinations = async (
     });
 
     const { destinations, totalDestinations, totalPages, currentPage } = res.data;
-
+ console.log(res)
     if (!Array.isArray(destinations)) {
       console.error("Expected destinations to be an array, got:", destinations);
       return {

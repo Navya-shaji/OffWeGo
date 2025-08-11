@@ -5,8 +5,10 @@ import { mapToPackageDto } from "../../mappers/packages/mapTopackages";
 export class CreatePackagesUseCase {
   constructor(private packageRepo: IPackageRepository) {}
 
-  async execute(data: Package): Promise<Package> {
-    const created = await this.packageRepo.createPackage(data);
-    return mapToPackageDto(created);
-  }
+async execute(data: Package): Promise<Package> {
+  const createdDoc = await this.packageRepo.createPackage(data);
+  return mapToPackageDto(createdDoc); // map populated document to plain Package DTO
+}
+
+
 }

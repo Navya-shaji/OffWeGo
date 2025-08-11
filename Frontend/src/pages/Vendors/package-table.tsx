@@ -14,7 +14,7 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
       maximumFractionDigits: 0,
     }).format(amount)
   }
-
+console.log("packages",packages)
 
   if (packages.length === 0) {
     return (
@@ -25,6 +25,7 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
       </div>
     )
   }
+console.log("First package", packages)
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
@@ -90,7 +91,7 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
 
                 
                 <td className="px-6 py-4">
-                  {pkg.hotelDetails && pkg.hotelDetails.length > 0 ? (
+                  {/* {pkg.hotelDetails && pkg.hotelDetails.length > 0 ? (
                     <div className="space-y-1">
                       {pkg.hotelDetails.slice(0, 2).map((hotel) => (
                         <div key={hotel.hotelId} className="flex items-center gap-2 text-sm">
@@ -110,11 +111,14 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
                     </div>
                   ) : (
                     <div className="text-sm text-gray-400 italic">No hotels</div>
-                  )}
+                  )} */}
+                  <td>
+      {pkg.hotelDetails?.map(h => h.name).join(", ") || "No hotels"}
+    </td>
                 </td>
 
                
-                <td className="px-6 py-4">
+                {/* <td className="px-6 py-4">
                   {pkg.activities && pkg.activities.length > 0 ? (
                     <div className="space-y-1">
                       {pkg.activities.slice(0, 2).map((activity) => (
@@ -130,9 +134,11 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
                   ) : (
                     <div className="text-sm text-gray-400 italic">No activities</div>
                   )}
-                </td>
+                </td> */}
 
-               
+                <td>
+      
+    </td>
               </tr>
             ))}
           </tbody>

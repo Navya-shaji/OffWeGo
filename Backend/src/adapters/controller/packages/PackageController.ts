@@ -16,6 +16,7 @@ export class PackageController {
   async getAllPackage(req: Request, res: Response) {
     try {
       const result = await this.getPackage.execute();
+      console.log("allpackage", result);
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
@@ -27,33 +28,31 @@ export class PackageController {
   async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
-   
+      console.log("packageData", packageData);
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
       );
-
       if (!destination) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          message: "Destination not found",
-        });
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: "Destination not found" });
       }
+      packageData.destinationId = destination._id;
 
-      packageData.destination = destination._id;
+      let createdPackage = await this.createPackage.execute(packageData);
 
-      const result = await this.createPackage.execute(packageData);
-      
-
-      res.status(HttpStatus.CREATED).json({ result });
+      res.status(HttpStatus.CREATED).json({ result: createdPackage });
     } catch (error) {
       console.error(error);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: "Failed to create package",
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
-  
+
   async EditPackage(req: Request, res: Response) {
     try {
       const packageId = req.params.id;
