@@ -8,14 +8,14 @@ import { IDeletePackagenUseCase } from "../../../domain/interface/vendor/IPackag
 
 export class PackageController {
   constructor(
-    private getPackage: IGetPackageUsecase,
-    private createPackage: ICreatePackage,
-    private editpackage: IEditPackageUsecase,
-    private deletepackage: IDeletePackagenUseCase
+    private _getPackage: IGetPackageUsecase,
+    private _createPackage: ICreatePackage,
+    private _editpackage: IEditPackageUsecase,
+    private _deletepackage: IDeletePackagenUseCase
   ) {}
   async getAllPackage(req: Request, res: Response) {
     try {
-      const result = await this.getPackage.execute();
+      const result = await this._getPackage.execute();
       console.log("allpackage", result);
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
@@ -28,7 +28,6 @@ export class PackageController {
   async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
-      console.log("packageData", packageData);
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
@@ -40,8 +39,8 @@ export class PackageController {
       }
       packageData.destinationId = destination._id;
 
-      let createdPackage = await this.createPackage.execute(packageData);
-console.log("createdPackage",createdPackage)
+      let createdPackage = await this._createPackage.execute(packageData);
+console.log("createdPackage-controller",createdPackage)
       res.status(HttpStatus.CREATED).json({ result: createdPackage });
     } catch (error) {
       console.error(error);
@@ -58,7 +57,7 @@ console.log("createdPackage",createdPackage)
       const packageId = req.params.id;
       const packageData = req.body;
 
-      const result = await this.editpackage.execute(packageId, packageData);
+      const result = await this._editpackage.execute(packageId, packageData);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -76,7 +75,7 @@ console.log("createdPackage",createdPackage)
   async deletePackage(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this.deletepackage.execute(id);
+      const result = await this._deletepackage.execute(id);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Deleted package successfully",

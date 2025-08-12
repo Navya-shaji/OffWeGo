@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Profile } from "./Vendorprofile";
 import  {DestinationTable}  from "../Admin/Destination/GetDestination";
-import AddPackage from "./package-add";
+
 import PackagesTable from "./package-table";
 import { fetchPackages } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
@@ -13,6 +13,7 @@ import CreateHotel from "./add-Hotel";
 import HotelsTable from "./getAllHotels";
 import AddActivity from "./add-Activity";
 import ActivitiesTable from "./getAllActivities";
+import AddPackage from "@/components/Packages/AddPAckage";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");

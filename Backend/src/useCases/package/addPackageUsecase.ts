@@ -6,8 +6,10 @@ export class CreatePackagesUseCase {
   constructor(private packageRepo: IPackageRepository) {}
 
 async execute(data: Package): Promise<Package> {
+  console.log("coming data",data)
   const createdDoc = await this.packageRepo.createPackage(data);
-  return mapToPackageDto(createdDoc); // map populated document to plain Package DTO
+  console.log("createdDoc",createdDoc)
+  return mapToPackageDto(createdDoc); 
 }
 
 
