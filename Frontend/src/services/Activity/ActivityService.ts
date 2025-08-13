@@ -43,11 +43,11 @@ export const updateActivity = async (id: string, data: Activity) => {
 
 export const deleteActivity = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`api/admin/activities/${id}`);
+    const response = await axiosInstance.delete(`api/vendor/activities/${id}`);
 
-    return response;
+    return response.data.data;
   } catch (error) {
-    console.error("Error inside deleteDestination", error);
+    console.error("Error inside delete activity", error);
     throw error;
   }
 };
