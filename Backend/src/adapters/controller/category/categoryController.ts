@@ -12,7 +12,7 @@ export class CreateCatogoryController {
     private _getcategory: IGetCategoryUsecase,
     private _editCategory: IEditCategoryUsecase,
     private _deleteCategory: IDeleteCategorynUseCase,
-    private _searchcategory:ISearchCategoryUsecase
+    private _searchcategory: ISearchCategoryUsecase
   ) {}
 
   async createCategory(req: Request, res: Response) {
@@ -32,7 +32,7 @@ export class CreateCatogoryController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const result = await this._getcategory.execute(page, limit);
-      
+
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
@@ -46,7 +46,7 @@ export class CreateCatogoryController {
       const categoryId = req.params.id;
       const categoryData = req.body;
       const result = await this._editCategory.execute(categoryId, categoryData);
-    
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Category updated successfully",
@@ -74,22 +74,22 @@ export class CreateCatogoryController {
     }
   }
 
-  async SearchCategory(req:Request,res:Response){
+  async SearchCategory(req: Request, res: Response) {
     try {
-      const query=req.query.q
-      if(typeof query!=='string' || !query.trim()){
+      const query = req.query.q;
+      if (typeof query !== "string" || !query.trim()) {
         res.status(HttpStatus.BAD_REQUEST).json({
-          message:"The query will be string"
-        })
-        return 
+          message: "The query will be string",
+        });
+        return;
       }
-      const category=await this._searchcategory.execute(query)
-         res.status(HttpStatus.OK).json({
-        success:true,
-        data:category
-      })
+      const category = await this._searchcategory.execute(query);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: category,
+      });
     } catch (error) {
-       res.status(HttpStatus.BAD_REQUEST).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: error instanceof Error ? error.message : "Unknown error",
       });

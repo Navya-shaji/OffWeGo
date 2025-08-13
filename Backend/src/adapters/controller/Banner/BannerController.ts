@@ -7,15 +7,15 @@ import { Request, Response } from "express";
 
 export class Bannercontroller {
   constructor(
-    private createBanner: IBannerCreateUsecase,
-    private getbannerUsecase: IGetBannerUsecase,
-    private  editBanner:IEditBannerUsecase,
-    private deleteBanner:IDeleteBannerUsecase
+    private _createBanner: IBannerCreateUsecase,
+    private _getbannerUsecase: IGetBannerUsecase,
+    private _editBanner: IEditBannerUsecase,
+    private _deleteBanner: IDeleteBannerUsecase
   ) {}
 
   async CreateBanner(req: Request, res: Response) {
     try {
-      const result = await this.createBanner.execute(req.body);
+      const result = await this._createBanner.execute(req.body);
       res.status(HttpStatus.OK).json({ result });
     } catch (error) {
       res
@@ -26,7 +26,7 @@ export class Bannercontroller {
 
   async getBanners(req: Request, res: Response) {
     try {
-      const result = await this.getbannerUsecase.execute();
+      const result = await this._getbannerUsecase.execute();
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
@@ -35,39 +35,39 @@ export class Bannercontroller {
     }
   }
 
-  async EditBanner(req:Request,res:Response){
+  async EditBanner(req: Request, res: Response) {
     try {
-      const BannerId=req.params.id
-      const BannerData=req.body
+      const BannerId = req.params.id;
+      const BannerData = req.body;
 
-      const result=await this.editBanner.execute(BannerId,BannerData)
+      const result = await this._editBanner.execute(BannerId, BannerData);
 
       res.status(HttpStatus.OK).json({
-        success:true,
-        message:"Banner updated successfully",
-        data:result
-      })
+        success: true,
+        message: "Banner updated successfully",
+        data: result,
+      });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success:false,
-        message:"Banner updation failed"
-      })
+        success: false,
+        message: "Banner updation failed",
+      });
     }
   }
-  
-  async BannerDelete(req:Request,res:Response){
+
+  async BannerDelete(req: Request, res: Response) {
     try {
-      const {id}=req.params
-      const result=this.deleteBanner.execute(id)
+      const { id } = req.params;
+      const result = this._deleteBanner.execute(id);
       res.status(HttpStatus.OK).json({
-        success:true,
-        message:"Banner deleted successsfully"
-      })
+        success: true,
+        message: "Banner deleted successsfully",
+      });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success:false,
-        message:"Banner deletion failed"
-      })
+        success: false,
+        message: "Banner deletion failed",
+      });
     }
   }
 }

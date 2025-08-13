@@ -75,5 +75,8 @@ export class VendorRoute {
        this.vendorRouter.get(VendorRoutes.ACTIVITIES,(req:Request,res:Response)=>{
       activitycontroller.getAllActivities(req,res)
     })
+    this.vendorRouter.put(VendorRoutes.EDIT_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.editActivities(req,res)
+    })
   } 
 }
