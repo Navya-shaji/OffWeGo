@@ -78,5 +78,8 @@ export class VendorRoute {
     this.vendorRouter.put(VendorRoutes.EDIT_ACTIVITY,(req:Request,res:Response)=>{
       activitycontroller.editActivities(req,res)
     })
+    this.vendorRouter.delete(VendorRoutes.DELETE_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.deleteActivity(req,res)
+    })
   } 
 }

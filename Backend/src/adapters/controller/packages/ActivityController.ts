@@ -1,4 +1,5 @@
 import { IcreateActivityUsecase } from "../../../domain/interface/vendor/IcreateactivityUsecase";
+import { IdeleteActivity } from "../../../domain/interface/vendor/IdeleteActivityUsecase";
 import { IEditActivityUsecase } from "../../../domain/interface/vendor/IeditActivityUsecase";
 import { IGetAllActivities } from "../../../domain/interface/vendor/IgetallActivitiesUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
@@ -8,7 +9,8 @@ export class ActivityController {
   constructor(
     private _creatActivity: IcreateActivityUsecase,
     private _getallActivities: IGetAllActivities,
-    private _editActivity: IEditActivityUsecase
+    private _editActivity: IEditActivityUsecase,
+    private _deleteActivity: IdeleteActivity
   ) {}
 
   async createActivities(req: Request, res: Response) {
@@ -60,6 +62,18 @@ export class ActivityController {
         success: false,
         message: "Failed to update Activity",
       });
+    }
+  }
+  async deleteActivity(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      const result = await this._deleteActivity.execute(id);
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Failed to delete Activity" });
     }
   }
 }

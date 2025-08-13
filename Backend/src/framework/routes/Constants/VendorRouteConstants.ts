@@ -16,5 +16,6 @@ export const VendorRoutes={
     CREATE_ACTIVITY:'/add-activity',
     HOTELS:'/hotels',
     ACTIVITIES:'/activities',
-    EDIT_ACTIVITY:'/activities/:id'
+    EDIT_ACTIVITY:'/activities/:id',
+    DELETE_ACTIVITY:'/activities/:id'
 }
