@@ -34,6 +34,8 @@ import { GetHotelUsecase } from "../../../useCases/Hotel/getHotelUsecase";
 import { GetAllActivitiesUsecase } from "../../../useCases/Activity/getallActivitiesusecase";
 import { EditActivity } from "../../../useCases/Activity/editActivityUsecase";
 import { DeleteActivity } from "../../../useCases/Activity/deleteActivityUsecase";
+import { EditHotelusecase } from "../../../useCases/Hotel/editHotelUsecase";
+import { DeleteHotelUsecase } from "../../../useCases/Hotel/deleteHotelusecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -45,6 +47,7 @@ const packageRepo=new PackageRepository()
 const groupRepo=new PackageWiseGrouping()
 const hotelRepo=new HotelRepository()
 const activityRepo=new ActivityRepository()
+
 
 //  Use Cases
 const vendorSignupUsecase = new VendorRegisterUseCase(vendorRepository, otpService,hashPassword);
@@ -65,6 +68,8 @@ const getallHotels=new GetHotelUsecase(hotelRepo)
 const getallActivities=new GetAllActivitiesUsecase(activityRepo)
 const editActivityusecase=new EditActivity(activityRepo)
 const deleteactivityusecase=new DeleteActivity(activityRepo)
+const editHotelusecase=new EditHotelusecase(hotelRepo)
+const deletehotelusecase=new DeleteHotelUsecase(hotelRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -74,5 +79,5 @@ export const vendorloginController=new VendorLoginController(vendorloginusecase)
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage);
 export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
-export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels);
+export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase)

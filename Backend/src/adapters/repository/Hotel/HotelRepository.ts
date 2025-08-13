@@ -9,4 +9,16 @@ export class HotelRepository implements IHotelRepository{
     async getAllHotel(): Promise<IHotelModel[]> {
         return await HotelModel.find()
     }
+    async edit(
+        id: string,
+        updatedData: Partial<Hotel>
+      ): Promise<IHotelModel | null> {
+        return await HotelModel.findByIdAndUpdate(id, updatedData, {
+          new: true,
+        });
+      }
+    
+      async delete(id: string): Promise<void> {
+        await HotelModel.findByIdAndDelete(id);
+      }
 }
