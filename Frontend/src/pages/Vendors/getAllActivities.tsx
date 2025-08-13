@@ -38,7 +38,7 @@ const ActivitiesTable: React.FC = () => {
     fetchActivities();
   }, []);
 
-  // Open edit modal
+
   const handleEdit = (activity: Activity) => {
     setSelectedActivity(activity);
     setFormData({
@@ -138,12 +138,7 @@ const handleDelete = async (_id?: string) => {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Description"
             />
-            <input
-              className="border p-2 w-full mb-2"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="Image URL"
-            />
+        
             <div className="flex justify-end gap-2">
               <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded">
                 Cancel

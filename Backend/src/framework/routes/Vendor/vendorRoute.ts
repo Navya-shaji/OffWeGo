@@ -81,5 +81,11 @@ export class VendorRoute {
     this.vendorRouter.delete(VendorRoutes.DELETE_ACTIVITY,(req:Request,res:Response)=>{
       activitycontroller.deleteActivity(req,res)
     })
+    this.vendorRouter.put(VendorRoutes.EDIT_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.editHotel(req,res)
+    })
+    this.vendorRouter.delete(VendorRoutes.DELETE_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.deleteHotel(req,res)
+    })
   } 
 }

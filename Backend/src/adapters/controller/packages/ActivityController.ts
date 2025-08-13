@@ -3,14 +3,14 @@ import { IdeleteActivity } from "../../../domain/interface/vendor/IdeleteActivit
 import { IEditActivityUsecase } from "../../../domain/interface/vendor/IeditActivityUsecase";
 import { IGetAllActivities } from "../../../domain/interface/vendor/IgetallActivitiesUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { Request, response, Response } from "express";
+import { Request, Response } from "express";
 
 export class ActivityController {
   constructor(
     private _creatActivity: IcreateActivityUsecase,
     private _getallActivities: IGetAllActivities,
     private _editActivity: IEditActivityUsecase,
-    private _deleteActivity: IdeleteActivity
+    private _deleteActivity:IdeleteActivity
   ) {}
 
   async createActivities(req: Request, res: Response) {
@@ -64,16 +64,19 @@ export class ActivityController {
       });
     }
   }
-  async deleteActivity(req: Request, res: Response) {
+  async deleteActivity(req:Request,res:Response){
     try {
-      const { id } = req.params;
+      const {id} =req.params
 
-      const result = await this._deleteActivity.execute(id);
-      return res.status(HttpStatus.OK).json(result);
+      const result=await this._deleteActivity.execute(id)
+      
+      
+      return res.status(HttpStatus.OK).json(result)
     } catch (error) {
-      res
+            res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Failed to delete Activity" });
     }
+    
   }
 }

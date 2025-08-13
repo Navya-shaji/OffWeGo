@@ -34,10 +34,10 @@ export const updateActivity = async (id: string, data: Activity) => {
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.error || "Failed to update destination"
+        error.response?.data?.error || "Failed to update activity"
       );
     }
-    throw new Error("An unexpected error occurred while updating destination");
+    throw new Error("An unexpected error occurred while updating activity");
   }
 };
 

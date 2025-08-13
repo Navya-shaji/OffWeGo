@@ -6,6 +6,7 @@ export class DeleteActivity implements IdeleteActivity{
 
   async execute(id: string): Promise<{ success: boolean; message: string; }> {
       const result=await this.ActivityRepo.delete(id)
+     
 
         return {success:true,message:"Activity deleted successfully"}
   }
