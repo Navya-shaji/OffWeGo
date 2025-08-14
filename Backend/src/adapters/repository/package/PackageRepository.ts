@@ -9,12 +9,19 @@ export class PackageRepository implements IPackageRepository {
     return created;
   }
 
-  async getAllPackages(): Promise<IPackageModel[]> {
-    return packageModel
-      .find()
-      .populate("hotels")
-      .populate("activities")
-      .exec();
+  async getAllPackages(skip: number, limit: number): Promise<{ packages: IPackageModel[], totalPackages: number }> {
+    const [packages, totalPackages] = await Promise.all([
+      packageModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .populate("hotels")
+        .populate("activities")
+        .exec(),
+      packageModel.countDocuments()
+    ]);
+
+    return { packages, totalPackages };
   }
 
   async getPackagesByDestination(destination: string): Promise<IPackageModel[]> {
@@ -29,14 +36,17 @@ export class PackageRepository implements IPackageRepository {
     await packageModel.findByIdAndDelete(id);
   }
 
-async searchPackage(query: string): Promise<Package[]> {
-  const regex = new RegExp(query, "i");
-  return packageModel
-    .find({ name: { $regex: regex } })
-    .select("packageName")
-    .limit(10)
-    .lean() 
-    .exec();
-}
+  async searchPackage(query: string): Promise<Package[]> {
+    const regex = new RegExp(query, "i");
+    return packageModel
+      .find({ packageName: { $regex: regex } })
+      .select("packageName")
+      .limit(10)
+      .lean()
+      .exec();
+  }
 
+  async countPackages(): Promise<number> {
+    return packageModel.countDocuments();
+  }
 }

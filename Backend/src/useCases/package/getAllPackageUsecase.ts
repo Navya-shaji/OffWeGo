@@ -1,13 +1,16 @@
 import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
-import { IGetPackageUsecase } from "../../domain/interface/vendor/IGetPackageUsecase";
+import { IGetAllPackageUsecase } from "../../domain/interface/vendor/IGetAllPackageUsecase";
 
-export class GetAllPackages implements IGetPackageUsecase {
+export class GetAllPackages implements IGetAllPackageUsecase {
   constructor(private packageRepo: IPackageRepository) {}
 
-  async execute(): Promise<IPackageModel[]> {
-    const packages = await this.packageRepo.getAllPackages();
+  async execute(page: number, limit: number): Promise<{ packages: IPackageModel[], totalPackages: number }> {
+    const skip = (page - 1) * limit;
+
+    const { packages, totalPackages } = await this.packageRepo.getAllPackages(skip, limit);
     console.log("packages usecase", packages);
-    return packages
+
+    return { packages, totalPackages };
   }
 }

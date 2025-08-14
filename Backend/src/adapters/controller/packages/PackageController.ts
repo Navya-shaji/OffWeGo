@@ -1,15 +1,15 @@
 import { ICreatePackage } from "../../../domain/interface/vendor/IAddPackageUsecase";
-import { IGetPackageUsecase } from "../../../domain/interface/vendor/IGetPackageUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { Request, Response } from "express";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { IEditPackageUsecase } from "../../../domain/interface/vendor/IPackageEditUsecase";
 import { IDeletePackagenUseCase } from "../../../domain/interface/vendor/IPackageDeleteUsecase";
 import { ISearchPackageUsecase } from "../../../domain/interface/vendor/IPackagesearchUsecase";
+import { IGetAllPackageUsecase } from "../../../domain/interface/vendor/IGetAllPackageUsecase";
 
 export class PackageController {
   constructor(
-    private _getPackage: IGetPackageUsecase,
+    private _getPackage: IGetAllPackageUsecase,
     private _createPackage: ICreatePackage,
     private _editpackage: IEditPackageUsecase,
     private _deletepackage: IDeletePackagenUseCase,
@@ -17,7 +17,9 @@ export class PackageController {
   ) {}
   async getAllPackage(req: Request, res: Response) {
     try {
-      const result = await this._getPackage.execute();
+        const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const result = await this._getPackage.execute(page,limit);
 
       res.status(HttpStatus.OK).json(result);
     } catch (error) {

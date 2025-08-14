@@ -1,10 +1,11 @@
 import { IPackageModel } from "../../../framework/database/Models/packageModel";
 import { Package } from "../../entities/packageEntity";
 
-export interface IPackageRepository{
-    createPackage(data:Package):Promise<IPackageModel>
-    getAllPackages():Promise<IPackageModel[]>
+export interface IPackageRepository {
+    createPackage(data: Package): Promise<IPackageModel>;
+    getAllPackages(skip: number, limit: number): Promise<{ packages: IPackageModel[], totalPackages: number }>;
     getPackagesByDestination(destination: string): Promise<IPackageModel[]>;
     delete(id: string): Promise<void>;
-    searchPackage(query:string):Promise<Package[]>
+    searchPackage(query: string): Promise<Package[]>;
+    countPackages(): Promise<number>;
 }
