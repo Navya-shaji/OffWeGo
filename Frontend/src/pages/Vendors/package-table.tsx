@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { Package } from "@/interface/PackageInterface";
 import { MapPin, Clock, Edit, Trash2 } from "lucide-react";
 import {
@@ -10,17 +10,16 @@ import {
 import { toast } from "react-toastify";
 import { EditPackageModal } from "./editPackageModal";
 import { SearchBar } from "@/components/Modular/searchbar";
+import Pagination from "@/components/pagination/pagination";
+import ReusableTable from "@/components/Modular/Table"; 
+import type { ColumnDef } from "@tanstack/react-table";
 
-
-type PackageTableProps = {
-  packages: Package[];
-};
-
-const PackagesTable: React.FC<PackageTableProps> = () => {
-  const [packages,setPackages]=useState<Package[]>([])
-
+const PackagesTable: React.FC = () => {
+  const [packages, setPackages] = useState<Package[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages] = useState(1);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
@@ -29,25 +28,34 @@ const PackagesTable: React.FC<PackageTableProps> = () => {
       maximumFractionDigits: 0,
     }).format(amount);
 
+  useEffect(() => {
+    loadPackages();
+  }, []);
+
+  const loadPackages = async () => {
+    const allPackages = await fetchAllPackages();
+    setPackages(allPackages?.packages ?? []);
+  };
+
   const handleEditClick = (pkg: Package) => {
     setSelectedPackage(pkg);
     setIsEditModalOpen(true);
   };
 
-const handleSearch = async (query: string) => {
-  if (!query.trim()) {
-    const allPackages = await fetchAllPackages();
-    setPackages(allPackages?.packages ?? []); // default to empty array
-    return;
-  }
-  try {
-    const response = await searchPackages(query);
-    setPackages(response ?? []); // default to empty array
-  } catch (error) {
-    console.error(error);
-    setPackages([]);
-  }
-};
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      await loadPackages();
+      return;
+    }
+    try {
+      const response = await searchPackages(query);
+      setPackages(response ?? []);
+    } catch (error) {
+      console.error(error);
+      setPackages([]);
+    }
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPackage?._id) return;
@@ -56,129 +64,128 @@ const handleSearch = async (query: string) => {
       await editPackage(selectedPackage._id, selectedPackage);
       toast.success("Package updated successfully!");
       setIsEditModalOpen(false);
+      await loadPackages();
     } catch (err) {
       toast.error((err as Error).message);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this package ? ")) return;
+    if (!confirm("Are you sure you want to delete this package ?")) return;
     try {
       await deletePackage(id);
       toast.success("Package deleted successfully!");
+      await loadPackages();
     } catch {
       toast.error("Failed to delete package");
     }
   };
 
-  return (
-    <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-      <div className="bg-gradient-to-r from-slate-900 to-slate-700 px-6 py-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <MapPin className="w-5 h-5" /> Travel Packages
-          </h2>
-           <div className="w-60">
-                <SearchBar placeholder="Search packages..." onSearch={handleSearch} />
-              </div>
-          <span className="bg-white/10 px-3 py-1 rounded-full text-sm text-white">
-            {packages.length} packages
+  const columns = useMemo<ColumnDef<Package>[]>(
+    () => [
+      {
+        header: "Package Details",
+        cell: ({ row }) => (
+          <div>
+            <h3 className="font-semibold text-gray-900">{row.original.packageName}</h3>
+            <p className="text-sm text-gray-600">{row.original.description}</p>
+          </div>
+        ),
+      },
+      {
+        header: "Price",
+        cell: ({ row }) => (
+          <span className="text-emerald-600 font-bold">
+            {formatCurrency(row.original.price)}
           </span>
-        </div>
-      </div>
+        ),
+      },
+      {
+        header: "Duration",
+        cell: ({ row }) => (
+          <div className="flex items-center">
+            <Clock className="w-4 h-4 mr-1" /> {row.original.duration} days
+          </div>
+        ),
+      },
+      {
+        header: "Hotels",
+        cell: ({ row }) =>
+          row.original.hotels?.[0]?.name || (
+            <i className="text-gray-400">No hotels</i>
+          ),
+      },
+      {
+        header: "Activities",
+        cell: ({ row }) =>
+          row.original.activities?.[0]?.title || (
+            <i className="text-gray-400">No activities</i>
+          ),
+      },
+      {
+header: "Actions",
+cell: ({ row }) => (
+  <div className="p-2 hover:bg-blue-100 rounded-md transition-colors flex gap-2">
+    <button
+      onClick={() => handleEditClick(row.original)}
+      className="text-black hover:text-black"
+    >
+      <Edit className="w-5 h-5" />
+    </button>
+    <button
+      onClick={() => handleDelete(row.original._id)}
+      className="text-black hover:text-black"
+    >
+      <Trash2 className="w-5 h-5" />
+    </button>
+  </div>
+),
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                Package Details
-              </th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">
-                Price
-              </th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">
-                Duration
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                Hotels
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                Activities
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {packages.map((pkg, index) => (
-              <tr
-                key={pkg._id}
-                className={index % 2 === 0 ? "bg-white" : "bg-gray-50/30"}
-              >
-                {/* Package Details */}
-                <td className="px-6 py-4 align-top">
-                  <h3 className="font-semibold text-gray-900">
-                    {pkg.packageName}
-                  </h3>
-                  <p className="text-sm text-gray-600">{pkg.description}</p>
-                </td>
+}
 
-                {/* Price */}
-                <td className="px-6 py-4 text-right text-emerald-600 font-bold">
-                  {formatCurrency(pkg.price)}
-                </td>
-
-                {/* Duration */}
-                <td className="px-6 py-4 text-right text-gray-600">
-                  <div className="flex justify-end items-center">
-                    <Clock className="w-4 h-4 mr-1" /> {pkg.duration} days
-                  </div>
-                </td>
-
-                <td className="px-6 py-4 text-gray-700">
-                  {pkg.hotels?.[0]?.name || (
-                    <i className="text-gray-400">No hotels</i>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-gray-700">
-                  {pkg.activities?.[0]?.title || (
-                    <i className="text-gray-400">No activities</i>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <div className="flex justify-center gap-3">
-                    <button
-                      onClick={() => handleEditClick(pkg)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(pkg._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {isEditModalOpen && selectedPackage && (
-        <EditPackageModal
-          pkg={selectedPackage}
-          onClose={() => setIsEditModalOpen(false)}
-          onChange={(updated) => setSelectedPackage(updated)}
-          onSubmit={handleUpdate}
-        />
-      )}
-    </div>
+    ],
+    []
   );
+
+return (
+  <div>
+    {/* Header Section */}
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-2xl font-semibold text-black flex items-center gap-2">
+        <MapPin className="w-5 h-5" /> Travel Packages
+      </h2>
+
+     
+      <div className="flex items-center gap-4">
+        <div className="w-60">
+          <SearchBar placeholder="Search packages..." onSearch={handleSearch} />
+        </div>
+        <span className="bg-slate-800 text-white px-3 py-1 rounded-full text-sm">
+          {packages.length} packages
+        </span>
+      </div>
+    </div>
+
+    {/* Table */}
+    <ReusableTable data={packages} columns={columns} />
+
+    {/* Edit Modal */}
+    {isEditModalOpen && selectedPackage && (
+      <EditPackageModal
+        pkg={selectedPackage}
+        onClose={() => setIsEditModalOpen(false)}
+        onChange={(updated) => setSelectedPackage(updated)}
+        onSubmit={handleUpdate}
+      />
+    )}
+
+    
+    <div className="mt-4 flex justify-center">
+        <Pagination total={totalPages} current={page} setPage={setPage} />
+      </div>
+  </div>
+);
+
 };
 
 export default PackagesTable;
