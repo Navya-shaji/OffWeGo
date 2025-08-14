@@ -39,7 +39,7 @@ export class VendorRoute {
     this.vendorRouter.get(VendorRoutes.PROFILE,(req:Request,res:Response)=>{
       vendorProfilecontroller.GetProfile(req,res)
     })
-    this.vendorRouter.get(VendorRoutes.DESTINATIONS,(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.GET_DESTINATIONS,(req:Request,res:Response)=>{
       destinationController.getAllDestination(req,res)
     })
     this.vendorRouter.post(VendorRoutes.ADD_PACKAGE,(req:Request,res:Response)=>{
@@ -86,6 +86,9 @@ export class VendorRoute {
     })
     this.vendorRouter.delete(VendorRoutes.DELETE_HOTEL,(req:Request,res:Response)=>{
       hotelcontroller.deleteHotel(req,res)
+    })
+    this.vendorRouter.get(VendorRoutes.SEARCH_PACKAGE,(req:Request,res:Response)=>{
+      packagecontroller.searchPackage(req,res)
     })
   } 
 }

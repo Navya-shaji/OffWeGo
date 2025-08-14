@@ -19,7 +19,7 @@ export interface Package {
   packageName: string;
   description: string;
   price: number;
-  duration: number; 
+  duration?: number; 
   startDate?: Date;
   endDate?: Date;
   images: string[];

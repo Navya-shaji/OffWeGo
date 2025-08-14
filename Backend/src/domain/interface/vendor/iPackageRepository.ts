@@ -6,4 +6,5 @@ export interface IPackageRepository{
     getAllPackages():Promise<IPackageModel[]>
     getPackagesByDestination(destination: string): Promise<IPackageModel[]>;
     delete(id: string): Promise<void>;
+    searchPackage(query:string):Promise<Package[]>
 }

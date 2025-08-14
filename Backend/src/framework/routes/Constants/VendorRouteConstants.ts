@@ -4,7 +4,10 @@ export const VendorRoutes={
     CHECK_STATUS:'/status',
     LOGIN:'/login',
     PROFILE:'/profile',
-    DESTINATIONS:'/destinations',
+    GET_DESTINATIONS:'/destinations',
+    CREATE_DESTINATION:'/create-destination',
+    EDIT_DESTINATION:'/edit/:id',
+    DELETE_DESTINATION:"/destination/:id",
     ADD_PACKAGE:'/add-Package',
     ALL_PACKAGES:'/packages',
     EDIT_PACKAGE:'/packages/:id',
@@ -19,5 +22,6 @@ export const VendorRoutes={
     EDIT_ACTIVITY:'/activities/:id',
     DELETE_ACTIVITY:'/activities/:id',
     EDIT_HOTEL:'/hotels/:id',
-    DELETE_HOTEL:'/hotels/:id'
+    DELETE_HOTEL:'/hotels/:id',
+    SEARCH_PACKAGE:'/packages/search'
 }

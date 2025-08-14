@@ -5,18 +5,20 @@ import { Request, Response } from "express";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { IEditPackageUsecase } from "../../../domain/interface/vendor/IPackageEditUsecase";
 import { IDeletePackagenUseCase } from "../../../domain/interface/vendor/IPackageDeleteUsecase";
+import { ISearchPackageUsecase } from "../../../domain/interface/vendor/IPackagesearchUsecase";
 
 export class PackageController {
   constructor(
     private _getPackage: IGetPackageUsecase,
     private _createPackage: ICreatePackage,
     private _editpackage: IEditPackageUsecase,
-    private _deletepackage: IDeletePackagenUseCase
+    private _deletepackage: IDeletePackagenUseCase,
+    private _searchPackage:ISearchPackageUsecase
   ) {}
   async getAllPackage(req: Request, res: Response) {
     try {
       const result = await this._getPackage.execute();
-      console.log("allpackage", result);
+
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
@@ -40,7 +42,6 @@ export class PackageController {
       packageData.destinationId = destination._id;
 
       let createdPackage = await this._createPackage.execute(packageData);
-console.log("createdPackage-controller",createdPackage)
       res.status(HttpStatus.CREATED).json({ result: createdPackage });
     } catch (error) {
       console.error(error);
@@ -84,6 +85,25 @@ console.log("createdPackage-controller",createdPackage)
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         messege: "Failed to delte package",
+      });
+    }
+  }
+    async searchPackage(req: Request, res: Response) {
+    try {
+      const query = req.query.q;
+
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message: "The query will be string",
+        });
+        return;
+      }
+      const destinations = await this._searchPackage.execute(query);
+      res.json({ success: true, data: destinations });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }

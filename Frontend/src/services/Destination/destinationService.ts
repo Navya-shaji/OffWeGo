@@ -9,7 +9,6 @@ export const addDestination = async (data: DestinationInterface) => {
 
     return res.data;
   } catch (error) {
-    console.error("Error adding destination:", error);
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.error || "Failed to add destination"
@@ -18,6 +17,7 @@ export const addDestination = async (data: DestinationInterface) => {
     throw new Error("An unexpected error occurred while adding destination");
   }
 };
+
 
 export const fetchAllDestinations = async (
   page: number = 1,
@@ -33,8 +33,9 @@ export const fetchAllDestinations = async (
       params: { page, limit },
     });
 
-    const { destinations, totalDestinations, totalPages, currentPage } = res.data;
- console.log(res)
+    const { destinations, totalDestinations, totalPages, currentPage } =
+      res.data;
+  
     if (!Array.isArray(destinations)) {
       console.error("Expected destinations to be an array, got:", destinations);
       return {
@@ -44,7 +45,6 @@ export const fetchAllDestinations = async (
         currentPage: 1,
       };
     }
-
     return {
       destinations,
       totalDestinations,
@@ -63,10 +63,9 @@ export const updateDestination = async (
 ) => {
   try {
     const res = await axiosInstance.put(`/api/admin/edit/${id}`, data);
-  
+
     return res.data;
   } catch (error) {
-    console.error(" Error updating destination:", error);
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.error || "Failed to update destination"
@@ -79,8 +78,8 @@ export const updateDestination = async (
 export const getsingleDestination = async (id: string) => {
   try {
     const res = await axiosInstance.get(`/api/destination/${id}`);
-    
-    return res.data;
+
+    return res.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
@@ -119,9 +118,9 @@ export const deleteDestination = async (id: string): Promise<void> => {
   }
 };
 
-export const searchDestination=async(query:string)=>{
-const response=await axiosInstance.get('/api/admin/destination/search',{
-  params:{q:query}
-})
-return response.data.data
-}
+export const searchDestination = async (query: string) => {
+  const response = await axiosInstance.get("/api/admin/destination/search", {
+    params: { q: query },
+  });
+  return response.data.data;
+};

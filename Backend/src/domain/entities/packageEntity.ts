@@ -2,7 +2,7 @@ import { Hotel } from "./HotelEntity";
 import { Activity } from "./ActivityEntity";
 
 export interface Package {
-  id: string;
+  id?: string;
   destinationId: string;
   packageName: string;
   description: string;

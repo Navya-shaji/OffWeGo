@@ -4,25 +4,22 @@ import { Package } from "../../../domain/entities/packageEntity";
 
 export class PackageRepository implements IPackageRepository {
   async createPackage(data: Package): Promise<IPackageModel> {
-  const created = await packageModel.create(data);
-  
-  await created.populate(['hotels', 'activities']);
-  return created;
-}
+    const created = await packageModel.create(data);
+    await created.populate(["hotels", "activities"]);
+    return created;
+  }
 
-
-async getAllPackages(): Promise<IPackageModel[]> {
-  return packageModel
-    .find()
-    .populate("hotels")
-    .populate("activities")
-    .exec();
-}
-
+  async getAllPackages(): Promise<IPackageModel[]> {
+    return packageModel
+      .find()
+      .populate("hotels")
+      .populate("activities")
+      .exec();
+  }
 
   async getPackagesByDestination(destination: string): Promise<IPackageModel[]> {
     return packageModel
-      .find({ destinationId: destination }) 
+      .find({ destinationId: destination })
       .populate("hotels")
       .populate("activities")
       .exec();
@@ -31,4 +28,15 @@ async getAllPackages(): Promise<IPackageModel[]> {
   async delete(id: string): Promise<void> {
     await packageModel.findByIdAndDelete(id);
   }
+
+async searchPackage(query: string): Promise<Package[]> {
+  const regex = new RegExp(query, "i");
+  return packageModel
+    .find({ name: { $regex: regex } })
+    .select("packageName")
+    .limit(10)
+    .lean() 
+    .exec();
+}
+
 }
