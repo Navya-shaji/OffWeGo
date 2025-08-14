@@ -4,15 +4,21 @@ import { MapPin, Clock, Edit, Trash2 } from "lucide-react";
 import {
   editPackage,
   deletePackage,
+  fetchAllPackages,
+  searchPackages,
 } from "../../services/packages/packageService";
 import { toast } from "react-toastify";
 import { EditPackageModal } from "./editPackageModal";
+import { SearchBar } from "@/components/Modular/searchbar";
+
 
 type PackageTableProps = {
   packages: Package[];
 };
 
-const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
+const PackagesTable: React.FC<PackageTableProps> = () => {
+  const [packages,setPackages]=useState<Package[]>([])
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
 
@@ -28,6 +34,20 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
     setIsEditModalOpen(true);
   };
 
+const handleSearch = async (query: string) => {
+  if (!query.trim()) {
+    const allPackages = await fetchAllPackages();
+    setPackages(allPackages?.packages ?? []); // default to empty array
+    return;
+  }
+  try {
+    const response = await searchPackages(query);
+    setPackages(response ?? []); // default to empty array
+  } catch (error) {
+    console.error(error);
+    setPackages([]);
+  }
+};
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPackage?._id) return;
@@ -58,6 +78,9 @@ const PackagesTable: React.FC<PackageTableProps> = ({ packages }) => {
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
             <MapPin className="w-5 h-5" /> Travel Packages
           </h2>
+           <div className="w-60">
+                <SearchBar placeholder="Search packages..." onSearch={handleSearch} />
+              </div>
           <span className="bg-white/10 px-3 py-1 rounded-full text-sm text-white">
             {packages.length} packages
           </span>

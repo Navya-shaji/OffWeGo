@@ -54,3 +54,10 @@ export const deletePackage = async (id: string): Promise<void> => {
     throw new Error("An unexpected error occurred while updating package");
   }
 };
+
+export const searchPackages = async (query: string) => {
+  const response = await axiosInstance.get("/api/vendor/packages/search", {
+    params: { q: query },
+  });
+  return response.data.data;
+};
