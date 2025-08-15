@@ -51,3 +51,10 @@ export const deleteHotel = async (id: string) => {
     throw error;
   }
 };
+
+export const searchHotel = async (query: string) => {
+  const response = await axiosInstance.get("/api/vendor/hotels/search", {
+    params: { q: query },
+  });
+  return response.data.data;
+};
