@@ -24,6 +24,21 @@ import { PackageWiseGroupingController } from "../../../adapters/controller/pack
 import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
 import { PackageWiseGrouping } from "../../../adapters/repository/package/PackagewiseGroupingRepository";
 import { GetAllPackageWiseGroup } from "../../../useCases/package/GetAllPackageWiseGroupsusecase";
+import { CreateHotelUsecase } from "../../../useCases/Hotel/createHotelUsecase";
+import { HotelRepository } from "../../../adapters/repository/Hotel/HotelRepository";
+import { ActivityRepository } from "../../../adapters/repository/Activity/ActivityRepository";
+import { HotelController } from "../../../adapters/controller/packages/HotelController";
+import { ActivityController } from "../../../adapters/controller/packages/ActivityController";
+import { createActivityUsecase } from "../../../useCases/Activity/createActivityUsecase";
+import { GetHotelUsecase } from "../../../useCases/Hotel/getHotelUsecase";
+import { GetAllActivitiesUsecase } from "../../../useCases/Activity/getallActivitiesusecase";
+import { EditActivity } from "../../../useCases/Activity/editActivityUsecase";
+import { DeleteActivity } from "../../../useCases/Activity/deleteActivityUsecase";
+import { EditHotelusecase } from "../../../useCases/Hotel/editHotelUsecase";
+import { DeleteHotelUsecase } from "../../../useCases/Hotel/deleteHotelusecase";
+import { SearchPackage } from "../../../useCases/package/SearchPackageUsecase";
+import { searchHotelusecase } from "../../../useCases/Hotel/HotelSearchUsecase";
+import { SearchActivityusecase } from "../../../useCases/Activity/searchActivityusecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -33,6 +48,9 @@ const jwtService = new JwtSevice();
 const destinationRepo=new DestinationRepository()
 const packageRepo=new PackageRepository()
 const groupRepo=new PackageWiseGrouping()
+const hotelRepo=new HotelRepository()
+const activityRepo=new ActivityRepository()
+
 
 //  Use Cases
 const vendorSignupUsecase = new VendorRegisterUseCase(vendorRepository, otpService,hashPassword);
@@ -47,6 +65,17 @@ const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
 const packagewisegroupusecase=new CreatePackageWiseGroup(groupRepo)
 const getallpackagewisegroups=new GetAllPackageWiseGroup(groupRepo)
+const createHotelUsecase=new CreateHotelUsecase(hotelRepo)
+const createactivityUsecase=new createActivityUsecase(activityRepo)
+const getallHotels=new GetHotelUsecase(hotelRepo)
+const getallActivities=new GetAllActivitiesUsecase(activityRepo)
+const editActivityusecase=new EditActivity(activityRepo)
+const deleteactivityusecase=new DeleteActivity(activityRepo)
+const editHotelusecase=new EditHotelusecase(hotelRepo)
+const deletehotelusecase=new DeleteHotelUsecase(hotelRepo)
+const searchPackage=new SearchPackage(packageRepo)
+const searchhotelusecase=new searchHotelusecase(hotelRepo)
+const searchActivityusecase=new SearchActivityusecase(activityRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -54,6 +83,7 @@ export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVer
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
-export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage)
-export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups)
-
+export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage,searchPackage);
+export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
+export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
+export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)

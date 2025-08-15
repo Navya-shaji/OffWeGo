@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
+  activitycontroller,
+  hotelcontroller,
   packagecontroller,
   packagewisegroupcontroller,
   vendorloginController,
@@ -37,7 +39,7 @@ export class VendorRoute {
     this.vendorRouter.get(VendorRoutes.PROFILE,(req:Request,res:Response)=>{
       vendorProfilecontroller.GetProfile(req,res)
     })
-    this.vendorRouter.get(VendorRoutes.DESTINATIONS,(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.GET_DESTINATIONS,(req:Request,res:Response)=>{
       destinationController.getAllDestination(req,res)
     })
     this.vendorRouter.post(VendorRoutes.ADD_PACKAGE,(req:Request,res:Response)=>{
@@ -60,6 +62,39 @@ export class VendorRoute {
     })
     this.vendorRouter.get(VendorRoutes.PACKAGE_WISE_GROUPS,(req:Request,res:Response)=>{
       packagewisegroupcontroller.GetPackageWiseGroups(req,res)
+    })
+    this.vendorRouter.post(VendorRoutes.CREATE_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.createHotels(req,res)
+    })
+    this.vendorRouter.get(VendorRoutes.HOTELS,(req:Request,res:Response)=>{
+     hotelcontroller.getHotels(req,res)
+   })
+    this.vendorRouter.post(VendorRoutes.CREATE_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.createActivities(req,res)
+    })
+       this.vendorRouter.get(VendorRoutes.ACTIVITIES,(req:Request,res:Response)=>{
+      activitycontroller.getAllActivities(req,res)
+    })
+    this.vendorRouter.put(VendorRoutes.EDIT_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.editActivities(req,res)
+    })
+    this.vendorRouter.delete(VendorRoutes.DELETE_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.deleteActivity(req,res)
+    })
+    this.vendorRouter.put(VendorRoutes.EDIT_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.editHotel(req,res)
+    })
+    this.vendorRouter.delete(VendorRoutes.DELETE_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.deleteHotel(req,res)
+    })
+    this.vendorRouter.get(VendorRoutes.SEARCH_PACKAGE,(req:Request,res:Response)=>{
+      packagecontroller.searchPackage(req,res)
+    })
+    this.vendorRouter.get(VendorRoutes.SEARCH_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.SearchHotel(req,res)
+    })
+    this.vendorRouter.get(VendorRoutes.SEARCH_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.SearchActivity(req,res)
     })
   } 
 }

@@ -29,7 +29,6 @@ export class AdminController {
         accessToken: result.accessToken,
         admin: result.admin,
       });
-      
     } catch (error) {
       const err = error as Error;
       console.error("Admin Login Error:", err.message);

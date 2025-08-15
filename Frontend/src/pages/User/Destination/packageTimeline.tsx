@@ -81,7 +81,7 @@ export const PackageTimeline = () => {
       day: i + 1,
       title: i === 0 ? "Arrival & Check-in" : i === selectedPackage.duration - 1 ? "Departure" : `Exploration Day ${i}`,
       activities: selectedPackage.activities.slice(i * perDay, (i + 1) * perDay),
-      hotel: selectedPackage.hotelDetails[i % selectedPackage.hotelDetails.length],
+      hotel: selectedPackage.hotels[i % selectedPackage.hotels.length],
     }
   })
 
@@ -196,7 +196,7 @@ export const PackageTimeline = () => {
                     {
                       icon: <Building className="text-green-600" />,
                       label: "Hotels",
-                      value: selectedPackage.hotelDetails.length,
+                      value: selectedPackage.hotels.length,
                       bg: "bg-green-50",
                       border: "border-green-200",
                     },
@@ -453,7 +453,7 @@ export const PackageTimeline = () => {
                 {[
                   {
                     color: "green",
-                    text: `${selectedPackage.hotelDetails.length} Premium Hotels`,
+                    text: `${selectedPackage.hotels.length} Premium Hotels`,
                     icon: <Building className="h-4 w-4" />,
                   },
                   {

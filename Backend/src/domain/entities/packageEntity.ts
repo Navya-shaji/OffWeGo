@@ -1,20 +1,8 @@
-export interface Hotel {
-  hotelId: string;
-  name: string;
-  address: string;
-  rating: number;
-  destinationId: string;
-}
-export interface Activity {
-  activityId: string;
-  title: string;
-  description: string;
-  destinationId: string;
-}
-
+import { Hotel } from "./HotelEntity";
+import { Activity } from "./ActivityEntity";
 
 export interface Package {
-  id: string;
+  id?: string;
   destinationId: string;
   packageName: string;
   description: string;
@@ -23,6 +11,7 @@ export interface Package {
   startDate: Date;
   endDate: Date;
   images: string[];
-  hotelDetails: Hotel[];
-  activities: Activity[];
+
+  hotels: Hotel[]; 
+  activities: Activity[]; 
 }

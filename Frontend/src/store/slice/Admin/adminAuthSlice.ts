@@ -26,7 +26,6 @@ export const loginAdmin = createAsyncThunk<
   try {
     const response = await adminLogin(email, password);
 
-    // Save token & admin to localStorage
     localStorage.setItem("adminToken", response.accessToken);
     localStorage.setItem("adminData", JSON.stringify(response.admin));
 
@@ -46,7 +45,7 @@ const adminAuthSlice = createSlice({
       state.admin = null;
       state.token = null;
 
-      // Remove from storage
+      
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminData");
     },
@@ -59,7 +58,7 @@ const adminAuthSlice = createSlice({
         state.admin = action.payload.admin;
         state.token = action.payload.token;
 
-        // Save to storage
+        
         localStorage.setItem("adminToken", action.payload.token);
         localStorage.setItem("adminData", JSON.stringify(action.payload.admin));
       } else {

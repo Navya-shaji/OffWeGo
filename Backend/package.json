@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.0",
-    "cloudinary": "^2.7.0",
+    "cloudinary": "^1.21.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
@@ -36,11 +36,11 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
-    "@types/node": "^20.4.2",
+    "@types/node": "^20.19.10",
     "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^9.0.2",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.9.2"
   }
 }

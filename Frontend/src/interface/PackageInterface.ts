@@ -1,28 +1,28 @@
 export interface Hotel {
-  hotelId: string;
+  hotelId ?: string;
   name: string;
   address: string;
   rating: number;
-  destinationId: string;
+  destinationId?: string;
 }
 export interface Activity {
-  activityId: string;
+  activityId?: string;
   title: string;
   description: string;
-  destinationId: string;
+  destinationId ?: string;
+  imageUrl:string
 }
 
-
 export interface Package {
-  id: string;
+  id?: string;
   destinationId: string;
   packageName: string;
   description: string;
   price: number;
-  duration: number; 
-  startDate: Date;
-  endDate: Date;
+  duration?: number; 
+  startDate?: Date;
+  endDate?: Date;
   images: string[];
-  hotelDetails: Hotel[];
+  hotels: Hotel[];
   activities: Activity[];
 }

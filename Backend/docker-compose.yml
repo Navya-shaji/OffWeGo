@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    container_name: otp-service
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: offwegowebsite
+      NODEMAILER_EMAIL: navyaaaa303@gmail.com
+      NODEMAILER_PASSWORD: bghxhpcywvomzfoz
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: otp-redis
+    command: redis-server --requirepass offwegowebsite
+    ports:
+      - "6379:6379"

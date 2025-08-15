@@ -1,0 +1,43 @@
+import { Activity } from "../../../domain/entities/ActivityEntity";
+import { IActivityRepository } from "../../../domain/interface/vendor/IactivityRepository";
+import {
+  ActivityModel,
+  IActivityModel,
+} from "../../../framework/database/Models/ActivityModel";
+
+export class ActivityRepository implements IActivityRepository {
+  async createAtivity(data: Activity): Promise<IActivityModel> {
+    return await ActivityModel.create(data);
+  }
+  async getAllActivity(skip:number,limit:number): Promise<IActivityModel[]> {
+    return await ActivityModel.find().skip(skip).limit(limit);
+  }
+  async edit(
+    id: string,
+    updatedData: Partial<Activity>
+  ): Promise<IActivityModel | null> {
+    return await ActivityModel.findByIdAndUpdate(id, updatedData, {
+      new: true,
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await ActivityModel.findByIdAndDelete(id);
+  }
+async searchActivity(query: string): Promise<Activity[]> {
+  const regex = new RegExp(query, "i"); 
+  return ActivityModel.find({
+    $or: [
+      { title: { $regex: regex } },
+      { description: { $regex: regex } }
+    ]
+  })
+    .select("title description imageUrl") 
+    .limit(10)
+    .exec();
+}
+
+  async countActivity(): Promise<number> {
+    return await ActivityModel.countDocuments()
+  }
+}

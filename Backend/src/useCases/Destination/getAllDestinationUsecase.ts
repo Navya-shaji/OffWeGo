@@ -1,8 +1,9 @@
 import { IDestinationRepository } from "../../domain/interface/admin/IDestinationInterface"; 
 import { Destination } from "../../domain/entities/DestinationEntity"; 
 import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper";
+import { IGetAllDestinations } from "../../domain/interface/destination/IGetAllDestinations";
 
-export class GetAllDestinations {
+export class GetAllDestinations implements IGetAllDestinations{
   constructor(private  destinationRepo: IDestinationRepository) {}
 
   async execute(page:number,limit:number): Promise<{destinations:Destination[],totalDestinations:number}> {
