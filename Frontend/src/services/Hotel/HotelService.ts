@@ -28,7 +28,6 @@ export const getAllHotel = async (
       params: { page, limit },
     });
 
-    // Pull from res.data.data
     const { hotels = [], totalHotels = 0 } = res.data.data;
 
     if (!Array.isArray(hotels)) {

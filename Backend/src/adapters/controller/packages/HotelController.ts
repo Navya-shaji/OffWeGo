@@ -34,9 +34,9 @@ export class HotelController {
   }
   async getHotels(req: Request, res: Response) {
     try {
-        const page = parseInt(req.query.page as string) || 1;
+      const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
-      const result = await this._getHotels.execute(page,limit);
+      const result = await this._getHotels.execute(page, limit);
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,

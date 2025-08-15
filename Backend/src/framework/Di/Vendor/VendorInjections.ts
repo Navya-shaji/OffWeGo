@@ -38,6 +38,7 @@ import { EditHotelusecase } from "../../../useCases/Hotel/editHotelUsecase";
 import { DeleteHotelUsecase } from "../../../useCases/Hotel/deleteHotelusecase";
 import { SearchPackage } from "../../../useCases/package/SearchPackageUsecase";
 import { searchHotelusecase } from "../../../useCases/Hotel/HotelSearchUsecase";
+import { SearchActivityusecase } from "../../../useCases/Activity/searchActivityusecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -74,6 +75,7 @@ const editHotelusecase=new EditHotelusecase(hotelRepo)
 const deletehotelusecase=new DeleteHotelUsecase(hotelRepo)
 const searchPackage=new SearchPackage(packageRepo)
 const searchhotelusecase=new searchHotelusecase(hotelRepo)
+const searchActivityusecase=new SearchActivityusecase(activityRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -84,4 +86,4 @@ export const vendorProfilecontroller=new VendorProfileController(vendorProfileus
 export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage,searchPackage);
 export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
-export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase)
+export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)

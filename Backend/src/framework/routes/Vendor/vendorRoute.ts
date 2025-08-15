@@ -93,5 +93,8 @@ export class VendorRoute {
     this.vendorRouter.get(VendorRoutes.SEARCH_HOTEL,(req:Request,res:Response)=>{
       hotelcontroller.SearchHotel(req,res)
     })
+    this.vendorRouter.get(VendorRoutes.SEARCH_ACTIVITY,(req:Request,res:Response)=>{
+      activitycontroller.SearchActivity(req,res)
+    })
   } 
 }

@@ -9,8 +9,8 @@ export class ActivityRepository implements IActivityRepository {
   async createAtivity(data: Activity): Promise<IActivityModel> {
     return await ActivityModel.create(data);
   }
-  async getAllActivity(): Promise<IActivityModel[]> {
-    return await ActivityModel.find();
+  async getAllActivity(skip:number,limit:number): Promise<IActivityModel[]> {
+    return await ActivityModel.find().skip(skip).limit(limit);
   }
   async edit(
     id: string,
@@ -23,5 +23,21 @@ export class ActivityRepository implements IActivityRepository {
 
   async delete(id: string): Promise<void> {
     await ActivityModel.findByIdAndDelete(id);
+  }
+async searchActivity(query: string): Promise<Activity[]> {
+  const regex = new RegExp(query, "i"); 
+  return ActivityModel.find({
+    $or: [
+      { title: { $regex: regex } },
+      { description: { $regex: regex } }
+    ]
+  })
+    .select("title description imageUrl") 
+    .limit(10)
+    .exec();
+}
+
+  async countActivity(): Promise<number> {
+    return await ActivityModel.countDocuments()
   }
 }

@@ -2,15 +2,17 @@ import { IcreateActivityUsecase } from "../../../domain/interface/vendor/Icreate
 import { IdeleteActivity } from "../../../domain/interface/vendor/IdeleteActivityUsecase";
 import { IEditActivityUsecase } from "../../../domain/interface/vendor/IeditActivityUsecase";
 import { IGetAllActivities } from "../../../domain/interface/vendor/IgetallActivitiesUsecase";
+import { IsearchActivityUsecase } from "../../../domain/interface/vendor/IsearchActivityUsecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { Request, Response } from "express";
+import { query, Request, Response } from "express";
 
 export class ActivityController {
   constructor(
     private _creatActivity: IcreateActivityUsecase,
     private _getallActivities: IGetAllActivities,
     private _editActivity: IEditActivityUsecase,
-    private _deleteActivity:IdeleteActivity
+    private _deleteActivity: IdeleteActivity,
+    private _searchActivity: IsearchActivityUsecase
   ) {}
 
   async createActivities(req: Request, res: Response) {
@@ -31,7 +33,9 @@ export class ActivityController {
   }
   async getAllActivities(req: Request, res: Response) {
     try {
-      const result = await this._getallActivities.execute();
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const result = await this._getallActivities.execute(page, limit);
       console.log("result", result);
       res.status(HttpStatus.OK).json({
         success: true,
@@ -64,19 +68,36 @@ export class ActivityController {
       });
     }
   }
-  async deleteActivity(req:Request,res:Response){
+  async deleteActivity(req: Request, res: Response) {
     try {
-      const {id} =req.params
+      const { id } = req.params;
 
-      const result=await this._deleteActivity.execute(id)
-      
-      
-      return res.status(HttpStatus.OK).json(result)
+      const result = await this._deleteActivity.execute(id);
+
+      return res.status(HttpStatus.OK).json(result);
     } catch (error) {
-            res
+      res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Failed to delete Activity" });
     }
-    
+  }
+  async SearchActivity(req: Request, res: Response) {
+    try {
+      const query = req.query.q;
+      console.log("query,",query)
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message: "The query will be string",
+        });
+        return;
+      }
+      const result = await this._searchActivity.execute(query);
+      console.log("controller result",result)
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
   }
 }
