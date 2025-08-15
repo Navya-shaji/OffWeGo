@@ -23,5 +23,6 @@ export const VendorRoutes={
     DELETE_ACTIVITY:'/activities/:id',
     EDIT_HOTEL:'/hotels/:id',
     DELETE_HOTEL:'/hotels/:id',
-    SEARCH_PACKAGE:'/packages/search'
+    SEARCH_PACKAGE:'/packages/search',
+    SEARCH_HOTEL:'/hotels/search'
 }

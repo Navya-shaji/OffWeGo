@@ -2,6 +2,7 @@ import { ICreateHotelUsecase } from "../../../domain/interface/vendor/IcreateHot
 import { IDeleteHotelUsecase } from "../../../domain/interface/vendor/IdeleteHotelusecase";
 import { IEditHotelUsecase } from "../../../domain/interface/vendor/IEdithotelusecase";
 import { IgetHotelUsecase } from "../../../domain/interface/vendor/IgetHotelUsevase";
+import { ISearchHotelUsecase } from "../../../domain/interface/vendor/IhotelSearchusecase";
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { Request, Response } from "express";
 
@@ -10,7 +11,8 @@ export class HotelController {
     private _createHotel: ICreateHotelUsecase,
     private _getHotels: IgetHotelUsecase,
     private _editHotels: IEditHotelUsecase,
-    private _deleteHotel: IDeleteHotelUsecase
+    private _deleteHotel: IDeleteHotelUsecase,
+    private _searchHotel: ISearchHotelUsecase
   ) {}
 
   async createHotels(req: Request, res: Response) {
@@ -66,12 +68,30 @@ export class HotelController {
     try {
       const { id } = req.body;
       const result = await this._deleteHotel.execute(id);
-      console.log(result)
+      console.log(result);
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Failed to delete Activity" });
+    }
+  }
+  async SearchHotel(req: Request, res: Response) {
+    try {
+      const query = req.query.q;
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          message: "The query will be string",
+        });
+        return;
+      }
+      const hotels = await this._searchHotel.execute(query);
+      res.json({ success: true, data: hotels });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   }
 }

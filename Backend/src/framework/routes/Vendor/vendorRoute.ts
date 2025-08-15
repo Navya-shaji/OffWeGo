@@ -90,5 +90,8 @@ export class VendorRoute {
     this.vendorRouter.get(VendorRoutes.SEARCH_PACKAGE,(req:Request,res:Response)=>{
       packagecontroller.searchPackage(req,res)
     })
+    this.vendorRouter.get(VendorRoutes.SEARCH_HOTEL,(req:Request,res:Response)=>{
+      hotelcontroller.SearchHotel(req,res)
+    })
   } 
 }
