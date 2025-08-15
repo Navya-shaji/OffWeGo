@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Trash2, MapPin } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -31,22 +31,27 @@ const HotelsTable: React.FC = () => {
   const [formData, setFormData] = useState({ name: "", address: "", rating: 0 });
 
   const [page, setPage] = useState(1);
-  const [totalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Load all hotels on mount
+  // ✅ Load hotels once and when page changes
   useEffect(() => {
     loadHotels();
   }, []);
 
-  const loadHotels = async () => {
-    try {
-      const response = await getAllHotel();
-      const hotelData = response?.data?.data || [];
-      setHotels(Array.isArray(hotelData) ? hotelData : []);
-    } catch {
-      toast.error("Failed to load hotels");
-    }
-  };
+const loadHotels = async () => {
+  try {
+    const response = await getAllHotel(page, 5); 
+    console.log(response);
+    
+    setHotels(response.hotels); 
+
+    const total = Number(response?.totalHotels || 0);
+    setTotalPages(Math.ceil(total / 5));
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load hotels");
+  }
+};
 
   const handleEditClick = (hotel: Hotel) => {
     setSelectedHotel(hotel);
@@ -66,9 +71,10 @@ const HotelsTable: React.FC = () => {
     try {
       const response = await searchHotel(query);
       setHotels(response ?? []);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       setHotels([]);
+      toast.error("Failed to search hotels");
     }
   };
 
@@ -81,7 +87,8 @@ const HotelsTable: React.FC = () => {
       toast.success("Hotel updated successfully!");
       setIsEditModalOpen(false);
       await loadHotels();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to update hotel");
     }
   };
@@ -91,21 +98,16 @@ const HotelsTable: React.FC = () => {
     try {
       await deleteHotel(id);
       toast.success("Hotel deleted successfully!");
-      await loadHotels();
-    } catch {
+      setHotels((prev) => prev.filter((hotel) => hotel._id !== id)); // update state without reload
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to delete hotel");
     }
   };
 
   const columns = useMemo<ColumnDef<Hotel>[]>(() => [
-    {
-      header: "Hotel Name",
-      accessorKey: "name",
-    },
-    {
-      header: "Address",
-      accessorKey: "address",
-    },
+    { header: "Hotel Name", accessorKey: "name" },
+    { header: "Address", accessorKey: "address" },
     {
       header: "Rating",
       cell: ({ row }) => `${row.original.rating} ⭐`,
@@ -135,6 +137,7 @@ const HotelsTable: React.FC = () => {
 
   return (
     <div>
+      <ToastContainer position="top-right" autoClose={3000} />
       {/* Header Section */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold text-black flex items-center gap-2">
@@ -188,10 +191,7 @@ const HotelsTable: React.FC = () => {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
+                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
                   Save
                 </button>
               </div>

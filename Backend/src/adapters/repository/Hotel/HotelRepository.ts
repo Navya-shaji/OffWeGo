@@ -9,8 +9,8 @@ export class HotelRepository implements IHotelRepository {
   async createHotel(data: Hotel): Promise<IHotelModel> {
     return await HotelModel.create(data);
   }
-  async getAllHotel(): Promise<IHotelModel[]> {
-    return await HotelModel.find();
+  async getAllHotel(skip:number,limit:number): Promise<IHotelModel[]> {
+    return await HotelModel.find().skip(skip).limit(limit);
   }
   async edit(
     id: string,
@@ -30,5 +30,8 @@ export class HotelRepository implements IHotelRepository {
       .select("name")
       .limit(10)
       .exec();
+  }
+  async countHotels(): Promise<number> {
+    return await HotelModel.countDocuments()
   }
 }

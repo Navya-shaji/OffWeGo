@@ -1,5 +1,5 @@
 import { Hotel } from "../../entities/HotelEntity";
 
 export interface IgetHotelUsecase{
-    execute():Promise<Hotel[]>
+    execute(page:number,limit:number):Promise<{hotels:Hotel[],totalHotels:number}>
 }
