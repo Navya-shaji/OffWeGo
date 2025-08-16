@@ -77,9 +77,10 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
+    console.log("haiii")
     const res = await axiosInstance.get(`/api/destination/${id}`);
-
-    return res.data.data;
+console.log("result",res)
+      return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
@@ -97,6 +98,7 @@ export const getPackagesByDestination = async (
     const response = await axiosInstance.get(
       `/api/destination/${destinationId}`
     );
+    console.log("response",response)
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

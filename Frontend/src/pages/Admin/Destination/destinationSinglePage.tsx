@@ -1,4 +1,3 @@
-// 👇 Your imports remain unchanged
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -29,14 +28,18 @@ export const DestinationDetail = () => {
     dispatch(fetchPackages());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (id) {
-      getsingleDestination(id)
-        .then(setDestination)
-        .catch((err) => console.error("Failed to load destination", err))
-        .finally(() => setLoading(false));
-    }
-  }, [id]);
+useEffect(() => {
+  if (id) {
+    getsingleDestination(id)
+      .then((res) => {
+        console.log("API response:", res);
+        setDestination(res);  // adjust depending on API
+      })
+      .catch((err) => console.error("Failed to load destination", err))
+      .finally(() => setLoading(false));
+  }
+}, [id]);
+
 
   if (loading) {
     return (
@@ -58,6 +61,8 @@ export const DestinationDetail = () => {
       </div>
     );
   }
+console.log("Param id:", id);
+console.log("Destination state:", destination);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -34,7 +34,6 @@ export const addPackage = createAsyncThunk<
   }
 });
 
-// 4. Async thunk for fetching all packages
 export const fetchPackages = createAsyncThunk<
   Package[],
   void,
@@ -42,14 +41,15 @@ export const fetchPackages = createAsyncThunk<
 >("package/fetchAll", async (_, { rejectWithValue }) => {
   try {
     const response = await fetchAllPackagesService();
-    return response;
+ 
+    return response.packages ?? [];  
   } catch (error) {
     if (error instanceof Error) return rejectWithValue(error.message);
     return rejectWithValue("Unknown error while fetching packages");
   }
 });
 
-// 5. Create the slice
+
 export const packageSlice = createSlice({
   name: "package",
   initialState,
