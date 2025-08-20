@@ -15,6 +15,7 @@ import AddActivity from "./add-Activity";
 import ActivitiesTable from "./getAllActivities";
 import AddPackage from "@/components/Packages/AddPAckage";
 
+
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
   const dispatch = useDispatch<AppDispatch>();

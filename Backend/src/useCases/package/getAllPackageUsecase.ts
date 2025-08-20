@@ -9,7 +9,7 @@ export class GetAllPackages implements IGetAllPackageUsecase {
     const skip = (page - 1) * limit;
 
     const { packages, totalPackages } = await this.packageRepo.getAllPackages(skip, limit);
-    console.log("packages usecase", packages);
+    
 
     return { packages, totalPackages };
   }

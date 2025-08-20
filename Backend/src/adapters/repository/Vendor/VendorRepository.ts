@@ -78,7 +78,7 @@ export class VendorRepository implements IVendorRepository {
   const regex = new RegExp(query, "i");
 
   const vendors = await VendorModel.find({ name: { $regex: regex } })
-    .select("name email _id phone password documentUrl subscription") 
+    .select("name email _id phone password documentUrl status") 
     .limit(10)
     .lean(); 
 

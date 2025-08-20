@@ -9,7 +9,11 @@ declare module "express-serve-static-core" {
 }
 
 export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -31,10 +35,16 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
       }
 
       const decoded = await tokenService.verifyToken(token);
-     
+      if (!decoded || !decoded.exp) {
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ error: "Token expiration done" });
+        return;
+      }
+      console.log(decoded);
 
-      req.user = decoded; 
-      next(); 
+      req.user = decoded;
+      next();
     } catch (error) {
       res.status(HttpStatus.FORBIDDEN).json({
         message: "Invalid token.",

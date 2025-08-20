@@ -18,14 +18,15 @@ export const addBanner = async (data: BannerInterface) => {
 export const getBanner = async () => {
   try {
     const res = await axiosInstance.get("/api/admin/banner");
+    console.log(res)
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
     
       throw new Error(
-        error.response?.data?.error || "Failed to fetch categories"
+        error.response?.data?.error || "Failed to fetch banner"
       );
     }
-    throw new Error("An unexpected error occurred while fetching categories");
+    throw new Error("An unexpected error occurred while fetching banner");
   }
 };

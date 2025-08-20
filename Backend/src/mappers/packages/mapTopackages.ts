@@ -10,18 +10,20 @@ export const mapToPackageDto = (doc: IPackageModel): Package => ({
   duration: doc.duration,
   startDate: doc.startDate,
   endDate: doc.endDate,
-  images: doc.images,
-  hotels: doc.hotels.map(hotel => ({
-    
-    name: hotel.name,
-    address: hotel.address,
-    rating: hotel.rating,
-   
-  })),
-  activities: doc.activities.map(activity => ({
-   
-    title: activity.title,
-    description: activity.description,
-   
-  })),
+  images: doc.images || [],
+  hotels: Array.isArray(doc.hotels)
+    ? doc.hotels.filter(h => h).map(hotel => ({
+        name: hotel.name || "",
+        address: hotel.address || "",
+        rating: hotel.rating || 0,
+      }))
+    : [],
+  activities: Array.isArray(doc.activities)
+    ? doc.activities.filter(a => a).map(activity => ({
+        title: activity.title || "",
+        description: activity.description || "",
+        imageUrl: activity.imageUrl || "",
+      }))
+    : [],
+
 });

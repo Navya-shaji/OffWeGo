@@ -103,14 +103,14 @@ export const EditDestinationModal: React.FC<Props> = ({
 
       try {
         const imageUrl = await uploadToCloudinary(file);
-        console.log(" Uploaded Image URL:", imageUrl);
+       
 
        
         const updated = {
           ...destination,
           imageUrls: [imageUrl],
         };
-        console.log(" Updated destination with image:", updated);
+      
         onChange(updated);
       } catch (err) {
         console.error(" Image upload failed:", err);

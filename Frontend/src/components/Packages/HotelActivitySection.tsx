@@ -32,18 +32,21 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
   onHotelSelection,
   onActivitySelection
 }) => {
-  const hotelOptions = filteredHotels.map((hotel) => ({
-    value: hotel.hotelId,
+const hotelOptions = filteredHotels
+  .map(hotel => ({
+    value: hotel.hotelId!, // "!" tells TS this is definitely defined
     label: `${hotel.name} - ${hotel.address} (${hotel.rating}⭐)`,
     data: hotel,
   }));
-  
-  const activityOptions = filteredActivities.map((activity) => ({
-    value: activity.activityId,
+  const activityOptions = filteredActivities
+  .map(activity => ({
+    value: activity.activityId!,
     label: `${activity.title} - ${activity.description.slice(0, 50)}...`,
     data: activity,
   }));
 
+  console.log("haiii",hotelOptions,activityOptions)
+  
   if (!destinationId) {
     return (
       <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-200 text-center">
@@ -83,9 +86,13 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
               selected={hotelOptions.filter((opt) =>
                 selectedHotels.includes(opt.value)
               )}
-              onChange={(selectedOptions) =>
-                onHotelSelection(selectedOptions.map((opt) => opt.value))
-              }
+           onChange={(selectedOptions) =>
+  onHotelSelection(selectedOptions.map(opt => {
+    console.log("op",opt)
+    return opt.value;
+  }))
+}
+
               placeholder="Choose hotels for this destination..."
             />
           ) : (
@@ -104,7 +111,7 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
           </p>
         </div>
 
-        {/* Activities Section */}
+      
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
             <MapPin className="h-4 w-4 text-blue-600" />

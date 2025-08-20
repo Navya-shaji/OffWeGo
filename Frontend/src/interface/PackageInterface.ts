@@ -1,4 +1,5 @@
 export interface Hotel {
+  id?:string
   hotelId ?: string;
   name: string;
   address: string;
@@ -6,6 +7,7 @@ export interface Hotel {
   destinationId?: string;
 }
 export interface Activity {
+  id?:string
   activityId?: string;
   title: string;
   description: string;

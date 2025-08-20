@@ -17,7 +17,9 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { editProfile } from "@/services/user/Userprofile";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
+import { toast } from "react-toastify";
 
+ const notify = () => toast("Profile updated " )
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -81,10 +83,8 @@ export default function EditProfileModal({
         phone:phone,
         imageUrl: newImageUrl,
       });
-
-     
-
-      
+      notify()
+    
       dispatch(updateUserProfile(updated.data));
       onClose();
     } catch (error) {

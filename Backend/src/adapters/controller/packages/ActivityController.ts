@@ -36,7 +36,7 @@ export class ActivityController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const result = await this._getallActivities.execute(page, limit);
-      console.log("result", result);
+     
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
@@ -84,7 +84,7 @@ export class ActivityController {
   async SearchActivity(req: Request, res: Response) {
     try {
       const query = req.query.q;
-      console.log("query,",query)
+      
       if (typeof query !== "string" || !query.trim()) {
         res.status(HttpStatus.BAD_REQUEST).json({
           message: "The query will be string",
@@ -92,7 +92,7 @@ export class ActivityController {
         return;
       }
       const result = await this._searchActivity.execute(query);
-      console.log("controller result",result)
+      
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,

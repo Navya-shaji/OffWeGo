@@ -49,6 +49,7 @@ export class VendorLoginController {
         success: true,
         message: "Login successful",
         accessToken: result.accessToken,
+         refreshToken: result.refreshToken,
         vendor: result.vendor,
       });
     } catch (err) {

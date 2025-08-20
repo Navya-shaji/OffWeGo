@@ -10,6 +10,7 @@ export class GetAllDestinations implements IGetAllDestinations{
     const skip=(page-1) *limit
    const destination=await this.destinationRepo.getAllDestinations(skip,limit)
    const totalDestinations=await this.destinationRepo.countDestinations()
+   console.log("Usecase of destination",destination)
    return {
     destinations:destination.map(mapToDestinationDto),
     totalDestinations:totalDestinations

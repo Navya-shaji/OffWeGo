@@ -70,7 +70,7 @@ export class HotelController {
     try {
       const { id } = req.body;
       const result = await this._deleteHotel.execute(id);
-      console.log(result);
+     
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res

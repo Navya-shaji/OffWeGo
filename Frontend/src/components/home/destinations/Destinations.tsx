@@ -11,9 +11,6 @@ export const Destinations = () => {
   const [cardsPerView, setCardsPerView] = useState(4);
 
 
-
-
-
   useEffect(() => {
     const updateCardsPerView = () => {
       if (window.innerWidth < 640) {

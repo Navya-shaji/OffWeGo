@@ -18,7 +18,6 @@ export const addDestination = async (data: DestinationInterface) => {
   }
 };
 
-
 export const fetchAllDestinations = async (
   page: number = 1,
   limit: number = 5
@@ -35,7 +34,7 @@ export const fetchAllDestinations = async (
 
     const { destinations, totalDestinations, totalPages, currentPage } =
       res.data;
-  
+
     if (!Array.isArray(destinations)) {
       console.error("Expected destinations to be an array, got:", destinations);
       return {
@@ -77,10 +76,9 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-    console.log("haiii")
     const res = await axiosInstance.get(`/api/destination/${id}`);
-console.log("result",res)
-      return res.data;
+   
+    return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
@@ -98,7 +96,7 @@ export const getPackagesByDestination = async (
     const response = await axiosInstance.get(
       `/api/destination/${destinationId}`
     );
-    console.log("response",response)
+    console.log("response", response);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

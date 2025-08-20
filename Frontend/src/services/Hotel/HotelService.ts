@@ -27,6 +27,7 @@ export const getAllHotel = async (
     const res = await axiosInstance.get("/api/vendor/hotels", {
       params: { page, limit },
     });
+ 
 
     const { hotels = [], totalHotels = 0 } = res.data.data;
 

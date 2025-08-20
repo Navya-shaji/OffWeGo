@@ -3,7 +3,7 @@ import { AdminLoginuseCase } from "../../../useCases/admin/Login/AdminLoginuseCa
 import { AdminController } from "../../../adapters/controller/Admin/AdminController";
 import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
 import { HashPassword } from "../../services/hashPassword";
-import { JwtSevice } from "../../services/jwtService";
+import { JwtService } from "../../services/jwtService";
 import { GetVendorByEmailUseCase } from "../../../useCases/admin/Vendor/getVendorByEmailUsecase";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase";
@@ -53,7 +53,7 @@ const subscriptionrepo=new SubscriptionPlanRepository()
 
 // Services
 const hashPassword = new HashPassword();
-const jwtService = new JwtSevice();
+const jwtService = new JwtService();
 
 
 // Use Cases

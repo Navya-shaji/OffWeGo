@@ -13,7 +13,7 @@ import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPassword
 import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
 import { UserProfileController } from "../../../adapters/controller/user/userProfileController";
-import { JwtSevice } from "../../services/jwtService";
+import { JwtService } from "../../services/jwtService";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
 import { PackageController } from "../../../adapters/repository/Destination/getPackageByDestinationController";
 import { GetPackageUsecase } from "../../../useCases/Destination/GetPackageByDestinationUsecase";
@@ -29,7 +29,7 @@ const authRepository=new AuthRepository()
 const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const destinationRepository=new DestinationRepository();
-const jwtService=new JwtSevice
+const jwtService=new JwtService
 const packageRepo=new PackageRepository();
 const bookingRepo=new BookingRepository()
 

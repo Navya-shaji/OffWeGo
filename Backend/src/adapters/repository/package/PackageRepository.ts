@@ -40,7 +40,7 @@ export class PackageRepository implements IPackageRepository {
     const regex = new RegExp(query, "i");
     return packageModel
       .find({ packageName: { $regex: regex } })
-      .select("packageName")
+      .select("packageName  price" )
       .limit(10)
       .lean()
       .exec();
