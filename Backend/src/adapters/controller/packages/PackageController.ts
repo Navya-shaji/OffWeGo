@@ -32,7 +32,6 @@ export class PackageController {
   async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
-      console.log("packageData from the froentend",packageData)
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
@@ -46,7 +45,6 @@ export class PackageController {
 
       let createdPackage = await this._createPackage.execute(packageData);
       res.status(HttpStatus.CREATED).json({ result: createdPackage });
-      console.log("created packages",createdPackage)
      
     } catch (error) {
       console.error(error);

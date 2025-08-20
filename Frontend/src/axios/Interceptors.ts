@@ -5,7 +5,6 @@ import { logout as vendorLogout } from "@/store/slice/vendor/authSlice";
 import axios from "axios";
 
 export const setInterceptors = () => {
-  console.log("haiii");
   axiosInstance.interceptors.request.use((config) => {
     const Admintoken = store.getState().adminAuth.token;
     const Usertoken = store.getState().auth.token;

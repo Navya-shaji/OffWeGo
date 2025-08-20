@@ -96,7 +96,6 @@ export const getPackagesByDestination = async (
     const response = await axiosInstance.get(
       `/api/destination/${destinationId}`
     );
-    console.log("response", response);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

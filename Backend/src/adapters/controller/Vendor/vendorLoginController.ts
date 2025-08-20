@@ -9,7 +9,6 @@ export class VendorLoginController {
   async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
-      console.log(" Login Request:", req.body);
 
       if (!email || !password) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -20,7 +19,6 @@ export class VendorLoginController {
 
       const loginPayload: LoginDTo = { email, password };
       const result = await this.vendorLoginUseCase.execute(loginPayload);
-      console.log(" Login Result:", result);
       const vendor = result?.vendor;
 
       if (!vendor) {

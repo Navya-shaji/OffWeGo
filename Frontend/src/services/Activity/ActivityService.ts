@@ -30,7 +30,6 @@ export const getActivities = async (
     const { activity = [], totalActivities = 0 } = res.data.data;
 
     if (!Array.isArray(activity)) {
-      console.log("something wrong", activity);
       return {
         activities: [],
         totalActivities: 0,

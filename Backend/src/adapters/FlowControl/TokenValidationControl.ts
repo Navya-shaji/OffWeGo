@@ -41,7 +41,6 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
           .json({ error: "Token expiration done" });
         return;
       }
-      console.log(decoded);
 
       req.user = decoded;
       next();
