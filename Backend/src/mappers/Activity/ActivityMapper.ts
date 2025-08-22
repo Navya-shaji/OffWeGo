@@ -3,7 +3,7 @@ import { IActivityModel } from "../../framework/database/Models/ActivityModel";
 
 export const mapToActivityDto=(doc:IActivityModel):Activity=>({
     
-  activityId: doc._id.toString(), // <-- convert ObjectId to string
+  activityId: doc._id.toString(), 
     title:doc.title,
     description:doc.description,
     destinationId:doc.destinationId,

@@ -58,7 +58,6 @@ export class DestinationController {
       const { destinations, totalDestinations } =
         await this._getDestination.execute(page, limit);
 
-       
       res.status(HttpStatus.OK).json({
         success: true,
         destinations,
@@ -76,7 +75,7 @@ export class DestinationController {
   async getSingleDestinationController(req: Request, res: Response) {
     try {
       const { id } = req.params;
-    
+
       const result = await this._destinationUsecase.execute(id);
       res.status(HttpStatus.OK).json(result);
     } catch (error) {

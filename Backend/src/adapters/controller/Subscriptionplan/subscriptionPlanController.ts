@@ -5,8 +5,8 @@ import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionP
 
 export class SubscriptionController {
   constructor(
-    private createSubscriptionPlan: CreateSubscriptionPlanUseCase,
-    private getsubscriptions: IGetSubscriptionUsecase
+    private _createSubscriptionPlan: CreateSubscriptionPlanUseCase,
+    private _getsubscriptions: IGetSubscriptionUsecase
   ) {}
 
   async createSubscription(req: Request, res: Response) {
@@ -29,7 +29,7 @@ export class SubscriptionController {
         });
       }
 
-      const result = await this.createSubscriptionPlan.execute({
+      const result = await this._createSubscriptionPlan.execute({
         name,
         description,
         price,
@@ -54,7 +54,7 @@ export class SubscriptionController {
   
   async getAllSubscriptions(req: Request, res: Response) {
     try {
-      const result = await this.getsubscriptions.execute();
+      const result = await this._getsubscriptions.execute();
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res

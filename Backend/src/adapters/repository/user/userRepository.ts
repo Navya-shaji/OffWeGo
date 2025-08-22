@@ -1,56 +1,51 @@
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-import { User } from "../../../domain/entities/userEntity";
-import { UserModel } from "../../../framework/database/Models/userModel";
+import { IUserModel, UserModel } from "../../../framework/database/Models/userModel";
 import { Profile } from "../../../domain/dto/user/profileDto";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
 
-export class UserRepository implements IUserRepository {
-  async findByEmail(email: string): Promise<User | null> {
-    return await UserModel.findOne({ email });
-  }
-  async createUser(user: User): Promise<User> {
-    return await UserModel.create(user);
-  }
-  async findByPhone(phone: string): Promise<User | null> {
-    return await UserModel.findOne({ phone });
-  }
-  async updatePassword(
-    email: string,
-    newHashedPassword: string
-  ): Promise<void> {
-    await UserModel.updateOne(
-      { email },
-      { $set: { password: newHashedPassword } }
-    );
-  }
-  async getAllUsers(
-    skip: number,
-    limit: number,
-    filter: Record<string, any> = {}
-  ): Promise<User[]> {
-    return await UserModel.find(filter).skip(skip).limit(limit);
+export class UserRepository extends BaseRepository<IUserModel> implements IUserRepository {
+  constructor() {
+    super(UserModel);
   }
 
-  async updateUserStatus(
-    userId: string,
-    status: "active" | "block"
-  ): Promise<void> {
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      throw new Error("User not found");
-    }
+  async findByEmail(email: string): Promise<IUserModel | null> {
+    return this.model.findOne({ email });
+  }
+
+  async createUser(user: IUserModel): Promise<IUserModel> {
+    return this.model.create(user);
+  }
+
+  async findByPhone(phone: string): Promise<IUserModel | null> {
+    return this.model.findOne({ phone });
+  }
+
+  async updatePassword(email: string, newHashedPassword: string): Promise<void> {
+    await this.model.updateOne({ email }, { $set: { password: newHashedPassword } });
+  }
+
+  async getAllUsers(skip: number, limit: number, filter: Record<string, any> = {}): Promise<IUserModel[]> {
+    return this.model.find(filter).skip(skip).limit(limit);
+  }
+
+  async updateUserStatus(userId: string, status: "active" | "block"): Promise<void> {
+    const user = await this.model.findById(userId);
+    if (!user) throw new Error("User not found");
 
     user.status = status;
     await user.save();
   }
-  async countUsers(filter: Record<string, any> = {}): Promise<number> {
-    return await UserModel.countDocuments(filter);
-  }
-  async getProfileByEmail(email: string): Promise<Profile | null> {
-    return await UserModel.findOne({ email });
-  }
-  async searchUser(query:string):Promise<User[]>{
-    const regex=new RegExp(query,"i")
-    return UserModel.find({name:{$regex:regex}}).select('name email ').limit(10).exec()
 
+  async countUsers(filter: Record<string, any> = {}): Promise<number> {
+    return this.model.countDocuments(filter);
+  }
+
+  async getProfileByEmail(email: string): Promise<Profile | null> {
+    return this.model.findOne({ email });
+  }
+
+  async searchUser(query: string): Promise<IUserModel[]> {
+    const regex = new RegExp(query, "i");
+    return this.model.find({ name: { $regex: regex } }).select("name email").limit(10).exec();
   }
 }

@@ -11,6 +11,7 @@ export class AdminLoginuseCase implements IAdminLoginUseCase {
     private adminRepository: IAdminRepository,
     private hashService: IPasswordService,
     private tokenService: ITokenService
+    
   ) {}
 
   async execute(data: LoginDTo): Promise<AdminResponseDto> {
