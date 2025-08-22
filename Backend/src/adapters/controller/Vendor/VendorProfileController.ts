@@ -6,8 +6,8 @@ import { IVendorProfileEditUsecase } from "../../../domain/interface/vendor/IVen
 
 export class VendorProfileController {
   constructor(
-    private vendorprofileusecase: IVendorProfileUseCase,
-    private editProfile: IVendorProfileEditUsecase
+    private _vendorprofileusecase: IVendorProfileUseCase,
+    private _editProfile: IVendorProfileEditUsecase
   ) {}
 
   async GetProfile(req: Request, res: Response): Promise<void> {
@@ -21,7 +21,7 @@ export class VendorProfileController {
         return;
       }
 
-      const result = await this.vendorprofileusecase.execute(email);
+      const result = await this._vendorprofileusecase.execute(email);
       if (result) {
         res.status(HttpStatus.OK).json({
           success: true,
@@ -48,7 +48,7 @@ export class VendorProfileController {
       const VendorDataData = req.body;
      
 
-      const result = await this.editProfile.execute(VendorId, VendorDataData);
+      const result = await this._editProfile.execute(VendorId, VendorDataData);
       
       return res.status(HttpStatus.OK).json({
         success: true,

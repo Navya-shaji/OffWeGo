@@ -13,7 +13,6 @@ export class SubscriptionController {
     try {
       const { name, description, price, durationInDays, commissionRate } =
         req.body;
-     
 
       if (
         !name ||
@@ -51,7 +50,7 @@ export class SubscriptionController {
       });
     }
   }
-  
+
   async getAllSubscriptions(req: Request, res: Response) {
     try {
       const result = await this._getsubscriptions.execute();

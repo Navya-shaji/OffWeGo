@@ -3,7 +3,7 @@ import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { IVendorStatusCheckUseCase } from "../../../domain/interface/vendor/IVendorStatusCheckUseCase";
 
 export class VendorStatusCheckController {
-  constructor(private vendorStatusCheckUseCase: IVendorStatusCheckUseCase) {}
+  constructor(private _vendorStatusCheckUseCase: IVendorStatusCheckUseCase) {}
 
   async checkStatus(req: Request, res: Response): Promise<void> {
     const { email } = req.query;
@@ -17,7 +17,7 @@ export class VendorStatusCheckController {
     }
 
     try {
-      const vendor = await this.vendorStatusCheckUseCase.execute(email.trim());
+      const vendor = await this._vendorStatusCheckUseCase.execute(email.trim());
 
       if (!vendor) {
         res.status(HttpStatus.NOT_FOUND).json({

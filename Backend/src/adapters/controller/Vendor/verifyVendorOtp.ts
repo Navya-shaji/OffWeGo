@@ -3,7 +3,7 @@ import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { IVerifyOtpVendorUsecase } from "../../../domain/interface/vendor/IVerifyOtpVendorUseCase";
 
 export class VendorVerifyOtpController {
-  constructor(private vendorVerifyOtpUseCase: IVerifyOtpVendorUsecase) {}
+  constructor(private _vendorVerifyOtpUseCase: IVerifyOtpVendorUsecase) {}
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
@@ -17,7 +17,7 @@ export class VendorVerifyOtpController {
         return;
       }
 
-      const verifiedVendor = await this.vendorVerifyOtpUseCase.execute(
+      const verifiedVendor = await this._vendorVerifyOtpUseCase.execute(
         email,
         otp
       );

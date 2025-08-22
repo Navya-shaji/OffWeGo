@@ -5,7 +5,7 @@ import cloudinary from "../../../utilities/cloud";
 import { IRegisterVendorUseCase } from "../../../domain/interface/vendor/IVendorUsecase";
 
 export class VendorSignupController {
-  constructor(private RegistervendorUsecase: IRegisterVendorUseCase) {}
+  constructor(private _RegistervendorUsecase: IRegisterVendorUseCase) {}
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
     try {
@@ -34,7 +34,7 @@ const result = await cloudinary.uploader.upload(document, {
         
       };
 
-      const newVendor = await this.RegistervendorUsecase.execute(vendorData);
+      const newVendor = await this._RegistervendorUsecase.execute(vendorData);
 
       res.status(HttpStatus.CREATED).json({
         success: true,

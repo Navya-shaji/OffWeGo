@@ -4,7 +4,7 @@ import { LoginDTo } from "../../../domain/dto/user/LoginDto";
 import { IVendorLoginUsecase } from "../../../domain/interface/vendor/IVendorLoginUsecase"; 
 
 export class VendorLoginController {
-  constructor(private vendorLoginUseCase: IVendorLoginUsecase) {}
+  constructor(private _vendorLoginUseCase: IVendorLoginUsecase) {}
 
   async login(req: Request, res: Response) {
     try {
@@ -18,7 +18,7 @@ export class VendorLoginController {
       }
 
       const loginPayload: LoginDTo = { email, password };
-      const result = await this.vendorLoginUseCase.execute(loginPayload);
+      const result = await this._vendorLoginUseCase.execute(loginPayload);
       const vendor = result?.vendor;
 
       if (!vendor) {

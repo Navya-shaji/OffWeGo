@@ -5,8 +5,8 @@ import { ITokenService } from "../../../domain/interface/serviceInterface/Itoken
 
 export class GoogleSignupController {
   constructor(
-    private googleSigninUseCase: IGoogleSignupUseCase,
-    private tokenService: ITokenService
+    private _googleSigninUseCase: IGoogleSignupUseCase,
+    private _tokenService: ITokenService
   ) {}
 
   async googleSignin(req: Request, res: Response): Promise<void> {
@@ -21,7 +21,7 @@ export class GoogleSignupController {
         return;
       }
 
-      const user = await this.googleSigninUseCase.execute(token);
+      const user = await this._googleSigninUseCase.execute(token);
 
       if (user.status?.toLowerCase().includes("block")) {
         res.status(HttpStatus.FORBIDDEN).json({
@@ -32,8 +32,8 @@ export class GoogleSignupController {
       }
 
       const payload = { userId: user._id, role: user.role };
-      const accessToken = this.tokenService.generateAccessToken(payload);
-      const refreshToken = this.tokenService.generateRefreshToken(payload);
+      const accessToken = this._tokenService.generateAccessToken(payload);
+      const refreshToken = this._tokenService.generateRefreshToken(payload);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,

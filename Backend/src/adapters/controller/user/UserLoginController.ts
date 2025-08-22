@@ -7,10 +7,10 @@ import { IResetPasswordUseCase } from "../../../domain/interface/usecaseInterfac
 
 export class UserLoginController {
   constructor(
-    private loginUserUseCase: IUserLoginUseCase,
-    private tokenService: ITokenService,
-    private otpService: IOtpService,
-    private resetPasswordUseCase: IResetPasswordUseCase
+    private _loginUserUseCase: IUserLoginUseCase,
+    private _tokenService: ITokenService,
+    private _otpService: IOtpService,
+    private _resetPasswordUseCase: IResetPasswordUseCase
   ) {}
 
   async loginUser(req: Request, res: Response): Promise<void> {
@@ -25,7 +25,7 @@ export class UserLoginController {
         return;
       }
 
-      const result = await this.loginUserUseCase.execute({ email, password });
+      const result = await this._loginUserUseCase.execute({ email, password });
       const user = result.user;
 
       if (user.role?.toLowerCase() === "admin") {
@@ -46,8 +46,8 @@ export class UserLoginController {
       }
 
       const payload = { userId: user.id, role: user.role };
-      const accessToken = this.tokenService.generateAccessToken(payload);
-      const refreshToken = this.tokenService.generateRefreshToken(payload);
+      const accessToken = this._tokenService.generateAccessToken(payload);
+      const refreshToken = this._tokenService.generateRefreshToken(payload);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -81,9 +81,9 @@ export class UserLoginController {
         });
         return;
       }
-      const otp = this.otpService.generateOtp();
-      await this.otpService.storeOtp(email, otp);
-      await this.otpService.sendOtpEmail(email, otp);
+      const otp = this._otpService.generateOtp();
+      await this._otpService.storeOtp(email, otp);
+      await this._otpService.sendOtpEmail(email, otp);
 
       res
         .status(HttpStatus.OK)
@@ -109,7 +109,7 @@ export class UserLoginController {
         return;
       }
 
-      const isVerified = await this.otpService.verifyOtp(email, otp);
+      const isVerified = await this._otpService.verifyOtp(email, otp);
 
       if (!isVerified) {
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -150,7 +150,7 @@ async resetPassword(req: Request, res: Response): Promise<void> {
     }
 
     try {
-      await this.resetPasswordUseCase.execute(email, newPassword);
+      await this._resetPasswordUseCase.execute(email, newPassword);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Password reset successful",

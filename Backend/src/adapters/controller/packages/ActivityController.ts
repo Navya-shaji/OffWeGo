@@ -69,11 +69,12 @@ export class ActivityController {
     }
   }
   async deleteActivity(req: Request, res: Response) {
+    console.log("Haii")
     try {
       const { id } = req.params;
-
+console.log(" id from activity",id)
       const result = await this._deleteActivity.execute(id);
-
+console.log(result)
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
