@@ -32,7 +32,7 @@ export const getAllHotel = async (
     const { hotels = [], totalHotels = 0 } = res.data.data;
 
     if (!Array.isArray(hotels)) {
-      console.log("something wrong ", hotels);
+   
       return {
         hotels: [],
         totalHotels: 0,

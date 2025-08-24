@@ -41,23 +41,31 @@ export function FormBuilder<T>({
 
   const handleFormSubmit = async (data: T) => {
     await onSubmit({ ...data, rating });
-
     reset(defaultValues);
-
     setRating(defaultValues["rating"] || 0);
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6 space-y-6 border border-gray-200"
+    >
+      <h2 className="text-xl font-semibold text-gray-800 text-center">
+        Fill the Form
+      </h2>
+
       {fields.map((field) => (
         <div key={field.name} className="flex flex-col">
-          <label className="font-medium mb-1">{field.label}</label>
+          <label className="font-medium mb-2 text-gray-700">
+            {field.label}
+          </label>
 
           {field.type === "textarea" && (
             <textarea
               {...register(field.name as any)}
               placeholder={field.placeholder}
-              className="border rounded-lg p-2"
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              rows={4}
             />
           )}
 
@@ -65,7 +73,7 @@ export function FormBuilder<T>({
             <input
               type="file"
               accept="image/*"
-              className="border rounded-lg p-2"
+              className="border border-gray-300 rounded-xl p-3 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
               onChange={(e) =>
                 setValue(field.name as any, e.target.files?.[0] || null)
               }
@@ -73,14 +81,14 @@ export function FormBuilder<T>({
           )}
 
           {field.type === "rating" && (
-            <div className="flex space-x-1 mt-2">
+            <div className="flex space-x-2 mt-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`w-6 h-6 cursor-pointer ${
+                  className={`w-7 h-7 cursor-pointer transition ${
                     star <= rating
                       ? "text-yellow-500 fill-yellow-500"
-                      : "text-gray-400"
+                      : "text-gray-300 hover:text-yellow-400"
                   }`}
                   onClick={() => setRating(star)}
                 />
@@ -95,12 +103,12 @@ export function FormBuilder<T>({
                 {...register(field.name as string)}
                 type={field.type}
                 placeholder={field.placeholder}
-                className="border rounded-lg p-2"
+                className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             )}
 
           {errors[field.name as keyof T] && (
-            <span className="text-red-500 text-sm">
+            <span className="text-red-500 text-sm mt-1">
               {String(errors[field.name as keyof T]?.message)}
             </span>
           )}
@@ -109,7 +117,7 @@ export function FormBuilder<T>({
 
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
+        className="bg-blue-600 hover:bg-blue-700 transition text-white font-medium px-6 py-3 rounded-xl w-full shadow-md"
       >
         {submitLabel}
       </button>

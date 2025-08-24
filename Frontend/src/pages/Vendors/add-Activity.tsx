@@ -1,15 +1,13 @@
 import { z } from "zod";
 import { toast } from "react-toastify";
-import { FormBuilder, type FieldConfig } from "@/components/Modular/FormBuilderComponent"; 
+import { FormBuilder, type FieldConfig } from "@/components/Modular/FormBuilderComponent";
 import { createActivity } from "@/services/Activity/ActivityService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { ActivitySchema } from "@/Types/vendor/Package/Activity";
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 type ActivityForm = z.infer<typeof ActivitySchema>;
 
 export function AddActivity() {
-
   const [activityId, setActivityId] = useState<string | null>(null);
 
   const fields: FieldConfig[] = [
@@ -37,6 +35,8 @@ export function AddActivity() {
         imageUrl = await uploadToCloudinary(data.imageUrl);
       } else if (Array.isArray(data.imageUrl) && data.imageUrl[0] instanceof File) {
         imageUrl = await uploadToCloudinary(data.imageUrl[0]);
+      } else {
+        throw new Error("No valid file provided for upload");
       }
 
       const response = await createActivity({ ...data, imageUrl });
@@ -44,21 +44,21 @@ export function AddActivity() {
       const id = response?.id || response?.data?.id;
       if (id) {
         setActivityId(id);
+      } else {
+        throw new Error("No activity ID returned from server");
       }
 
       toast.success("Activity created successfully 🎉");
     } catch (err: any) {
-      console.error(err);
-      toast.error(err?.response?.data?.error || "Error creating activity");
+      console.error("Error creating activity:", err);
+      toast.error(err?.response?.data?.error || err.message || "Error creating activity");
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-xl font-bold mb-4">Add Activity</h2>
-      {activityId && (
-        <p className="text-green-600 mb-4">Activity ID: {activityId}</p>
-      )}
+     
       <FormBuilder<ActivityForm>
         schema={ActivitySchema}
         fields={fields}

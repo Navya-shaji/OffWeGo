@@ -2,7 +2,7 @@ import { IActivityModel } from "../../../framework/database/Models/ActivityModel
 import { Activity } from "../../entities/ActivityEntity";
 
 export interface IActivityRepository{
-    createAtivity(data:Activity):Promise<IActivityModel>
+    createActivity(data:Activity):Promise<IActivityModel>
     getAllActivity(skip:number,limit:number):Promise<IActivityModel[]>
     edit(id: string, updatedData: Partial<Activity>): Promise<IActivityModel | null>;
     delete(id:string):Promise<IActivityModel|null>

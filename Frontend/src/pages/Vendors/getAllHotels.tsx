@@ -33,7 +33,6 @@ const HotelsTable: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // ✅ Load hotels once and when page changes
   useEffect(() => {
     loadHotels();
   }, []);

@@ -68,16 +68,15 @@ export const updateActivity = async (id: string, data: Activity) => {
 };
 
 export const deleteActivity = async (id: string) => {
-  console.log("haiorijireiugthgthghgktg")
   try {
-    const response = await axiosInstance.delete(`api/vendor/activities/${id}`);
-console.log("response",response)
+    const response = await axiosInstance.delete(`/api/vendor/activities/${id}`);
     return response.data.data;
   } catch (error) {
     console.error("Error inside delete activity", error);
     throw error;
   }
 };
+
 export const searchActivity = async (query: string): Promise<Activity[]> => {
   try {
     const res = await axiosInstance.get("/api/vendor/activities/search", {

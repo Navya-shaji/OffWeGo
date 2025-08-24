@@ -22,6 +22,7 @@ import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUseca
 import { CreateBooking } from "../../../useCases/Booking/BookingUsecase";
 import { BookingController } from "../../../adapters/controller/Booking/BookingController";
 import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
+import { model } from "mongoose";
 
 // Setup Repos and Services
 const userRepository = new UserRepository();
