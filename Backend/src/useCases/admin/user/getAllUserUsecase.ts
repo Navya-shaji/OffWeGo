@@ -3,7 +3,7 @@ import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
 
 export class GetAllUsers implements IGetAllUser {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private _userRepository: IUserRepository) {}
 
   async execute(
     page: number,
@@ -11,10 +11,10 @@ export class GetAllUsers implements IGetAllUser {
   ): Promise<{ users: User[]; totalUsers: number }> {
     const skip = (page - 1) * limit;
 
-    const users = await this.userRepository.getAllUsers(skip, limit, {
+    const users = await this._userRepository.getAllUsers(skip, limit, {
       role: "user",
     });
-    const totalUsers = await this.userRepository.countUsers({ role: "user" });
+    const totalUsers = await this._userRepository.countUsers({ role: "user" });
 
     return { users, totalUsers };
   }

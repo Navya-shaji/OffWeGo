@@ -46,20 +46,19 @@ export class VendorProfileController {
     try {
       const VendorId = req.params.id;
       const VendorDataData = req.body;
-     
 
       const result = await this._editProfile.execute(VendorId, VendorDataData);
-      
+
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Vendor Profile Updated successfully",
-        data: { 
-          id:result?._id,
-          name:result?.name,
-          email:result?.email,
-          phone:result?.phone,
-          profile_img:result?.profileImage,
-          document:result?.documentUrl
+        data: {
+          id: result?._id,
+          name: result?.name,
+          email: result?.email,
+          phone: result?.phone,
+          profile_img: result?.profileImage,
+          document: result?.documentUrl,
         },
       });
     } catch (error) {

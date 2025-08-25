@@ -5,14 +5,14 @@ import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 import { IVendorModel } from "../../../framework/database/Models/vendorModel";
 
 export class AdminVendorApprovalUseCase implements IAdminVendorApprovalUseCase {
-  constructor(private vendorRepository: IVendorRepository) {}
+  constructor(private _vendorRepository: IVendorRepository) {}
 
   async getPending(): Promise<Vendor[]> {
-    const docs: IVendorModel[] = await this.vendorRepository.findPendingVendors();
+    const docs: IVendorModel[] = await this._vendorRepository.findPendingVendors();
     return docs.map(mapToVendor);
   }
   async updateStatus(id: string, status: 'approved' | 'rejected'): Promise<Vendor | null> {
-    const updatedDoc = await this.vendorRepository.updateVendorStatus(id, status);
+    const updatedDoc = await this._vendorRepository.updateVendorStatus(id, status);
     return updatedDoc ? mapToVendor(updatedDoc as any) : null;
   }
 

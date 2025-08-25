@@ -4,10 +4,10 @@ import { Category } from "../../domain/entities/categoryEntity";
 import { mapToCatrgoryDto } from "../../mappers/category/categoryMappers";
 
 export class CreateCategory{
-    constructor(private categoryRepo:ICategoryRepository){}
+    constructor(private _categoryRepo:ICategoryRepository){}
 
     async execute(data:CreateCategoryDto):Promise<Category>{
-        const created=await this.categoryRepo.createCategory(data)
+        const created=await this._categoryRepo.createCategory(data)
         return mapToCatrgoryDto(created)
     }
 }

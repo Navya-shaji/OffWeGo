@@ -9,9 +9,17 @@ export class VendorSignupController {
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, phone, password, confirmPassword, document } = req.body;
+      const { name, email, phone, password, confirmPassword, document } =
+        req.body;
 
-      if (!name || !email || !phone || !password || !confirmPassword || !document) {
+      if (
+        !name ||
+        !email ||
+        !phone ||
+        !password ||
+        !confirmPassword ||
+        !document
+      ) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "All fields are required, including document",
@@ -19,9 +27,9 @@ export class VendorSignupController {
         return;
       }
 
-const result = await cloudinary.uploader.upload(document, {
-  folder: "vendor_documents",
-});
+      const result = await cloudinary.uploader.upload(document, {
+        folder: "vendor_documents",
+      });
 
       const documentUrl = result.secure_url;
 
@@ -31,7 +39,6 @@ const result = await cloudinary.uploader.upload(document, {
         phone,
         password,
         documentUrl,
-        
       };
 
       const newVendor = await this._RegistervendorUsecase.execute(vendorData);

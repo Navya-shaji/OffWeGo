@@ -3,10 +3,10 @@ import { SubscriptionPlan } from "../../domain/entities/subscriptionplan";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
 
 export class CreateSubscriptionPlanUseCase {
-  constructor(private readonly subscriptionRepo: ISubscriptionPlanRepository) {}
+  constructor(private readonly _subscriptionRepo: ISubscriptionPlanRepository) {}
 
   async execute(data: CreateSubscriptionDTO): Promise<SubscriptionPlan> {
-    const { name, description, price, durationInDays, commissionRate } = data; // 👈 Added `description`
+    const { name, description, price, durationInDays, commissionRate } = data; 
 
     if (!name || !description || price <= 0 || durationInDays <= 0 || commissionRate < 0 || commissionRate > 100) {
       throw new Error("Invalid subscription plan details.");
@@ -20,6 +20,6 @@ export class CreateSubscriptionPlanUseCase {
       commissionRate,
     };
 
-    return await this.subscriptionRepo.create(plan);
+    return await this._subscriptionRepo.create(plan);
   }
 }

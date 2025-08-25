@@ -6,10 +6,10 @@ import { IVendorStatusCheckUseCase } from "../../../domain/interface/vendor/IVen
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 
 export class VendorStatusCheckUseCase implements IVendorStatusCheckUseCase {
-  constructor(private vendorRepository: IVendorRepository) {}
+  constructor(private _vendorRepository: IVendorRepository) {}
 
   async execute(email: string): Promise<Vendor | null> {
-    const vendor=await this.vendorRepository.findByEmail(email.trim().toLowerCase())
+    const vendor=await this._vendorRepository.findByEmail(email.trim().toLowerCase())
     if(!vendor) return null
 
     return mapToVendor(vendor)

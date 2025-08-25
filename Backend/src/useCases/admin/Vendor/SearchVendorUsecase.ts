@@ -3,10 +3,10 @@ import { ISearchVendorUSecase } from "../../../domain/interface/admin/ISearchVen
 import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
 
 export class SearchVendorUsecase implements ISearchVendorUSecase{
-    constructor(private vendorRepo:IVendorRepository){}
+    constructor(private _vendorRepository:IVendorRepository){}
 
     async execute(query:string):Promise<Vendor[]>{
-        const result =await this.vendorRepo.searchVendor(query)
+        const result =await this._vendorRepository.searchVendor(query)
         return result
     }
 }

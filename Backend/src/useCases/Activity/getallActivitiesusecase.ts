@@ -4,12 +4,12 @@ import { IGetAllActivities } from "../../domain/interface/vendor/IgetallActiviti
 import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";
 
 export class GetAllActivitiesUsecase implements IGetAllActivities{
-    constructor(private activityRepo:IActivityRepository){}
+    constructor(private _activityRepo:IActivityRepository){}
 
     async execute(page:number,limit:number):Promise<{activity:Activity[],totalActivities:number}>{
         const skip=(page-1)*limit
-        const activity=await this.activityRepo.getAllActivity(skip,limit)
-        const totalActivity=await this.activityRepo.countActivity()
+        const activity=await this._activityRepo.getAllActivity(skip,limit)
+        const totalActivity=await this._activityRepo.countActivity()
         return {
             activity:activity.map(mapToActivityDto),
             totalActivities:totalActivity

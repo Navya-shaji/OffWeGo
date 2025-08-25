@@ -5,9 +5,9 @@ import { LoginDTo } from "../../../domain/dto/user/LoginDto";
 
 export class VendorLoginUsecase {
   constructor(
-    private vendorRepository: IVendorRepository,
-    private hashService: IPasswordService,
-    private tokenService: ITokenService
+    private _vendorRepository: IVendorRepository,
+    private _hashService: IPasswordService,
+    private _tokenService: ITokenService
   ) {}
 
   async execute(data: LoginDTo): Promise<{
@@ -26,7 +26,7 @@ export class VendorLoginUsecase {
   } | null> {
     const { email, password } = data;
 
-    const vendor = await this.vendorRepository.findByEmail(
+    const vendor = await this._vendorRepository.findByEmail(
       email.toLowerCase().trim()
     );
 
@@ -38,7 +38,7 @@ export class VendorLoginUsecase {
       return null;
     }
 
-    const isPasswordValid = await this.hashService.compare(
+    const isPasswordValid = await this._hashService.compare(
       password,
       vendor.password
     );
@@ -53,8 +53,8 @@ export class VendorLoginUsecase {
       role: "vendor",
     };
 
-    const accessToken = this.tokenService.generateAccessToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
     return {
       accessToken,

@@ -2,10 +2,10 @@ import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepo
 import { IdeleteActivity } from "../../domain/interface/vendor/IdeleteActivityUsecase";
 
 export class DeleteActivity implements IdeleteActivity{
-  constructor(private ActivityRepo:IActivityRepository){}
+  constructor(private _ActivityRepo:IActivityRepository){}
 
   async execute(id: string): Promise<{ success: boolean; message: string; }> {
-      const result=await this.ActivityRepo.delete(id)
+      const result=await this._ActivityRepo.delete(id)
      
 
         return {success:true,message:"Activity deleted successfully"}

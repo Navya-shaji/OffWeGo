@@ -3,11 +3,11 @@ import { IPackageRepository } from "../../domain/interface/vendor/iPackageReposi
 import { IPackageModel } from "../../framework/database/Models/packageModel"; 
 
 export class GetPackageUsecase implements IGetPackageUsecase {
-  constructor(private packageRepository: IPackageRepository) {}
+  constructor(private _packageRepository: IPackageRepository) {}
 
   async execute(destination?: string): Promise<IPackageModel[]> {
     if (destination) {
-      return await this.packageRepository.getPackagesByDestination(destination);
+      return await this._packageRepository.getPackagesByDestination(destination);
     }
     return []; 
   }

@@ -8,30 +8,30 @@ import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 
 export class VendorRegisterUseCase implements IRegisterVendorUseCase {
   constructor(
-    private vendorRepository: IVendorRepository,
-    private otpService: IOtpService,
-    private hashService: IPasswordService
+    private _vendorRepository: IVendorRepository,
+    private _otpService: IOtpService,
+    private _hashService: IPasswordService
   ) {}
 
   async execute(vendorInput: RegistervendorDto): Promise<Vendor> {
     const { name, email, password, phone, documentUrl } = vendorInput;
 
-    const existingVendor = await this.vendorRepository.findByEmail(email);
+    const existingVendor = await this._vendorRepository.findByEmail(email);
     if (existingVendor) throw new Error("Vendor Already Exists");
 
-    const existingPhone = await this.vendorRepository.findByPhone(phone);
+    const existingPhone = await this._vendorRepository.findByPhone(phone);
     if (existingPhone) throw new Error("Phone number already exists");
 
     if (!documentUrl || typeof documentUrl !== "string") {
       throw new Error("Document is required for vendor Registration");
     }
 
-    const hashedPassword = await this.hashService.hashPassword(password);
-    const otp = this.otpService.generateOtp();
+    const hashedPassword = await this._hashService.hashPassword(password);
+    const otp = this._otpService.generateOtp();
     console.log("Generated OTP:", otp);
 
     // 👇 Construct the correct input for creation
-    const createdDoc = await this.vendorRepository.createVendor({
+    const createdDoc = await this._vendorRepository.createVendor({
       name,
       email,
       phone,
@@ -40,8 +40,8 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
       status: "pending"
     });
 
-    await this.otpService.storeOtp(email, otp);
-    await this.otpService.sendOtpEmail(email, otp);
+    await this._otpService.storeOtp(email, otp);
+    await this._otpService.sendOtpEmail(email, otp);
 
     return mapToVendor(createdDoc);
   }

@@ -4,10 +4,10 @@ import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepos
 import { IVendorProfileUseCase } from "../../../domain/interface/vendor/IvendorProfileUsecase";
 
 export class VendorProfileUsecase implements IVendorProfileUseCase{
-    constructor(private vendorRepository:IVendorRepository){}
+    constructor(private _vendorRepository:IVendorRepository){}
 
  async execute(email: string): Promise<RegistervendorDto | null> {
-    const vendor = await this.vendorRepository.findByEmail(email);
+    const vendor = await this._vendorRepository.findByEmail(email);
     return vendor;
  }
 }

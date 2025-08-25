@@ -8,7 +8,9 @@ export class VendorDocumentController {
       const fileStr = req.body.file;
 
       if (!fileStr) {
-        res.status(400).json({ success: false, message: "No file data provided" });
+        res
+          .status(400)
+          .json({ success: false, message: "No file data provided" });
         return;
       }
 

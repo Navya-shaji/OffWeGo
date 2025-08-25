@@ -8,19 +8,19 @@ import { AdminResponseDto } from "../../../domain/dto/user/AdminResponseDto";
 
 export class AdminLoginuseCase implements IAdminLoginUseCase {
   constructor(
-    private adminRepository: IAdminRepository,
-    private hashService: IPasswordService,
-    private tokenService: ITokenService
+    private _adminRepository: IAdminRepository,
+    private _hashService: IPasswordService,
+    private _tokenService: ITokenService
     
   ) {}
 
   async execute(data: LoginDTo): Promise<AdminResponseDto> {
     const { email, password } = data;
 
-    const admin = await this.adminRepository.findByEmail(email);
+    const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new Error("Admin not found");
 
-    const isPasswordValid = await this.hashService.compare(
+    const isPasswordValid = await this._hashService.compare(
       password,
       admin.password
     );
@@ -28,8 +28,8 @@ export class AdminLoginuseCase implements IAdminLoginUseCase {
 
     const payload = { id: admin._id, email: admin.email, role: admin.role };
 
-    const accessToken = this.tokenService.generateAccessToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
     return mapToAdmin(admin, accessToken, refreshToken);
   }

@@ -3,10 +3,10 @@ import { IBannerRepository } from "../../domain/interface/Banner/IBannerReposito
 import { mapToBannerDto } from "../../mappers/banner/bannerMappers";
 
 export class CreateBanner{
-    constructor(private bannerRepo:IBannerRepository){}
+    constructor(private _bannerRepo:IBannerRepository){}
 
     async execute(data:Banner):Promise<Banner>{
-        const created=await this.bannerRepo.createBanner(data)
+        const created=await this._bannerRepo.createBanner(data)
         return mapToBannerDto(created)
     }
 }
