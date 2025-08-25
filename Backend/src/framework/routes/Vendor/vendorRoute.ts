@@ -42,10 +42,13 @@ export class VendorRoute {
     this.vendorRouter.post(VendorRoutes.LOGIN,(req:Request,res:Response)=>{
       vendorloginController.login(req,res)
     })
+    this.vendorRouter.post(VendorRoutes.CREATE_DESTINATION,(req:Request,res:Response)=>{
+      destinationController.addDestination(req,res)
+    })
        this.vendorRouter.post(CommonRoutes.REFRESH_TOKEN,(req:Request,res:Response)=>{
       refreshTokenController.handle(req,res)
     });
-    this.vendorRouter.get(VendorRoutes.GET_DESTINATIONS,checkRoleBasedcontrol("vendor"),(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.GET_DESTINATIONS,checkRoleBasedcontrol(["vendor","admin"]),(req:Request,res:Response)=>{
       destinationController.getAllDestination(req,res)
     })
     this.vendorRouter.get(VendorRoutes.ALL_PACKAGES,(req:Request,res:Response)=>{
@@ -53,7 +56,7 @@ export class VendorRoute {
     })
     this.vendorRouter.use(verifyTokenAndCheckBlackList(TokenService))
 
-    this.vendorRouter.get(VendorRoutes.PROFILE,checkRoleBasedcontrol("vendor"),(req:Request,res:Response)=>{
+    this.vendorRouter.get(VendorRoutes.PROFILE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       vendorProfilecontroller.GetProfile(req,res)
     })
     this.vendorRouter.post(VendorRoutes.ADD_PACKAGE,(req:Request,res:Response)=>{
@@ -65,10 +68,10 @@ export class VendorRoute {
     this.vendorRouter.delete(VendorRoutes.DELET_PACKAGE,(req:Request,res:Response)=>{
       packagecontroller.deletePackage(req,res)
     })
-    this.vendorRouter.put(VendorRoutes.EDIT_PROFILE,checkRoleBasedcontrol("vendor"),(req:Request,res:Response)=>{
+    this.vendorRouter.put(VendorRoutes.EDIT_PROFILE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       vendorProfilecontroller.EditProfile(req,res)
     })
-    this.vendorRouter.post(VendorRoutes.PACKAGE_WISE_GROUPING,checkRoleBasedcontrol("vendor"),(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.PACKAGE_WISE_GROUPING,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       packagewisegroupcontroller.CreatePackageWiseGrouping(req,res)
     })
     this.vendorRouter.get(VendorRoutes.PACKAGE_WISE_GROUPS,(req:Request,res:Response)=>{

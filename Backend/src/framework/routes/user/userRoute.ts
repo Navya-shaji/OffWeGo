@@ -54,7 +54,7 @@ const TokenService = new JwtService();
     this.userRouter.post(UserRoutes.RESET_PASSWORD, (req: Request, res: Response) =>
       userLoginController.resetPassword(req, res)
     );
-    this.userRouter.get(UserRoutes.PROFILE,verifyTokenAndCheckBlackList(TokenService),checkRoleBasedcontrol("user"),(req:Request,res:Response)=>{
+    this.userRouter.get(UserRoutes.PROFILE,verifyTokenAndCheckBlackList(TokenService),checkRoleBasedcontrol(["user"]),(req:Request,res:Response)=>{
       userprofileController.GetProfile(req,res)
     })
     this.userRouter.get(UserRoutes.GET_SINGLE_DESTINATION,(req:Request,res:Response)=>{
@@ -63,13 +63,13 @@ const TokenService = new JwtService();
     this.userRouter.post(UserRoutes.RESEND_OTP,(req:Request,res:Response)=>{
       userRegisterController.resendOtp(req,res)
     })
-    this.userRouter.get(UserRoutes.GET_ALL_PACKAGES,verifyTokenAndCheckBlackList(TokenService),checkRoleBasedcontrol("user"),(req:Request,res:Response)=>{
+    this.userRouter.get(UserRoutes.GET_ALL_PACKAGES,verifyTokenAndCheckBlackList(TokenService),checkRoleBasedcontrol(["user"]),(req:Request,res:Response)=>{
       getpackageByDestinationController.getPackages(req,res)
     })
     this.userRouter.patch(UserRoutes.EDIT_PROFILE,(req:Request,res:Response)=>{
       userprofileController.editProfileHandler(req,res)
     })
-    this.userRouter.post(UserRoutes.CREATE_BOOKING,verifyTokenAndCheckBlackList(TokenService),checkRoleBasedcontrol("user"),(req:Request,res:Response)=>{
+    this.userRouter.post(UserRoutes.CREATE_BOOKING,verifyTokenAndCheckBlackList(TokenService),checkRoleBasedcontrol(["user"]),(req:Request,res:Response)=>{
       bookingcontroller.createBooking(req,res)
     })
   }
