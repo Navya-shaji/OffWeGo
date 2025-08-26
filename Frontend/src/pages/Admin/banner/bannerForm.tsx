@@ -1,4 +1,5 @@
 import { getBanner, actionBannerupdate } from "@/services/Banner/bannerService";
+import { BannerDelete } from "@/services/Banner/bannerService";
 import type { BannerInterface } from "@/interface/bannerInterface";
 import { useEffect, useState } from "react";
 
@@ -17,24 +18,32 @@ export const BannerForm = () => {
     }
   };
 
-const handleToggle = async (index: number) => {
-  try {
-    const updated = [...banner];
-    const ban = updated[index];
+  const handleToggle = async (index: number) => {
+    try {
+      const updated = [...banner];
+      const ban = updated[index];
 
-    if (!ban.id) return console.error("Banner ID is missing!"); 
-    const newAction = !ban.action;
+      if (!ban.id) return console.error("Banner ID is missing!"); 
 
-    const updatedBanner = await actionBannerupdate(ban.id, newAction);
+      const newAction = !ban.action;
+      const updatedBanner = await actionBannerupdate(ban.id, newAction);
 
-    updated[index].action = updatedBanner.action;
-    setBanner(updated);
-  } catch (error) {
-    console.error("Failed to update banner action", error);
-  }
-};
+      updated[index].action = updatedBanner.action;
+      setBanner(updated);
+    } catch (error) {
+      console.error("Failed to update banner action", error);
+    }
+  };
 
-  console.log("fetched data",banner)
+  const handleDelete = async (id: string) => {
+    try {
+      await BannerDelete(id);
+      setBanner(prev => prev.filter(b => b.id !== id));
+    } catch (error) {
+      console.error("Failed to delete banner", error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -51,11 +60,12 @@ const handleToggle = async (index: number) => {
               <th className="px-6 py-3">Video</th>
               <th className="px-6 py-3">Title</th>
               <th className="px-6 py-3">Action</th>
+              <th className="px-6 py-3">Delete</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white">
             {banner.map((ban, index) => (
-              <tr key={ban._id} className="hover:bg-gray-50 transition">
+              <tr key={ban.id} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4">
                   {ban.Banner_video_url ? (
                     <video
@@ -87,6 +97,14 @@ const handleToggle = async (index: number) => {
                       {ban.action ? "Active" : "Inactive"}
                     </span>
                   </label>
+                </td>
+                <td className="px-6 py-4">
+                  <button
+                    className="text-red-500 hover:text-red-700 font-medium"
+                    onClick={() => handleDelete(ban.id)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

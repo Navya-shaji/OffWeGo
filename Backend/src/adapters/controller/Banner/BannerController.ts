@@ -61,6 +61,7 @@ export class Bannercontroller {
     try {
       const { id } = req.params;
       const result = this._deleteBanner.execute(id);
+      console.log(result,"result")
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Banner deleted successsfully",
@@ -83,7 +84,6 @@ export class Bannercontroller {
           .json({ error: "Action must be a boolean" });
       }
       const updatedBanner = await this._updateAction.execute(id, action);
-console.log("update banner",updatedBanner)
       if (!updatedBanner) {
         return res
           .status(HttpStatus.NOT_FOUND)
