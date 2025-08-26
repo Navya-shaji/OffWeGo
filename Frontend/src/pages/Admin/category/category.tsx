@@ -86,15 +86,12 @@ export const CategoryForm = () => {
       <div className="w-full max-w-3xl bg-white border border-black rounded-xl shadow-lg">
         <div className="bg-black text-white rounded-t-xl px-6 py-4">
           <h1 className="text-2xl font-bold">Add New Category</h1>
-          <p className="text-sm text-blue-300">
-            Create and manage your product categories
-          </p>
+         
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           <ToastContainer position="top-right" autoClose={3000} />
 
-          {/* Category Name */}
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
               Category Name *
@@ -103,7 +100,7 @@ export const CategoryForm = () => {
               type="text"
               {...register("name")}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder="e.g. Electronics"
+              placeholder="e.g. family trip"
             />
             {errors.name && (
               <p className="text-red-600 text-sm">{errors.name.message}</p>
