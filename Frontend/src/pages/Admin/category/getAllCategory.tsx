@@ -19,7 +19,6 @@ interface CellInfo<T> {
   row?: { original: T };
 }
 
-// ✅ Inline Delete Confirmation Modal (inside same file)
 interface DeleteModalProps {
   isOpen: boolean;
   category?: CategoryType | null;

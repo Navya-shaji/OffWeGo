@@ -2,6 +2,7 @@ import { getBanner, actionBannerupdate } from "@/services/Banner/bannerService";
 import { BannerDelete } from "@/services/Banner/bannerService";
 import type { BannerInterface } from "@/interface/bannerInterface";
 import { useEffect, useState } from "react";
+import { Trash } from "lucide-react";
 
 export const BannerForm = () => {
   const [banner, setBanner] = useState<BannerInterface[]>([]);
@@ -23,7 +24,7 @@ export const BannerForm = () => {
       const updated = [...banner];
       const ban = updated[index];
 
-      if (!ban.id) return console.error("Banner ID is missing!"); 
+      if (!ban.id) return console.error("Banner ID is missing!");
 
       const newAction = !ban.action;
       const updatedBanner = await actionBannerupdate(ban.id, newAction);
@@ -38,7 +39,7 @@ export const BannerForm = () => {
   const handleDelete = async (id: string) => {
     try {
       await BannerDelete(id);
-      setBanner(prev => prev.filter(b => b.id !== id));
+      setBanner((prev) => prev.filter((b) => b.id !== id));
     } catch (error) {
       console.error("Failed to delete banner", error);
     }
@@ -48,7 +49,10 @@ export const BannerForm = () => {
     fetchData();
   }, []);
 
-  if (loading) return <p className="text-center text-lg font-medium">Loading banners...</p>;
+  if (loading)
+    return (
+      <p className="text-center text-lg font-medium">Loading banners...</p>
+    );
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
@@ -81,7 +85,9 @@ export const BannerForm = () => {
                     <span className="text-gray-400 italic">No video</span>
                   )}
                 </td>
-                <td className="px-6 py-4 font-medium text-gray-800">{ban.title}</td>
+                <td className="px-6 py-4 font-medium text-gray-800">
+                  {ban.title}
+                </td>
                 <td className="px-6 py-4">
                   <label className="inline-flex items-center cursor-pointer">
                     <input
@@ -103,7 +109,7 @@ export const BannerForm = () => {
                     className="text-red-500 hover:text-red-700 font-medium"
                     onClick={() => handleDelete(ban.id)}
                   >
-                    Delete
+                    <Trash size={16} className="text-red-600" />
                   </button>
                 </td>
               </tr>

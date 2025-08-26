@@ -3,15 +3,27 @@ import axiosInstance from "./instance";
 import axios from "axios";
 import { setToken, logout as userLogout } from "@/store/slice/user/authSlice";
 import { logout as vendorLogout } from "@/store/slice/vendor/authSlice";
+
 export const setInterceptors = () => {
   axiosInstance.interceptors.request.use((config) => {
     const { adminAuth, auth, vendorAuth } = store.getState();
 
     if (config.headers) {
-      if (adminAuth.token) config.headers.Authorization = `Bearer ${adminAuth.token}`;
-      else if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
-      else if (vendorAuth.token) config.headers.Authorization = `Bearer ${vendorAuth.token}`;
+      if (config.url?.includes("/admin")) {
+        if (adminAuth.token) config.headers.Authorization = `Bearer ${adminAuth.token}`;
+      } else if (config.url?.includes("/vendor")) {
+        if (vendorAuth.token) config.headers.Authorization = `Bearer ${vendorAuth.token}`;
+      } else {
+        if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
+      }
+
+      console.log("Token in request interceptor:", {
+        admin: adminAuth.token,
+        user: auth.token,
+        vendor: vendorAuth.token,
+      });
     }
+
     return config;
   });
 
@@ -22,7 +34,7 @@ export const setInterceptors = () => {
       const code = error.response?.data?.code;
       const originalRequest = error.config;
 
-      // Blocked users/vendors
+      // Handle blocked users/vendors
       if (status === 403) {
         if (code === "USER_BLOCKED") {
           store.dispatch(userLogout());

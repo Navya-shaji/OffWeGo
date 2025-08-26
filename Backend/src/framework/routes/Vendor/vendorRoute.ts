@@ -42,7 +42,7 @@ export class VendorRoute {
     this.vendorRouter.post(VendorRoutes.LOGIN,(req:Request,res:Response)=>{
       vendorloginController.login(req,res)
     })
-    this.vendorRouter.post(VendorRoutes.CREATE_DESTINATION,(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.CREATE_DESTINATION,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       destinationController.addDestination(req,res)
     })
        this.vendorRouter.post(CommonRoutes.REFRESH_TOKEN,(req:Request,res:Response)=>{
@@ -59,13 +59,13 @@ export class VendorRoute {
     this.vendorRouter.get(VendorRoutes.PROFILE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       vendorProfilecontroller.GetProfile(req,res)
     })
-    this.vendorRouter.post(VendorRoutes.ADD_PACKAGE,(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.ADD_PACKAGE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       packagecontroller.addPackage(req,res)
     })
-    this.vendorRouter.put(VendorRoutes.EDIT_PACKAGE,(req:Request,res:Response)=>{
+    this.vendorRouter.put(VendorRoutes.EDIT_PACKAGE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       packagecontroller.EditPackage(req,res)
     })
-    this.vendorRouter.delete(VendorRoutes.DELET_PACKAGE,(req:Request,res:Response)=>{
+    this.vendorRouter.delete(VendorRoutes.DELET_PACKAGE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       packagecontroller.deletePackage(req,res)
     })
     this.vendorRouter.put(VendorRoutes.EDIT_PROFILE,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
@@ -83,7 +83,7 @@ export class VendorRoute {
     this.vendorRouter.get(VendorRoutes.HOTELS,(req:Request,res:Response)=>{
      hotelcontroller.getHotels(req,res)
     })
-    this.vendorRouter.post(VendorRoutes.CREATE_ACTIVITY,(req:Request,res:Response)=>{
+    this.vendorRouter.post(VendorRoutes.CREATE_ACTIVITY,checkRoleBasedcontrol(["vendor"]),(req:Request,res:Response)=>{
       activitycontroller.createActivities(req,res)
     })
        this.vendorRouter.get(VendorRoutes.ACTIVITIES,(req:Request,res:Response)=>{
