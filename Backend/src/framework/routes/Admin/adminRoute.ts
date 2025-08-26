@@ -126,6 +126,9 @@ export class AdminRoute {
     bannerController.BannerDelete(req,res)
    })
 
+   this.adminRouter.patch(AdminRoutes.BANNER_ACTIONS,(req:Request,res:Response)=>{
+    bannerController.BannerAction(req,res)
+   })
    this.adminRouter.post(AdminRoutes.CREATE_SUBSCRIPTION,checkRoleBasedcontrol(["admin"]),(req:Request,res:Response)=>{
     subscriptionController.createSubscription(req,res)
    })

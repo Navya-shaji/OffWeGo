@@ -81,7 +81,7 @@ export const BannerForm = () => {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody>  
         </table>
       </div>
     </div>

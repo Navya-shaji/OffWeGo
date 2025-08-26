@@ -24,5 +24,6 @@ export const AdminRoutes={
     SEARCH_USER:'/user/search',
     SEARCH_VENDOR:'/vendors/search',
     SEARCH_DESTINATION:'/destination/search',
-    SEARCH_CATEGORY:'/category/search'
+    SEARCH_CATEGORY:'/category/search',
+    BANNER_ACTIONS:'/banner/:id'
 }
