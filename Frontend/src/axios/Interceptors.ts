@@ -3,24 +3,18 @@ import axiosInstance from "./instance";
 import axios from "axios";
 import { setToken, logout as userLogout } from "@/store/slice/user/authSlice";
 import { logout as vendorLogout } from "@/store/slice/vendor/authSlice";
-
 export const setInterceptors = () => {
-  // Request interceptor
   axiosInstance.interceptors.request.use((config) => {
-    const adminToken = store.getState().adminAuth.token;
-    const userToken = store.getState().auth.token;
-    const vendorToken = store.getState().vendorAuth.token;
+    const { adminAuth, auth, vendorAuth } = store.getState();
 
     if (config.headers) {
-      if (adminToken) config.headers.Authorization = `Bearer ${adminToken}`;
-      else if (userToken) config.headers.Authorization = `Bearer ${userToken}`;
-      else if (vendorToken) config.headers.Authorization = `Bearer ${vendorToken}`;
+      if (adminAuth.token) config.headers.Authorization = `Bearer ${adminAuth.token}`;
+      else if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
+      else if (vendorAuth.token) config.headers.Authorization = `Bearer ${vendorAuth.token}`;
     }
-
     return config;
   });
 
-  // Response interceptor
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -28,46 +22,48 @@ export const setInterceptors = () => {
       const code = error.response?.data?.code;
       const originalRequest = error.config;
 
-      // Handle blocked users
+      // Blocked users/vendors
       if (status === 403) {
         if (code === "USER_BLOCKED") {
           store.dispatch(userLogout());
           localStorage.removeItem("id");
           window.location.href = "/userBlockNotice";
-          return Promise.reject(error);
         }
         if (code === "VENDOR_BLOCKED") {
           store.dispatch(vendorLogout());
           localStorage.removeItem("id");
           window.location.href = "/vendorBlockNotice";
-          return Promise.reject(error);
         }
+        return Promise.reject(error);
       }
 
-      // Handle 401 Unauthorized
-      if (status === 401 && !originalRequest._retry) {
+      // Handle token refresh
+      if (
+        status === 401 &&
+        !originalRequest._retry &&
+        !originalRequest.url.includes("/refresh-token")
+      ) {
         originalRequest._retry = true;
+
         try {
-          // Use axios directly to avoid interceptor loop
           const response = await axios.post(
             `${import.meta.env.VITE_BASE_URL}api/refresh-token`,
             {},
-            { withCredentials: true } // send cookies if using refresh token cookie
+            { withCredentials: true }
           );
-          const newAccessToken = response.data.accessToken;
 
+          const newAccessToken = response.data.accessToken;
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-          // Update Redux token depending on role
           if (window.location.href.includes("admin")) {
-            store.dispatch(setToken({ token: newAccessToken }));
+            store.dispatch({ type: "adminAuth/setToken", payload: { token: newAccessToken } });
           } else if (window.location.href.includes("vendor")) {
-            store.dispatch(setToken({ token: newAccessToken }));
+            store.dispatch({ type: "vendorAuth/setToken", payload: { token: newAccessToken } });
           } else {
             store.dispatch(setToken({ token: newAccessToken }));
           }
 
-          return axios(originalRequest); // retry original request
+          return axiosInstance(originalRequest);
         } catch (err) {
           store.dispatch(userLogout());
           store.dispatch(vendorLogout());

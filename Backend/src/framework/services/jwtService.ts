@@ -18,33 +18,33 @@ export class JwtService implements ITokenService {
     return jwt.sign(payload, secret, { expiresIn: "1d" });
   }
 
-async verifyToken(
-  token: string,
-  type: "access" | "refresh" = "access"
-): Promise<JwtPayload | null> {
-  try {
-    const secret =
-      type === "access"
-        ? process.env.JWT_ACCESSTOKENSECRETKEY
-        : process.env.JWT_REFRESHTOKEN;
+  async verifyToken(
+    token: string,
+    type: "access" | "refresh" = "access"
+  ): Promise<JwtPayload | null> {
+    try {
+      const secret =
+        type === "access"
+          ? process.env.JWT_ACCESSTOKENSECRETKEY
+          : process.env.JWT_REFRESHTOKEN;
 
-    if (!secret) {
-      throw new Error(`${type} token secret is not configured`);
-    }
+      if (!secret) {
+        throw new Error(`${type} token secret is not configured`);
+      }
 
-    return await new Promise<JwtPayload>((resolve, reject) => {
-      jwt.verify(token, secret, (err, decoded) => {
-        if (err || !decoded) {
-          return reject(new Error("Invalid or expired token"));
-        }
-        resolve(decoded as JwtPayload);
+      return await new Promise<JwtPayload>((resolve, reject) => {
+        jwt.verify(token, secret, (err, decoded) => {
+          if (err || !decoded) {
+            return reject(new Error("Invalid or expired token"));
+          }
+          resolve(decoded as JwtPayload);
+        });
       });
-    });
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return null;
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      return null;
+    }
   }
-}
 
   checkTokenBlacklist(token: string): boolean {
     return blacklistedTokens.has(token);

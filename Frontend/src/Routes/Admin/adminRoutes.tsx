@@ -9,6 +9,7 @@ const AdminRoute=()=>{
         <Routes>
             <Route path="/login" element={<Login/>}/>
             <Route path="/dashboard" element={<AdminDashboard/>}/>
+            
           
         </Routes>
     )
