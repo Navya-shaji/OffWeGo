@@ -1,21 +1,27 @@
 import { ICategoryRepository } from "../../../domain/interface/category/ICategoryRepository";
-import { CategoryModel, ICategoryModel } from "../../../framework/database/Models/categoryModel";
+import {
+  CategoryModel,
+  ICategoryModel,
+} from "../../../framework/database/Models/categoryModel";
 import { CreateCategoryDto } from "../../../domain/dto/admin/CategoryDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
-export class CategoryRepository 
-  extends BaseRepository<ICategoryModel> 
-  implements ICategoryRepository {
-
+export class CategoryRepository
+  extends BaseRepository<ICategoryModel>
+  implements ICategoryRepository
+{
   constructor() {
     super(CategoryModel);
   }
 
   async createCategory(data: CreateCategoryDto): Promise<ICategoryModel> {
-    return this.create(data); 
+    return this.create(data);
   }
 
-  async getAllCategories(skip: number, limit: number): Promise<ICategoryModel[]> {
+  async getAllCategories(
+    skip: number,
+    limit: number
+  ): Promise<ICategoryModel[]> {
     return this.model.find().skip(skip).limit(limit);
   }
 
@@ -39,5 +45,7 @@ export class CategoryRepository
       .limit(10)
       .exec();
   }
+  async findByName(name: string): Promise<ICategoryModel | null> {
+    return await CategoryModel.findOne({ name });
+  }
 }
-
