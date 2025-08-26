@@ -18,15 +18,27 @@ export const addBanner = async (data: BannerInterface) => {
 export const getBanner = async () => {
   try {
     const res = await axiosInstance.get("/api/admin/banner");
-    console.log(res)
+    
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
-    
-      throw new Error(
-        error.response?.data?.error || "Failed to fetch banner"
-      );
+      throw new Error(error.response?.data?.error || "Failed to fetch banner");
     }
     throw new Error("An unexpected error occurred while fetching banner");
+  }
+};
+
+export const actionBannerupdate = async (id: string, action: boolean) => {
+  try {
+    const res = await axiosInstance.patch(`/api/admin/banner/${id}`,{ action });
+    console.log(res.data,"Action banner")
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error || "Failed to update actions"
+      );
+    }
+    throw new Error("An unexpected error occurred while updating actions");
   }
 };

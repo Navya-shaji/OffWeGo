@@ -53,6 +53,7 @@ export const getActivities = async (
     throw new Error("An unexpected error occurred while fetching activities");
   }
 };
+
 export const updateActivity = async (id: string, data: Activity) => {
   try {
     const res = await axiosInstance.put(`/api/vendor/activities/${id}`, data);

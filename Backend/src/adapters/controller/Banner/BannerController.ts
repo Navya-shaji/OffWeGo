@@ -83,13 +83,13 @@ export class Bannercontroller {
           .json({ error: "Action must be a boolean" });
       }
       const updatedBanner = await this._updateAction.execute(id, action);
-
+console.log("update banner",updatedBanner)
       if (!updatedBanner) {
         return res
           .status(HttpStatus.NOT_FOUND)
           .json({ error: "Banner not found" });
       }
-
+      console.log("updated banner", updatedBanner);
       res.status(HttpStatus.OK).json(updatedBanner);
     } catch (error) {
       console.error("Error updating banner status:", error);

@@ -1,4 +1,4 @@
-import { getBanner } from "@/services/Banner/bannerService";
+import { getBanner, actionBannerupdate } from "@/services/Banner/bannerService";
 import type { BannerInterface } from "@/interface/bannerInterface";
 import { useEffect, useState } from "react";
 
@@ -17,13 +17,24 @@ export const BannerForm = () => {
     }
   };
 
-  const handleToggle = (index: number) => {
+const handleToggle = async (index: number) => {
+  try {
     const updated = [...banner];
-    updated[index].action = !updated[index].action;
-    setBanner(updated);
-   
-  };
+    const ban = updated[index];
 
+    if (!ban.id) return console.error("Banner ID is missing!"); 
+    const newAction = !ban.action;
+
+    const updatedBanner = await actionBannerupdate(ban.id, newAction);
+
+    updated[index].action = updatedBanner.action;
+    setBanner(updated);
+  } catch (error) {
+    console.error("Failed to update banner action", error);
+  }
+};
+
+  console.log("fetched data",banner)
   useEffect(() => {
     fetchData();
   }, []);
@@ -32,9 +43,7 @@ export const BannerForm = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-      
-  <h2 className="text-xl font-bold mb-4">Banner Listing</h2>
-  
+      <h2 className="text-xl font-bold mb-4">Banner Listing</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm border border-gray-200 rounded-md overflow-hidden">
           <thead className="bg-gray-50 text-gray-700">
@@ -46,7 +55,7 @@ export const BannerForm = () => {
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white">
             {banner.map((ban, index) => (
-              <tr key={index} className="hover:bg-gray-50 transition">
+              <tr key={ban._id} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4">
                   {ban.Banner_video_url ? (
                     <video
@@ -81,7 +90,7 @@ export const BannerForm = () => {
                 </td>
               </tr>
             ))}
-          </tbody>  
+          </tbody>
         </table>
       </div>
     </div>
