@@ -21,7 +21,7 @@ export const editProfile = async (
   updatedData: {
     name?: string;
     phone?: string;
-    profileImage?: string;
+    profile_img?: string;
     documentUrl?: string;
   }
 ) => {

@@ -5,14 +5,14 @@ type VendorAuthState = {
   isAuthenticated: boolean;
   vendor: Vendor | null;
   token: string | null;
-  refreshToken: string | null; // ✅ added refreshToken
+  refreshToken: string | null; 
 };
 
 const initialState: VendorAuthState = {
   isAuthenticated: false,
   vendor: null,
   token: null,
-  refreshToken: null, // ✅ initialize
+  refreshToken: null, 
 };
 
 export const vendorAuthSlice = createSlice({
@@ -45,7 +45,7 @@ export const vendorAuthSlice = createSlice({
         state.isAuthenticated = true;
         state.vendor = action.payload.vendor;
         state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken ?? null; // ✅ restore refreshToken
+        state.refreshToken = action.payload.refreshToken ?? null; 
       } else {
         state.isAuthenticated = false;
         state.vendor = null;
