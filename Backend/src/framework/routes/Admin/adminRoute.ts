@@ -74,7 +74,7 @@ export class AdminRoute {
     AdminuserController.updateStatus(req, res);
    });
 
-   this.adminRouter.post(AdminRoutes.CREATE_DESTINATION,checkRoleBasedcontrol(["vendor","admin"]), (req: Request, res: Response) => {
+   this.adminRouter.post(AdminRoutes.CREATE_DESTINATION,checkRoleBasedcontrol(["admin"]), (req: Request, res: Response) => {
     destinationController.addDestination(req, res);
    });
 

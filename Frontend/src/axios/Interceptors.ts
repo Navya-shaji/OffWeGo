@@ -6,26 +6,29 @@ import { logout as vendorLogout } from "@/store/slice/vendor/authSlice";
 
 export const setInterceptors = () => {
   axiosInstance.interceptors.request.use((config) => {
-    const { adminAuth, auth, vendorAuth } = store.getState();
+  const { adminAuth, auth, vendorAuth } = store.getState();
 
-    if (config.headers) {
-      if (config.url?.includes("/admin")) {
-        if (adminAuth.token) config.headers.Authorization = `Bearer ${adminAuth.token}`;
-      } else if (config.url?.includes("/vendor")) {
-        if (vendorAuth.token) config.headers.Authorization = `Bearer ${vendorAuth.token}`;
-      } else {
-        if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
-      }
+  if (config.headers) {
+    const url = config.url || "";
 
-      console.log("Token in request interceptor:", {
-        admin: adminAuth.token,
-        user: auth.token,
-        vendor: vendorAuth.token,
-      });
+    if (url.includes("/api/admin")) {
+      if (adminAuth.token) config.headers.Authorization = `Bearer ${adminAuth.token}`;
+    } else if (url.includes("/api/vendor")) {
+      if (vendorAuth.token) config.headers.Authorization = `Bearer ${vendorAuth.token}`;
+    } else {
+      if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
     }
 
-    return config;
-  });
+    console.log("Token in request interceptor:", {
+      attached: config.headers.Authorization,
+      admin: adminAuth.token,
+      user: auth.token,
+      vendor: vendorAuth.token,
+    });
+  }
+
+  return config;
+});
 
   axiosInstance.interceptors.response.use(
     (response) => response,

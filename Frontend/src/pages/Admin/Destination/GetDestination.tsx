@@ -22,7 +22,7 @@ export const DestinationTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // ✅ state for delete modal
+ 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -63,16 +63,16 @@ export const DestinationTable = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [page]);
+useEffect(() => {
+  console.log("Effect ran with page:", page);
+  fetchData();
+}, [page]);
 
   const handleEdit = (dest: DestinationInterface) => {
     setSelectedDestination(dest);
     setIsEditModalOpen(true);
   };
 
-  // ✅ open modal instead of window.confirm
   const confirmDelete = (id: string) => {
     setDeleteId(id);
     setIsDeleteModalOpen(true);
