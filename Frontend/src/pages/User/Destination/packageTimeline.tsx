@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useSelector } from "react-redux" // Import useSelector
-import type { RootState } from "@/store/store" // Import RootState
+import { useSelector } from "react-redux"
+import type { RootState } from "@/store/store"
 import {
   Calendar,
   MapPin,
@@ -23,25 +23,176 @@ import {
   Heart,
   Share2,
   Loader2,
+  Coffee,
+  Sun,
+  Moon,
+  Sunset,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import Navbar from "@/components/profile/navbar" 
-import type { Package } from "@/interface/PackageInterface" 
+import Navbar from "@/components/profile/navbar"
+import type { Package } from "@/interface/PackageInterface"
+
+// Enhanced itinerary data structure
+const createDetailedItinerary = (packageData: Package) => {
+  const baseItinerary = [
+    {
+      day: 1,
+      title: "Arrival & Check-in",
+      schedule: [
+        {
+          time: "10:00 AM",
+          activity: "Airport Pickup",
+          description: "Meet and greet at arrival terminal",
+          icon: <Car className="h-4 w-4" />,
+          type: "transport"
+        },
+        {
+          time: "12:00 PM",
+          activity: "Hotel Check-in",
+          description: "Check into your premium accommodation",
+          icon: <Building className="h-4 w-4" />,
+          type: "accommodation"
+        },
+        {
+          time: "2:00 PM",
+          activity: "Welcome Lunch",
+          description: "Traditional welcome meal at hotel restaurant",
+          icon: <Utensils className="h-4 w-4" />,
+          type: "meal"
+        },
+        {
+          time: "4:00 PM",
+          activity: "City Orientation Tour",
+          description: "Brief orientation and local area familiarization",
+          icon: <MapPin className="h-4 w-4" />,
+          type: "activity"
+        },
+        {
+          time: "7:00 PM",
+          activity: "Dinner & Rest",
+          description: "Dinner at hotel and free time to rest",
+          icon: <Moon className="h-4 w-4" />,
+          type: "meal"
+        }
+      ]
+    }
+  ]
+
+  // Generate middle days with activities
+  for (let i = 2; i < packageData.duration; i++) {
+    const activitiesForDay = packageData.activities.slice(
+      Math.floor((i - 2) * packageData.activities.length / Math.max(1, packageData.duration - 2)),
+      Math.floor((i - 1) * packageData.activities.length / Math.max(1, packageData.duration - 2))
+    )
+
+    baseItinerary.push({
+      day: i,
+      title: `Adventure Day ${i - 1}`,
+      schedule: [
+        {
+          time: "7:00 AM",
+          activity: "Breakfast",
+          description: "Continental breakfast at hotel",
+          icon: <Coffee className="h-4 w-4" />,
+          type: "meal"
+        },
+        {
+          time: "9:00 AM",
+          activity: activitiesForDay[0]?.title || "Morning Activity",
+          description: activitiesForDay[0]?.description || "Exciting morning adventure",
+          icon: <Sun className="h-4 w-4" />,
+          type: "activity"
+        },
+        {
+          time: "1:00 PM",
+          activity: "Lunch Break",
+          description: "Local cuisine at recommended restaurant",
+          icon: <Utensils className="h-4 w-4" />,
+          type: "meal"
+        },
+        {
+          time: "3:00 PM",
+          activity: activitiesForDay[1]?.title || "Afternoon Activity",
+          description: activitiesForDay[1]?.description || "Afternoon exploration",
+          icon: <Activity className="h-4 w-4" />,
+          type: "activity"
+        },
+        {
+          time: "6:00 PM",
+          activity: "Evening Leisure",
+          description: "Free time for shopping or relaxation",
+          icon: <Sunset className="h-4 w-4" />,
+          type: "leisure"
+        },
+        {
+          time: "8:00 PM",
+          activity: "Dinner",
+          description: "Traditional dinner with local specialties",
+          icon: <Utensils className="h-4 w-4" />,
+          type: "meal"
+        }
+      ]
+    })
+  }
+
+  // Last day - departure
+  if (packageData.duration > 1) {
+    baseItinerary.push({
+      day: packageData.duration,
+      title: "Departure",
+      schedule: [
+        {
+          time: "8:00 AM",
+          activity: "Breakfast & Check-out",
+          description: "Final breakfast and hotel check-out",
+          icon: <Coffee className="h-4 w-4" />,
+          type: "meal"
+        },
+        {
+          time: "10:00 AM",
+          activity: "Last Minute Shopping",
+          description: "Souvenir shopping and local market visit",
+          icon: <Activity className="h-4 w-4" />,
+          type: "activity"
+        },
+        {
+          time: "12:00 PM",
+          activity: "Farewell Lunch",
+          description: "Final meal together before departure",
+          icon: <Utensils className="h-4 w-4" />,
+          type: "meal"
+        },
+        {
+          time: "3:00 PM",
+          activity: "Airport Drop-off",
+          description: "Transfer to airport for departure",
+          icon: <Car className="h-4 w-4" />,
+          type: "transport"
+        }
+      ]
+    })
+  }
+
+  return baseItinerary.map(day => ({
+    ...day,
+    hotel: packageData.hotels[Math.floor(Math.random() * packageData.hotels.length)]
+  }))
+}
 
 export const PackageTimeline = () => {
   const { state } = useLocation()
   const navigate = useNavigate()
   const selectedPackage = state?.selectedPackage as Package
 
-  const userId = useSelector((state: RootState) => state.auth.user?.id) 
+  const userId = useSelector((state: RootState) => state.auth.user?.id)
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
-  const [isBookingLoading, setIsBookingLoading] = useState(false) 
-  const [bookingError, setBookingError] = useState<string | null>(null) 
+  const [isBookingLoading, setIsBookingLoading] = useState(false)
+  const [bookingError, setBookingError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!selectedPackage) navigate(-1)
@@ -75,18 +226,26 @@ export const PackageTimeline = () => {
       maximumFractionDigits: 0,
     }).format(amount)
 
-  const itinerary = Array.from({ length: selectedPackage.duration }, (_, i) => {
-    const perDay = Math.ceil(selectedPackage.activities.length / selectedPackage.duration)
-    return {
-      day: i + 1,
-      title: i === 0 ? "Arrival & Check-in" : i === selectedPackage.duration - 1 ? "Departure" : `Exploration Day ${i}`,
-      activities: selectedPackage.activities.slice(i * perDay, (i + 1) * perDay),
-      hotel: selectedPackage.hotels[i % selectedPackage.hotels.length],
+  const detailedItinerary = createDetailedItinerary(selectedPackage)
+
+  const getTypeStyles = (type: string) => {
+    switch (type) {
+      case "meal":
+        return { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700" }
+      case "activity":
+        return { bg: "bg-green-50", border: "border-green-200", text: "text-green-700" }
+      case "transport":
+        return { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700" }
+      case "accommodation":
+        return { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700" }
+      case "leisure":
+        return { bg: "bg-pink-50", border: "border-pink-200", text: "text-pink-700" }
+      default:
+        return { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-700" }
     }
-  })
+  }
 
   const handleBooking = async () => {
- 
     if (!userId) {
       setBookingError("User not logged in. Please log in to book a package.")
       return
@@ -101,21 +260,20 @@ export const PackageTimeline = () => {
 
     try {
       navigate("/booking", {
-   state: {
-     selectedPackage, 
-   },
- })
+        state: {
+          selectedPackage,
+        },
+      })
       alert("success")
-   } catch (error) {
-  if (error instanceof Error) {
-    console.error("Booking failed:", error);
-    setBookingError(error.message || "Failed to book package. Please try again.");
-  } else {
-    console.error("Booking failed:", error);
-    setBookingError("Failed to book package. Please try again.");
-  }
-}
- finally {
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Booking failed:", error)
+        setBookingError(error.message || "Failed to book package. Please try again.")
+      } else {
+        console.error("Booking failed:", error)
+        setBookingError("Failed to book package. Please try again.")
+      }
+    } finally {
       setIsBookingLoading(false)
     }
   }
@@ -171,6 +329,7 @@ export const PackageTimeline = () => {
           </div>
         </div>
       </div>
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
@@ -196,14 +355,14 @@ export const PackageTimeline = () => {
                     {
                       icon: <Building className="text-green-600" />,
                       label: "Hotels",
-                      value: selectedPackage.hotels.length,
+                      value: selectedPackage.hotels?.length || 0,
                       bg: "bg-green-50",
                       border: "border-green-200",
                     },
                     {
                       icon: <Activity className="text-purple-600" />,
                       label: "Activities",
-                      value: selectedPackage.activities.length,
+                      value: selectedPackage.activities?.length || 0,
                       bg: "bg-purple-50",
                       border: "border-purple-200",
                     },
@@ -225,6 +384,7 @@ export const PackageTimeline = () => {
                     </div>
                   ))}
                 </div>
+
                 {selectedPackage.images?.length > 0 && (
                   <div className="space-y-6">
                     <h3 className="text-2xl font-bold flex items-center gap-3 text-gray-800">
@@ -270,23 +430,15 @@ export const PackageTimeline = () => {
                     </div>
                   </div>
                 )}
+
                 <div className="space-y-4">
                   <h3 className="text-xl font-bold text-gray-800">What's Included</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                      {
-                        icon: <Wifi className="h-5 w-5" />,
-                        label: "Free WiFi",
-                      },
+                      { icon: <Wifi className="h-5 w-5" />, label: "Free WiFi" },
                       { icon: <Car className="h-5 w-5" />, label: "Transport" },
-                      {
-                        icon: <Utensils className="h-5 w-5" />,
-                        label: "All Meals",
-                      },
-                      {
-                        icon: <Shield className="h-5 w-5" />,
-                        label: "Insurance",
-                      },
+                      { icon: <Utensils className="h-5 w-5" />, label: "All Meals" },
+                      { icon: <Shield className="h-5 w-5" />, label: "Insurance" },
                     ].map((amenity, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
                         <div className="text-green-600">{amenity.icon}</div>
@@ -297,64 +449,118 @@ export const PackageTimeline = () => {
                 </div>
               </CardContent>
             </Card>
+
             <Card className="shadow-xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-xl">
                   <div className="p-2 bg-white/20 rounded-lg">
                     <Calendar className="h-6 w-6" />
                   </div>
-                  Day-by-Day Itinerary
+                  Detailed Daily Itinerary
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-8">
-                {itinerary.map((day, i) => (
+                {detailedItinerary.map((day, dayIndex) => (
                   <div key={day.day} className="relative group">
-                    {i < itinerary.length - 1 && (
-                      <div className="absolute left-8 top-16 w-0.5 h-full  bg-black opacity-30"></div>
+                    {dayIndex < detailedItinerary.length - 1 && (
+                      <div className="absolute left-8 top-20 w-0.5 h-full bg-gradient-to-b from-blue-400 to-purple-400 opacity-30"></div>
                     )}
+                    
                     <div className="flex gap-6">
-                      <div className="relative">
+                      <div className="relative flex-shrink-0">
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white flex items-center justify-center font-bold text-lg shadow-lg">
                           {day.day}
                         </div>
                         <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
                       </div>
-                      <div className="flex-1 bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                        <h3 className="font-bold text-xl mb-4 text-gray-800">
-                          Day {day.day}: {day.title}
-                        </h3>
-                        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Building className="h-5 w-5 text-blue-600" />
-                            <span className="font-semibold text-gray-800">{day.hotel.name}</span>
-                            <div className="flex items-center gap-1">
-                              {[...Array(Math.floor(day.hotel.rating))].map((_, i) => (
-                                <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              ))}
-                              <span className="text-sm text-gray-600 ml-1">({day.hotel.rating})</span>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-600">{day.hotel.address}</p>
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-gray-800 flex items-center gap-2">
-                            <Activity className="h-4 w-4 text-green-600" />
-                            Activities
-                          </h4>
-                          {day.activities.map((activity) => (
-                            <div
-                              key={activity.activityId}
-                              className="ml-6 pl-4 border-l-3 border-green-300 bg-green-50 rounded-r-lg p-3 hover:bg-green-100 transition-colors duration-200"
-                            >
-                              <div className="flex items-start gap-2">
-                                <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                  <h5 className="font-semibold text-gray-800">{activity.title}</h5>
-                                  <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
-                                </div>
+                      
+                      <div className="flex-1">
+                        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                          <h3 className="font-bold text-2xl mb-4 text-gray-800">
+                            Day {day.day}: {day.title}
+                          </h3>
+                          
+                          {/* Hotel Information */}
+                          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Building className="h-5 w-5 text-blue-600" />
+                              <span className="font-semibold text-gray-800">{day.hotel.name}</span>
+                              <div className="flex items-center gap-1">
+                                {[...Array(Math.floor(day.hotel.rating))].map((_, i) => (
+                                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                ))}
+                                <span className="text-sm text-gray-600 ml-1">({day.hotel.rating})</span>
                               </div>
                             </div>
-                          ))}
+                            <p className="text-sm text-gray-600">{day.hotel.address}</p>
+                          </div>
+
+                          {/* Detailed Schedule */}
+                          <div className="space-y-4">
+                            <h4 className="font-semibold text-gray-800 flex items-center gap-2 text-lg">
+                              <Clock className="h-5 w-5 text-indigo-600" />
+                              Daily Schedule
+                            </h4>
+                            
+                            <div className="space-y-3">
+                              {day.schedule.map((item, scheduleIndex) => {
+                                const styles = getTypeStyles(item.type)
+                                return (
+                                  <div
+                                    key={scheduleIndex}
+                                    className={`flex items-start gap-4 p-4 rounded-lg ${styles.bg} ${styles.border} border-2 hover:shadow-md transition-all duration-200`}
+                                  >
+                                    <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                                      <div className={`p-2 bg-white rounded-lg shadow-sm ${styles.text}`}>
+                                        {item.icon}
+                                      </div>
+                                      <span className="text-xs font-bold text-gray-700 bg-white px-2 py-1 rounded-full">
+                                        {item.time}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="flex-1">
+                                      <h5 className="font-semibold text-gray-800 mb-1">{item.activity}</h5>
+                                      <p className="text-sm text-gray-600">{item.description}</p>
+                                      <div className="mt-2">
+                                        <span className={`inline-block px-2 py-1 text-xs font-medium ${styles.text} bg-white rounded-full capitalize`}>
+                                          {item.type}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Daily Summary */}
+                          <div className="mt-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                              <div>
+                                <div className="font-semibold text-orange-600">
+                                  {day.schedule.filter(s => s.type === 'meal').length}
+                                </div>
+                                <div className="text-xs text-gray-600">Meals</div>
+                              </div>
+                              <div>
+                                <div className="font-semibold text-green-600">
+                                  {day.schedule.filter(s => s.type === 'activity').length}
+                                </div>
+                                <div className="text-xs text-gray-600">Activities</div>
+                              </div>
+                              <div>
+                                <div className="font-semibold text-blue-600">
+                                  {day.schedule.filter(s => s.type === 'transport').length}
+                                </div>
+                                <div className="text-xs text-gray-600">Transfers</div>
+                              </div>
+                              <div>
+                                <div className="font-semibold text-purple-600">1</div>
+                                <div className="text-xs text-gray-600">Hotel</div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -363,6 +569,7 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
           </div>
+
           <div className="space-y-6">
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm sticky top-6">
               <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
@@ -400,6 +607,7 @@ export const PackageTimeline = () => {
                 )}
               </CardContent>
             </Card>
+
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle className="flex items-center gap-3">
@@ -419,7 +627,10 @@ export const PackageTimeline = () => {
                     <span className="text-gray-600">Duration:</span>
                     <span className="font-semibold">{selectedPackage.duration} days</span>
                   </div>
-                  <div className="flex justify-between items-center"></div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Per Day Cost:</span>
+                    <span className="font-semibold">{formatCurrency(selectedPackage.price / selectedPackage.duration)}</span>
+                  </div>
                 </div>
                 <Separator className="my-4" />
                 <div className="flex justify-between items-center text-xl font-bold">
@@ -445,6 +656,7 @@ export const PackageTimeline = () => {
                 )}
               </CardContent>
             </Card>
+
             <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r bg-black text-white p-6">
                 <CardTitle>Package Highlights</CardTitle>
@@ -453,12 +665,12 @@ export const PackageTimeline = () => {
                 {[
                   {
                     color: "green",
-                    text: `${selectedPackage.hotels.length} Premium Hotels`,
+                    text: `${selectedPackage.hotels?.length || 0} Premium Hotels`,
                     icon: <Building className="h-4 w-4" />,
                   },
                   {
                     color: "blue",
-                    text: `${selectedPackage.activities.length} Exciting Activities`,
+                    text: `${selectedPackage.activities?.length || 0} Exciting Activities`,
                     icon: <Activity className="h-4 w-4" />,
                   },
                   {
@@ -484,9 +696,37 @@ export const PackageTimeline = () => {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Trip Planning Tips */}
+            <Card className="shadow-xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <CheckCircle className="h-6 w-6" />
+                  </div>
+                  Travel Tips & Guidelines
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid gap-4">
+                  {[
+                    "Pack comfortable walking shoes for daily activities",
+                    "Bring weather-appropriate clothing for the season",
+                    "Keep important documents in easily accessible location",
+                    "Carry a power bank for your electronic devices",
+                    "Follow local customs and respect cultural guidelines"
+                  ].map((tip, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                      <CheckCircle className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-gray-700">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     </div>
   )
-}
+} 
