@@ -19,40 +19,69 @@ const ActivitiesTable: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
-  const [formData, setFormData] = useState({ title: "", description: "", imageUrl: "" });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState<Activity | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    imageUrl: "",
+  });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [query, setQuery] = useState("");
   const limit = 5;
 
-  // Fetch activities whenever page or query changes
   useEffect(() => {
     loadActivities();
-  }, [page, query]); // ✅ page and query as dependencies
+  }, [page, query]);
+const loadActivities = async () => {
+  setLoading(true);
+  try {
+    let activitiesList: Activity[] = [];
+    let total = 1;
 
-  const loadActivities = async () => {
-    setLoading(true);
-    try {
-      if (query.trim()) {
-        const response = await searchActivity(query);
-        setActivities(response ?? []);
-        setTotalPages(1); // search results are not paginated
-      } else {
-        const response = await getActivities(page, limit);
-        setActivities(response.activities ?? []);
-        setTotalPages(response.totalPages || 1);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load activities");
-    } finally {
-      setLoading(false);
+    if (query.trim()) {
+      const response = await searchActivity(query);
+      console.log("Search response:", response);
+
+      activitiesList = response.activities ?? [];
+      total = response.totalPages ?? 1;
+    } else {
+      const response = await getActivities(page, limit);
+      console.log("Get activities response:", response);
+
+      activitiesList = response.activities ?? [];
+      total = response.totalPages ?? 1;
     }
-  };
+
+    // Normalize activityId to _id for table consistency
+    const normalized = activitiesList.map((act) => ({
+      ...act,
+      _id: act._id || act.activityId,
+    }));
+
+    setActivities(normalized);
+    setTotalPages(total);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load activities");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleEdit = (activity: Activity) => {
-    setSelectedActivity(activity);
-    setFormData({ title: activity.title, description: activity.description, imageUrl: activity.imageUrl });
+    setSelectedActivity({
+      ...activity,
+      _id: activity._id || activity.activityId,
+    });
+
+    setFormData({
+      title: activity.title,
+      description: activity.description,
+      imageUrl: activity.imageUrl,
+    });
     setIsEditModalOpen(true);
   };
 
@@ -72,23 +101,32 @@ const ActivitiesTable: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id?: string) => {
-    if (!id) return toast.error("Invalid ID");
-    if (!window.confirm("Delete this activity?")) return;
+  const handleDeleteClick = (activity: Activity) => {
+    setActivityToDelete(activity);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!activityToDelete?._id) return toast.error("Invalid ID");
 
     try {
-      await deleteActivity(id);
+      await deleteActivity(activityToDelete._id);
       toast.success("Activity deleted successfully");
-      setActivities((prev) => prev.filter((act) => act._id !== id));
+      setActivities((prev) =>
+        prev.filter((act) => act._id !== activityToDelete._id)
+      );
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete activity");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setActivityToDelete(null);
     }
   };
 
   const handleSearch = (q: string) => {
     setQuery(q);
-    setPage(1); // reset page to 1 for search
+    setPage(1); 
   };
 
   const columns: ColumnDef<Activity>[] = useMemo(
@@ -99,17 +137,27 @@ const ActivitiesTable: React.FC = () => {
         accessorKey: "imageUrl",
         header: "Image",
         cell: ({ row }) => (
-          <img src={row.original.imageUrl} alt={row.original.title} className="h-12 w-12 object-cover rounded" />
+          <img
+            src={row.original.imageUrl}
+            alt={row.original.title}
+            className="h-12 w-12 object-cover rounded"
+          />
         ),
       },
       {
         header: "Actions",
         cell: ({ row }) => (
           <div className="flex items-center space-x-2">
-            <button onClick={() => handleEdit(row.original)} className="p-2 hover:bg-blue-50 rounded-lg">
+            <button
+              onClick={() => handleEdit(row.original)}
+              className="p-2 hover:bg-blue-50 rounded-lg"
+            >
               <Edit size={16} />
             </button>
-            <button onClick={() => handleDelete(row.original._id)} className="p-2 hover:bg-red-50 rounded-lg">
+            <button
+              onClick={() => handleDeleteClick(row.original)}
+              className="p-2 hover:bg-red-50 rounded-lg"
+            >
               <Trash size={16} />
             </button>
           </div>
@@ -130,48 +178,100 @@ const ActivitiesTable: React.FC = () => {
         </div>
       </div>
 
-      {loading ? <p>Loading activities...</p> : <ReusableTable data={activities} columns={columns} />}
-
-      {isEditModalOpen && selectedActivity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-semibold mb-4">Edit Activity</h3>
-            <form onSubmit={handleUpdate}>
-              <input
-                className="border p-2 w-full mb-2"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Title"
-              />
-              <textarea
-                className="border p-2 w-full mb-2"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Description"
-              />
-              <input
-                className="border p-2 w-full mb-2"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                placeholder="Image URL"
-              />
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded">
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {loading ? (
+        <p>Loading activities...</p>
+      ) : (
+        <ReusableTable data={activities} columns={columns} />
       )}
+{/* Edit Modal */}
+{isEditModalOpen && selectedActivity && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
+      <h3 className="text-xl font-semibold mb-4 text-center">Edit Activity</h3>
+      <form onSubmit={handleUpdate} className="space-y-3">
+        <input
+          className="border p-2 w-full rounded"
+          value={formData.title}
+          onChange={(e) =>
+            setFormData({ ...formData, title: e.target.value })
+          }
+          placeholder="Title"
+        />
+        <textarea
+          className="border p-2 w-full rounded"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          placeholder="Description"
+        />
+        <div className="flex justify-end gap-2 pt-3">
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(false)}
+            className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+{/* Delete Modal */}
+{isDeleteModalOpen && activityToDelete && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+    {/* Popup Content */}
+    <div className="relative bg-white rounded-2xl shadow-2xl w-96 p-6 animate-scaleIn">
+      {/* Close Button */}
+      <button
+        onClick={() => setIsDeleteModalOpen(false)}
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-xl font-bold mb-4 text-center text-gray-800">
+        Confirm Delete
+      </h3>
+      <p className="text-center text-gray-600 mb-6">
+        Are you sure you want to delete{" "}
+        <span className="font-semibold text-red-600">
+          {activityToDelete.title}
+        </span>
+        ?
+      </p>
+
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => setIsDeleteModalOpen(false)}
+          className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={confirmDelete}
+          className="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Pagination */}
-      <div className="mt-4 flex justify-center">
-        <Pagination total={totalPages} current={page} setPage={setPage} />
-      </div>
+      {!query && (
+        <div className="mt-4 flex justify-center">
+          <Pagination total={totalPages} current={page} setPage={setPage} />
+        </div>  
+      )}
     </div>
   );
 };

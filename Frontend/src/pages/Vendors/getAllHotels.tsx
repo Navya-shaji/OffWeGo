@@ -27,6 +27,7 @@ interface Hotel {
 const HotelsTable: React.FC = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,38 +37,35 @@ const HotelsTable: React.FC = () => {
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-const loadHotels = useCallback(async () => {
-  try {
-    const response = await getAllHotel(page, 5);
-    console.log("Hotels from API:", response.hotels);
 
-    const hotelsWithId = response.hotels.map((hotel: any) => ({
-      ...hotel,
-      _id: hotel.hotelId, 
-    }));
+  const loadHotels = useCallback(async () => {
+    try {
+      const response = await getAllHotel(page, 5);
 
-    setHotels(hotelsWithId || []);
-    setTotalPages(response.totalPages || 1);
-  } catch (err: any) {
-    console.error(err);
-    toast.error(err.message || "Failed to load hotels");
-  }
-}, [page]);
+      const hotelsWithId = response.hotels.map((hotel: any) => ({
+        ...hotel,
+        _id: hotel.hotelId,
+      }));
 
+      setHotels(hotelsWithId || []);
+      setTotalPages(response.totalPages || 1);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to load hotels");
+    }
+  }, [page]);
 
   useEffect(() => {
     loadHotels();
   }, [loadHotels]);
 
   const handleEditClick = (hotel: Hotel) => {
-    console.log("start edit");
     setSelectedHotel(hotel);
     setFormData({
       name: hotel.name,
       address: hotel.address,
       rating: hotel.rating,
     });
-
     setIsEditModalOpen(true);
   };
 
@@ -86,6 +84,7 @@ const loadHotels = useCallback(async () => {
       toast.error("Failed to search hotels");
     }
   };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedHotel?._id) return;
@@ -94,7 +93,7 @@ const loadHotels = useCallback(async () => {
       await updateHotel(selectedHotel._id, {
         name: formData.name,
         address: formData.address,
-        rating: formData.rating,
+        rating: Math.min(5, formData.rating), // ✅ rating capped at 5
       });
       toast.success("Hotel updated successfully!");
 
@@ -105,7 +104,7 @@ const loadHotels = useCallback(async () => {
                 ...h,
                 name: formData.name,
                 address: formData.address,
-                rating: formData.rating,
+                rating: Math.min(5, formData.rating),
               }
             : h
         )
@@ -119,20 +118,22 @@ const loadHotels = useCallback(async () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this hotel?")) return;
+  const confirmDelete = async () => {
+    if (!selectedHotel?._id) return;
     try {
-      await deleteHotel(id);
+      await deleteHotel(selectedHotel._id);
       toast.success("Hotel deleted successfully!");
-      await loadHotels(); // refresh table
+      await loadHotels();
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Failed to delete hotel");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setSelectedHotel(null);
     }
   };
 
   const columns = useMemo<ColumnDef<Hotel>[]>(
-    
     () => [
       { header: "Hotel Name", accessorKey: "name" },
       { header: "Address", accessorKey: "address" },
@@ -148,15 +149,18 @@ const loadHotels = useCallback(async () => {
               type="button"
               onClick={() => handleEditClick(row.original)}
               className="text-black hover:text-black"
-              >
+            >
               <Edit className="w-5 h-5" />
             </button>
-          
+
             <button
               type="button"
-              onClick={() => handleDelete(row.original._id)}
+              onClick={() => {
+                setSelectedHotel(row.original);
+                setIsDeleteModalOpen(true);
+              }}
               className="text-black hover:text-black"
-              >
+            >
               <Trash2 className="w-5 h-5" />
             </button>
           </div>
@@ -165,8 +169,7 @@ const loadHotels = useCallback(async () => {
     ],
     []
   );
-  
-  console.log("haii",columns)
+
   return (
     <div>
       <ToastContainer position="top-right" autoClose={3000} />
@@ -188,52 +191,110 @@ const loadHotels = useCallback(async () => {
 
       <ReusableTable data={hotels} columns={columns} />
 
+      {/* ✅ Edit Modal */}
       {isEditModalOpen && selectedHotel && (
-        <div className="mt-6 bg-white border rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Edit Hotel</h3>
-          <form onSubmit={handleUpdate}>
-            <input
-              className="border p-2 w-full mb-2"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder="Hotel Name"
-            />
-            <input
-              className="border p-2 w-full mb-2"
-              value={formData.address}
-              onChange={(e) =>
-                setFormData({ ...formData, address: e.target.value })
-              }
-              placeholder="Address"
-            />
-            <input
-              className="border p-2 w-full mb-4"
-              type="number"
-              value={formData.rating}
-              onChange={(e) =>
-                setFormData({ ...formData, rating: Number(e.target.value) })
-              }
-              placeholder="Rating"
-            />
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-96 p-6 animate-scaleIn">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+            >
+              ✕
+            </button>
 
-            <div className="flex justify-end gap-2">
+            <h3 className="text-xl font-bold mb-4 text-center text-gray-800">
+              Edit Hotel
+            </h3>
+
+            <form onSubmit={handleUpdate} className="space-y-3">
+              <input
+                className="border p-2 w-full rounded"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder="Hotel Name"
+              />
+              <input
+                className="border p-2 w-full rounded"
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                placeholder="Address"
+              />
+              <input
+                className="border p-2 w-full rounded"
+                type="number"
+                min={1}
+                max={5} // ✅ input validation
+                value={formData.rating}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    rating: Math.min(5, Number(e.target.value)),
+                  })
+                }
+                placeholder="Rating (1-5)"
+              />
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Delete Modal */}
+      {isDeleteModalOpen && selectedHotel && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-96 p-6 animate-scaleIn">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-xl font-bold mb-4 text-center text-gray-800">
+              Confirm Delete
+            </h3>
+            <p className="text-center text-gray-600 mb-6">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-red-600">
+                {selectedHotel.name}
+              </span>
+              ?
+            </p>
+
+            <div className="flex justify-center gap-4">
               <button
-                type="button"
-                onClick={() => setIsEditModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition"
               >
                 Cancel
               </button>
               <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={confirmDelete}
+                className="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition"
               >
-                Save
+                Delete
               </button>
             </div>
-          </form>
+          </div>
         </div>
       )}
 

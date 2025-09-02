@@ -7,7 +7,7 @@ export interface Hotel {
   destinationId?: string;
 }
 export interface Activity {
-  id?:string
+  _id?:string
   activityId?: string;
   title: string;
   description: string;

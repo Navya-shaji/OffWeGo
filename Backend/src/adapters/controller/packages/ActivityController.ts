@@ -69,12 +69,12 @@ export class ActivityController {
     }
   }
   async deleteActivity(req: Request, res: Response) {
-    console.log("Haii")
+
     try {
       const { id } = req.params;
-console.log(" id from activity",id)
+      
       const result = await this._deleteActivity.execute(id);
-console.log(result)
+      console.log(result);
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
@@ -82,22 +82,35 @@ console.log(result)
         .json({ message: "Failed to delete Activity" });
     }
   }
-  async SearchActivity(req: Request, res: Response) {
-    try {
-      const query = req.query.q;
+async SearchActivity(req: Request, res: Response) {
+  try {
+    const query = req.query.q;
+    console.log("query", query);
 
-      if (typeof query !== "string" || !query.trim()) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          message: "The query will be string",
-        });
-        return;
-      }
-      const result = await this._searchActivity.execute(query);
-    } catch (error) {
+    if (typeof query !== "string" || !query.trim()) {
       res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "The query must be a string",
       });
+      return;
     }
+
+    const result = await this._searchActivity.execute(query);
+    console.log("result", result);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      data: {
+        activities: result,
+        totalPages: 1,
+        totalActivities: result.length,
+        currentPage: 1,
+      },
+    });
+  } catch (error) {
+    res.status(HttpStatus.BAD_REQUEST).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
+}
 }
