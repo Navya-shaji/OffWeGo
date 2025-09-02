@@ -19,12 +19,15 @@ import { editProfile } from "@/services/user/Userprofile";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { toast } from "react-toastify";
 
- const notify = () => toast("Profile updated " )
+// Import validation schemas
+import { usernameSchema, phoneSchema } from '@/Types/User/Profile/profileZodeSchema'
+
+const notify = () => toast("Profile updated!");
+
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 export default function EditProfileModal({
   isOpen,
   onClose,
@@ -38,7 +41,9 @@ export default function EditProfileModal({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorUsername, setErrorUsername] = useState<string | null>(null);
+  const [errorPhone, setErrorPhone] = useState<string | null>(null);
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -61,35 +66,57 @@ export default function EditProfileModal({
     }
   };
 
+  const handleUsernameChange = (value: string) => {
+    setUsername(value);
+    const result = usernameSchema.safeParse(value);
+    setErrorUsername(result.success ? null : result.error.errors[0].message);
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setPhone(value);
+    const result = phoneSchema.safeParse(value);
+    setErrorPhone(result.success ? null : result.error.errors[0].message);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(null);
+    setGeneralError(null);
 
     if (!user?.id) {
-      setError("User ID is missing");
+      setGeneralError("User ID is missing");
       setIsLoading(false);
       return;
     }
 
     try {
+    
+
       let newImageUrl = user.imageUrl;
       if (selectedFile) {
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
       const updated = await editProfile(user.id, {
-        name:username,
-        phone:phone,
+        name: username,
+        phone: phone,
         imageUrl: newImageUrl,
       });
-      notify()
-    
+
+      notify();
       dispatch(updateUserProfile(updated.data));
       onClose();
-    } catch (error) {
-      console.error(" Error updating profile:", error);
-      setError("Update failed. Please try again.");
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        // Handle first error only
+        const firstError = err.errors[0];
+        if (firstError.path.includes("name")) setErrorUsername(firstError.message);
+        else if (firstError.path.includes("phone")) setErrorPhone(firstError.message);
+        else setGeneralError(firstError.message);
+      } else {
+        console.error("Error updating profile:", err);
+        setGeneralError("Update failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -134,13 +161,17 @@ export default function EditProfileModal({
             <Label htmlFor="username" className="text-right">
               Username
             </Label>
-            <Input
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
+            <div className="col-span-3 flex flex-col">
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                disabled={isLoading}
+              />
+              {errorUsername && (
+                <p className="text-red-500 text-sm">{errorUsername}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
@@ -160,20 +191,24 @@ export default function EditProfileModal({
             <Label htmlFor="phone" className="text-right">
               Phone
             </Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="col-span-3"
-              disabled={isLoading}
-            />
+            <div className="col-span-3 flex flex-col">
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                disabled={isLoading}
+              />
+              {errorPhone && (
+                <p className="text-red-500 text-sm">{errorPhone}</p>
+              )}
+            </div>
           </div>
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {generalError && <p className="text-red-500 text-sm text-center">{generalError}</p>}
 
           <DialogFooter>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading || errorUsername != null || errorPhone != null}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save changes
             </Button>
