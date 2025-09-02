@@ -38,9 +38,11 @@ export default function EditVendorProfileModal({
   const [phone, setPhone] = useState(vendor?.phone || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
-    vendor?.profile_img || null
+     null
   );
 
+
+  console.log("imagePreviewUrl",imagePreviewUrl)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,14 +54,17 @@ export default function EditVendorProfileModal({
     }
   }, [vendor]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setImagePreviewUrl(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
-
 
 const handleSubmit = async (event: React.FormEvent) => {
   event.preventDefault();
@@ -77,15 +82,17 @@ const handleSubmit = async (event: React.FormEvent) => {
     vendorEditSchema.parse({ name, phone: phone.toString() });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      setError(err.errors[0].message); // show first validation error
+      setError(err.errors[0].message); 
     }
     setIsLoading(false);
     return;
   }
 
   try {
-    let newImageUrl = vendor.profile_img;
+    let newImageUrl = vendor.profile_img
+    console.log("newImage",newImageUrl)
     if (selectedFile) {
+      console.log("selected file")
       newImageUrl = await uploadToCloudinary(selectedFile);
       setImagePreviewUrl(newImageUrl);
     }
@@ -93,13 +100,14 @@ const handleSubmit = async (event: React.FormEvent) => {
     const updated = await editProfile(vendor.id, {
       name,
       phone,
-      profile_img: newImageUrl,
+      profileImage: newImageUrl,
     });
-
+console.log("Updated vendor",updated)
     const mappedVendor = {
       ...updated.data,
-      profileImage: updated.data.profile_img,
+      profileImage: updated.data.profileImage,
     };
+
 
     dispatch(login({ vendor: mappedVendor, token }));
     onClose();

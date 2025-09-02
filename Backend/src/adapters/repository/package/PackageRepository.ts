@@ -48,10 +48,16 @@ export class PackageRepository
   }
 
 async searchPackage(query: string): Promise<Package[]> {
-    return await this.model.find({
-      packageName: { $regex: query, $options: "i" }
-    }) as Package[]
-  }
+  const regex = new RegExp(query, "i");
+  return await this.model
+    .find({ packageName: { $regex: regex } })
+    .select("packageName description price duration hotels activities")
+    .populate("hotels", "name") 
+    .populate("activities", "title") 
+    .limit(10)
+    .exec();
+}
+
 
   async countPackages(): Promise<number> {
     return packageModel.countDocuments();

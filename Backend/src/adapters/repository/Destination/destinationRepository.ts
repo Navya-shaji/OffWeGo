@@ -50,7 +50,7 @@ export class DestinationRepository
     const regex = new RegExp(query, "i");
     return this.model
       .find({ name: { $regex: regex } })
-      .select("name location description actions")
+      .select("name location description actions imageUrls")
       .limit(10)
       .exec();
   }

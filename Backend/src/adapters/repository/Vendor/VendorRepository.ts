@@ -100,7 +100,7 @@ export class VendorRepository
 
     const vendors = await this.model
       .find({ name: { $regex: regex } })
-      .select("name email _id phone password documentUrl status")
+      .select("name email _id phone  documentUrl status createdAt")
       .limit(10)
       .lean();
 

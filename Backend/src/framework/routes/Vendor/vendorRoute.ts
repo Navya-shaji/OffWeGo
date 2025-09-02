@@ -78,8 +78,8 @@ export class VendorRoute {
       activitycontroller.SearchActivity(req, res)
     );
 
-   
     this.vendorRouter.use(verifyTokenAndCheckBlackList(TokenService));
+   
 
     // Destination
     this.vendorRouter.post(

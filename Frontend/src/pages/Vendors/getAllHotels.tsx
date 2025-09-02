@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Trash2, MapPin } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -33,24 +33,25 @@ const HotelsTable: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // ✅ useCallback prevents re-creation of loadHotels on every render
+  const loadHotels = useCallback(async () => {
+    try {
+      const response = await getAllHotel(page, 5);
+      console.log("Fetching hotels for page:", page);
+
+      setHotels(response.hotels || []);
+      const total = Number(response?.totalHotels || 0);
+      setTotalPages(Math.ceil(total / 5));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load hotels");
+    }
+  }, [page]);
+
+  // ✅ Effect depends only on page
   useEffect(() => {
     loadHotels();
-  }, []);
-
-const loadHotels = async () => {
-  try {
-    const response = await getAllHotel(page, 5); 
-    console.log(response);
-    
-    setHotels(response.hotels); 
-
-    const total = Number(response?.totalHotels || 0);
-    setTotalPages(Math.ceil(total / 5));
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to load hotels");
-  }
-};
+  }, [loadHotels]);
 
   const handleEditClick = (hotel: Hotel) => {
     setSelectedHotel(hotel);
@@ -97,7 +98,7 @@ const loadHotels = async () => {
     try {
       await deleteHotel(id);
       toast.success("Hotel deleted successfully!");
-      setHotels((prev) => prev.filter((hotel) => hotel._id !== id)); // update state without reload
+      setHotels((prev) => prev.filter((hotel) => hotel._id !== id));
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete hotel");
@@ -137,6 +138,7 @@ const loadHotels = async () => {
   return (
     <div>
       <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Header Section */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold text-black flex items-center gap-2">

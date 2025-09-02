@@ -29,7 +29,7 @@ export const fetchAllPackages = async (
     const res = await axiosInstance.get("/api/vendor/packages", {
       params: { page, limit }
     });
-console.log(res)
+
     const { packages, totalPackages, totalPages, currentPage } = res.data;
 
     if (!Array.isArray(packages)) {
@@ -87,5 +87,6 @@ export const searchPackages = async (query: string) => {
   const response = await axiosInstance.get("/api/vendor/packages/search", {
     params: { q: query },
   });
+  console.log("res of all packages",response)
   return response.data.data;
 };

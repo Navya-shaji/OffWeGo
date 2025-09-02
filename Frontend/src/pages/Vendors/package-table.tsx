@@ -49,13 +49,14 @@ const handleSearch = useCallback(
     }
     try {
       const response = await searchPackages(query);
+      console.log(response,"REfdkjgkhgirhuighiugh")
       setPackages(response ?? []);
     } catch (error) {
       console.error(error);
       setPackages([]);
     }
   },
-  [] // dependencies: add any state or props used inside this function
+  [] 
 );
 
   const handleUpdate = async (e: React.FormEvent) => {

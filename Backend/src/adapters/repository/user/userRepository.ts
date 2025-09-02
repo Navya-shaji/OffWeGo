@@ -55,7 +55,7 @@ export class UserRepository
     const regex = new RegExp(query, "i");
     return this.model
       .find({ name: { $regex: regex } })
-      .select("name email")
+      .select("name email phone createdAt ")
       .limit(10)
       .exec();
   }
