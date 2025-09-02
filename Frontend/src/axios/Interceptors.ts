@@ -19,12 +19,12 @@ export const setInterceptors = () => {
       if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
     }
 
-    console.log("Token in request interceptor:", {
-      attached: config.headers.Authorization,
-      admin: adminAuth.token,
-      user: auth.token,
-      vendor: vendorAuth.token,
-    });
+    // console.log("Token in request interceptor:", {
+    //   attached: config.headers.Authorization,
+    //   admin: adminAuth.token,
+    //   user: auth.token,
+    //   vendor: vendorAuth.token,
+    // });
   }
 
   return config;

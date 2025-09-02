@@ -66,18 +66,25 @@ export class HotelController {
       });
     }
   }
-  async deleteHotel(req: Request, res: Response) {
-    try {
-      const { id } = req.body;
-      const result = await this._deleteHotel.execute(id);
+async deleteHotel(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const result = await this._deleteHotel.execute(id);
 
-      return res.status(HttpStatus.OK).json(result);
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to delete Activity" });
-    }
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Hotel deleted successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error deleting hotel:", error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || "Failed to delete hotel",
+    });
   }
+}
+
   async SearchHotel(req: Request, res: Response) {
     try {
       const query = req.query.q;
