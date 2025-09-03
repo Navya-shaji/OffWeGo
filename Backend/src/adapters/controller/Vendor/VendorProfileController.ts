@@ -57,7 +57,7 @@ export class VendorProfileController {
           name: result?.name,
           email: result?.email,
           phone: result?.phone,
-          profile_img: result?.profileImage,
+          profileImage: result?.profileImage,
           document: result?.documentUrl,
         },
       });

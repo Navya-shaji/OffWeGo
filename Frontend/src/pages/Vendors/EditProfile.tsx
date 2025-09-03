@@ -50,7 +50,7 @@ export default function EditVendorProfileModal({
     if (vendor) {
       setName(vendor.name || "");
       setPhone(vendor.phone || "");
-      setImagePreviewUrl(vendor.profile_img || null);
+      setImagePreviewUrl(vendor.profileImage || null);
     }
   }, [vendor]);
 
@@ -89,7 +89,7 @@ const handleSubmit = async (event: React.FormEvent) => {
   }
 
   try {
-    let newImageUrl = vendor.profile_img
+    let newImageUrl = vendor.profileImage
     console.log("newImage",newImageUrl)
     if (selectedFile) {
       console.log("selected file")

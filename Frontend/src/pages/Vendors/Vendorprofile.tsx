@@ -39,9 +39,9 @@ export const Profile = () => {
         <div className="px-6 py-6">
           <div className="flex items-center space-x-4 mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl font-semibold">
-              {vendor?.profile_img ? (
+              {vendor?.profileImage ? (
                 <img
-                  src={vendor.profile_img}
+                  src={vendor.profileImage}
                   alt="User Avatar"
                   className="w-full h-full rounded-full object-cover"
                 />

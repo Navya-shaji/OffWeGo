@@ -42,13 +42,13 @@ export class AdminRoute {
         destinationController.getAllDestination(req, res);
       }
     );
-    this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
     this.adminRouter.get(
       AdminRoutes.GET_ALL_BANNERS,
       (req: Request, res: Response) => {
         bannerController.getBanners(req, res);
       }
     );
+    this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
     this.adminRouter.get(
       AdminRoutes.SEARCH_VENDOR,
       checkRoleBasedcontrol(["admin"]),
