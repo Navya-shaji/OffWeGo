@@ -19,12 +19,6 @@ export const setInterceptors = () => {
       if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
     }
 
-    // console.log("Token in request interceptor:", {
-    //   attached: config.headers.Authorization,
-    //   admin: adminAuth.token,
-    //   user: auth.token,
-    //   vendor: vendorAuth.token,
-    // });
   }
 
   return config;
@@ -37,7 +31,7 @@ export const setInterceptors = () => {
       const code = error.response?.data?.code;
       const originalRequest = error.config;
 
-      // Handle blocked users/vendors
+   
       if (status === 403) {
         if (code === "USER_BLOCKED") {
           store.dispatch(userLogout());
@@ -52,7 +46,6 @@ export const setInterceptors = () => {
         return Promise.reject(error);
       }
 
-      // Handle token refresh
       if (
         status === 401 &&
         !originalRequest._retry &&

@@ -45,7 +45,7 @@ const Header: React.FC = () => {
               { name: "Destinations", path: "/destinations" },
               { name: "Articles", path: "/articles" },
               { name: "Buddy Travel", path: "/buddy-travel" },
-              { name: "Search", path: "/search" },
+              // { name: "Search", path: "/search" },
             ].map((item) =>
               item.name === "Destinations" ? (
                 <Link
@@ -137,7 +137,7 @@ const Header: React.FC = () => {
                 "Destinations",
                 "Articles",
                 "Buddy Travel",
-                "Search",
+                
               ].map((item) => (
                 <a
                   key={item}

@@ -115,7 +115,7 @@ export class AdminRoute {
 
     this.adminRouter.post(
       AdminRoutes.CREATE_DESTINATION,
-      checkRoleBasedcontrol(["admin"]),
+    
       (req: Request, res: Response) => {
         destinationController.addDestination(req, res);
       }
