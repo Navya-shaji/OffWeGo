@@ -29,6 +29,7 @@ export const fetchAllPackages = async (
     const res = await axiosInstance.get("/api/vendor/packages", {
       params: { page, limit }
     });
+    console.log("All packagesssssssssssssssss",res)
 
     const { packages, totalPackages, totalPages, currentPage } = res.data;
 

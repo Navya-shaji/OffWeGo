@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
-  Calendar,
   MapPin,
   Clock,
   Building,
@@ -13,225 +12,16 @@ import {
   ArrowLeft,
   CalendarDays,
   CreditCard,
-  Star,
-  Car,
   Utensils,
   Heart,
   Share2,
   Loader2,
-  Coffee,
-  Sun,
-  Moon,
-  Sunset,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/profile/navbar";
-
-type Package = {
-  packageName: string;
-  description: string;
-  duration: number;
-  price: number;
-  images: string[];
-  activities: { title: string; description: string }[];
-  hotels: { name: string; rating: number; address: string }[];
-};
-
-const createDetailedItinerary = (packageData: Package) => {
-  const baseItinerary = [
-    {
-      day: 1,
-      title: "Arrival & Check-in",
-      schedule: [
-        {
-          time: "10:00 AM",
-          activity: "Airport Pickup",
-          description: "Meet and greet at arrival terminal",
-          icon: <Car className="h-4 w-4" />,
-          type: "transport",
-        },
-        {
-          time: "12:00 PM",
-          activity: "Hotel Check-in",
-          description: "Check into your premium accommodation",
-          icon: <Building className="h-4 w-4" />,
-          type: "accommodation",
-        },
-        {
-          time: "2:00 PM",
-          activity: "Welcome Lunch",
-          description: "Traditional welcome meal at hotel restaurant",
-          icon: <Utensils className="h-4 w-4" />,
-          type: "meal",
-        },
-        {
-          time: "4:00 PM",
-          activity: "City Orientation Tour",
-          description: "Brief orientation and local area familiarization",
-          icon: <MapPin className="h-4 w-4" />,
-          type: "activity",
-        },
-        {
-          time: "7:00 PM",
-          activity: "Dinner & Rest",
-          description: "Dinner at hotel and free time to rest",
-          icon: <Moon className="h-4 w-4" />,
-          type: "meal",
-        },
-      ],
-    },
-  ];
-
-  for (let i = 2; i < packageData.duration; i++) {
-    const activitiesForDay = packageData.activities.slice(
-      Math.floor(
-        ((i - 2) * packageData.activities.length) /
-          Math.max(1, packageData.duration - 2)
-      ),
-      Math.floor(
-        ((i - 1) * packageData.activities.length) /
-          Math.max(1, packageData.duration - 2)
-      )
-    );
-
-    baseItinerary.push({
-      day: i,
-      title: `Adventure Day ${i - 1}`,
-      schedule: [
-        {
-          time: "7:00 AM",
-          activity: "Breakfast",
-          description: "Continental breakfast at hotel",
-          icon: <Coffee className="h-4 w-4" />,
-          type: "meal",
-        },
-        {
-          time: "9:00 AM",
-          activity: activitiesForDay[0]?.title || "Morning Activity",
-          description:
-            activitiesForDay[0]?.description || "Exciting morning adventure",
-          icon: <Sun className="h-4 w-4" />,
-          type: "activity",
-        },
-        {
-          time: "1:00 PM",
-          activity: "Lunch Break",
-          description: "Local cuisine at recommended restaurant",
-          icon: <Utensils className="h-4 w-4" />,
-          type: "meal",
-        },
-        {
-          time: "3:00 PM",
-          activity: activitiesForDay[1]?.title || "Afternoon Activity",
-          description:
-            activitiesForDay[1]?.description || "Afternoon exploration",
-          icon: <Activity className="h-4 w-4" />,
-          type: "activity",
-        },
-        {
-          time: "6:00 PM",
-          activity: "Evening Leisure",
-          description: "Free time for shopping or relaxation",
-          icon: <Sunset className="h-4 w-4" />,
-          type: "leisure",
-        },
-        {
-          time: "8:00 PM",
-          activity: "Dinner",
-          description: "Traditional dinner with local specialties",
-          icon: <Utensils className="h-4 w-4" />,
-          type: "meal",
-        },
-      ],
-    });
-  }
-
-  if (packageData.duration > 1) {
-    baseItinerary.push({
-      day: packageData.duration,
-      title: "Departure",
-      schedule: [
-        {
-          time: "8:00 AM",
-          activity: "Breakfast & Check-out",
-          description: "Final breakfast and hotel check-out",
-          icon: <Coffee className="h-4 w-4" />,
-          type: "meal",
-        },
-        {
-          time: "10:00 AM",
-          activity: "Last Minute Shopping",
-          description: "Souvenir shopping and local market visit",
-          icon: <Activity className="h-4 w-4" />,
-          type: "activity",
-        },
-        {
-          time: "12:00 PM",
-          activity: "Farewell Lunch",
-          description: "Final meal together before departure",
-          icon: <Utensils className="h-4 w-4" />,
-          type: "meal",
-        },
-        {
-          time: "3:00 PM",
-          activity: "Airport Drop-off",
-          description: "Transfer to airport for departure",
-          icon: <Car className="h-4 w-4" />,
-          type: "transport",
-        },
-      ],
-    });
-  }
-
-  return baseItinerary.map((day) => ({
-    ...day,
-    hotel:
-      packageData.hotels[Math.floor(Math.random() * packageData.hotels.length)],
-  }));
-};
-
-const getTypeStyles = (type: string) => {
-  switch (type) {
-    case "meal":
-      return {
-        bg: "bg-zinc-50",
-        border: "border-zinc-200",
-        text: "text-zinc-800",
-      };
-    case "activity":
-      return {
-        bg: "bg-zinc-50",
-        border: "border-zinc-200",
-        text: "text-zinc-800",
-      };
-    case "transport":
-      return {
-        bg: "bg-zinc-50",
-        border: "border-zinc-200",
-        text: "text-zinc-800",
-      };
-    case "accommodation":
-      return {
-        bg: "bg-zinc-50",
-        border: "border-zinc-200",
-        text: "text-zinc-800",
-      };
-    case "leisure":
-      return {
-        bg: "bg-zinc-50",
-        border: "border-zinc-200",
-        text: "text-zinc-800",
-      };
-    default:
-      return {
-        bg: "bg-zinc-50",
-        border: "border-zinc-200",
-        text: "text-zinc-800",
-      };
-  }
-};
+import type { Package } from "@/interface/PackageInterface";
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
@@ -241,14 +31,15 @@ export const PackageTimeline = () => {
   const userId = useSelector((state: any) => state?.auth?.user?.id);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
-
   useEffect(() => {
-    if (!selectedPackage) navigate(-1);
-  }, [selectedPackage, navigate]);
+    if (selectedPackage) {
+      console.log("Selected package:", selectedPackage);
+    }
+  }, [selectedPackage]);
 
   if (!selectedPackage) {
     return (
@@ -279,8 +70,6 @@ export const PackageTimeline = () => {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
-
-  const detailedItinerary = createDetailedItinerary(selectedPackage);
 
   const handleBooking = async () => {
     if (!userId) {
@@ -445,160 +234,129 @@ export const PackageTimeline = () => {
                 )}
               </CardContent>
             </Card>
-
-            <Card className="shadow-sm border border-zinc-200 overflow-hidden bg-white">
-              <CardHeader className="bg-black text-white p-4">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <div className="p-1.5 bg-white/10 rounded">
-                    <Calendar className="h-5 w-5" />
-                  </div>
-                  Detailed Daily Itinerary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                {detailedItinerary.map((day, dayIndex) => (
-                  <div key={day.day} className="relative">
-                    {dayIndex < detailedItinerary.length - 1 && (
-                      <div className="absolute left-8 top-16 w-px h-[calc(100%-2rem)] bg-zinc-200" />
-                    )}
-
-                    <div className="flex gap-4">
-                      <div className="relative flex-shrink-0">
-                        <div className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center font-semibold text-base">
-                          {day.day}
-                        </div>
-                        <div className="absolute inset-0 rounded-full ring-2 ring-zinc-200 pointer-events-none" />
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="bg-white rounded-lg p-5 border border-zinc-200">
-                          <h3 className="font-semibold text-lg mb-3">
-                            Day {day.day}: {day.title}
-                          </h3>
-
-                          <div className="mb-4 p-3 bg-zinc-50 rounded border border-zinc-200">
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <Building className="h-4 w-4 text-zinc-700" />
-                              <span className="font-medium">
-                                {day.hotel.name}
-                              </span>
-                              <div className="flex items-center gap-1 text-zinc-700">
-                                {[...Array(Math.floor(day.hotel.rating))].map(
-                                  (_, i) => (
-                                    <Star key={i} className="h-3.5 w-3.5" />
-                                  )
-                                )}
-                                <span className="text-xs text-zinc-600 ml-1">
-                                  ({day.hotel.rating})
-                                </span>
-                              </div>
-                            </div>
-                            <p className="text-xs text-zinc-600">
-                              {day.hotel.address}
-                            </p>
-                          </div>
-
-                          <div className="space-y-2">
-                            <h4 className="font-medium flex items-center gap-2 text-sm">
-                              <Clock className="h-4 w-4 text-zinc-700" />
-                              Daily Schedule
-                            </h4>
-
-                            <div className="space-y-2">
-                              {day.schedule.map((item, scheduleIndex) => {
-                                const styles = getTypeStyles(item.type);
-                                return (
-                                  <div
-                                    key={scheduleIndex}
-                                    className={`flex items-start gap-3 p-3 rounded ${styles.bg} ${styles.border} border`}
-                                  >
-                                    <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                                      <div
-                                        className={`p-1.5 bg-white rounded border border-zinc-200 ${styles.text}`}
-                                      >
-                                        {item.icon}
-                                      </div>
-                                      <span className="text-[10px] font-medium text-zinc-700 bg-white px-1.5 py-0.5 rounded-full border border-zinc-200">
-                                        {item.time}
-                                      </span>
-                                    </div>
-
-                                    <div className="flex-1">
-                                      <h5 className="font-medium text-sm mb-0.5">
-                                        {item.activity}
-                                      </h5>
-                                      <p className="text-xs text-zinc-600">
-                                        {item.description}
-                                      </p>
-                                      <div className="mt-1">
-                                        <span
-                                          className={`inline-block px-1.5 py-0.5 text-[10px] font-medium ${styles.text} bg-white rounded-full border border-zinc-200 capitalize`}
-                                        >
-                                          {item.type}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          <div className="mt-4 p-3 bg-zinc-50 rounded border border-zinc-200">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                              <div>
-                                <div className="font-semibold text-zinc-900">
-                                  {
-                                    day.schedule.filter(
-                                      (s) => s.type === "meal"
-                                    ).length
-                                  }
-                                </div>
-                                <div className="text-[11px] text-zinc-600">
-                                  Meals
-                                </div>
-                              </div>
-                              <div>
-                                <div className="font-semibold text-zinc-900">
-                                  {
-                                    day.schedule.filter(
-                                      (s) => s.type === "activity"
-                                    ).length
-                                  }
-                                </div>
-                                <div className="text-[11px] text-zinc-600">
-                                  Activities
-                                </div>
-                              </div>
-                              <div>
-                                <div className="font-semibold text-zinc-900">
-                                  {
-                                    day.schedule.filter(
-                                      (s) => s.type === "transport"
-                                    ).length
-                                  }
-                                </div>
-                                <div className="text-[11px] text-zinc-600">
-                                  Transfers
-                                </div>
-                              </div>
-                              <div>
-                                <div className="font-semibold text-zinc-900">
-                                  1
-                                </div>
-                                <div className="text-[11px] text-zinc-600">
-                                  Hotel
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+            {selectedPackage.itinerary &&
+              selectedPackage.itinerary.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <div className="p-1.5 bg-black rounded text-white">
+                      <CalendarDays className="h-5 w-5" />
                     </div>
+                    Itinerary Details
+                  </h3>
+
+                  <div className="space-y-4">
+                    {selectedPackage.itinerary.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-4 p-4 border border-zinc-200 rounded-lg bg-zinc-50 hover:bg-zinc-100 transition-colors"
+                      >
+                        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-black text-white rounded-full font-bold">
+                          {item.day}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-zinc-600">{item.time}</p>
+                          <p className="font-medium text-zinc-900">
+                            {item.activity}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            {/* Itinerary */}
+            {selectedPackage.itinerary &&
+              selectedPackage.itinerary.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <div className="p-1.5 bg-black rounded text-white">
+                      <Clock className="h-5 w-5" />
+                    </div>
+                    Itinerary
+                  </h3>
+                  <div className="space-y-2">
+                    {selectedPackage.itinerary.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 border border-zinc-200 rounded-lg bg-zinc-50"
+                      >
+                        <div className="text-sm font-semibold">
+                          Day {item.day}
+                        </div>
+                        <div className="text-xs text-zinc-600">
+                          Time: {item.time}
+                        </div>
+                        <div className="text-sm mt-1">{item.activity}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            {selectedPackage.hotels && selectedPackage.hotels.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold">Hotels</h3>
+                {selectedPackage.hotels.map((hotel, idx) => (
+                  <div key={idx} className="text-sm">
+                    {hotel.name} - {hotel.address} ({hotel.rating}★)
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            )}
+
+            {selectedPackage.activities &&
+              selectedPackage.activities.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold">Activities</h3>
+                  {selectedPackage.activities.map((act, idx) => (
+                    <div key={idx} className="text-sm">
+                      {act.title} - {act.description}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            {selectedPackage.inclusions &&
+              selectedPackage.inclusions.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold">Inclusions</h3>
+                  <ul className="list-disc ml-5">
+                    {selectedPackage.inclusions.map((inc, idx) => (
+                      <li key={idx}>{inc}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+            {selectedPackage.amenities &&
+              selectedPackage.amenities.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold">Amenities</h3>
+                  <ul className="list-disc ml-5">
+                    {selectedPackage.amenities.map((amenity, idx) => (
+                      <li key={idx}>{amenity}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+            {/* Amenities */}
+            {selectedPackage.amenities &&
+              selectedPackage.amenities.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <div className="p-1.5 bg-black rounded text-white">🛎️</div>
+                    Amenities
+                  </h3>
+                  <ul className="list-disc list-inside space-y-2 text-zinc-700">
+                    {selectedPackage.amenities.map((am, i) => (
+                      <li key={i}>{am}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+          
           </div>
 
           <div className="space-y-6">

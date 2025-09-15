@@ -1,4 +1,3 @@
-
 import type React from "react"
 import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -33,6 +32,11 @@ const AddPackage: React.FC = () => {
     selectedActivities: [],
     images: [],
     destinationId: "",
+    checkInTime: "",
+    checkOutTime: "",
+    itinerary: [],
+    inclusions: [],
+    amenities: []
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -56,13 +60,12 @@ const AddPackage: React.FC = () => {
     return formData.price + hotelsCost + activitiesCost
   }
 
-  console.log(formData.selectedHotels)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     const selectedHotelIds = formData.selectedHotels
     const selectedActivityIds = formData.selectedActivities
-console.log("selectedHotelIds",selectedHotelIds,selectedActivityIds)
+
     const completePackage = {
       id: crypto.randomUUID(),
       destinationId: formData.destinationId,
@@ -75,6 +78,11 @@ console.log("selectedHotelIds",selectedHotelIds,selectedActivityIds)
       images: formData.images,
       hotels: selectedHotelIds,
       activities: selectedActivityIds,
+      checkInTime: formData.checkInTime,
+      checkOutTime: formData.checkOutTime,
+      itinerary: formData.itinerary,
+      inclusions: formData.inclusions,
+      amenities: formData.amenities,
     }
 
     console.log(" Complete package data:", completePackage)
@@ -89,6 +97,11 @@ console.log("selectedHotelIds",selectedHotelIds,selectedActivityIds)
       selectedActivities: [],
       images: [],
       destinationId: "",
+      checkInTime: "",
+      checkOutTime: "",
+      itinerary: [],
+      inclusions: [],
+      amenities: []
     })
     setTimeout(() => setIsSubmitted(false), 3000)
   }
@@ -158,6 +171,111 @@ console.log("selectedHotelIds",selectedHotelIds,selectedActivityIds)
                     setFormData((prev) => ({ ...prev, selectedActivities: activities }))
                   }
                 />
+
+                {/* ✅ Check-in / Check-out */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium">Check-in Time</label>
+                    <input
+                      type="text"
+                      name="checkInTime"
+                      value={formData.checkInTime}
+                      onChange={(e) => setFormData({ ...formData, checkInTime: e.target.value })}
+                      placeholder="e.g. 2:00 PM"
+                      className="border rounded w-full p-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium">Check-out Time</label>
+                    <input
+                      type="text"
+                      name="checkOutTime"
+                      value={formData.checkOutTime}
+                      onChange={(e) => setFormData({ ...formData, checkOutTime: e.target.value })}
+                      placeholder="e.g. 11:00 AM"
+                      className="border rounded w-full p-2"
+                    />
+                  </div>
+                </div>
+
+                {/* ✅ Itinerary Section */}
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold">Itinerary</h2>
+                  {formData.itinerary.map((item, index) => (
+                    <div key={index} className="flex gap-4">
+                      <input
+                        type="number"
+                        placeholder="Day"
+                        value={item.day}
+                        onChange={(e) => {
+                          const newItinerary = [...formData.itinerary]
+                          newItinerary[index].day = Number(e.target.value)
+                          setFormData({ ...formData, itinerary: newItinerary })
+                        }}
+                        className="border rounded p-2 w-20"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Time"
+                        value={item.time}
+                        onChange={(e) => {
+                          const newItinerary = [...formData.itinerary]
+                          newItinerary[index].time = e.target.value
+                          setFormData({ ...formData, itinerary: newItinerary })
+                        }}
+                        className="border rounded p-2"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Activity"
+                        value={item.activity}
+                        onChange={(e) => {
+                          const newItinerary = [...formData.itinerary]
+                          newItinerary[index].activity = e.target.value
+                          setFormData({ ...formData, itinerary: newItinerary })
+                        }}
+                        className="border rounded p-2 flex-1"
+                      />
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        itinerary: [...prev.itinerary, { day: prev.itinerary.length + 1, activity: "" }]
+                      }))
+                    }
+                  >
+                    Add Day
+                  </Button>
+                </div>
+
+                {/* ✅ Inclusions */}
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold">Inclusions</h2>
+                  <textarea
+                    placeholder="Enter inclusions (comma separated)"
+                    value={formData.inclusions.join(", ")}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, inclusions: e.target.value.split(",").map(i => i.trim()) }))
+                    }
+                    className="border rounded w-full p-2"
+                  />
+                </div>
+
+                {/* ✅ Amenities */}
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold">Amenities</h2>
+                  <textarea
+                    placeholder="Enter amenities (comma separated)"
+                    value={formData.amenities.join(", ")}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, amenities: e.target.value.split(",").map(a => a.trim()) }))
+                    }
+                    className="border rounded w-full p-2"
+                  />
+                </div>
               </div>
 
               <PricingSidebar formData={formData} selectedDestination={selectedDestination} totalPrice={totalPrice} />
