@@ -1,21 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { getsingleDestination } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import {
-  MapPin,
-  Calendar,
-  Users,
-  Star,
-  ArrowLeft,
-  ExternalLink,
-} from "lucide-react";
+import { MapPin, Calendar, ArrowLeft, ExternalLink } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/store/store";
 import { fetchPackages } from "@/store/slice/packages/packageSlice";
 import Navbar from "@/components/profile/navbar";
+import { SearchBar } from "@/components/Modular/searchbar";
+import { searchPackages } from "@/services/packages/packageService";
+import type { Package } from "@/interface/PackageInterface";
 
 export const DestinationDetail = () => {
   const { id } = useParams();
@@ -28,9 +24,24 @@ export const DestinationDetail = () => {
   const { packages, loading: packagesLoading } = useSelector(
     (state: RootState) => state.package
   );
+  const [packagess, setPackages] = useState<Package[]>([]);
+
   const navigate = useNavigate();
   const relevantPackages = packages.filter((pkg) => pkg.destinationId === id);
 
+  const handleSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      return;
+    }
+    try {
+      const response = await searchPackages(query);
+      console.log(response, "REfdkjgkhgirhuighiugh");
+      setPackages(response ?? []);
+    } catch (error) {
+      console.error(error);
+      setPackages([]);
+    }
+  }, []);
   useEffect(() => {
     dispatch(fetchPackages());
   }, [dispatch]);
@@ -93,12 +104,10 @@ export const DestinationDetail = () => {
     );
   }
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Navbar />
 
- 
       <div className="relative">
         {Array.isArray(destination.imageUrls) &&
         destination.imageUrls.length > 0 ? (
@@ -112,7 +121,6 @@ export const DestinationDetail = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
 
-           
             {destination.imageUrls.length > 1 && (
               <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
                 {destination.imageUrls.map((_, idx) => (
@@ -129,7 +137,6 @@ export const DestinationDetail = () => {
               </div>
             )}
 
-        
             <div className="absolute bottom-0 left-0 right-0 p-8">
               <div className="max-w-7xl mx-auto">
                 <button
@@ -170,20 +177,17 @@ export const DestinationDetail = () => {
                 </div>
               </div>
             </div>
-       
+
             <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-1/3 left-1/3 w-48 h-48 bg-yellow-400/20 rounded-full blur-2xl"></div>
           </div>
         )}
       </div>
 
-
       <div className="relative -mt-20 px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
             <div className="lg:col-span-2 space-y-8">
-          
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
                 <h2 className="text-3xl font-bold text-slate-900 mb-6 flex items-center">
                   <div className="w-2 h-8 bg-gradient-to-b from-black to-black rounded-full mr-4"></div>
@@ -224,12 +228,20 @@ export const DestinationDetail = () => {
                   </div>
                 )}
 
-        
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
-                <h2 className="text-3xl font-bold text-slate-900 mb-6 flex items-center">
-                  <div className="w-2 h-8 bg-gradient-to-b from-green-600 to-emerald-600 rounded-full mr-4"></div>
-                  Available Packages
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-3xl font-bold text-slate-900 flex items-center">
+                    <div className="w-2 h-8 bg-gradient-to-b from-green-600 to-emerald-600 rounded-full mr-4"></div>
+                    Available Packages
+                  </h2>
+
+                  <div className="w-60">
+                    <SearchBar
+                      placeholder="Search packages..."
+                      onSearch={handleSearch}
+                    />
+                  </div>
+                </div>
 
                 {packagesLoading ? (
                   <div className="flex items-center justify-center py-12">
@@ -269,14 +281,12 @@ export const DestinationDetail = () => {
                                     {pkg.packageName.charAt(0)}
                                   </span>
                                 </div>
-                              
                               </div>
 
                               <div className="flex-1">
                                 <h4 className="text-xl font-bold text-slate-900 mb-1  transition-colors duration-300">
                                   {pkg.packageName}
                                 </h4>
-                               
                               </div>
                             </div>
 
@@ -317,9 +327,7 @@ export const DestinationDetail = () => {
               </div>
             </div>
 
-
             <div className="space-y-8">
-     
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
                   <h3 className="text-2xl font-bold text-slate-900 flex items-center">
@@ -329,8 +337,6 @@ export const DestinationDetail = () => {
                 </div>
 
                 <div className="p-6">
-              
-
                   <div className="h-64 w-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                     <MapContainer
                       center={[

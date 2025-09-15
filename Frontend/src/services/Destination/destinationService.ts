@@ -124,8 +124,16 @@ export const deleteDestination = async (id: string): Promise<void> => {
 };
 
 export const searchDestination = async (query: string) => {
+  const state = store.getState();
+  const token = state.adminAuth.token || state.vendorAuth.token || state.auth.token;
+
   const response = await axiosInstance.get("/api/admin/destination/search", {
     params: { q: query },
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
   });
+
   return response.data.data;
 };
+
