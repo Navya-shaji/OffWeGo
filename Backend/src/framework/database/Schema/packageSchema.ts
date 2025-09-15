@@ -13,11 +13,13 @@ export const packageSchema = new Schema(
     duration: { type: Number, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+
     images: {
       type: [String],
       required: true,
     },
-hotels: [{ type: Schema.Types.ObjectId, ref: "Hotel" }],
+
+    hotels: [{ type: Schema.Types.ObjectId, ref: "Hotel" }],
 
     activities: [
       {
@@ -25,6 +27,20 @@ hotels: [{ type: Schema.Types.ObjectId, ref: "Hotel" }],
         ref: "Activity",
       },
     ],
+
+    checkInTime: { type: String },
+    checkOutTime: { type: String },
+
+    itinerary: [
+      {
+        day: { type: Number, required: true },
+        time: { type: String },
+        activity: { type: String, required: true },
+      },
+    ],
+
+    inclusions: [{ type: String }],
+    amenities: [{ type: String }],
   },
   {
     timestamps: true,

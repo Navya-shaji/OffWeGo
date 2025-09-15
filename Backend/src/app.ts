@@ -10,6 +10,7 @@ import { UserRoute } from "./framework/routes/user/userRoute";
 import { AdminRoute } from "./framework/routes/Admin/adminRoute";
 import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 import { CommonRoute } from "./framework/routes/Auth/AuthRoutes"; 
+import { morganConsoleLogger, morganFileLogger } from "./framework/Logger/logger";
 
 export class App {
   private app: Express;
@@ -35,11 +36,13 @@ export class App {
     this.setCommonRoutes(); 
   }
 
-  private setMiddlewares(): void {
-    this.app.use(express.json());
-    this.app.use(morgan("dev"));
-    this.app.use(cookieParser())
-  }
+private setMiddlewares(): void {
+  this.app.use(express.json());
+  this.app.use(cookieParser());
+
+  this.app.use(morganFileLogger);      
+  
+}
 
   private setUserRoutes(): void {
     this.app.use("/api", new UserRoute().userRouter);

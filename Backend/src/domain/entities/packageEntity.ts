@@ -14,4 +14,17 @@ export interface Package {
 
   hotels: Hotel[]; 
   activities: Activity[]; 
+
+  checkInTime: string;
+  checkOutTime: string;
+
+  itinerary: {
+    day: number;
+    time: string;
+    activity: string;
+  }[];
+
+  inclusions: string[];
+
+  amenities: string[];
 }

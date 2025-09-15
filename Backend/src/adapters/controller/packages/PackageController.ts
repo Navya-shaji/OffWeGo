@@ -22,6 +22,7 @@ export class PackageController {
       const result = await this._getPackage.execute(page, limit);
 
       res.status(HttpStatus.OK).json(result);
+      console.log("Backend data",result)
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -32,6 +33,7 @@ export class PackageController {
   async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
+      console.log("packageData",packageData)
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
