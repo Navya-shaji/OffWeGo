@@ -14,6 +14,7 @@ export const Destinations = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
   const [page] = useState(1);
+  
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
       const allDestinations = await fetchAllDestinations(page, 5);
