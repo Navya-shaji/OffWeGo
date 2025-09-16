@@ -7,6 +7,8 @@ export class CreateHotelUsecase implements ICreateHotelUsecase{
     constructor(private _hotelRepo:IHotelRepository){}
 
     async execute(data: Hotel): Promise<Hotel> {
+        const existingHotel=await this._hotelRepo.findByName(data.name)
+        if (existingHotel) throw new Error("Hotel with this name already exists");
         const hotel=await this._hotelRepo.createHotel(data)
         return mapToHotelDto(hotel)
     }

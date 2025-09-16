@@ -4,10 +4,12 @@ import { IEditActivityUsecase } from "../../domain/interface/vendor/IeditActivit
 import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";
 
 export class EditActivity implements IEditActivityUsecase {
-    constructor(private _ActivityRepo: IActivityRepository) {}
+  constructor(private _ActivityRepo: IActivityRepository) {}
 
-    async execute(id: string, updatedData: Activity): Promise<Activity | null> {
-        const updatedDoc = await this._ActivityRepo.edit(id, updatedData);
-       return updatedDoc ? mapToActivityDto(updatedDoc):null
-    }
+  async execute(id: string, updatedData: Activity): Promise<Activity | null> {
+    const existing = await this._ActivityRepo.findByTitle(updatedData.title);
+    if (existing) throw new Error("Activity with this title already exists");
+    const updatedDoc = await this._ActivityRepo.edit(id, updatedData);
+    return updatedDoc ? mapToActivityDto(updatedDoc) : null;
+  }
 }

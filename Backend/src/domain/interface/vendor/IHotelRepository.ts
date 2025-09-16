@@ -8,4 +8,5 @@ export interface IHotelRepository {
   delete(id: string): Promise<IHotelModel | null>;
   searchHotel(query: string): Promise<Hotel[]>;
   countHotels(): Promise<number>;
+  findByName(name:string):Promise<Hotel |null>
 }

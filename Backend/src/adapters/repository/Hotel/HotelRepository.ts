@@ -42,4 +42,7 @@ export class HotelRepository
   async countHotels(): Promise<number> {
     return await HotelModel.countDocuments();
   }
+  async findByName(name: string): Promise<Hotel | null> {
+    return this.model.findOne({ name });
+  }
 }

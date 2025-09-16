@@ -6,11 +6,10 @@ import EditVendorProfileModal from "./EditProfile";
 
 export const Profile = () => {
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
- 
 
   const [isEditOpen, setEditOpen] = useState(false);
 
-  if (!vendor) return null
+  if (!vendor) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -55,7 +54,7 @@ export const Profile = () => {
               <h2 className="text-lg font-medium text-gray-900">
                 {vendor?.name || ""}
               </h2>
-              <p className="text-sm text-gray-500">{vendor?.email||""}</p>
+              <p className="text-sm text-gray-500">{vendor?.email || ""}</p>
             </div>
           </div>
 
@@ -84,7 +83,7 @@ export const Profile = () => {
                 Document
               </span>
               <a
-                href={vendor.documentUrl}
+                href={vendor.document}
                 className="text-sm text-blue-600 hover:text-blue-700 underline transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
