@@ -23,6 +23,7 @@ export interface Itinerary {
 }
 
 export interface Package {
+  _id: any;
   id?: string;
   destinationId: string;
   packageName: string;

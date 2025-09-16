@@ -20,26 +20,28 @@ export const DestinationDetail = () => {
   );
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [searchResults, setSearchResults] = useState<Package[] | null>(null);
+
   const dispatch = useDispatch<AppDispatch>();
   const { packages, loading: packagesLoading } = useSelector(
     (state: RootState) => state.package
   );
-  const [packagess, setPackages] = useState<Package[]>([]);
 
   const navigate = useNavigate();
-  const relevantPackages = packages.filter((pkg) => pkg.destinationId === id);
+  const displayedPackages =
+    searchResults ?? packages.filter((pkg) => pkg.destinationId === id);
 
   const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
+      setSearchResults(null);
       return;
     }
     try {
       const response = await searchPackages(query);
-      console.log(response, "REfdkjgkhgirhuighiugh");
-      setPackages(response ?? []);
+      setSearchResults(response ?? []);
     } catch (error) {
       console.error(error);
-      setPackages([]);
+      setSearchResults([]);
     }
   }, []);
   useEffect(() => {
@@ -253,7 +255,7 @@ export const DestinationDetail = () => {
                       Loading packages...
                     </span>
                   </div>
-                ) : relevantPackages.length > 0 ? (
+                ) : displayedPackages.length > 0 ? (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
                       <div className="flex items-center">
@@ -261,14 +263,14 @@ export const DestinationDetail = () => {
                           <Calendar className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-slate-700 font-semibold text-lg">
-                          {relevantPackages.length} Package
-                          {relevantPackages.length !== 1 ? "s" : ""} Available
+                          {displayedPackages.length} Package
+                          {displayedPackages.length !== 1 ? "s" : ""} Available
                         </span>
                       </div>
                     </div>
 
                     <div className="grid gap-6">
-                      {relevantPackages.map((pkg, idx) => (
+                      {displayedPackages.map((pkg) => (
                         <div
                           key={pkg.id}
                           className="group p-6 bg-gradient-to-r from-white to-blue-50/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 border border-white/20 hover:border-blue-200"

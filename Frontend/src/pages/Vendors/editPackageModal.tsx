@@ -1,121 +1,210 @@
-"use client"
-
-// - Replaced raw inputs with Label, Input, Textarea
-// - Wrapped content in Card with header and close icon
-// - Improved overlay with backdrop blur and accessibility attributes
-// - Buttons use variants for clear affordances
-
-import type React from "react"
-import type { Package } from "@/interface/PackageInterface"
+import { useState, useEffect } from "react"
+import { Plus, Clock, CheckCircle, Sparkles, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { X, PencilLine } from "lucide-react"
 
-interface EditPackageModalProps {
-  pkg: Package | undefined
-  onClose: () => void
-  onChange: (updated: Package) => void
-  onSubmit: (e: React.FormEvent) => void
+interface Package {
+  _id: string
+  packageName: string
+  description: string
+  price: number
+  duration: number
+  checkInTime?: string
+  checkOutTime?: string
+  images?: string[]
+  hotels?: Array<{ name: string }>
+  activities?: Array<{ title: string }>
+  itinerary?: Array<{ day: number; time: string; activity: string }>
+  inclusions?: string[]
+  amenities?: string[]
 }
 
-export const EditPackageModal: React.FC<EditPackageModalProps> = ({ pkg, onClose, onChange, onSubmit }) => {
-  const safePkg = (pkg ??
-    ({
-      packageName: "",
-      description: "",
-      price: 0,
-      duration: 1,
-    } as Package)) as Package
+interface EditPackageProps {
+  pkg: Package | null
+  onClose: () => void
+  onChange: (pkg: Package) => void
+  onSubmit: (e: React.FormEvent) => void
+  isLoading?: boolean
+}
+
+const EditPackage: React.FC<EditPackageProps> = ({
+  pkg,
+  onClose,
+  onChange,
+  onSubmit,
+  isLoading = false,
+}) => {
+  const [localData, setLocalData] = useState<Package | null>(pkg)
+
+  useEffect(() => {
+    setLocalData(pkg)
+  }, [pkg])
+
+  if (!localData) return null
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target
+    const updated = { ...localData, [name]: name === "price" || name === "duration" ? Number(value) : value }
+    setLocalData(updated)
+    onChange(updated)
+  }
+
+  const handleArrayChange = (key: "inclusions" | "amenities", index: number, value: string) => {
+    const updatedArray = [...(localData[key] || [])]
+    updatedArray[index] = value
+    const updated = { ...localData, [key]: updatedArray }
+    setLocalData(updated)
+    onChange(updated)
+  }
+
+  const addArrayItem = (key: "inclusions" | "amenities") => {
+    const updatedArray = [...(localData[key] || []), ""]
+    const updated = { ...localData, [key]: updatedArray }
+    setLocalData(updated)
+    onChange(updated)
+  }
+
+  const removeArrayItem = (key: "inclusions" | "amenities", index: number) => {
+    const updatedArray = [...(localData[key] || [])]
+    updatedArray.splice(index, 1)
+    const updated = { ...localData, [key]: updatedArray }
+    setLocalData(updated)
+    onChange(updated)
+  }
+
+  const renderList = (key: "inclusions" | "amenities") => {
+    return (
+      <div className="space-y-2">
+        {(localData[key] || []).map((item, idx) => (
+          <div key={idx} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={item}
+              onChange={(e) => handleArrayChange(key, idx, e.target.value)}
+              className="flex-1 border border-slate-300 rounded px-2 py-1"
+            />
+            <button onClick={() => removeArrayItem(key, idx)} type="button">
+              <X className="h-4 w-4 text-red-600" />
+            </button>
+          </div>
+        ))}
+        <Button
+          type="button"
+          onClick={() => addArrayItem(key)}
+          size="sm"
+          className="flex items-center gap-2 mt-2"
+        >
+          <Plus className="h-4 w-4" /> Add {key === "inclusions" ? "Inclusion" : "Amenity"}
+        </Button>
+      </div>
+    )
+  }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-      aria-modal="true"
-      role="dialog"
-      aria-labelledby="edit-package-title"
-      onClick={onClose}
-    >
-      <Card className="w-full max-w-lg border-0 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b">
-          <div className="flex items-center gap-2">
-            <PencilLine className="h-5 w-5 text-blue-600" aria-hidden="true" />
-            <CardTitle id="edit-package-title" className="text-xl">
-              Edit Package
-            </CardTitle>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-y-auto max-h-[90vh] p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">Edit Package</h2>
+          <button onClick={onClose}>
+            <X className="h-6 w-6 text-slate-700" />
+          </button>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          {/* Basic Info */}
+          <div className="space-y-2">
+            <label className="font-medium">Package Name</label>
+            <input
+              type="text"
+              name="packageName"
+              value={localData.packageName}
+              onChange={handleInputChange}
+              className="w-full border border-slate-300 rounded px-2 py-1"
+            />
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-            <X className="h-5 w-5" />
-          </Button>
-        </CardHeader>
 
-        <CardContent className="pt-6">
-          <form onSubmit={onSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="packageName">Package Name</Label>
-              <Input
-                id="packageName"
-                type="text"
-                value={safePkg.packageName}
-                onChange={(e) => onChange({ ...safePkg, packageName: e.target.value })}
-                placeholder="e.g. Himalayan Adventure"
+          <div className="space-y-2">
+            <label className="font-medium">Description</label>
+            <textarea
+              name="description"
+              value={localData.description}
+              onChange={handleInputChange}
+              className="w-full border border-slate-300 rounded px-2 py-1"
+            />
+          </div>
+
+          <div className="flex gap-4">
+            <div className="space-y-2 flex-1">
+              <label className="font-medium">Price</label>
+              <input
+                type="number"
+                name="price"
+                value={localData.price}
+                onChange={handleInputChange}
+                className="w-full border border-slate-300 rounded px-2 py-1"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={safePkg.description}
-                onChange={(e) => onChange({ ...safePkg, description: e.target.value })}
-                placeholder="Brief overview of the experience, inclusions, and highlights"
-                className="min-h-[100px]"
+            <div className="space-y-2 flex-1">
+              <label className="font-medium">Duration (Days)</label>
+              <input
+                type="number"
+                name="duration"
+                value={localData.duration}
+                onChange={handleInputChange}
+                className="w-full border border-slate-300 rounded px-2 py-1"
               />
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Base Price</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  inputMode="decimal"
-                  min={0}
-                  step="0.01"
-                  value={Number.isFinite(safePkg.price) ? safePkg.price : 0}
-                  onChange={(e) => onChange({ ...safePkg, price: Number(e.target.value) })}
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="duration">Duration (days)</Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  step="1"
-                  value={Number.isFinite(safePkg.duration) ? safePkg.duration : 1}
-                  onChange={(e) => onChange({ ...safePkg, duration: Number(e.target.value) })}
-                  placeholder="1"
-                />
-              </div>
+          {/* Check-in/Check-out */}
+          <div className="flex gap-4">
+            <div className="space-y-2 flex-1">
+              <label className="font-medium">Check-In Time</label>
+              <input
+                type="time"
+                name="checkInTime"
+                value={localData.checkInTime || ""}
+                onChange={handleInputChange}
+                className="w-full border border-slate-300 rounded px-2 py-1"
+              />
             </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                Save
-              </Button>
+            <div className="space-y-2 flex-1">
+              <label className="font-medium">Check-Out Time</label>
+              <input
+                type="time"
+                name="checkOutTime"
+                value={localData.checkOutTime || ""}
+                onChange={handleInputChange}
+                className="w-full border border-slate-300 rounded px-2 py-1"
+              />
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+
+          {/* Inclusions & Amenities */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="font-medium mb-2 block">Inclusions</label>
+              {renderList("inclusions")}
+            </div>
+            <div>
+              <label className="font-medium mb-2 block">Amenities</label>
+              {renderList("amenities")}
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-6">
+            <Button type="button" onClick={onClose} variant="outline" className="mr-3">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
+
+export default EditPackage
