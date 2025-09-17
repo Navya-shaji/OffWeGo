@@ -36,7 +36,7 @@ export interface Package {
   hotels: Hotel[];
   activities: Activity[];
 
-  // ✅ Newly added fields (from backend response)
+ 
   checkInTime?: string;
   checkOutTime?: string;
   itinerary?: Itinerary[];
