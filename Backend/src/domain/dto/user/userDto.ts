@@ -1,3 +1,7 @@
-import { User } from "../../entities/UserEntity";
-
-export type RegisterDTO=Omit<User, "_id" | "createdAt" | "updatedAt" | "lastLogin" | "status" | "role" | "isAdmin">
+export interface RegisterDTO {
+  name: string;
+  email: string;
+  phone: number;
+  password: string;
+  imageUrl?: string;
+}

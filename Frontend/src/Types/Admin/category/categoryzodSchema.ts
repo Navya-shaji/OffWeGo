@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 export const CategorySchema = z.object({
-  name: z.string().min(1, { message: "Category name is required" }),
+  name: z
+    .string()
+    .min(1, { message: "Category name is required" })
+    .max(15, { message: "Category name must not exceed 15 letters" })
+    .regex(/^[A-Za-z]+$/, { message: "Category name must contain only letters" }),
   description: z.string().min(1, { message: "Description is required" }),
   image: z
     .instanceof(File)

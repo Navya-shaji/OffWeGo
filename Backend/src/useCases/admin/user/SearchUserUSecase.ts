@@ -1,6 +1,6 @@
-import { User } from "../../../domain/entities/UserEntity";
-import { ISearchUserUsecase } from "../../../domain/interface/Admin/ISerachUSerUsecase";
-import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
+import { User } from "../../../domain/entities/UserEntity"
+import { ISearchUserUsecase } from "../../../domain/interface/Admin/ISerachUSerUsecase"
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository"
 
 export class SearchUserUSeCase implements ISearchUserUsecase{
     constructor(private _userRepo:IUserRepository){}

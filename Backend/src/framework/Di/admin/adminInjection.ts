@@ -6,29 +6,30 @@ import { HashPassword } from "../../Services/hashPassword";
 import { JwtService } from "../../Services/jwtService";
 import { GetVendorByEmailUseCase } from "../../../useCases/admin/vendor/GetVendorByEmailUsecase";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
-import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/UpdateVendorStatusUsecase";
+import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase";
 import { GetAllVendorsUseCase } from "../../../useCases/admin/vendor/GetAllVendorsUsecase";
-import { GetAllUsers } from "../../../useCases/admin/user/GetAllUserUsecase";
+// Update the import to match the actual export from GetAllUserUsecase.ts
+import { GetAllUsersUsecase } from "../../../useCases/admin/user/GetAllUserUsecase";
 import { UserRepository } from "../../../adapters/repository/User/UserRepository";
 import { UpdateUserUseCase } from "../../../useCases/admin/user/UpdateUserusecase";
-import { GetAllDestinations } from "../../../useCases/destination/GetAllDestinationUsecase";
-import { CreateDestination } from "../../../useCases/destination/CreateDestinationUsecase";
+import { GetAllDestinations } from "../../../useCases/destination/getAllDestinationUsecase";
+import { CreateDestination } from "../../../useCases/destination/createDestinationUsecase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
-import { EditDestination } from "../../../useCases/destination/EditDestinationUsecase";
+import { EditDestination } from "../../../useCases/destination/editDestinationUsecase";
 import { UpdateVendorUsecase } from "../../../useCases/admin/vendor/UpdateVendorUsecase";
 import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
 import { CreateCatogoryController } from "../../../adapters/controller/category/CategoryController";
 import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
-import { GetAllCategories } from "../../../useCases/category/GetAllCategoryUsecase";
-import { CreateBanner } from "../../../useCases/banner/CreateBannerUsecase";
+import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
+import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";
 import { BannerRepository } from "../../../adapters/repository/Banner/BannerRepository";
-import { GetAllBanners } from "../../../useCases/banner/GetAllBannerUsecase";
+import { GetAllBanners } from "../../../useCases/banner/getAllBannerUsecase";
 import { AdminUserController } from "../../../adapters/controller/Admin/AdminUserController";
 import { Bannercontroller } from "../../../adapters/controller/Banner/BannerController";
 import { DestinationController } from "../../../adapters/controller/Destination/DestinationController";
-import { GetDestination } from "../../../useCases/destination/GetDestinationDetailUsecase";
-import { DeleteDestination } from "../../../useCases/destination/DeleteDestinationUsecase";
-import { EditCategory } from "../../../useCases/category/EditCategoryUsecase";
+import { GetDestination } from "../../../useCases/destination/getDestinationDetailUsecase";
+import { DeleteDestination } from "../../../useCases/destination/deleteDestinationUsecase"; 
+import { EditCategory } from "../../../useCases/category/editCategoryUsecase"; 
 import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
@@ -38,8 +39,8 @@ import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscri
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
 import { SearchUserUSeCase } from "../../../useCases/admin/user/SearchUserUSecase";
 import { SearchVendorUsecase } from "../../../useCases/admin/vendor/SearchVendorUsecase";
-import { SearchDestination } from "../../../useCases/destination/SearchDestinationUsecase";
-import { SearchCategoryUsecase } from "../../../useCases/category/SearchcategoryUSecase";
+import { SearchDestination } from "../../../useCases/destination/searchDestinationUsecase";
+import { SearchCategoryUsecase } from "../../../useCases/category/searchcategoryUSecase"; 
 import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecase";
 
 // Repositories
@@ -61,8 +62,8 @@ const jwtService = new JwtService();
 const adminLoginuseCase = new AdminLoginuseCase(adminRepository, hashPassword, jwtService);
 const adminvendorfindByemailUsecase = new GetVendorByEmailUseCase(vendorRepository);
 const updateVendorStatusUseCase = new UpdateVendorstatusUseCase(vendorRepository);
-const getAllVendorsUsecase=new GetAllVendorsUseCase(vendorRepository)
-const getallusers=new GetAllUsers(userRepository)
+const getallusers=new GetAllUsersUsecase(userRepository)
+const getAllVendorsUseCase=new GetAllVendorsUseCase(vendorRepository)
 const updateUserusecase=new UpdateUserUseCase(userRepository)
 const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
@@ -88,7 +89,7 @@ const Banneractionusecase=new BannerActionUsecase(bannerRepo)
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
-export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase,getAllVendorsUsecase,updateVendorStatusUseCase,vendorblockUnblockUsecase,vendorRepository,searchvendorusecase);
+export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase,getAllVendorsUseCase,updateVendorStatusUseCase,vendorblockUnblockUsecase,vendorRepository,searchvendorusecase);
 export const AdminuserController=new AdminUserController(getallusers,updateUserusecase,searchuserusecase);
 export const destinationController = new DestinationController(
   createdestinationusecase,

@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { IGetAllUser } from "../../../domain/interface/Admin/IGetAllUsers";
+import { IGetAllUserUsecase } from "../../../domain/interface/Admin/IGetAllUsers";
 import { IUpdateUserUseCase } from "../../../domain/interface/Admin/IUpdateUserUseCase";
 import { ISearchUserUsecase } from "../../../domain/interface/Admin/ISerachUSerUsecase";
 
 export class AdminUserController {
   constructor(
-    private _getAllUserUsecase: IGetAllUser,
+    private _getAllUserUsecase: IGetAllUserUsecase,
     private _updateUserStatusUseCase: IUpdateUserUseCase,
     private _searchUserUsecase: ISearchUserUsecase
   ) {}

@@ -23,7 +23,6 @@ export class OtpService implements IOtpService {
   }
 
   async storeOtp(email: string, otp: string): Promise<void> {
-  
     await this.redis.set(email, otp, "EX", 60);
   }
 
@@ -42,12 +41,10 @@ export class OtpService implements IOtpService {
   }
 
   async sendOtpEmail(email: string, otp: string): Promise<void> {
-    
-
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: process.env.NODEMAILER_EMAIL,       
+        user: process.env.NODEMAILER_EMAIL,
         pass: process.env.NODEMAILER_PASSWORD,
       },
     });
@@ -133,13 +130,12 @@ export class OtpService implements IOtpService {
     `;
 
     const mailOptions = {
-      from: `"OffWeGo" <${process.env.NODEMAILER_EMAIL}>`, 
+      from: `"OffWeGo" <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Your OffWeGo OTP Code",
       html,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    
   }
 }

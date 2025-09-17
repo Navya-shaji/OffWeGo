@@ -15,7 +15,7 @@ export class Bannercontroller {
     private _updateAction: IBannerActionUsecase
   ) {}
 
-  async CreateBanner(req: Request, res: Response) {
+  async createBanner(req: Request, res: Response) {
     try {
       const result = await this._createBanner.execute(req.body);
       res.status(HttpStatus.OK).json({ result });
@@ -37,7 +37,7 @@ export class Bannercontroller {
     }
   }
 
-  async EditBanner(req: Request, res: Response) {
+  async editBanner(req: Request, res: Response) {
     try {
       const BannerId = req.params.id;
       const BannerData = req.body;
@@ -57,11 +57,11 @@ export class Bannercontroller {
     }
   }
 
-  async BannerDelete(req: Request, res: Response) {
+  async bannerDelete(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const result = this._deleteBanner.execute(id);
-      console.log(result,"result")
+      console.log(result, "result");
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Banner deleted successsfully",
@@ -73,7 +73,7 @@ export class Bannercontroller {
       });
     }
   }
-  async BannerAction(req: Request, res: Response) {
+  async bannerAction(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { action } = req.body;

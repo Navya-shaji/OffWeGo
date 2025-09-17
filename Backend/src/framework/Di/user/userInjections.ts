@@ -1,4 +1,4 @@
-import { RegisterUserUseCase } from "../../../useCases/user/Signup/SignupUserUsecase";
+import { RegisterUserUseCase } from "../../../useCases/user/Signup/signupUserUsecase";
 import { UserRegisterController } from "../../../adapters/controller/user/UserAuthentication";
 import { UserRepository } from "../../../adapters/repository/User/UserRepository";
 import { OtpService } from "../../Services/otpService";
@@ -8,13 +8,13 @@ import { UserLoginController } from "../../../adapters/controller/user/UserLogin
 import { UserLoginUseCase } from "../../../useCases/user/Login/LoginUserUseCase";
 import {AuthRepository} from '../../../adapters/repository/User/AuthRepository'
 import { GoogleSignupController } from "../../../adapters/controller/user/AuthController";
-import { GoogleSignupUseCase } from "../../../useCases/user/Signup/SignupWithGoogle";
+import { GoogleSignupUseCase } from "../../../useCases/user/Signup/signupWithGoogle";
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
 import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
-import { UserProfileUsecase } from "../../../useCases/user/profile/CreateProfileUsecase";
+import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
 import { UserProfileController } from "../../../adapters/controller/user/UserProfileController";
 import { JwtService } from "../../Services/jwtService";
-import { ResendOtpUsecase } from "../../../useCases/user/Signup/ResendOtpUsecase";
+import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase"; 
 import { PackageController } from "../../../adapters/repository/Destination/GetPackageByDestinationController";
 import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
@@ -22,7 +22,7 @@ import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUseca
 import { CreateBooking } from "../../../useCases/booking/BookingUsecase";
 import { BookingController } from "../../../adapters/controller/Booking/BookingController";
 import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
-import { model } from "mongoose";
+
 
 // Setup Repos and Services
 const userRepository = new UserRepository();

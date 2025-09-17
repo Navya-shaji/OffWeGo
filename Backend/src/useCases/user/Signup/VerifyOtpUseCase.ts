@@ -4,7 +4,7 @@ import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpserv
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
 
-export class VerifyOtpUseCase {
+export class VerifyOtpUseCase  {
   private _hashService: IPasswordService;
   private _otpService: IOtpService;
   private _userRepository: IUserRepository;

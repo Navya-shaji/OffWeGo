@@ -1,6 +1,6 @@
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { IUserModel, UserModel } from "../../../framework/database/Models/userModel";
-import { Profile } from "../../../domain/dto/user/ProfileDto";
+import { ProfileDto } from "../../../domain/dto/user/ProfileDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class UserRepository
@@ -47,7 +47,7 @@ export class UserRepository
     return this.model.countDocuments(filter);
   }
 
-  async getProfileByEmail(email: string): Promise<Profile | null> {
+  async getProfileByEmail(email: string): Promise<ProfileDto | null> {
     return this.model.findOne({ email });
   }
 
