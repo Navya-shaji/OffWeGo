@@ -13,11 +13,14 @@ const Profile = () => {
   const [isEditOpen, setEditOpen] = useState(false);
   if (!user) return null;
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br bg-white-50">
       <Navbar />
+      <br />
+      <br />
+      <br />
       <div className="flex">
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-2xl overflow-hidden">
+          <div className="bg-amber rounded-2xl shadow-xl border border-white-100 w-full max-w-2xl overflow-hidden">
             <div className="bg-gradient-to-r bg-black px-8 py-6">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm overflow-hidden">
@@ -53,7 +56,7 @@ const Profile = () => {
                     type="text"
                     value={user?.username || ""}
                     readOnly
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-blue-400 transition-colors duration-200"
+                    className="w-full px-4 py-3 border-2 border-white-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-blue-400 transition-colors duration-200"
                   />
                 </div>
                 <div className="group">
@@ -64,7 +67,7 @@ const Profile = () => {
                     type="email"
                     value={user?.email || ""}
                     readOnly
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-blue-400 transition-colors duration-200"
+                    className="w-full px-4 py-3 border-2 border-white-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-blue-400 transition-colors duration-200"
                   />
                 </div>
                 <div className="group">
@@ -75,7 +78,7 @@ const Profile = () => {
                     type="tel"
                     value={user?.phone || ""}
                     readOnly
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none transition-colors duration-200"
+                    className="w-full px-4 py-3 border-2 border-white-200 rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none transition-colors duration-200"
                   />
                 </div>
               </div>

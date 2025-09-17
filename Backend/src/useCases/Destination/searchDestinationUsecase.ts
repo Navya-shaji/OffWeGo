@@ -3,10 +3,10 @@ import { IDestinationRepository } from "../../domain/interface/admin/IDestinatio
 import { IsearchDestination } from "../../domain/interface/destination/IsearchDestinationusecase";
 
 export class SearchDestination implements IsearchDestination{
-    constructor(private destinationRepo:IDestinationRepository){}
+    constructor(private _destinationRepo:IDestinationRepository){}
 
     async execute(query: string): Promise<Destination[]> {
-        const result=await this.destinationRepo.searchDestination(query)
+        const result=await this._destinationRepo.searchDestination(query)
         return result
     }
 }

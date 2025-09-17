@@ -13,15 +13,16 @@ export class PackageController {
     private _createPackage: ICreatePackage,
     private _editpackage: IEditPackageUsecase,
     private _deletepackage: IDeletePackagenUseCase,
-    private _searchPackage:ISearchPackageUsecase
+    private _searchPackage: ISearchPackageUsecase
   ) {}
   async getAllPackage(req: Request, res: Response) {
     try {
-        const page = parseInt(req.query.page as string) || 1;
+      const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
-      const result = await this._getPackage.execute(page,limit);
+      const result = await this._getPackage.execute(page, limit);
 
       res.status(HttpStatus.OK).json(result);
+      console.log("Backend data",result)
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -32,10 +33,12 @@ export class PackageController {
   async addPackage(req: Request, res: Response) {
     try {
       const packageData = req.body;
+      console.log("packageData",packageData)
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
       );
+
       if (!destination) {
         return res
           .status(HttpStatus.BAD_REQUEST)
@@ -90,7 +93,7 @@ export class PackageController {
       });
     }
   }
-    async searchPackage(req: Request, res: Response) {
+  async searchPackage(req: Request, res: Response) {
     try {
       const query = req.query.q;
 

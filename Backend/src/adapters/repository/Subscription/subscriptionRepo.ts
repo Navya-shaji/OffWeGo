@@ -1,28 +1,43 @@
 import { ISubscriptionPlanRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionplan";
-import { SubscriptionPlan } from "../../../domain/entities/subscriptionplan"; 
-import { subscriptionPlanModel } from "../../../framework/database/Models/subscriptionModel"; 
-export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
-  async create(plan: SubscriptionPlan): Promise<SubscriptionPlan> {
-    const newPlan = await subscriptionPlanModel.create(plan);
-    return newPlan.toObject();
+import { SubscriptionPlan } from "../../../domain/entities/subscriptionplan";
+import {
+  subscriptionPlanModel,
+  ISubscriptionPlanModel,
+} from "../../../framework/database/Models/subscriptionModel";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
+export class SubscriptionPlanRepository
+  extends BaseRepository<ISubscriptionPlanModel>
+  implements ISubscriptionPlanRepository
+{
+  constructor() {
+    super(subscriptionPlanModel);
+  }
+  async create(
+    plan: Partial<ISubscriptionPlanModel>
+  ): Promise<ISubscriptionPlanModel> {
+    const createdPlan = await this.model.create(plan);
+    return createdPlan;
   }
 
-  async findById(id: string): Promise<SubscriptionPlan | null> {
-    const plan = await subscriptionPlanModel.findById(id);
-    return plan?.toObject() || null;
+  async findById(id: string): Promise<ISubscriptionPlanModel | null> {
+    const plan = await this.model.findById(id).exec();
+    return plan;
   }
 
-  async findAll(): Promise<SubscriptionPlan[]> {
-    const plans = await subscriptionPlanModel.find();
-    return plans.map(p => p.toObject());
+  async findAll(): Promise<ISubscriptionPlanModel[]> {
+    return this.model.find().exec();
   }
 
-  async update(id: string, updateData: Partial<SubscriptionPlan>): Promise<SubscriptionPlan | null> {
-    const updated = await subscriptionPlanModel.findByIdAndUpdate(id, updateData, { new: true });
-    return updated?.toObject() || null;
+  async update(
+    id: string,
+    updateData: Partial<SubscriptionPlan>
+  ): Promise<ISubscriptionPlanModel | null> {
+    return subscriptionPlanModel
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .exec();
   }
 
-  async delete(id: string): Promise<void> {
-    await subscriptionPlanModel.findByIdAndDelete(id);
+  async delete(id: string): Promise<ISubscriptionPlanModel | null> {
+    return await this.model.findByIdAndDelete(id);
   }
 }

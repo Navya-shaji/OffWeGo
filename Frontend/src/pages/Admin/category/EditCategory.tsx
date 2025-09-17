@@ -175,7 +175,7 @@ const EditCategory: React.FC<Props> = ({
   const isSubmitDisabled = loading || isUploading;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Edit Category</h2>
@@ -302,7 +302,7 @@ const EditCategory: React.FC<Props> = ({
             />
           </div>
 
-          {/* Submit Buttons */}
+        
           <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
             <button
               type="button"
@@ -315,7 +315,7 @@ const EditCategory: React.FC<Props> = ({
             <button
               type="submit"
               disabled={isSubmitDisabled}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-6 py-2 bg-black text-white rounded-lg blak:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {isSubmitDisabled && (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

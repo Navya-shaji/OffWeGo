@@ -3,9 +3,10 @@ import { Hotel } from "../../entities/HotelEntity";
 
 export interface IHotelRepository {
   createHotel(data: Hotel): Promise<IHotelModel>;
-  getAllHotel(skip:number,limit:number): Promise<IHotelModel[]>;
+  getAllHotel(skip: number, limit: number): Promise<IHotelModel[]>;
   edit(id: string, updatedData: Partial<Hotel>): Promise<IHotelModel | null>;
-  delete(id: string): Promise<void>;
+  delete(id: string): Promise<IHotelModel | null>;
   searchHotel(query: string): Promise<Hotel[]>;
-  countHotels():Promise<number>
+  countHotels(): Promise<number>;
+  findByName(name:string):Promise<Hotel |null>
 }

@@ -7,9 +7,9 @@ import { mapNumericRoleToString } from "../../../mappers/User/mapping";
 
 export class UserLoginUseCase implements IUserLoginUseCase {
   constructor(
-    private userRepository: IUserRepository,
-    private hashService: IPasswordService,
-    private tokenService: ITokenService
+    private _userRepository: IUserRepository,
+    private _hashService: IPasswordService,
+    private _tokenService: ITokenService
   ) {}
 
   async execute(data: LoginDTo): Promise<{
@@ -19,7 +19,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
   }> {
     const { email, password } = data;
 
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User Not Found");
 
     if (
@@ -29,7 +29,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       throw new Error("Your account has been blocked by the admin");
     }
 
-    const isPasswordValid = await this.hashService.compare(password, user.password);
+    const isPasswordValid = await this._hashService.compare(password, user.password);
     if (!isPasswordValid) throw new Error("Invalid credentials");
 
     const role = typeof user.role === 'number' ? mapNumericRoleToString(user.role) : user.role;
@@ -40,8 +40,8 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       role,
     };
 
-    const accessToken = this.tokenService.generateAccessToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
 
     return {

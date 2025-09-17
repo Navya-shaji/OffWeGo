@@ -36,7 +36,7 @@ export class ActivityController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const result = await this._getallActivities.execute(page, limit);
-      console.log("result", result);
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
@@ -69,11 +69,12 @@ export class ActivityController {
     }
   }
   async deleteActivity(req: Request, res: Response) {
+
     try {
       const { id } = req.params;
-
+      
       const result = await this._deleteActivity.execute(id);
-
+      console.log(result);
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       res
@@ -81,23 +82,35 @@ export class ActivityController {
         .json({ message: "Failed to delete Activity" });
     }
   }
-  async SearchActivity(req: Request, res: Response) {
-    try {
-      const query = req.query.q;
-      console.log("query,",query)
-      if (typeof query !== "string" || !query.trim()) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          message: "The query will be string",
-        });
-        return;
-      }
-      const result = await this._searchActivity.execute(query);
-      console.log("controller result",result)
-    } catch (error) {
+async SearchActivity(req: Request, res: Response) {
+  try {
+    const query = req.query.q;
+    console.log("query", query);
+
+    if (typeof query !== "string" || !query.trim()) {
       res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "The query must be a string",
       });
+      return;
     }
+
+    const result = await this._searchActivity.execute(query);
+    console.log("result", result);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      data: {
+        activities: result,
+        totalPages: 1,
+        totalActivities: result.length,
+        currentPage: 1,
+      },
+    });
+  } catch (error) {
+    res.status(HttpStatus.BAD_REQUEST).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
+}
 }

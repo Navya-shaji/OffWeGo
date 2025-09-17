@@ -3,14 +3,11 @@ import { Package } from "../../domain/entities/packageEntity";
 import { mapToPackageDto } from "../../mappers/packages/mapTopackages";
 
 export class CreatePackagesUseCase {
-  constructor(private packageRepo: IPackageRepository) {}
+  constructor(private _packageRepo: IPackageRepository) {}
 
-async execute(data: Package): Promise<Package> {
-  console.log("coming data",data)
-  const createdDoc = await this.packageRepo.createPackage(data);
-  console.log("createdDoc",createdDoc)
-  return mapToPackageDto(createdDoc); 
-}
-
-
+  async execute(data: Package): Promise<Package> {
+    const createdDoc = await this._packageRepo.createPackage(data)
+    console.log(createdDoc,"create")
+    return mapToPackageDto(createdDoc);
+  }
 }

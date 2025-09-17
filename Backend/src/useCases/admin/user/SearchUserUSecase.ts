@@ -3,9 +3,9 @@ import { ISearchUserUsecase } from "../../../domain/interface/admin/ISerachUSerU
 import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
 
 export class SearchUserUSeCase implements ISearchUserUsecase{
-    constructor(private userRepo:IUserRepository){}
+    constructor(private _userRepo:IUserRepository){}
     async execute(query:string):Promise<User[]>{
-        const result=await this.userRepo.searchUser(query)
+        const result=await this._userRepo.searchUser(query)
         return result
     }
 }

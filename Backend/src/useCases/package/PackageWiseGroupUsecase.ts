@@ -4,10 +4,10 @@ import { IPackageWiseGrouping } from "../../domain/interface/vendor/IPackagewise
 import { ICreateGroupUseCase } from "../../domain/interface/vendor/IPackageWiseGroupUsecase";
 
 export class CreatePackageWiseGroup implements ICreateGroupUseCase{
-    constructor(private groupRepository:IPackageWiseGrouping){}
+    constructor(private _groupRepository:IPackageWiseGrouping){}
 
     async execute(groupData: CreateGroupDTO): Promise<PackageWiseGroup> {
-        const group=await this.groupRepository.createGroup(groupData)
+        const group=await this._groupRepository.createGroup(groupData)
         return group
     }
 }

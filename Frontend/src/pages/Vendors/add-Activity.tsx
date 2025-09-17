@@ -1,90 +1,71 @@
-import React, { useState } from "react";
+import { z } from "zod";
 import { toast } from "react-toastify";
-import { createActivity } from "@/services/Activity/ActivityService"; 
-import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; 
-import type { Activity } from "@/interface/PackageInterface"; 
+import { FormBuilder, type FieldConfig } from "@/components/Modular/FormBuilderComponent";
+import { createActivity } from "@/services/Activity/ActivityService";
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
+import { ActivitySchema } from "@/Types/vendor/Package/Activity";
+import { useState } from "react";
+type ActivityForm = z.infer<typeof ActivitySchema>;
 
-const AddActivity: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  
-  const [image, setImage] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+export function AddActivity() {
+  const [activityId, setActivityId] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !description ) {
-      toast.error("Please fill all required fields");
-      return;
-    }
+  const fields: FieldConfig[] = [
+    { name: "title", label: "Title", type: "text", placeholder: "Enter title" },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      placeholder: "Enter description",
+    },
+    { name: "imageUrl", label: "Image", type: "file" },
+  ];
 
+  const defaultValues = {
+    title: "",
+    description: "",
+    imageUrl: null,
+  };
+
+  const handleSubmit = async (data: ActivityForm) => {
     try {
-      setLoading(true);
       let imageUrl = "";
-      if (image) {
-        imageUrl = await uploadToCloudinary(image);
+
+      if (data.imageUrl instanceof File) {
+        imageUrl = await uploadToCloudinary(data.imageUrl);
+      } else if (Array.isArray(data.imageUrl) && data.imageUrl[0] instanceof File) {
+        imageUrl = await uploadToCloudinary(data.imageUrl[0]);
+      } else {
+        throw new Error("No valid file provided for upload");
       }
 
-      const activityData: Partial<Activity> = {
-        title:title,
-        description,
-        imageUrl: imageUrl,
-      };
+      const response = await createActivity({ ...data, imageUrl });
 
-      await createActivity(activityData);
-      toast.success("Activity created successfully!");
-      
- 
-      setTitle("");
-      setDescription("");
-     
-      setImage(null);
+      const id = response?.id || response?.data?.id;
+      if (id) {
+        setActivityId(id);
+      } else {
+        throw new Error("No activity ID returned from server");
+      }
 
-    } catch (error) {
-        console.log(error)
-      toast.error("Error creating activity");
-    } finally {
-      setLoading(false);
+      toast.success("Activity created successfully 🎉");
+    } catch (err: any) {
+      console.error("Error creating activity:", err);
+      toast.error(err?.response?.data?.error || err.message || "Error creating activity");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">Add Activity</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Title"
-          className="border p-2 w-full"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Description"
-          className="border p-2 w-full"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-    
-    
-        <input
-          type="file"
-          accept="image/*"
-          className="border p-2 w-full"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Create Activity"}
-        </button>
-      </form>
+    <div className="max-w-md mx-auto p-4">
+      <h2 className="text-xl font-bold mb-4">Add Activity</h2>
+     
+      <FormBuilder<ActivityForm>
+        schema={ActivitySchema}
+        fields={fields}
+        onSubmit={handleSubmit}
+        submitLabel="Create Activity"
+        defaultValues={defaultValues}
+      />
     </div>
   );
-};
-
-export default AddActivity;
+}

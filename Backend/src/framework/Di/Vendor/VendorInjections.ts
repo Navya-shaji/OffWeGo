@@ -12,7 +12,7 @@ import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUs
 import { VendorLoginController } from "../../../adapters/controller/Vendor/vendorLoginController";
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
-import { JwtSevice } from "../../services/jwtService";
+import { JwtService } from "../../services/jwtService";
 import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { CreatePackagesUseCase } from "../../../useCases/package/addPackageUsecase";
 import { PackageRepository } from "../../../adapters/repository/package/PackageRepository";
@@ -44,7 +44,7 @@ import { SearchActivityusecase } from "../../../useCases/Activity/searchActivity
 const vendorRepository = new VendorRepository();
 const otpService = new OtpService();
 const hashPassword = new HashPassword();
-const jwtService = new JwtSevice();
+const jwtService = new JwtService();
 const destinationRepo=new DestinationRepository()
 const packageRepo=new PackageRepository()
 const groupRepo=new PackageWiseGrouping()

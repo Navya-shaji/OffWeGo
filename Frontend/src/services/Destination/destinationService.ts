@@ -2,11 +2,17 @@ import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import type { Package } from "@/interface/PackageInterface";
+import store from "@/store/store";
 
 export const addDestination = async (data: DestinationInterface) => {
   try {
-    const res = await axiosInstance.post("/api/admin/create-destination", data);
+    const state = store.getState();
+    let base = "/api";
 
+    if (state.adminAuth.token) base = "/api/admin";
+    else if (state.vendorAuth.token) base = "/api/vendor";
+
+    const res = await axiosInstance.post(`${base}/create-destination`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -17,7 +23,6 @@ export const addDestination = async (data: DestinationInterface) => {
     throw new Error("An unexpected error occurred while adding destination");
   }
 };
-
 
 export const fetchAllDestinations = async (
   page: number = 1,
@@ -35,7 +40,7 @@ export const fetchAllDestinations = async (
 
     const { destinations, totalDestinations, totalPages, currentPage } =
       res.data;
-  
+
     if (!Array.isArray(destinations)) {
       console.error("Expected destinations to be an array, got:", destinations);
       return {
@@ -79,7 +84,7 @@ export const getsingleDestination = async (id: string) => {
   try {
     const res = await axiosInstance.get(`/api/destination/${id}`);
 
-    return res.data.data;
+    return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
@@ -124,3 +129,4 @@ export const searchDestination = async (query: string) => {
   });
   return response.data.data;
 };
+

@@ -3,10 +3,10 @@ import { IHotelRepository } from "../../domain/interface/vendor/IHotelRepository
 import { ISearchHotelUsecase } from "../../domain/interface/vendor/IhotelSearchusecase";
 
 export class searchHotelusecase implements ISearchHotelUsecase{
-    constructor(private hotelRepo:IHotelRepository){}
+    constructor(private _hotelRepo:IHotelRepository){}
 
     async execute(query: string): Promise<Hotel[]> {
-        const result=await this.hotelRepo.searchHotel(query)
+        const result=await this._hotelRepo.searchHotel(query)
         return result
     }
 }

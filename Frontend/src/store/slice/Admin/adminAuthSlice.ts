@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk,type  PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import { adminLogin } from "@/services/admin/adminService";
 import type { AdminUser } from "@/Types/Admin/Login/Login type";
 
@@ -6,20 +6,22 @@ interface AuthState {
   isAuthenticated: boolean;
   admin: AdminUser | null;
   token: string | null;
+  refreshToken: string | null; // ✅ added refreshToken
 }
 
-
 const storedToken = localStorage.getItem("adminToken");
+const storedRefreshToken = localStorage.getItem("adminRefreshToken"); // ✅ stored refreshToken
 const storedAdmin = localStorage.getItem("adminData");
 
 const initialState: AuthState = {
   isAuthenticated: !!storedToken,
   admin: storedAdmin ? JSON.parse(storedAdmin) : null,
   token: storedToken,
+  refreshToken: storedRefreshToken, // ✅ initialize
 };
 
 export const loginAdmin = createAsyncThunk<
-  { admin: AdminUser; accessToken: string },
+  { admin: AdminUser; accessToken: string; refreshToken: string },
   { email: string; password: string },
   { rejectValue: string }
 >("adminAuth/login", async ({ email, password }, thunkAPI) => {
@@ -27,6 +29,7 @@ export const loginAdmin = createAsyncThunk<
     const response = await adminLogin(email, password);
 
     localStorage.setItem("adminToken", response.accessToken);
+    localStorage.setItem("adminRefreshToken", response.refreshToken); // ✅ store refreshToken
     localStorage.setItem("adminData", JSON.stringify(response.admin));
 
     return response;
@@ -44,29 +47,38 @@ const adminAuthSlice = createSlice({
       state.isAuthenticated = false;
       state.admin = null;
       state.token = null;
+      state.refreshToken = null;
 
-      
       localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminRefreshToken"); // ✅ remove refreshToken
       localStorage.removeItem("adminData");
+    },
+      setToken:(state,action:PayloadAction<{token:string}>)=>{
+      state.token=action.payload.token
     },
     setAdminFromSession: (
       state,
-      action: PayloadAction<{ admin: AdminUser | null; token?: string | null }>
+      action: PayloadAction<{ admin: AdminUser | null; token?: string | null; refreshToken?: string | null }>
     ) => {
       if (action.payload.admin && action.payload.token) {
         state.isAuthenticated = true;
         state.admin = action.payload.admin;
         state.token = action.payload.token;
+        state.refreshToken = action.payload.refreshToken ?? null;
 
-        
         localStorage.setItem("adminToken", action.payload.token);
+        if (action.payload.refreshToken) {
+          localStorage.setItem("adminRefreshToken", action.payload.refreshToken);
+        }
         localStorage.setItem("adminData", JSON.stringify(action.payload.admin));
       } else {
         state.isAuthenticated = false;
         state.admin = null;
         state.token = null;
+        state.refreshToken = null;
 
         localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminRefreshToken");
         localStorage.removeItem("adminData");
       }
     },
@@ -76,17 +88,19 @@ const adminAuthSlice = createSlice({
       loginAdmin.fulfilled,
       (
         state,
-        action: PayloadAction<{ admin: AdminUser; accessToken: string }>
+        action: PayloadAction<{ admin: AdminUser; accessToken: string; refreshToken: string }>
       ) => {
         state.isAuthenticated = true;
         state.admin = action.payload.admin;
         state.token = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken; // ✅ set refreshToken
       }
     );
     builder.addCase(loginAdmin.rejected, (state) => {
       state.isAuthenticated = false;
       state.admin = null;
       state.token = null;
+      state.refreshToken = null;
     });
   },
 });

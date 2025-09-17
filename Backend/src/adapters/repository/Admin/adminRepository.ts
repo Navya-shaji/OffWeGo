@@ -4,7 +4,7 @@ import { Vendor } from "../../../domain/entities/vendorEntities";
 import { UserModel } from "../../../framework/database/Models/userModel";
 import { VendorModel } from "../../../framework/database/Models/vendorModel";
 
-export class AdminRepository implements IAdminRepository {
+export class AdminRepository  implements IAdminRepository {
   async findByEmail(email: string): Promise<User | null> {
     return await UserModel.findOne({ email: email.toLowerCase().trim() });
   }

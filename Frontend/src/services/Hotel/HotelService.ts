@@ -27,11 +27,12 @@ export const getAllHotel = async (
     const res = await axiosInstance.get("/api/vendor/hotels", {
       params: { page, limit },
     });
+ 
 
     const { hotels = [], totalHotels = 0 } = res.data.data;
 
     if (!Array.isArray(hotels)) {
-      console.log("something wrong ", hotels);
+   
       return {
         hotels: [],
         totalHotels: 0,
@@ -68,15 +69,22 @@ export const updateHotel = async (id: string, data: Hotel) => {
 };
 
 export const deleteHotel = async (id: string) => {
-  try {
-    const response = await axiosInstance.delete(`api/vendor/hotels/${id}`);
 
-    return response.data.data;
+  try {
+    console.log("Deleting hotel ID:", id);
+
+    const response = await axiosInstance.delete(`/api/vendor/hotels/${id}`);
+    console.log("response",response)
+    return response.data; 
   } catch (error) {
-    console.error("Error inside delete hotel", error);
-    throw error;
+  
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Failed to delete hotel");
+    }
+    throw new Error("An unexpected error occurred while deleting hotel");
   }
 };
+
 
 export const searchHotel = async (query: string) => {
   const response = await axiosInstance.get("/api/vendor/hotels/search", {

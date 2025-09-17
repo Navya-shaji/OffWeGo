@@ -18,7 +18,7 @@ const Banner: React.FC = () => {
     const fetchBanner = async () => {
       try {
         const data = await getBanner();
-        console.log("Fetched banners:", data);
+       
         setBanners(data);
       } catch (error) {
         console.error("Error fetching banners:", error);

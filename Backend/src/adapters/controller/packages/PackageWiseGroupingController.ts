@@ -5,14 +5,14 @@ import { IGetPackageWiseGroupUsecase } from "../../../domain/interface/vendor/IG
 
 export class PackageWiseGroupingController {
   constructor(
-    private createGroupUsecase: ICreateGroupUseCase,
-    private getgroupsusecase: IGetPackageWiseGroupUsecase
+    private _createGroupUsecase: ICreateGroupUseCase,
+    private _getgroupsusecase: IGetPackageWiseGroupUsecase
   ) {}
 
   async CreatePackageWiseGrouping(req: Request, res: Response) {
     try {
       const groupData = req.body;
-      const result = await this.createGroupUsecase.execute(groupData);
+      const result = await this._createGroupUsecase.execute(groupData);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Package wise group created",
@@ -25,11 +25,11 @@ export class PackageWiseGroupingController {
       });
     }
   }
-  
+
   async GetPackageWiseGroups(req: Request, res: Response) {
     try {
       const packageId = req.params.id;
-      const result = await this.getgroupsusecase.execute(packageId);
+      const result = await this._getgroupsusecase.execute(packageId);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Package wise group fetched successfully",

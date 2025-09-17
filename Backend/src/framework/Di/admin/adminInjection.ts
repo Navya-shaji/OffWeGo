@@ -3,7 +3,7 @@ import { AdminLoginuseCase } from "../../../useCases/admin/Login/AdminLoginuseCa
 import { AdminController } from "../../../adapters/controller/Admin/AdminController";
 import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
 import { HashPassword } from "../../services/hashPassword";
-import { JwtSevice } from "../../services/jwtService";
+import { JwtService } from "../../services/jwtService";
 import { GetVendorByEmailUseCase } from "../../../useCases/admin/Vendor/getVendorByEmailUsecase";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase";
@@ -40,6 +40,7 @@ import { SearchUserUSeCase } from "../../../useCases/admin/user/SearchUserUSecas
 import { SearchVendorUsecase } from "../../../useCases/admin/Vendor/SearchVendorUsecase";
 import { SearchDestination } from "../../../useCases/Destination/searchDestinationUsecase";
 import { SearchCategoryUsecase } from "../../../useCases/category/searchcategoryUSecase";
+import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecase";
 
 // Repositories
 const adminRepository = new AdminRepository();
@@ -53,7 +54,7 @@ const subscriptionrepo=new SubscriptionPlanRepository()
 
 // Services
 const hashPassword = new HashPassword();
-const jwtService = new JwtSevice();
+const jwtService = new JwtService();
 
 
 // Use Cases
@@ -72,8 +73,8 @@ const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
 const createbannerUsecase=new CreateBanner(bannerRepo)
 const getbannerUsecase=new GetAllBanners(bannerRepo)
 const getDestinationsingleUsecase = new GetDestination(destinationRepository);
-const deleteDestinationusecase=new DeleteDestination(destinationRepository)
-const editCategory=new EditCategory()
+const deleteDestinationusecase=new DeleteDestination()
+const editCategory=new EditCategory(catogoryRepo)
 const deleteCategory=new DeleteCategory()
 const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
@@ -83,6 +84,7 @@ const searchuserusecase=new SearchUserUSeCase(userRepository)
 const searchvendorusecase=new SearchVendorUsecase(vendorRepository)
 const searchdestinationusecase=new SearchDestination(destinationRepository)
 const searchcategory=new SearchCategoryUsecase(catogoryRepo)
+const Banneractionusecase=new BannerActionUsecase(bannerRepo)
 
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
@@ -97,6 +99,6 @@ export const destinationController = new DestinationController(
   searchdestinationusecase
 )
 export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
-export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner);
+export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
 export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions)
 

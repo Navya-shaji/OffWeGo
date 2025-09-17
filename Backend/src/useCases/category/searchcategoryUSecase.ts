@@ -3,10 +3,10 @@ import { ICategoryRepository } from "../../domain/interface/category/ICategoryRe
 import { ISearchCategoryUsecase } from "../../domain/interface/category/IsearchcategoryUsecase";
 
 export class SearchCategoryUsecase implements ISearchCategoryUsecase{
-    constructor(private categoryRepo:ICategoryRepository){}
+    constructor(private _categoryRepo:ICategoryRepository){}
 
     async execute(query: string): Promise<Category[]> {
-        const result=this.categoryRepo.searchCategory(query)
+        const result=this._categoryRepo.searchCategory(query)
        
         return result
     }

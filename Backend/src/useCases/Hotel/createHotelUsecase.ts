@@ -4,10 +4,12 @@ import { IHotelRepository } from "../../domain/interface/vendor/IHotelRepository
 import { mapToHotelDto } from "../../mappers/Hotel/HotelMapper";
 
 export class CreateHotelUsecase implements ICreateHotelUsecase{
-    constructor(private hotelRepo:IHotelRepository){}
+    constructor(private _hotelRepo:IHotelRepository){}
 
     async execute(data: Hotel): Promise<Hotel> {
-        const hotel=await this.hotelRepo.createHotel(data)
+        const existingHotel=await this._hotelRepo.findByName(data.name)
+        if (existingHotel) throw new Error("Hotel with this name already exists");
+        const hotel=await this._hotelRepo.createHotel(data)
         return mapToHotelDto(hotel)
     }
 }

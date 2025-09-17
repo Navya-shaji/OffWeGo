@@ -1,18 +1,35 @@
 import { useEffect, useState } from "react";
-import { fetchAllDestinations } from "@/services/Destination/destinationService";
+import {
+  fetchAllDestinations,
+  searchDestination,
+} from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SearchBar } from "@/components/Modular/searchbar";
 
 export const Destinations = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
+  const [page] = useState(1);
+  
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      const allDestinations = await fetchAllDestinations(page, 5);
+      setDestinations(allDestinations.destinations);
+      return;
+    }
 
-
-
-
+    try {
+      const response = await searchDestination(query);
+      setDestinations(response || []);
+    } catch (error) {
+      console.error("Error during search:", error);
+      setDestinations([]);
+    }
+  };
 
   useEffect(() => {
     const updateCardsPerView = () => {
@@ -70,11 +87,19 @@ export const Destinations = () => {
   }
 
   return (
-<div id="destinations" className="relative bg-gray-50 py-16 px-4">
+    <div id="destinations" className="relative bg-gray-50 py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-serif text-gray-900 mb-12 text-left">
           Iconic places you need to see
         </h2>
+        <div className="w-full flex justify-end mb-6">
+          <div className="w-60">
+            <SearchBar
+              placeholder="Search destinations..."
+              onSearch={handleSearch}
+            />
+          </div>
+        </div>
 
         <div className="relative">
           <button
@@ -145,7 +170,6 @@ export const Destinations = () => {
           </div>
         </div>
 
-     
         <div className="flex justify-center mt-8 space-x-2">
           {Array.from({
             length: Math.ceil(destinations.length / cardsPerView),

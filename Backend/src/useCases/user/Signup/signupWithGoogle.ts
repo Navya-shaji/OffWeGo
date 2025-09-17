@@ -5,14 +5,14 @@ import { mapToUser } from "../../../mappers/User/userMapper";
 
 export class GoogleSignupUseCase{
     constructor(
-        private authRepository:AuthRepository,
-        private userRepository:IUserRepository
+        private _authRepository:AuthRepository,
+        private _userRepository:IUserRepository
     ){}
 
     async execute(googleToken:string):Promise<User>{
-        const googleUser=await this.authRepository.signupWithGoogle(googleToken)
+        const googleUser=await this._authRepository.signupWithGoogle(googleToken)
         const user=mapToUser(googleUser)
-        const existingUser=await this.userRepository.findByEmail(googleUser.email)
+        const existingUser=await this._userRepository.findByEmail(googleUser.email)
         if(existingUser) return mapToUser(existingUser)
 
         const newUser:User={
@@ -23,7 +23,7 @@ export class GoogleSignupUseCase{
             role:"user"
         }
 
-        const savedUser=await this.userRepository.createUser(newUser)
+        const savedUser=await this._userRepository.createUser(newUser)
         return mapToUser(savedUser)
     }
 }

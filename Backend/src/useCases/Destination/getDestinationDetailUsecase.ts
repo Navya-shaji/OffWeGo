@@ -3,10 +3,10 @@ import { IDestinationRepository } from "../../domain/interface/admin/IDestinatio
 import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper";
 
 export class GetDestination {
-  constructor(private destinationRepo: IDestinationRepository) {}
+  constructor(private _destinationRepo: IDestinationRepository) {}
 
   async execute(id: string): Promise<Destination | null> {
-    const destination = await this.destinationRepo.getDestination(id);
+    const destination = await this._destinationRepo.getDestination(id);
     if (!destination) return null;
 
     return mapToDestinationDto(destination); 

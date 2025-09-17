@@ -57,6 +57,7 @@ export class DestinationController {
       const limit = parseInt(req.query.limit as string) || 5;
       const { destinations, totalDestinations } =
         await this._getDestination.execute(page, limit);
+
       res.status(HttpStatus.OK).json({
         success: true,
         destinations,
@@ -74,7 +75,7 @@ export class DestinationController {
   async getSingleDestinationController(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      console.log(req.params);
+
       const result = await this._destinationUsecase.execute(id);
       res.status(HttpStatus.OK).json(result);
     } catch (error) {

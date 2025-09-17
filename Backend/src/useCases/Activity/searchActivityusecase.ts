@@ -3,11 +3,11 @@ import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepo
 import { IsearchActivityUsecase } from "../../domain/interface/vendor/IsearchActivityUsecase";
 
 export class SearchActivityusecase implements IsearchActivityUsecase{
-    constructor(private activityRepo:IActivityRepository){}
+    constructor(private _activityRepo:IActivityRepository){}
 
     async execute(query: string): Promise<Activity[]> {
-        const result=await this.activityRepo.searchActivity(query)
-        console.log("result from execute",result)
+        const result=await this._activityRepo.searchActivity(query)
+        
         return result
     }
 }

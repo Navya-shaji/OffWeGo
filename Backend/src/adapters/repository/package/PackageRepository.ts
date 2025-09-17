@@ -1,15 +1,26 @@
 import { IPackageRepository } from "../../../domain/interface/vendor/iPackageRepository";
 import { packageModel, IPackageModel } from "../../../framework/database/Models/packageModel";
 import { Package } from "../../../domain/entities/packageEntity";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
 
-export class PackageRepository implements IPackageRepository {
+export class PackageRepository 
+  extends BaseRepository<IPackageModel> 
+  implements IPackageRepository 
+{
+  constructor() {
+    super(packageModel); 
+  }
+
   async createPackage(data: Package): Promise<IPackageModel> {
     const created = await packageModel.create(data);
     await created.populate(["hotels", "activities"]);
     return created;
   }
 
-  async getAllPackages(skip: number, limit: number): Promise<{ packages: IPackageModel[], totalPackages: number }> {
+  async getAllPackages(
+    skip: number, 
+    limit: number
+  ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
     const [packages, totalPackages] = await Promise.all([
       packageModel
         .find()
@@ -18,7 +29,7 @@ export class PackageRepository implements IPackageRepository {
         .populate("hotels")
         .populate("activities")
         .exec(),
-      packageModel.countDocuments()
+      packageModel.countDocuments(),
     ]);
 
     return { packages, totalPackages };
@@ -32,19 +43,21 @@ export class PackageRepository implements IPackageRepository {
       .exec();
   }
 
-  async delete(id: string): Promise<void> {
-    await packageModel.findByIdAndDelete(id);
+  async delete(id: string): Promise<IPackageModel | null> {
+    return await this.model.findByIdAndDelete(id);
   }
 
-  async searchPackage(query: string): Promise<Package[]> {
-    const regex = new RegExp(query, "i");
-    return packageModel
-      .find({ packageName: { $regex: regex } })
-      .select("packageName")
-      .limit(10)
-      .lean()
-      .exec();
-  }
+async searchPackage(query: string): Promise<Package[]> {
+  const regex = new RegExp(query, "i");
+  return await this.model
+    .find({ packageName: { $regex: regex } })
+    .select("packageName description price duration hotels activities")
+    .populate("hotels", "name") 
+    .populate("activities", "title") 
+    .limit(10)
+    .exec();
+}
+
 
   async countPackages(): Promise<number> {
     return packageModel.countDocuments();

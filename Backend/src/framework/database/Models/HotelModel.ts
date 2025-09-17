@@ -1,4 +1,4 @@
-import { model, ObjectId } from "mongoose";
+import { model, ObjectId ,Document} from "mongoose";
 import { Hotel } from "../../../domain/entities/HotelEntity";
 import { HotelSchema } from "../Schema/HotelSchema";
 

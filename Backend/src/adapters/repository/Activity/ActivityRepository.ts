@@ -4,40 +4,46 @@ import {
   ActivityModel,
   IActivityModel,
 } from "../../../framework/database/Models/ActivityModel";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
 
-export class ActivityRepository implements IActivityRepository {
-  async createAtivity(data: Activity): Promise<IActivityModel> {
-    return await ActivityModel.create(data);
+export class ActivityRepository
+  extends BaseRepository<IActivityModel>
+  implements IActivityRepository
+{
+  constructor() {
+    super(ActivityModel);
   }
-  async getAllActivity(skip:number,limit:number): Promise<IActivityModel[]> {
-    return await ActivityModel.find().skip(skip).limit(limit);
+  async createActivity(data: Activity): Promise<IActivityModel> {
+    return this.create(data);
   }
+  async getAllActivity(skip: number, limit: number): Promise<IActivityModel[]> {
+    return this.model.find().skip(skip).limit(limit);
+  }
+
   async edit(
     id: string,
     updatedData: Partial<Activity>
   ): Promise<IActivityModel | null> {
-    return await ActivityModel.findByIdAndUpdate(id, updatedData, {
-      new: true,
-    });
+    return this.update(id, updatedData);
   }
-
-  async delete(id: string): Promise<void> {
-    await ActivityModel.findByIdAndDelete(id);
+  async delete(id: string): Promise<IActivityModel | null> {
+    return super.delete(id);
   }
-async searchActivity(query: string): Promise<Activity[]> {
-  const regex = new RegExp(query, "i"); 
-  return ActivityModel.find({
-    $or: [
-      { title: { $regex: regex } },
-      { description: { $regex: regex } }
-    ]
-  })
-    .select("title description imageUrl") 
-    .limit(10)
-    .exec();
-}
+  async searchActivity(query: string): Promise<Activity[]> {
+    const regex = new RegExp(query, "i");
+    return this.model
+      .find({
+        $or: [{ title: { $regex: regex } }, { description: { $regex: regex } }],
+      })
+      .select("title description imageUrl")
+      .limit(10)
+      .exec();
+  }
 
   async countActivity(): Promise<number> {
-    return await ActivityModel.countDocuments()
+    return this.model.countDocuments();
+  }
+  async findByTitle(title: string): Promise<Activity | null> {
+    return this.model.findOne({ title });
   }
 }

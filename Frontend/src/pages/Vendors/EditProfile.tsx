@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { Button } from "@/components/ui/button";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { editProfile } from "@/services/vendor/vendorProfile";
 import { login } from "@/store/slice/vendor/authSlice";
+import { vendorEditSchema } from "@/store/slice/vendor/ProfilezodSchema";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -36,9 +38,11 @@ export default function EditVendorProfileModal({
   const [phone, setPhone] = useState(vendor?.phone || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
-    vendor?.profileImage || null
+     null
   );
- 
+
+
+  console.log("imagePreviewUrl",imagePreviewUrl)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,47 +54,70 @@ export default function EditVendorProfileModal({
     }
   }, [vendor]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setImagePreviewUrl(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError(null);
+const handleSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+  setIsLoading(true);
+  setError(null);
 
-    if (!vendor || !vendor.id) {
-      setError("Vendor ID missing");
-      setIsLoading(false);
-      return;
+  if (!vendor || !vendor.id) {
+    setError("Vendor ID missing");
+    setIsLoading(false);
+    return;
+  }
+
+ 
+  try {
+    vendorEditSchema.parse({ name, phone: phone.toString() });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      setError(err.errors[0].message); 
+    }
+    setIsLoading(false);
+    return;
+  }
+
+  try {
+    let newImageUrl = vendor.profileImage
+    console.log("newImage",newImageUrl)
+    if (selectedFile) {
+      console.log("selected file")
+      newImageUrl = await uploadToCloudinary(selectedFile);
+      setImagePreviewUrl(newImageUrl);
     }
 
-    try {
-      let newImageUrl = vendor.profileImage;
-      if (selectedFile) {
-        newImageUrl = await uploadToCloudinary(selectedFile);
-      }
+    const updated = await editProfile(vendor.id, {
+      name,
+      phone,
+      profileImage: newImageUrl,
+    });
+console.log("Updated vendor",updated)
+    const mappedVendor = {
+      ...updated.data,
+      profileImage: updated.data.profileImage,
+    };
 
-      const updated = await editProfile(vendor.id, {
-        name,
-        phone,
-        profileImage: newImageUrl,
-      });
 
-      dispatch(login({ vendor: updated.data, token }));
-
-      onClose();
-    } catch (error) {
-      console.error("Error updating:", error);
-      setError("Update failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    dispatch(login({ vendor: mappedVendor, token }));
+    onClose();
+  } catch (err) {
+    console.error("Error updating:", err);
+    setError("Update failed");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -101,12 +128,19 @@ export default function EditVendorProfileModal({
             Make changes to your vendor profile. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="flex flex-col items-center gap-4">
-            <div className="h-24 w-24 rounded-full overflow-hidden border border-gray-300">
-              {imagePreviewUrl || vendor?.profileImage ? (
+            <div className="h-24 w-24 rounded-full overflow-hidden border border-gray-300 relative">
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-50">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              )}
+
+              {imagePreviewUrl ? (
                 <img
-                  src={imagePreviewUrl || vendor?.profileImage}
+                  src={imagePreviewUrl}
                   alt="Vendor Avatar"
                   className="w-full h-full object-cover"
                 />
@@ -116,6 +150,7 @@ export default function EditVendorProfileModal({
                 </div>
               )}
             </div>
+
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Label htmlFor="picture">Profile Picture</Label>
               <Input

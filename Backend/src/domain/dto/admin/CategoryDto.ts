@@ -4,6 +4,6 @@ export interface CreateCategoryDto {
   imageUrl: string;
   type:{
     main:string,
-    sub:string
+    sub:string[]
   }
 }

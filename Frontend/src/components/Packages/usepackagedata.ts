@@ -5,7 +5,6 @@ import { fetchAllDestinations } from "@/services/Destination/destinationService"
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import type { Activity, Hotel } from "@/interface/PackageInterface";
 
-
 export const usePackageData = () => {
   const [allHotels, setAllHotels] = useState<Hotel[]>([]);
   const [allActivities, setAllActivities] = useState<Activity[]>([]);
@@ -15,41 +14,16 @@ export const usePackageData = () => {
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
 
-  const extractApiData = (response:any, dataPath: string[] = []) => {
+  const extractApiData = (response: any): any[] => {
     if (!response) return [];
-    
-    const possiblePaths = [
-      ['data', 'data'],
-      ['data'],
-      ['destinations'],
-      []
-    ];
-    
-    if (dataPath.length > 0) {
-      possiblePaths.unshift(dataPath);
-    }
-    
-    for (const path of possiblePaths) {
-      let result = response;
-      
-      for (const key of path) {
-        if (result && typeof result === 'object' && key in result) {
-          result = result[key];
-        } else {
-          result = null;
-          break;
-        }
-      }
-      
-      if (Array.isArray(result)) {
-        return result;
-      }
-    }
-    
-    if (Array.isArray(response)) {
-      return response;
-    }
-    
+
+    if (Array.isArray(response)) return response;
+    if (response.hotels && Array.isArray(response.hotels)) return response.hotels;
+    if (response.activities && Array.isArray(response.activities)) return response.activities;
+    if (response.destinations && Array.isArray(response.destinations)) return response.destinations;
+    if (response.data && Array.isArray(response.data)) return response.data;
+    if (response.data?.data && Array.isArray(response.data.data)) return response.data.data;
+
     console.warn("Could not extract array data from response:", response);
     return [];
   };
@@ -59,45 +33,38 @@ export const usePackageData = () => {
       setLoadingDestinations(true);
       setLoadingHotels(true);
       setLoadingActivities(true);
-      
+
       try {
-        let destinationsResult = [];
+        // Fetch destinations
+        let destinationsResult: DestinationInterface[] = [];
         try {
-          const destinationsResponse = await fetchAllDestinations();
-          destinationsResult = extractApiData(destinationsResponse, ['destinations']);
-          
-          if (destinationsResult.length === 0) {
-            const paginatedResponse = await fetchAllDestinations(1, 100);
-            destinationsResult = extractApiData(paginatedResponse, ['destinations']);
-          }
+          const destResp = await fetchAllDestinations();
+          destinationsResult = extractApiData(destResp);
         } catch (destError) {
           console.error("Error loading destinations:", destError);
         }
-        
         setDestinations(destinationsResult);
         setLoadingDestinations(false);
 
-        // Load hotels
-        let hotelsResult = [];
+        // Fetch hotels
+        let hotelsResult: Hotel[] = [];
         try {
-          const hotelsResponse = await getAllHotel();
-          hotelsResult = extractApiData(hotelsResponse);
+          const hotelsResp = await getAllHotel();
+          hotelsResult = extractApiData(hotelsResp);
         } catch (hotelsError) {
           console.error("Error loading hotels:", hotelsError);
         }
-        
         setAllHotels(hotelsResult);
         setLoadingHotels(false);
 
-        
-        let activitiesResult = [];
+        // Fetch activities
+        let activitiesResult: Activity[] = [];
         try {
-          const activitiesResponse = await getActivities();
-          activitiesResult = extractApiData(activitiesResponse);
+          const activitiesResp = await getActivities();
+          activitiesResult = extractApiData(activitiesResp);
         } catch (activitiesError) {
           console.error("Error loading activities:", activitiesError);
         }
-        
         setAllActivities(activitiesResult);
         setLoadingActivities(false);
 

@@ -1,3 +1,4 @@
+import { IBannerActionUsecase } from "../../../domain/interface/Banner/IBannerActionUsecase";
 import { IBannerCreateUsecase } from "../../../domain/interface/Banner/IBannerCreateUsecase";
 import { IEditBannerUsecase } from "../../../domain/interface/Banner/IBannerEditUsecase";
 import { IDeleteBannerUsecase } from "../../../domain/interface/Banner/IDeleteBannerUSecase";
@@ -10,7 +11,8 @@ export class Bannercontroller {
     private _createBanner: IBannerCreateUsecase,
     private _getbannerUsecase: IGetBannerUsecase,
     private _editBanner: IEditBannerUsecase,
-    private _deleteBanner: IDeleteBannerUsecase
+    private _deleteBanner: IDeleteBannerUsecase,
+    private _updateAction: IBannerActionUsecase
   ) {}
 
   async CreateBanner(req: Request, res: Response) {
@@ -59,6 +61,7 @@ export class Bannercontroller {
     try {
       const { id } = req.params;
       const result = this._deleteBanner.execute(id);
+      console.log(result,"result")
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Banner deleted successsfully",
@@ -68,6 +71,31 @@ export class Bannercontroller {
         success: false,
         message: "Banner deletion failed",
       });
+    }
+  }
+  async BannerAction(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { action } = req.body;
+
+      if (typeof action !== "boolean") {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ error: "Action must be a boolean" });
+      }
+      const updatedBanner = await this._updateAction.execute(id, action);
+      if (!updatedBanner) {
+        return res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ error: "Banner not found" });
+      }
+      console.log("updated banner", updatedBanner);
+      res.status(HttpStatus.OK).json(updatedBanner);
+    } catch (error) {
+      console.error("Error updating banner status:", error);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: "Failed to update banner status" });
     }
   }
 }

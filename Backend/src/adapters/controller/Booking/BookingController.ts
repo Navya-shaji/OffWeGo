@@ -3,16 +3,14 @@ import { ICreateBookingUseCase } from "../../../domain/interface/Booking/IBookin
 import { HttpStatus } from "../../../domain/statusCode/statuscode";
 
 export class BookingController {
-    constructor(private createBookingUseCase: ICreateBookingUseCase) {}
-    
-    async createBooking(req: Request, res: Response): Promise<void> {
+  constructor(private _createBookingUseCase: ICreateBookingUseCase) {}
 
+  async createBooking(req: Request, res: Response): Promise<void> {
     try {
-        
       const packageId = req.params.packageId;
 
       const { userId, selectedDate } = req.body;
-     
+
       if (!userId || !packageId || !selectedDate) {
         res
           .status(HttpStatus.BAD_REQUEST)
@@ -20,7 +18,7 @@ export class BookingController {
         return;
       }
 
-      const result = await this.createBookingUseCase.execute({
+      const result = await this._createBookingUseCase.execute({
         userId,
         packageId,
         selectedDate: new Date(selectedDate),

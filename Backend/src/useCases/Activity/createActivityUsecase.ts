@@ -3,11 +3,13 @@ import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepo
 import { IcreateActivityUsecase } from "../../domain/interface/vendor/IcreateactivityUsecase";
 import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";
 
-export class createActivityUsecase implements IcreateActivityUsecase{
-    constructor(private activityRepo:IActivityRepository){}
+export class createActivityUsecase implements IcreateActivityUsecase {
+  constructor(private _activityRepo: IActivityRepository) {}
 
-    async execute(data: Activity): Promise<Activity> {
-        const Activity=await this.activityRepo.createAtivity(data)
-        return mapToActivityDto(Activity)
-    }
+  async execute(data: Activity): Promise<Activity> {
+    const existing = await this._activityRepo.findByTitle(data.title);
+    if (existing) throw new Error("Activity with this title already exists");
+    const Activity = await this._activityRepo.createActivity(data);
+    return mapToActivityDto(Activity);
+  }
 }

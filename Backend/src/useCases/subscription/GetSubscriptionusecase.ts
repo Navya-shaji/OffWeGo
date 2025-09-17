@@ -3,10 +3,10 @@ import { IGetSubscriptionUsecase } from "../../domain/interface/SubscriptionPlan
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 
 export class GetAllSubscription implements IGetSubscriptionUsecase {
-  constructor(private subscriptionrepo: ISubscriptionPlanRepository) {}
+  constructor(private _subscriptionRepo: ISubscriptionPlanRepository) {}
 
   async execute(): Promise<SubscriptionPlan[] | null> {
-    const models = await this.subscriptionrepo.findAll(); 
+    const models = await this._subscriptionRepo.findAll(); 
     if (!models) return null;
     return models;
   }

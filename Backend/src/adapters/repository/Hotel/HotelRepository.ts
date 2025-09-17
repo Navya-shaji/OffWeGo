@@ -4,13 +4,20 @@ import {
   HotelModel,
   IHotelModel,
 } from "../../../framework/database/Models/HotelModel";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
 
-export class HotelRepository implements IHotelRepository {
-  async createHotel(data: Hotel): Promise<IHotelModel> {
-    return await HotelModel.create(data);
+export class HotelRepository
+  extends BaseRepository<IHotelModel>
+  implements IHotelRepository
+{
+  constructor() {
+    super(HotelModel);
   }
-  async getAllHotel(skip:number,limit:number): Promise<IHotelModel[]> {
-    return await HotelModel.find().skip(skip).limit(limit);
+  async createHotel(data: Hotel): Promise<IHotelModel> {
+    return this.create(data);
+  }
+  async getAllHotel(skip: number, limit: number): Promise<IHotelModel[]> {
+    return this.model.find().skip(skip).limit(limit);
   }
   async edit(
     id: string,
@@ -21,9 +28,10 @@ export class HotelRepository implements IHotelRepository {
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await HotelModel.findByIdAndDelete(id);
+  async delete(id: string): Promise<IHotelModel | null> {
+    return await HotelModel.findByIdAndDelete(id);
   }
+
   async searchHotel(query: string): Promise<Hotel[]> {
     const regex = new RegExp(query, "i");
     return HotelModel.find({ name: { $regex: regex } })
@@ -32,6 +40,9 @@ export class HotelRepository implements IHotelRepository {
       .exec();
   }
   async countHotels(): Promise<number> {
-    return await HotelModel.countDocuments()
+    return await HotelModel.countDocuments();
+  }
+  async findByName(name: string): Promise<Hotel | null> {
+    return this.model.findOne({ name });
   }
 }

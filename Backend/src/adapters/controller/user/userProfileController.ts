@@ -4,11 +4,12 @@ import { HttpStatus } from "../../../domain/statusCode/statuscode";
 import { IUserProfileEditUsecase } from "../../../domain/interface/usecaseInterface/IEditProfileOfUserUsecas";
 
 export class UserProfileController {
-  constructor(private userProfileUsecase: IUserProfileUsecase,
-    private editUserProfile: IUserProfileEditUsecase
+  constructor(private _userProfileUsecase: IUserProfileUsecase,
+    private _editUserProfile: IUserProfileEditUsecase
   ) {}
 
   async GetProfile(req: Request, res: Response): Promise<void> {
+   
     try {
       const { email } = req.query;  
     
@@ -22,7 +23,7 @@ export class UserProfileController {
         return;
       }
 
-      const result = await this.userProfileUsecase.execute({ email });
+      const result = await this._userProfileUsecase.execute({ email });
 
       if (result) {
         res.status(HttpStatus.OK).json({
@@ -50,7 +51,7 @@ export class UserProfileController {
       const userId = req.params.id;
       const userData = req.body;
 
-      const result = await this.editUserProfile.execute(userId, userData);
+      const result = await this._editUserProfile.execute(userId, userData);
     
       return res.status(HttpStatus.OK).json({
         success: true,

@@ -5,13 +5,21 @@ import cloudinary from "../../../utilities/cloud";
 import { IRegisterVendorUseCase } from "../../../domain/interface/vendor/IVendorUsecase";
 
 export class VendorSignupController {
-  constructor(private RegistervendorUsecase: IRegisterVendorUseCase) {}
+  constructor(private _RegistervendorUsecase: IRegisterVendorUseCase) {}
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, phone, password, confirmPassword, document } = req.body;
+      const { name, email, phone, password, confirmPassword, document } =
+        req.body;
 
-      if (!name || !email || !phone || !password || !confirmPassword || !document) {
+      if (
+        !name ||
+        !email ||
+        !phone ||
+        !password ||
+        !confirmPassword ||
+        !document
+      ) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "All fields are required, including document",
@@ -19,10 +27,9 @@ export class VendorSignupController {
         return;
       }
 
-      console.log("Uploading document:", document);
-const result = await cloudinary.uploader.upload(document, {
-  folder: "vendor_documents",
-});
+      const result = await cloudinary.uploader.upload(document, {
+        folder: "vendor_documents",
+      });
 
       const documentUrl = result.secure_url;
 
@@ -32,10 +39,9 @@ const result = await cloudinary.uploader.upload(document, {
         phone,
         password,
         documentUrl,
-        
       };
 
-      const newVendor = await this.RegistervendorUsecase.execute(vendorData);
+      const newVendor = await this._RegistervendorUsecase.execute(vendorData);
 
       res.status(HttpStatus.CREATED).json({
         success: true,

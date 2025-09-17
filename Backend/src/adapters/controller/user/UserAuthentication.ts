@@ -6,13 +6,16 @@ import { IVerifyOtpUseCase } from "../../../domain/interface/usecaseInterface/IV
 import { IResendOtpUsecase } from "../../../domain/interface/userRepository/IResendOtpUsecase";
 
 export class UserRegisterController {
-  constructor(private registerUserUseCase: IregisterUserUseCase,private verifyOtpUseCase: IVerifyOtpUseCase,private resendOtpUseCase: IResendOtpUsecase) {}
+  constructor(
+    private _registerUserUseCase: IregisterUserUseCase,
+    private _verifyOtpUseCase: IVerifyOtpUseCase,
+    private _resendOtpUseCase: IResendOtpUsecase
+  ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
     try {
       const formData: RegisterDTO = req.body;
 
-     
       if (!formData.email || !formData.password || !formData.name) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -21,15 +24,15 @@ export class UserRegisterController {
         return;
       }
 
-      const otpSent = await this.registerUserUseCase.execute(formData);
+      const otpSent = await this._registerUserUseCase.execute(formData);
 
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: "OTP sent to your email address",
         data: {
-        email: formData.email,
-        username: formData.name, 
-      },
+          email: formData.email,
+          username: formData.name,
+        },
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -39,8 +42,8 @@ export class UserRegisterController {
       });
     }
   }
-  
-   async verifyOtp(req: Request, res: Response): Promise<void> {
+
+  async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { userData, otp } = req.body;
 
@@ -52,7 +55,7 @@ export class UserRegisterController {
         return;
       }
 
-      const verifiedUser = await this.verifyOtpUseCase.execute(userData, otp);
+      const verifiedUser = await this._verifyOtpUseCase.execute(userData, otp);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -80,7 +83,7 @@ export class UserRegisterController {
         return;
       }
 
-      const result = await this.resendOtpUseCase.execute(email);
+      const result = await this._resendOtpUseCase.execute(email);
 
       res.status(HttpStatus.OK).json({
         success: true,
