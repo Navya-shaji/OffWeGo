@@ -1,5 +1,5 @@
-import { Package } from "../../domain/entities/packageEntity";
-import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository";
+import { Package } from "../../domain/entities/PackageEntity";
+import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
 export class DeletePackage{
     constructor(private _packageRepo:IPackageRepository){}

@@ -1,6 +1,6 @@
 import { Banner } from "../../domain/entities/BannerEntity";
 import { bannerModel } from "../../framework/database/Models/bannerModel";
-import { mapToBannerDto } from "../../mappers/banner/bannerMappers";
+import { mapToBannerDto } from "../../mappers/Banner/bannerMappers";
 
 export class EditBanner{
     async execute(id:string,updatedData:Banner):Promise<Banner|null>{

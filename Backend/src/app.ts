@@ -5,8 +5,8 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from 'cookie-parser'
 
-import { ConnectDB } from "./framework/database/connectDB/connectDB";
-import { UserRoute } from "./framework/routes/user/userRoute";
+import { ConnectDB } from "./framework/database/ConnectDB/connectDB";
+import { UserRoute } from "./framework/routes/User/userRoute";
 import { AdminRoute } from "./framework/routes/Admin/adminRoute";
 import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 import { CommonRoute } from "./framework/routes/Auth/AuthRoutes"; 

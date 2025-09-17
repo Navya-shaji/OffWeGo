@@ -1,8 +1,8 @@
 
 
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
-import { Vendor } from "../../../domain/entities/vendorEntities";
-import { IVendorStatusCheckUseCase } from "../../../domain/interface/vendor/IVendorStatusCheckUseCase";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { Vendor } from "../../../domain/entities/VendorEntities";
+import { IVendorStatusCheckUseCase } from "../../../domain/interface/Vendor/IVendorStatusCheckUseCase";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 
 export class VendorStatusCheckUseCase implements IVendorStatusCheckUseCase {

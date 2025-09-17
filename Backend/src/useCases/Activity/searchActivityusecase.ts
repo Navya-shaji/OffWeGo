@@ -1,6 +1,6 @@
 import { Activity } from "../../domain/entities/ActivityEntity";
-import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepository";
-import { IsearchActivityUsecase } from "../../domain/interface/vendor/IsearchActivityUsecase";
+import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
+import { IsearchActivityUsecase } from "../../domain/interface/Vendor/IsearchActivityUsecase";
 
 export class SearchActivityusecase implements IsearchActivityUsecase{
     constructor(private _activityRepo:IActivityRepository){}

@@ -1,6 +1,6 @@
-import { User } from "../../../domain/entities/userEntity";
-import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { User } from "../../../domain/entities/UserEntity";
+import { IGetAllUser } from "../../../domain/interface/Admin/IGetAllUsers";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
 export class GetAllUsers implements IGetAllUser {
   constructor(private _userRepository: IUserRepository) {}

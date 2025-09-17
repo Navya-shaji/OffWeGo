@@ -1,9 +1,9 @@
-import { ICreateHotelUsecase } from "../../../domain/interface/vendor/IcreateHotelUsecase";
-import { IDeleteHotelUsecase } from "../../../domain/interface/vendor/IdeleteHotelusecase";
-import { IEditHotelUsecase } from "../../../domain/interface/vendor/IEdithotelusecase";
-import { IgetHotelUsecase } from "../../../domain/interface/vendor/IgetHotelUsevase";
-import { ISearchHotelUsecase } from "../../../domain/interface/vendor/IhotelSearchusecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { ICreateHotelUsecase } from "../../../domain/interface/Vendor/IcreateHotelUsecase";
+import { IDeleteHotelUsecase } from "../../../domain/interface/Vendor/IdeleteHotelusecase";
+import { IEditHotelUsecase } from "../../../domain/interface/Vendor/IEdithotelusecase";
+import { IgetHotelUsecase } from "../../../domain/interface/Vendor/IgetHotelUsevase";
+import { ISearchHotelUsecase } from "../../../domain/interface/Vendor/IhotelSearchusecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { Request, Response } from "express";
 
 export class HotelController {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ITokenService } from "../../domain/interface/serviceInterface/ItokenService";
-import { HttpStatus } from "../../domain/statusCode/statuscode";
+import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
+import { HttpStatus } from "../../domain/statusCode/Statuscode";
 
 declare module "express-serve-static-core" {
   interface Request {

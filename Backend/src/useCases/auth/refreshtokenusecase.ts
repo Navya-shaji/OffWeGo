@@ -1,4 +1,4 @@
-import { ITokenService } from "../../domain/interface/serviceInterface/ItokenService";
+import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
 
 export class RefreshTokenUseCase {
   private _tokenService: ITokenService;

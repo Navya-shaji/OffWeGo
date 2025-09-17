@@ -1,8 +1,8 @@
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IVendorProfileUseCase } from "../../../domain/interface/vendor/IvendorProfileUsecase";
-import { IVendorProfileEditUsecase } from "../../../domain/interface/vendor/IVendorProfileEditUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IVendorProfileUseCase } from "../../../domain/interface/Vendor/IvendorProfileUsecase";
+import { IVendorProfileEditUsecase } from "../../../domain/interface/Vendor/IVendorProfileEditUsecase";
 
 export class VendorProfileController {
   constructor(

@@ -1,4 +1,4 @@
-import { IDeleteCategorynUseCase } from "../../domain/interface/category/IDeleteCategory";
+import { IDeleteCategorynUseCase } from "../../domain/interface/Category/IDeleteCategory";
 import { CategoryModel } from "../../framework/database/Models/categoryModel";
 
 export class DeleteCategory implements IDeleteCategorynUseCase{

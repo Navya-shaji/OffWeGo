@@ -6,14 +6,14 @@ import {
   userprofileController,
   getpackageByDestinationController,
   bookingcontroller,
-} from "../../Di/user/userInjections";
-import { JwtService } from "../../services/jwtService"; 
-import { destinationController } from "../../Di/admin/adminInjection";
+} from "../../Di/User/UserInjections";
+import { JwtService } from "../../Services/jwtService"; 
+import { destinationController } from "../../Di/Admin/AdminInjection";
 import { UserRoutes } from "../Constants/UserRouteConstants";
-import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
-import { checkRoleBasedcontrol } from "../../../adapters/FlowControl/RoleBasedControl";
+import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
+import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
+import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection";
 const TokenService = new JwtService();
 
 

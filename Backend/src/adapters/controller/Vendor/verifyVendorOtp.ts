@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IVerifyOtpVendorUsecase } from "../../../domain/interface/vendor/IVerifyOtpVendorUseCase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IVerifyOtpVendorUsecase } from "../../../domain/interface/Vendor/IVerifyOtpVendorUseCase";
 
 export class VendorVerifyOtpController {
   constructor(private _vendorVerifyOtpUseCase: IVerifyOtpVendorUsecase) {}

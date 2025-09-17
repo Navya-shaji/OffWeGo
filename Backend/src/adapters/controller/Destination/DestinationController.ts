@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { ICreateDestinationUsecase } from "../../../domain/interface/destination/ICreateDestinationUsecase";
-import { IEditDestinationUseCase } from "../../../domain/interface/destination/IEditDestination";
-import { IGetAllDestinations } from "../../../domain/interface/destination/IGetAllDestinations";
-import { IgetDestinationUSecase } from "../../../domain/interface/destination/IGetDestinationUsecase";
-import { IDeleteDestinationUseCase } from "../../../domain/interface/destination/IDeleteDestinationUsecase";
-import { IsearchDestination } from "../../../domain/interface/destination/IsearchDestinationusecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { ICreateDestinationUsecase } from "../../../domain/interface/Destination/ICreateDestinationUsecase";
+import { IEditDestinationUseCase } from "../../../domain/interface/Destination/IEditDestination";
+import { IGetAllDestinations } from "../../../domain/interface/Destination/IGetAllDestinations";
+import { IgetDestinationUSecase } from "../../../domain/interface/Destination/IGetDestinationUsecase";
+import { IDeleteDestinationUseCase } from "../../../domain/interface/Destination/IDeleteDestinationUsecase";
+import { IsearchDestination } from "../../../domain/interface/Destination/IsearchDestinationusecase";
 
 export class DestinationController {
   constructor(

@@ -1,6 +1,6 @@
-import { Vendor } from "../../../domain/entities/vendorEntities";
-import { ISearchVendorUSecase } from "../../../domain/interface/admin/ISearchVendorUseCase";
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { Vendor } from "../../../domain/entities/VendorEntities";
+import { ISearchVendorUSecase } from "../../../domain/interface/Admin/ISearchVendorUseCase";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 
 export class SearchVendorUsecase implements ISearchVendorUSecase{
     constructor(private _vendorRepository:IVendorRepository){}

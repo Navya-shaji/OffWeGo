@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IGetPackageUsecase } from "../../../domain/interface/vendor/IGetPackageUsecase";
+import { IGetPackageUsecase } from "../../../domain/interface/Vendor/IGetPackageUsecase";
 
 export class PackageController {
   constructor(private getPackageUsecase: IGetPackageUsecase) {}

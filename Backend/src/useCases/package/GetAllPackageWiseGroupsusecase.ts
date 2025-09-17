@@ -1,5 +1,5 @@
-import { PackageWiseGroup } from "../../domain/entities/packagewiseGroup";
-import { IPackageWiseGrouping } from "../../domain/interface/vendor/IPackagewiseGroupingRepository";
+import { PackageWiseGroup } from "../../domain/entities/PackagewiseGroup";
+import { IPackageWiseGrouping } from "../../domain/interface/Vendor/IPackagewiseGroupingRepository";
 
 export class GetAllPackageWiseGroup{
     constructor(private _packagewiseGroupRepo:IPackageWiseGrouping){}

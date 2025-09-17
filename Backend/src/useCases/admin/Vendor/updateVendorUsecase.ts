@@ -1,4 +1,4 @@
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 
 export class UpdateVendorUsecase {
   constructor(private _vendorRepository: IVendorRepository) {}

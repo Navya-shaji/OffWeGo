@@ -1,6 +1,6 @@
 import { IVendorModel } from "../../../framework/database/Models/vendorModel";
 import { RegistervendorDto } from "../../dto/Vendor/RegisterVendorDto";
-import { Vendor } from "../../entities/vendorEntities";
+import { Vendor } from "../../entities/VendorEntities";
 
 export interface IVendorRepository {
   createVendor(data: RegistervendorDto): Promise<IVendorModel>;

@@ -1,7 +1,7 @@
-import { ICreateGroupUseCase } from "../../../domain/interface/vendor/IPackageWiseGroupUsecase";
+import { ICreateGroupUseCase } from "../../../domain/interface/Vendor/IPackageWiseGroupUsecase";
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IGetPackageWiseGroupUsecase } from "../../../domain/interface/vendor/IGetPackageWiseGroupsUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IGetPackageWiseGroupUsecase } from "../../../domain/interface/Vendor/IGetPackageWiseGroupsUsecase";
 
 export class PackageWiseGroupingController {
   constructor(

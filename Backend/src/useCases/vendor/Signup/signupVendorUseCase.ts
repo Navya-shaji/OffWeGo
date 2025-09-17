@@ -1,9 +1,9 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
-import { Vendor } from "../../../domain/entities/vendorEntities";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
-import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
-import { IRegisterVendorUseCase } from "../../../domain/interface/vendor/IVendorUsecase";
+import { Vendor } from "../../../domain/entities/VendorEntities";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
+import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { IRegisterVendorUseCase } from "../../../domain/interface/Vendor/IVendorUsecase";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 
 export class VendorRegisterUseCase implements IRegisterVendorUseCase {

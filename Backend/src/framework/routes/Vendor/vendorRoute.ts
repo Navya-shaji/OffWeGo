@@ -10,13 +10,13 @@ import {
   vendorstatusCheckController,
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
-import { destinationController } from "../../Di/admin/adminInjection";
+import { destinationController } from "../../Di/Admin/AdminInjection";
 import { VendorRoutes } from "../Constants/VendorRouteConstants";
-import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
-import { JwtService } from "../../services/jwtService";
-import { checkRoleBasedcontrol } from "../../../adapters/FlowControl/RoleBasedControl";
+import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
+import { JwtService } from "../../Services/jwtService";
+import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
+import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection";
 
 const TokenService = new JwtService();
 

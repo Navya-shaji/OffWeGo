@@ -1,5 +1,5 @@
-import { Vendor } from "../../../domain/entities/vendorEntities";
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
+import { Vendor } from "../../../domain/entities/VendorEntities";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 
 export class UpdateVendorstatusUseCase {

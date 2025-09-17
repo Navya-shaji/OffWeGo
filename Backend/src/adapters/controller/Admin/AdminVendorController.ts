@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IGetVendorByEmailUseCase } from "../../../domain/interface/admin/IGetVendorByEmailUseCase";
-import { IGetAllVendorsUseCase } from "../../../domain/interface/admin/IGetAllVendorsUseCase";
-import { IUpdateVendorStatusUseCase } from "../../../domain/interface/admin/IUpdateVendorstatusUseCase";
-import { IUpdateVendorUsecase } from "../../../domain/interface/admin/IUpdateVendorUsecase";
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
-import { ISearchVendorUSecase } from "../../../domain/interface/admin/ISearchVendorUseCase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IGetVendorByEmailUseCase } from "../../../domain/interface/Admin/IGetVendorByEmailUseCase";
+import { IGetAllVendorsUseCase } from "../../../domain/interface/Admin/IGetAllVendorsUseCase";
+import { IUpdateVendorStatusUseCase } from "../../../domain/interface/Admin/IUpdateVendorstatusUseCase";
+import { IUpdateVendorUsecase } from "../../../domain/interface/Admin/IUpdateVendorUsecase";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { ISearchVendorUSecase } from "../../../domain/interface/Admin/ISearchVendorUseCase";
 
 export class AdminVendorController {
   constructor(

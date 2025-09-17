@@ -1,6 +1,6 @@
-import { IPackageRepository } from "../../../domain/interface/vendor/iPackageRepository";
+import { IPackageRepository } from "../../../domain/interface/Vendor/iPackageRepository";
 import { packageModel, IPackageModel } from "../../../framework/database/Models/packageModel";
-import { Package } from "../../../domain/entities/packageEntity";
+import { Package } from "../../../domain/entities/PackageEntity";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class PackageRepository 

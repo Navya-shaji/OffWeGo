@@ -1,5 +1,5 @@
 import { ISubscriptionPlanModel } from "../../../framework/database/Models/subscriptionModel";
-import { SubscriptionPlan } from "../../entities/subscriptionplan";
+import { SubscriptionPlan } from "../../entities/Subscriptionplan";
 
 export interface ISubscriptionPlanRepository {
   create(plan: SubscriptionPlan): Promise<SubscriptionPlan>;

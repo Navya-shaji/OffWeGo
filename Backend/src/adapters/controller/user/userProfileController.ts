@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { IUserProfileUsecase } from "../../../domain/interface/usecaseInterface/IUserProfileUsecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IUserProfileEditUsecase } from "../../../domain/interface/usecaseInterface/IEditProfileOfUserUsecas";
+import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IUserProfileEditUsecase } from "../../../domain/interface/UsecaseInterface/IEditProfileOfUserUsecas";
 
 export class UserProfileController {
   constructor(private _userProfileUsecase: IUserProfileUsecase,

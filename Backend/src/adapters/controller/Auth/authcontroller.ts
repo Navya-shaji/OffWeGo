@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { RefreshTokenUseCase } from "../../../useCases/auth/refreshtokenusecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { RefreshTokenUseCase } from "../../../useCases/auth/Refreshtokenusecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 
 export class RefreshTokenController {
   private _refreshTokenUseCase: RefreshTokenUseCase;

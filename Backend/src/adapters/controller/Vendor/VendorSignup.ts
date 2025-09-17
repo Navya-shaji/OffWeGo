@@ -1,8 +1,8 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { Request, Response } from "express";
 import cloudinary from "../../../utilities/cloud";
-import { IRegisterVendorUseCase } from "../../../domain/interface/vendor/IVendorUsecase";
+import { IRegisterVendorUseCase } from "../../../domain/interface/Vendor/IVendorUsecase";
 
 export class VendorSignupController {
   constructor(private _RegistervendorUsecase: IRegisterVendorUseCase) {}

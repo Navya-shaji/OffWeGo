@@ -1,9 +1,9 @@
-import { IcreateActivityUsecase } from "../../../domain/interface/vendor/IcreateactivityUsecase";
-import { IdeleteActivity } from "../../../domain/interface/vendor/IdeleteActivityUsecase";
-import { IEditActivityUsecase } from "../../../domain/interface/vendor/IeditActivityUsecase";
-import { IGetAllActivities } from "../../../domain/interface/vendor/IgetallActivitiesUsecase";
-import { IsearchActivityUsecase } from "../../../domain/interface/vendor/IsearchActivityUsecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { IcreateActivityUsecase } from "../../../domain/interface/Vendor/IcreateactivityUsecase";
+import { IdeleteActivity } from "../../../domain/interface/Vendor/IdeleteActivityUsecase";
+import { IEditActivityUsecase } from "../../../domain/interface/Vendor/IeditActivityUsecase";
+import { IGetAllActivities } from "../../../domain/interface/Vendor/IgetallActivitiesUsecase";
+import { IsearchActivityUsecase } from "../../../domain/interface/Vendor/IsearchActivityUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { query, Request, Response } from "express";
 
 export class ActivityController {

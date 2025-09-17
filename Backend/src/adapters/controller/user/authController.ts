@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IGoogleSignupUseCase } from "../../../domain/interface/usecaseInterface/IgoogleSignupUsecase";
-import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IGoogleSignupUseCase } from "../../../domain/interface/UsecaseInterface/IgoogleSignupUsecase";
+import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 
 export class GoogleSignupController {
   constructor(

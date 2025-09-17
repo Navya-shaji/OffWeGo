@@ -1,5 +1,5 @@
 import { Hotel } from "../../../domain/entities/HotelEntity";
-import { IHotelRepository } from "../../../domain/interface/vendor/IHotelRepository";
+import { IHotelRepository } from "../../../domain/interface/Vendor/IHotelRepository";
 import {
   HotelModel,
   IHotelModel,

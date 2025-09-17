@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IAdminLoginUseCase } from "../../../domain/interface/admin/IAdminUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IAdminLoginUseCase } from "../../../domain/interface/Admin/IAdminUsecase";
 
 export class AdminController {
   constructor(private _adminLoginuseCase: IAdminLoginUseCase) {}

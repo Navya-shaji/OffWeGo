@@ -1,4 +1,4 @@
-import { Category } from "../../domain/entities/categoryEntity";
+import { Category } from "../../domain/entities/CategoryEntity";
 import { ICategoryModel } from "../../framework/database/Models/categoryModel";
 
 export const mapToCatrgoryDto=(doc:ICategoryModel):Category=>({

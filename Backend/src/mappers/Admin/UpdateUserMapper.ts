@@ -1,4 +1,4 @@
-import { User } from "../../domain/entities/userEntity";
+import { User } from "../../domain/entities/UserEntity";
 import { UpdateUserResponseDto } from "../../domain/dto/user/UpdateUserResponseDto";
 
 export const mapToUpdate = (user: User): UpdateUserResponseDto => ({

@@ -1,7 +1,7 @@
 
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
-import { IVendorProfileUseCase } from "../../../domain/interface/vendor/IvendorProfileUsecase";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { IVendorProfileUseCase } from "../../../domain/interface/Vendor/IvendorProfileUsecase";
 
 export class VendorProfileUsecase implements IVendorProfileUseCase{
     constructor(private _vendorRepository:IVendorRepository){}

@@ -1,4 +1,4 @@
-import { Category } from "../../entities/categoryEntity";
+import { Category } from "../../entities/CategoryEntity";
 
 
 export interface IEditCategoryUsecase{

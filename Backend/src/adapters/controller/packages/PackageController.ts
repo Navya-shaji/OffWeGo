@@ -1,11 +1,11 @@
-import { ICreatePackage } from "../../../domain/interface/vendor/IAddPackageUsecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { ICreatePackage } from "../../../domain/interface/Vendor/IAddPackageUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { Request, Response } from "express";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
-import { IEditPackageUsecase } from "../../../domain/interface/vendor/IPackageEditUsecase";
-import { IDeletePackagenUseCase } from "../../../domain/interface/vendor/IPackageDeleteUsecase";
-import { ISearchPackageUsecase } from "../../../domain/interface/vendor/IPackagesearchUsecase";
-import { IGetAllPackageUsecase } from "../../../domain/interface/vendor/IGetAllPackageUsecase";
+import { IEditPackageUsecase } from "../../../domain/interface/Vendor/IPackageEditUsecase";
+import { IDeletePackagenUseCase } from "../../../domain/interface/Vendor/IPackageDeleteUsecase";
+import { ISearchPackageUsecase } from "../../../domain/interface/Vendor/IPackagesearchUsecase";
+import { IGetAllPackageUsecase } from "../../../domain/interface/Vendor/IGetAllPackageUsecase";
 
 export class PackageController {
   constructor(

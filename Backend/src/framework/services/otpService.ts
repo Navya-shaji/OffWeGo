@@ -1,4 +1,4 @@
-import { IOtpService } from "../../domain/interface/serviceInterface/Iotpservice";
+import { IOtpService } from "../../domain/interface/ServiceInterface/Iotpservice";
 import Redis from "ioredis";
 import nodemailer from "nodemailer";
 

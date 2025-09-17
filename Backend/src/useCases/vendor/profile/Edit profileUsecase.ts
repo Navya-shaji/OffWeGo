@@ -1,4 +1,4 @@
-import { Vendor } from "../../../domain/entities/vendorEntities";
+import { Vendor } from "../../../domain/entities/VendorEntities";
 import { VendorModel } from "../../../framework/database/Models/vendorModel";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 

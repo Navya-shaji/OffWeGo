@@ -1,6 +1,6 @@
-import { Package } from "../../domain/entities/packageEntity";
-import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository";
-import { ISearchPackageUsecase } from "../../domain/interface/vendor/IPackagesearchUsecase";
+import { Package } from "../../domain/entities/PackageEntity";
+import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
+import { ISearchPackageUsecase } from "../../domain/interface/Vendor/IPackagesearchUsecase";
 
 export class SearchPackage implements ISearchPackageUsecase{
     constructor(private _packageRepo:IPackageRepository){}

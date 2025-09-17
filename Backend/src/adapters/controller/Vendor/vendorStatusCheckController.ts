@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IVendorStatusCheckUseCase } from "../../../domain/interface/vendor/IVendorStatusCheckUseCase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IVendorStatusCheckUseCase } from "../../../domain/interface/Vendor/IVendorStatusCheckUseCase";
 
 export class VendorStatusCheckController {
   constructor(private _vendorStatusCheckUseCase: IVendorStatusCheckUseCase) {}

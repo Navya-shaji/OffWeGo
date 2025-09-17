@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { ITokenService } from "../../domain/interface/serviceInterface/ItokenService";
+import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
 
 const blacklistedTokens: Set<string> = new Set();
 

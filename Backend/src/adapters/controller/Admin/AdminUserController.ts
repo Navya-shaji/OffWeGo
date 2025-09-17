@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
-import { IUpdateUserUseCase } from "../../../domain/interface/admin/IUpdateUserUseCase";
-import { ISearchUserUsecase } from "../../../domain/interface/admin/ISerachUSerUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IGetAllUser } from "../../../domain/interface/Admin/IGetAllUsers";
+import { IUpdateUserUseCase } from "../../../domain/interface/Admin/IUpdateUserUseCase";
+import { ISearchUserUsecase } from "../../../domain/interface/Admin/ISerachUSerUsecase";
 
 export class AdminUserController {
   constructor(

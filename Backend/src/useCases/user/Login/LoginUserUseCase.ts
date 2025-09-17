@@ -1,7 +1,7 @@
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-import { IUserLoginUseCase } from "../../../domain/interface/usecaseInterface/ILoginUserUseCaseInterface";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
-import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
+import { IUserLoginUseCase } from "../../../domain/interface/UsecaseInterface/ILoginUserUseCaseInterface";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
+import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
 import { mapNumericRoleToString } from "../../../mappers/User/mapping"; 
 

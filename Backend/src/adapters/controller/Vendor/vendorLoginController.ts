@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
-import { IVendorLoginUsecase } from "../../../domain/interface/vendor/IVendorLoginUsecase"; 
+import { IVendorLoginUsecase } from "../../../domain/interface/Vendor/IVendorLoginUsecase"; 
 
 export class VendorLoginController {
   constructor(private _vendorLoginUseCase: IVendorLoginUsecase) {}

@@ -1,6 +1,6 @@
 
 import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
-import { SubscriptionPlan } from "../../domain/entities/subscriptionplan";
+import { SubscriptionPlan } from "../../domain/entities/Subscriptionplan";
 
 export const mapToSubscriptionPlan = (doc: ISubscriptionPlanModel): SubscriptionPlan => ({
   _id: doc._id,

@@ -1,5 +1,5 @@
 import { Destination } from "../../domain/entities/DestinationEntity";
-import { IDestinationRepository } from "../../domain/interface/admin/IDestinationInterface";
+import { IDestinationRepository } from "../../domain/interface/Admin/IDestinationInterface";
 import { DestinationModel } from "../../framework/database/Models/deestinationModel";
 
 export class DeleteDestination {

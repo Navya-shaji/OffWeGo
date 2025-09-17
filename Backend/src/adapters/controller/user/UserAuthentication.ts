@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { RegisterDTO } from "../../../domain/dto/user/userDto";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IregisterUserUseCase } from "../../../domain/interface/usecaseInterface/IusecaseInterface";
-import { IVerifyOtpUseCase } from "../../../domain/interface/usecaseInterface/IVerifyOtpUseCase";
-import { IResendOtpUsecase } from "../../../domain/interface/userRepository/IResendOtpUsecase";
+import { RegisterDTO } from "../../../domain/dto/user/UserDto";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
+import { IVerifyOtpUseCase } from "../../../domain/interface/UsecaseInterface/IVerifyOtpUseCase";
+import { IResendOtpUsecase } from "../../../domain/interface/UserRepository/IResendOtpUsecase";
 
 export class UserRegisterController {
   constructor(

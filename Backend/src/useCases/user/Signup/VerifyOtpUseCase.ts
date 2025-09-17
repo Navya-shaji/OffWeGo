@@ -1,7 +1,7 @@
-import { User } from "../../../domain/entities/userEntity";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
-import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { User } from "../../../domain/entities/UserEntity";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
+import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
 
 export class VerifyOtpUseCase {

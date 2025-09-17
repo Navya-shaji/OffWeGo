@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpStatus } from "../../domain/statusCode/statuscode";
+import { HttpStatus } from "../../domain/statusCode/Statuscode";
 
 export const checkRoleBasedcontrol = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {

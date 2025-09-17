@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import cloudinary from "../../../utilities/cloud";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 
 export class VendorDocumentController {
   async upload(req: Request, res: Response): Promise<void> {

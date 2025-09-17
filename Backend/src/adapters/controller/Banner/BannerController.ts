@@ -3,7 +3,7 @@ import { IBannerCreateUsecase } from "../../../domain/interface/Banner/IBannerCr
 import { IEditBannerUsecase } from "../../../domain/interface/Banner/IBannerEditUsecase";
 import { IDeleteBannerUsecase } from "../../../domain/interface/Banner/IDeleteBannerUSecase";
 import { IGetBannerUsecase } from "../../../domain/interface/Banner/IGetAllBannnersUsecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { Request, Response } from "express";
 
 export class Bannercontroller {

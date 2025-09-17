@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IUserLoginUseCase } from "../../../domain/interface/usecaseInterface/ILoginUserUseCaseInterface";
-import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
-import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
-import { IResetPasswordUseCase } from "../../../domain/interface/usecaseInterface/IResetPasswordUseCase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IUserLoginUseCase } from "../../../domain/interface/UsecaseInterface/ILoginUserUseCaseInterface";
+import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
+import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
+import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
 
 export class UserLoginController {
   constructor(

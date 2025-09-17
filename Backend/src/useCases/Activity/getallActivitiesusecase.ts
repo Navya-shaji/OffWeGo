@@ -1,6 +1,6 @@
 import { Activity } from "../../domain/entities/ActivityEntity";
-import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepository";
-import { IGetAllActivities } from "../../domain/interface/vendor/IgetallActivitiesUsecase";
+import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
+import { IGetAllActivities } from "../../domain/interface/Vendor/IgetallActivitiesUsecase";
 import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";
 
 export class GetAllActivitiesUsecase implements IGetAllActivities{

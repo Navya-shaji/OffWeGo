@@ -1,9 +1,9 @@
-import { ICreateCategoryUsecase } from "../../../domain/interface/category/IcategoryUsecase";
-import { IDeleteCategorynUseCase } from "../../../domain/interface/category/IDeleteCategory";
-import { IEditCategoryUsecase } from "../../../domain/interface/category/IEditCategoryUsecase";
-import { IGetCategoryUsecase } from "../../../domain/interface/category/IGetAllCategoryUsecase";
-import { ISearchCategoryUsecase } from "../../../domain/interface/category/IsearchcategoryUsecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { ICreateCategoryUsecase } from "../../../domain/interface/Category/IcategoryUsecase";
+import { IDeleteCategorynUseCase } from "../../../domain/interface/Category/IDeleteCategory";
+import { IEditCategoryUsecase } from "../../../domain/interface/Category/IEditCategoryUsecase";
+import { IGetCategoryUsecase } from "../../../domain/interface/Category/IGetAllCategoryUsecase";
+import { ISearchCategoryUsecase } from "../../../domain/interface/Category/IsearchcategoryUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { Request, Response } from "express";
 
 export class CreateCatogoryController {

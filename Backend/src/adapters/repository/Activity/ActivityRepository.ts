@@ -1,5 +1,5 @@
 import { Activity } from "../../../domain/entities/ActivityEntity";
-import { IActivityRepository } from "../../../domain/interface/vendor/IactivityRepository";
+import { IActivityRepository } from "../../../domain/interface/Vendor/IactivityRepository";
 import {
   ActivityModel,
   IActivityModel,

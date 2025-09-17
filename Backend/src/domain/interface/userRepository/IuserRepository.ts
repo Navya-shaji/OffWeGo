@@ -1,5 +1,5 @@
-import { Profile } from "../../dto/user/profileDto";
-import { User } from "../../entities/userEntity";
+import { Profile } from "../../dto/user/ProfileDto";
+import { User } from "../../entities/UserEntity";
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   createUser(user: User): Promise<User>;

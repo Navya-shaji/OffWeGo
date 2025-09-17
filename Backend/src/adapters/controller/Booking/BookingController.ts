@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ICreateBookingUseCase } from "../../../domain/interface/Booking/IBookingUsecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 
 export class BookingController {
   constructor(private _createBookingUseCase: ICreateBookingUseCase) {}

@@ -1,4 +1,4 @@
-import { SubscriptionPlan } from "../../domain/entities/subscriptionplan";
+import { SubscriptionPlan } from "../../domain/entities/Subscriptionplan";
 import { IGetSubscriptionUsecase } from "../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 
