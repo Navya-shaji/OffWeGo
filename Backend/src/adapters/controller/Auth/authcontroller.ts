@@ -10,8 +10,8 @@ export class RefreshTokenController {
   }
 
   async handle(req: Request, res: Response): Promise<void> {
-    try {
-      const { refreshToken } = req.cookies;
+ 
+    const { refreshToken } = req.cookies;
 
       if (!refreshToken) {
         res
@@ -21,20 +21,10 @@ export class RefreshTokenController {
       }
 
       const tokens = await this._refreshTokenUseCase.execute(refreshToken);
-
       res.status(HttpStatus.OK).json({
         message: "Token refreshed successfully",
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       });
-    } catch (error) {
-      const errorMessage =
-        typeof error === "object" && error !== null && "message" in error
-          ? (error as { message?: string }).message
-          : undefined;
-      res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: errorMessage || "Invalid refresh token" });
-    }
   }
 }
