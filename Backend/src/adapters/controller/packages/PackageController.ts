@@ -16,22 +16,18 @@ export class PackageController {
     private _searchPackage: ISearchPackageUsecase
   ) {}
   async getAllPackage(req: Request, res: Response) {
-    try {
+   
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
       const result = await this._getPackage.execute(page, limit);
 
       res.status(HttpStatus.OK).json(result);
       console.log("Backend data",result)
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({success:false, message: "failed to get Destinations",error });
-    }
+   
   }
 
   async addPackage(req: Request, res: Response) {
-    try {
+   
       const packageData = req.body;
       console.log("packageData",packageData)
 
@@ -48,18 +44,11 @@ export class PackageController {
 
       const createdPackage = await this._createPackage.execute(packageData);
       res.status(HttpStatus.CREATED).json({ result: createdPackage });
-    } catch (error) {
-      console.error(error);
-
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: "Failed to create package",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
+   
   }
 
   async EditPackage(req: Request, res: Response) {
-    try {
+   
       const packageId = req.params.id;
       const packageData = req.body;
 
@@ -70,17 +59,11 @@ export class PackageController {
         message: "Package updated successfully",
         data: result,
       });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Package updation failed",
-        error
-      });
-    }
+    
   }
 
   async deletePackage(req: Request, res: Response) {
-    try {
+    
       const { id } = req.params;
       const result = await this._deletepackage.execute(id);
       res.status(HttpStatus.OK).json({
@@ -88,16 +71,10 @@ export class PackageController {
         message: "Deleted package successfully",
         result
       });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        messege: "Failed to delte package",
-        error
-      });
-    }
+   
   }
   async searchPackage(req: Request, res: Response) {
-    try {
+   
       const query = req.query.q;
 
       if (typeof query !== "string" || !query.trim()) {
@@ -108,11 +85,6 @@ export class PackageController {
       }
       const destinations = await this._searchPackage.execute(query);
       res.json({ success: true, data: destinations });
-    } catch (error) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
+   
   }
 }

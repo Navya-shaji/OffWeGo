@@ -14,133 +14,106 @@ export class UserLoginController {
   ) {}
 
   async loginUser(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      if (!email || !password) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Email and password are required",
-        });
-        return;
-      }
-
-      const result = await this._loginUserUseCase.execute({ email, password });
-      const user = result.user;
-
-      if (user.role?.toLowerCase() === "admin") {
-        res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: "Admins are not allowed to log in from user portal",
-        });
-        return;
-      }
-
-      if (user.status?.toLowerCase().includes("block")) {
-        res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          code: "USER_BLOCKED",
-          message: "Your account has been blocked by the admin",
-        });
-        return;
-      }
-
-      const payload = { userId: user.id, role: user.role };
-      const accessToken = this._tokenService.generateAccessToken(payload);
-      const refreshToken = this._tokenService.generateRefreshToken(payload);
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
-      });
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Login successful",
-        accessToken,
-        user,
-      });
-    } catch (error: unknown) {
-      console.error("Login error:", error);
-      const statusCode =
-        typeof error === "object" && error !== null && "statusCode" in error
-          ? (error as { statusCode?: number }).statusCode
-          : HttpStatus.INTERNAL_SERVER_ERROR;
-      const message =
-        typeof error === "object" && error !== null && "message" in error
-          ? (error as { message?: string }).message
-          : "Login failed";
-      res.status(statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
+    if (!email || !password) {
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message,
+        message: "Email and password are required",
       });
+      return;
     }
+
+    const result = await this._loginUserUseCase.execute({ email, password });
+    const user = result.user;
+
+    if (user.role?.toLowerCase() === "admin") {
+      res.status(HttpStatus.FORBIDDEN).json({
+        success: false,
+        message: "Admins are not allowed to log in from user portal",
+      });
+      return;
+    }
+
+    if (user.status?.toLowerCase().includes("block")) {
+      res.status(HttpStatus.FORBIDDEN).json({
+        success: false,
+        code: "USER_BLOCKED",
+        message: "Your account has been blocked by the admin",
+      });
+      return;
+    }
+
+    const payload = { userId: user.id, role: user.role };
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Login successful",
+      accessToken,
+      user,
+    });
   }
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
-    try {
-      const { email } = req.body;
-      if (!email || typeof email !== "string") {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Provide a valid email",
-        });
-        return;
-      }
-      const otp = this._otpService.generateOtp();
-      await this._otpService.storeOtp(email, otp);
-      await this._otpService.sendOtpEmail(email, otp);
-
-      res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: "OTP send to your email for reset" });
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Failed to send OTP",error });
+    const { email } = req.body;
+    if (!email || typeof email !== "string") {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Provide a valid email",
+      });
+      return;
     }
+    const otp = this._otpService.generateOtp();
+    await this._otpService.storeOtp(email, otp);
+    await this._otpService.sendOtpEmail(email, otp);
+
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: "OTP send to your email for reset" });
   }
 
   async verifyResetOtp(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, otp } = req.body;
-      
+    const { email, otp } = req.body;
 
-   if (!email || typeof email !== "string" || !otp || typeof otp !== "string") {
-
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Email and OTP are required and must be valid strings",
-        });
-        return;
-      }
-
-      const isVerified = await this._otpService.verifyOtp(email, otp);
-
-      if (!isVerified) {
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: "Invalid or expired OTP",
-        });
-        return;
-      }
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "OTP verified successfully",
-      });
-    } catch (error) {
-      console.error("Error verifying reset OTP:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    if (
+      !email ||
+      typeof email !== "string" ||
+      !otp ||
+      typeof otp !== "string"
+    ) {
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Something went wrong while verifying OTP",
+        message: "Email and OTP are required and must be valid strings",
       });
+      return;
     }
-}
 
-async resetPassword(req: Request, res: Response): Promise<void> {
+    const isVerified = await this._otpService.verifyOtp(email, otp);
+
+    if (!isVerified) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  }
+
+  async resetPassword(req: Request, res: Response): Promise<void> {
     const { email, newPassword } = req.body;
 
     if (
@@ -157,19 +130,10 @@ async resetPassword(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    try {
-      await this._resetPasswordUseCase.execute(email, newPassword);
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Password reset successful",
-      });
-    } catch (error) {
-      console.error("Reset password error:", error);
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: (error as Error).message || "Password reset failed",
-      });
-    }
+    await this._resetPasswordUseCase.execute(email, newPassword);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Password reset successful",
+    });
   }
-
 }

@@ -18,103 +18,64 @@ export class DestinationController {
   ) {}
 
   async addDestination(req: Request, res: Response) {
-    try {
-      const result = await this._createDestination.execute(req.body);
-      res.status(HttpStatus.CREATED).json({ result });
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success:false,message: "failed to create Destinations",error });
-    }
+    const result = await this._createDestination.execute(req.body);
+    res.status(HttpStatus.CREATED).json({ result });
   }
 
   async editDestinationHandler(req: Request, res: Response) {
-    try {
-      const destinationId = req.params.id;
-      const destinationData = req.body;
+    const destinationId = req.params.id;
+    const destinationData = req.body;
 
-      const result = await this._editDestination.execute(
-        destinationId,
-        destinationData
-      );
+    const result = await this._editDestination.execute(
+      destinationId,
+      destinationData
+    );
 
-      return res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Destination updated successfully",
-        data: result,
-      });
-    } catch (error) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Failed to update destination",
-        error
-      });
-    }
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Destination updated successfully",
+      data: result,
+    });
   }
 
   async getAllDestination(req: Request, res: Response) {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 5;
-      const { destinations, totalDestinations } =
-        await this._getDestination.execute(page, limit);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const { destinations, totalDestinations } =
+      await this._getDestination.execute(page, limit);
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        destinations,
-        totalDestinations,
-        currentPage: page,
-        totalPages: Math.ceil(totalDestinations / limit),
-      });
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({success:false, message: "failed to get Destinations",error });
-    }
+    res.status(HttpStatus.OK).json({
+      success: true,
+      destinations,
+      totalDestinations,
+      currentPage: page,
+      totalPages: Math.ceil(totalDestinations / limit),
+    });
   }
 
   async getSingleDestinationController(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
+    const { id } = req.params;
 
-      const result = await this._destinationUsecase.execute(id);
-      res.status(HttpStatus.OK).json(result);
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({success:false, message: "failed to get Destinations" ,error});
-    }
+    const result = await this._destinationUsecase.execute(id);
+    res.status(HttpStatus.OK).json(result);
   }
 
   async deleteDestinationController(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      const result = await this._deleteDestinationusecase.execute(id);
+    const { id } = req.params;
+    const result = await this._deleteDestinationusecase.execute(id);
 
-      return res.status(HttpStatus.OK).json(result);
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({success:false, message: "Failed to delete Destination" ,error});
-    }
+    return res.status(HttpStatus.OK).json(result);
   }
   async searchDestination(req: Request, res: Response) {
-    try {
-      const query = req.query.q;
+    const query = req.query.q;
 
-      if (typeof query !== "string" || !query.trim()) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          message: "The query will be string",
-        });
-        return;
-      }
-      const destinations = await this._serachDestinationusecase.execute(query);
-      res.json({ success: true, data: destinations });
-    } catch (error) {
+    if (typeof query !== "string" || !query.trim()) {
       res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "The query will be string",
       });
+      return;
     }
+    const destinations = await this._serachDestinationusecase.execute(query);
+    res.json({ success: true, data: destinations });
   }
 }

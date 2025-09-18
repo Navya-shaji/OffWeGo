@@ -16,27 +16,19 @@ export class VendorStatusCheckController {
       return;
     }
 
-    try {
-      const vendor = await this._vendorStatusCheckUseCase.execute(email.trim());
+    const vendor = await this._vendorStatusCheckUseCase.execute(email.trim());
 
-      if (!vendor) {
-        res.status(HttpStatus.NOT_FOUND).json({
-          success: false,
-          message: "Vendor not found",
-        });
-        return;
-      }
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        status: vendor.status,
-      });
-    } catch (error) {
-      console.error("Error fetching vendor status:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    if (!vendor) {
+      res.status(HttpStatus.NOT_FOUND).json({
         success: false,
-        message: "Server error while checking vendor status",
+        message: "Vendor not found",
       });
+      return;
     }
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      status: vendor.status,
+    });
   }
 }
