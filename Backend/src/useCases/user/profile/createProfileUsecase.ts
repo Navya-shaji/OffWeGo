@@ -1,10 +1,10 @@
-import { Profile } from "../../../domain/dto/user/profileDto";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-import { IUserProfileUsecase } from "../../../domain/interface/usecaseInterface/IUserProfileUsecase";
+import { ProfileDto } from "../../../domain/dto/user/ProfileDto";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
+import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
 export class UserProfileUsecase implements IUserProfileUsecase {
   constructor(private _userRepository: IUserRepository) {}
 
-  async execute(data: {email:string}): Promise<Profile | null> {
+  async execute(data: {email:string}): Promise<ProfileDto | null> {
 
     const Userprofile = await this._userRepository.getProfileByEmail(data.email);
     return Userprofile;

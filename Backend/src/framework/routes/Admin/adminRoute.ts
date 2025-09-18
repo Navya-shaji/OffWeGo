@@ -7,14 +7,14 @@ import {
   categoryController,
   destinationController,
   subscriptionController,
-} from "../../../framework/Di/admin/adminInjection";
+} from "../../Di/Admin/AdminInjection";
 
-import { verifyTokenAndCheckBlackList } from "../../../adapters/FlowControl/TokenValidationControl";
-import { JwtService } from "../../services/jwtService";
+import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
+import { JwtService } from "../../Services/jwtService";
 import { AdminRoutes } from "../Constants/AdminRouteConstants";
-import { checkRoleBasedcontrol } from "../../../adapters/FlowControl/RoleBasedControl";
+import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
+import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection";
 const TokenService = new JwtService();
 
 export class AdminRoute {
@@ -173,7 +173,7 @@ export class AdminRoute {
       AdminRoutes.CREATE_BANNER,
       checkRoleBasedcontrol(["admin"]),
       (req: Request, res: Response) => {
-        bannerController.CreateBanner(req, res);
+        bannerController.createBanner(req, res);
       }
     );
 
@@ -205,7 +205,7 @@ export class AdminRoute {
       AdminRoutes.EDIT_BANNER,
       checkRoleBasedcontrol(["admin"]),
       (req: Request, res: Response) => {
-        bannerController.EditBanner(req, res);
+        bannerController.editBanner(req, res);
       }
     );
 
@@ -213,14 +213,14 @@ export class AdminRoute {
       AdminRoutes.DELETE_BANNER,
       checkRoleBasedcontrol(["admin"]),
       (req: Request, res: Response) => {
-        bannerController.BannerDelete(req, res);
+        bannerController.bannerDelete(req, res);
       }
     );
 
     this.adminRouter.patch(
       AdminRoutes.BANNER_ACTIONS,
       (req: Request, res: Response) => {
-        bannerController.BannerAction(req, res);
+        bannerController.bannerAction(req, res);
       }
     );
     this.adminRouter.post(

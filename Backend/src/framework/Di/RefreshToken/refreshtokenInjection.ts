@@ -1,6 +1,6 @@
-import { RefreshTokenUseCase } from "../../../useCases/auth/refreshtokenusecase"; 
-import { RefreshTokenController } from "../../../adapters/controller/Auth/authcontroller"; 
-import { JwtService } from "../../services/jwtService";
+import { RefreshTokenUseCase } from "../../../useCases/auth/Refreshtokenusecase"; 
+import { RefreshTokenController } from "../../../adapters/controller/Auth/Authcontroller"; 
+import { JwtService } from "../../Services/jwtService";
 
 const jwtService = new JwtService();
 const refreshTokenUseCase = new RefreshTokenUseCase(jwtService);

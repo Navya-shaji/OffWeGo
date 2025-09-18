@@ -1,4 +1,4 @@
-export interface Profile{
+export interface ProfileDto{
     name?:string,
     email:string,
     phone?:string,

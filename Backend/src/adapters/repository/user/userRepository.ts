@@ -1,6 +1,6 @@
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { IUserModel, UserModel } from "../../../framework/database/Models/userModel";
-import { Profile } from "../../../domain/dto/user/profileDto";
+import { ProfileDto } from "../../../domain/dto/user/ProfileDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class UserRepository
@@ -30,7 +30,7 @@ export class UserRepository
   async getAllUsers(
     skip: number,
     limit: number,
-    filter: Record<string, any> = {}
+    filter: Record<string, unknown> = {}
   ): Promise<IUserModel[]> {
     return this.model.find(filter).skip(skip).limit(limit);
   }
@@ -43,11 +43,11 @@ export class UserRepository
     await user.save();
   }
 
-  async countUsers(filter: Record<string, any> = {}): Promise<number> {
+  async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
     return this.model.countDocuments(filter);
   }
 
-  async getProfileByEmail(email: string): Promise<Profile | null> {
+  async getProfileByEmail(email: string): Promise<ProfileDto | null> {
     return this.model.findOne({ email });
   }
 

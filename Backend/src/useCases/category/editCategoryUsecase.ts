@@ -1,8 +1,8 @@
-import { Category } from "../../domain/entities/categoryEntity";
-import { ICategoryRepository } from "../../domain/interface/category/ICategoryRepository";
-import { IEditCategoryUsecase } from "../../domain/interface/category/IEditCategoryUsecase";
+import { Category } from "../../domain/entities/CategoryEntity";
+import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
+import { IEditCategoryUsecase } from "../../domain/interface/Category/IEditCategoryUsecase";
 import { CategoryModel } from "../../framework/database/Models/categoryModel";
-import { mapToCatrgoryDto } from "../../mappers/category/categoryMappers";
+import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
 
 export class EditCategory implements IEditCategoryUsecase {
      constructor(private _categoryRepo: ICategoryRepository) {}

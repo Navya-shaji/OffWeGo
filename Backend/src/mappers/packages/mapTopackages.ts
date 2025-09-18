@@ -1,4 +1,4 @@
-import { Package } from "../../domain/entities/packageEntity";
+import { Package } from "../../domain/entities/PackageEntity";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
 
 export const mapToPackageDto = (doc: IPackageModel): Package => ({

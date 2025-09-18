@@ -1,5 +1,5 @@
-import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/createsubscriptionDto"; 
-import { SubscriptionPlan } from "../../domain/entities/subscriptionplan"; 
+import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/CreatesubscriptionDto"; 
+import { SubscriptionPlan } from "../../domain/entities/Subscriptionplan"; 
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
 
 export class CreateSubscriptionPlanUseCase {

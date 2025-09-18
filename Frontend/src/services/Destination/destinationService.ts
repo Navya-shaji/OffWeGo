@@ -8,10 +8,8 @@ export const addDestination = async (data: DestinationInterface) => {
   try {
     const state = store.getState();
     let base = "/api";
-
     if (state.adminAuth.token) base = "/api/admin";
     else if (state.vendorAuth.token) base = "/api/vendor";
-
     const res = await axiosInstance.post(`${base}/create-destination`, data);
     return res.data;
   } catch (error) {
@@ -118,15 +116,29 @@ export const deleteDestination = async (id: string): Promise<void> => {
     const response = await axiosInstance.delete(`/api/admin/destination/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error inside deleteDestination", error);
-    throw error;
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error || "Failed to delete destinatioon"
+      );
+    }
+    throw new Error(
+      "An unexpected error occured while deleteing the destination"
+    );
   }
 };
 
 export const searchDestination = async (query: string) => {
-  const response = await axiosInstance.get("/api/admin/destination/search", {
-    params: { q: query },
-  });
-  return response.data.data;
+  try {
+    const response = await axiosInstance.get("/api/admin/destination/search", {
+      params: { q: query },
+    });
+    return response.data.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error || "Failed to search destination"
+      );
+    }
+    throw new Error("An unexpected error occured while searching destination");
+  }
 };
-

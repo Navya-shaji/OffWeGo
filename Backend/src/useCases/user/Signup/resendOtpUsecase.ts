@@ -1,4 +1,4 @@
-import { IOtpService } from "../../../domain/interface/serviceInterface/Iotpservice";
+import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 export class ResendOtpUsecase {
   constructor(private _otpService: IOtpService) {}
 

@@ -1,6 +1,6 @@
-import { AuthRepository } from "../../../adapters/repository/user/AuthRepository";
-import { User } from "../../../domain/entities/userEntity";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { AuthRepository } from "../../../adapters/repository/User/AuthRepository";
+import { User } from "../../../domain/entities/UserEntity";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { mapToUser } from "../../../mappers/User/userMapper";
 
 export class GoogleSignupUseCase{

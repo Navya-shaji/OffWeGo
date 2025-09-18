@@ -1,7 +1,7 @@
-import { ICreateGroupUseCase } from "../../../domain/interface/vendor/IPackageWiseGroupUsecase";
+import { ICreateGroupUseCase } from "../../../domain/interface/Vendor/IPackageWiseGroupUsecase";
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IGetPackageWiseGroupUsecase } from "../../../domain/interface/vendor/IGetPackageWiseGroupsUsecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IGetPackageWiseGroupUsecase } from "../../../domain/interface/Vendor/IGetPackageWiseGroupsUsecase";
 
 export class PackageWiseGroupingController {
   constructor(
@@ -10,7 +10,7 @@ export class PackageWiseGroupingController {
   ) {}
 
   async CreatePackageWiseGrouping(req: Request, res: Response) {
-    try {
+    
       const groupData = req.body;
       const result = await this._createGroupUsecase.execute(groupData);
       res.status(HttpStatus.OK).json({
@@ -18,16 +18,11 @@ export class PackageWiseGroupingController {
         message: "Package wise group created",
         data: result,
       });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Package wise group creation failed",
-      });
-    }
+    
   }
 
   async GetPackageWiseGroups(req: Request, res: Response) {
-    try {
+    
       const packageId = req.params.id;
       const result = await this._getgroupsusecase.execute(packageId);
       res.status(HttpStatus.OK).json({
@@ -35,11 +30,6 @@ export class PackageWiseGroupingController {
         message: "Package wise group fetched successfully",
         data: result,
       });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Package wise group fetching failed",
-      });
-    }
+    
   }
 }

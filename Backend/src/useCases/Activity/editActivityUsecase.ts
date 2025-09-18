@@ -1,6 +1,6 @@
 import { Activity } from "../../domain/entities/ActivityEntity";
-import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepository";
-import { IEditActivityUsecase } from "../../domain/interface/vendor/IeditActivityUsecase";
+import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
+import { IEditActivityUsecase } from "../../domain/interface/Vendor/IeditActivityUsecase";
 import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";
 
 export class EditActivity implements IEditActivityUsecase {

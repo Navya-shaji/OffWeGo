@@ -1,4 +1,4 @@
-import { ICategoryRepository } from "../../../domain/interface/category/ICategoryRepository";
+import { ICategoryRepository } from "../../../domain/interface/Category/ICategoryRepository";
 import {
   CategoryModel,
   ICategoryModel,

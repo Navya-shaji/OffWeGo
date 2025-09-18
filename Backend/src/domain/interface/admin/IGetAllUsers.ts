@@ -1,6 +1,6 @@
-import { User } from "../../entities/userEntity";
+import { User } from "../../entities/UserEntity";
 
-export interface IGetAllUser {
+export interface IGetAllUserUsecase {
   execute(
     page: number,
     limit: number

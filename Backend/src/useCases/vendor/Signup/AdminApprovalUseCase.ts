@@ -1,6 +1,6 @@
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
-import { IAdminVendorApprovalUseCase } from "../../../domain/interface/admin/IAdminVendorApprovalUsecase";
-import { Vendor } from "../../../domain/entities/vendorEntities";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { IAdminVendorApprovalUseCase } from "../../../domain/interface/Admin/IAdminVendorApprovalUsecase";
+import { Vendor } from "../../../domain/entities/VendorEntities";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 import { IVendorModel } from "../../../framework/database/Models/vendorModel";
 

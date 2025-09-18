@@ -1,6 +1,6 @@
-import { IResetPasswordUseCase } from "../../../domain/interface/usecaseInterface/IResetPasswordUseCase";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
+import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 
 
 export class ResetPasswordUseCase implements IResetPasswordUseCase {

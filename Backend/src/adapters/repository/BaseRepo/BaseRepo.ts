@@ -25,6 +25,6 @@ export abstract class BaseRepository<T extends Document> implements IBaseRepo<T>
   }
 
   async findOne(filter: Partial<T>): Promise<T | null> {
-    return this.model.findOne(filter as any);
+    return this.model.findOne(filter as Record<string, unknown>);
   }
 }

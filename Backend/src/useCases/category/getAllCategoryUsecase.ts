@@ -1,6 +1,6 @@
-import { mapToCatrgoryDto } from "../../mappers/category/categoryMappers";
-import { Category } from "../../domain/entities/categoryEntity";
-import { ICategoryRepository } from "../../domain/interface/category/ICategoryRepository";
+import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
+import { Category } from "../../domain/entities/CategoryEntity";
+import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
 export class GetAllCategories{
     constructor(private _categoryRepo:ICategoryRepository){}
 

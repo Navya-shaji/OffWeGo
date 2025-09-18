@@ -2,15 +2,15 @@ import express, { Express } from "express";
 import dotenv from "dotenv";
 import http from "http";
 import cors from "cors";
-import morgan from "morgan";
 import cookieParser from 'cookie-parser'
 
-import { ConnectDB } from "./framework/database/connectDB/connectDB";
-import { UserRoute } from "./framework/routes/user/userRoute";
+import { ConnectDB } from "./framework/database/ConnectDB/connectDB";
+import { UserRoute } from "./framework/routes/User/userRoute";
 import { AdminRoute } from "./framework/routes/Admin/adminRoute";
 import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 import { CommonRoute } from "./framework/routes/Auth/AuthRoutes"; 
-import { morganConsoleLogger, morganFileLogger } from "./framework/Logger/logger";
+import {  morganFileLogger } from "./framework/Logger/logger";
+import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
 
 export class App {
   private app: Express;
@@ -34,13 +34,15 @@ export class App {
     this.setAdminRoutes();
     this.setVendorRoutes();
     this.setCommonRoutes(); 
+    this.app.use(errorMiddleware)   
   }
 
 private setMiddlewares(): void {
   this.app.use(express.json());
   this.app.use(cookieParser());
 
-  this.app.use(morganFileLogger);      
+  this.app.use(morganFileLogger);  
+  
   
 }
 

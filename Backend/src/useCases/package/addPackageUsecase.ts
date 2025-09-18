@@ -1,6 +1,6 @@
-import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository";
-import { Package } from "../../domain/entities/packageEntity";
-import { mapToPackageDto } from "../../mappers/packages/mapTopackages";
+import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
+import { Package } from "../../domain/entities/PackageEntity";
+import { mapToPackageDto } from "../../mappers/Packages/mapTopackages";
 
 export class CreatePackagesUseCase {
   constructor(private _packageRepo: IPackageRepository) {}

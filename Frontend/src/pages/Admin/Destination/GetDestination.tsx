@@ -10,8 +10,7 @@ import { Edit, Trash } from "lucide-react";
 import { EditDestinationModal } from "./destinationModal";
 import Pagination from "@/components/pagination/pagination";
 import { SearchBar } from "@/components/Modular/searchbar";
-import { ConfirmModal } from "@/components/Modular/ConfirmModal"; 
-
+import { ConfirmModal } from "@/components/Modular/ConfirmModal";
 
 export const DestinationTable = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
@@ -22,7 +21,6 @@ export const DestinationTable = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
- 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -63,10 +61,10 @@ export const DestinationTable = () => {
     }
   };
 
-useEffect(() => {
-  console.log("Effect ran with page:", page);
-  fetchData();
-}, [page]);
+  useEffect(() => {
+    console.log("Effect ran with page:", page);
+    fetchData();
+  }, [page]);
 
   const handleEdit = (dest: DestinationInterface) => {
     setSelectedDestination(dest);
@@ -115,7 +113,10 @@ useEffect(() => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">All Destinations</h2>
         <div className="w-60">
-          <SearchBar placeholder="Search destinations..." onSearch={handleSearch} />
+          <SearchBar
+            placeholder="Search destinations..."
+            onSearch={handleSearch}
+          />
         </div>
       </div>
 
@@ -146,7 +147,8 @@ useEffect(() => {
                 <tr key={dest.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="h-16 w-16">
-                      {Array.isArray(dest.imageUrls) && dest.imageUrls.length > 0 ? (
+                      {Array.isArray(dest.imageUrls) &&
+                      dest.imageUrls.length > 0 ? (
                         <img
                           src={dest.imageUrls[0]}
                           alt={dest.name}
@@ -205,7 +207,6 @@ useEffect(() => {
         />
       )}
 
-   
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         title="Delete Destination"

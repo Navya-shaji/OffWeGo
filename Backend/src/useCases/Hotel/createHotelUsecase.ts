@@ -1,6 +1,6 @@
 import { Hotel } from "../../domain/entities/HotelEntity";
-import { ICreateHotelUsecase } from "../../domain/interface/vendor/IcreateHotelUsecase";
-import { IHotelRepository } from "../../domain/interface/vendor/IHotelRepository";
+import { ICreateHotelUsecase } from "../../domain/interface/Vendor/IcreateHotelUsecase";
+import { IHotelRepository } from "../../domain/interface/Vendor/IHotelRepository";
 import { mapToHotelDto } from "../../mappers/Hotel/HotelMapper";
 
 export class CreateHotelUsecase implements ICreateHotelUsecase{

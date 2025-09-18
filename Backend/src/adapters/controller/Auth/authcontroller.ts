@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { RefreshTokenUseCase } from "../../../useCases/auth/refreshtokenusecase";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
+import { RefreshTokenUseCase } from "../../../useCases/auth/Refreshtokenusecase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 
 export class RefreshTokenController {
   private _refreshTokenUseCase: RefreshTokenUseCase;
@@ -10,8 +10,8 @@ export class RefreshTokenController {
   }
 
   async handle(req: Request, res: Response): Promise<void> {
-    try {
-      const { refreshToken } = req.cookies;
+ 
+    const { refreshToken } = req.cookies;
 
       if (!refreshToken) {
         res
@@ -21,16 +21,10 @@ export class RefreshTokenController {
       }
 
       const tokens = await this._refreshTokenUseCase.execute(refreshToken);
-
       res.status(HttpStatus.OK).json({
         message: "Token refreshed successfully",
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       });
-    } catch (error: any) {
-      res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: error.message || "Invalid refresh token" });
-    }
   }
 }

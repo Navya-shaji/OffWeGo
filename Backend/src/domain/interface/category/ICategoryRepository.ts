@@ -1,7 +1,9 @@
 import { ICategoryModel } from "../../../framework/database/Models/categoryModel";
+import { CreateCategoryDto } from "../../dto/admin/CategoryDto";
+
 
 export interface ICategoryRepository {
-  createCategory(data: any): Promise<ICategoryModel>;
+  createCategory(data: CreateCategoryDto): Promise<ICategoryModel>;
   getAllCategories(skip: number, limit: number): Promise<ICategoryModel[]>;
   edit(category: ICategoryModel): Promise<ICategoryModel | null>;
   delete(id: string): Promise<ICategoryModel | null>;

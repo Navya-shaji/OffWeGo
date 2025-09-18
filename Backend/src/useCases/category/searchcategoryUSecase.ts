@@ -1,6 +1,6 @@
-import { Category } from "../../domain/entities/categoryEntity";
-import { ICategoryRepository } from "../../domain/interface/category/ICategoryRepository";
-import { ISearchCategoryUsecase } from "../../domain/interface/category/IsearchcategoryUsecase";
+import { Category } from "../../domain/entities/CategoryEntity";
+import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
+import { ISearchCategoryUsecase } from "../../domain/interface/Category/IsearchcategoryUsecase";
 
 export class SearchCategoryUsecase implements ISearchCategoryUsecase{
     constructor(private _categoryRepo:ICategoryRepository){}

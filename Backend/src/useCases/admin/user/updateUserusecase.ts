@@ -1,4 +1,4 @@
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
 export class UpdateUserUseCase {
   constructor(private _userRepository: IUserRepository) {}

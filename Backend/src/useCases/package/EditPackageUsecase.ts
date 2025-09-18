@@ -1,6 +1,6 @@
-import { Package } from "../../domain/entities/packageEntity";
+import { Package } from "../../domain/entities/PackageEntity";
 import { packageModel } from "../../framework/database/Models/packageModel";
-import { mapToPackageDto } from "../../mappers/packages/mapTopackages";
+import { mapToPackageDto } from "../../mappers/Packages/mapTopackages";
 
 export class EditPackage {
   async execute(id: string, updatedData: Package): Promise<Package | null> {

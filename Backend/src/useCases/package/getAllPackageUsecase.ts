@@ -1,6 +1,6 @@
-import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository";
+import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
-import { IGetAllPackageUsecase } from "../../domain/interface/vendor/IGetAllPackageUsecase";
+import { IGetAllPackageUsecase } from "../../domain/interface/Vendor/IGetAllPackageUsecase";
 
 export class GetAllPackages implements IGetAllPackageUsecase {
   constructor(private _packageRepo: IPackageRepository) {}

@@ -1,4 +1,4 @@
-import { Vendor } from "../../entities/vendorEntities";
+import { Vendor } from "../../entities/VendorEntities";
 
 export interface IUpdateVendorStatusUseCase {
   execute(email: string, status: "approved" | "rejected"): Promise<Vendor | null>;

@@ -1,5 +1,5 @@
-import { IActivityRepository } from "../../domain/interface/vendor/IactivityRepository";
-import { IdeleteActivity } from "../../domain/interface/vendor/IdeleteActivityUsecase";
+import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
+import { IdeleteActivity } from "../../domain/interface/Vendor/IdeleteActivityUsecase";
 
 export class DeleteActivity implements IdeleteActivity{
   constructor(private _ActivityRepo:IActivityRepository){}

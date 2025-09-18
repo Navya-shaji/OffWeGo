@@ -1,5 +1,5 @@
-import { IGetPackageUsecase } from "../../domain/interface/vendor/IGetPackageUsecase";
-import { IPackageRepository } from "../../domain/interface/vendor/iPackageRepository"; 
+import { IGetPackageUsecase } from "../../domain/interface/Vendor/IGetPackageUsecase";
+import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository"; 
 import { IPackageModel } from "../../framework/database/Models/packageModel"; 
 
 export class GetPackageUsecase implements IGetPackageUsecase {

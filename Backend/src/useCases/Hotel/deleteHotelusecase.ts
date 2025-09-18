@@ -1,5 +1,5 @@
-import { IDeleteHotelUsecase } from "../../domain/interface/vendor/IdeleteHotelusecase";
-import { IHotelRepository } from "../../domain/interface/vendor/IHotelRepository";
+import { IDeleteHotelUsecase } from "../../domain/interface/Vendor/IdeleteHotelusecase";
+import { IHotelRepository } from "../../domain/interface/Vendor/IHotelRepository";
 
 export class DeleteHotelUsecase implements IDeleteHotelUsecase {
   constructor(private _hotelRepo: IHotelRepository) {}

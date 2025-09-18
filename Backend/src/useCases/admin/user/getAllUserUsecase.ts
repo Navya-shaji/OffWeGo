@@ -1,8 +1,8 @@
-import { User } from "../../../domain/entities/userEntity";
-import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { User } from "../../../domain/entities/UserEntity";
+import { IGetAllUserUsecase } from "../../../domain/interface/Admin/IGetAllUsers";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
-export class GetAllUsers implements IGetAllUser {
+export class GetAllUsersUsecase implements IGetAllUserUsecase {
   constructor(private _userRepository: IUserRepository) {}
 
   async execute(
