@@ -62,11 +62,19 @@ export class UserLoginController {
         accessToken,
         user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
-      res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
+      const statusCode =
+        typeof error === "object" && error !== null && "statusCode" in error
+          ? (error as { statusCode?: number }).statusCode
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+      const message =
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message?: string }).message
+          : "Login failed";
+      res.status(statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error?.message || "Login failed",
+        message,
       });
     }
   }
@@ -91,7 +99,7 @@ export class UserLoginController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Failed to send OTP" });
+        .json({ success: false, message: "Failed to send OTP",error });
     }
   }
 

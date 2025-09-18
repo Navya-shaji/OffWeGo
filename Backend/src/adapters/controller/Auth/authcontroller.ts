@@ -27,10 +27,14 @@ export class RefreshTokenController {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage =
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message?: string }).message
+          : undefined;
       res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: error.message || "Invalid refresh token" });
+        .json({ message: errorMessage || "Invalid refresh token" });
     }
   }
 }

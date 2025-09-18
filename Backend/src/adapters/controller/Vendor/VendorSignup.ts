@@ -53,11 +53,12 @@ export class VendorSignupController {
           documentUrl: newVendor.documentUrl,
         },
       });
-    } catch (err: any) {
-      console.error("Error in VendorSignup:", err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Vendor registration failed";
+      console.error("Error in VendorSignup:", errorMessage);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: err.message || "Vendor registration failed",
+        message: errorMessage,
       });
     }
   }

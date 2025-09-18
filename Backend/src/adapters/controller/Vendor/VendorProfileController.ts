@@ -1,4 +1,3 @@
-import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IVendorProfileUseCase } from "../../../domain/interface/Vendor/IvendorProfileUsecase";
@@ -65,6 +64,7 @@ export class VendorProfileController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update profile",
+        error
       });
     }
   }

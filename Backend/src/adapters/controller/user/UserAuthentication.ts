@@ -24,7 +24,7 @@ export class UserRegisterController {
         return;
       }
 
-      const otpSent = await this._registerUserUseCase.execute(formData);
+      // const otpSent = await this._registerUserUseCase.execute(formData);
 
       res.status(HttpStatus.CREATED).json({
         success: true,
@@ -90,12 +90,19 @@ export class UserRegisterController {
         message: "OTP resent successfully",
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Resend OTP error:", error);
-      res.status(error?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error?.message || "Failed to resend OTP",
-      });
+      if (typeof error === "object" && error !== null && "statusCode" in error && "message" in error) {
+        res.status((error as { statusCode?: number }).statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: (error as { message?: string }).message || "Failed to resend OTP",
+        });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to resend OTP",
+        });
+      }
     }
   }
 }

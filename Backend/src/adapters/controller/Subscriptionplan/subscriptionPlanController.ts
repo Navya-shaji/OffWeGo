@@ -58,7 +58,7 @@ export class SubscriptionController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to get subscriptions" });
+        .json({success:false, message: "failed to get subscriptions",error });
     }
   }
 }

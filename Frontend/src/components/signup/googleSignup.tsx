@@ -46,7 +46,7 @@ export function GoogleSignup() {
                 );
 
                 toast.success("Signup successful!");
-                navigate("/home");
+                navigate("/");
               } else {
                 toast.error("Signup failed");
               }

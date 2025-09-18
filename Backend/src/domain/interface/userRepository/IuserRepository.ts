@@ -1,4 +1,4 @@
-import { Profile } from "../../dto/user/ProfileDto";
+import { ProfileDto } from "../../dto/user/ProfileDto";
 import { User } from "../../entities/UserEntity";
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
@@ -12,6 +12,6 @@ export interface IUserRepository {
   ): Promise<User[]>;
   countUsers(filter?: Record<string, any>): Promise<number>;
   updateUserStatus(userId: string, status: "active" | "block"): Promise<void>;
-  getProfileByEmail(email: string): Promise<Profile | null>;
+  getProfileByEmail(email: string): Promise<ProfileDto | null>;
   searchUser(Query:string):Promise<User[]>
 }

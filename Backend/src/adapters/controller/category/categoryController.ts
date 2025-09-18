@@ -37,7 +37,7 @@ export class CreateCatogoryController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to get category" });
+        .json({ success:false,message: "failed to get category" ,error});
     }
   }
 
@@ -56,6 +56,7 @@ export class CreateCatogoryController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update Category",
+        error
       });
     }
   }
@@ -70,7 +71,7 @@ export class CreateCatogoryController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to delete Category" });
+        .json({success:false, message: "Failed to delete Category",error });
     }
   }
 

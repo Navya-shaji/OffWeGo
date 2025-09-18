@@ -4,7 +4,7 @@ import { IEditActivityUsecase } from "../../../domain/interface/Vendor/IeditActi
 import { IGetAllActivities } from "../../../domain/interface/Vendor/IgetallActivitiesUsecase";
 import { IsearchActivityUsecase } from "../../../domain/interface/Vendor/IsearchActivityUsecase";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { query, Request, Response } from "express";
+import { Request, Response } from "express";
 
 export class ActivityController {
   constructor(
@@ -65,6 +65,7 @@ export class ActivityController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update Activity",
+        error
       });
     }
   }
@@ -79,7 +80,7 @@ export class ActivityController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to delete Activity" });
+        .json({success:false, message: "Failed to delete Activity" ,error});
     }
   }
 async SearchActivity(req: Request, res: Response) {

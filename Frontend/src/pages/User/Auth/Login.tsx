@@ -10,6 +10,7 @@ import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
+import { GoogleSignup } from "@/components/signup/googleSignup";
 
 export default function UserLogin() {
   const dispatch = useAppDispatch();
@@ -126,6 +127,8 @@ export default function UserLogin() {
               Sign up
             </Link>
           </p>
+        
+             <GoogleSignup />
 
           <p className="text-sm text-center text-blue-600 hover:underline mt-2">
             <Link to="/forgot-password">Forgot Password?</Link>

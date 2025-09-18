@@ -31,6 +31,7 @@ export class VendorVerifyOtpController {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: "Vendor OTP verification failed",
+        error
       });
     }
   }

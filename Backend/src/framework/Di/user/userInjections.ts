@@ -1,4 +1,4 @@
-import { RegisterUserUseCase } from "../../../useCases/user/Signup/signupUserUsecase";
+import { RegisterUserUseCase } from "../../../useCases/user/Signup/SignupUserUsecase"; 
 import { UserRegisterController } from "../../../adapters/controller/user/UserAuthentication";
 import { UserRepository } from "../../../adapters/repository/User/UserRepository";
 import { OtpService } from "../../Services/otpService";
@@ -8,13 +8,12 @@ import { UserLoginController } from "../../../adapters/controller/user/UserLogin
 import { UserLoginUseCase } from "../../../useCases/user/Login/LoginUserUseCase";
 import {AuthRepository} from '../../../adapters/repository/User/AuthRepository'
 import { GoogleSignupController } from "../../../adapters/controller/user/AuthController";
-import { GoogleSignupUseCase } from "../../../useCases/user/Signup/signupWithGoogle";
+import { GoogleSignupUseCase } from "../../../useCases/user/Signup/SignupWithGoogle"; 
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
-import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
-import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase";
+import { UserProfileUsecase } from "../../../useCases/user/profile/CreateProfileUsecase"; 
 import { UserProfileController } from "../../../adapters/controller/user/UserProfileController";
 import { JwtService } from "../../Services/jwtService";
-import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase"; 
+import { ResendOtpUsecase } from "../../../useCases/user/Signup/ResendOtpUsecase";
 import { PackageController } from "../../../adapters/repository/Destination/GetPackageByDestinationController";
 import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
@@ -29,7 +28,6 @@ const userRepository = new UserRepository();
 const authRepository=new AuthRepository()
 const otpService = new OtpService();
 const hashPassword=new HashPassword();
-const destinationRepository=new DestinationRepository();
 const jwtService=new JwtService
 const packageRepo=new PackageRepository();
 const bookingRepo=new BookingRepository()

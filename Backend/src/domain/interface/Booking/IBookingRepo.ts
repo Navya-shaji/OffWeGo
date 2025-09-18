@@ -1,3 +1,5 @@
+import { User } from "../../entities/UserEntity";
+
 export interface IBookingRepository {
   createBooking(data: {
     userId: string;
@@ -5,5 +7,5 @@ export interface IBookingRepository {
     selectedDate: Date;
   }): Promise<{ success: boolean; message: string }>;
 
-  getUsersByPackage(packageId: string): Promise<any[]>;
+  getUsersByPackage(packageId: string): Promise<User[]>;
 }

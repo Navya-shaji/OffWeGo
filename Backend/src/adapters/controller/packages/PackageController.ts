@@ -26,7 +26,7 @@ export class PackageController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to get Destinations" });
+        .json({success:false, message: "failed to get Destinations",error });
     }
   }
 
@@ -46,7 +46,7 @@ export class PackageController {
       }
       packageData.destinationId = destination._id;
 
-      let createdPackage = await this._createPackage.execute(packageData);
+      const createdPackage = await this._createPackage.execute(packageData);
       res.status(HttpStatus.CREATED).json({ result: createdPackage });
     } catch (error) {
       console.error(error);
@@ -74,6 +74,7 @@ export class PackageController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Package updation failed",
+        error
       });
     }
   }
@@ -85,11 +86,13 @@ export class PackageController {
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Deleted package successfully",
+        result
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         messege: "Failed to delte package",
+        error
       });
     }
   }

@@ -30,7 +30,7 @@ export class UserRepository
   async getAllUsers(
     skip: number,
     limit: number,
-    filter: Record<string, any> = {}
+    filter: Record<string, unknown> = {}
   ): Promise<IUserModel[]> {
     return this.model.find(filter).skip(skip).limit(limit);
   }
@@ -43,7 +43,7 @@ export class UserRepository
     await user.save();
   }
 
-  async countUsers(filter: Record<string, any> = {}): Promise<number> {
+  async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
     return this.model.countDocuments(filter);
   }
 

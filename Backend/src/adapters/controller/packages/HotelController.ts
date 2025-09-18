@@ -63,6 +63,7 @@ export class HotelController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update Hotel",
+        error
       });
     }
   }
@@ -76,11 +77,15 @@ async deleteHotel(req: Request, res: Response) {
       message: "Hotel deleted successfully",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting hotel:", error);
+    let errorMessage = "Failed to delete hotel";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: error.message || "Failed to delete hotel",
+      message: errorMessage,
     });
   }
 }

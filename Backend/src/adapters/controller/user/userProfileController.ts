@@ -68,6 +68,7 @@ export class UserProfileController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update profile",
+        error
       });
     }
   }

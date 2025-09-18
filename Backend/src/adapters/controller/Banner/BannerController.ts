@@ -22,7 +22,7 @@ export class Bannercontroller {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to create banner" });
+        .json({ success: false, message: "failed to create banner", error });
     }
   }
 
@@ -33,7 +33,7 @@ export class Bannercontroller {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to get the banner" });
+        .json({ success: false, message: "Failed to get the banner", error });
     }
   }
 
@@ -53,6 +53,7 @@ export class Bannercontroller {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Banner updation failed",
+        error,
       });
     }
   }
@@ -70,6 +71,7 @@ export class Bannercontroller {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Banner deletion failed",
+        error,
       });
     }
   }

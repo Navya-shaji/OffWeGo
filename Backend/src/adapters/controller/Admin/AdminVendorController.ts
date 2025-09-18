@@ -37,7 +37,7 @@ export class AdminVendorController {
         return;
       }
 
-      const { password, ...safeVendor } = vendor;
+      const { ...safeVendor } = vendor;
       res.status(HttpStatus.OK).json({ success: true, vendor: safeVendor });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -81,6 +81,7 @@ export class AdminVendorController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Error fetching vendors",
+        error,
       });
     }
   }
@@ -119,6 +120,7 @@ export class AdminVendorController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Something went wrong while updating vendor status",
+        error,
       });
     }
   }

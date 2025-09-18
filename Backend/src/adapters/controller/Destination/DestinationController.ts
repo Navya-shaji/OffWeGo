@@ -24,7 +24,7 @@ export class DestinationController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to create Destinations" });
+        .json({ success:false,message: "failed to create Destinations",error });
     }
   }
 
@@ -47,6 +47,7 @@ export class DestinationController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update destination",
+        error
       });
     }
   }
@@ -68,7 +69,7 @@ export class DestinationController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to get Destinations" });
+        .json({success:false, message: "failed to get Destinations",error });
     }
   }
 
@@ -81,7 +82,7 @@ export class DestinationController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "failed to get Destinations" });
+        .json({success:false, message: "failed to get Destinations" ,error});
     }
   }
 
@@ -94,7 +95,7 @@ export class DestinationController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to delete Destination" });
+        .json({success:false, message: "Failed to delete Destination" ,error});
     }
   }
   async searchDestination(req: Request, res: Response) {
