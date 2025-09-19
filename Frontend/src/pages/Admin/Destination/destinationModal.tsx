@@ -82,7 +82,7 @@ export const EditDestinationModal: React.FC<Props> = ({
             />
           </div>
 
-          {/* Image Upload */}
+         
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <Image className="w-4 h-4" />

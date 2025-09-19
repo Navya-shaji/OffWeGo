@@ -101,14 +101,11 @@ export const VendorList = () => {
       cell: ({ row }) => {
         const url = row.original.documentUrl;
         return (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            View
-          </a>
+         <img
+        src={url}
+        alt="Vendor"
+        className="w-16 h-16 object-cover rounded"
+      />
         );
       },
     },

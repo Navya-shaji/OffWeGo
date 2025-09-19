@@ -51,7 +51,7 @@ async searchPackage(query: string): Promise<Package[]> {
   const regex = new RegExp(query, "i");
   return await this.model
     .find({ packageName: { $regex: regex } })
-    .select("packageName description price duration hotels activities")
+    .select("packageName itinerary inclusions  amenities price duration hotels activities")
     .populate("hotels", "name") 
     .populate("activities", "title") 
     .limit(10)

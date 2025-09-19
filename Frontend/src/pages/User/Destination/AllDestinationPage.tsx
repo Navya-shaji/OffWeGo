@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Search, MapPin, Star, Filter, Grid, List } from "lucide-react";
+import { Search, MapPin, Star, Grid, List } from "lucide-react";
+import { fetchAllDestinations } from "@/services/Destination/destinationService";
 
 export const DestinationListPage = () => {
   const [destinations, setDestinations] = useState([]);
@@ -7,7 +8,7 @@ export const DestinationListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("name");
 
