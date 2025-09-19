@@ -1,7 +1,7 @@
 ﻿# OffWeGo
 <div align="left" style="position: relative;">
 <img src="https://img.icons8.com/?size=512&id=55494&format=png" align="right" width="30%" style="margin: -20px 0 0 20px;">
-<h1>OFFWEGO</h1>
+
 
 <p align="left">
     <img src="https://img.shields.io/github/license/Navya-shaji/OffWeGo?style=default&logo=opensourceinitiative&logoColor=white&color=197ed8" alt="license">
@@ -11,9 +11,7 @@
 </p>
 <p align="left"><!-- default option, no dependency badges. -->
 </p>
-<p align="left">
-    <!-- default option, no dependency badges. -->
-</p>
+
 </div>
 <br clear="right">
 
@@ -36,16 +34,6 @@
 </details>
 <hr>
 
-##  Overview
-
-
-
----
-
-##  Features
-
-
----
 
 ##  Project Structure
 
@@ -3390,4 +3378,5 @@ This project is protected under the [SELECT-A-LICENSE](https://choosealicense.co
 - List any resources, contributors, inspiration, etc. here.
 
 ---
+
 
