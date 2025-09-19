@@ -1,19 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
 import { HttpStatus } from "../../domain/statusCode/Statuscode";
+import { JwtPayload } from "jsonwebtoken";
 
 declare module "express-serve-static-core" {
   interface Request {
-    user?: unknown;
+    user?: JwtPayload & { id: string; email: string; role: string };
   }
 }
 
 export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
-  return async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -34,20 +31,20 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
         return;
       }
 
-      const decoded = await tokenService.verifyToken(token);
+      const decoded = await tokenService.verifyToken(token, "access");
       if (!decoded || !decoded.exp) {
         res
           .status(HttpStatus.UNAUTHORIZED)
-          .json({ error: "Token expiration done" });
+          .json({ message: "Invalid or expired token" });
         return;
       }
 
-      req.user = decoded;
+      req.user = decoded as JwtPayload & { id: string; email: string; role: string };
       next();
     } catch (error) {
       res.status(HttpStatus.FORBIDDEN).json({
-        message: "Invalid token.",
-        error: error instanceof Error ? error.message : "Invalid token",
+        message: "Invalid token",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   };

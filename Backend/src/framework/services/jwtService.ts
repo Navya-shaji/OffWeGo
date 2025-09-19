@@ -8,7 +8,7 @@ export class JwtService implements ITokenService {
     const secret = process.env.JWT_ACCESSTOKENSECRETKEY;
     if (!secret) throw new Error("Access token secret is not configured");
 
-    return jwt.sign(payload, secret, { expiresIn: "30m" });
+    return jwt.sign(payload, secret, { expiresIn: "1m" });
   }
 
   generateRefreshToken(payload: object): string {

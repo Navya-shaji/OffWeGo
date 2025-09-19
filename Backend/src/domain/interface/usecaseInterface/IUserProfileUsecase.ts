@@ -1,5 +1,5 @@
-import { Profile } from "../../dto/user/ProfileDto";
+import { ProfileDto } from "../../dto/user/ProfileDto";
 
-export interface IUserProfileUsecase{
-    execute(data:Profile):Promise<Profile|null>
+export interface IUserProfileUsecase {
+  execute(data: { email: string }): Promise<ProfileDto | null>;
 }

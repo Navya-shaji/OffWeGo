@@ -8,8 +8,9 @@ import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
 import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import {DestinationDetail}from "@/pages/Admin/Destination/destinationSinglePage";
-import { Destinations } from "@/components/home/destinations/Destinations";
+// import { Destinations } from "@/components/home/destinations/Destinations";
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
+import { DestinationListPage } from "@/pages/User/Destination/AllDestinationPage";
 
 const UserRoute = () => {
   return (
@@ -25,7 +26,7 @@ const UserRoute = () => {
           <Profile/>
           </ProtectedRoute>
         }/>
-      <Route path="/destinations" element={<Destinations/>}/>
+      <Route path="/destinations" element={<DestinationListPage/>}/>
       <Route path="/destination/:id" element={<DestinationDetail />} />
 <Route path="/timeline" element={<PackageTimeline />} />
     
