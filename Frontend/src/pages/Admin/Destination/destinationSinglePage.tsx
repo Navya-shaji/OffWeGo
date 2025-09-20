@@ -52,7 +52,7 @@ export const DestinationDetail = () => {
     if (id) {
       getsingleDestination(id)
         .then((res) => {
-          console.log("API response:", res);
+       
           setDestination(res);
         })
         .catch((err) => console.error("Failed to load destination", err))

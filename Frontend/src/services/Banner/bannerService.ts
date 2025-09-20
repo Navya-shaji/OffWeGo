@@ -33,7 +33,7 @@ export const actionBannerupdate = async (id: string, action: boolean) => {
     const res = await axiosInstance.patch(`/api/admin/banner/${id}`, {
       action,
     });
-    console.log(res.data, "Action banner");
+    
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

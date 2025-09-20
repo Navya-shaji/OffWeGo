@@ -41,10 +41,11 @@ export class Bannercontroller {
   async bannerDelete(req: Request, res: Response) {
     const { id } = req.params;
     const result = this._deleteBanner.execute(id);
-    console.log(result, "result");
+    
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Banner deleted successsfully",
+      result
     });
   }
 
@@ -63,7 +64,7 @@ export class Bannercontroller {
         .status(HttpStatus.NOT_FOUND)
         .json({ error: "Banner not found" });
     }
-    console.log("updated banner", updatedBanner);
+    
     res.status(HttpStatus.OK).json(updatedBanner);
   }
 }

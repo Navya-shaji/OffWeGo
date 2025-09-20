@@ -16,7 +16,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
     setLoading(true);
     getVendorsByStatus(filter)
       .then((data) => {
-        console.log("Fetched Vendors:", data);
+     
         setVendors(data);
       })
       .catch(() => toast.error("Failed to fetch vendors"))

@@ -32,6 +32,7 @@ export const fetchAllDestinations = async (
   currentPage: number;
 }> => {
   try {
+    
     const res = await axiosInstance.get("/api/admin/destinations", {
       params: { page, limit },
     });

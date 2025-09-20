@@ -5,13 +5,16 @@ import { IGetAllPackageUsecase } from "../../domain/interface/Vendor/IGetAllPack
 export class GetAllPackages implements IGetAllPackageUsecase {
   constructor(private _packageRepo: IPackageRepository) {}
 
-  async execute(page: number, limit: number): Promise<{ packages: IPackageModel[], totalPackages: number }> {
+  async execute(
+    page: number,
+    limit: number
+  ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
     const skip = (page - 1) * limit;
 
-    const { packages, totalPackages } = await this._packageRepo.getAllPackages(skip, limit);
-    console.log(packages,totalPackages)
-    console.log("All packages:", JSON.stringify(packages, null, 2));
-
+    const { packages, totalPackages } = await this._packageRepo.getAllPackages(
+      skip,
+      limit
+    );
 
     return { packages, totalPackages };
   }

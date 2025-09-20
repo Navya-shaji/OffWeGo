@@ -1,6 +1,7 @@
-import React, { ReactNode } from "react";
+
 import { Navigate, useLocation } from "react-router-dom";
 import { useAppSelector } from "@/hooks";
+import type { ReactNode } from "react";
 
 type Props = {
   children: ReactNode;

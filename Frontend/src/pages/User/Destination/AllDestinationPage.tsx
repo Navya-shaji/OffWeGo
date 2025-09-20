@@ -226,7 +226,7 @@ export const DestinationListPage = () => {
                 key={dest.id || idx}
                 onClick={() => {
        
-                  console.log(`Navigate to destination: ${dest.id}`);
+                  
                 }}
                 className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
                   viewMode === "list" ? "bg-white rounded-2xl shadow-lg hover:shadow-2xl" : ""

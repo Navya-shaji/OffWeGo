@@ -60,14 +60,14 @@ export class ActivityController {
       const { id } = req.params;
       
       const result = await this._deleteActivity.execute(id);
-      console.log(result);
+      
       return res.status(HttpStatus.OK).json(result);
     
   }
 async SearchActivity(req: Request, res: Response) {
   
     const query = req.query.q;
-    console.log("query", query);
+    
 
     if (typeof query !== "string" || !query.trim()) {
       res.status(HttpStatus.BAD_REQUEST).json({
@@ -77,7 +77,7 @@ async SearchActivity(req: Request, res: Response) {
     }
 
     const result = await this._searchActivity.execute(query);
-    console.log("result", result);
+    
 
     res.status(HttpStatus.OK).json({
       success: true,

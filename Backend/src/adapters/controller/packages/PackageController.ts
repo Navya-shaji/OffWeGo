@@ -22,14 +22,14 @@ export class PackageController {
       const result = await this._getPackage.execute(page, limit);
 
       res.status(HttpStatus.OK).json(result);
-      console.log("Backend data",result)
+      
    
   }
 
   async addPackage(req: Request, res: Response) {
    
       const packageData = req.body;
-      console.log("packageData",packageData)
+      
 
       const destination = await DestinationModel.findById(
         packageData.destinationId

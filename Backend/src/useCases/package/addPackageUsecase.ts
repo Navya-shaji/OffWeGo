@@ -7,7 +7,6 @@ export class CreatePackagesUseCase {
 
   async execute(data: Package): Promise<Package> {
     const createdDoc = await this._packageRepo.createPackage(data)
-    console.log(createdDoc,"create")
     return mapToPackageDto(createdDoc);
   }
 }

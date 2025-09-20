@@ -70,9 +70,8 @@ export const updateActivity = async (id: string, data: Activity) => {
 
 export const deleteActivity = async (id: string) => {
   try {
-    console.log("Frontend",id)
     const response = await axiosInstance.delete(`/api/vendor/activities/${id}`);
-    console.log(response,"dhfj")
+
     return response.data.data;
   } catch (error) {
     console.error("Error inside delete activity", error);
@@ -81,21 +80,14 @@ export const deleteActivity = async (id: string) => {
 };
 
 export const searchActivity = async (query: string) => {
-  console.log("Searching activities...");
   try {
-    console.log("trryyyy")
     const res = await axiosInstance.get("/api/vendor/activities/search", {
       params: { q: query },
     });
-    console.log("Search result:", res);
-    return res.data.data; 
+
+    return res.data.data;
   } catch (err) {
-    console.log(err)
     console.error("Search failed:", err);
     return { activities: [], totalPages: 1, totalActivities: 0 };
   }
 };
-
-
-
-

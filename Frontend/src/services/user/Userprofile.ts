@@ -22,9 +22,9 @@ export const editProfile = async (
   updatedData: { name: string; phone: string; imageUrl?: string }
 ) => {
   try {
-    console.log("haiiiiiiiiiii")
+  
     const res = await axiosInstance.patch(`/api/profile/${id}`, updatedData); 
-    console.log("user profile",res)
+   
     return res.data;
   } catch (error) {
     console.error("Error while editing profile page:", error);

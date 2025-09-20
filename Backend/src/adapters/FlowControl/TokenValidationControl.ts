@@ -11,6 +11,7 @@ declare module "express-serve-static-core" {
 
 export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    console.log("verify token ")
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

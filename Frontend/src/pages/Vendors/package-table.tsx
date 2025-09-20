@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Clock,
   Edit,
@@ -7,11 +7,9 @@ import {
   Activity,
   CheckCircle,
   Sparkles,
-
   DollarSign,
   Info,
   Package,
-
 } from "lucide-react";
 import { deletePackage, editPackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService";
 import EditPackage from "./editPackageModal";
@@ -57,6 +55,12 @@ const PackageTable: React.FC<PackageTableProps> = ({
   onPackagesUpdate,
   loading = false,
 }) => {
+  const [packageList, setPackageList] = useState<Package[]>(packages);
+  const [originalPackages, setOriginalPackages] = useState<Package[]>(packages);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [error, setError] = useState("");
+  
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     package: Package | null;
@@ -64,6 +68,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     isOpen: false,
     package: null,
   });
+  
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
     package: Package | null;
@@ -71,10 +76,21 @@ const PackageTable: React.FC<PackageTableProps> = ({
     isOpen: false,
     package: null,
   });
+  
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<Package | null>(null);
-    const [packageList, setPackageList] = useState<Package[]>([]);
+
+  // Prevent multiple API calls
+  const hasInitialized = useRef(false);
+  const isLoadingRef = useRef(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Update packageList when packages prop changes
+  useEffect(() => {
+    setPackageList(packages);
+    setOriginalPackages(packages);
+  }, [packages]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
@@ -83,16 +99,88 @@ const PackageTable: React.FC<PackageTableProps> = ({
       maximumFractionDigits: 0,
     }).format(amount);
 
-  const handleEdit = (pkg: Package) => {
+  // Load packages function
+  const loadPackages = useCallback(async () => {
+    if (isLoadingRef.current) return;
+    
+    try {
+      isLoadingRef.current = true;
+      setError("");
+      
+      const response = await fetchAllPackages();
+      const allPackages = response?.packages ?? [];
+      
+      setPackageList(allPackages);
+      setOriginalPackages(allPackages);
+      onPackagesUpdate?.(allPackages);
+      
+    } catch (error: any) {
+      console.error("Error loading packages:", error);
+      setError("Failed to load packages. Please try again.");
+      setPackageList([]);
+      setOriginalPackages([]);
+    } finally {
+      isLoadingRef.current = false;
+    }
+  }, [onPackagesUpdate]);
+
+  // Debounced search function
+  const handleSearch = useCallback(async (query: string) => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    setSearchQuery(query);
+
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (!query.trim()) {
+        // Return to original data
+        setIsSearchMode(false);
+        setPackageList(originalPackages);
+        return;
+      }
+
+      setIsSearchMode(true);
+      try {
+        const response = await searchPackages(query);
+        const searchResults = Array.isArray(response) ? response : [];
+        
+        setPackageList(searchResults);
+        
+      } catch (error: any) {
+        console.error("Search error:", error);
+        setError("Search failed. Please try again.");
+        setPackageList([]);
+        
+        // Clear error after 3 seconds
+        setTimeout(() => setError(""), 3000);
+      }
+    }, 400);
+  }, [originalPackages]);
+
+  // Initial load
+  useEffect(() => {
+    if (!hasInitialized.current && packages.length === 0) {
+      hasInitialized.current = true;
+      loadPackages();
+    }
+
+    // Cleanup
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [loadPackages, packages.length]);
+
+  const handleEdit = useCallback((pkg: Package) => {
     setEditFormData({ ...pkg });
     setEditModal({ isOpen: true, package: pkg });
-  };
+  }, []);
 
-  const loadPackages = async () => {
-    const allPackages = await fetchAllPackages();
-    setPackageList(allPackages?.packages ?? []);
-  };
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const handleEditSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editFormData || !editModal.package) return;
 
@@ -100,67 +188,77 @@ const PackageTable: React.FC<PackageTableProps> = ({
     try {
       await editPackage(editModal.package._id, editFormData);
 
-      const updatedPackages = packageList.map((pkg) =>
-        pkg._id === editModal.package!._id ? editFormData : pkg
-      );
-      onPackagesUpdate?.(updatedPackages);
+      // Update local state instead of refetching
+      const updatePackageInList = (list: Package[]) =>
+        list.map((pkg) =>
+          pkg._id === editModal.package!._id ? editFormData : pkg
+        );
+
+      setPackageList(updatePackageInList);
+      if (!isSearchMode) {
+        setOriginalPackages(updatePackageInList);
+      }
+      
+      onPackagesUpdate?.(isSearchMode ? originalPackages : packageList);
 
       // Close modal
       setEditModal({ isOpen: false, package: null });
       setEditFormData(null);
 
-      console.log("Package updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update package:", error);
+      setError("Failed to update package. Please try again.");
+      
+      // Clear error after 3 seconds
+      setTimeout(() => setError(""), 3000);
     } finally {
       setIsEditing(false);
     }
-  };
-    const handleSearch = async (query: string) => {
-    if (!query.trim()) {
-      await loadPackages();
-      return;
-    }
-    try {
-      const response = await searchPackages(query);
-      setPackageList(response ?? []);
-    } catch (error) {
-      console.error(error);
-      setPackageList([]);
-    }
-  };
+  }, [editFormData, editModal.package, isSearchMode, packageList, originalPackages, onPackagesUpdate]);
 
-  const openDeleteModal = (pkg: Package) => {
+  const openDeleteModal = useCallback((pkg: Package) => {
     setDeleteModal({ isOpen: true, package: pkg });
-  };
+  }, []);
 
-  const closeDeleteModal = () => {
+  const closeDeleteModal = useCallback(() => {
     setDeleteModal({ isOpen: false, package: null });
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!deleteModal.package) return;
 
     setIsDeleting(true);
     try {
       await deletePackage(deleteModal.package._id);
 
+      // Update local state instead of refetching
       const updatedPackages = packageList.filter(
         (pkg) => pkg._id !== deleteModal.package!._id
       );
-      onPackagesUpdate?.(updatedPackages);
+      const updatedOriginalPackages = originalPackages.filter(
+        (pkg) => pkg._id !== deleteModal.package!._id
+      );
 
+      setPackageList(updatedPackages);
+      if (!isSearchMode) {
+        setOriginalPackages(updatedOriginalPackages);
+      }
+      
+      onPackagesUpdate?.(isSearchMode ? updatedOriginalPackages : updatedPackages);
       closeDeleteModal();
 
-      console.log("Package deleted successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Delete failed:", error);
+      setError("Failed to delete package. Please try again.");
+      
+      // Clear error after 3 seconds
+      setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [deleteModal.package, packageList, originalPackages, isSearchMode, onPackagesUpdate, closeDeleteModal]);
 
-  const renderHotelsList = (hotels?: Package["hotels"]) => {
+  const renderHotelsList = useCallback((hotels?: Package["hotels"]) => {
     if (!hotels || hotels.length === 0) {
       return <span className="text-gray-500 italic text-sm">No hotels</span>;
     }
@@ -168,19 +266,16 @@ const PackageTable: React.FC<PackageTableProps> = ({
     return (
       <div className="space-y-2 max-w-xs">
         {hotels.map((hotel, idx) => (
-          <div
-            key={idx}
-          >
+          <div key={idx}>
             <div className="font-semibold text-slate-800">{hotel.name}</div>
-            <div className="flex items-center gap-1 mt-2">
-            </div>
+            <div className="flex items-center gap-1 mt-2"></div>
           </div>
         ))}
       </div>
     );
-  };
+  }, []);
 
-  const renderActivitiesList = (activities?: Package["activities"]) => {
+  const renderActivitiesList = useCallback((activities?: Package["activities"]) => {
     if (!activities || activities.length === 0) {
       return (
         <span className="text-gray-500 italic text-sm">No activities</span>
@@ -190,9 +285,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     return (
       <div className="space-y-2 max-w-xs">
         {activities.map((activity, idx) => (
-          <div
-            key={idx}
-          >
+          <div key={idx}>
             <div className="font-semibold text-indigo-900">
               {activity.title}
             </div>
@@ -200,9 +293,9 @@ const PackageTable: React.FC<PackageTableProps> = ({
         ))}
       </div>
     );
-  };
+  }, []);
 
-  const renderItineraryCount = (itinerary?: Package["itinerary"]) => {
+  const renderItineraryCount = useCallback((itinerary?: Package["itinerary"]) => {
     if (!itinerary || itinerary.length === 0) {
       return <span className="text-gray-500 italic text-sm">No itinerary</span>;
     }
@@ -220,9 +313,9 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       </div>
     );
-  };
+  }, []);
 
-  const renderInclusionsList = (inclusions?: string[]) => {
+  const renderInclusionsList = useCallback((inclusions?: string[]) => {
     if (!inclusions || inclusions.length === 0) {
       return (
         <span className="text-gray-500 italic text-sm">No inclusions</span>
@@ -231,7 +324,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
     return (
       <div className="max-w-xs">
-    
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {inclusions.slice(0, 3).map((inclusion, idx) => (
             <div
@@ -250,16 +342,15 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       </div>
     );
-  };
+  }, []);
 
-  const renderAmenitiesList = (amenities?: string[]) => {
+  const renderAmenitiesList = useCallback((amenities?: string[]) => {
     if (!amenities || amenities.length === 0) {
       return <span className="text-gray-500 italic text-sm">No amenities</span>;
     }
 
     return (
       <div className="max-w-xs">
-        
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {amenities.slice(0, 3).map((amenity, idx) => (
             <div
@@ -278,7 +369,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       </div>
     );
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -290,22 +381,50 @@ const PackageTable: React.FC<PackageTableProps> = ({
   }
 
   return (
-    <div >
+    <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-          <div  />
           Package Details Overview
         </h2>
-         <div className="w-60">
-          <SearchBar placeholder="Search packages..." onSearch={handleSearch} />
-        </div>
+        
         <div className="flex items-center gap-4">
+          <div className="w-60">
+            <SearchBar 
+              placeholder="Search packages..." 
+              onSearch={handleSearch}
+              value={searchQuery}
+            />
+          </div>
           <span className="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2 rounded-full font-medium">
-            {packageList.length} Packages
+            {packageList.length} Package{packageList.length !== 1 ? 's' : ''}
           </span>
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <div className="flex justify-between items-center">
+            <span>{error}</span>
+            <button
+              onClick={() => setError("")}
+              className="text-red-800 hover:text-red-900"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Search Status */}
+      {isSearchMode && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4">
+          Found {packageList.length} package{packageList.length !== 1 ? 's' : ''} for "{searchQuery}"
+        </div>
+      )}
+
+      {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -323,10 +442,10 @@ const PackageTable: React.FC<PackageTableProps> = ({
                 <th className="px-4 py-4 text-left font-semibold min-w-[100px]">
                   Check-Out Time
                 </th>
-                <th >
+                <th className="px-4 py-4 text-left font-semibold">
                   Hotels
                 </th>
-                <th >
+                <th className="px-4 py-4 text-left font-semibold">
                   Activities
                 </th>
                 <th className="px-4 py-4 text-left font-semibold min-w-[120px]">
@@ -368,7 +487,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
                         <div className="text-lg font-bold text-emerald-800">
                           {formatCurrency(pkg.price)}
                         </div>
-                       
                       </div>
                       <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-center">
                         <div className="text-lg font-bold text-blue-800">
@@ -378,21 +496,20 @@ const PackageTable: React.FC<PackageTableProps> = ({
                           Days
                         </div>
                       </div>
-                     
                     </div>
                   </td>
 
                   <td className="px-4 py-6 align-top">
                     <div className="text-center">
                       {pkg.checkInTime ? (
-                        <div >
+                        <div>
                           <Clock className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
                           <div className="font-bold text-emerald-800">
                             {pkg.checkInTime}
                           </div>
                         </div>
                       ) : (
-                        <div >
+                        <div>
                           <Clock className="h-5 w-5 text-slate-400 mx-auto mb-2" />
                           <div className="text-sm text-slate-500">Not Set</div>
                         </div>
@@ -403,7 +520,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
                   <td className="px-4 py-6 align-top">
                     <div className="text-center">
                       {pkg.checkOutTime ? (
-                        <div >
+                        <div>
                           <Clock className="h-5 w-5 text-rose-600 mx-auto mb-2" />
                           <div className="font-bold text-rose-800">
                             {pkg.checkOutTime}
@@ -463,6 +580,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       </div>
 
+      {/* Empty State */}
       {packageList.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-slate-200">
           <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
@@ -470,11 +588,15 @@ const PackageTable: React.FC<PackageTableProps> = ({
             No Packages Found
           </h3>
           <p className="text-slate-600">
-            Start by creating your first travel package.
+            {searchQuery 
+              ? `No packages match your search for "${searchQuery}"`
+              : "Start by creating your first travel package."
+            }
           </p>
         </div>
       )}
 
+      {/* Edit Modal */}
       {editModal.isOpen && (
         <EditPackage
           pkg={editFormData}

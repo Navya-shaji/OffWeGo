@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   getAllUsers,
   searchUser,
@@ -12,62 +12,162 @@ import { SearchBar } from "../Modular/searchbar";
 
 const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [originalUsers, setOriginalUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchMode, setIsSearchMode] = useState(false);
 
-  const fetchUsers = async () => {
+  // Prevent multiple API calls
+  const hasInitialized = useRef(false);
+  const isLoadingRef = useRef(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Fetch users function
+  const fetchUsers = useCallback(async (pageNum: number = 1) => {
+    // Prevent multiple simultaneous calls
+    if (isLoadingRef.current) return;
+    
     try {
+      isLoadingRef.current = true;
       setLoading(true);
-      const response = await getAllUsers(page, 10);
+      setError("");
+      
+      const response = await getAllUsers(pageNum, 10);
+      
       setUsers(response.users);
-      setTotalPages(Math.ceil(response.totalUsers / 10));
-    } catch (error) {
+      setOriginalUsers(response.users);
+      setTotalPages(response.totalPages);
+      setTotalUsers(response.totalUsers);
+      setPage(pageNum);
+      
+    } catch (error: any) {
       console.error("Error fetching users:", error);
       setError("Failed to fetch users.");
+      setUsers([]);
     } finally {
+      isLoadingRef.current = false;
       setLoading(false);
     }
-  };
-  const handleSearch = async (query: string) => {
-    if (!query.trim()) {
-      const allUsers = await getAllUsers(page, 10);
-      setUsers(allUsers.users);
-      return;
+  }, []);
+
+  // Debounced search function
+  const handleSearch = useCallback(async (query: string) => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
 
-    try {
-      const response = await searchUser(query);
-      setUsers(response || []);
-    } catch (error) {
-      console.error("Error during search:", error);
-      setUsers([]);
+    setSearchQuery(query);
+
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (!query.trim()) {
+        // Return to original data
+        setIsSearchMode(false);
+        setUsers(originalUsers);
+        setTotalPages(Math.ceil(totalUsers / 10));
+        setPage(1);
+        return;
+      }
+
+      setIsSearchMode(true);
+      try {
+        const response = await searchUser(query);
+        const searchResults = Array.isArray(response) ? response : [];
+        
+        setUsers(searchResults);
+        setTotalPages(Math.ceil(searchResults.length / 10));
+        setPage(1);
+        
+      } catch (error: any) {
+        console.error("Error during search:", error);
+        setUsers([]);
+        setTotalPages(1);
+      }
+    }, 300);
+  }, [originalUsers, totalUsers]);
+
+  // Handle page change
+  const handlePageChange = useCallback((newPage: number) => {
+    if (newPage === page) return; // Prevent unnecessary calls
+    
+    setPage(newPage);
+    
+    if (!isSearchMode) {
+      // Only fetch from server in normal mode
+      fetchUsers(newPage);
     }
-  };
+    // In search mode, we handle pagination with data slicing below
+  }, [page, isSearchMode, fetchUsers]);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page]);
-
-  const handleActionChange = async (
+  // Handle status change
+  const handleActionChange = useCallback(async (
     userId: string,
     newStatus: "active" | "blocked"
   ) => {
+    // Optimistic update
+    const previousUsers = [...users];
+    const previousOriginalUsers = [...originalUsers];
+    
+    const updateUser = (userList: User[]) =>
+      userList.map((user) =>
+        user._id === userId ? { ...user, status: newStatus } : user
+      );
+
+    setUsers(updateUser);
+    if (!isSearchMode) {
+      setOriginalUsers(updateUser);
+    }
+
     try {
       await updateUserStatus(userId, newStatus);
-      setUsers((prev) =>
-        prev.map((user) =>
-          user._id === userId ? { ...user, status: newStatus } : user
-        )
-      );
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to update user status", err);
+      // Revert on error
+      setUsers(previousUsers);
+      setOriginalUsers(previousOriginalUsers);
+    }
+  }, [users, originalUsers, isSearchMode]);
+
+  // Initial fetch - only once
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      fetchUsers(1);
+    }
+
+    // Cleanup
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []); // Empty dependency array - only run once!
+
+  // Get current page data for display
+  const getCurrentPageData = () => {
+    if (!isSearchMode) {
+      return users; // Server handles pagination
+    } else {
+      // Client-side pagination for search
+      const startIndex = (page - 1) * 10;
+      const endIndex = startIndex + 10;
+      return users.slice(startIndex, endIndex);
     }
   };
 
   const columns: ColumnDef<User>[] = [
-    { header: "#", cell: ({ row }) => (page - 1) * 10 + row.index + 1 },
+    { 
+      header: "#", 
+      cell: ({ row }) => {
+        const baseIndex = (page - 1) * 10;
+        return baseIndex + row.index + 1;
+      }
+    },
     { header: "Name", accessorKey: "name" },
     { header: "Email", accessorKey: "email" },
     { header: "Phone", cell: ({ row }) => row.original.phone || "N/A" },
@@ -75,9 +175,13 @@ const UserList = () => {
       header: "Status",
       cell: ({ row }) =>
         row.original.status === "blocked" ? (
-          <span className="text-red-500 font-semibold">Blocked</span>
+          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+            Blocked
+          </span>
         ) : (
-          <span className="text-green-600 font-semibold">Active</span>
+          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+            Active
+          </span>
         ),
     },
     {
@@ -109,21 +213,96 @@ const UserList = () => {
     },
   ];
 
-  if (loading)
-    return <p className="p-4 text-gray-600 italic">Loading users...</p>;
-  if (error) return <p className="p-4 text-red-600 font-medium">{error}</p>;
+  if (loading) {
+    return (
+      <div className="p-4">
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Loading users...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">All Users</h2>
+    <div className="p-4 space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900">All Users</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            {isSearchMode 
+              ? `Found ${users.length} user${users.length !== 1 ? 's' : ''} for "${searchQuery}"`
+              : `${totalUsers} total users`
+            }
+          </p>
+        </div>
+        
         <div className="w-60">
-          <SearchBar placeholder="Search users..." onSearch={handleSearch} />
+          <SearchBar 
+            placeholder="Search users..." 
+            onSearch={handleSearch}
+            value={searchQuery}
+          />
         </div>
       </div>
 
-      <ReusableTable data={users} columns={columns} />
-      <Pagination total={totalPages} current={page} setPage={setPage} />
+      {/* No Results */}
+      {users.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 mx-auto mb-4 text-gray-300 text-6xl">
+            👤
+          </div>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">
+            No users found
+          </h3>
+          <p className="text-gray-500">
+            {searchQuery 
+              ? `No users match your search for "${searchQuery}"`
+              : "No users are available at the moment"
+            }
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Table */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <ReusableTable 
+              data={getCurrentPageData()} 
+              columns={columns} 
+            />
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center">
+              <Pagination 
+                total={totalPages} 
+                current={page} 
+                setPage={handlePageChange}
+              />
+            </div>
+          )}
+
+          {/* Stats */}
+          <div className="text-center text-sm text-gray-500">
+            {isSearchMode 
+              ? `Showing ${Math.min((page - 1) * 10 + 1, users.length)}-${Math.min(page * 10, users.length)} of ${users.length} search results`
+              : `Showing ${((page - 1) * 10) + 1}-${Math.min(page * 10, totalUsers)} of ${totalUsers} users`
+            }
+          </div>
+        </>
+      )}
     </div>
   );
 };

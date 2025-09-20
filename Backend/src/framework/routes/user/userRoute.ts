@@ -31,6 +31,7 @@ export class UserRoute {
 
     this.userRouter.get(
       UserRoutes.GET_ALL_DESTINATIONS,
+      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         destinationController.getAllDestination(req, res);
       }
@@ -81,6 +82,7 @@ export class UserRoute {
     );
     this.userRouter.get(
       UserRoutes.GET_SINGLE_DESTINATION,
+      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         destinationController.getSingleDestinationController(req, res);
       }

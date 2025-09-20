@@ -30,7 +30,7 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
     const otp = this._otpService.generateOtp();
     console.log("Generated OTP:", otp);
 
-    // 👇 Construct the correct input for creation
+   
     const createdDoc = await this._vendorRepository.createVendor({
       name,
       email,

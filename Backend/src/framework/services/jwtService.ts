@@ -5,13 +5,15 @@ const blacklistedTokens: Set<string> = new Set();
 
 export class JwtService implements ITokenService {
   generateAccessToken(payload: object): string {
+    console.log("access token");
     const secret = process.env.JWT_ACCESSTOKENSECRETKEY;
     if (!secret) throw new Error("Access token secret is not configured");
 
-    return jwt.sign(payload, secret, { expiresIn: "1m" });
+    return jwt.sign(payload, secret, { expiresIn: "15m" });
   }
 
   generateRefreshToken(payload: object): string {
+    console.log("refresh");
     const secret = process.env.JWT_REFRESHTOKEN;
     if (!secret) throw new Error("Refresh token secret is not configured");
 
@@ -28,15 +30,15 @@ export class JwtService implements ITokenService {
           ? process.env.JWT_ACCESSTOKENSECRETKEY
           : process.env.JWT_REFRESHTOKEN;
 
-      if (!secret) {
-        throw new Error(`${type} token secret is not configured`);
-      }
+      if (!secret) throw new Error(`${type} token secret is not configured`);
 
+      if (this.checkTokenBlacklist(token)) {
+        throw new Error("Token is blacklisted");
+      }
+      console.log(`🔍 Verifying ${type} token...`);
       return await new Promise<JwtPayload>((resolve, reject) => {
         jwt.verify(token, secret, (err, decoded) => {
-          if (err || !decoded) {
-            return reject(new Error("Invalid or expired token"));
-          }
+          if (err || !decoded) return reject(err);
           resolve(decoded as JwtPayload);
         });
       });

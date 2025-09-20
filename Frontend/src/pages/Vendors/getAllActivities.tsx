@@ -42,7 +42,7 @@ const loadActivities = async () => {
 
     if (query.trim()) {
       const response = await searchActivity(query);
-      console.log("Search response:", response);
+     
 
       activitiesList = response.activities ?? [];
       total = response.totalPages ?? 1;

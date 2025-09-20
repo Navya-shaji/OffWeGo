@@ -6,23 +6,22 @@ import { logout as vendorLogout } from "@/store/slice/vendor/authSlice";
 
 export const setInterceptors = () => {
   axiosInstance.interceptors.request.use((config) => {
-  const { adminAuth, auth, vendorAuth } = store.getState();
+    const { adminAuth, auth, vendorAuth } = store.getState();
 
-  if (config.headers) {
-    const url = config.url || "";
+    if (config.headers) {
+      const url = config.url || "";
 
-    if (url.includes("/api/admin")) {
-      if (adminAuth.token) config.headers.Authorization = `Bearer ${adminAuth.token}`;
-    } else if (url.includes("/api/vendor")) {
-      if (vendorAuth.token) config.headers.Authorization = `Bearer ${vendorAuth.token}`;
-    } else {
-      if (auth.token) config.headers.Authorization = `Bearer ${auth.token}`;
+      if (url.includes("/api/admin") && adminAuth.token) {
+        config.headers.Authorization = `Bearer ${adminAuth.token}`;
+      } else if (url.includes("/api/vendor") && vendorAuth.token) {
+        config.headers.Authorization = `Bearer ${vendorAuth.token}`;
+      } else if (auth.token) {
+        config.headers.Authorization = `Bearer ${auth.token}`;
+      }
     }
 
-  }
-
-  return config;
-});
+    return config;
+  });
 
   axiosInstance.interceptors.response.use(
     (response) => response,
@@ -31,14 +30,13 @@ export const setInterceptors = () => {
       const code = error.response?.data?.code;
       const originalRequest = error.config;
 
-   
+      // Handle blocked users/vendors
       if (status === 403) {
         if (code === "USER_BLOCKED") {
           store.dispatch(userLogout());
           localStorage.removeItem("id");
           window.location.href = "/userBlockNotice";
-        }
-        if (code === "VENDOR_BLOCKED") {
+        } else if (code === "VENDOR_BLOCKED") {
           store.dispatch(vendorLogout());
           localStorage.removeItem("id");
           window.location.href = "/vendorBlockNotice";
@@ -46,6 +44,7 @@ export const setInterceptors = () => {
         return Promise.reject(error);
       }
 
+      // Refresh token logic (retry only once)
       if (
         status === 401 &&
         !originalRequest._retry &&
@@ -71,8 +70,9 @@ export const setInterceptors = () => {
             store.dispatch(setToken({ token: newAccessToken }));
           }
 
-          return axiosInstance(originalRequest);
+          return axiosInstance(originalRequest); // retry once only
         } catch (err) {
+          // If refresh fails, logout user/vendor
           store.dispatch(userLogout());
           store.dispatch(vendorLogout());
           window.location.href = "/login";
