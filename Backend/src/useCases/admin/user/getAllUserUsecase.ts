@@ -1,4 +1,4 @@
-import { User } from "../../../domain/entities/UserEntity";
+import { UserDto } from "../../../domain/dto/user/UserDto";
 import { IGetAllUserUsecase } from "../../../domain/interface/Admin/IGetAllUsers";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
@@ -8,7 +8,7 @@ export class GetAllUsersUsecase implements IGetAllUserUsecase {
   async execute(
     page: number,
     limit: number
-  ): Promise<{ users: User[]; totalUsers: number }> {
+  ): Promise<{ users: UserDto[]; totalUsers: number }> {
     const skip = (page - 1) * limit;
 
     const users = await this._userRepository.getAllUsers(skip, limit, {

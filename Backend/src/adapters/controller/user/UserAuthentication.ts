@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { RegisterDTO } from "../../../domain/dto/user/UserDto";
+import { RegisterDTO } from "../../../domain/dto/user/RegisterDto"; 
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
 import { IVerifyOtpUseCase } from "../../../domain/interface/UsecaseInterface/IVerifyOtpUseCase";

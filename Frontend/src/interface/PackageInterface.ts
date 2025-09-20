@@ -8,7 +8,7 @@ export interface Hotel {
 }
 
 export interface Activity {
-  _id?: string;
+  id?: string;
   activityId?: string;
   title: string;
   description: string;

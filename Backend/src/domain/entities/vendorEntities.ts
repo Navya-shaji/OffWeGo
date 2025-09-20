@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+// import { ObjectId } from "mongoose";
 
 export class Vendor {
   _id?: string;
@@ -16,7 +16,7 @@ export class Vendor {
   googleVerified?: boolean;
   isBlocked?: boolean;
   subscription?: {
-    plan: ObjectId;
+    plan: string;
     subscribedAt: Date;
     expiresAt: Date;
   };
@@ -33,11 +33,11 @@ export class Vendor {
     isAdmin: boolean = false,
     googleVerified: boolean = false,
     isBlocked: boolean = false,
-    subscription?: {
-      plan: ObjectId;
-      subscribedAt: Date;
-      expiresAt: Date;
-    }
+    // subscription?: {
+    //   plan: ObjectId;
+    //   subscribedAt: Date;
+    //   expiresAt: Date;
+    // }
   ) {
     this.name = name;
     this.email = email;
@@ -50,7 +50,7 @@ export class Vendor {
     this.isAdmin = isAdmin;
     this.googleVerified = googleVerified;
     this.isBlocked = isBlocked;
-    this.subscription = subscription;
+    // this.subscription = subscription;
     this.createdAt = new Date();
   }
 }

@@ -1,5 +1,6 @@
-import { Activity } from "../../entities/ActivityEntity";
+import { ActivityDto } from "../../dto/package/ActivityDto";
+
 
 export interface IGetAllActivities{
-    execute(page:number,limit:number):Promise<{activity:Activity[],totalActivities:number}>
+    execute(page:number,limit:number):Promise<{activity:ActivityDto[],totalActivities:number}>
 }

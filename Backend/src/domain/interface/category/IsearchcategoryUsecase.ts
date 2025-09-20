@@ -1,5 +1,5 @@
-import { Category } from "../../entities/CategoryEntity";
+import { CategoryDto } from "../../dto/category/categoryDto";
 
 export interface ISearchCategoryUsecase{
-    execute(query:string):Promise<Category[]>
+    execute(query:string):Promise<CategoryDto[]>
 }

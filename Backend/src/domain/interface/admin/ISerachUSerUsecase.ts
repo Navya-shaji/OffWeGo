@@ -1,5 +1,5 @@
-import { User } from "../../entities/UserEntity" 
+import { UserDto } from "../../dto/user/UserDto"
 
 export interface  ISearchUserUsecase{
-    execute(query:string):Promise<User[]>
+    execute(query:string):Promise<UserDto[]>
 }

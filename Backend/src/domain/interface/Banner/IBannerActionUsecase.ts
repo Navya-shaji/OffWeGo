@@ -1,5 +1,5 @@
-import { IBannerModel } from "../../../framework/database/Models/bannerModel";
+import { BannerDto } from "../../dto/Banner/BannerDto";
 
 export interface IBannerActionUsecase {
-  execute(id: string, action: boolean): Promise<IBannerModel | null>;
+  execute(id: string, action: boolean): Promise<BannerDto | null>;
 }

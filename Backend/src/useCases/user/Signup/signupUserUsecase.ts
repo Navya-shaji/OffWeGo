@@ -1,6 +1,6 @@
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
-import { RegisterDTO } from "../../../domain/dto/user/UserDto";
+import { RegisterDTO } from "../../../domain/dto/user/RegisterDto";
 import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
 
 export class RegisterUserUseCase implements IregisterUserUseCase {
