@@ -13,7 +13,7 @@ import { VendorLoginController } from "../../../adapters/controller/Vendor/Vendo
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 import { JwtService } from "../../Services/jwtService";
-import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
+// import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { CreatePackagesUseCase } from "../../../useCases/package/AddPackageUsecase";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
 import { GetAllPackages } from "../../../useCases/package/GetAllPackageUsecase";
@@ -45,7 +45,7 @@ const vendorRepository = new VendorRepository();
 const otpService = new OtpService();
 const hashPassword = new HashPassword();
 const jwtService = new JwtService();
-const destinationRepo=new DestinationRepository()
+// const destinationRepo=new DestinationRepository()
 const packageRepo=new PackageRepository()
 const groupRepo=new PackageWiseGrouping()
 const hotelRepo=new HotelRepository()
@@ -81,7 +81,7 @@ const searchActivityusecase=new SearchActivityusecase(activityRepo)
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
 export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVerifyOtpUseCase);
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
-export const vendorloginController=new VendorLoginController(vendorloginusecase);
+export const vendorloginController=new VendorLoginController(vendorloginusecase,jwtService);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage,searchPackage);
 export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);

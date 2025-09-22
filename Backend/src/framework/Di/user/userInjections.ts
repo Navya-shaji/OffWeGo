@@ -47,7 +47,7 @@ const createbookingusecase=new CreateBooking(bookingRepo)
 
 
 // Controllers
-export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase);
+export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);

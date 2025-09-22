@@ -114,19 +114,26 @@ export const getPackagesByDestination = async (
 
 export const deleteDestination = async (id: string): Promise<void> => {
   try {
-    const response = await axiosInstance.delete(`/api/admin/destination/${id}`);
+    const state = store.getState();
+    let base = "/api";
+
+    if (state.adminAuth.token) base = "/api/admin";
+    else if (state.vendorAuth.token) base = "/api/vendor";
+
+    const response = await axiosInstance.delete(`${base}/destination/${id}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.error || "Failed to delete destinatioon"
+        error.response?.data?.error || "Failed to delete destination"
       );
     }
     throw new Error(
-      "An unexpected error occured while deleteing the destination"
+      "An unexpected error occurred while deleting the destination"
     );
   }
 };
+
 
 export const searchDestination = async (query: string) => {
   try {

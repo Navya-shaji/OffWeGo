@@ -105,6 +105,13 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         destinationController.getAllDestination(req, res)
     );
+    this.vendorRouter.delete(
+      VendorRoutes.DELETE_DESTINATION,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol(["vendor","admin"]),
+      (req: Request, res: Response) =>
+        destinationController.deleteDestinationController(req, res)
+    );
 
     // Profile
     this.vendorRouter.get(

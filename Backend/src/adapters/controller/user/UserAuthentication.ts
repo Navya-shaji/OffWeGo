@@ -4,12 +4,14 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
 import { IVerifyOtpUseCase } from "../../../domain/interface/UsecaseInterface/IVerifyOtpUseCase";
 import { IResendOtpUsecase } from "../../../domain/interface/UserRepository/IResendOtpUsecase";
+import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 
 export class UserRegisterController {
   constructor(
     private _registerUserUseCase: IregisterUserUseCase,
     private _verifyOtpUseCase: IVerifyOtpUseCase,
-    private _resendOtpUseCase: IResendOtpUsecase
+    private _resendOtpUseCase: IResendOtpUsecase,
+    private _tokenService: ITokenService // Added token service
   ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -48,10 +50,30 @@ export class UserRegisterController {
 
     const verifiedUser = await this._verifyOtpUseCase.execute(userData, otp);
 
+    // Generate JWT payload
+    const payload = {
+      id: verifiedUser._id,
+      email: verifiedUser.email,
+      role: verifiedUser.role || "user", // default to 'user'
+    };
+
+    // Generate access and refresh tokens
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
+
+    // Set refresh token in cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
+    });
+
     res.status(HttpStatus.OK).json({
       success: true,
       message: "OTP verified successfully",
-      data: verifiedUser,
+      accessToken, // send the access token
+      user: verifiedUser,
     });
   }
 

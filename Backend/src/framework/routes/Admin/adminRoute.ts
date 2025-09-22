@@ -179,6 +179,7 @@ export class AdminRoute {
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_DESTINATION,
+      verifyTokenAndCheckBlackList(TokenService),
       checkRoleBasedcontrol(["vendor", "admin"]),
       (req: Request, res: Response) => {
         destinationController.deleteDestinationController(req, res);

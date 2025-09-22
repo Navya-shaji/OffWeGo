@@ -3,14 +3,10 @@ import { HttpStatus } from "../../domain/statusCode/Statuscode";
 
 export const checkRoleBasedcontrol = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+    const user = req.user;
+    console.log("Role middleware - logged-in user:", user);
 
-    if (
-      !user ||
-      !allowedRoles
-        .map((r) => r.toLowerCase())
-        .includes(user.role?.toLowerCase())
-    ) {
+    if (!user || !allowedRoles.map(r => r.toLowerCase()).includes(user.role?.toLowerCase())) {
       return res.status(HttpStatus.FORBIDDEN).json({
         error: "Access Denied: Unauthorized role",
       });
@@ -19,3 +15,4 @@ export const checkRoleBasedcontrol = (allowedRoles: string[]) => {
     next();
   };
 };
+

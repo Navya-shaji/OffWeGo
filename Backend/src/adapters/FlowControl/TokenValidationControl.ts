@@ -10,8 +10,11 @@ declare module "express-serve-static-core" {
 }
 
 export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    console.log("verify token ")
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -27,24 +30,37 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
       const isBlacklisted = await tokenService.checkTokenBlacklist(token);
       if (isBlacklisted) {
         res
-          .status(HttpStatus.FORBIDDEN)
+          .status(HttpStatus.UNAUTHORIZED) // unified with expired/invalid
           .json({ message: "This token is blacklisted" });
         return;
       }
 
       const decoded = await tokenService.verifyToken(token, "access");
-      if (!decoded || !decoded.exp) {
+      if (!decoded) {
         res
           .status(HttpStatus.UNAUTHORIZED)
           .json({ message: "Invalid or expired token" });
         return;
       }
 
-      req.user = decoded as JwtPayload & { id: string; email: string; role: string };
+      // Ensure required fields exist before assigning
+      if (!decoded.id || !decoded.email || !decoded.role) {
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: "Token missing required claims" });
+        return;
+      }
+
+      req.user = decoded as JwtPayload & {
+        id: string;
+        email: string;
+        role: string;
+      };
+
       next();
     } catch (error) {
-      res.status(HttpStatus.FORBIDDEN).json({
-        message: "Invalid token",
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        message: "Invalid or expired token",
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }

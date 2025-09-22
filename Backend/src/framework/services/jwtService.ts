@@ -9,7 +9,7 @@ export class JwtService implements ITokenService {
     const secret = process.env.JWT_ACCESSTOKENSECRETKEY;
     if (!secret) throw new Error("Access token secret is not configured");
 
-    return jwt.sign(payload, secret, { expiresIn: "15m" });
+    return jwt.sign(payload, secret, { expiresIn: "1h" });
   }
 
   generateRefreshToken(payload: object): string {
@@ -17,7 +17,7 @@ export class JwtService implements ITokenService {
     const secret = process.env.JWT_REFRESHTOKEN;
     if (!secret) throw new Error("Refresh token secret is not configured");
 
-    return jwt.sign(payload, secret, { expiresIn: "1d" });
+    return jwt.sign(payload, secret, { expiresIn: "7d" });
   }
 
   async verifyToken(
