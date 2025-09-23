@@ -54,30 +54,38 @@ export default function UserLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-white via-blue-50 to-sky-100 p-6">
-      <div className="flex flex-col md:flex-row w-full max-w-5xl h-[85vh] shadow-2xl rounded-2xl bg-white overflow-hidden border border-gray-200">
+    <div
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{
+        backgroundImage: 'url("/images/loginBG2.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="flex flex-col md:flex-row w-full max-w-5xl h-[60vh] shadow-2xl rounded-2xl overflow-hidden">
         <div
           className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center"
-          style={{ backgroundImage: 'url("/images/userLogin.jpeg")' }}
+          // style={{ backgroundImage: 'url("/images/userLogin.jpeg")' }}
         >
           <div className="absolute inset-0  bg-opacity-40" />
         </div>
 
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <h2 className="text-3xl font-serif text-center text-black mb-6">
-            {" "}
+        <div className="w-full md:w-1/2 px-8 py-12 flex flex-col justify-center bg-white/70 shadow-lg rounded-lg backdrop-blur-sm">
+          <h2 className="text-3xl font-quicksand text-center text-gray-900 mb-6 tracking-wide">
             User Login
           </h2>
 
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 max-w-sm mx-auto w-full"
+            className="space-y-5 max-w-sm mx-auto w-full"
           >
+            {/* Email */}
             <div>
               <input
                 {...register("email")}
                 placeholder="Email"
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded-md px-4 py-4 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150"
               />
               {errors.email ? (
                 <p className="text-red-500 text-xs mt-1">
@@ -88,18 +96,19 @@ export default function UserLogin() {
               )}
             </div>
 
+            {/* Password */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="Password"
-                className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded-md px-4 py-4 pr-10 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150"
               />
               <span
-                className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+                className="absolute right-3 top-4 cursor-pointer text-gray-500 hover:text-gray-700 transition"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </span>
               {errors.password ? (
                 <p className="text-red-500 text-xs mt-1">
@@ -110,28 +119,39 @@ export default function UserLogin() {
               )}
             </div>
 
+            {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-blue-800 text-white font-semibold py-2 rounded text-sm hover:bg-blue-900 transition duration-200 shadow-md"
+              className="w-full bg-amber-900 text-white font-medium py-2.5 rounded-md text-sm hover:bg-amber-900 active:bg-yellow-950 transition duration-200 shadow-lg"
             >
               Login
             </button>
           </form>
 
-          <p className="text-sm text-center text-gray-600 mt-4">
+          {/* Signup */}
+          <p className="text-sm text-center text-gray-600 mt-5">
             Don’t have an account?{" "}
             <Link
               to="/signup"
-              className="text-blue-800 font-semibold hover:underline"
+              className="text-blue-700 font-semibold hover:underline"
             >
               Sign up
             </Link>
           </p>
-        
-             <GoogleSignup />
 
-          <p className="text-sm text-center text-blue-600 hover:underline mt-2">
-            <Link to="/forgot-password">Forgot Password?</Link>
+          {/* Google Login */}
+          <div className="mt-4 flex justify-center">
+            <GoogleSignup />
+          </div>
+
+          {/* Forgot Password */}
+          <p className="text-sm text-center mt-3">
+            <Link
+              to="/forgot-password"
+              className="text-blue-600 hover:text-blue-800 hover:underline transition"
+            >
+              Forgot Password?
+            </Link>
           </p>
         </div>
       </div>

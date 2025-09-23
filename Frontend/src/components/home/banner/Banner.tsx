@@ -49,7 +49,7 @@ const Banner: React.FC = () => {
   const activeBanners = banners.filter((b) => b.action);
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-br from-white  to-white overflow-hidden">
       <div className="container mx-auto px-6 py-12 min-h-screen flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
           {/* Left Content */}
