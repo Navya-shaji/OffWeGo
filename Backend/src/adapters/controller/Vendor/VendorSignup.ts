@@ -8,6 +8,7 @@ export class VendorSignupController {
   constructor(private _RegistervendorUsecase: IRegisterVendorUseCase) {}
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
+    console.log("vendor controller")
     const { name, email, phone, password, confirmPassword, document } =
       req.body;
 
@@ -26,11 +27,11 @@ export class VendorSignupController {
       return;
     }
 
-    const result = await cloudinary.uploader.upload(document, {
-      folder: "vendor_documents",
-    });
+    // const result = await cloudinary.uploader.upload(document, {
+    //   folder: "vendor_documents",
+    // });
 
-    const documentUrl = result.secure_url;
+    const documentUrl = document;
 
     const vendorData: RegistervendorDto = {
       name,
@@ -39,8 +40,10 @@ export class VendorSignupController {
       password,
       documentUrl,
     };
-
+    console.log("vendor usecase")
+    
     const newVendor = await this._RegistervendorUsecase.execute(vendorData);
+    console.log("vendor usecase completed")
 
     res.status(HttpStatus.CREATED).json({
       success: true,

@@ -7,21 +7,21 @@ type User = {
   status: string;
   role: string;
   phone: string;
-  imageUrl?: string; 
+  imageUrl?: string;
 };
 
 type AuthState = {
   isAuthenticated: boolean;
   user: User | null;
   token: string | null;
-  refreshToken: string | null; // ✅ added refreshToken
+  refreshToken: string | null;
 };
 
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  refreshToken: null, // ✅ initialize
+  refreshToken: null,
 };
 
 export const authSlice = createSlice({
@@ -37,18 +37,12 @@ export const authSlice = createSlice({
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
     },
-
-    setToken:(state, action: PayloadAction<{token:string}>)=>{
-      state.token = action.payload.token
-    },
-
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       state.token = null;
       state.refreshToken = null;
     },
-
     setUserFromSession: (
       state,
       action: PayloadAction<{ user: User | null; token: string | null; refreshToken: string | null }>
@@ -65,14 +59,16 @@ export const authSlice = createSlice({
         state.refreshToken = null;
       }
     },
-
     updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
+      if (state.user) state.user = { ...state.user, ...action.payload };
+    },
+    setToken: (state, action: PayloadAction<{ token: string }>) => {
+      console.log("seting token")
+      state.token = action.payload.token;
     },
   },
 });
 
-export const { login, logout, setUserFromSession, updateUserProfile, setToken } = authSlice.actions;
+export const { login, logout, setUserFromSession, updateUserProfile, setToken } =
+  authSlice.actions;
 export default authSlice.reducer;

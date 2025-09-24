@@ -10,7 +10,7 @@ import Pagination from "../pagination/pagination";
 import type { ColumnDef } from "@tanstack/react-table";
 import { SearchBar } from "../Modular/searchbar";
 
-const UserList = () => {
+const UserList = () => { 
   const [users, setUsers] = useState<User[]>([]);
   const [originalUsers, setOriginalUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);

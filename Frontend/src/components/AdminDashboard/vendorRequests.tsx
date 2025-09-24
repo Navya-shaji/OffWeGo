@@ -37,7 +37,8 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
       if (newStatus === "approved" && onTabChange) {
         onTabChange("Approved Requests");
       } else {
-        fetchVendors();
+        // fetchVendors();
+        setVendors((prev)=>prev.filter((ven)=>ven._id != vendorId))
       }
     } catch {
       toast.error("Failed to update status");

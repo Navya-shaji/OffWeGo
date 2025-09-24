@@ -1,15 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { VendorloginSchema, type VendorLoginFormData } from "@/Types/vendor/auth/TLogin";
+import {
+  VendorloginSchema,
+  type VendorLoginFormData,
+} from "@/Types/vendor/auth/TLogin";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { toast } from "react-toastify";
-import { login } from "@/store/slice/vendor/authSlice"; 
+import { login } from "@/store/slice/vendor/authSlice";
 import { vendorLogin } from "@/services/vendor/VendorLoginService";
 import type { AxiosError } from "axios";
 import type { Vendor } from "@/interface/vendorInterface";
+import { setToken } from "@/store/slice/Token/tokenSlice"; 
 
 export default function VendorLogin() {
   const dispatch = useAppDispatch();
@@ -24,13 +28,10 @@ export default function VendorLogin() {
     resolver: zodResolver(VendorloginSchema),
   });
 
-
-
   const onSubmit = async (data: VendorLoginFormData) => {
     try {
       const response = await vendorLogin(data.email, data.password);
       const rawVendor = response.vendor;
-     
 
       if (!rawVendor) {
         toast.error("Vendor not found");
@@ -44,14 +45,22 @@ export default function VendorLogin() {
 
       const vendorData: Vendor = rawVendor;
 
+      // ✅ Save vendor + token in vendorAuth slice
       dispatch(login({ vendor: vendorData, token: response.accessToken }));
+
+      // ✅ Save token in tokenSlice (used by interceptors)
+      if (response.accessToken) {
+        dispatch(setToken(response.accessToken));
+      }
+
       toast.success("Login successful");
       navigate("/vendor/profile", { replace: true });
-
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const message =
-        axiosError.response?.data?.message || axiosError.message || "Login failed";
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        "Login failed";
       toast.error(message);
     }
   };
@@ -59,7 +68,6 @@ export default function VendorLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-white via-blue-50 to-sky-100 p-6">
       <div className="flex flex-col md:flex-row w-full max-w-4xl h-[85vh] shadow-2xl rounded-2xl bg-white overflow-hidden border border-gray-200">
-        
         {/* Left Image Section */}
         <div
           className="bg-black text-white md:w-1/2 flex flex-col justify-center items-center p-8 space-y-2 text-center bg-cover bg-center"

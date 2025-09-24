@@ -81,18 +81,24 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-    const res = await axiosInstance.get(`/api/destination/${id}`);
+    const state = store.getState();
+    let base = "/api";
 
+    if (state.adminAuth.token) base = "/api/admin";
+    else if (state.vendorAuth.token) base = "/api/vendor";
+
+    const res = await axiosInstance.get(`${base}/destination/${id}`);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.error || "Failed to update destination"
+        error.response?.data?.error || "Failed to get destination"
       );
     }
-    throw new Error("An unexpected error occurred while updating destination");
+    throw new Error("An unexpected error occurred while fetching destination");
   }
 };
+
 
 export const getPackagesByDestination = async (
   destinationId: string

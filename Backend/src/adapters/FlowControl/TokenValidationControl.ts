@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
 import { HttpStatus } from "../../domain/statusCode/Statuscode";
 import { JwtPayload } from "jsonwebtoken";
@@ -10,59 +10,24 @@ declare module "express-serve-static-core" {
 }
 
 export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
-  return async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const authHeader = req.header("Authorization");
-
+  console.log("haii")
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: "Access denied. No token provided." });
-      return;
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
     const token = authHeader.split(" ")[1];
+    console.log(token,"token")
 
     try {
-      const isBlacklisted = await tokenService.checkTokenBlacklist(token);
-      if (isBlacklisted) {
-        res
-          .status(HttpStatus.UNAUTHORIZED) // unified with expired/invalid
-          .json({ message: "This token is blacklisted" });
-        return;
-      }
-
       const decoded = await tokenService.verifyToken(token, "access");
-      if (!decoded) {
-        res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ message: "Invalid or expired token" });
-        return;
-      }
+      if (!decoded) throw new Error("Invalid or expired token");
 
-      // Ensure required fields exist before assigning
-      if (!decoded.id || !decoded.email || !decoded.role) {
-        res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ message: "Token missing required claims" });
-        return;
-      }
-
-      req.user = decoded as JwtPayload & {
-        id: string;
-        email: string;
-        role: string;
-      };
-
+      req.user = decoded as JwtPayload & { id: string; email: string; role: string };
       next();
-    } catch (error) {
-      res.status(HttpStatus.UNAUTHORIZED).json({
-        message: "Invalid or expired token",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+    } catch (err) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Unauthorized", error: (err as Error).message });
     }
   };
 };

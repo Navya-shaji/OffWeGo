@@ -11,12 +11,14 @@ import { userLogin } from "@/services/user/userService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
 import { GoogleSignup } from "@/components/signup/googleSignup";
+import { setToken } from "@/store/slice/Token/tokenSlice"; 
 
 export default function UserLogin() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const notify = () => toast("Login successfull ");
+  const notify = () => toast("Login successful");
+
   const {
     register,
     handleSubmit,
@@ -29,12 +31,16 @@ export default function UserLogin() {
     try {
       const response = await userLogin(data);
 
+      // Save user in auth slice
       dispatch(
         login({
           user: response.user,
-          token: response.accessToken,
         })
       );
+
+      // Save token in token slice
+      dispatch(setToken(response.accessToken));
+
       notify();
       navigate("/", { replace: true });
     } catch (err) {
@@ -64,11 +70,8 @@ export default function UserLogin() {
       }}
     >
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[60vh] shadow-2xl rounded-2xl overflow-hidden">
-        <div
-          className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center"
-          // style={{ backgroundImage: 'url("/images/userLogin.jpeg")' }}
-        >
-          <div className="absolute inset-0  bg-opacity-40" />
+        <div className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center">
+          <div className="absolute inset-0 bg-opacity-40" />
         </div>
 
         <div className="w-full md:w-1/2 px-8 py-12 flex flex-col justify-center bg-white/70 shadow-lg rounded-lg backdrop-blur-sm">

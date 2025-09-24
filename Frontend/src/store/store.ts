@@ -8,11 +8,11 @@ import CategoryReducer from "../store/slice/category/categorySlice";
 import BannerReducer from "../store/slice/Banner/BannerSlice";
 import otpReducer from "./slice/user/otpSlice";
 import packageReducer from "./slice/packages/packageSlice";
+import tokenSlice from "./slice/Token/tokenSlice"
 import subscriptionreducer from "./slice/Subscription/subscription";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-// 👇 combine all reducers
 const rootReducer = combineReducers({
   auth: authReducer,
   adminAuth: adminAuthReducer,
@@ -24,18 +24,18 @@ const rootReducer = combineReducers({
   otp: otpReducer,
   package: packageReducer,
   subscription: subscriptionreducer,
+  token:tokenSlice
 });
 
-// 👇 configure persistence
+
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "adminAuth", "vendorAuth"], // only persist these
+  whitelist: ["auth", "adminAuth", "vendorAuth"], 
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// 👇 add middleware fix for non-serializable redux-persist actions
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -53,10 +53,8 @@ const store = configureStore({
     }),
 });
 
-// 👇 create persistor
 export const persistor = persistStore(store);
 
-// 👇 export store + types
 export default store;
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

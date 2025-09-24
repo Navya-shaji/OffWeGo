@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
 
 const blacklistedTokens: Set<string> = new Set();
@@ -44,6 +44,10 @@ export class JwtService implements ITokenService {
       });
     } catch (error) {
       console.error("Token verification failed:", error);
+      if(error instanceof TokenExpiredError){
+        console.log("expirey error", new Date(error.expiredAt).toLocaleString())
+        
+      }
       return null;
     }
   }

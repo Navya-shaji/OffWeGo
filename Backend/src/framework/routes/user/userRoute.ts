@@ -82,7 +82,6 @@ export class UserRoute {
     );
     this.userRouter.get(
       UserRoutes.GET_SINGLE_DESTINATION,
-      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         destinationController.getSingleDestinationController(req, res);
       }
