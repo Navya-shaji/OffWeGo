@@ -16,7 +16,7 @@ import { JwtService } from "../../Services/jwtService";
 // import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { CreatePackagesUseCase } from "../../../useCases/package/AddPackageUsecase";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
-import { GetAllPackages } from "../../../useCases/package/GetAllPackageUsecase";
+import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
 import { EditPackage } from "../../../useCases/package/EditPackageUsecase";
 import { DeletePackage } from "../../../useCases/package/DeletePackageUsecase";
 import { EditVendorProfile } from "../../../useCases/vendor/profile/Edit profileUsecase";
@@ -39,6 +39,7 @@ import { DeleteHotelUsecase } from "../../../useCases/hotel/DeleteHotelusecase";
 import { SearchPackage } from "../../../useCases/package/SearchPackageUsecase";
 import { searchHotelusecase } from "../../../useCases/hotel/HotelSearchUsecase";
 import { SearchActivityusecase } from "../../../useCases/activity/SearchActivityusecase";
+import { GetDestinationBasedPackageUseCase } from "../../../useCases/package/getDestinationBasedPackages";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -59,7 +60,7 @@ const vendorStatusUseCase = new VendorStatusCheckUseCase(vendorRepository);
 const vendorloginusecase=new VendorLoginUsecase(vendorRepository,hashPassword,jwtService);
 const vendorProfileusecase=new VendorProfileUsecase(vendorRepository);
 const createPackageUsecase=new CreatePackagesUseCase(packageRepo);
-const getallPackageUsecase=new GetAllPackages(packageRepo);
+const getallPackageUsecase=new GetPackageUsecase(packageRepo);
 const editpackage=new EditPackage()
 const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
@@ -76,6 +77,7 @@ const deletehotelusecase=new DeleteHotelUsecase(hotelRepo)
 const searchPackage=new SearchPackage(packageRepo)
 const searchhotelusecase=new searchHotelusecase(hotelRepo)
 const searchActivityusecase=new SearchActivityusecase(activityRepo)
+const getPAckageByDestination=new GetDestinationBasedPackageUseCase(packageRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -83,7 +85,7 @@ export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVer
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase,jwtService);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
-export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage,searchPackage);
+export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage,searchPackage,getPAckageByDestination);
 export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)

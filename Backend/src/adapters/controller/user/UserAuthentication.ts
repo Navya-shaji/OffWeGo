@@ -49,19 +49,20 @@ export class UserRegisterController {
     }
 
     const verifiedUser = await this._verifyOtpUseCase.execute(userData, otp);
+    
 
     // Generate JWT payload
     const payload = {
       id: verifiedUser._id,
       email: verifiedUser.email,
-      role: verifiedUser.role || "user", // default to 'user'
+      role: verifiedUser.role || "user",
     };
 
-    // Generate access and refresh tokens
+   
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 
-    // Set refresh token in cookie
+  
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -72,7 +73,7 @@ export class UserRegisterController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: "OTP verified successfully",
-      accessToken, // send the access token
+      accessToken, 
       user: verifiedUser,
     });
   }

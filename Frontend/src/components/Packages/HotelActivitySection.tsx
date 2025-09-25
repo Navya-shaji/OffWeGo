@@ -45,7 +45,7 @@ const hotelOptions = filteredHotels
     data: activity,
   }));
 
-  console.log("haiii",hotelOptions,activityOptions)
+  
   
   if (!destinationId) {
     return (

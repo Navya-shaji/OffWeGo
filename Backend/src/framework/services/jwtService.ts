@@ -4,16 +4,15 @@ import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenSer
 const blacklistedTokens: Set<string> = new Set();
 
 export class JwtService implements ITokenService {
-  generateAccessToken(payload: object): string {
-    console.log("access token");
+  generateAccessToken(payload: { id: string; email?: string; role: string }): string {
+    
     const secret = process.env.JWT_ACCESSTOKENSECRETKEY;
     if (!secret) throw new Error("Access token secret is not configured");
 
     return jwt.sign(payload, secret, { expiresIn: "1h" });
   }
 
-  generateRefreshToken(payload: object): string {
-    console.log("refresh");
+  generateRefreshToken(payload: { id: string; email?: string; role: string }): string {
     const secret = process.env.JWT_REFRESHTOKEN;
     if (!secret) throw new Error("Refresh token secret is not configured");
 
@@ -23,7 +22,7 @@ export class JwtService implements ITokenService {
   async verifyToken(
     token: string,
     type: "access" | "refresh" = "access"
-  ): Promise<JwtPayload | null> {
+  ): Promise<JwtPayload & { id?: string; email?: string; role?: string } | null> {
     try {
       const secret =
         type === "access"
@@ -35,18 +34,20 @@ export class JwtService implements ITokenService {
       if (this.checkTokenBlacklist(token)) {
         throw new Error("Token is blacklisted");
       }
-      console.log(`🔍 Verifying ${type} token...`);
-      return await new Promise<JwtPayload>((resolve, reject) => {
+
+      return await new Promise((resolve, reject) => {
         jwt.verify(token, secret, (err, decoded) => {
           if (err || !decoded) return reject(err);
-          resolve(decoded as JwtPayload);
+          resolve(decoded as JwtPayload & { id?: string; email?: string; role?: string });
         });
       });
     } catch (error) {
       console.error("Token verification failed:", error);
-      if(error instanceof TokenExpiredError){
-        console.log("expirey error", new Date(error.expiredAt).toLocaleString())
-        
+      if (error instanceof TokenExpiredError) {
+        console.log(
+          "Access token expired at",
+          new Date(error.expiredAt).toLocaleString()
+        );
       }
       return null;
     }

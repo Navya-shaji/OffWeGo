@@ -1,8 +1,9 @@
-import { Package } from "../../domain/entities/PackageEntity";
+import { PackageDTO } from "../../domain/dto/package/PackageDto";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
 
-export const mapToPackageDto = (doc: IPackageModel): Package => ({
-  id: doc._id?.toString(),
+export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
+  id: doc._id?.toString() || "", // <-- ensures string
+  vendorId: doc.vendorId?.toString() || "", // ensures string
   destinationId: doc.destinationId?.toString() || "",
   packageName: doc.packageName || "",
   description: doc.description || "",
@@ -23,7 +24,7 @@ export const mapToPackageDto = (doc: IPackageModel): Package => ({
 
   activities: Array.isArray(doc.activities)
     ? doc.activities.map(activity => ({
-        id: activity._id?.toString(),
+        id: activity._id?.toString() || "",
         title: activity.title || "",
         description: activity.description || "",
         imageUrl: activity.imageUrl || "",

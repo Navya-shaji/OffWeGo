@@ -12,6 +12,7 @@ export class VendorLoginController {
 
   async login(req: Request, res: Response) {
     const { email, password } = req.body;
+    
 
     if (!email || !password) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -39,8 +40,9 @@ export class VendorLoginController {
       });
     }
 
-    // ✅ Add role to the payload
+
     const payload = { id: vendor.id, email: vendor.email, role: "vendor" };
+    
 
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
@@ -51,7 +53,7 @@ export class VendorLoginController {
       sameSite: "strict",
       maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
     });
-
+ 
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "Login successful",

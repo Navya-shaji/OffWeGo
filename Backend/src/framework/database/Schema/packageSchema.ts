@@ -41,6 +41,7 @@ export const packageSchema = new Schema(
 
     inclusions: [{ type: String }],
     amenities: [{ type: String }],
+    vendorId:{type:String}
   },
   {
     timestamps: true,

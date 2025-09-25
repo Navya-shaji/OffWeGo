@@ -1,10 +1,10 @@
-import { CreateGroupDTO } from "../../../domain/dto/package/PackageDto";
+import {  PackageDTO } from "../../../domain/dto/package/PackageDto";
 import { PackageWiseGroup } from "../../../domain/entities/PackagewiseGroup";
 import { IPackageWiseGrouping } from "../../../domain/interface/Vendor/IPackagewiseGroupingRepository";
 import { PackageWiseGroupingModel } from "../../../framework/database/Models/PackageWiseGroupingModel";
 
 export class PackageWiseGrouping implements IPackageWiseGrouping{
-    async createGroup(data: CreateGroupDTO): Promise<PackageWiseGroup> {
+    async createGroup(data: PackageDTO): Promise<PackageWiseGroup> {
         const Group=PackageWiseGroupingModel.create({
             ...data,currentBookings:0,status:"open"
         })

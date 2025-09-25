@@ -10,7 +10,7 @@ export const UserRoutes={
     PROFILE:'/profile',
     GET_SINGLE_DESTINATION:'/destination/:id',
     RESEND_OTP:'/resend-otp',
-    GET_ALL_PACKAGES:'/destination/:id',
+    GET_ALL_PACKAGES:'/package/:id',
     EDIT_PROFILE:'/profile/:id',
     CREATE_BOOKING:'/bookings/:packageId'
 }

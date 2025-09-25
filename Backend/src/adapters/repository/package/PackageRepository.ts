@@ -35,13 +35,22 @@ export class PackageRepository
     return { packages, totalPackages };
   }
 
-  async getPackagesByDestination(destination: string): Promise<IPackageModel[]> {
-    return packageModel
-      .find({ destinationId: destination })
-      .populate("hotels")
-      .populate("activities")
-      .exec();
+  async getPackagesByDestination(destinationId: string, skip: number, limit: number)
+    : Promise<{ packages: IPackageModel[]; totalPackages: number }> {
+
+    const [packages, totalPackages] = await Promise.all([
+      packageModel.find({ destinationId })
+        .skip(skip)
+        .limit(limit)
+        .populate("hotels")
+        .populate("activities")
+        .exec(),
+      packageModel.countDocuments({ destinationId })
+    ]);
+
+    return { packages, totalPackages };
   }
+
 
   async delete(id: string): Promise<IPackageModel | null> {
     return await this.model.findByIdAndDelete(id);
@@ -62,4 +71,23 @@ async searchPackage(query: string): Promise<Package[]> {
   async countPackages(): Promise<number> {
     return packageModel.countDocuments();
   }
+    async getAllPackagesByVendor(
+  vendorId: string,
+  skip: number,
+  limit: number
+): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
+  const [packages, totalPackages] = await Promise.all([
+    packageModel
+      .find({ vendorId })
+      .skip(skip)
+      .limit(limit)
+      .populate("hotels")
+      .populate("activities")
+      .exec(), // <-- returns IPackageModel[]
+    packageModel.countDocuments({ vendorId }),
+  ]);
+
+  return { packages, totalPackages };
+}
+
 }

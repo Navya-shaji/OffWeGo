@@ -7,14 +7,13 @@ export interface Package {
   packageName: string;
   description: string;
   price: number;
-  duration: number; 
+  duration: number;
   startDate: Date;
   endDate: Date;
   images: string[];
-
-  hotels: Hotel[]; 
-  activities: Activity[]; 
-
+  vendorId: string;
+  hotels: Hotel[];
+  activities: Activity[];
   checkInTime: string;
   checkOutTime: string;
 
@@ -25,6 +24,5 @@ export interface Package {
   }[];
 
   inclusions: string[];
-
   amenities: string[];
 }

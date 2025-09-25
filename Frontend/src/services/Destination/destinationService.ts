@@ -81,13 +81,14 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-    const state = store.getState();
-    let base = "/api";
+    // const state = store.getState();
+    // let base = "/api";
 
-    if (state.adminAuth.token) base = "/api/admin";
-    else if (state.vendorAuth.token) base = "/api/vendor";
+    // if (state.adminAuth.token) base = "/api/admin";
+    // else if (state.vendorAuth.token) base = "/api/vendor";
 
-    const res = await axiosInstance.get(`${base}/destination/${id}`);
+    const res = await axiosInstance.get(`/api/destination/${id}`);
+    console.log(res.data,"sjdkjh")
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

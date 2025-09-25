@@ -4,7 +4,6 @@ import {
   userLoginController,
   googleSignupController,
   userprofileController,
-  getpackageByDestinationController,
   bookingcontroller,
 } from "../../Di/User/UserInjections";
 import { JwtService } from "../../Services/jwtService";
@@ -14,6 +13,7 @@ import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/Toke
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection";
+import { packagecontroller } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtService();
 
 export class UserRoute {
@@ -94,10 +94,9 @@ export class UserRoute {
     );
     this.userRouter.get(
       UserRoutes.GET_ALL_PACKAGES,
-      verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["user"]),
+    
       (req: Request, res: Response) => {
-        getpackageByDestinationController.getPackages(req, res);
+        packagecontroller.getPackagesForUser(req,res)
       }
     );
     this.userRouter.patch(

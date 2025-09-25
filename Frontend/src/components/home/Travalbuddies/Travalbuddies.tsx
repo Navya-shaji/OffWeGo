@@ -2,7 +2,7 @@
 function TravalBuddies() {
   return (
     <div>
-      haii
+    
     </div>
   )
 }

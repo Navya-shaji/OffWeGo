@@ -29,6 +29,9 @@ export class VendorRoute {
   }
 
   private setRoutes(): void {
+    console.log("routes initialized");
+
+    // Public routes
     this.vendorRouter.post(VendorRoutes.SIGNUP, (req: Request, res: Response) =>
       vendorsignupcontroller.VendorSignup(req, res)
     );
@@ -52,68 +55,10 @@ export class VendorRoute {
       (req: Request, res: Response) => refreshTokenController.handle(req, res)
     );
 
-    this.vendorRouter.get(
-      VendorRoutes.ALL_PACKAGES,
-      (req: Request, res: Response) => packagecontroller.getAllPackage(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.PACKAGE_WISE_GROUPS,
-      (req: Request, res: Response) =>
-        packagewisegroupcontroller.GetPackageWiseGroups(req, res)
-    );
-
-    this.vendorRouter.get(VendorRoutes.HOTELS, (req: Request, res: Response) =>
-      hotelcontroller.getHotels(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.ACTIVITIES,
-      (req: Request, res: Response) =>
-        activitycontroller.getAllActivities(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.SEARCH_PACKAGE,
-      (req: Request, res: Response) => packagecontroller.searchPackage(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.SEARCH_HOTEL,
-      (req: Request, res: Response) => hotelcontroller.SearchHotel(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.SEARCH_ACTIVITY,
-      (req: Request, res: Response) =>
-        activitycontroller.SearchActivity(req, res)
-    );
-
+    // Apply authentication middleware for all routes below
     this.vendorRouter.use(verifyTokenAndCheckBlackList(TokenService));
 
-    // Destination
-    this.vendorRouter.post(
-      VendorRoutes.CREATE_DESTINATION,
-      checkRoleBasedcontrol(["vendor"]),
-      (req: Request, res: Response) =>
-        destinationController.addDestination(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.GET_DESTINATIONS,
-      checkRoleBasedcontrol(["vendor", "admin"]),
-      (req: Request, res: Response) =>
-        destinationController.getAllDestination(req, res)
-    );
-    this.vendorRouter.delete(
-      VendorRoutes.DELETE_DESTINATION,
-      verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["vendor","admin"]),
-      (req: Request, res: Response) =>
-        destinationController.deleteDestinationController(req, res)
-    );
-
-    // Profile
+    // Profile routes (protected)
     this.vendorRouter.get(
       VendorRoutes.PROFILE,
       checkRoleBasedcontrol(["vendor"]),
@@ -128,7 +73,13 @@ export class VendorRoute {
         vendorProfilecontroller.EditProfile(req, res)
     );
 
-    // Packages
+    // Package routes (protected)
+    this.vendorRouter.post(
+      VendorRoutes.ALL_PACKAGES,
+      checkRoleBasedcontrol(["vendor"]),
+      (req: Request, res: Response) => packagecontroller.getAllPackage(req, res)
+    );
+
     this.vendorRouter.post(
       VendorRoutes.ADD_PACKAGE,
       checkRoleBasedcontrol(["vendor"]),
@@ -147,20 +98,44 @@ export class VendorRoute {
       (req: Request, res: Response) => packagecontroller.deletePackage(req, res)
     );
 
-    this.vendorRouter.post(
-      VendorRoutes.PACKAGE_WISE_GROUPING,
+    this.vendorRouter.get(
+      VendorRoutes.SEARCH_PACKAGE,
       checkRoleBasedcontrol(["vendor"]),
-      (req: Request, res: Response) =>
-        packagewisegroupcontroller.CreatePackageWiseGrouping(req, res)
+      (req: Request, res: Response) => packagecontroller.searchPackage(req, res)
     );
 
-    // Hotels
+    // Destination routes
+    this.vendorRouter.post(
+      VendorRoutes.CREATE_DESTINATION,
+      checkRoleBasedcontrol(["vendor"]),
+      (req: Request, res: Response) =>
+        destinationController.addDestination(req, res)
+    );
+
+    this.vendorRouter.get(
+      VendorRoutes.GET_DESTINATIONS,
+      checkRoleBasedcontrol(["vendor", "admin"]),
+      (req: Request, res: Response) =>
+        destinationController.getAllDestination(req, res)
+    );
+
+    this.vendorRouter.delete(
+      VendorRoutes.DELETE_DESTINATION,
+      checkRoleBasedcontrol(["vendor", "admin"]),
+      (req: Request, res: Response) =>
+        destinationController.deleteDestinationController(req, res)
+    );
+
     this.vendorRouter.post(
       VendorRoutes.CREATE_HOTEL,
       checkRoleBasedcontrol(["vendor"]),
       (req: Request, res: Response) => hotelcontroller.createHotels(req, res)
     );
-
+    this.vendorRouter.get(
+      VendorRoutes.HOTELS,
+      checkRoleBasedcontrol(["vendor"]),
+      (req: Request, res: Response) => hotelcontroller.getHotels(req, res)
+    );
     this.vendorRouter.put(
       VendorRoutes.EDIT_HOTEL,
       checkRoleBasedcontrol(["vendor"]),
@@ -173,7 +148,7 @@ export class VendorRoute {
       (req: Request, res: Response) => hotelcontroller.deleteHotel(req, res)
     );
 
-    // Activities
+    // Activities routes
     this.vendorRouter.post(
       VendorRoutes.CREATE_ACTIVITY,
       checkRoleBasedcontrol(["vendor"]),
@@ -193,6 +168,25 @@ export class VendorRoute {
       checkRoleBasedcontrol(["vendor"]),
       (req: Request, res: Response) =>
         activitycontroller.deleteActivity(req, res)
+    );
+    this.vendorRouter.get(
+      VendorRoutes.ACTIVITIES,
+      (req:Request,res:Response)=>
+        activitycontroller.getAllActivities(req,res)
+    )
+    // Package-wise group routes
+    this.vendorRouter.get(
+      VendorRoutes.PACKAGE_WISE_GROUPS,
+      checkRoleBasedcontrol(["vendor"]),
+      (req: Request, res: Response) =>
+        packagewisegroupcontroller.GetPackageWiseGroups(req, res)
+    );
+
+    this.vendorRouter.post(
+      VendorRoutes.PACKAGE_WISE_GROUPING,
+      checkRoleBasedcontrol(["vendor"]),
+      (req: Request, res: Response) =>
+        packagewisegroupcontroller.CreatePackageWiseGrouping(req, res)
     );
   }
 }

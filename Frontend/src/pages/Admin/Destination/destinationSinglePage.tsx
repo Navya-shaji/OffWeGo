@@ -3,11 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { getsingleDestination } from "@/services/Destination/destinationService";
+import { getPackagesByDestination } from "@/services/packages/packageService"; // Import the new service
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { MapPin, Calendar, ArrowLeft, ExternalLink } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "@/store/store";
-import { fetchPackages } from "@/store/slice/packages/packageSlice";
 import Navbar from "@/components/profile/navbar";
 import { SearchBar } from "@/components/Modular/searchbar";
 import { searchPackages } from "@/services/packages/packageService";
@@ -15,21 +13,22 @@ import type { Package } from "@/interface/PackageInterface";
 
 export const DestinationDetail = () => {
   const { id } = useParams();
-  const [destination, setDestination] = useState<DestinationInterface | null>(
-    null
-  );
+  const [destination, setDestination] = useState<DestinationInterface | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [searchResults, setSearchResults] = useState<Package[] | null>(null);
-
-  const dispatch = useDispatch<AppDispatch>();
-  const { packages, loading: packagesLoading } = useSelector(
-    (state: RootState) => state.package
-  );
+  
+  // Replace Redux state with local state for destination-specific packages
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [packagesLoading, setPackagesLoading] = useState(false);
+  const [packagesPagination, setPackagesPagination] = useState({
+    totalPackages: 0,
+    totalPages: 0,
+    currentPage: 1
+  });
 
   const navigate = useNavigate();
-  const displayedPackages =
-    searchResults ?? packages.filter((pkg) => pkg.destinationId === id);
+  const displayedPackages = searchResults ?? packages;
 
   const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
@@ -37,28 +36,61 @@ export const DestinationDetail = () => {
       return;
     }
     try {
-      const response = await searchPackages(query);
+      // Use user-side search service with destination filtering
+      const response = await searchPackages(query, id);
       setSearchResults(response ?? []);
     } catch (error) {
-      console.error(error);
+      console.error("Search error:", error);
       setSearchResults([]);
     }
-  }, []);
-  useEffect(() => {
-    dispatch(fetchPackages());
-  }, [dispatch]);
+  }, [id]);
 
+  // Function to fetch packages for this specific destination
+  const fetchDestinationPackages = useCallback(async (page: number = 1, limit: number = 10) => {
+    if (!id) return;
+    
+    setPackagesLoading(true);
+    try {
+      const response = await getPackagesByDestination(id, page, limit);
+      setPackages(response.packages);
+      setPackagesPagination({
+        totalPackages: response.totalPackages,
+        totalPages: response.totalPages,
+        currentPage: response.currentPage
+      });
+    } catch (error) {
+      console.error("Failed to fetch destination packages:", error);
+      setPackages([]);
+    } finally {
+      setPackagesLoading(false);
+    }
+  }, [id]);
+
+  // Fetch destination details
   useEffect(() => {
     if (id) {
       getsingleDestination(id)
         .then((res) => {
-       
           setDestination(res);
         })
         .catch((err) => console.error("Failed to load destination", err))
         .finally(() => setLoading(false));
     }
   }, [id]);
+
+  // Fetch packages when destination ID changes
+  useEffect(() => {
+    if (id) {
+      fetchDestinationPackages();
+    }
+  }, [id, fetchDestinationPackages]);
+
+  // Function to load more packages (for pagination)
+  const loadMorePackages = () => {
+    if (packagesPagination.currentPage < packagesPagination.totalPages) {
+      fetchDestinationPackages(packagesPagination.currentPage + 1);
+    }
+  };
 
   if (loading) {
     return (
@@ -159,7 +191,7 @@ export const DestinationDetail = () => {
             </div>
           </div>
         ) : (
-          <div className="h-96 md:h-[500px] bg-gradient-to-br from-back to-black relative overflow-hidden">
+          <div className="h-96 md:h-[500px] bg-gradient-to-br from-slate-800 to-black relative overflow-hidden">
             <div className="absolute inset-0 bg-black/20"></div>
             <div className="absolute bottom-0 left-0 right-0 p-8">
               <div className="max-w-7xl mx-auto">
@@ -192,7 +224,7 @@ export const DestinationDetail = () => {
             <div className="lg:col-span-2 space-y-8">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
                 <h2 className="text-3xl font-bold text-slate-900 mb-6 flex items-center">
-                  <div className="w-2 h-8 bg-gradient-to-b from-black to-black rounded-full mr-4"></div>
+                  <div className="w-2 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full mr-4"></div>
                   Discover This Destination
                 </h2>
                 <p className="text-slate-700 leading-relaxed text-lg">
@@ -249,7 +281,7 @@ export const DestinationDetail = () => {
                   <div className="flex items-center justify-center py-12">
                     <div className="relative">
                       <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200"></div>
-                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-black absolute top-0"></div>
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-600 absolute top-0"></div>
                     </div>
                     <span className="ml-4 text-slate-600 font-medium">
                       Loading packages...
@@ -259,12 +291,17 @@ export const DestinationDetail = () => {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center mr-3">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-3">
                           <Calendar className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-slate-700 font-semibold text-lg">
-                          {displayedPackages.length} Package
-                          {displayedPackages.length !== 1 ? "s" : ""} Available
+                          {packagesPagination.totalPackages} Package
+                          {packagesPagination.totalPackages !== 1 ? "s" : ""} Available
+                          {searchResults && (
+                            <span className="text-slate-500 text-sm ml-2">
+                              (Showing {displayedPackages.length} search results)
+                            </span>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -278,7 +315,7 @@ export const DestinationDetail = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                               <div className="relative">
-                                <div className="w-14 h-14 bg-gradient-to-br bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                                <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                                   <span className="text-white font-bold text-xl">
                                     {pkg.packageName.charAt(0)}
                                   </span>
@@ -286,14 +323,14 @@ export const DestinationDetail = () => {
                               </div>
 
                               <div className="flex-1">
-                                <h4 className="text-xl font-bold text-slate-900 mb-1  transition-colors duration-300">
+                                <h4 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors duration-300">
                                   {pkg.packageName}
                                 </h4>
                               </div>
                             </div>
 
                             <button
-                              className="group/btn inline-flex items-center px-6 py-3 bg-gradient-to-r from-black to-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                              className="group/btn inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                               onClick={() => {
                                 navigate("/timeline", {
                                   state: { selectedPackage: pkg },
@@ -307,6 +344,31 @@ export const DestinationDetail = () => {
                         </div>
                       ))}
                     </div>
+
+                    {/* Load More Button for Pagination */}
+                    {!searchResults && packagesPagination.currentPage < packagesPagination.totalPages && (
+                      <div className="text-center mt-8">
+                        <button
+                          onClick={loadMorePackages}
+                          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white font-semibold rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all duration-300"
+                          disabled={packagesLoading}
+                        >
+                          {packagesLoading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              Load More Packages
+                              <span className="ml-2 text-slate-300">
+                                ({packagesPagination.currentPage} of {packagesPagination.totalPages})
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-gradient-to-br from-slate-100 to-blue-100 rounded-3xl shadow-inner border-2 border-dashed border-slate-300 p-16 text-center">
@@ -317,12 +379,14 @@ export const DestinationDetail = () => {
                       No Packages Available
                     </h3>
                     <p className="text-slate-600 text-lg mb-6 max-w-md mx-auto">
-                      Travel packages for this destination are coming soon.
-                      Check back later for exciting adventures!
+                      {searchResults ? 
+                        "No packages found matching your search criteria." :
+                        "Travel packages for this destination are coming soon. Check back later for exciting adventures!"
+                      }
                     </p>
                     <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                       <Calendar className="w-4 h-4 mr-2" />
-                      Coming Soon
+                      {searchResults ? "Try Different Keywords" : "Coming Soon"}
                     </div>
                   </div>
                 )}
