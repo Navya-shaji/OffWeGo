@@ -16,7 +16,6 @@ export interface Package {
   activities: Activity[];
   checkInTime: string;
   checkOutTime: string;
-
   itinerary: {
     day: number;
     time: string;

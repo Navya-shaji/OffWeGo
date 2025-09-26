@@ -5,7 +5,7 @@ export class PackageController {
   constructor(private getPackageUsecase: IGetPackageUsecase) {}
 
   async getPackages(req: Request, res: Response): Promise<void> {
-    console.log("haiii")
+ 
     try {
       const destination = req.query.destination as string | undefined;
       const packages = await this.getPackageUsecase.execute(destination);

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { IGetPackageUsecase } from "../../../domain/interface/Vendor/IGetPackageUsecase";
 import { ICreatePackage } from "../../../domain/interface/Vendor/IAddPackageUsecase";
 import { IEditPackageUsecase } from "../../../domain/interface/Vendor/IPackageEditUsecase";
 import { IDeletePackagenUseCase } from "../../../domain/interface/Vendor/IPackageDeleteUsecase";
@@ -36,17 +35,17 @@ export class PackageController {
 
   async getPackagesForUser(req: Request, res: Response) {
     const { id } = req.params;
+    
+    const destinationId=id
+   
 
-   const destinationId=id
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
 
     if (!destinationId) {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: "Destination required" });
     }
 
-    const result = await this._getPackageByDestination.execute(destinationId, page, limit);
-   console.log(result,"hdg")
+    const result = await this._getPackageByDestination.execute(destinationId);
+  
     res.status(HttpStatus.OK).json(result);
   }
 

@@ -11,8 +11,7 @@ import {
   ArrowLeft,
   ExternalLink,
   Star,
-  Clock,
-  Users,
+  
 } from "lucide-react";
 import Navbar from "@/components/profile/navbar";
 import { SearchBar } from "@/components/Modular/searchbar";
@@ -78,7 +77,7 @@ console.log(displayedPackages,"shgjdgh")
     },
     [id]
   );
-  // console.log(packages,"pack")
+  console.log(packages,"pack")
 
   useEffect(() => {
     if (id) {

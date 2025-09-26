@@ -16,7 +16,7 @@ import { JwtService } from "../../Services/jwtService";
 // import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { CreatePackagesUseCase } from "../../../useCases/package/AddPackageUsecase";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
-import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
+// import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
 import { EditPackage } from "../../../useCases/package/EditPackageUsecase";
 import { DeletePackage } from "../../../useCases/package/DeletePackageUsecase";
 import { EditVendorProfile } from "../../../useCases/vendor/profile/Edit profileUsecase";
@@ -61,7 +61,7 @@ const vendorStatusUseCase = new VendorStatusCheckUseCase(vendorRepository);
 const vendorloginusecase=new VendorLoginUsecase(vendorRepository,hashPassword,jwtService);
 const vendorProfileusecase=new VendorProfileUsecase(vendorRepository);
 const createPackageUsecase=new CreatePackagesUseCase(packageRepo);
-const getallPackageUsecase=new GetPackageUsecase(packageRepo);
+// const getallPackageUsecase=new GetPackageUsecase(packageRepo);
 const editpackage=new EditPackage()
 const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()

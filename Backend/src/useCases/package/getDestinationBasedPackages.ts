@@ -11,8 +11,9 @@ export class GetDestinationBasedPackageUseCase implements IGetDestinationBasedPa
     totalPackages: number;
   }> {
     try {
+      console.log(destinationId,"iddddddddddd")
       const response = await this.packageRepo.getPackagesByDestination(destinationId,skip,limit)
-console.log("usecase",response)
+console.log(response,"response")
       return {
         packages: response.packages,
         totalPackages: response.totalPackages,

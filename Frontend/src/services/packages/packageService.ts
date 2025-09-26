@@ -113,13 +113,13 @@ export const getPackagesByDestination = async (
   packages: Package[];
   
 }> => {
-  console.log(destinationId)
+  console.log(destinationId,"id")
   try {
     const res = await axiosInstance.get(
       `/api/package/${destinationId}`,
   
     );
-console.log(res.data,"user side oackage")
+console.log(res.data,"user side package")
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

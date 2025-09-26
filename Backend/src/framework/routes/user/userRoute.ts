@@ -94,7 +94,6 @@ export class UserRoute {
     );
     this.userRouter.get(
       UserRoutes.GET_ALL_PACKAGES,
-    
       (req: Request, res: Response) => {
         packagecontroller.getPackagesForUser(req,res)
       }
