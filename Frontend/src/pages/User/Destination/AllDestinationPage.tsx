@@ -32,7 +32,7 @@ export const DestinationListPage = () => {
   useEffect(() => {
     let filtered = [...destinations];
 
-    // Search filter
+ 
     if (searchQuery) {
       filtered = filtered.filter(
         (dest) =>
@@ -42,12 +42,12 @@ export const DestinationListPage = () => {
       );
     }
 
-    // Category filter
+    
     if (selectedCategory !== "all") {
       filtered = filtered.filter((dest) => dest.category === selectedCategory);
     }
 
-    // Sort
+
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name":
@@ -59,7 +59,10 @@ export const DestinationListPage = () => {
         case "visitors":
           return parseFloat(b.visitors || "0") - parseFloat(a.visitors || "0");
         case "newest":
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
         default:
           return 0;
       }
@@ -70,7 +73,9 @@ export const DestinationListPage = () => {
 
   const categories = [
     "all",
-    ...Array.from(new Set(destinations.map((dest) => dest.category).filter(Boolean))),
+    ...Array.from(
+      new Set(destinations.map((dest) => dest.category).filter(Boolean))
+    ),
   ];
 
   const handleSearch = async (query) => {
@@ -90,7 +95,9 @@ export const DestinationListPage = () => {
       <div className="min-h-screen bg-slate-50 flex justify-center items-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent"></div>
-          <p className="text-slate-600 text-lg font-medium">Discovering destinations...</p>
+          <p className="text-slate-600 text-lg font-medium">
+            Discovering destinations...
+          </p>
         </div>
       </div>
     );
@@ -119,11 +126,12 @@ export const DestinationListPage = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-5"></div>
         <div className="relative max-w-7xl mx-auto px-6 py-12">
           <div className="text-center mb-8">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            <h1 className="text-5xl font-bold bg-gradient-to-r bg-black bg-clip-text text-transparent mb-4">
               Discover Amazing Places
             </h1>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Explore breathtaking destinations around the world and create unforgettable memories
+            <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+              Explore breathtaking destinations around the world and create
+              unforgettable memories
             </p>
           </div>
 
@@ -147,9 +155,7 @@ export const DestinationListPage = () => {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
-           
             <div className="flex flex-wrap items-center gap-4">
-       
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -165,13 +171,13 @@ export const DestinationListPage = () => {
             <div className="flex items-center justify-between space-x-6">
               <div className="flex items-center space-x-2">
                 <span className="text-slate-600 font-medium">
-                  {filteredDestinations.length} destination{filteredDestinations.length !== 1 ? "s" : ""}
+                  {filteredDestinations.length} destination
+                  {filteredDestinations.length !== 1 ? "s" : ""}
                 </span>
                 <div className="h-1 w-1 bg-slate-400 rounded-full"></div>
                 <span className="text-indigo-600 font-semibold">Found</span>
               </div>
 
-         
               <div className="flex bg-slate-100 rounded-xl p-1">
                 <button
                   onClick={() => setViewMode("grid")}
@@ -209,7 +215,8 @@ export const DestinationListPage = () => {
                 No destinations found
               </h3>
               <p className="text-slate-500 text-lg">
-                Try adjusting your search criteria or explore different categories
+                Try adjusting your search criteria or explore different
+                categories
               </p>
             </div>
           </div>
@@ -224,12 +231,11 @@ export const DestinationListPage = () => {
             {filteredDestinations.map((dest, idx) => (
               <div
                 key={dest.id || idx}
-                onClick={() => {
-       
-                  
-                }}
+                onClick={() => {}}
                 className={`group cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                  viewMode === "list" ? "bg-white rounded-2xl shadow-lg hover:shadow-2xl" : ""
+                  viewMode === "list"
+                    ? "bg-white rounded-2xl shadow-lg hover:shadow-2xl"
+                    : ""
                 }`}
               >
                 {viewMode === "grid" ? (
@@ -239,7 +245,11 @@ export const DestinationListPage = () => {
                       {dest.imageUrls?.length > 0 ? (
                         <>
                           <img
-                            src={dest.imageUrls[0]}
+                            src={
+                              dest.imageUrls[0]?.match(
+                                /src=['"]([^'"]+)['"]/
+                              )?.[1] || "/placeholder.svg"
+                            }
                             alt={dest.name}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
@@ -250,7 +260,7 @@ export const DestinationListPage = () => {
                           <MapPin className="h-16 w-16 text-slate-400" />
                         </div>
                       )}
-                      
+
                       {/* Category Badge */}
                       {dest.category && (
                         <div className="absolute top-4 left-4">
@@ -264,7 +274,9 @@ export const DestinationListPage = () => {
                       {dest.rating && (
                         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-bold text-slate-700">{dest.rating}</span>
+                          <span className="text-sm font-bold text-slate-700">
+                            {dest.rating}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -277,7 +289,9 @@ export const DestinationListPage = () => {
                         {dest.location && (
                           <div className="flex items-center text-slate-500">
                             <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-                            <span className="text-sm font-medium">{dest.location}</span>
+                            <span className="text-sm font-medium">
+                              {dest.location}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -298,14 +312,21 @@ export const DestinationListPage = () => {
                   <div className="flex space-x-6 p-6">
                     <div className="w-60 h-40 flex-shrink-0 overflow-hidden rounded-xl">
                       {dest.imageUrls?.length > 0 ? (
-                        <img
-                          src={dest.imageUrls[0]}
-                          alt={dest.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
+                        <>
+                          <img
+                            src={
+                              dest.imageUrls[0]?.match(
+                                /src=['"]([^'"]+)['"]/
+                              )?.[1] || "/placeholder.svg"
+                            }
+                            alt={dest.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        </>
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl flex items-center justify-center">
-                          <MapPin className="h-12 w-12 text-slate-400" />
+                        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                          <MapPin className="h-16 w-16 text-slate-400" />
                         </div>
                       )}
                     </div>
@@ -319,16 +340,20 @@ export const DestinationListPage = () => {
                           {dest.location && (
                             <div className="flex items-center text-slate-500 mb-2">
                               <MapPin className="h-5 w-5 mr-2 flex-shrink-0" />
-                              <span className="font-medium">{dest.location}</span>
+                              <span className="font-medium">
+                                {dest.location}
+                              </span>
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="flex items-center space-x-4">
                           {dest.rating && (
                             <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
                               <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
-                              <span className="font-bold text-slate-700">{dest.rating}</span>
+                              <span className="font-bold text-slate-700">
+                                {dest.rating}
+                              </span>
                             </div>
                           )}
                           {dest.category && (
@@ -346,7 +371,9 @@ export const DestinationListPage = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center text-indigo-600 font-bold group-hover:text-indigo-700 transition-colors">
                           <span className="mr-2">View Details</span>
-                          <div className="transform group-hover:translate-x-1 transition-transform">→</div>
+                          <div className="transform group-hover:translate-x-1 transition-transform">
+                            →
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -359,4 +386,4 @@ export const DestinationListPage = () => {
       </div>
     </div>
   );
-}
+};

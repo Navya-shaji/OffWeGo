@@ -38,11 +38,8 @@ export default function EditVendorProfileModal({
   const [phone, setPhone] = useState(vendor?.phone || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
-     null
+    vendor?.profileImage || null
   );
-
-
-  console.log("imagePreviewUrl",imagePreviewUrl)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,65 +56,63 @@ export default function EditVendorProfileModal({
     if (file) {
       setSelectedFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviewUrl(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreviewUrl(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-const handleSubmit = async (event: React.FormEvent) => {
-  event.preventDefault();
-  setIsLoading(true);
-  setError(null);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-  if (!vendor || !vendor.id) {
-    setError("Vendor ID missing");
-    setIsLoading(false);
-    return;
-  }
-
- 
-  try {
-    vendorEditSchema.parse({ name, phone: phone.toString() });
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      setError(err.errors[0].message); 
-    }
-    setIsLoading(false);
-    return;
-  }
-
-  try {
-    let newImageUrl = vendor.profileImage
-    console.log("newImage",newImageUrl)
-    if (selectedFile) {
-      console.log("selected file")
-      newImageUrl = await uploadToCloudinary(selectedFile);
-      setImagePreviewUrl(newImageUrl);
+    if (!vendor?.id) {
+      setError("Vendor ID missing");
+      setIsLoading(false);
+      return;
     }
 
-    const updated = await editProfile(vendor.id, {
-      name,
-      phone,
-      profileImage: newImageUrl,
-    });
-console.log("Updated vendor",updated)
-    const mappedVendor = {
-      ...updated.data,
-      profileImage: updated.data.profileImage,
-    };
+    try {
+      vendorEditSchema.parse({ name, phone: phone.toString() });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      }
+      setIsLoading(false);
+      return;
+    }
 
+    try {
+      let newImageUrl = vendor.profileImage;
 
-    dispatch(login({ vendor: mappedVendor, token }));
-    onClose();
-  } catch (err) {
-    console.error("Error updating:", err);
-    setError("Update failed");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (selectedFile) {
+        newImageUrl = await uploadToCloudinary(selectedFile);
+      }
+
+      const updated = await editProfile(vendor.id, {
+        name,
+        phone,
+        profileImage: newImageUrl,
+      });
+
+      // Preserve documentUrl when updating Redux
+      const mappedVendor = {
+        ...updated.data,
+        profileImage: updated.data.profileImage || "/placeholder-avatar.png",
+        documentUrl: vendor.documentUrl,
+      };
+      dispatch(login({ vendor: mappedVendor, token }));
+
+      setImagePreviewUrl(mappedVendor.profileImage);
+
+      onClose();
+    } catch (err) {
+      console.error("Error updating:", err);
+      setError("Update failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -145,7 +140,7 @@ console.log("Updated vendor",updated)
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500 text-xl font-bold">
                   {vendor?.name?.charAt(0).toUpperCase() || "V"}
                 </div>
               )}
@@ -158,6 +153,7 @@ console.log("Updated vendor",updated)
                 type="file"
                 onChange={handleFileChange}
                 accept="image/*"
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -202,7 +198,9 @@ console.log("Updated vendor",updated)
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          )}
 
           <DialogFooter>
             <Button type="submit" disabled={isLoading}>

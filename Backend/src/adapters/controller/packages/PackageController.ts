@@ -7,10 +7,11 @@ import { ISearchPackageUsecase } from "../../../domain/interface/Vendor/IPackage
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { IGetDestinationBasedPackage } from "../../../domain/interface/Vendor/IGetDestinationBasedPackage";
+import { IGetPackagesUsecase } from "../../../domain/interface/Vendor/IGetAllPackageUsecase";
 
 export class PackageController {
   constructor(
-    private _getPackage: IGetPackageUsecase,
+    private _getPackage: IGetPackagesUsecase,
     private _createPackage: ICreatePackage,
     private _editpackage: IEditPackageUsecase,
     private _deletepackage: IDeletePackagenUseCase,
@@ -27,11 +28,11 @@ export class PackageController {
     if (!vendorId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Vendor not authenticated" });
     }
-
-    const result = await this._getPackage.execute(vendorId, page, limit);
+    console.log("controller")
+    const result = await this._getPackage.execute({vendorId,limit,page,role:"vendor"});
+    console.log(result)
     res.status(HttpStatus.OK).json(result);
   }
-
 
   async getPackagesForUser(req: Request, res: Response) {
     const { id } = req.params;

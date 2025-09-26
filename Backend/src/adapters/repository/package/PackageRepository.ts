@@ -22,6 +22,7 @@ export class PackageRepository
     limit: number
   ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
     const [packages, totalPackages] = await Promise.all([
+      
       packageModel
         .find()
         .skip(skip)
@@ -76,6 +77,8 @@ async searchPackage(query: string): Promise<Package[]> {
   skip: number,
   limit: number
 ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
+      console.log(skip,limit)
+
   const [packages, totalPackages] = await Promise.all([
     packageModel
       .find({ vendorId })

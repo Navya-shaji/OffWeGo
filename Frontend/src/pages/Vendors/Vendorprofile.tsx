@@ -11,6 +11,7 @@ export const Profile = () => {
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
   console.log(vendor);
   if (!vendor) return null;
+const documentSrc = vendor.documentUrl?.match(/src=['"]([^'"]+)['"]/)?.[1] || vendor.documentUrl;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -41,7 +42,10 @@ export const Profile = () => {
             <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               {vendor?.profileImage ? (
                 <img
-                  src={vendor.profileImage}
+                  src={
+                    vendor.profileImage?.match(/src=['"]([^'"]+)['"]/)?.[1] ||
+                    "/placeholder-avatar.png"
+                  }
                   alt="User Avatar"
                   className="w-full h-full object-cover"
                 />
@@ -85,14 +89,15 @@ export const Profile = () => {
                 Document
               </span>
               <p className="text-lg">
-                {vendor.documentUrl && (
-                  <button
-                    onClick={() => setSelectedDocument(vendor.documentUrl)}
-                    className="bg-black text-white px-2 py-2 rounded-lg font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300"
-                  >
-                    View Document
-                  </button>
-                )}
+            {documentSrc && (
+  <button
+    onClick={() => setSelectedDocument(documentSrc)}
+    className="bg-black text-white px-2 py-2 rounded-lg font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300"
+  >
+    View Document
+  </button>
+)}
+
               </p>
             </div>
             {selectedDocument && (
@@ -106,10 +111,11 @@ export const Profile = () => {
                   </button>
                   <div className="p-4">
                     <img
-                      src={selectedDocument}
-                      alt="Vendor Document"
-                      className="w-full h-auto rounded-lg"
-                    />
+  src={selectedDocument || "/placeholder-document.png"}
+  alt="Vendor Document"
+  className="w-full h-auto rounded-lg"
+/>
+
                   </div>
                 </div>
               </div>

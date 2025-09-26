@@ -7,11 +7,15 @@ export const DestinationsPage = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const extractImageUrl = (htmlString: string) => {
+    const match = htmlString.match(/src="([^"]+)"/);
+    return match ? match[1] : null;
+  };
+console.log(destinations,"dhefhfhurhfuretueryteuru")
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const data = await fetchAllDestinations(1, 1000); 
+        const data = await fetchAllDestinations(1, 1000);
         setDestinations(data.destinations);
       } catch (err) {
         console.error(err);
@@ -33,9 +37,7 @@ export const DestinationsPage = () => {
   }
 
   if (error) {
-    return (
-      <div className="text-center text-red-600 py-20">{error}</div>
-    );
+    return <div className="text-center text-red-600 py-20">{error}</div>;
   }
 
   return (
@@ -55,7 +57,10 @@ export const DestinationsPage = () => {
               <div className="relative h-80 rounded-2xl overflow-hidden shadow-lg">
                 {dest.imageUrls?.length > 0 ? (
                   <img
-                    src={dest.imageUrls[0]}
+                    src={
+                      extractImageUrl(dest.imageUrls[0]) ||
+                      "/placeholder-image.png"
+                    }
                     alt={dest.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

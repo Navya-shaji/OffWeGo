@@ -1,3 +1,4 @@
+import { log } from "console";
 import { IGetPackagesUsecase } from "../../domain/interface/Vendor/IGetAllPackageUsecase";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
@@ -24,11 +25,14 @@ export class GetPackages implements IGetPackagesUsecase {
     totalPages: number;
     currentPage: number;
   }> {
+    console.log("con", role)
     const skip = (page - 1) * limit;
     let packages: IPackageModel[] = [];
     let totalPackages = 0;
 
+
     if (role === "vendor" && vendorId) {
+      console.log("vendor")
       const result = await this._packageRepo.getAllPackagesByVendor(
         vendorId,
         skip,
@@ -37,6 +41,7 @@ export class GetPackages implements IGetPackagesUsecase {
       packages = result.packages;
       totalPackages = result.totalPackages;
     } else if (role === "user" && destinationId) {
+      console.log("user")
       const result = await this._packageRepo.getPackagesByDestination(
         destinationId,
         skip,

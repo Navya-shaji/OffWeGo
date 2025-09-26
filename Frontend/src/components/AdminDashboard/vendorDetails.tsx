@@ -30,20 +30,19 @@ export const VendorList = () => {
   const fetchVendors = useCallback(async (pageNum: number = 1) => {
     // Prevent multiple simultaneous calls
     if (isLoadingRef.current) return;
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
       setError("");
-      
+
       const response = await getAllVendors(pageNum, 10);
-      
+
       setVendors(response.vendors);
       setOriginalVendors(response.vendors);
       setTotalPages(Math.ceil(response.totalvendors / 10));
       setTotalVendors(response.totalvendors);
       setPage(pageNum);
-      
     } catch (error: any) {
       console.error("Error fetching vendors:", error);
       setError("Failed to fetch vendors.");
@@ -55,87 +54,94 @@ export const VendorList = () => {
   }, []);
 
   // Debounced search function
-  const handleSearch = useCallback(async (query: string) => {
-    // Clear previous timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    setSearchQuery(query);
-
-    // Debounce search
-    searchTimeoutRef.current = setTimeout(async () => {
-      if (!query.trim()) {
-        // Return to original data
-        setIsSearchMode(false);
-        setVendors(originalVendors);
-        setTotalPages(Math.ceil(totalVendors / 10));
-        setPage(1);
-        return;
+  const handleSearch = useCallback(
+    async (query: string) => {
+      // Clear previous timeout
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
 
-      setIsSearchMode(true);
-      try {
-        const response = await searchVendor(query);
-        const searchResults = Array.isArray(response) ? response : [];
-        
-        setVendors(searchResults);
-        setTotalPages(Math.ceil(searchResults.length / 10));
-        setPage(1);
-        
-      } catch (error: any) {
-        console.error("Error during search:", error);
-        setVendors([]);
-        setTotalPages(1);
-      }
-    }, 300);
-  }, [originalVendors, totalVendors]);
+      setSearchQuery(query);
+
+      // Debounce search
+      searchTimeoutRef.current = setTimeout(async () => {
+        if (!query.trim()) {
+          // Return to original data
+          setIsSearchMode(false);
+          setVendors(originalVendors);
+          setTotalPages(Math.ceil(totalVendors / 10));
+          setPage(1);
+          return;
+        }
+
+        setIsSearchMode(true);
+        try {
+          const response = await searchVendor(query);
+          const searchResults = Array.isArray(response) ? response : [];
+
+          setVendors(searchResults);
+          setTotalPages(Math.ceil(searchResults.length / 10));
+          setPage(1);
+        } catch (error: any) {
+          console.error("Error during search:", error);
+          setVendors([]);
+          setTotalPages(1);
+        }
+      }, 300);
+    },
+    [originalVendors, totalVendors]
+  );
 
   // Handle page change
-  const handlePageChange = useCallback((newPage: number) => {
-    if (newPage === page) return; // Prevent unnecessary calls
-    
-    setPage(newPage);
-    
-    if (!isSearchMode) {
-      // Only fetch from server in normal mode
-      fetchVendors(newPage);
-    }
-    // In search mode, we handle pagination with data slicing below
-  }, [page, isSearchMode, fetchVendors]);
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      if (newPage === page) return; // Prevent unnecessary calls
+
+      setPage(newPage);
+
+      if (!isSearchMode) {
+        // Only fetch from server in normal mode
+        fetchVendors(newPage);
+      }
+      // In search mode, we handle pagination with data slicing below
+    },
+    [page, isSearchMode, fetchVendors]
+  );
 
   // Handle block toggle
-  const handleBlockToggle = useCallback(async (
-    vendorId: string,
-    currentStatus: boolean
-  ) => {
-    // Optimistic update
-    const previousVendors = [...vendors];
-    const previousOriginalVendors = [...originalVendors];
-    
-    const updateVendor = (vendorList: Vendor[]) =>
-      vendorList.map((vendor) =>
-        vendor._id === vendorId ? { ...vendor, isBlocked: !currentStatus } : vendor
-      );
+  const handleBlockToggle = useCallback(
+    async (vendorId: string, currentStatus: boolean) => {
+      // Optimistic update
+      const previousVendors = [...vendors];
+      const previousOriginalVendors = [...originalVendors];
 
-    setVendors(updateVendor);
-    if (!isSearchMode) {
-      setOriginalVendors(updateVendor);
-    }
+      const updateVendor = (vendorList: Vendor[]) =>
+        vendorList.map((vendor) =>
+          vendor._id === vendorId
+            ? { ...vendor, isBlocked: !currentStatus }
+            : vendor
+        );
 
-    try {
-      await updateVendorBlockStatus(vendorId, !currentStatus);
-    } catch (err: any) {
-      console.error("Failed to update vendor status", err);
-      // Revert on error
-      setVendors(previousVendors);
-      setOriginalVendors(previousOriginalVendors);
-      setError("Failed to update vendor status. Please try again.");
-      
-      // Clear error after 3 seconds
-      setTimeout(() => setError(""), 3000);
-    }
-  }, [vendors, originalVendors, isSearchMode]);
+      setVendors(updateVendor);
+      if (!isSearchMode) {
+        setOriginalVendors(updateVendor);
+      }
+
+      try {
+        await updateVendorBlockStatus(vendorId, !currentStatus);
+      } catch (err: any) {
+        console.error("Failed to update vendor status", err);
+        // Revert on error
+        setVendors(previousVendors);
+        setOriginalVendors(previousOriginalVendors);
+        setError("Failed to update vendor status. Please try again.");
+
+        // Clear error after 3 seconds
+        setTimeout(() => setError(""), 3000);
+      }
+    },
+    [vendors, originalVendors, isSearchMode]
+  );
 
   // Initial fetch - only once
   useEffect(() => {
@@ -187,9 +193,11 @@ export const VendorList = () => {
             : status === "rejected"
             ? "bg-red-100 text-red-800"
             : "bg-yellow-100 text-yellow-800";
-        
+
         return (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colorClass}`}>
+          <span
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colorClass}`}
+          >
             {status}
           </span>
         );
@@ -200,9 +208,13 @@ export const VendorList = () => {
       cell: ({ row }) => {
         const blocked = row.original.isBlocked;
         return (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-            blocked ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-          }`}>
+          <span
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+              blocked
+                ? "bg-red-100 text-red-800"
+                : "bg-green-100 text-green-800"
+            }`}
+          >
             {blocked ? "Blocked" : "Unblocked"}
           </span>
         );
@@ -214,13 +226,12 @@ export const VendorList = () => {
         const url = row.original.documentUrl;
         return url ? (
           <img
-            src={url}
+            src={
+              url?.match(/src=['"]([^'"]+)['"]/)?.[1] ||
+              "/placeholder-document.png"
+            }
             alt="Vendor Document"
             className="w-16 h-16 object-cover rounded border"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "/placeholder-document.png"; // Fallback image
-            }}
           />
         ) : (
           <div className="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center">
@@ -274,16 +285,17 @@ export const VendorList = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">All Vendors</h1>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
-              ? `Found ${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} for "${searchQuery}"`
-              : `${totalVendors} total vendors`
-            }
+            {isSearchMode
+              ? `Found ${vendors.length} vendor${
+                  vendors.length !== 1 ? "s" : ""
+                } for "${searchQuery}"`
+              : `${totalVendors} total vendors`}
           </p>
         </div>
-        
+
         <div className="w-60">
-          <SearchBar 
-            placeholder="Search Vendors..." 
+          <SearchBar
+            placeholder="Search Vendors..."
             onSearch={handleSearch}
             value={searchQuery}
           />
@@ -315,28 +327,25 @@ export const VendorList = () => {
             No vendors found
           </h3>
           <p className="text-gray-500">
-            {searchQuery 
+            {searchQuery
               ? `No vendors match your search for "${searchQuery}"`
-              : "No vendors are available at the moment"
-            }
+              : "No vendors are available at the moment"}
           </p>
         </div>
       ) : (
         <>
-         
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <ReusableTable<Vendor> 
-              data={getCurrentPageData()} 
-              columns={columns} 
+            <ReusableTable<Vendor>
+              data={getCurrentPageData()}
+              columns={columns}
             />
           </div>
 
-         
           {totalPages > 1 && (
             <div className="flex justify-center">
-              <Pagination 
-                total={totalPages} 
-                current={page} 
+              <Pagination
+                total={totalPages}
+                current={page}
                 setPage={handlePageChange}
               />
             </div>
@@ -344,10 +353,17 @@ export const VendorList = () => {
 
           {/* Stats */}
           <div className="text-center text-sm text-gray-500">
-            {isSearchMode 
-              ? `Showing ${Math.min((page - 1) * 10 + 1, vendors.length)}-${Math.min(page * 10, vendors.length)} of ${vendors.length} search results`
-              : `Showing ${((page - 1) * 10) + 1}-${Math.min(page * 10, totalVendors)} of ${totalVendors} vendors`
-            }
+            {isSearchMode
+              ? `Showing ${Math.min(
+                  (page - 1) * 10 + 1,
+                  vendors.length
+                )}-${Math.min(page * 10, vendors.length)} of ${
+                  vendors.length
+                } search results`
+              : `Showing ${(page - 1) * 10 + 1}-${Math.min(
+                  page * 10,
+                  totalVendors
+                )} of ${totalVendors} vendors`}
           </div>
         </>
       )}

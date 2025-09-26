@@ -40,6 +40,7 @@ import { SearchPackage } from "../../../useCases/package/SearchPackageUsecase";
 import { searchHotelusecase } from "../../../useCases/hotel/HotelSearchUsecase";
 import { SearchActivityusecase } from "../../../useCases/activity/SearchActivityusecase";
 import { GetDestinationBasedPackageUseCase } from "../../../useCases/package/getDestinationBasedPackages";
+import { GetPackages } from "../../../useCases/package/GetAllPackageUsecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -78,6 +79,7 @@ const searchPackage=new SearchPackage(packageRepo)
 const searchhotelusecase=new searchHotelusecase(hotelRepo)
 const searchActivityusecase=new SearchActivityusecase(activityRepo)
 const getPAckageByDestination=new GetDestinationBasedPackageUseCase(packageRepo)
+const getAllpackageByVendor=new GetPackages(packageRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -85,7 +87,7 @@ export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVer
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
 export const vendorloginController=new VendorLoginController(vendorloginusecase,jwtService);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
-export const packagecontroller=new PackageController(getallPackageUsecase,createPackageUsecase,editpackage,deletepackage,searchPackage,getPAckageByDestination);
+export const packagecontroller=new PackageController(getAllpackageByVendor,createPackageUsecase,editpackage,deletepackage,searchPackage,getPAckageByDestination);
 export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)

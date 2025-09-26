@@ -34,6 +34,9 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     onImagesChange(images.filter((_, i) => i !== index));
   };
 
+  // Inline SVG placeholder as data URL to prevent network requests
+  const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23f3f4f6'/%3E%3Cpath d='M25 35l10 10 20-20' stroke='%23d1d5db' stroke-width='2' fill='none'/%3E%3Ctext x='40' y='55' text-anchor='middle' font-family='Arial' font-size='10' fill='%239ca3af'%3EImage%3C/text%3E%3C/svg%3E";
+
   return (
     <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -75,7 +78,10 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                   alt={`Package image ${index + 1}`}
                   className="w-full h-20 object-cover rounded-lg border-2 border-gray-200"
                   onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg";
+                    // Prevent infinite loops by only setting placeholder once
+                    if (e.currentTarget.src !== placeholderSvg) {
+                      e.currentTarget.src = placeholderSvg;
+                    }
                   }}
                 />
                 <button

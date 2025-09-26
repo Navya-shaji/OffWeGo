@@ -38,7 +38,7 @@ export const DestinationDetail = () => {
 
   const navigate = useNavigate();
   const displayedPackages = searchResults ?? packages;
-
+console.log(displayedPackages,"shgjdgh")
   const handleSearch = useCallback(
     async (query: string) => {
       if (!query.trim()) {
@@ -169,13 +169,14 @@ export const DestinationDetail = () => {
         destination.imageUrls.length > 0 ? (
           <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh]">
             <div className="absolute inset-0">
-              <img
-                src={
-                  destination.imageUrls[activeImageIndex] || "/placeholder.svg"
-                }
-                alt={destination.name}
-                className="w-full h-full object-cover transition-all duration-1000 scale-105 hover:scale-110"
-              />
+           <img
+  src={
+    destination.imageUrls[activeImageIndex]?.match(/src=['"]([^'"]+)['"]/)?.[1] || "/placeholder.svg"
+  }
+  alt={`${destination.name} ${activeImageIndex + 1}`}
+  className="w-full h-full object-cover transition-all duration-1000 scale-105 hover:scale-110"
+/>
+
             </div>
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -283,43 +284,6 @@ export const DestinationDetail = () => {
                   {destination.description}
                 </p>
               </div>
-
-              {Array.isArray(destination.imageUrls) &&
-                destination.imageUrls.length > 1 && (
-                  <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-10 transform hover:scale-[1.01] transition-all duration-500">
-                    <div className="flex items-center mb-8">
-                      <div className="w-1 h-12 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full mr-6"></div>
-                      <h3 className="text-3xl font-black text-slate-900">
-                        Photo Gallery
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                      {destination.imageUrls.map((url, idx) => (
-                        <div
-                          key={idx}
-                          className={`relative group cursor-pointer rounded-2xl overflow-hidden transition-all duration-500 hover:scale-110 hover:-rotate-1 ${
-                            idx === activeImageIndex
-                              ? "ring-4 ring-blue-500 ring-offset-4 scale-105"
-                              : ""
-                          }`}
-                          onClick={() => setActiveImageIndex(idx)}
-                        >
-                          <img
-                            src={url || "/placeholder.svg"}
-                            alt={`${destination.name} ${idx + 1}`}
-                            className="w-full h-32 object-cover transition-all duration-700 group-hover:scale-125"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                              <ExternalLink className="w-4 h-4 text-slate-700" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
               <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-10 transform hover:scale-[1.01] transition-all duration-500">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 space-y-4 lg:space-y-0">

@@ -82,61 +82,53 @@ export const CategoryTable = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+
   // ✅ fetch categories
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getCategory(page, 5);
-
       setCategory(response.categories || []);
       const total = Number(response?.totalCategories || 0);
-      const newTotalPages = Math.ceil(total / 5);
-      setTotalPages((prev) => (prev !== newTotalPages ? newTotalPages : prev));
+      setTotalPages(Math.ceil(total / 5));
     } catch (error) {
       console.error("Failed to fetch categories:", error);
-      toast.error("Failed to load categories");
     } finally {
       setLoading(false);
     }
   }, [page]);
 
+  // ✅ debounce search
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      fetchCategories();
-    }
-  }, [page, searchQuery, fetchCategories]);
+    const delayDebounce = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        try {
+          setLoading(true);
+          const response = await searchCategory(searchQuery);
+          setCategory(response || []);
+          setTotalPages(1);
+          setPage(1);
+        } catch (error) {
+          console.error("Search failed:", error);
+          setCategory([]);
+          setTotalPages(1);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // if search is empty → fetch normally
+        fetchCategories();
+      }
+    }, 500); // ⏳ waits 500ms after typing stops
 
-  // ✅ handle search
-  const handleSearch = async (query: string) => {
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery, page, fetchCategories]);
+
+  // ✅ handler
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
-
-    if (!query.trim()) return;
-
-    try {
-      setLoading(true);
-      const response = await searchCategory(query);
-      setCategory(response || []);
-      setTotalPages(1);
-      setPage(1);
-    } catch (error) {
-      console.error("Error during search:", error);
-      setCategory([]);
-      setTotalPages(1);
-    } finally {
-      setLoading(false);
-    }
   };
-
-  const handleEdit = (category: CategoryType) => {
-    setSelectedCategory({ ...category });
-    setIsEditModalOpen(true);
-  };
-
-  const handleDelete = (category: CategoryType) => {
-    setCategoryToDelete(category);
-    setIsDeleteConfirmOpen(true);
-  };
-
+  
   const confirmDelete = async () => {
     if (!categoryToDelete?.id) {
       toast.error("Invalid category selected");
@@ -201,7 +193,6 @@ export const CategoryTable = () => {
     }
   };
 
-  // ✅ Memoized columns
   const columns = useMemo(
     () => [
       {
@@ -210,7 +201,7 @@ export const CategoryTable = () => {
   cell: (info: CellInfo<CategoryType>) => {
     const rawValue = info.getValue ? String(info.getValue()) : "";
 
-    // Extract `src` from <img ...> string
+    
     const match = rawValue.match(/src="(.+?)"/);
     const imageUrl = match ? match[1] : "/placeholder-image.png";
 
