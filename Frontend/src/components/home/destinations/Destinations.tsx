@@ -7,17 +7,9 @@ import type { DestinationInterface } from "@/interface/destinationInterface";
 import { ChevronLeft, ChevronRight, MapPin, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// ✅ Moved extractImageUrl outside so it’s accessible everywhere
-const extractImageUrl = (htmlString: string) => {
-  const match = htmlString?.match(/src="([^"]+)"/);
-  return match ? match[1] : null;
-};
-
 const Destinations = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
-  const [originalDestinations, setOriginalDestinations] = useState<
-    DestinationInterface[]
-  >([]);
+  const [originalDestinations, setOriginalDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -238,10 +230,7 @@ const DestinationCard = React.memo(
           <div className="relative h-96 rounded-3xl overflow-hidden shadow-xl group-hover:shadow-2xl transition-all duration-500">
             {destination.imageUrls?.length > 0 ? (
               <img
-                src={
-                  extractImageUrl(destination.imageUrls[0]) ||
-                  "/placeholder-image.png"
-                }
+                src={destination.imageUrls[0]}
                 alt={`${destination.name}, ${destination.location}`}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 loading="lazy"

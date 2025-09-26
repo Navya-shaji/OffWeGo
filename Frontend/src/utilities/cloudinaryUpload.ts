@@ -15,6 +15,6 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
     throw new Error("Upload failed");
   }
 
-  
-  return `<img src="${data.secure_url}" alt="Uploaded Image" />`;
+ 
+  return data.secure_url;
 };
