@@ -12,7 +12,7 @@ export class GetDestinationBasedPackageUseCase implements IGetDestinationBasedPa
   }> {
     try {
       const response = await this.packageRepo.getPackagesByDestination(destinationId,skip,limit)
-
+console.log("usecase",response)
       return {
         packages: response.packages,
         totalPackages: response.totalPackages,

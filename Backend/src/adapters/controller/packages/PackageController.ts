@@ -17,8 +17,7 @@ export class PackageController {
     private _searchPackage: ISearchPackageUsecase,
     private _getPackageByDestination:IGetDestinationBasedPackage
   ) {}
-
-  // Vendor: Get own packages
+ 
   async getAllPackage(req: Request, res: Response) {
     
     const page = parseInt(req.query.page as string) || 1;
@@ -46,11 +45,11 @@ export class PackageController {
     }
 
     const result = await this._getPackageByDestination.execute(destinationId, page, limit);
-    console.log(result,"fdhfdjh")
+   console.log(result,"hdg")
     res.status(HttpStatus.OK).json(result);
   }
 
-  // Add package
+ 
   async addPackage(req: Request, res: Response) {
     try {
       const vendorId = req.body.vendorId;
@@ -93,7 +92,6 @@ export class PackageController {
       res.status(HttpStatus.BAD_REQUEST).json({ message: "Query must be a string" });
       return;
     }
-
     const results = await this._searchPackage.execute(query);
     res.json({ success: true, data: results });
   }

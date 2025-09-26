@@ -8,7 +8,8 @@ export const Profile = () => {
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
 
   const [isEditOpen, setEditOpen] = useState(false);
-
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
+  console.log(vendor);
   if (!vendor) return null;
 
   return (
@@ -37,19 +38,20 @@ export const Profile = () => {
 
         <div className="px-6 py-6">
           <div className="flex items-center space-x-4 mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl font-semibold">
+            <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               {vendor?.profileImage ? (
                 <img
                   src={vendor.profileImage}
                   alt="User Avatar"
-                  className="w-full h-full rounded-full object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-2xl flex items-center justify-center h-full text-white font-bold">
+                <span className="text-2xl text-white font-bold">
                   {vendor?.name?.[0]?.toUpperCase() || "U"}
                 </span>
-              )}{" "}
+              )}
             </div>
+
             <div>
               <h2 className="text-lg font-medium text-gray-900">
                 {vendor?.name || ""}
@@ -82,15 +84,36 @@ export const Profile = () => {
               <span className="text-sm font-medium text-gray-600">
                 Document
               </span>
-              <a
-                href={vendor.document}
-                className="text-sm text-blue-600 hover:text-blue-700 underline transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Document
-              </a>
+              <p className="text-lg">
+                {vendor.documentUrl && (
+                  <button
+                    onClick={() => setSelectedDocument(vendor.documentUrl)}
+                    className="bg-black text-white px-2 py-2 rounded-lg font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300"
+                  >
+                    View Document
+                  </button>
+                )}
+              </p>
             </div>
+            {selectedDocument && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div className="bg-white rounded-xl overflow-hidden shadow-xl max-w-3xl w-full relative">
+                  <button
+                    onClick={() => setSelectedDocument(null)}
+                    className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
+                  >
+                    ✕
+                  </button>
+                  <div className="p-4">
+                    <img
+                      src={selectedDocument}
+                      alt="Vendor Document"
+                      className="w-full h-auto rounded-lg"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-8">

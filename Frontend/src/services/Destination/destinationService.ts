@@ -81,11 +81,7 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-    // const state = store.getState();
-    // let base = "/api";
 
-    // if (state.adminAuth.token) base = "/api/admin";
-    // else if (state.vendorAuth.token) base = "/api/vendor";
 
     const res = await axiosInstance.get(`/api/destination/${id}`);
     console.log(res.data,"sjdkjh")
@@ -144,9 +140,11 @@ export const deleteDestination = async (id: string): Promise<void> => {
 
 export const searchDestination = async (query: string) => {
   try {
+    console.log("searching started")
     const response = await axiosInstance.get("/api/admin/destination/search", {
       params: { q: query },
     });
+    console.log(response.data,"response")
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {

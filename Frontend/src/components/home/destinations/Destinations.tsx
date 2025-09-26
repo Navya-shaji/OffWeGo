@@ -9,92 +9,109 @@ import { Link } from "react-router-dom";
 
 const Destinations = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
+  const [originalDestinations, setOriginalDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [searching, setSearching] = useState(false);
+
   const scrollRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
-  useEffect(() => {
-    fetchDestinations();
-  }, []);
-
+  // fetch initial data
   const fetchDestinations = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
     try {
-      const response = await fetchAllDestinations(1, 50); // Get more destinations for the page
-      setDestinations(response.destinations);
+      setLoading(true);
+      setError(null);
+      const response = await fetchAllDestinations(1, 50);
+      setDestinations(response.destinations || []);
+      setOriginalDestinations(response.destinations || []);
     } catch (err) {
       console.error("Error fetching destinations:", err);
       setError("Failed to load destinations. Please try again.");
+      setDestinations([]);
+      setOriginalDestinations([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  useEffect(() => {
+    fetchDestinations();
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [fetchDestinations]);
+
+  // Debounced search
   const handleSearch = useCallback(
-    async (query: string) => {
-      if (!query.trim()) {
-        fetchDestinations();
-        return;
+    (query: string) => {
+      setSearchQuery(query);
+
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
 
-      setSearching(true);
-      setError(null);
+      searchTimeoutRef.current = setTimeout(async () => {
+        if (!query.trim()) {
+          setIsSearchMode(false);
+          setDestinations(originalDestinations);
+          return;
+        }
 
-      try {
-        const response = await searchDestination(query);
-        setDestinations(response || []);
-      } catch (err) {
-        console.error("Search error:", err);
-        setError("Search failed. Please try again.");
-      } finally {
-        setSearching(false);
-      }
+        try {
+          setSearching(true);
+          setError(null);
+          setIsSearchMode(true);
+          const response = await searchDestination(query);
+          setDestinations(Array.isArray(response) ? response : []);
+        } catch (err) {
+          console.error("Search error:", err);
+          setError("Search failed. Please try again.");
+          setDestinations([]);
+        } finally {
+          setSearching(false);
+        }
+      }, 500); // debounce delay
     },
-    [fetchDestinations]
+    [originalDestinations]
   );
 
-  const scrollLeft = useCallback(() => {
+  const scrollLeft = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -400, behavior: "smooth" });
     }
-  }, []);
+  };
 
-  const scrollRight = useCallback(() => {
+  const scrollRight = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 400, behavior: "smooth" });
     }
-  }, []);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSearch(searchQuery);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div>
-        <div className="relative container mx-auto px-4 text-center">
-          <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search destinations, cities, countries..."
-                className="w-full pl-12 pr-4 py-4 text-lg rounded-full border-0 focus:ring-4 focus:ring-blue-300 focus:outline-none text-gray-900"
-              />
-              {searching && (
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                </div>
-              )}
-            </div>
-          </form>
+    <div className="min-h-screen bg-white">
+      {/* Search Bar */}
+      <div className="relative container mx-auto px-4 text-center">
+        <div className="max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Search destinations, cities, countries..."
+              className="w-full pl-12 pr-4 py-4 text-lg rounded-full border-0 focus:ring-4 focus:ring-blue-300 focus:outline-none text-gray-900"
+            />
+            {searching && (
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -119,7 +136,7 @@ const Destinations = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
               <h2 className="text-3xl font-serif text-gray-900 mb-2">
-                {searchQuery
+                {isSearchMode
                   ? `Search Results for "${searchQuery}"`
                   : "All Destinations"}
               </h2>
@@ -129,11 +146,12 @@ const Destinations = () => {
               </p>
             </div>
 
-            {searchQuery && (
+            {isSearchMode && (
               <button
                 onClick={() => {
                   setSearchQuery("");
-                  fetchDestinations();
+                  setIsSearchMode(false);
+                  setDestinations(originalDestinations);
                 }}
                 className="mt-4 sm:mt-0 text-blue-600 hover:text-blue-800 underline"
               >
@@ -144,28 +162,17 @@ const Destinations = () => {
         </div>
 
         {/* No Results */}
-        {destinations.length === 0 ? (
+        {destinations.length === 0 && !loading ? (
           <div className="text-center py-20 max-w-2xl mx-auto">
             <MapPin className="w-20 h-20 text-gray-300 mx-auto mb-6" />
             <h3 className="text-2xl font-semibold text-gray-600 mb-4">
               No destinations found
             </h3>
             <p className="text-gray-500 text-lg mb-6">
-              {searchQuery
+              {isSearchMode
                 ? `We couldn't find any destinations matching "${searchQuery}". Try a different search term.`
                 : "No destinations are available at the moment. Please check back later."}
             </p>
-            {searchQuery && (
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  fetchDestinations();
-                }}
-                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg"
-              >
-                Show All Destinations
-              </button>
-            )}
           </div>
         ) : (
           /* Horizontal Scroll Container */
@@ -208,19 +215,6 @@ const Destinations = () => {
           </div>
         )}
       </div>
-
-      {/* <Footer /> */}
-
-      {/* Custom CSS */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };
@@ -266,7 +260,7 @@ const DestinationCard = React.memo(
               </p>
               <p className="text-sm text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-3 leading-relaxed">
                 {destination.description ||
-                  "Discover this amazing destination and create unforgettable memories with breathtaking views and unique experiences."}
+                  "Discover this amazing destination and create unforgettable memories."}
               </p>
 
               {/* Explore Button */}

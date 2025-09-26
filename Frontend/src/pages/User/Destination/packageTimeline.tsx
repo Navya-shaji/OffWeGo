@@ -22,6 +22,8 @@ import {
   CheckCircle,
   Sparkles,
   ChevronRight,
+  Timer,
+  Navigation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -175,13 +177,15 @@ export const PackageTimeline = () => {
               Premium Package
               <Sparkles className="h-4 w-4" />
             </div>
-            <h1 className="text-5xl font-bold text-white mb-4 leading-tight">
+            <div>
+            <h1 className="text-5xl font-bold text-black mb-4 leading-tight">
               {selectedPackage.packageName}
             </h1>
-            <p className="text-xl text-white/90 max-w-3xl leading-relaxed">
+            <p className="text-xl text-black/90  leading-relaxed">
               {selectedPackage.description}
             </p>
-            <div className="flex items-center gap-6 mt-6 text-white/80">
+            </div>
+            <div className="flex items-center gap-6 mt-6 text-black/80">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 <span>{selectedPackage.duration} Days</span>
@@ -199,7 +203,7 @@ export const PackageTimeline = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 -mt-24 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 py-15 -mt-24 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Package Overview */}
@@ -296,37 +300,43 @@ export const PackageTimeline = () => {
             </Card>
 
             {/* Enhanced Itinerary with Check-in/Check-out */}
+                 {/* Enhanced Itinerary */}
             {selectedPackage.itinerary && selectedPackage.itinerary.length > 0 && (
-              <Card className="shadow-xl border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <div className="p-2 bg-white/20 rounded-xl">
-                      <CalendarDays className="h-6 w-6" />
+              <Card className="shadow-2xl border-0 overflow-hidden bg-white/95 backdrop-blur-lg transform hover:scale-[1.01] transition-all duration-500">
+                <CardHeader className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-8">
+                  <CardTitle className="flex items-center gap-4 text-2xl">
+                    <div className="p-3 bg-white/20 rounded-2xl">
+                      <Navigation className="h-8 w-8" />
                     </div>
-                    Complete Itinerary
+                    <div>
+                      <span className="block text-2xl font-black">Your Journey Awaits</span>
+                      <span className="block text-sm text-white/80 font-normal">Day-by-day adventure guide</span>
+                    </div>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent className="p-10">
                   {/* Check-in/Check-out Times */}
                   {(selectedPackage.checkInTime || selectedPackage.checkOutTime) && (
-                    <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-l-4 border-blue-500">
-                      <h4 className="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-blue-600" />
-                        Check-in & Check-out Information
+                    <div className="mb-12 p-8 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-3xl border-2 border-blue-200/50 shadow-lg">
+                      <h4 className="font-black text-2xl text-slate-800 mb-6 flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                          <Timer className="h-6 w-6 text-white" />
+                        </div>
+                        Check-in & Check-out Schedule
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {selectedPackage.checkInTime && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            <span className="font-medium text-slate-700">Check-in:</span>
-                            <span className="font-bold text-slate-800">{selectedPackage.checkInTime}</span>
+                          <div className="flex items-center gap-4 p-4 bg-white/80 rounded-2xl border border-green-200 shadow-md">
+                            <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                            <span className="font-bold text-slate-700 text-lg">Check-in:</span>
+                            <span className="font-black text-slate-900 text-xl">{selectedPackage.checkInTime}</span>
                           </div>
                         )}
                         {selectedPackage.checkOutTime && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                            <span className="font-medium text-slate-700">Check-out:</span>
-                            <span className="font-bold text-slate-800">{selectedPackage.checkOutTime}</span>
+                          <div className="flex items-center gap-4 p-4 bg-white/80 rounded-2xl border border-red-200 shadow-md">
+                            <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                            <span className="font-bold text-slate-700 text-lg">Check-out:</span>
+                            <span className="font-black text-slate-900 text-xl">{selectedPackage.checkOutTime}</span>
                           </div>
                         )}
                       </div>
@@ -334,9 +344,8 @@ export const PackageTimeline = () => {
                   )}
 
                   {/* Day-wise Itinerary */}
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {(() => {
-                      // Group itinerary items by day
                       const groupedItinerary = selectedPackage.itinerary.reduce((acc, item) => {
                         if (!acc[item.day]) {
                           acc[item.day] = [];
@@ -347,24 +356,26 @@ export const PackageTimeline = () => {
 
                       return Object.entries(groupedItinerary)
                         .sort(([a], [b]) => Number(a) - Number(b))
-                        .map(([day, activities]) => (
-                          <Card key={day} className="border-2 border-slate-200 shadow-lg overflow-hidden">
-                            <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-4">
-                              <CardTitle className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-lg">
+                        .map(([day, activities], dayIndex) => (
+                          <Card key={day} className="border-2 border-slate-200 shadow-2xl overflow-hidden rounded-3xl transform hover:scale-[1.02] transition-all duration-500">
+                            <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-8">
+                              <CardTitle className="flex items-center gap-6">
+                                <div className="w-20 h-20 bg-gradient-to-br from-white/20 to-white/10 rounded-3xl flex items-center justify-center font-black text-3xl border-2 border-white/30 shadow-lg">
                                   {day}
                                 </div>
                                 <div>
-                                  <span className="text-xl font-bold">Day {day}</span>
-                                  <div className="text-sm text-white/80">{activities.length} activities planned</div>
+                                  <span className="text-3xl font-black block">Day {day}</span>
+                                  <div className="text-lg text-white/80 flex items-center gap-2 mt-2">
+                                    <Activity className="w-5 h-5" />
+                                    {activities.length} amazing experiences
+                                  </div>
                                 </div>
                               </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
-                              <div className="space-y-4">
+                            <CardContent className="p-8">
+                              <div className="space-y-6">
                                 {activities
                                   .sort((a, b) => {
-                                    // Sort by time if available
                                     if (a.time && b.time) {
                                       return a.time.localeCompare(b.time);
                                     }
@@ -373,23 +384,39 @@ export const PackageTimeline = () => {
                                   .map((activity, activityIndex) => (
                                     <div
                                       key={activityIndex}
-                                      className="group flex items-start gap-4 p-4 bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-200 transition-all duration-300 hover:shadow-md hover:border-slate-300"
+                                      className="group relative flex items-start gap-6 p-6 bg-gradient-to-r from-slate-50 via-white to-blue-50/30 rounded-3xl border-2 border-slate-200/50 transition-all duration-500 hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 overflow-hidden"
                                     >
-                                      <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg">
-                                        <Clock className="h-6 w-6" />
+                                      {/* Timeline connector */}
+                                      {activityIndex !== activities.length - 1 && (
+                                        <div className="absolute left-12 top-24 w-0.5 h-16 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                                      )}
+                                      
+                                      {/* Time Icon */}
+                                      <div className="flex-shrink-0 flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-3xl shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                        <Clock className="h-10 w-10" />
                                       </div>
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                          <span className="font-bold text-blue-700 text-sm">
-                                            {activity.time || 'Time TBD'}
+                                      
+                                      {/* Content */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-3 mb-4">
+                                          <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse"></div>
+                                          <span className="font-black text-blue-700 text-lg px-4 py-2 bg-blue-100 rounded-full">
+                                            {activity.time || 'Flexible Timing'}
                                           </span>
                                         </div>
-                                        <h5 className="font-bold text-lg text-slate-800 leading-snug">
+                                        <h5 className="font-black text-2xl text-slate-900 leading-tight mb-2 group-hover:text-blue-700 transition-colors duration-300">
                                           {activity.activity}
                                         </h5>
+                                        <p className="text-slate-600 font-medium">
+                                          Experience the magic of this carefully curated activity
+                                        </p>
                                       </div>
-                                      <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all duration-300 mt-2" />
+                                      
+                                      {/* Arrow */}
+                                      <ChevronRight className="h-8 w-8 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-2 transition-all duration-300 flex-shrink-0" />
+                                      
+                                      {/* Background decoration */}
+                                      <div className="absolute top-4 right-4 w-16 h-16 bg-blue-100 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     </div>
                                   ))}
                               </div>

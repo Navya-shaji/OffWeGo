@@ -9,7 +9,6 @@ export interface IPackageRepository {
     limit: number
   ): Promise<{ packages: IPackageModel[]; totalPackages: number }>;
 
-  /** Updated for user-side: return paginated packages + total count */
   getPackagesByDestination(
     destinationId: string,
     skip: number,

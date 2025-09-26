@@ -205,19 +205,28 @@ export const CategoryTable = () => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: "imageUrl",
-        header: "Image",
-        cell: (info: CellInfo<CategoryType>) => (
-          <img
-            src={info.getValue ? String(info.getValue()) : ""}
-            alt="category"
-            className="h-10 w-16 object-cover rounded"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder-image.png";
-            }}
-          />
-        ),
-      },
+  accessorKey: "imageUrl",
+  header: "Image",
+  cell: (info: CellInfo<CategoryType>) => {
+    const rawValue = info.getValue ? String(info.getValue()) : "";
+
+    // Extract `src` from <img ...> string
+    const match = rawValue.match(/src="(.+?)"/);
+    const imageUrl = match ? match[1] : "/placeholder-image.png";
+
+    return (
+      <img
+        src={imageUrl}
+        alt="category"
+        className="h-10 w-16 object-cover rounded"
+        onError={(e) => {
+          e.currentTarget.src = "/placeholder-image.png";
+        }}
+      />
+    );
+  },
+}
+,
       {
         accessorKey: "name",
         header: "Name",

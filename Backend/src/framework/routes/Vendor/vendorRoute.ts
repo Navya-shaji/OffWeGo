@@ -100,7 +100,7 @@ export class VendorRoute {
 
     this.vendorRouter.get(
       VendorRoutes.SEARCH_PACKAGE,
-      checkRoleBasedcontrol(["vendor"]),
+      // checkRoleBasedcontrol(["vendor"]),
       (req: Request, res: Response) => packagecontroller.searchPackage(req, res)
     );
 
@@ -174,7 +174,7 @@ export class VendorRoute {
       (req:Request,res:Response)=>
         activitycontroller.getAllActivities(req,res)
     )
-    // Package-wise group routes
+
     this.vendorRouter.get(
       VendorRoutes.PACKAGE_WISE_GROUPS,
       checkRoleBasedcontrol(["vendor"]),

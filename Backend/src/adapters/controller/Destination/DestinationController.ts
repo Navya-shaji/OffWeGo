@@ -54,12 +54,10 @@ export class DestinationController {
   }
 
   async getSingleDestinationController(req: Request, res: Response) {
-    console.log("haiiii")
-    
     const { id } = req.params;
-console.log(id)
+
     const result = await this._destinationUsecase.execute(id);
-    
+
     res.status(HttpStatus.OK).json(result);
   }
 
@@ -79,6 +77,7 @@ console.log(id)
       return;
     }
     const destinations = await this._serachDestinationusecase.execute(query);
+
     res.json({ success: true, data: destinations });
   }
 }

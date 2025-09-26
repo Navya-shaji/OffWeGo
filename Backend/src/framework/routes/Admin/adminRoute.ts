@@ -131,7 +131,6 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.SEARCH_DESTINATION,
-      checkRoleBasedcontrol(["vendor", "admin"]),
       (req: Request, res: Response) => {
         destinationController.searchDestination(req, res);
       }

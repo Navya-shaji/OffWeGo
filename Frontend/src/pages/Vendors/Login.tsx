@@ -45,10 +45,10 @@ export default function VendorLogin() {
 
       const vendorData: Vendor = rawVendor;
 
-      // ✅ Save vendor + token in vendorAuth slice
+     
       dispatch(login({ vendor: vendorData, token: response.accessToken }));
 
-      // ✅ Save token in tokenSlice (used by interceptors)
+    
       if (response.accessToken) {
         dispatch(setToken(response.accessToken));
       }
