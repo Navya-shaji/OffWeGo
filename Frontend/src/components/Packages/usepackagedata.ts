@@ -13,7 +13,7 @@ export const usePackageData = () => {
   const [loadingHotels, setLoadingHotels] = useState(false);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
-
+console.log(allActivities,"actiivties another page")
   const extractApiData = (response: any): any[] => {
     if (!response) return [];
 
@@ -59,12 +59,15 @@ export const usePackageData = () => {
 
         // Fetch activities
         let activitiesResult: Activity[] = [];
+        console.log(activitiesResult,"resul")
         try {
           const activitiesResp = await getActivities();
+          console.log(activitiesResp,"response")
           activitiesResult = extractApiData(activitiesResp);
         } catch (activitiesError) {
           console.error("Error loading activities:", activitiesError);
         }
+        console.log(activitiesResult,"result")
         setAllActivities(activitiesResult);
         setLoadingActivities(false);
 

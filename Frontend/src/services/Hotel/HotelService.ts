@@ -71,10 +71,10 @@ export const updateHotel = async (id: string, data: Hotel) => {
 export const deleteHotel = async (id: string) => {
 
   try {
-    console.log("Deleting hotel ID:", id);
+  
 
     const response = await axiosInstance.delete(`/api/vendor/hotels/${id}`);
-    console.log("response",response)
+   
     return response.data; 
   } catch (error) {
   
@@ -87,8 +87,10 @@ export const deleteHotel = async (id: string) => {
 
 
 export const searchHotel = async (query: string) => {
+  
   const response = await axiosInstance.get("/api/vendor/hotels/search", {
     params: { q: query },
   });
+  
   return response.data.data;
 };

@@ -75,13 +75,16 @@ export const CategoryTable = () => {
   const [category, setCategory] = useState<CategoryType[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(
+    null
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<CategoryType | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<CategoryType | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
 
   // ✅ fetch categories
   const fetchCategories = useCallback(async () => {
@@ -128,7 +131,7 @@ export const CategoryTable = () => {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
-  
+
   const confirmDelete = async () => {
     if (!categoryToDelete?.id) {
       toast.error("Invalid category selected");
@@ -192,32 +195,38 @@ export const CategoryTable = () => {
       setLoading(false);
     }
   };
+  const handleEdit = (category: CategoryType) => {
+    setSelectedCategory(category);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (category: CategoryType) => {
+    setCategoryToDelete(category);
+    setIsDeleteConfirmOpen(true);
+  };
 
   const columns = useMemo(
     () => [
       {
-  accessorKey: "imageUrl",
-  header: "Image",
-  cell: (info: CellInfo<CategoryType>) => {
-    const rawValue = info.getValue ? String(info.getValue()) : "";
+        accessorKey: "imageUrl",
+        header: "Image",
+        cell: (info: CellInfo<CategoryType>) => {
+          const imageUrl = info.getValue
+            ? String(info.getValue())
+            : "/placeholder-image.png";
 
-    
-    const match = rawValue.match(/src="(.+?)"/);
-    const imageUrl = match ? match[1] : "/placeholder-image.png";
-
-    return (
-      <img
-        src={imageUrl}
-        alt="category"
-        className="h-10 w-16 object-cover rounded"
-        onError={(e) => {
-          e.currentTarget.src = "/placeholder-image.png";
-        }}
-      />
-    );
-  },
-}
-,
+          return (
+            <img
+              src={imageUrl || "/placeholder-image.png"}
+              alt="category"
+              className="h-10 w-16 object-cover rounded"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder-image.png";
+              }}
+            />
+          );
+        },
+      },
       {
         accessorKey: "name",
         header: "Name",
@@ -303,7 +312,10 @@ export const CategoryTable = () => {
 
       <div className="flex justify-end mb-4">
         <div className="w-60">
-          <SearchBar placeholder="Search categories..." onSearch={handleSearch} />
+          <SearchBar
+            placeholder="Search categories..."
+            onSearch={handleSearch}
+          />
         </div>
       </div>
 

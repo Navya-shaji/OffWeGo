@@ -25,14 +25,14 @@ export class GetPackages implements IGetPackagesUsecase {
     totalPages: number;
     currentPage: number;
   }> {
-    console.log("con", role)
+   
     const skip = (page - 1) * limit;
     let packages: IPackageModel[] = [];
     let totalPackages = 0;
 
 
     if (role === "vendor" && vendorId) {
-      console.log("vendor")
+      
       const result = await this._packageRepo.getAllPackagesByVendor(
         vendorId,
         skip,

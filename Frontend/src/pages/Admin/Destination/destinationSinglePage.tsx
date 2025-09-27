@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { getsingleDestination } from "@/services/Destination/destinationService";
-import { getPackagesByDestination } from "@/services/packages/packageService"; // Import the new service
+import { getPackagesByDestination } from "@/services/packages/packageService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { MapPin, Calendar, ArrowLeft, ExternalLink } from "lucide-react";
 import Navbar from "@/components/profile/navbar";
@@ -12,52 +12,114 @@ import { searchPackages } from "@/services/packages/packageService";
 import type { Package } from "@/interface/PackageInterface";
 
 export const DestinationDetail = () => {
-  const { id } = useParams();
+  const id = useParams().id;
   const [destination, setDestination] = useState<DestinationInterface | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [searchResults, setSearchResults] = useState<Package[] | null>(null);
-  
-  // Replace Redux state with local state for destination-specific packages
   const [packages, setPackages] = useState<Package[]>([]);
   const [packagesLoading, setPackagesLoading] = useState(false);
-  const [packagesPagination, setPackagesPagination] = useState({
-    totalPackages: 0,
-    totalPages: 0,
-    currentPage: 1
-  });
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const navigate = useNavigate();
-  const displayedPackages = searchResults ?? packages;
+
+  // Memoized displayed packages
+  const displayedPackages = useMemo(() => {
+    const result = searchResults ?? packages;
+    console.log("🖥️ Displaying packages:", {
+      searchResultsExists: searchResults !== null,
+      searchResultsCount: searchResults?.length || 0,
+      regularPackagesCount: packages.length,
+      finalCount: result.length
+    });
+    return result;
+  }, [searchResults, packages]);
 
   const handleSearch = useCallback(async (query: string) => {
+    console.log("🔍 Search triggered with query:", query);
+    
     if (!query.trim()) {
+      console.log("📝 Empty query, resetting to show all packages");
       setSearchResults(null);
       return;
     }
+    
+    setSearchLoading(true);
+    
     try {
-      // Use user-side search service with destination filtering
-      const response = await searchPackages(query, id);
-      setSearchResults(response ?? []);
+      console.log("🌐 Making API call to searchPackages...");
+      const response = await searchPackages(query);
+      
+      console.log("📥 Raw API response:", response);
+      console.log("📊 Response structure:", {
+        type: typeof response,
+        isArray: Array.isArray(response),
+        hasPackages: response && 'packages' in response,
+        packageCount: response?.packages?.length || 0
+      });
+      
+      // Handle different response structures
+      let searchPackages = [];
+      if (response && Array.isArray(response)) {
+        // If response is directly an array
+        searchPackages = response;
+      } else if (response && response.packages && Array.isArray(response.packages)) {
+        // If response has packages property
+        searchPackages = response.packages;
+      } else if (response && response.success && Array.isArray(response.packages)) {
+        // Handle your API structure: {success: true, packages: [], totalPackages: 0}
+        searchPackages = response.packages;
+      } else {
+        console.warn("⚠️ Unexpected response structure:", response);
+        searchPackages = [];
+      }
+      
+      // Optional: Filter by current destination if needed
+      // const filteredPackages = searchPackages.filter(pkg => pkg.destinationId === id);
+      
+      console.log("✅ Processed packages:", searchPackages);
+      console.log("📈 Setting search results with", searchPackages.length, "packages");
+      
+      setSearchResults(searchPackages);
+      
     } catch (error) {
-      console.error("Search error:", error);
+      console.error("❌ Search error:", error);
+      console.error("📋 Error details:", {
+        message: error?.message,
+        stack: error?.stack,
+        response: error?.response?.data
+      });
       setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
     }
   }, [id]);
 
-  // Function to fetch packages for this specific destination
-  const fetchDestinationPackages = useCallback(async (page: number = 1, limit: number = 10) => {
+  const fetchDestinationPackages = useCallback(async () => {
     if (!id) return;
     
     setPackagesLoading(true);
     try {
-      const response = await getPackagesByDestination(id, page, limit);
-      setPackages(response.packages);
-      setPackagesPagination({
-        totalPackages: response.totalPackages,
-        totalPages: response.totalPages,
-        currentPage: response.currentPage
-      });
+      console.log("📦 Fetching packages for destination:", id);
+      const response = await getPackagesByDestination(id);
+      console.log("📦 Packages response:", response);
+      
+      // Handle different response structures
+      let destinationPackages = [];
+      if (response && Array.isArray(response)) {
+        destinationPackages = response;
+      } else if (response && response.packages && Array.isArray(response.packages)) {
+        destinationPackages = response.packages;
+      } else if (response && Array.isArray(response)) {
+        destinationPackages = response;
+      } else {
+        console.warn("⚠️ Unexpected packages response structure:", response);
+        destinationPackages = [];
+      }
+      
+      console.log("✅ Setting packages:", destinationPackages.length, "items");
+      setPackages(destinationPackages);
+    
     } catch (error) {
       console.error("Failed to fetch destination packages:", error);
       setPackages([]);
@@ -66,11 +128,16 @@ export const DestinationDetail = () => {
     }
   }, [id]);
 
-  // Fetch destination details
+  // Clear search when destination changes
+  const clearSearch = useCallback(() => {
+    setSearchResults(null);
+  }, []);
+
   useEffect(() => {
     if (id) {
       getsingleDestination(id)
         .then((res) => {
+          console.log("🏖️ Destination loaded:", res);
           setDestination(res);
         })
         .catch((err) => console.error("Failed to load destination", err))
@@ -78,19 +145,27 @@ export const DestinationDetail = () => {
     }
   }, [id]);
 
-  // Fetch packages when destination ID changes
   useEffect(() => {
     if (id) {
       fetchDestinationPackages();
+      clearSearch(); // Clear search when destination changes
     }
-  }, [id, fetchDestinationPackages]);
+  }, [id, fetchDestinationPackages, clearSearch]);
 
-  // Function to load more packages (for pagination)
-  const loadMorePackages = () => {
-    if (packagesPagination.currentPage < packagesPagination.totalPages) {
-      fetchDestinationPackages(packagesPagination.currentPage + 1);
-    }
-  };
+  // Debug component (remove in production)
+  const DebugInfo = () => (
+    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4 text-sm">
+      <h4 className="font-bold text-yellow-800 mb-2">Debug Info:</h4>
+      <div className="space-y-1">
+        <p><strong>Destination ID:</strong> {id}</p>
+        <p><strong>Search Results:</strong> {searchResults === null ? 'null' : `${searchResults.length} items`}</p>
+        <p><strong>Regular Packages:</strong> {packages.length} items</p>
+        <p><strong>Displayed Packages:</strong> {displayedPackages.length} items</p>
+        <p><strong>Packages Loading:</strong> {packagesLoading ? 'Yes' : 'No'}</p>
+        <p><strong>Search Loading:</strong> {searchLoading ? 'Yes' : 'No'}</p>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -220,6 +295,9 @@ export const DestinationDetail = () => {
 
       <div className="relative -mt-20 px-4 sm:px-6 lg:px-8 pb-16">
         <div className="max-w-7xl mx-auto">
+          {/* Uncomment the line below to see debug info */}
+          {/* <DebugInfo /> */}
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
@@ -269,22 +347,32 @@ export const DestinationDetail = () => {
                     Available Packages
                   </h2>
 
-                  <div className="w-60">
-                    <SearchBar
-                      placeholder="Search packages..."
-                      onSearch={handleSearch}
-                    />
+                  <div className="flex items-center space-x-4">
+                    <div className="w-60">
+                      <SearchBar
+                        placeholder="Search packages..."
+                        onSearch={handleSearch}
+                      />
+                    </div>
+                    {searchResults !== null && (
+                      <button
+                        onClick={clearSearch}
+                        className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+                      >
+                        Clear Search
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {packagesLoading ? (
+                {(packagesLoading || searchLoading) ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="relative">
                       <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200"></div>
                       <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-600 absolute top-0"></div>
                     </div>
                     <span className="ml-4 text-slate-600 font-medium">
-                      Loading packages...
+                      {searchLoading ? "Searching packages..." : "Loading packages..."}
                     </span>
                   </div>
                 ) : displayedPackages.length > 0 ? (
@@ -295,14 +383,15 @@ export const DestinationDetail = () => {
                           <Calendar className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-slate-700 font-semibold text-lg">
-                          {packagesPagination.totalPackages} Package
-                          {packagesPagination.totalPackages !== 1 ? "s" : ""} Available
-                          {searchResults && (
-                            <span className="text-slate-500 text-sm ml-2">
-                              (Showing {displayedPackages.length} search results)
-                            </span>
-                          )}
+                          {displayedPackages.length} Package
+                          {displayedPackages.length !== 1 ? "s" : ""} 
+                          {searchResults !== null ? " Found" : " Available"}
                         </span>
+                        {searchResults !== null && (
+                          <span className="text-slate-500 text-sm ml-2">
+                            (Search Results)
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -326,6 +415,11 @@ export const DestinationDetail = () => {
                                 <h4 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors duration-300">
                                   {pkg.packageName}
                                 </h4>
+                                {pkg.description && (
+                                  <p className="text-slate-600 text-sm line-clamp-2">
+                                    {pkg.description}
+                                  </p>
+                                )}
                               </div>
                             </div>
 
@@ -344,31 +438,6 @@ export const DestinationDetail = () => {
                         </div>
                       ))}
                     </div>
-
-                    {/* Load More Button for Pagination */}
-                    {!searchResults && packagesPagination.currentPage < packagesPagination.totalPages && (
-                      <div className="text-center mt-8">
-                        <button
-                          onClick={loadMorePackages}
-                          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white font-semibold rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all duration-300"
-                          disabled={packagesLoading}
-                        >
-                          {packagesLoading ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                              Loading...
-                            </>
-                          ) : (
-                            <>
-                              Load More Packages
-                              <span className="ml-2 text-slate-300">
-                                ({packagesPagination.currentPage} of {packagesPagination.totalPages})
-                              </span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="bg-gradient-to-br from-slate-100 to-blue-100 rounded-3xl shadow-inner border-2 border-dashed border-slate-300 p-16 text-center">
@@ -376,17 +445,27 @@ export const DestinationDetail = () => {
                       <MapPin className="w-10 h-10 text-slate-500" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-900 mb-3">
-                      No Packages Available
+                      {searchResults !== null ? "No Search Results" : "No Packages Available"}
                     </h3>
                     <p className="text-slate-600 text-lg mb-6 max-w-md mx-auto">
-                      {searchResults ? 
-                        "No packages found matching your search criteria." :
+                      {searchResults !== null ? 
+                        "No packages found matching your search criteria. Try different keywords or clear the search to see all packages." :
                         "Travel packages for this destination are coming soon. Check back later for exciting adventures!"
                       }
                     </p>
-                    <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {searchResults ? "Try Different Keywords" : "Coming Soon"}
+                    <div className="flex justify-center space-x-4">
+                      <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        {searchResults !== null ? "Try Different Keywords" : "Coming Soon"}
+                      </div>
+                      {searchResults !== null && (
+                        <button
+                          onClick={clearSearch}
+                          className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium hover:bg-green-200 transition-colors duration-200"
+                        >
+                          Show All Packages
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -409,8 +488,8 @@ export const DestinationDetail = () => {
                         destination.coordinates.lat,
                         destination.coordinates.lng,
                       ]}
-                      zoom={13}
-                      scrollWheelZoom={false}
+                      zoom={10}
+                      scrollWheelZoom={true}
                       className="h-full w-full"
                     >
                       <TileLayer

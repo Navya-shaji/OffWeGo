@@ -17,7 +17,7 @@ const Destinations = () => {
   const [searching, setSearching] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // fetch initial data
   const fetchDestinations = useCallback(async () => {

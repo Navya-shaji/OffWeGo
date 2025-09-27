@@ -201,11 +201,11 @@ const PackageTable: React.FC<PackageTableProps> = ({
       
       onPackagesUpdate?.(isSearchMode ? originalPackages : packageList);
 
-      // Close modal
+      
       setEditModal({ isOpen: false, package: null });
       setEditFormData(null);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to update package:", error);
       setError("Failed to update package. Please try again.");
       

@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
-import type { DestinationInterface } from "@/interface/destinationInterface"; 
+import type { DestinationInterface } from "@/interface/destinationInterface";
 import {
   addDestination as addDestinationService,
   fetchAllDestinations as fetchAllDestinationsService,
@@ -18,37 +17,39 @@ const initialState: DestinationState = {
   error: null,
 };
 
-
+// ADD DESTINATION
 export const addDestination = createAsyncThunk<
-  DestinationInterface,
-  DestinationInterface,
-  { rejectValue: string }
+  DestinationInterface, // Return type
+  DestinationInterface, // Argument type
+  { rejectValue: string } // Reject value type
 >("destination/add", async (data, { rejectWithValue }) => {
   try {
-    return await addDestinationService(data);
+    const response = await addDestinationService(data);
+    // Ensure the response matches DestinationInterface
+    return response as DestinationInterface;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
+    if (error instanceof Error) return rejectWithValue(error.message);
     return rejectWithValue("Failed to add destination");
   }
 });
 
-
 export const fetchDestinations = createAsyncThunk<
-  DestinationInterface[],
+  DestinationInterface[], 
   void,
   { rejectValue: string }
->("destination/fetchAll", async (_, { rejectWithValue }) => {
-  try {
-    return await fetchAllDestinationsService();
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
+>(
+  "destination/fetchAll",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetchAllDestinationsService();
+      return response.destinations; 
+    } catch (error: unknown) {
+      if (error instanceof Error) return rejectWithValue(error.message);
+      return rejectWithValue("Failed to fetch destinations");
     }
-    return rejectWithValue("Failed to fetch destinations");
   }
-});
+);
+
 
 export const destinationSlice = createSlice({
   name: "destination",
@@ -61,7 +62,7 @@ export const destinationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    
+      // ADD DESTINATION
       .addCase(addDestination.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -75,6 +76,7 @@ export const destinationSlice = createSlice({
         state.error = action.payload ?? "Unknown error during add";
       })
 
+      // FETCH DESTINATIONS
       .addCase(fetchDestinations.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -42,6 +42,7 @@ export function GoogleSignup() {
                       role: user.role,
                     },
                     token: accessToken,
+                    refreshToken: "",
                   })
                 );
 
@@ -51,7 +52,7 @@ export function GoogleSignup() {
                 toast.error("Signup failed");
               }
             } catch (error) {
-             console.log(error)
+              console.log(error);
             }
           }}
           onError={() => {

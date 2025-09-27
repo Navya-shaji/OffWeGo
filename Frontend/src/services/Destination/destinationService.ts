@@ -84,7 +84,7 @@ export const getsingleDestination = async (id: string) => {
 
 
     const res = await axiosInstance.get(`/api/destination/${id}`);
-    console.log(res.data,"sjdkjh")
+   
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -140,11 +140,11 @@ export const deleteDestination = async (id: string): Promise<void> => {
 
 export const searchDestination = async (query: string) => {
   try {
-    console.log("searching started")
+    
     const response = await axiosInstance.get("/api/admin/destination/search", {
       params: { q: query },
     });
-    console.log(response.data,"response")
+    
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {

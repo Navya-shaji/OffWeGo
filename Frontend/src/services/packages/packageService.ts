@@ -13,9 +13,9 @@ export const addPackage = async (data: Package) => {
       vendorId,
     };
 
-    console.log("Payload sent to backend:", payload);
-
+    console.log(data)
     const res = await axiosInstance.post("/api/vendor/add-Package", payload);
+    console.log(res.data,"hdfjh")
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -101,7 +101,7 @@ export const searchPackages = async (query: string) => {
   const response = await axiosInstance.get("/api/vendor/packages/search", {
     params: { q: query },
   });
-  console.log("res of all packages", response);
+
   return response.data.data;
 };
 
@@ -113,13 +113,13 @@ export const getPackagesByDestination = async (
   packages: Package[];
   
 }> => {
-  console.log(destinationId,"id")
+ 
   try {
     const res = await axiosInstance.get(
       `/api/package/${destinationId}`,
   
     );
-console.log(res.data,"user side package")
+
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

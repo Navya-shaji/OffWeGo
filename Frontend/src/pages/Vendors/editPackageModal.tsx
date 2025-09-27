@@ -5,16 +5,16 @@ import {
   CheckCircle, 
   Sparkles, 
   X, 
-  MapPin,
   FileText,
   Calendar,
   ChevronDown,
   ChevronRight,
   Trash2,
-  Image,
-  Building,
-  Activity,
-  Stars
+  Stars,
+  MapPin,
+  Upload,
+  Hotel,
+  Activity
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -68,15 +68,14 @@ const EditPackage: React.FC<EditPackageProps> = ({
   isLoading = false,
   destinations = [],
   availableHotels = [],
-  availableActivities = [],
+  availableActivities = []
 }) => {
   const [localData, setLocalData] = useState<Package | null>(pkg)
   const [enhancedItinerary, setEnhancedItinerary] = useState<ItineraryDay[]>([])
-console.log(destinations,"hgh")
+
   useEffect(() => {
     setLocalData(pkg)
     if (pkg?.itinerary) {
-    
       const groupedItinerary: { [key: number]: ItineraryActivity[] } = {}
       pkg.itinerary.forEach(item => {
         if (!groupedItinerary[item.day]) {
@@ -252,6 +251,50 @@ console.log(destinations,"hgh")
     onChange(updated)
   }
 
+  const generateBasicItinerary = () => {
+    const basicItinerary: ItineraryDay[] = []
+    
+    for (let i = 1; i <= localData.duration; i++) {
+      let dayActivities: ItineraryActivity[] = []
+      
+      if (i === 1) {
+        dayActivities = [
+          { time: localData.checkInTime || "3:00 PM", activity: "Check-in at hotel" },
+          { time: "4:00 PM", activity: "Welcome drink" },
+          { time: "5:00 PM", activity: "Local area exploration" },
+          { time: "7:00 PM", activity: "Evening tea & snacks" },
+          { time: "8:00 PM", activity: "Dinner" }
+        ]
+      } else if (i === localData.duration) {
+        dayActivities = [
+          { time: "6:00 AM", activity: "Early morning activity" },
+          { time: "8:00 AM", activity: "Breakfast" },
+          { time: "10:00 AM", activity: "Final sightseeing" },
+          { time: localData.checkOutTime || "12:00 PM", activity: "Check-out" }
+        ]
+      } else {
+        dayActivities = [
+          { time: "6:00 AM", activity: "Morning activity" },
+          { time: "8:00 AM", activity: "Breakfast" },
+          { time: "10:00 AM", activity: "Sightseeing" },
+          { time: "1:00 PM", activity: "Lunch" },
+          { time: "3:00 PM", activity: "Afternoon activity" },
+          { time: "7:00 PM", activity: "Evening activity" },
+          { time: "8:00 PM", activity: "Dinner" }
+        ]
+      }
+      
+      basicItinerary.push({
+        day: i,
+        activities: dayActivities,
+        isExpanded: true
+      })
+    }
+    
+    setEnhancedItinerary(basicItinerary)
+    updateItineraryInPackage(basicItinerary)
+  }
+
   const renderList = (key: "inclusions" | "amenities") => {
     const items = localData[key] || []
     const isInclusions = key === "inclusions"
@@ -290,9 +333,11 @@ console.log(destinations,"hgh")
     )
   }
 
+  const selectedDestination = destinations.find(dest => dest.id === localData.destinationId)
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-y-auto max-h-[95vh] relative">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl overflow-y-auto max-h-[95vh] relative">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl z-10">
           <div className="flex items-center justify-between">
@@ -315,6 +360,7 @@ console.log(destinations,"hgh")
         </div>
 
         <form onSubmit={onSubmit} className="p-6 space-y-8">
+          {/* Basic Information */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-slate-50">
             <CardHeader className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-t-lg">
               <CardTitle className="flex items-center gap-3">
@@ -341,8 +387,33 @@ console.log(destinations,"hgh")
                 </div>
 
                 <div className="space-y-3">
-                
-               
+                  <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
+                    Destination
+                  </label>
+                  
+                  {/* Debug info - remove after testing */}
+                  <div className="mb-2 p-2 bg-gray-100 rounded text-xs">
+                    <p>Current destinationId: {localData.destinationId || 'None'}</p>
+                    <p>Available destinations: {destinations.length}</p>
+                    <p>Destinations: {JSON.stringify(destinations.map(d => ({id: d.id, name: d.name})))}</p>
+                  </div>
+                  
+                  <div className="relative">
+                    <select
+                      name="destinationId"
+                      value={localData.destinationId || ""}
+                      onChange={handleInputChange}
+                      className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium appearance-none bg-white"
+                    >
+                      <option value="">Select destination...</option>
+                      {destinations.map((destination) => (
+                        <option key={destination.id} value={destination.id}>
+                          {destination.name}
+                        </option>
+                      ))}
+                    </select>
+                    <MapPin className="absolute right-4 top-4 h-5 w-5 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
@@ -427,7 +498,117 @@ console.log(destinations,"hgh")
             </CardContent>
           </Card>
 
-         
+
+
+          {/* Hotels & Activities Selection */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Hotels Section */}
+            <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
+              <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-t-lg">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-600 text-white rounded-lg">
+                    <Hotel className="h-5 w-5" />
+                  </div>
+                  <span>Select Hotels ({availableHotels.length} available)</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {/* Debug info - remove after testing */}
+                <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+                  <p>Destination: {selectedDestination?.name || 'None selected'}</p>
+                  <p>Available Hotels: {availableHotels.length}</p>
+                  <p>Selected Hotels: {JSON.stringify(localData.selectedHotels || [])}</p>
+                </div>
+                
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {availableHotels.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <Hotel className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p className="font-medium">No hotels available</p>
+                      <p className="text-sm">Add hotels for {selectedDestination?.name || 'this destination'} first</p>
+                    </div>
+                  ) : (
+                    availableHotels.map((hotel) => {
+                      const hotelId = hotel._id || hotel.id; // Handle both _id and id
+                      const isSelected = (localData.selectedHotels || []).includes(hotelId);
+                      
+                      return (
+                        <div key={hotelId} className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200">
+                          <input
+                            type="checkbox"
+                            id={`hotel-${hotelId}`}
+                            checked={isSelected}
+                            onChange={(e) => handleHotelSelection(hotelId, e.target.checked)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor={`hotel-${hotelId}`} className="flex-1 text-sm font-medium text-gray-900 cursor-pointer">
+                            {hotel.name || hotel.title || 'Unnamed Hotel'}
+                          </label>
+                          <span className="text-xs text-gray-500">ID: {hotelId}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                <div className="mt-4 text-sm text-blue-600 font-medium">
+                  Selected: {(localData.selectedHotels || []).length} hotel(s)
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Activities Section */}
+            <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-emerald-50">
+              <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-t-lg">
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-600 text-white rounded-lg">
+                    <Activity className="h-5 w-5" />
+                  </div>
+                  <span>Select Activities ({availableActivities.length} available)</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {/* Debug info - remove after testing */}
+                <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+                  <p>Available Activities: {availableActivities.length}</p>
+                  <p>Selected Activities: {JSON.stringify(localData.selectedActivities || [])}</p>
+                </div>
+                
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {availableActivities.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p className="font-medium">No activities available</p>
+                      <p className="text-sm">Add activities for {selectedDestination?.name || 'this destination'} first</p>
+                    </div>
+                  ) : (
+                    availableActivities.map((activity) => {
+                      const activityId = activity._id || activity.id; // Handle both _id and id
+                      const isSelected = (localData.selectedActivities || []).includes(activityId);
+                      
+                      return (
+                        <div key={activityId} className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-emerald-200 hover:border-emerald-300 transition-all duration-200">
+                          <input
+                            type="checkbox"
+                            id={`activity-${activityId}`}
+                            checked={isSelected}
+                            onChange={(e) => handleActivitySelection(activityId, e.target.checked)}
+                            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor={`activity-${activityId}`} className="flex-1 text-sm font-medium text-gray-900 cursor-pointer">
+                            {activity.title || activity.name || 'Unnamed Activity'}
+                          </label>
+                          <span className="text-xs text-gray-500">ID: {activityId}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                <div className="mt-4 text-sm text-emerald-600 font-medium">
+                  Selected: {(localData.selectedActivities || []).length} activity(s)
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Itinerary Section */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-purple-50">
@@ -439,16 +620,28 @@ console.log(destinations,"hgh")
                   </div>
                   <span>Detailed Itinerary</span>
                 </div>
-                <Button
-                  type="button"
-                  onClick={addDay}
-                  variant="outline"
-                  size="sm"
-                  className="bg-white/80 hover:bg-white transition-all duration-200"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Day
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={generateBasicItinerary}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/80 hover:bg-white transition-all duration-200"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Auto-Generate
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={addDay}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/80 hover:bg-white transition-all duration-200"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Day
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -457,7 +650,7 @@ console.log(destinations,"hgh")
                   <div className="text-center py-8 text-gray-500">
                     <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                     <p className="text-lg font-medium">No itinerary added yet</p>
-                    <p>Click "Add Day" to start building your itinerary</p>
+                    <p>Click "Add Day" or "Auto-Generate" to start building your itinerary</p>
                   </div>
                 ) : (
                   enhancedItinerary.map((day, dayIndex) => (
@@ -577,6 +770,7 @@ console.log(destinations,"hgh")
             </Card>
           </div>
 
+          {/* Submit Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
             <Button 
               type="button" 

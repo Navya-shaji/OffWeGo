@@ -9,7 +9,7 @@ export class EditCategory implements IEditCategoryUsecase {
      constructor(private _categoryRepo: ICategoryRepository) {}
   async execute(id: string, updatedData: Category): Promise<CategoryDto | null> {
     const existingCategory = await this._categoryRepo.findByName(updatedData.name);
-   console.log(existingCategory)
+   
     if (existingCategory && !existingCategory._id) {
       throw new Error("Category already exists");
     }

@@ -9,7 +9,7 @@ export const Profile = () => {
 
   const [isEditOpen, setEditOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
-  console.log(vendor);
+ 
   if (!vendor) return null;
 
   return (

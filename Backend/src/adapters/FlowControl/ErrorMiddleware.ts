@@ -9,9 +9,9 @@ export const errorMiddleware = (
   next: NextFunction
 ): void => {
   try {
-    console.log("handled by eroor middleware")
+    
     const statusCode = err instanceof AppError ? err.statusCode : 500;
-console.log(err)
+
     logErrorToFile({
       message: err.message,
       stack: err.stack,

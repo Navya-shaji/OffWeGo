@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import type { Category } from "@/interface/categoryInterface";
+import type { CategoryType } from "@/interface/categoryInterface";
 import { addCategory as addCategories } from "@/services/category/categoryService";
 
 type CategoryState = {
-  category: Category[];
+  category: CategoryType[];
   loading: boolean;
   error: string | null;
 };
@@ -15,8 +15,8 @@ const initialState: CategoryState = {
 };
 
 export const addCategory = createAsyncThunk<
-  Category,               
-  Category,               
+  CategoryType,               
+  CategoryType,               
   { rejectValue: string } 
 >(
   "category/add",
@@ -43,7 +43,7 @@ const categorySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(addCategory.fulfilled, (state, action: PayloadAction<Category>) => {
+      .addCase(addCategory.fulfilled, (state, action: PayloadAction<CategoryType>) => {
         state.loading = false;
         state.category.push(action.payload);
       })

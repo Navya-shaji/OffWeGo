@@ -21,14 +21,13 @@ export const VendorList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
 
-  // Prevent multiple API calls
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch vendors function
+  
   const fetchVendors = useCallback(async (pageNum: number = 1) => {
-    // Prevent multiple simultaneous calls
+    
     if (isLoadingRef.current) return;
     
     try {
@@ -44,7 +43,7 @@ export const VendorList = () => {
       setTotalVendors(response.totalvendors);
       setPage(pageNum);
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching vendors:", error);
       setError("Failed to fetch vendors.");
       setVendors([]);
@@ -54,19 +53,19 @@ export const VendorList = () => {
     }
   }, []);
 
-  // Debounced search function
+
   const handleSearch = useCallback(async (query: string) => {
-    // Clear previous timeout
+    
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
     setSearchQuery(query);
 
-    // Debounce search
+  
     searchTimeoutRef.current = setTimeout(async () => {
       if (!query.trim()) {
-        // Return to original data
+      
         setIsSearchMode(false);
         setVendors(originalVendors);
         setTotalPages(Math.ceil(totalVendors / 10));
@@ -83,7 +82,7 @@ export const VendorList = () => {
         setTotalPages(Math.ceil(searchResults.length / 10));
         setPage(1);
         
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error during search:", error);
         setVendors([]);
         setTotalPages(1);
@@ -91,25 +90,22 @@ export const VendorList = () => {
     }, 300);
   }, [originalVendors, totalVendors]);
 
-  // Handle page change
+
   const handlePageChange = useCallback((newPage: number) => {
-    if (newPage === page) return; // Prevent unnecessary calls
+    if (newPage === page) return; 
     
     setPage(newPage);
     
     if (!isSearchMode) {
-      // Only fetch from server in normal mode
+   
       fetchVendors(newPage);
     }
-    // In search mode, we handle pagination with data slicing below
   }, [page, isSearchMode, fetchVendors]);
 
-  // Handle block toggle
   const handleBlockToggle = useCallback(async (
     vendorId: string,
     currentStatus: boolean
   ) => {
-    // Optimistic update
     const previousVendors = [...vendors];
     const previousOriginalVendors = [...originalVendors];
     
@@ -125,39 +121,34 @@ export const VendorList = () => {
 
     try {
       await updateVendorBlockStatus(vendorId, !currentStatus);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to update vendor status", err);
-      // Revert on error
       setVendors(previousVendors);
       setOriginalVendors(previousOriginalVendors);
       setError("Failed to update vendor status. Please try again.");
       
-      // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     }
   }, [vendors, originalVendors, isSearchMode]);
 
-  // Initial fetch - only once
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       fetchVendors(1);
     }
 
-    // Cleanup
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []); // Empty dependency array - only run once!
+  }, []); 
 
-  // Get current page data for display
+ 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
-      return vendors; // Server handles pagination
+      return vendors; 
     } else {
-      // Client-side pagination for search
       const startIndex = (page - 1) * 10;
       const endIndex = startIndex + 10;
       return vendors.slice(startIndex, endIndex);
@@ -219,7 +210,7 @@ export const VendorList = () => {
             className="w-16 h-16 object-cover rounded border"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = "/placeholder-document.png"; // Fallback image
+              target.src = "/placeholder-document.png";
             }}
           />
         ) : (
@@ -290,7 +281,7 @@ export const VendorList = () => {
         </div>
       </div>
 
-      {/* Error Message */}
+     
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex justify-between items-center">
@@ -305,7 +296,7 @@ export const VendorList = () => {
         </div>
       )}
 
-      {/* No Results */}
+   
       {vendors.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 text-gray-300 text-6xl">
@@ -342,7 +333,7 @@ export const VendorList = () => {
             </div>
           )}
 
-          {/* Stats */}
+        
           <div className="text-center text-sm text-gray-500">
             {isSearchMode 
               ? `Showing ${Math.min((page - 1) * 10 + 1, vendors.length)}-${Math.min(page * 10, vendors.length)} of ${vendors.length} search results`

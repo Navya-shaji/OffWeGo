@@ -6,30 +6,29 @@ import {
 } from "@/services/packages/packageService";
 import { getPackagesByDestination } from "@/services/Destination/destinationService";
 
-// 1. Define state structure
 type PackageState = {
   packages: Package[];
   loading: boolean;
   error: string | null;
 };
 
-// 2. Initial state
 const initialState: PackageState = {
   packages: [],
   loading: false,
   error: null,
 };
 
-// 3. Async thunk for adding a package
 export const addPackage = createAsyncThunk<
-  Package, // Return type
-  Package, // Input parameter type
-  { rejectValue: string } // Error type
+  Package,
+  Package,
+  { rejectValue: string }
 >("package/add", async (data, { rejectWithValue }) => {
   try {
     const response = await addPackageService(data);
-    return response.result;
+    console.log("thunk", response.packages[0]);
+    return response.packages[0];
   } catch (error) {
+    console.log("er");
     if (error instanceof Error) return rejectWithValue(error.message);
     return rejectWithValue("Unknown error while adding package");
   }
@@ -50,25 +49,20 @@ export const fetchPackages = createAsyncThunk<
   }
 });
 export const fetchPackagesByDestination = createAsyncThunk<
-  {
-    packages: Package[];
-    totalPackages: number;
-    totalPages: number;
-    currentPage: number;
-  }, 
-  { destinationId: string; page?: number; limit?: number },
+  Package[],
+  { destinationId: string },
   { rejectValue: string }
 >(
   "package/fetchByDestination",
-  async ({ destinationId, page = 1, limit = 5 }, { rejectWithValue }) => {
+  async ({ destinationId }, { rejectWithValue }) => {
     try {
-      // getPackagesByDestination already returns:
-      // { packages: Package[], totalPackages: number, totalPages: number, currentPage: number }
-      const response = await getPackagesByDestination(destinationId, page, limit);
-      return response; // ✅ return the full object, not just response.packages
+      const response = await getPackagesByDestination(destinationId);
+      return response;
     } catch (error) {
       if (error instanceof Error) return rejectWithValue(error.message);
-      return rejectWithValue("Unknown error while fetching packages by destination");
+      return rejectWithValue(
+        "Unknown error while fetching packages by destination"
+      );
     }
   }
 );
@@ -84,14 +78,14 @@ export const packageSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ADD PACKAGE
+
       .addCase(addPackage.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(addPackage.fulfilled, (state, action) => {
         state.loading = false;
-        state.packages.push(action.payload); // ✅ adds new package
+        state.packages.push(action.payload);
       })
       .addCase(addPackage.rejected, (state, action) => {
         state.loading = false;
@@ -111,14 +105,12 @@ export const packageSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? "Failed to fetch packages";
       })
-    .addCase(fetchPackagesByDestination.fulfilled, (state, action) => {
-  state.loading = false;
-  state.packages = action.payload.packages; // ✅ use .packages from the full object
-});
-
+      .addCase(fetchPackagesByDestination.fulfilled, (state, action) => {
+        state.loading = false;
+        state.packages = action.payload;
+      });
   },
 });
 
-// 6. Export actions and reducer
 export const { resetPackages } = packageSlice.actions;
 export default packageSlice.reducer;

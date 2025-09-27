@@ -61,7 +61,7 @@ async getPackagesForUser(req: Request, res: Response) {
   });
 }
 
-  // Add package
+
   async addPackage(req: Request, res: Response) {
     try {
       const vendorId = req.body.vendorId;
@@ -70,6 +70,7 @@ async getPackagesForUser(req: Request, res: Response) {
       }
 
       const packageData = req.body;
+      console.log(req.body,"package body ")
       const destination = await DestinationModel.findById(packageData.destinationId);
       if (!destination) {
         return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Destination not found" });

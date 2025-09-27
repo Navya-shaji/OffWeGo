@@ -31,7 +31,7 @@ export class GoogleSignupController {
     }
 
     const payload = { userId: user._id, role: user.role };
-    console.log(payload)
+  
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 

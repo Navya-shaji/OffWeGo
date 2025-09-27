@@ -1,6 +1,6 @@
-import Cropper from 'react-easy-crop';
+import Cropper, { type Area } from 'react-easy-crop';
 import { useState, useCallback } from 'react';
-import { getCroppedImg } from './cropUtils'; 
+import  getCroppedImg  from './cropUtils'; 
 import { Dialog } from '@headlessui/react';
 
 interface CropModalProps {
@@ -12,17 +12,28 @@ interface CropModalProps {
 export const ImageCropModal = ({ image, onClose, onCropComplete }: CropModalProps) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const onCropCompleteLocal = useCallback((_, croppedAreaPixels) => {
+const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+const onCropCompleteLocal = useCallback(
+  (_: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  },
+  []
+);
 
-  const handleCrop = async () => {
-    const croppedImage = await getCroppedImg(image, croppedAreaPixels!);
-    onCropComplete(croppedImage);
-    onClose();
-  };
+const handleCrop = async () => {
+  const croppedBlob = await getCroppedImg(image, croppedAreaPixels!);
+  
+  const croppedFile = new File([croppedBlob], "cropped_image.png", {
+    type: croppedBlob.type,
+    lastModified: Date.now(),
+  });
+
+  onCropComplete(croppedFile);
+  onClose();
+};
+
 
   return (
     <Dialog open onClose={onClose} className="fixed z-50 inset-0 bg-black bg-opacity-75 flex items-center justify-center">

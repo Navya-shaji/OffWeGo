@@ -11,7 +11,7 @@ export const DestinationsPage = () => {
     const match = htmlString.match(/src="([^"]+)"/);
     return match ? match[1] : null;
   };
-console.log(destinations,"dhefhfhurhfuretueryteuru")
+
   useEffect(() => {
     const fetchDestinations = async () => {
       try {

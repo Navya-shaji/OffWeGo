@@ -35,7 +35,7 @@ export class HotelRepository
   async searchHotel(query: string): Promise<Hotel[]> {
     const regex = new RegExp(query, "i");
     return HotelModel.find({ name: { $regex: regex } })
-      .select("name")
+      .select("name address" )
       .limit(10)
       .exec();
   }

@@ -11,7 +11,7 @@ import { userLogin } from "@/services/user/userService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
 import { GoogleSignup } from "@/components/signup/googleSignup";
-import { setToken } from "@/store/slice/Token/tokenSlice"; 
+import { setToken } from "@/store/slice/Token/tokenSlice";
 
 export default function UserLogin() {
   const dispatch = useAppDispatch();
@@ -31,14 +31,15 @@ export default function UserLogin() {
     try {
       const response = await userLogin(data);
 
-      // Save user in auth slice
       dispatch(
         login({
           user: response.user,
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
         })
       );
 
-      // Save token in token slice
+     
       dispatch(setToken(response.accessToken));
 
       notify();
@@ -83,7 +84,7 @@ export default function UserLogin() {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-5 max-w-sm mx-auto w-full"
           >
-            {/* Email */}
+     
             <div>
               <input
                 {...register("email")}
@@ -99,7 +100,7 @@ export default function UserLogin() {
               )}
             </div>
 
-            {/* Password */}
+     
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -122,7 +123,6 @@ export default function UserLogin() {
               )}
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               className="w-full bg-amber-900 text-white font-medium py-2.5 rounded-md text-sm hover:bg-amber-900 active:bg-yellow-950 transition duration-200 shadow-lg"
@@ -131,7 +131,7 @@ export default function UserLogin() {
             </button>
           </form>
 
-          {/* Signup */}
+    
           <p className="text-sm text-center text-gray-600 mt-5">
             Don’t have an account?{" "}
             <Link
@@ -142,12 +142,12 @@ export default function UserLogin() {
             </Link>
           </p>
 
-          {/* Google Login */}
+      
           <div className="mt-4 flex justify-center">
             <GoogleSignup />
           </div>
 
-          {/* Forgot Password */}
+        
           <p className="text-sm text-center mt-3">
             <Link
               to="/forgot-password"

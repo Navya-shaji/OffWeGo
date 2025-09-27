@@ -63,7 +63,7 @@ export const authSlice = createSlice({
       if (state.user) state.user = { ...state.user, ...action.payload };
     },
     setToken: (state, action: PayloadAction<{ token: string }>) => {
-      console.log("seting token")
+      
       state.token = action.payload.token;
     },
   },

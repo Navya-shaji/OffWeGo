@@ -29,9 +29,6 @@ export class VendorRoute {
   }
 
   private setRoutes(): void {
-    console.log("routes initialized");
-
-    // Public routes
     this.vendorRouter.post(VendorRoutes.SIGNUP, (req: Request, res: Response) =>
       vendorsignupcontroller.VendorSignup(req, res)
     );
@@ -55,10 +52,8 @@ export class VendorRoute {
       (req: Request, res: Response) => refreshTokenController.handle(req, res)
     );
 
-    // Apply authentication middleware for all routes below
     this.vendorRouter.use(verifyTokenAndCheckBlackList(TokenService));
 
-    // Profile routes (protected)
     this.vendorRouter.get(
       VendorRoutes.PROFILE,
       checkRoleBasedcontrol(["vendor"]),
@@ -73,7 +68,6 @@ export class VendorRoute {
         vendorProfilecontroller.EditProfile(req, res)
     );
 
-    // Package routes (protected)
     this.vendorRouter.post(
       VendorRoutes.ALL_PACKAGES,
       checkRoleBasedcontrol(["vendor"]),
@@ -100,11 +94,21 @@ export class VendorRoute {
 
     this.vendorRouter.get(
       VendorRoutes.SEARCH_PACKAGE,
-      // checkRoleBasedcontrol(["vendor"]),
+
       (req: Request, res: Response) => packagecontroller.searchPackage(req, res)
     );
 
-    // Destination routes
+    this.vendorRouter.get(
+      VendorRoutes.SEARCH_HOTEL,
+      (req: Request, res: Response) => {
+        hotelcontroller.SearchHotel(req, res);
+      }
+    );
+    this.vendorRouter.get(
+      VendorRoutes.SEARCH_ACTIVITY,(req:Request,res:Response)=>{
+        activitycontroller.SearchActivity(req,res)
+      }
+    )
     this.vendorRouter.post(
       VendorRoutes.CREATE_DESTINATION,
       checkRoleBasedcontrol(["vendor"]),
@@ -148,7 +152,6 @@ export class VendorRoute {
       (req: Request, res: Response) => hotelcontroller.deleteHotel(req, res)
     );
 
-    // Activities routes
     this.vendorRouter.post(
       VendorRoutes.CREATE_ACTIVITY,
       checkRoleBasedcontrol(["vendor"]),
@@ -171,9 +174,9 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.ACTIVITIES,
-      (req:Request,res:Response)=>
-        activitycontroller.getAllActivities(req,res)
-    )
+      (req: Request, res: Response) =>
+        activitycontroller.getAllActivities(req, res)
+    );
 
     this.vendorRouter.get(
       VendorRoutes.PACKAGE_WISE_GROUPS,

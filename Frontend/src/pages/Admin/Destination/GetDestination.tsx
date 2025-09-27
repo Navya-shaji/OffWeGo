@@ -14,11 +14,14 @@ import { ConfirmModal } from "@/components/Modular/ConfirmModal";
 
 export const DestinationTable = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
-  const [originalDestinations, setOriginalDestinations] = useState<DestinationInterface[]>([]);
+  const [originalDestinations, setOriginalDestinations] = useState<
+    DestinationInterface[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<DestinationInterface | null>(null);
+  const [selectedDestination, setSelectedDestination] =
+    useState<DestinationInterface | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalDestinations, setTotalDestinations] = useState(0);
@@ -27,23 +30,21 @@ export const DestinationTable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
 
-  // Prevent multiple API calls
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch destinations function
   const fetchData = useCallback(async (pageNum: number = 1) => {
-    // Prevent multiple simultaneous calls
     if (isLoadingRef.current) return;
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
       setError("");
-      
+
       const data = await fetchAllDestinations(pageNum, 5);
-      const { destinations: fetchedDestinations, totalDestinations: total } = data;
+      const { destinations: fetchedDestinations, totalDestinations: total } =
+        data;
 
       if (Array.isArray(fetchedDestinations)) {
         setDestinations(fetchedDestinations);
@@ -52,12 +53,14 @@ export const DestinationTable = () => {
         setTotalDestinations(total || 0);
         setPage(pageNum);
       } else {
-        console.error("Expected destinations to be an array:", fetchedDestinations);
+        console.error(
+          "Expected destinations to be an array:",
+          fetchedDestinations
+        );
         setDestinations([]);
         setOriginalDestinations([]);
       }
-      
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to fetch destinations:", err);
       setError("Failed to fetch destinations.");
       setDestinations([]);
@@ -68,89 +71,103 @@ export const DestinationTable = () => {
     }
   }, []);
 
-  // Debounced search function
-  const handleSearch = useCallback(async (query: string) => {
-    // Clear previous timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    setSearchQuery(query);
-
-    // Debounce search
-    searchTimeoutRef.current = setTimeout(async () => {
-      if (!query.trim()) {
-        // Return to original data
-        setIsSearchMode(false);
-        setDestinations(originalDestinations);
-        setTotalPages(Math.ceil(totalDestinations / 5));
-        setPage(1);
-        return;
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
 
-      setIsSearchMode(true);
-      setError(""); // Clear any previous errors
-      
-      try {
-        const response = await searchDestination(query);
-        const searchResults = Array.isArray(response) ? response : [];
-        
-        setDestinations(searchResults);
-        setTotalPages(Math.ceil(searchResults.length / 5));
-        setPage(1);
-        
-      } catch (error: any) {
-        console.error("Error during search:", error);
-        
-        // Handle authentication/authorization errors
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          setError("Session expired. Please refresh the page and try again.");
-        } else if (error.message?.includes("Network Error") || error.code === "ECONNABORTED") {
-          setError("Network error. Please check your connection and try again.");
-        } else {
-          setError("Search failed. Please try again.");
+      setSearchQuery(query);
+
+      searchTimeoutRef.current = setTimeout(async () => {
+        if (!query.trim()) {
+          setIsSearchMode(false);
+          setDestinations(originalDestinations);
+          setTotalPages(Math.ceil(totalDestinations / 5));
+          setPage(1);
+          return;
         }
-        
-        setDestinations([]);
-        setTotalPages(1);
+
+        setIsSearchMode(true);
+        setError("");
+
+        try {
+          const response = await searchDestination(query);
+          const searchResults = Array.isArray(response) ? response : [];
+
+          setDestinations(searchResults);
+          setTotalPages(Math.ceil(searchResults.length / 5));
+          setPage(1);
+        } catch (err) {
+          
+          const error = err instanceof Error ? err : new Error(String(err));
+
+          console.error("Error during search:", error);
+
+          const errWithResponse = err as {
+            response?: { status: number };
+            code?: string;
+          };
+
+          if (
+            errWithResponse.response?.status === 401 ||
+            errWithResponse.response?.status === 403
+          ) {
+            setError("Session expired. Please refresh the page and try again.");
+          } else if (
+            error.message.includes("Network Error") ||
+            errWithResponse.code === "ECONNABORTED"
+          ) {
+            setError(
+              "Network error. Please check your connection and try again."
+            );
+          } else {
+            setError(error.message || "Search failed. Please try again.");
+          }
+
+          setDestinations([]);
+          setTotalPages(1);
+        }
+      }, 500); 
+    },
+    [originalDestinations, totalDestinations]
+  );
+
+  
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      if (newPage === page) return; 
+
+      setPage(newPage);
+
+      if (!isSearchMode) {
+      
+        fetchData(newPage);
       }
-    }, 500); // Increased debounce time to reduce API calls
-  }, [originalDestinations, totalDestinations]);
+     
+    },
+    [page, isSearchMode, fetchData]
+  );
 
-  // Handle page change
-  const handlePageChange = useCallback((newPage: number) => {
-    if (newPage === page) return; // Prevent unnecessary calls
-    
-    setPage(newPage);
-    
-    if (!isSearchMode) {
-      // Only fetch from server in normal mode
-      fetchData(newPage);
-    }
-    // In search mode, we handle pagination with data slicing below
-  }, [page, isSearchMode, fetchData]);
 
-  // Initial fetch - only once
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       fetchData(1);
     }
 
-    // Cleanup
+  
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []); // Empty dependency array - only run once!
+  }, []);
 
-  // Get current page data for display
   const getCurrentPageData = () => {
     if (!isSearchMode) {
-      return destinations; // Server handles pagination
+      return destinations; 
     } else {
-      // Client-side pagination for search
       const startIndex = (page - 1) * 5;
       const endIndex = startIndex + 5;
       return destinations.slice(startIndex, endIndex);
@@ -169,66 +186,76 @@ export const DestinationTable = () => {
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;
-    
+
     try {
       await deleteDestination(deleteId);
-      
-      // Update local state instead of refetching
-      const updatedDestinations = destinations.filter(dest => dest.id !== deleteId);
-      const updatedOriginalDestinations = originalDestinations.filter(dest => dest.id !== deleteId);
-      
+
+      const updatedDestinations = destinations.filter(
+        (dest) => dest.id !== deleteId
+      );
+      const updatedOriginalDestinations = originalDestinations.filter(
+        (dest) => dest.id !== deleteId
+      );
+
       setDestinations(updatedDestinations);
       if (!isSearchMode) {
         setOriginalDestinations(updatedOriginalDestinations);
-        setTotalDestinations(prev => prev - 1);
+        setTotalDestinations((prev) => prev - 1);
         setTotalPages(Math.ceil((totalDestinations - 1) / 5));
       } else {
         setTotalPages(Math.ceil(updatedDestinations.length / 5));
       }
-      
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to delete destination:", error);
       setError("Failed to delete destination. Please try again.");
-      
-      // Clear error after 3 seconds
+
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteId(null);
     }
-  }, [deleteId, destinations, originalDestinations, isSearchMode, totalDestinations]);
+  }, [
+    deleteId,
+    destinations,
+    originalDestinations,
+    isSearchMode,
+    totalDestinations,
+  ]);
 
-  const handleUpdate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!selectedDestination?.id) {
-      console.warn("Missing selectedDestination or ID");
-      return;
-    }
-
-    try {
-      await updateDestination(selectedDestination.id, selectedDestination);
-      
-      // Update local state instead of refetching
-      const updateDestinationInList = (list: DestinationInterface[]) =>
-        list.map(dest => 
-          dest.id === selectedDestination.id ? selectedDestination : dest
-        );
-      
-      setDestinations(updateDestinationInList);
-      if (!isSearchMode) {
-        setOriginalDestinations(updateDestinationInList);
+      if (!selectedDestination?.id) {
+        console.warn("Missing selectedDestination or ID");
+        return;
       }
-      
-      setIsEditModalOpen(false);
-    } catch (err: any) {
-      console.error("Update failed:", err);
-      setError("Failed to update destination. Please try again.");
-      
-      // Clear error after 3 seconds
-      setTimeout(() => setError(""), 3000);
-    }
-  }, [selectedDestination, isSearchMode]);
+
+      try {
+        await updateDestination(selectedDestination.id, selectedDestination);
+
+       
+        const updateDestinationInList = (list: DestinationInterface[]) =>
+          list.map((dest) =>
+            dest.id === selectedDestination.id ? selectedDestination : dest
+          );
+
+        setDestinations(updateDestinationInList);
+        if (!isSearchMode) {
+          setOriginalDestinations(updateDestinationInList);
+        }
+
+        setIsEditModalOpen(false);
+      } catch (err) {
+        console.error("Update failed:", err);
+        setError("Failed to update destination. Please try again.");
+
+       
+        setTimeout(() => setError(""), 3000);
+      }
+    },
+    [selectedDestination, isSearchMode]
+  );
 
   if (loading) {
     return (
@@ -240,22 +267,24 @@ export const DestinationTable = () => {
       </div>
     );
   }
-  console.log(destinations,"dhj")
 
   return (
     <div className="p-4 space-y-4">
-      {/* Header */}
+   
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">All Destinations</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            All Destinations
+          </h2>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
-              ? `Found ${destinations.length} destination${destinations.length !== 1 ? 's' : ''} for "${searchQuery}"`
-              : `${totalDestinations} total destinations`
-            }
+            {isSearchMode
+              ? `Found ${destinations.length} destination${
+                  destinations.length !== 1 ? "s" : ""
+                } for "${searchQuery}"`
+              : `${totalDestinations} total destinations`}
           </p>
         </div>
-        
+
         <div className="w-60">
           <SearchBar
             placeholder="Search destinations..."
@@ -265,7 +294,7 @@ export const DestinationTable = () => {
         </div>
       </div>
 
-      {/* Error Message */}
+   
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex justify-between items-center">
@@ -280,7 +309,7 @@ export const DestinationTable = () => {
         </div>
       )}
 
-      {/* Table */}
+     
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
@@ -304,12 +333,17 @@ export const DestinationTable = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y ">
-              {Array.isArray(destinations) && getCurrentPageData().length > 0 ? (
+              {Array.isArray(destinations) &&
+              getCurrentPageData().length > 0 ? (
                 getCurrentPageData().map((dest) => (
-                  <tr key={dest.id} className="hover:bg-white transition-colors">
+                  <tr
+                    key={dest.id}
+                    className="hover:bg-white transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="h-16 w-16">
-                        {Array.isArray(dest.imageUrls) && dest.imageUrls.length > 0 ? (
+                        {Array.isArray(dest.imageUrls) &&
+                        dest.imageUrls.length > 0 ? (
                           <img
                             src={dest.imageUrls[0]}
                             alt={dest.name}
@@ -317,25 +351,39 @@ export const DestinationTable = () => {
                             onError={(e) => {
                               const target = e.currentTarget;
                               target.style.display = "none";
-                              target.nextElementSibling?.classList.remove("hidden");
+                              target.nextElementSibling?.classList.remove(
+                                "hidden"
+                              );
                             }}
                           />
                         ) : null}
-                        <div className={`h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400 border border-gray-200 ${
-                          Array.isArray(dest.imageUrls) && dest.imageUrls.length > 0 ? "hidden" : ""
-                        }`}>
+                        <div
+                          className={`h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400 border border-gray-200 ${
+                            Array.isArray(dest.imageUrls) &&
+                            dest.imageUrls.length > 0
+                              ? "hidden"
+                              : ""
+                          }`}
+                        >
                           No Image
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{dest.name}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {dest.name}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{dest.location}</div>
+                      <div className="text-sm text-gray-500">
+                        {dest.location}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 max-w-xs truncate" title={dest.description}>
+                      <div
+                        className="text-sm text-gray-500 max-w-xs truncate"
+                        title={dest.description}
+                      >
                         {dest.description}
                       </div>
                     </td>
@@ -367,10 +415,9 @@ export const DestinationTable = () => {
                       No destinations found
                     </h3>
                     <p className="text-gray-500">
-                      {searchQuery 
+                      {searchQuery
                         ? `No destinations match your search for "${searchQuery}"`
-                        : "No destinations are available at the moment"
-                      }
+                        : "No destinations are available at the moment"}
                     </p>
                   </td>
                 </tr>
@@ -380,28 +427,35 @@ export const DestinationTable = () => {
         </div>
       </div>
 
-      {/* Pagination */}
+     
       {totalPages > 1 && (
         <div className="flex justify-center">
-          <Pagination 
-            total={totalPages} 
-            current={page} 
+          <Pagination
+            total={totalPages}
+            current={page}
             setPage={handlePageChange}
           />
         </div>
       )}
 
-      {/* Stats */}
+ 
       {destinations.length > 0 && (
         <div className="text-center text-sm text-gray-500">
-          {isSearchMode 
-            ? `Showing ${Math.min((page - 1) * 5 + 1, destinations.length)}-${Math.min(page * 5, destinations.length)} of ${destinations.length} search results`
-            : `Showing ${((page - 1) * 5) + 1}-${Math.min(page * 5, totalDestinations)} of ${totalDestinations} destinations`
-          }
+          {isSearchMode
+            ? `Showing ${Math.min(
+                (page - 1) * 5 + 1,
+                destinations.length
+              )}-${Math.min(page * 5, destinations.length)} of ${
+                destinations.length
+              } search results`
+            : `Showing ${(page - 1) * 5 + 1}-${Math.min(
+                page * 5,
+                totalDestinations
+              )} of ${totalDestinations} destinations`}
         </div>
       )}
 
-      {/* Edit Modal */}
+   
       {isEditModalOpen && selectedDestination && (
         <EditDestinationModal
           destination={selectedDestination}
@@ -411,7 +465,6 @@ export const DestinationTable = () => {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         title="Delete Destination"

@@ -30,23 +30,22 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
   loadingActivities,
   duration,
   onHotelSelection,
-  onActivitySelection
+  onActivitySelection,
 }) => {
-const hotelOptions = filteredHotels
-  .map(hotel => ({
-    value: hotel.hotelId!, // "!" tells TS this is definitely defined
+  // Map hotels for MultiSelect
+  const hotelOptions = filteredHotels.map((hotel) => ({
+    value: hotel.hotelId || hotel.id || "", // fallback to empty string
     label: `${hotel.name} - ${hotel.address} (${hotel.rating}⭐)`,
     data: hotel,
   }));
-  const activityOptions = filteredActivities
-  .map(activity => ({
-    value: activity.activityId!,
+
+  // Map activities for MultiSelect
+  const activityOptions = filteredActivities.map((activity) => ({
+    value: activity.id,
     label: `${activity.title} - ${activity.description.slice(0, 50)}...`,
     data: activity,
   }));
 
-  
-  
   if (!destinationId) {
     return (
       <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-200 text-center">
@@ -86,32 +85,29 @@ const hotelOptions = filteredHotels
               selected={hotelOptions.filter((opt) =>
                 selectedHotels.includes(opt.value)
               )}
-           onChange={(selectedOptions) =>
-  onHotelSelection(selectedOptions.map(opt => {
-    console.log("op",opt)
-    return opt.value;
-  }))
-}
-
+              onChange={(selectedOptions) =>
+                onHotelSelection(selectedOptions.map((opt) => opt.value))
+              }
               placeholder="Choose hotels for this destination..."
             />
           ) : (
             <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500">
               <Building className="h-8 w-8 mx-auto mb-2 text-gray-400" />
               <p>No hotels available for this destination</p>
-              <p className="text-xs mt-1">Add hotels for {selectedDestination?.name} first</p>
+              <p className="text-xs mt-1">
+                Add hotels for {selectedDestination?.name} first
+              </p>
             </div>
           )}
 
           <p className="text-xs text-gray-500 mt-1">
-            Selected {selectedHotels.length} hotel(s) 
-            {selectedHotels.length > 0 && 
-              ` (₹${(selectedHotels.length * 2000 * duration).toLocaleString()} for ${duration} nights)`
-            }
+            Selected {selectedHotels.length} hotel(s)
+            {selectedHotels.length > 0 &&
+              ` (₹${(selectedHotels.length * 2000 * duration).toLocaleString()} for ${duration} nights)`}
           </p>
         </div>
 
-      
+        {/* Activities Section */}
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
             <MapPin className="h-4 w-4 text-blue-600" />
@@ -138,15 +134,16 @@ const hotelOptions = filteredHotels
             <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500">
               <MapPin className="h-8 w-8 mx-auto mb-2 text-gray-400" />
               <p>No activities available for this destination</p>
-              <p className="text-xs mt-1">Add activities for {selectedDestination?.name} first</p>
+              <p className="text-xs mt-1">
+                Add activities for {selectedDestination?.name} first
+              </p>
             </div>
           )}
 
           <p className="text-xs text-gray-500 mt-1">
             Selected {selectedActivities.length} activity(ies)
-            {selectedActivities.length > 0 && 
-              ` (₹${(selectedActivities.length * 1500).toLocaleString()})`
-            }
+            {selectedActivities.length > 0 &&
+              ` (₹${(selectedActivities.length * 1500).toLocaleString()})`}
           </p>
         </div>
       </div>
