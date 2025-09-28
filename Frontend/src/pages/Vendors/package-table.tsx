@@ -81,12 +81,10 @@ const PackageTable: React.FC<PackageTableProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<Package | null>(null);
 
-  // Prevent multiple API calls
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Update packageList when packages prop changes
   useEffect(() => {
     setPackageList(packages);
     setOriginalPackages(packages);
@@ -99,7 +97,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       maximumFractionDigits: 0,
     }).format(amount);
 
-  // Load packages function
+
   const loadPackages = useCallback(async () => {
     if (isLoadingRef.current) return;
     
@@ -126,7 +124,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
   // Debounced search function
   const handleSearch = useCallback(async (query: string) => {
-    // Clear previous timeout
+    
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -136,7 +134,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     // Debounce search
     searchTimeoutRef.current = setTimeout(async () => {
       if (!query.trim()) {
-        // Return to original data
+      
         setIsSearchMode(false);
         setPackageList(originalPackages);
         return;
@@ -149,7 +147,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         
         setPackageList(searchResults);
         
-      } catch (error: any) {
+      } catch (error) {
         console.error("Search error:", error);
         setError("Search failed. Please try again.");
         setPackageList([]);
@@ -160,7 +158,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
     }, 400);
   }, [originalPackages]);
 
-  // Initial load
   useEffect(() => {
     if (!hasInitialized.current && packages.length === 0) {
       hasInitialized.current = true;

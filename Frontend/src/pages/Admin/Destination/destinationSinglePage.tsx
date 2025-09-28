@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -20,6 +20,10 @@ export const DestinationDetail = () => {
   const [packages, setPackages] = useState<Package[]>([]);
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -36,64 +40,42 @@ export const DestinationDetail = () => {
   }, [searchResults, packages]);
 
   const handleSearch = useCallback(async (query: string) => {
-    console.log("🔍 Search triggered with query:", query);
-    
-    if (!query.trim()) {
-      console.log("📝 Empty query, resetting to show all packages");
-      setSearchResults(null);
-      return;
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-    
-    setSearchLoading(true);
-    
-    try {
-      console.log("🌐 Making API call to searchPackages...");
-      const response = await searchPackages(query);
-      
-      console.log("📥 Raw API response:", response);
-      console.log("📊 Response structure:", {
-        type: typeof response,
-        isArray: Array.isArray(response),
-        hasPackages: response && 'packages' in response,
-        packageCount: response?.packages?.length || 0
-      });
-      
-      // Handle different response structures
-      let searchPackages = [];
-      if (response && Array.isArray(response)) {
-        // If response is directly an array
-        searchPackages = response;
-      } else if (response && response.packages && Array.isArray(response.packages)) {
-        // If response has packages property
-        searchPackages = response.packages;
-      } else if (response && response.success && Array.isArray(response.packages)) {
-        // Handle your API structure: {success: true, packages: [], totalPackages: 0}
-        searchPackages = response.packages;
-      } else {
-        console.warn("⚠️ Unexpected response structure:", response);
-        searchPackages = [];
+
+    setSearchQuery(query);
+
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(async () => {
+      if (!query.trim()) {
+        setSearchResults(null); // Clear search results to show original packages
+        setIsSearchMode(false);
+        return;
       }
-      
-      // Optional: Filter by current destination if needed
-      // const filteredPackages = searchPackages.filter(pkg => pkg.destinationId === id);
-      
-      console.log("✅ Processed packages:", searchPackages);
-      console.log("📈 Setting search results with", searchPackages.length, "packages");
-      
-      setSearchResults(searchPackages);
-      
-    } catch (error) {
-      console.error("❌ Search error:", error);
-      console.error("📋 Error details:", {
-        message: error?.message,
-        stack: error?.stack,
-        response: error?.response?.data
-      });
-      setSearchResults([]);
-    } finally {
-      setSearchLoading(false);
-    }
-  }, [id]);
+
+      setIsSearchMode(true);
+      setSearchLoading(true);
+      try {
+        const response = await searchPackages(query);
+        
+        // Handle search response - based on your service, it returns packages directly
+        const searchResultsArray = Array.isArray(response) ? response : [];
+        
+        setSearchResults(searchResultsArray);
+        
+      } catch (error) {
+        console.error("Search error:", error);
+        setError("Search failed. Please try again.");
+        setSearchResults([]);
+        
+        // Clear error after 3 seconds
+        setTimeout(() => setError(""), 3000);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 400);
+  }, []);
 
   const fetchDestinationPackages = useCallback(async () => {
     if (!id) return;
@@ -104,13 +86,13 @@ export const DestinationDetail = () => {
       const response = await getPackagesByDestination(id);
       console.log("📦 Packages response:", response);
       
-      // Handle different response structures
-      let destinationPackages = [];
-      if (response && Array.isArray(response)) {
-        destinationPackages = response;
-      } else if (response && response.packages && Array.isArray(response.packages)) {
+      // Based on your service function, it returns {packages: Package[]}
+      let destinationPackages: Package[] = [];
+      
+      if (response && Array.isArray(response.packages)) {
         destinationPackages = response.packages;
       } else if (response && Array.isArray(response)) {
+        // Fallback if the API sometimes returns packages directly
         destinationPackages = response;
       } else {
         console.warn("⚠️ Unexpected packages response structure:", response);
@@ -131,6 +113,9 @@ export const DestinationDetail = () => {
   // Clear search when destination changes
   const clearSearch = useCallback(() => {
     setSearchResults(null);
+    setSearchQuery("");
+    setIsSearchMode(false);
+    setError("");
   }, []);
 
   useEffect(() => {
@@ -163,6 +148,8 @@ export const DestinationDetail = () => {
         <p><strong>Displayed Packages:</strong> {displayedPackages.length} items</p>
         <p><strong>Packages Loading:</strong> {packagesLoading ? 'Yes' : 'No'}</p>
         <p><strong>Search Loading:</strong> {searchLoading ? 'Yes' : 'No'}</p>
+        <p><strong>Search Query:</strong> "{searchQuery}"</p>
+        <p><strong>Is Search Mode:</strong> {isSearchMode ? 'Yes' : 'No'}</p>
       </div>
     </div>
   );
@@ -354,16 +341,15 @@ export const DestinationDetail = () => {
                         onSearch={handleSearch}
                       />
                     </div>
-                    {searchResults !== null && (
-                      <button
-                        onClick={clearSearch}
-                        className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
-                      >
-                        Clear Search
-                      </button>
-                    )}
+                 
                   </div>
                 </div>
+
+                {error && (
+                  <div className="mb-4 p-3 bg-red-100 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {error}
+                  </div>
+                )}
 
                 {(packagesLoading || searchLoading) ? (
                   <div className="flex items-center justify-center py-12">
@@ -398,7 +384,7 @@ export const DestinationDetail = () => {
                     <div className="grid gap-6">
                       {displayedPackages.map((pkg) => (
                         <div
-                          key={pkg.id}
+                          key={pkg._id || pkg.id}
                           className="group p-6 bg-gradient-to-r from-white to-blue-50/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 border border-white/20 hover:border-blue-200"
                         >
                           <div className="flex items-center justify-between">
@@ -420,6 +406,12 @@ export const DestinationDetail = () => {
                                     {pkg.description}
                                   </p>
                                 )}
+                                <div className="flex items-center mt-2 text-sm text-slate-500">
+                                  <span className="mr-4">Duration: {pkg.duration} day{pkg.duration !== 1 ? 's' : ''}</span>
+                                  {pkg.price && (
+                                    <span className="font-semibold text-green-600">₹{pkg.price.toLocaleString()}</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
 

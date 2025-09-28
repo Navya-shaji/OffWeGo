@@ -7,6 +7,7 @@ import {
   updateActivity,
   searchActivity,
 } from "@/services/Activity/ActivityService";
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; // Add this import
 import { toast, ToastContainer } from "react-toastify";
 import { Edit, Trash, X, Upload } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
@@ -50,7 +51,7 @@ const ActivitiesTable: React.FC = () => {
     imageUrl: activity.imageUrl || "",
   }), []);
 
-  // Load activities function
+  // Load activities function - Fixed to match your service structure
   const loadActivities = useCallback(async (pageNum: number = 1) => {
     if (isLoadingRef.current) return;
     
@@ -65,7 +66,7 @@ const ActivitiesTable: React.FC = () => {
         throw new Error('Invalid response from server');
       }
 
-      // Handle the actual response structure from your service
+      // Handle your service structure: { activities: Activity[], totalActivities, totalPages, currentPage }
       const activitiesList = Array.isArray(response.activities) ? response.activities : [];
       const normalized = activitiesList.map(normalizeActivity);
 
@@ -95,7 +96,7 @@ const ActivitiesTable: React.FC = () => {
     }
   }, [normalizeActivity]);
 
-  // Debounced search function
+  // Fixed search function to match your service structure
   const handleSearch = useCallback(async (query: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -121,6 +122,7 @@ const ActivitiesTable: React.FC = () => {
           throw new Error('Invalid search response');
         }
 
+        // Handle your service structure: res.data.data
         const searchResults = Array.isArray(response.activities) ? response.activities : [];
         const normalized = searchResults.map(normalizeActivity);
         
@@ -231,6 +233,7 @@ const ActivitiesTable: React.FC = () => {
     }
   }, []);
 
+  // Fixed update function with proper image upload and response handling
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -248,9 +251,15 @@ const ActivitiesTable: React.FC = () => {
     try {
       let finalImageUrl = formData.imageUrl;
       
+      // Upload new image if selected
       if (newImageFile) {
-        // Here you would typically upload to your storage service
-        finalImageUrl = URL.createObjectURL(newImageFile); // Placeholder
+        try {
+          finalImageUrl = await uploadToCloudinary(newImageFile);
+        } catch (uploadError) {
+          toast.error("Failed to upload image. Please try again.");
+          setIsUpdating(false);
+          return;
+        }
       }
 
       const updateData = {
@@ -259,14 +268,17 @@ const ActivitiesTable: React.FC = () => {
         imageUrl: finalImageUrl,
       };
 
-      const updatedActivity = await updateActivity(selectedActivity._id, updateData);
+      // Call update service
+      const response = await updateActivity(selectedActivity._id, updateData);
+      
+      // Handle response - your service returns res.data
+      const updatedActivity = response?.data ? normalizeActivity(response.data) : { ...selectedActivity, ...updateData };
+      
       toast.success("Activity updated successfully");
-
-      const updatedActivityData = updatedActivity ? normalizeActivity(updatedActivity) : { ...selectedActivity, ...updateData };
 
       const updateActivityInList = (list: Activity[]) =>
         list.map((act) =>
-          act._id === selectedActivity._id ? updatedActivityData : act
+          act._id === selectedActivity._id ? updatedActivity : act
         );
 
       setActivities(updateActivityInList);

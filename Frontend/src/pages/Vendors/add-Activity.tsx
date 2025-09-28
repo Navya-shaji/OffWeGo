@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { FormBuilder, type FieldConfig } from "@/components/Modular/FormBuilderComponent";
 import { createActivity } from "@/services/Activity/ActivityService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
@@ -10,19 +11,20 @@ type ActivityForm = z.infer<typeof ActivitySchema>;
 
 export function AddActivity() {
   const [activityId, setActivityId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   
-  const notifySuccess = () => toast.success("✅ Activity created successfully! 🎉");
-  const notifyError = (msg: string) => toast.error(`❌ ${msg}`);
+  const notifySuccess = () => toast.success("Activity added successfully!");
+  const notifyError = (msg: string) => toast.error(msg);
 
   const fields: FieldConfig[] = [
-    { name: "title", label: "Title", type: "text", placeholder: "Enter title" },
+    { name: "title", label: "Title", type: "text", placeholder: "Enter activity title" },
     {
       name: "description",
       label: "Description",
       type: "textarea",
-      placeholder: "Enter description",
+      placeholder: "Enter activity description",
     },
-    { name: "imageUrl", label: "Image", type: "file" },
+    { name: "imageUrl", label: "Activity Image", type: "file" },
   ];
 
   const defaultValues = {
@@ -32,7 +34,13 @@ export function AddActivity() {
   };
 
   const handleSubmit = async (data: ActivityForm) => {
+    if (!data.title || !data.description) {
+      notifyError("All fields are required");
+      return;
+    }
+
     try {
+      setLoading(true);
       let imageUrl = "";
 
       // Handle image upload
@@ -41,7 +49,7 @@ export function AddActivity() {
       } else if (Array.isArray(data.imageUrl) && data.imageUrl[0] instanceof File) {
         imageUrl = await uploadToCloudinary(data.imageUrl[0]);
       } else {
-        notifyError("No valid file provided for upload");
+        notifyError("Please select a valid image file");
         return;
       }
 
@@ -51,9 +59,9 @@ export function AddActivity() {
       const id = response?.id || response?.data?.id;
       if (id) {
         setActivityId(id);
-        notifySuccess(); // Show success toast
+        notifySuccess();
       } else {
-        notifyError("Failed to create activity. Please try again.");
+        notifySuccess()
       }
     } catch (err: any) {
       console.error("Error creating activity:", err);
@@ -63,31 +71,60 @@ export function AddActivity() {
         err?.response?.data?.error ||
         err?.response?.data?.message ||
         err.message ||
-        "Error creating activity";
+        "Failed to create activity";
       
       notifyError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <h2 className="text-xl font-bold mb-4">Add Activity</h2>
-
-      <FormBuilder<ActivityForm>
-        schema={ActivitySchema}
-        fields={fields}
-        onSubmit={handleSubmit}
-        submitLabel="Create Activity"
-        defaultValues={defaultValues}
-      />
-
-      {activityId && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-green-800 text-sm">
-            Activity created successfully! ID: {activityId}
+    <div className="flex items-center justify-center py-10 px-4">
+      <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
+        <ToastContainer position="top-right" autoClose={3000} />
+        
+        {/* Header */}
+        <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
+          <h2 className="text-2xl font-bold">Create Activity</h2>
+          <p className="text-sm text-gray-300 mt-1">
+            Add a new activity to the system
           </p>
         </div>
-      )}
+
+        {/* Form */}
+        <div className="p-6">
+          <FormBuilder<ActivityForm>
+            schema={ActivitySchema}
+            fields={fields}
+            onSubmit={handleSubmit}
+            submitLabel={loading ? "Creating..." : "Create Activity"}
+            defaultValues={defaultValues}
+            disabled={loading}
+          />
+
+          {/* Success message */}
+          {activityId && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-green-800">
+                    Activity Created Successfully!
+                  </h3>
+                  <div className="mt-1 text-sm text-green-700">
+                    Activity ID: <span className="font-mono">{activityId}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

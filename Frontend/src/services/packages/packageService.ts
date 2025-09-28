@@ -103,7 +103,7 @@ export const searchPackages = async (query: string) => {
     params: { q: query },
   });
 
-  return response.data.data;
+  return response.data.packages;
 };
 
 // ================== USER-SIDE ==================

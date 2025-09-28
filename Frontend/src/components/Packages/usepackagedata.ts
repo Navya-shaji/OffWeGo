@@ -14,7 +14,7 @@ export const usePackageData = () => {
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
 console.log(allActivities,"actiivties another page")
-  const extractApiData = (response: any): any[] => {
+  const extractApiData = (response): any[] => {
     if (!response) return [];
 
     if (Array.isArray(response)) return response;

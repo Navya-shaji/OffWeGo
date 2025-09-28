@@ -56,18 +56,20 @@ export class PackageRepository
     return await this.model.findByIdAndDelete(id);
   }
 
-  async searchPackage(query: string): Promise<Package[]> {
-    const regex = new RegExp(query, "i");
-    return await this.model
-      .find({ packageName: { $regex: regex } })
-      .select(
-        "packageName itinerary inclusions  amenities price duration hotels activities"
-      )
-      .populate("hotels", "name")
-      .populate("activities", "title")
-      .limit(10)
-      .exec();
-  }
+ async searchPackage(query: string): Promise<Package[]> {
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) return [];
+
+  const regex = new RegExp(trimmedQuery, "i");
+
+  return await this.model
+    .find({ packageName: { $regex: regex } })
+    .select("packageName itinerary inclusions amenities price duration hotels activities checkInTime checkOutTime")
+    .populate("hotels", "name")
+    .populate("activities", "title")
+    .limit(10)
+    .exec();
+}
 
   async countPackages(): Promise<number> {
     return packageModel.countDocuments();
