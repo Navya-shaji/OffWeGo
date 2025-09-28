@@ -13,7 +13,7 @@ export class AdminVendorApprovalUseCase implements IAdminVendorApprovalUseCase {
   }
   async updateStatus(id: string, status: 'approved' | 'rejected'): Promise<Vendor | null> {
     const updatedDoc = await this._vendorRepository.updateVendorStatus(id, status);
-    return updatedDoc ? mapToVendor(updatedDoc as any) : null;
+    return updatedDoc ? mapToVendor(updatedDoc) : null;
   }
 
   async execute(): Promise<Vendor[]> {

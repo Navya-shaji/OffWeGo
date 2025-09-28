@@ -71,7 +71,7 @@ export class VendorRepository
   async getAllVendors(
     skip: number,
     limit: number,
-    filter: Record<string, any> = {}
+    filter: Record<string, unknown> = {}
   ): Promise<IVendorModel[]> {
     return this.model.find(filter).skip(skip).limit(limit);
   }
@@ -91,7 +91,7 @@ export class VendorRepository
     return this.model.findOne({ email });
   }
 
-  async countVendors(filter: Record<string, any> = {}): Promise<number> {
+  async countVendors(filter: Record<string, unknown> = {}): Promise<number> {
     return this.model.countDocuments(filter);
   }
 

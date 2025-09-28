@@ -1,15 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../domain/errors/AppEroor";
 import { logErrorToFile } from "../../framework/Logger/errorLogger";
-
 export const errorMiddleware = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction 
 ): void => {
   try {
-    
     const statusCode = err instanceof AppError ? err.statusCode : 500;
 
     logErrorToFile({
@@ -30,4 +28,5 @@ export const errorMiddleware = (
   } catch (error) {
     console.log("Error in error handling middleware", error);
   }
+  console.log(_next)
 };

@@ -22,13 +22,13 @@ export interface IVendorRepository {
   getAllVendors(
     skip: number,
     limit: number,
-    filter?: Record<string, any>
+    filter?: Record<string, unknown>
   ): Promise<IVendorModel[]>;
   updateVendorStatusByAdmin(
     vendorId: string,
     status: "blocked" | "unblocked"
   ): Promise<void>;
   getProfileByEmail(email: string): Promise<RegistervendorDto | null>;
-  countVendors(filter?: Record<string, any>): Promise<number>;
+  countVendors(filter?: Record<string, unknown>): Promise<number>;
   searchVendor(query:string):Promise<Vendor[]>
 }

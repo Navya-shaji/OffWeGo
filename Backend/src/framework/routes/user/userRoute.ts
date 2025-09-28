@@ -4,7 +4,7 @@ import {
   userLoginController,
   googleSignupController,
   userprofileController,
-  bookingcontroller,
+  
 } from "../../Di/User/UserInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/AdminInjection";
@@ -104,13 +104,6 @@ export class UserRoute {
         userprofileController.editProfileHandler(req, res);
       }
     );
-    this.userRouter.post(
-      UserRoutes.CREATE_BOOKING,
-      verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["user"]),
-      (req: Request, res: Response) => {
-        bookingcontroller.createBooking(req, res);
-      }
-    );
+   
   }
 }

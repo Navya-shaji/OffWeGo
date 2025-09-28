@@ -1,3 +1,4 @@
+import { JwtPayload } from "jsonwebtoken";
 import { ITokenService } from "../../domain/interface/ServiceInterface/ItokenService";
 
 export class RefreshTokenUseCase {
@@ -8,17 +9,24 @@ export class RefreshTokenUseCase {
   }
 
   async execute(refreshToken: string) {
-    const isBlacklisted = await this._tokenService.checkTokenBlacklist(refreshToken);
+    const isBlacklisted = await this._tokenService.checkTokenBlacklist(
+      refreshToken
+    );
     if (isBlacklisted) {
       throw new Error("Refresh token is blacklisted or invalid");
     }
 
-    const decoded = await this._tokenService.verifyToken(refreshToken , 'refresh');
-   
+    const decoded = await this._tokenService.verifyToken(
+      refreshToken,
+      "refresh"
+    );
+
     if (!decoded) {
       throw new Error("Invalid or expired refresh token");
     }
-    const payload = { userId: (decoded as any).userId, role: (decoded as any).role };
+    const { userId, role } = decoded as JwtPayload;
+
+    const payload: JwtPayload = { userId, role };
     const newAccessToken = this._tokenService.generateAccessToken(payload);
     const newRefreshToken = this._tokenService.generateRefreshToken(payload);
 

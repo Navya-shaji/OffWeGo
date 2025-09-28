@@ -12,7 +12,7 @@ export class RegisterUserUseCase implements IregisterUserUseCase {
   }
 
   async execute(userInput: RegisterDTO): Promise<boolean> {
-    const { name, email, password, phone } = userInput;
+    const {  email, phone } = userInput;
 
     const existingUser = await this._userRepository.findByEmail(email);
 

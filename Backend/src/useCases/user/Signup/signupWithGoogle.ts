@@ -12,6 +12,7 @@ export class GoogleSignupUseCase{
     async execute(googleToken:string):Promise<User>{
         const googleUser=await this._authRepository.signupWithGoogle(googleToken)
         const user=mapToUser(googleUser)
+        console.log(user)
         const existingUser=await this._userRepository.findByEmail(googleUser.email)
         if(existingUser) return mapToUser(existingUser)
 

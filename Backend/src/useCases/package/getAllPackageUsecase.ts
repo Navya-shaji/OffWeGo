@@ -1,4 +1,3 @@
-import { log } from "console";
 import { IGetPackagesUsecase } from "../../domain/interface/Vendor/IGetAllPackageUsecase";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { IPackageModel } from "../../framework/database/Models/packageModel";

@@ -72,6 +72,7 @@ export const fetchAllPackages = async (
 export const editPackage = async (id: string, data: Package) => {
   try {
     const res = await axiosInstance.put(`/api/vendor/packages/${id}`, data);
+    console.log(res.data,"frontemd")
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

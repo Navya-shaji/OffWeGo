@@ -87,10 +87,11 @@ async getPackagesForUser(req: Request, res: Response) {
 
   // Edit package
   async EditPackage(req: Request, res: Response) {
+    console.log("Hiai")
     const packageId = req.params.id;
     const packageData = req.body;
     const result = await this._editpackage.execute(packageId, packageData);
-
+console.log(result,"result")
     res.status(HttpStatus.OK).json({ success: true, packages: [result], totalPackages: 1 });
   }
 

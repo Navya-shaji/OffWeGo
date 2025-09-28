@@ -8,15 +8,16 @@ export class VerifyOtpUseCase  {
   private _hashService: IPasswordService;
   private _otpService: IOtpService;
   private _userRepository: IUserRepository;
-  constructor(
-    otpService: IOtpService,
-    hashService: IPasswordService,
-    userRepository: IUserRepository
-  ) {
-    (this._hashService = hashService),
-      (this._otpService = otpService),
-      (this._userRepository = userRepository);
-  }
+constructor(
+  otpService: IOtpService,
+  hashService: IPasswordService,
+  userRepository: IUserRepository
+) {
+  this._hashService = hashService;
+  this._otpService = otpService;
+  this._userRepository = userRepository;
+}
+
 
   async execute(userData: User, otp: string): Promise<User> {
     const isVerified = await this._otpService.verifyOtp(userData.email, otp);

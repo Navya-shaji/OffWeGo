@@ -18,9 +18,7 @@ import { PackageController } from "../../../adapters/repository/Destination/GetP
 import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
-import { CreateBooking } from "../../../useCases/booking/BookingUsecase";
-import { BookingController } from "../../../adapters/controller/Booking/BookingController";
-import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
+
 
 
 // Setup Repos and Services
@@ -30,7 +28,6 @@ const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const jwtService=new JwtService
 const packageRepo=new PackageRepository();
-const bookingRepo=new BookingRepository()
 
 
 // Use Cases
@@ -43,7 +40,6 @@ const userprofile=new UserProfileUsecase(userRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
 const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
 const edituserProfile=new EditUserProfile()
-const createbookingusecase=new CreateBooking(bookingRepo)
 
 
 // Controllers
@@ -52,4 +48,3 @@ export const userLoginController =new UserLoginController(loginUserUseCase,jwtSe
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
 export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
-export const bookingcontroller = new BookingController(createbookingusecase);

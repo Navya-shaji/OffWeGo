@@ -1,5 +1,4 @@
 import { ActivityDto } from "../../domain/dto/package/ActivityDto";
-import { Activity } from "../../domain/entities/ActivityEntity";
 import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
 import { IGetAllActivities } from "../../domain/interface/Vendor/IgetallActivitiesUsecase";
 import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";

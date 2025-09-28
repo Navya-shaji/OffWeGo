@@ -8,9 +8,9 @@ export interface IUserRepository {
   getAllUsers(
     skip: number,
     limit: number,
-    filter?: Record<string, any>
+    filter?: Record<string, unknown>
   ): Promise<User[]>;
-  countUsers(filter?: Record<string, any>): Promise<number>;
+  countUsers(filter?: Record<string, unknown>): Promise<number>;
   updateUserStatus(userId: string, status: "active" | "block"): Promise<void>;
   getProfileByEmail(email: string): Promise<ProfileDto | null>;
   searchUser(Query:string):Promise<User[]>

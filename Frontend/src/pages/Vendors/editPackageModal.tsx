@@ -10,11 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
   Trash2,
-  Stars,
-  MapPin,
-  Upload,
-  Hotel,
-  Activity
+  Stars
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,14 +35,9 @@ interface Package {
   checkInTime?: string
   checkOutTime?: string
   images?: string[]
-  hotels?: Array<{ name: string; _id?: string }>
-  activities?: Array<{ title: string; _id?: string }>
   itinerary?: Array<{ day: number; time: string; activity: string }>
   inclusions?: string[]
   amenities?: string[]
-  destinationId?: string
-  selectedHotels?: string[]
-  selectedActivities?: string[]
 }
 
 interface EditPackageProps {
@@ -55,9 +46,6 @@ interface EditPackageProps {
   onChange: (pkg: Package) => void
   onSubmit: (e: React.FormEvent) => void
   isLoading?: boolean
-  destinations?: Array<{ id: string; name: string }>
-  availableHotels?: Array<{ _id: string; name: string }>
-  availableActivities?: Array<{ _id: string; title: string }>
 }
 
 const EditPackage: React.FC<EditPackageProps> = ({
@@ -65,10 +53,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
   onClose,
   onChange,
   onSubmit,
-  isLoading = false,
-  destinations = [],
-  availableHotels = [],
-  availableActivities = []
+  isLoading = false
 }) => {
   const [localData, setLocalData] = useState<Package | null>(pkg)
   const [enhancedItinerary, setEnhancedItinerary] = useState<ItineraryDay[]>([])
@@ -129,51 +114,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
     onChange(updated)
-  }
-
-  const handleImageChange = (index: number, value: string) => {
-    const updatedImages = [...(localData.images || [])]
-    updatedImages[index] = value
-    const updated = { ...localData, images: updatedImages }
-    setLocalData(updated)
-    onChange(updated)
-  }
-
-  const addImage = () => {
-    const updatedImages = [...(localData.images || []), ""]
-    const updated = { ...localData, images: updatedImages }
-    setLocalData(updated)
-    onChange(updated)
-  }
-
-  const removeImage = (index: number) => {
-    const updatedImages = [...(localData.images || [])]
-    updatedImages.splice(index, 1)
-    const updated = { ...localData, images: updatedImages }
-    setLocalData(updated)
-    onChange(updated)
-  }
-
-  const handleHotelSelection = (hotelId: string, checked: boolean) => {
-    const currentSelected = localData.selectedHotels || []
-    const updated = checked
-      ? [...currentSelected, hotelId]
-      : currentSelected.filter(id => id !== hotelId)
-    
-    const updatedData = { ...localData, selectedHotels: updated }
-    setLocalData(updatedData)
-    onChange(updatedData)
-  }
-
-  const handleActivitySelection = (activityId: string, checked: boolean) => {
-    const currentSelected = localData.selectedActivities || []
-    const updated = checked
-      ? [...currentSelected, activityId]
-      : currentSelected.filter(id => id !== activityId)
-    
-    const updatedData = { ...localData, selectedActivities: updated }
-    setLocalData(updatedData)
-    onChange(updatedData)
   }
 
   // Itinerary management functions
@@ -333,8 +273,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
     )
   }
 
-  const selectedDestination = destinations.find(dest => dest.id === localData.destinationId)
-
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl overflow-y-auto max-h-[95vh] relative">
@@ -359,7 +297,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
           </div>
         </div>
 
-        <form onSubmit={onSubmit} className="p-6 space-y-8">
+        <div className="p-6 space-y-8" onSubmit={onSubmit}>
           {/* Basic Information */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-slate-50">
             <CardHeader className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-t-lg">
@@ -388,32 +326,17 @@ const EditPackage: React.FC<EditPackageProps> = ({
 
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                    Destination
+                    Duration (Days)
                   </label>
-                  
-                  {/* Debug info - remove after testing */}
-                  <div className="mb-2 p-2 bg-gray-100 rounded text-xs">
-                    <p>Current destinationId: {localData.destinationId || 'None'}</p>
-                    <p>Available destinations: {destinations.length}</p>
-                    <p>Destinations: {JSON.stringify(destinations.map(d => ({id: d.id, name: d.name})))}</p>
-                  </div>
-                  
-                  <div className="relative">
-                    <select
-                      name="destinationId"
-                      value={localData.destinationId || ""}
-                      onChange={handleInputChange}
-                      className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium appearance-none bg-white"
-                    >
-                      <option value="">Select destination...</option>
-                      {destinations.map((destination) => (
-                        <option key={destination.id} value={destination.id}>
-                          {destination.name}
-                        </option>
-                      ))}
-                    </select>
-                    <MapPin className="absolute right-4 top-4 h-5 w-5 text-slate-400 pointer-events-none" />
-                  </div>
+                  <input
+                    type="number"
+                    name="duration"
+                    value={localData.duration}
+                    onChange={handleInputChange}
+                    min="1"
+                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                    placeholder="Number of days"
+                  />
                 </div>
               </div>
 
@@ -447,23 +370,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
                 </div>
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                    Duration (Days)
-                  </label>
-                  <input
-                    type="number"
-                    name="duration"
-                    value={localData.duration}
-                    onChange={handleInputChange}
-                    min="1"
-                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
-                    placeholder="Number of days"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
                     Check-In Time
                   </label>
                   <div className="relative">
@@ -478,137 +384,26 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                    Check-Out Time
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="checkOutTime"
-                      value={localData.checkOutTime || ""}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 12:00 PM"
-                      className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
-                    />
-                    <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
-                  </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
+                  Check-Out Time
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="checkOutTime"
+                    value={localData.checkOutTime || ""}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 12:00 PM"
+                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                  />
+                  <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
-
-
-
-          {/* Hotels & Activities Selection */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Hotels Section */}
-            <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
-              <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-t-lg">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-600 text-white rounded-lg">
-                    <Hotel className="h-5 w-5" />
-                  </div>
-                  <span>Select Hotels ({availableHotels.length} available)</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                {/* Debug info - remove after testing */}
-                <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-                  <p>Destination: {selectedDestination?.name || 'None selected'}</p>
-                  <p>Available Hotels: {availableHotels.length}</p>
-                  <p>Selected Hotels: {JSON.stringify(localData.selectedHotels || [])}</p>
-                </div>
-                
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {availableHotels.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <Hotel className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p className="font-medium">No hotels available</p>
-                      <p className="text-sm">Add hotels for {selectedDestination?.name || 'this destination'} first</p>
-                    </div>
-                  ) : (
-                    availableHotels.map((hotel) => {
-                      const hotelId = hotel._id || hotel.id; // Handle both _id and id
-                      const isSelected = (localData.selectedHotels || []).includes(hotelId);
-                      
-                      return (
-                        <div key={hotelId} className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200">
-                          <input
-                            type="checkbox"
-                            id={`hotel-${hotelId}`}
-                            checked={isSelected}
-                            onChange={(e) => handleHotelSelection(hotelId, e.target.checked)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor={`hotel-${hotelId}`} className="flex-1 text-sm font-medium text-gray-900 cursor-pointer">
-                            {hotel.name || hotel.title || 'Unnamed Hotel'}
-                          </label>
-                          <span className="text-xs text-gray-500">ID: {hotelId}</span>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-                <div className="mt-4 text-sm text-blue-600 font-medium">
-                  Selected: {(localData.selectedHotels || []).length} hotel(s)
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Activities Section */}
-            <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-emerald-50">
-              <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-t-lg">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-600 text-white rounded-lg">
-                    <Activity className="h-5 w-5" />
-                  </div>
-                  <span>Select Activities ({availableActivities.length} available)</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                {/* Debug info - remove after testing */}
-                <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-                  <p>Available Activities: {availableActivities.length}</p>
-                  <p>Selected Activities: {JSON.stringify(localData.selectedActivities || [])}</p>
-                </div>
-                
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {availableActivities.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p className="font-medium">No activities available</p>
-                      <p className="text-sm">Add activities for {selectedDestination?.name || 'this destination'} first</p>
-                    </div>
-                  ) : (
-                    availableActivities.map((activity) => {
-                      const activityId = activity._id || activity.id; // Handle both _id and id
-                      const isSelected = (localData.selectedActivities || []).includes(activityId);
-                      
-                      return (
-                        <div key={activityId} className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-emerald-200 hover:border-emerald-300 transition-all duration-200">
-                          <input
-                            type="checkbox"
-                            id={`activity-${activityId}`}
-                            checked={isSelected}
-                            onChange={(e) => handleActivitySelection(activityId, e.target.checked)}
-                            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor={`activity-${activityId}`} className="flex-1 text-sm font-medium text-gray-900 cursor-pointer">
-                            {activity.title || activity.name || 'Unnamed Activity'}
-                          </label>
-                          <span className="text-xs text-gray-500">ID: {activityId}</span>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-                <div className="mt-4 text-sm text-emerald-600 font-medium">
-                  Selected: {(localData.selectedActivities || []).length} activity(s)
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Itinerary Section */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-purple-50">
@@ -782,7 +577,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
               Cancel
             </Button>
             <Button 
-              type="submit" 
+              type="button"
+              onClick={(e) => onSubmit(e as any)}
               disabled={isLoading}
               size="lg"
               className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -803,7 +599,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
               </div>
             </Button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )

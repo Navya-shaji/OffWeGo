@@ -1,4 +1,3 @@
-import { Package } from "../../domain/entities/PackageEntity";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
 export class DeletePackage{
