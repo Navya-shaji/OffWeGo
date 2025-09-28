@@ -1,4 +1,5 @@
-export interface Hotel {
+
+export interface HotelDto {
   hotelId?: string;
   name: string;
   address: string;

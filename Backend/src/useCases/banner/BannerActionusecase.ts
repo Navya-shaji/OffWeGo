@@ -1,4 +1,4 @@
-import { BannerDto } from "../../domain/dto/Banner/BannerDto";
+import { BannerDto } from "../../domain/dto/banner/BannerDto";
 import { IBannerActionUsecase } from "../../domain/interface/Banner/IBannerActionUsecase";
 import { IBannerRepository } from "../../domain/interface/Banner/IBannerRepository";
 export class BannerActionUsecase implements IBannerActionUsecase {

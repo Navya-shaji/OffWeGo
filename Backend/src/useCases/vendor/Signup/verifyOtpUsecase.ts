@@ -4,7 +4,6 @@ import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpserv
 export class verifyOtpUsecase {
   constructor(
     private _otpService: IOtpService,
-   
   ) {}
 
   async execute(email: string, otp: string): Promise<string> {

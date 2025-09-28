@@ -1,5 +1,3 @@
-
-
 export interface VendorDto {
   id?: string; 
   name: string;

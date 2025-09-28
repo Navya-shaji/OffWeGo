@@ -1,4 +1,4 @@
-import { BannerDto } from "../../domain/dto/Banner/BannerDto";
+import { BannerDto } from "../../domain/dto/banner/BannerDto";
 import { Banner } from "../../domain/entities/BannerEntity";
 import { bannerModel } from "../../framework/database/Models/bannerModel";
 import { mapToBannerDto } from "../../mappers/Banner/bannerMappers";

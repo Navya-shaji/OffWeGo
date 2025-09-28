@@ -1,7 +1,7 @@
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
-import { RegisterDTO } from "../../../domain/dto/user/RegisterDto";
 import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
+import { UserDto } from "../../../domain/dto/user/UserDto";
 
 export class RegisterUserUseCase implements IregisterUserUseCase {
   private _userRepository: IUserRepository;
@@ -11,7 +11,7 @@ export class RegisterUserUseCase implements IregisterUserUseCase {
     this._otpService = otpService;
   }
 
-  async execute(userInput: RegisterDTO): Promise<boolean> {
+  async execute(userInput: UserDto): Promise<boolean> {
     const {  email, phone } = userInput;
 
     const existingUser = await this._userRepository.findByEmail(email);

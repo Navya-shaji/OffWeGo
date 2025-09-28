@@ -1,4 +1,3 @@
-// import { ObjectId } from "mongoose";
 
 export class Vendor {
   _id?: string;
@@ -32,12 +31,8 @@ export class Vendor {
     status: "pending" | "approved" | "rejected" = "pending",
     isAdmin: boolean = false,
     googleVerified: boolean = false,
-    isBlocked: boolean = false,
-    // subscription?: {
-    //   plan: ObjectId;
-    //   subscribedAt: Date;
-    //   expiresAt: Date;
-    // }
+    isBlocked: boolean = false
+  
   ) {
     this.name = name;
     this.email = email;
@@ -50,7 +45,6 @@ export class Vendor {
     this.isAdmin = isAdmin;
     this.googleVerified = googleVerified;
     this.isBlocked = isBlocked;
-    // this.subscription = subscription;
     this.createdAt = new Date();
   }
 }

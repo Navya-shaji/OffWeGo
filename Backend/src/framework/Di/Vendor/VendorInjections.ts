@@ -20,10 +20,10 @@ import { PackageRepository } from "../../../adapters/repository/Package/PackageR
 import { EditPackage } from "../../../useCases/package/EditPackageUsecase";
 import { DeletePackage } from "../../../useCases/package/DeletePackageUsecase";
 import { EditVendorProfile } from "../../../useCases/vendor/profile/Edit profileUsecase";
-import { PackageWiseGroupingController } from "../../../adapters/controller/Packages/PackageWiseGroupingController";
-import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
-import { PackageWiseGrouping } from "../../../adapters/repository/Package/PackagewiseGroupingRepository";
-import { GetAllPackageWiseGroup } from "../../../useCases/package/GetAllPackageWiseGroupsusecase";
+// import { PackageWiseGroupingController } from "../../../adapters/controller/Packages/PackageWiseGroupingController";
+// import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
+// import { PackageWiseGrouping } from "../../../adapters/repository/Package/PackagewiseGroupingRepository";
+// import { GetAllPackageWiseGroup } from "../../../useCases/package/GetAllPackageWiseGroupsusecase";
 import { CreateHotelUsecase } from "../../../useCases/hotel/CreateHotelUsecase";
 import { HotelRepository } from "../../../adapters/repository/Hotel/HotelRepository";
 import { ActivityRepository } from "../../../adapters/repository/Activity/ActivityRepository";
@@ -49,7 +49,7 @@ const hashPassword = new HashPassword();
 const jwtService = new JwtService();
 // const destinationRepo=new DestinationRepository()
 const packageRepo=new PackageRepository()
-const groupRepo=new PackageWiseGrouping()
+// const groupRepo=new PackageWiseGrouping()
 const hotelRepo=new HotelRepository()
 const activityRepo=new ActivityRepository()
 
@@ -65,8 +65,8 @@ const createPackageUsecase=new CreatePackagesUseCase(packageRepo);
 const editpackage=new EditPackage()
 const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
-const packagewisegroupusecase=new CreatePackageWiseGroup(groupRepo)
-const getallpackagewisegroups=new GetAllPackageWiseGroup(groupRepo)
+// const packagewisegroupusecase=new CreatePackageWiseGroup(groupRepo)
+// const getallpackagewisegroups=new GetAllPackageWiseGroup(groupRepo)
 const createHotelUsecase=new CreateHotelUsecase(hotelRepo)
 const createactivityUsecase=new createActivityUsecase(activityRepo)
 const getallHotels=new GetHotelUsecase(hotelRepo)
@@ -88,6 +88,6 @@ export const vendorstatusCheckController =new  VendorStatusCheckController(vendo
 export const vendorloginController=new VendorLoginController(vendorloginusecase,jwtService);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getAllpackageByVendor,createPackageUsecase,editpackage,deletepackage,searchPackage,getPAckageByDestination);
-export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
+// export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)

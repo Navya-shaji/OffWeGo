@@ -13,5 +13,5 @@ export interface IUserRepository {
   countUsers(filter?: Record<string, unknown>): Promise<number>;
   updateUserStatus(userId: string, status: "active" | "block"): Promise<void>;
   getProfileByEmail(email: string): Promise<ProfileDto | null>;
-  searchUser(Query:string):Promise<User[]>
+  searchUser(Query: string): Promise<User[]>;
 }

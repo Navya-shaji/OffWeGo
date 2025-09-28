@@ -1,5 +1,5 @@
-import { Hotel } from "../../entities/HotelEntity";
+import { HotelDto } from "../../dto/package/HotelDto";
 
 export interface ICreateHotelUsecase{
-    execute(data:Hotel):Promise<Hotel>
+    execute(data:HotelDto):Promise<HotelDto>
 }

@@ -3,8 +3,9 @@ import { IUserLoginUseCase } from "../../../domain/interface/UsecaseInterface/IL
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto"; 
-import { mapNumericRoleToString } from "../../../mappers/User/mapping"; 
 import { LoginResponseDto } from "../../../domain/dto/user/LoginResponseDto";
+import { mapToLoginUserDto } from "../../../mappers/User/loginuserMapper"; 
+import { mapNumericRoleToString } from "../../../mappers/User/mapping";
 
 export class UserLoginUseCase implements IUserLoginUseCase {
   constructor(
@@ -26,12 +27,10 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     const isPasswordValid = await this._hashService.compare(password, user.password);
     if (!isPasswordValid) throw new Error("Invalid credentials");
 
-    const role = typeof user.role === "number" ? mapNumericRoleToString(user.role) : user.role;
-
     const payload = {
       id: user._id,
       email: user.email,
-      role,
+      role: typeof user.role === "number" ? mapNumericRoleToString(user.role) : user.role,
     };
 
     const accessToken = this._tokenService.generateAccessToken(payload);
@@ -40,15 +39,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: user._id?.toString() ?? "",
-        email: user.email,
-        username: user.name,
-        status: user.status ?? "active",
-        role,
-        phone: user.phone.toString(),
-        imageUrl: user.imageUrl ?? "",
-      },
+      user: mapToLoginUserDto(user),
     };
   }
 }

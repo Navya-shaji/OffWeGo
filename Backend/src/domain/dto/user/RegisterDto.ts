@@ -4,4 +4,5 @@ export interface RegisterDTO {
   phone: number;
   password: string;
   imageUrl?: string;
+ role: "user" | "admin";
 }

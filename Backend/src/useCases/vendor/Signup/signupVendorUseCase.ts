@@ -1,5 +1,5 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
-import { Vendor } from "../../../domain/entities/VendorEntities";
+import { VendorDto } from "../../../domain/dto/Vendor/vendorDto";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
@@ -13,7 +13,7 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
     private _hashService: IPasswordService
   ) {}
 
-  async execute(vendorInput: RegistervendorDto): Promise<Vendor> {
+  async execute(vendorInput: RegistervendorDto): Promise<VendorDto> {
     const { name, email, password, phone, documentUrl } = vendorInput;
 
     const existingVendor = await this._vendorRepository.findByEmail(email);

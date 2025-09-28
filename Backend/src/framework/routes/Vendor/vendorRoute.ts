@@ -3,7 +3,6 @@ import {
   activitycontroller,
   hotelcontroller,
   packagecontroller,
-  packagewisegroupcontroller,
   vendorloginController,
   vendorProfilecontroller,
   vendorsignupcontroller,
@@ -176,20 +175,6 @@ export class VendorRoute {
       VendorRoutes.ACTIVITIES,
       (req: Request, res: Response) =>
         activitycontroller.getAllActivities(req, res)
-    );
-
-    this.vendorRouter.get(
-      VendorRoutes.PACKAGE_WISE_GROUPS,
-      checkRoleBasedcontrol(["vendor"]),
-      (req: Request, res: Response) =>
-        packagewisegroupcontroller.GetPackageWiseGroups(req, res)
-    );
-
-    this.vendorRouter.post(
-      VendorRoutes.PACKAGE_WISE_GROUPING,
-      checkRoleBasedcontrol(["vendor"]),
-      (req: Request, res: Response) =>
-        packagewisegroupcontroller.CreatePackageWiseGrouping(req, res)
     );
   }
 }

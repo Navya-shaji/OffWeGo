@@ -1,5 +1,5 @@
-import { User } from "../../entities/UserEntity"
+import { User } from "../../entities/UserEntity";
 
-export interface IUserProfileEditUsecase{
-    execute(id:string,updatedData:User):Promise<User |null>
+export interface IUserProfileEditUsecase {
+  execute(id: string, updatedData: User): Promise<User | null>;
 }

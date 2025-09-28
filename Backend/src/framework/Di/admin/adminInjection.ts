@@ -37,7 +37,7 @@ import { SubscriptionController } from "../../../adapters/controller/Subscriptio
 import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/CreateSubscriptionusecase";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/SubscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
-import { SearchUserUSeCase } from "../../../useCases/admin/user/SearchUserUSecase";
+import { SearchUserUseCase } from "../../../useCases/admin/user/SearchUserUSecase"; 
 import { SearchVendorUsecase } from "../../../useCases/admin/vendor/SearchVendorUsecase";
 import { SearchDestination } from "../../../useCases/destination/SearchDestinationUsecase"; 
 import { SearchCategoryUsecase } from "../../../useCases/category/SearchcategoryUSecase"; 
@@ -81,7 +81,7 @@ const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
 const subscriptionusecase=new CreateSubscriptionPlanUseCase(subscriptionrepo)
 const getallsubscriptions=new GetAllSubscription(subscriptionrepo)
-const searchuserusecase=new SearchUserUSeCase(userRepository)
+const searchuserusecase=new SearchUserUseCase(userRepository)
 const searchvendorusecase=new SearchVendorUsecase(vendorRepository)
 const searchdestinationusecase=new SearchDestination(destinationRepository)
 const searchcategory=new SearchCategoryUsecase(catogoryRepo)

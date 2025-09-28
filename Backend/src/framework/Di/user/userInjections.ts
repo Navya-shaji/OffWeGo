@@ -1,24 +1,24 @@
 import { RegisterUserUseCase } from "../../../useCases/user/Signup/SignupUserUsecase"; 
-import { UserRegisterController } from "../../../adapters/controller/User/UserAuthentication";
+import { UserRegisterController } from "../../../adapters/controller/User/UserAuthentication"; 
 import { UserRepository } from "../../../adapters/repository/User/UserRepository";
 import { OtpService } from "../../Services/otpService";
 import { VerifyOtpUseCase } from "../../../useCases/user/Signup/VerifyOtpUseCase";
 import { HashPassword } from "../../Services/hashPassword";
-import { UserLoginController } from "../../../adapters/controller/User/UserLoginController";
+import { UserLoginController } from "../../../adapters/controller/User/UserLoginController"; 
 import { UserLoginUseCase } from "../../../useCases/user/Login/LoginUserUseCase";
 import {AuthRepository} from '../../../adapters/repository/User/AuthRepository'
-import { GoogleSignupController } from "../../../adapters/controller/User/AuthController";
+import { GoogleSignupController } from "../../../adapters/controller/User/AuthController"; 
 import { GoogleSignupUseCase } from "../../../useCases/user/Signup/SignupWithGoogle"; 
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
 import { UserProfileUsecase } from "../../../useCases/user/profile/CreateProfileUsecase"; 
-import { UserProfileController } from "../../../adapters/controller/User/UserProfileController";
+import { UserProfileController } from "../../../adapters/controller/User/UserProfileController"; 
 import { JwtService } from "../../Services/jwtService";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/ResendOtpUsecase";
-import { PackageController } from "../../../adapters/repository/Destination/GetPackageByDestinationController";
-import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
-import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
+// import { PackageController } from "../../../adapters/controller/Packages/PackageController"; 
+// import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
+// import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
-
+// import { CreatePackagesUseCase } from "../../../useCases/package/AddPackageUsecase";
 
 
 // Setup Repos and Services
@@ -27,7 +27,8 @@ const authRepository=new AuthRepository()
 const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const jwtService=new JwtService
-const packageRepo=new PackageRepository();
+// const packageRepo=new PackageRepository();
+
 
 
 // Use Cases
@@ -38,8 +39,9 @@ const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtServi
 const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword);
 const userprofile=new UserProfileUsecase(userRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
-const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
+// const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
 const edituserProfile=new EditUserProfile()
+
 
 
 // Controllers
@@ -47,4 +49,4 @@ export const userRegisterController = new UserRegisterController(registerUsecase
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
-export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
+// export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);

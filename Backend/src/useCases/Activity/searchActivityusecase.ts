@@ -7,7 +7,7 @@ export class SearchActivityusecase implements IsearchActivityUsecase{
 
     async execute(query: string): Promise<Activity[]> {
         const result=await this._activityRepo.searchActivity(query)
-        
+
         return result
     }
 }

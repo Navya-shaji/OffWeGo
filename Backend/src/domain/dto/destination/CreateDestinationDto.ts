@@ -1,10 +1,8 @@
-
-export interface DestinationDto {
-  id?: string;
+export interface UpdateDestinationDTO {
   name: string;
+  location: string;
   description: string;
   imageUrls: string[];
-  location: string;
   coordinates: {
     lat: number;
     lng: number;
