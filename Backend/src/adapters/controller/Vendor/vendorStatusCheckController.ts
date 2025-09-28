@@ -7,7 +7,6 @@ export class VendorStatusCheckController {
 
   async checkStatus(req: Request, res: Response): Promise<void> {
     const { email } = req.query;
-
     if (!email || typeof email !== "string") {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -15,9 +14,7 @@ export class VendorStatusCheckController {
       });
       return;
     }
-
     const vendor = await this._vendorStatusCheckUseCase.execute(email.trim());
-
     if (!vendor) {
       res.status(HttpStatus.NOT_FOUND).json({
         success: false,
@@ -25,7 +22,6 @@ export class VendorStatusCheckController {
       });
       return;
     }
-
     res.status(HttpStatus.OK).json({
       success: true,
       status: vendor.status,

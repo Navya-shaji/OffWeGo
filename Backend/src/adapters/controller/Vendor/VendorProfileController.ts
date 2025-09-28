@@ -18,7 +18,6 @@ export class VendorProfileController {
       });
       return;
     }
-
     const result = await this._vendorprofileusecase.execute(email);
     if (result) {
       res.status(HttpStatus.OK).json({
@@ -33,12 +32,11 @@ export class VendorProfileController {
       });
     }
   }
+
   async EditProfile(req: Request, res: Response) {
     const VendorId = req.params.id;
     const VendorDataData = req.body;
-
     const result = await this._editProfile.execute(VendorId, VendorDataData);
-
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "Vendor Profile Updated successfully",

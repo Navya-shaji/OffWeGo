@@ -5,6 +5,7 @@ import {
   ISubscriptionPlanModel,
 } from "../../../framework/database/Models/subscriptionModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
+
 export class SubscriptionPlanRepository
   extends BaseRepository<ISubscriptionPlanModel>
   implements ISubscriptionPlanRepository

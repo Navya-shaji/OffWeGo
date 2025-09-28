@@ -10,21 +10,18 @@ export class RefreshTokenController {
   }
 
   async handle(req: Request, res: Response): Promise<void> {
- 
     const { refreshToken } = req.cookies;
-
-      if (!refreshToken) {
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .json({ message: "Refresh token is required" });
-        return;
-      }
-
-      const tokens = await this._refreshTokenUseCase.execute(refreshToken);
-      res.status(HttpStatus.OK).json({
-        message: "Token refreshed successfully",
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-      });
+    if (!refreshToken) {
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ message: "Refresh token is required" });
+      return;
+    }
+    const tokens = await this._refreshTokenUseCase.execute(refreshToken);
+    res.status(HttpStatus.OK).json({
+      message: "Token refreshed successfully",
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    });
   }
 }

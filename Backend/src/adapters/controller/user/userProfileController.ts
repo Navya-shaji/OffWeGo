@@ -11,7 +11,6 @@ export class UserProfileController {
 
   async GetProfile(req: Request, res: Response): Promise<void> {
     const { email } = req.query;
-
     if (typeof email !== "string") {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -19,9 +18,7 @@ export class UserProfileController {
       });
       return;
     }
-
     const result = await this._userProfileUsecase.execute({ email });
-
     if (result) {
       res.status(HttpStatus.OK).json({
         success: true,
@@ -39,9 +36,7 @@ export class UserProfileController {
   async editProfileHandler(req: Request, res: Response) {
     const userId = req.params.id;
     const userData = req.body;
-
     const result = await this._editUserProfile.execute(userId, userData);
-
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "User Profile Updated successfully",

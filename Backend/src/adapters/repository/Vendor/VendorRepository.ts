@@ -1,7 +1,7 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
 import { Vendor } from "../../../domain/entities/VendorEntities";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
-import { VendorModel, IVendorModel } from "../../../framework/database/Models/vendorModel";
+import {VendorModel,IVendorModel} from "../../../framework/database/Models/vendorModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class VendorRepository
@@ -13,7 +13,7 @@ export class VendorRepository
   }
 
   async createVendor(data: RegistervendorDto): Promise<IVendorModel> {
-    return this.model.create(data); 
+    return this.model.create(data);
   }
 
   async findByEmail(email: string): Promise<IVendorModel | null> {
@@ -27,7 +27,7 @@ export class VendorRepository
   }
 
   async findById(id: string): Promise<IVendorModel | null> {
-    return super.findById(id); 
+    return super.findById(id);
   }
 
   async updateVendorStatus(
@@ -53,11 +53,19 @@ export class VendorRepository
   }
 
   async approveVendor(id: string): Promise<IVendorModel | null> {
-    return this.model.findByIdAndUpdate(id, { status: "approved" }, { new: true });
+    return this.model.findByIdAndUpdate(
+      id,
+      { status: "approved" },
+      { new: true }
+    );
   }
 
   async rejectVendor(id: string): Promise<IVendorModel | null> {
-    return this.model.findByIdAndUpdate(id, { status: "rejected" }, { new: true });
+    return this.model.findByIdAndUpdate(
+      id,
+      { status: "rejected" },
+      { new: true }
+    );
   }
 
   async updateLastLogin(id: string, date: Date): Promise<void> {
@@ -80,7 +88,7 @@ export class VendorRepository
     vendorId: string,
     status: "blocked" | "unblocked"
   ): Promise<void> {
-    const vendor = await this.findById(vendorId); 
+    const vendor = await this.findById(vendorId);
     if (!vendor) throw new Error("Vendor not found");
 
     vendor.isBlocked = status === "blocked";

@@ -1,9 +1,6 @@
 import { Hotel } from "../../../domain/entities/HotelEntity";
 import { IHotelRepository } from "../../../domain/interface/Vendor/IHotelRepository";
-import {
-  HotelModel,
-  IHotelModel,
-} from "../../../framework/database/Models/HotelModel";
+import { HotelModel,IHotelModel} from "../../../framework/database/Models/HotelModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class HotelRepository
@@ -16,9 +13,11 @@ export class HotelRepository
   async createHotel(data: Hotel): Promise<IHotelModel> {
     return this.create(data);
   }
+
   async getAllHotel(skip: number, limit: number): Promise<IHotelModel[]> {
     return this.model.find().skip(skip).limit(limit);
   }
+
   async edit(
     id: string,
     updatedData: Partial<Hotel>
@@ -39,9 +38,11 @@ export class HotelRepository
       .limit(10)
       .exec();
   }
+
   async countHotels(): Promise<number> {
     return await HotelModel.countDocuments();
   }
+
   async findByName(name: string): Promise<Hotel | null> {
     return this.model.findOne({ name });
   }

@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { UserModel } from "../../../framework/database/Models/userModel";
-import { User } from "../../../domain/entities/UserEntity"; 
-import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository"; 
+import { User } from "../../../domain/entities/UserEntity";
+import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -11,13 +11,10 @@ export class AuthRepository implements IAuthRepository {
       idToken: googleToken,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-
     const payload = ticket.getPayload();
-
     if (!payload || !payload.email) {
       throw new Error("Invalid Google token");
     }
-
     const userDoc = await UserModel.findOneAndUpdate(
       { email: payload.email },
       {
@@ -34,8 +31,6 @@ export class AuthRepository implements IAuthRepository {
     if (!userDoc) {
       throw new Error("User creation or retrieval failed");
     }
-
-  return userDoc
-
+    return userDoc;
   }
 }

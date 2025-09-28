@@ -28,9 +28,7 @@ export class Bannercontroller {
   async editBanner(req: Request, res: Response) {
     const BannerId = req.params.id;
     const BannerData = req.body;
-
     const result = await this._editBanner.execute(BannerId, BannerData);
-
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Banner updated successfully",
@@ -41,18 +39,16 @@ export class Bannercontroller {
   async bannerDelete(req: Request, res: Response) {
     const { id } = req.params;
     const result = this._deleteBanner.execute(id);
-    
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Banner deleted successsfully",
-      result
+      result,
     });
   }
 
   async bannerAction(req: Request, res: Response) {
     const { id } = req.params;
     const { action } = req.body;
-
     if (typeof action !== "boolean") {
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -64,7 +60,6 @@ export class Bannercontroller {
         .status(HttpStatus.NOT_FOUND)
         .json({ error: "Banner not found" });
     }
-    
     res.status(HttpStatus.OK).json(updatedBanner);
   }
 }

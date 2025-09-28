@@ -18,104 +18,114 @@ export class PackageController {
     private _getPackageByDestination: IGetDestinationBasedPackage
   ) {}
 
-  // Get all packages (vendor)
   async getAllPackage(req: Request, res: Response) {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 5;
     const vendorId = req.body.vendorId;
-
     if (!vendorId) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: "Vendor not authenticated" });
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ success: false, message: "Vendor not authenticated" });
     }
-
-    const result = await this._getPackage.execute({ vendorId, limit, page, role: "vendor" });
-
-    res.status(HttpStatus.OK).json({ 
-      success: true, 
-      packages: result.packages, 
-      totalPackages: result.totalPackages 
+    const result = await this._getPackage.execute({
+      vendorId,
+      limit,
+      page,
+      role: "vendor",
+    });
+    res.status(HttpStatus.OK).json({
+      success: true,
+      packages: result.packages,
+      totalPackages: result.totalPackages,
     });
   }
 
-  // Get packages by destination (user)
-async getPackagesForUser(req: Request, res: Response) {
-  const destinationId = req.params.id;
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 5;
-
-  if (!destinationId) {
-    return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Destination required" });
+  async getPackagesForUser(req: Request, res: Response) {
+    const destinationId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    if (!destinationId) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Destination required" });
+    }
+    const skip = (page - 1) * limit;
+    const result = await this._getPackageByDestination.execute(
+      destinationId,
+      skip,
+      limit
+    );
+    res.status(HttpStatus.OK).json({
+      success: true,
+      packages: result.packages,
+      totalPackages: result.totalPackages,
+      currentPage: page,
+      totalPages: Math.ceil(result.totalPackages / limit),
+    });
   }
-
-  // Correct skip calculation
-  const skip = (page - 1) * limit;
-
-  const result = await this._getPackageByDestination.execute(destinationId, skip, limit);
-
-  res.status(HttpStatus.OK).json({
-    success: true,
-    packages: result.packages,
-    totalPackages: result.totalPackages,
-    currentPage: page,
-    totalPages: Math.ceil(result.totalPackages / limit)
-  });
-}
-
 
   async addPackage(req: Request, res: Response) {
     try {
       const vendorId = req.body.vendorId;
       if (!vendorId) {
-        return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: "Vendor not authenticated" });
+        return res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: "Vendor not authenticated" });
       }
-
       const packageData = req.body;
-      console.log(req.body,"package body ")
-      const destination = await DestinationModel.findById(packageData.destinationId);
+      console.log(req.body, "package body ");
+      const destination = await DestinationModel.findById(
+        packageData.destinationId
+      );
       if (!destination) {
-        return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Destination not found" });
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Destination not found" });
       }
-
       packageData.destinationId = destination._id;
-      const createdPackage = await this._createPackage.execute(packageData, vendorId);
-
-      res.status(HttpStatus.CREATED).json({ success: true, packages: [createdPackage], totalPackages: 1 });
+      const createdPackage = await this._createPackage.execute(
+        packageData,
+        vendorId
+      );
+      res
+        .status(HttpStatus.CREATED)
+        .json({ success: true, packages: [createdPackage], totalPackages: 1 });
     } catch (err) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to create package", err });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "Failed to create package", err });
     }
   }
 
-  // Edit package
   async EditPackage(req: Request, res: Response) {
-    console.log("Hiai")
     const packageId = req.params.id;
     const packageData = req.body;
     const result = await this._editpackage.execute(packageId, packageData);
-console.log(result,"result")
-    res.status(HttpStatus.OK).json({ success: true, packages: [result], totalPackages: 1 });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, packages: [result], totalPackages: 1 });
   }
 
-  // Delete package
   async deletePackage(req: Request, res: Response) {
     const { id } = req.params;
     const result = await this._deletepackage.execute(id);
-
-    res.status(HttpStatus.OK).json({ success: true, packages: [result], totalPackages: 1 });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, packages: [result], totalPackages: 1 });
   }
 
-  // Search package
   async searchPackage(req: Request, res: Response) {
     const query = req.query.q;
     if (typeof query !== "string" || !query.trim()) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Query must be a string" });
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Query must be a string" });
     }
-
     const results = await this._searchPackage.execute(query);
-
     res.status(HttpStatus.OK).json({
       success: true,
       packages: results,
-      totalPackages: results.length
+      totalPackages: results.length,
     });
   }
 }

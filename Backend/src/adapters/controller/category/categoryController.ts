@@ -24,7 +24,6 @@ export class CreateCatogoryController {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const result = await this._getcategory.execute(page, limit);
-
     res.status(HttpStatus.OK).json(result);
   }
 
@@ -32,7 +31,6 @@ export class CreateCatogoryController {
     const categoryId = req.params.id;
     const categoryData = req.body;
     const result = await this._editCategory.execute(categoryId, categoryData);
-
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Category updated successfully",
@@ -42,9 +40,7 @@ export class CreateCatogoryController {
 
   async DeleteCategory(req: Request, res: Response) {
     const { id } = req.params;
-
     const result = await this._deleteCategory.execute(id);
-
     return res.status(HttpStatus.OK).json(result);
   }
 

@@ -8,10 +8,8 @@ export class VendorSignupController {
   constructor(private _RegistervendorUsecase: IRegisterVendorUseCase) {}
 
   async VendorSignup(req: Request, res: Response): Promise<void> {
-   
     const { name, email, phone, password, confirmPassword, document } =
       req.body;
-
     if (
       !name ||
       !email ||
@@ -26,13 +24,7 @@ export class VendorSignupController {
       });
       return;
     }
-
-    // const result = await cloudinary.uploader.upload(document, {
-    //   folder: "vendor_documents",
-    // });
-
     const documentUrl = document;
-
     const vendorData: RegistervendorDto = {
       name,
       email,
@@ -40,11 +32,7 @@ export class VendorSignupController {
       password,
       documentUrl,
     };
-  
-    
     const newVendor = await this._RegistervendorUsecase.execute(vendorData);
-    
-
     res.status(HttpStatus.CREATED).json({
       success: true,
       message: "Vendor registered successfully. OTP sent to email.",

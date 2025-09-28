@@ -7,7 +7,6 @@ export class VendorVerifyOtpController {
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
     const { email, otp } = req.body;
-
     if (!email || !otp) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -15,12 +14,10 @@ export class VendorVerifyOtpController {
       });
       return;
     }
-
     const verifiedVendor = await this._vendorVerifyOtpUseCase.execute(
       email,
       otp
     );
-
     res.status(HttpStatus.OK).json({
       success: true,
       message: "OTP verified successfully",

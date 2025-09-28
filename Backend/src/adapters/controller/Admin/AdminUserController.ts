@@ -14,12 +14,10 @@ export class AdminUserController {
   async getAllUsers(req: Request, res: Response): Promise<void> {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-
     const { users, totalUsers } = await this._getAllUserUsecase.execute(
       page,
       limit
     );
-
     res.status(HttpStatus.OK).json({
       success: true,
       users,
@@ -32,9 +30,7 @@ export class AdminUserController {
   async updateStatus(req: Request, res: Response): Promise<void> {
     const userId = req.params.id;
     const { status } = req.body;
-
     await this._updateUserStatusUseCase.execute(userId, status);
-
     res.status(HttpStatus.OK).json({
       success: true,
       message: `User status updated to ${status}`,
@@ -50,9 +46,7 @@ export class AdminUserController {
       });
       return;
     }
-
     const users = await this._searchUserUsecase.execute(query);
-
     res.status(HttpStatus.OK).json({
       success: true,
       data: users,

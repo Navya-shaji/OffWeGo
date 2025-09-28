@@ -15,7 +15,6 @@ export class UserLoginController {
 
   async loginUser(req: Request, res: Response): Promise<void> {
     const { email, password } = req.body;
-
     if (!email || !password) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -23,10 +22,8 @@ export class UserLoginController {
       });
       return;
     }
-
     const result = await this._loginUserUseCase.execute({ email, password });
     const user = result.user;
-
     if (user.role?.toLowerCase() === "admin") {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -34,7 +31,6 @@ export class UserLoginController {
       });
       return;
     }
-
     if (user.status?.toLowerCase().includes("block")) {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -43,7 +39,6 @@ export class UserLoginController {
       });
       return;
     }
-
     const payload = { userId: user.id, role: user.role };
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
@@ -75,7 +70,6 @@ export class UserLoginController {
     const otp = this._otpService.generateOtp();
     await this._otpService.storeOtp(email, otp);
     await this._otpService.sendOtpEmail(email, otp);
-
     res
       .status(HttpStatus.OK)
       .json({ success: true, message: "OTP send to your email for reset" });
@@ -83,7 +77,6 @@ export class UserLoginController {
 
   async verifyResetOtp(req: Request, res: Response): Promise<void> {
     const { email, otp } = req.body;
-
     if (
       !email ||
       typeof email !== "string" ||
@@ -96,9 +89,7 @@ export class UserLoginController {
       });
       return;
     }
-
     const isVerified = await this._otpService.verifyOtp(email, otp);
-
     if (!isVerified) {
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
@@ -106,7 +97,6 @@ export class UserLoginController {
       });
       return;
     }
-
     res.status(HttpStatus.OK).json({
       success: true,
       message: "OTP verified successfully",
@@ -115,7 +105,6 @@ export class UserLoginController {
 
   async resetPassword(req: Request, res: Response): Promise<void> {
     const { email, newPassword } = req.body;
-
     if (
       !email ||
       !newPassword ||

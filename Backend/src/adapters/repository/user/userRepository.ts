@@ -1,14 +1,14 @@
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
-import { IUserModel, UserModel } from "../../../framework/database/Models/userModel";
+import {IUserModel,UserModel} from "../../../framework/database/Models/userModel";
 import { ProfileDto } from "../../../domain/dto/user/ProfileDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class UserRepository
   extends BaseRepository<IUserModel>
-  implements IUserRepository 
+  implements IUserRepository
 {
   constructor() {
-    super(UserModel); 
+    super(UserModel);
   }
 
   async findByEmail(email: string): Promise<IUserModel | null> {
@@ -16,15 +16,21 @@ export class UserRepository
   }
 
   async createUser(user: IUserModel): Promise<IUserModel> {
-    return this.create(user); 
+    return this.create(user);
   }
 
   async findByPhone(phone: string): Promise<IUserModel | null> {
     return this.model.findOne({ phone });
   }
 
-  async updatePassword(email: string, newHashedPassword: string): Promise<void> {
-    await this.model.updateOne({ email }, { $set: { password: newHashedPassword } });
+  async updatePassword(
+    email: string,
+    newHashedPassword: string
+  ): Promise<void> {
+    await this.model.updateOne(
+      { email },
+      { $set: { password: newHashedPassword } }
+    );
   }
 
   async getAllUsers(
@@ -35,8 +41,11 @@ export class UserRepository
     return this.model.find(filter).skip(skip).limit(limit);
   }
 
-  async updateUserStatus(userId: string, status: "active" | "block"): Promise<void> {
-    const user = await this.findById(userId); 
+  async updateUserStatus(
+    userId: string,
+    status: "active" | "block"
+  ): Promise<void> {
+    const user = await this.findById(userId);
     if (!user) throw new Error("User not found");
 
     user.status = status;

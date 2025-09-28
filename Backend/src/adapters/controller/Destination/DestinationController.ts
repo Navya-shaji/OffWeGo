@@ -25,12 +25,10 @@ export class DestinationController {
   async editDestinationHandler(req: Request, res: Response) {
     const destinationId = req.params.id;
     const destinationData = req.body;
-
     const result = await this._editDestination.execute(
       destinationId,
       destinationData
     );
-
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "Destination updated successfully",
@@ -43,7 +41,6 @@ export class DestinationController {
     const limit = parseInt(req.query.limit as string) || 5;
     const { destinations, totalDestinations } =
       await this._getDestination.execute(page, limit);
-
     res.status(HttpStatus.OK).json({
       success: true,
       destinations,
@@ -55,21 +52,18 @@ export class DestinationController {
 
   async getSingleDestinationController(req: Request, res: Response) {
     const { id } = req.params;
-
     const result = await this._destinationUsecase.execute(id);
-
     res.status(HttpStatus.OK).json(result);
   }
 
   async deleteDestinationController(req: Request, res: Response) {
     const { id } = req.params;
     const result = await this._deleteDestinationusecase.execute(id);
-
     return res.status(HttpStatus.OK).json(result);
   }
+
   async searchDestination(req: Request, res: Response) {
     const query = req.query.q;
-
     if (typeof query !== "string" || !query.trim()) {
       res.status(HttpStatus.BAD_REQUEST).json({
         message: "The query will be string",
@@ -77,7 +71,6 @@ export class DestinationController {
       return;
     }
     const destinations = await this._serachDestinationusecase.execute(query);
-
     res.json({ success: true, data: destinations });
   }
 }

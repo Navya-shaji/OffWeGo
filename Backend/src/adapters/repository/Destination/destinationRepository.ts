@@ -1,8 +1,5 @@
 import { IDestinationRepository } from "../../../domain/interface/Admin/IDestinationInterface";
-import {
-  DestinationModel,
-  IDestinationModel,
-} from "../../../framework/database/Models/deestinationModel";
+import { DestinationModel,IDestinationModel} from "../../../framework/database/Models/deestinationModel";
 import { CreateDestinationDTO } from "../../../domain/dto/admin/DestinationDTO";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 export class DestinationRepository

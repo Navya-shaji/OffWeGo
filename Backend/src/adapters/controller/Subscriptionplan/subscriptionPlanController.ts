@@ -12,7 +12,6 @@ export class SubscriptionController {
   async createSubscription(req: Request, res: Response) {
     const { name, description, price, durationInDays, commissionRate } =
       req.body;
-
     if (
       !name ||
       !description ||
@@ -26,7 +25,6 @@ export class SubscriptionController {
         message: "Invalid subscription plan details",
       });
     }
-
     const result = await this._createSubscriptionPlan.execute({
       name,
       description,
@@ -34,7 +32,6 @@ export class SubscriptionController {
       durationInDays,
       commissionRate,
     });
-
     return res.status(HttpStatus.CREATED).json({
       success: true,
       message: "Subscription plan created successfully",

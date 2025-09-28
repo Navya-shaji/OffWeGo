@@ -1,8 +1,5 @@
 import { ICategoryRepository } from "../../../domain/interface/Category/ICategoryRepository";
-import {
-  CategoryModel,
-  ICategoryModel,
-} from "../../../framework/database/Models/categoryModel";
+import {CategoryModel,ICategoryModel} from "../../../framework/database/Models/categoryModel";
 import { CreateCategoryDto } from "../../../domain/dto/admin/CategoryDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
@@ -30,7 +27,7 @@ export class CategoryRepository
   }
 
   async delete(id: string): Promise<ICategoryModel | null> {
-    return super.delete(id); // from BaseRepository
+    return super.delete(id);
   }
 
   async countCategory(): Promise<number> {
@@ -45,6 +42,7 @@ export class CategoryRepository
       .limit(10)
       .exec();
   }
+
   async findByName(name: string): Promise<ICategoryModel | null> {
     return await CategoryModel.findOne({ name });
   }

@@ -1,8 +1,5 @@
 import { IPackageRepository } from "../../../domain/interface/Vendor/iPackageRepository";
-import {
-  packageModel,
-  IPackageModel,
-} from "../../../framework/database/Models/packageModel";
+import {packageModel,IPackageModel} from "../../../framework/database/Models/packageModel";
 import { Package } from "../../../domain/entities/PackageEntity";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
@@ -34,7 +31,6 @@ export class PackageRepository
         .exec(),
       packageModel.countDocuments(),
     ]);
-
     return { packages, totalPackages };
   }
 
@@ -53,7 +49,6 @@ export class PackageRepository
         .exec(),
       packageModel.countDocuments({ destinationId }),
     ]);
-
     return { packages, totalPackages };
   }
 
@@ -77,6 +72,7 @@ export class PackageRepository
   async countPackages(): Promise<number> {
     return packageModel.countDocuments();
   }
+
   async getAllPackagesByVendor(
     vendorId: string,
     skip: number,
@@ -89,10 +85,9 @@ export class PackageRepository
         .limit(limit)
         .populate("hotels")
         .populate("activities")
-        .exec(), // <-- returns IPackageModel[]
+        .exec(),
       packageModel.countDocuments({ vendorId }),
     ]);
-
     return { packages, totalPackages };
   }
 }

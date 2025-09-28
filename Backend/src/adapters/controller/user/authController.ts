@@ -11,7 +11,6 @@ export class GoogleSignupController {
 
   async googleSignin(req: Request, res: Response): Promise<void> {
     const { token } = req.body;
-
     if (!token) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -19,9 +18,7 @@ export class GoogleSignupController {
       });
       return;
     }
-
     const user = await this._googleSigninUseCase.execute(token);
-
     if (user.status?.toLowerCase().includes("block")) {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -29,9 +26,7 @@ export class GoogleSignupController {
       });
       return;
     }
-
     const payload = { userId: user._id, role: user.role };
-  
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 

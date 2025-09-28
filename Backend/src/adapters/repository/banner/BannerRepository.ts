@@ -1,9 +1,6 @@
 import { Banner } from "../../../domain/entities/BannerEntity";
 import { IBannerRepository } from "../../../domain/interface/Banner/IBannerRepository";
-import {
-  IBannerModel,
-  bannerModel,
-} from "../../../framework/database/Models/bannerModel";
+import {IBannerModel,bannerModel} from "../../../framework/database/Models/bannerModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class BannerRepository
@@ -21,6 +18,7 @@ export class BannerRepository
   async getAllBanner(): Promise<IBannerModel[]> {
     return this.findAll();
   }
+
   async updateBannerStatus(
     id: string,
     action: boolean

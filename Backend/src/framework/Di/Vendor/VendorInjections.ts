@@ -1,6 +1,6 @@
 import { VendorSignupController } from "../../../adapters/controller/Vendor/VendorSignup";
 import { VendorVerifyOtpController } from "../../../adapters/controller/Vendor/VerifyVendorOtp";
-import { PackageController } from "../../../adapters/controller/packages/PackageController";
+import { PackageController } from "../../../adapters/controller/Packages/PackageController";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { OtpService } from "../../Services/otpService";
 import { HashPassword } from "../../Services/hashPassword";
@@ -20,15 +20,15 @@ import { PackageRepository } from "../../../adapters/repository/Package/PackageR
 import { EditPackage } from "../../../useCases/package/EditPackageUsecase";
 import { DeletePackage } from "../../../useCases/package/DeletePackageUsecase";
 import { EditVendorProfile } from "../../../useCases/vendor/profile/Edit profileUsecase";
-import { PackageWiseGroupingController } from "../../../adapters/controller/packages/PackageWiseGroupingController";
+import { PackageWiseGroupingController } from "../../../adapters/controller/Packages/PackageWiseGroupingController";
 import { CreatePackageWiseGroup } from "../../../useCases/package/PackageWiseGroupUsecase";
 import { PackageWiseGrouping } from "../../../adapters/repository/Package/PackagewiseGroupingRepository";
 import { GetAllPackageWiseGroup } from "../../../useCases/package/GetAllPackageWiseGroupsusecase";
 import { CreateHotelUsecase } from "../../../useCases/hotel/CreateHotelUsecase";
 import { HotelRepository } from "../../../adapters/repository/Hotel/HotelRepository";
 import { ActivityRepository } from "../../../adapters/repository/Activity/ActivityRepository";
-import { HotelController } from "../../../adapters/controller/packages/HotelController";
-import { ActivityController } from "../../../adapters/controller/packages/ActivityController";
+import { HotelController } from "../../../adapters/controller/Packages/HotelController";
+import { ActivityController } from "../../../adapters/controller/Packages/ActivityController";
 import { createActivityUsecase } from "../../../useCases/activity/CreateActivityUsecase";
 import { GetHotelUsecase } from "../../../useCases/hotel/GetHotelUsecase";
 import { GetAllActivitiesUsecase } from "../../../useCases/activity/GetallActivitiesusecase";

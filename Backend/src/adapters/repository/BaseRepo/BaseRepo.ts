@@ -1,7 +1,9 @@
 import { Document, Model } from "mongoose";
 import { IBaseRepo } from "../../../domain/interface/BaseRepo/IBaseRepo";
 
-export abstract class BaseRepository<T extends Document> implements IBaseRepo<T> {
+export abstract class BaseRepository<T extends Document>
+  implements IBaseRepo<T>
+{
   constructor(protected readonly model: Model<T>) {}
 
   async create(data: Partial<T>): Promise<T> {

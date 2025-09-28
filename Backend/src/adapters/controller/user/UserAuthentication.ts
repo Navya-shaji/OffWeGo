@@ -1,17 +1,15 @@
 import { Request, Response } from "express";
-import { RegisterDTO } from "../../../domain/dto/user/RegisterDto"; 
+import { RegisterDTO } from "../../../domain/dto/user/RegisterDto";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
 import { IVerifyOtpUseCase } from "../../../domain/interface/UsecaseInterface/IVerifyOtpUseCase";
 import { IResendOtpUsecase } from "../../../domain/interface/UserRepository/IResendOtpUsecase";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 
 export class UserRegisterController {
   constructor(
-    private _registerUserUseCase: IregisterUserUseCase,
     private _verifyOtpUseCase: IVerifyOtpUseCase,
     private _resendOtpUseCase: IResendOtpUsecase,
-    private _tokenService: ITokenService // Added token service
+    private _tokenService: ITokenService
   ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -24,9 +22,6 @@ export class UserRegisterController {
       });
       return;
     }
-
-    // const otpSent = await this._registerUserUseCase.execute(formData);
-
     res.status(HttpStatus.CREATED).json({
       success: true,
       message: "OTP sent to your email address",
@@ -39,7 +34,6 @@ export class UserRegisterController {
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
     const { userData, otp } = req.body;
-
     if (!otp || !userData?.email) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -47,22 +41,15 @@ export class UserRegisterController {
       });
       return;
     }
-
     const verifiedUser = await this._verifyOtpUseCase.execute(userData, otp);
-    
-
-    // Generate JWT payload
     const payload = {
       id: verifiedUser._id,
       email: verifiedUser.email,
       role: verifiedUser.role || "user",
     };
-
-   
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
 
-  
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -73,14 +60,13 @@ export class UserRegisterController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: "OTP verified successfully",
-      accessToken, 
+      accessToken,
       user: verifiedUser,
     });
   }
 
   async resendOtp(req: Request, res: Response): Promise<void> {
     const { email } = req.body;
-
     if (!email) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -88,7 +74,6 @@ export class UserRegisterController {
       });
       return;
     }
-
     const result = await this._resendOtpUseCase.execute(email);
 
     res.status(HttpStatus.OK).json({

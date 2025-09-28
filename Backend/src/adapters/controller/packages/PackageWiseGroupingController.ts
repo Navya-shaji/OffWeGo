@@ -10,26 +10,22 @@ export class PackageWiseGroupingController {
   ) {}
 
   async CreatePackageWiseGrouping(req: Request, res: Response) {
-    
-      const groupData = req.body;
-      const result = await this._createGroupUsecase.execute(groupData);
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Package wise group created",
-        data: result,
-      });
-    
+    const groupData = req.body;
+    const result = await this._createGroupUsecase.execute(groupData);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Package wise group created",
+      data: result,
+    });
   }
 
   async GetPackageWiseGroups(req: Request, res: Response) {
-    
-      const packageId = req.params.id;
-      const result = await this._getgroupsusecase.execute(packageId);
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Package wise group fetched successfully",
-        data: result,
-      });
-    
+    const packageId = req.params.id;
+    const result = await this._getgroupsusecase.execute(packageId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Package wise group fetched successfully",
+      data: result,
+    });
   }
 }
