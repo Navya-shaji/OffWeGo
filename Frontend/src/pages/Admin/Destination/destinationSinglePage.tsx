@@ -133,7 +133,7 @@ export const DestinationDetail = () => {
   useEffect(() => {
     if (id) {
       fetchDestinationPackages();
-      clearSearch(); // Clear search when destination changes
+      clearSearch(); 
     }
   }, [id, fetchDestinationPackages, clearSearch]);
 
