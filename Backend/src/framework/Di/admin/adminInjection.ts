@@ -1,6 +1,6 @@
 import { AdminRepository } from "../../../adapters/repository/Admin/AdminRepository";
 import { AdminLoginuseCase } from "../../../useCases/admin/Login/AdminLoginuseCase";
-import { AdminController } from "../../../adapters/controller/Admin/AdminControlller";
+import { AdminController } from "../../../adapters/controller/Admin/AdminController";
 import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
 import { HashPassword } from "../../Services/hashPassword";
 import { JwtService } from "../../Services/jwtService";
