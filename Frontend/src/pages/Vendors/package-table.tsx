@@ -112,7 +112,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       setOriginalPackages(allPackages);
       onPackagesUpdate?.(allPackages);
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error loading packages:", error);
       setError("Failed to load packages. Please try again.");
       setPackageList([]);
@@ -244,7 +244,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       onPackagesUpdate?.(isSearchMode ? updatedOriginalPackages : updatedPackages);
       closeDeleteModal();
 
-    } catch (error: any) {
+    } catch (error) {
       console.error("Delete failed:", error);
       setError("Failed to delete package. Please try again.");
       

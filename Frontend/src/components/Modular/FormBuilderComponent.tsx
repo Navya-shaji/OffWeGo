@@ -11,15 +11,15 @@ export type FieldConfig = {
   placeholder?: string;
 };
 
-interface FormBuilderProps<T> {
+interface FormBuilderProps<T extends Record<string, unknown>> {
   schema: ZodSchema<T>;
   fields: FieldConfig[];
-  onSubmit: (data: T & Record<string, any>) => Promise<void> | void;
+  onSubmit: (data: T & { rating?: number }) => Promise<void> | void;
   submitLabel?: string;
-  defaultValues?: Record<string, any>;
+  defaultValues?: Partial<T>;
 }
 
-export function FormBuilder<T>({
+export function FormBuilder<T extends Record<string, unknown>>({
   schema,
   fields,
   onSubmit,
@@ -34,15 +34,17 @@ export function FormBuilder<T>({
     formState: { errors },
   } = useForm<T>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: defaultValues as T,
   });
 
-  const [rating, setRating] = useState<number>(defaultValues["rating"] || 0);
+  const [rating, setRating] = useState<number>(
+    (defaultValues as Record<string, unknown>)["rating"] as number || 0
+  );
 
   const handleFormSubmit = async (data: T) => {
     await onSubmit({ ...data, rating });
-    reset(defaultValues);
-    setRating(defaultValues["rating"] || 0);
+    reset(defaultValues as T);
+    setRating((defaultValues as Record<string, unknown>)["rating"] as number || 0);
   };
 
   return (
@@ -62,7 +64,7 @@ export function FormBuilder<T>({
 
           {field.type === "textarea" && (
             <textarea
-              {...register(field.name as any)}
+              {...register(field.name as keyof T & string)}
               placeholder={field.placeholder}
               className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               rows={4}
@@ -75,7 +77,7 @@ export function FormBuilder<T>({
               accept="image/*"
               className="border border-gray-300 rounded-xl p-3 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
               onChange={(e) =>
-                setValue(field.name as any, e.target.files?.[0] || null)
+                setValue(field.name as keyof T & string, e.target.files?.[0] as T[keyof T])
               }
             />
           )}
@@ -100,7 +102,7 @@ export function FormBuilder<T>({
             field.type !== "file" &&
             field.type !== "rating" && (
               <input
-                {...register(field.name as string)}
+                {...register(field.name as keyof T & string)}
                 type={field.type}
                 placeholder={field.placeholder}
                 className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"

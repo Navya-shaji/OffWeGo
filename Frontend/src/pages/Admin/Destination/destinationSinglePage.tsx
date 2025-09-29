@@ -137,22 +137,8 @@ export const DestinationDetail = () => {
     }
   }, [id, fetchDestinationPackages, clearSearch]);
 
-  // Debug component (remove in production)
-  const DebugInfo = () => (
-    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4 text-sm">
-      <h4 className="font-bold text-yellow-800 mb-2">Debug Info:</h4>
-      <div className="space-y-1">
-        <p><strong>Destination ID:</strong> {id}</p>
-        <p><strong>Search Results:</strong> {searchResults === null ? 'null' : `${searchResults.length} items`}</p>
-        <p><strong>Regular Packages:</strong> {packages.length} items</p>
-        <p><strong>Displayed Packages:</strong> {displayedPackages.length} items</p>
-        <p><strong>Packages Loading:</strong> {packagesLoading ? 'Yes' : 'No'}</p>
-        <p><strong>Search Loading:</strong> {searchLoading ? 'Yes' : 'No'}</p>
-        <p><strong>Search Query:</strong> "{searchQuery}"</p>
-        <p><strong>Is Search Mode:</strong> {isSearchMode ? 'Yes' : 'No'}</p>
-      </div>
-    </div>
-  );
+ 
+
 
   if (loading) {
     return (

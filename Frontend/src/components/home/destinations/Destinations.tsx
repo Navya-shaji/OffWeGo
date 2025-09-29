@@ -131,7 +131,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
           </div>
         )}
 
-        {/* Results Header */}
+        
         <div className="max-w-7xl mx-auto mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>

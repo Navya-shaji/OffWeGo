@@ -60,7 +60,7 @@ const HotelsTable: React.FC = () => {
       
       const response = await getAllHotel(pageNum, 5);
 
-      const hotelsWithId = response.hotels.map((hotel: any) => ({
+      const hotelsWithId = response.hotels.map((hotel) => ({
         ...hotel,
         _id: hotel.hotelId || hotel._id,
       }));
@@ -71,7 +71,7 @@ const HotelsTable: React.FC = () => {
       setTotalHotels(response.totalHotels || hotelsWithId.length);
       setPage(pageNum);
       
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error loading hotels:", err);
       setError("Failed to load hotels. Please try again.");
       setHotels([]);
@@ -109,7 +109,7 @@ const HotelsTable: React.FC = () => {
         const searchResults = Array.isArray(response) ? response : [];
         
         // Map search results to ensure consistent ID structure
-        const hotelsWithId = searchResults.map((hotel: any) => ({
+        const hotelsWithId = searchResults.map((hotel) => ({
           ...hotel,
           _id: hotel.hotelId || hotel._id,
         }));
@@ -118,7 +118,7 @@ const HotelsTable: React.FC = () => {
         setTotalPages(Math.ceil(hotelsWithId.length / 5));
         setPage(1);
         
-      } catch (err: any) {
+      } catch (err) {
         console.error("Search error:", err);
         setError("Search failed. Please try again.");
         setHotels([]);
@@ -215,7 +215,7 @@ const HotelsTable: React.FC = () => {
       setIsEditModalOpen(false);
       setSelectedHotel(null);
       
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error while editing hotel", err);
       setError("Failed to update hotel. Please try again.");
       toast.error(err.message || "Failed to update hotel");
@@ -245,7 +245,7 @@ const HotelsTable: React.FC = () => {
         setTotalPages(Math.ceil(updatedHotels.length / 5));
       }
       
-    } catch (err: any) {
+    } catch (err) {
       console.error("Delete error:", err);
       setError("Failed to delete hotel. Please try again.");
       toast.error(err.message || "Failed to delete hotel");

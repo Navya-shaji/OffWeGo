@@ -1,13 +1,13 @@
-interface Hotel {
-  hotelId: string; // IDs as string
+ export interface Hotel {
+  hotelId: string; 
   name: string;
   address: string;
   rating: number;
   destinationId?: string;
 }
 
-interface Activity {
-  id: string; // IDs as string
+ export interface Activity {
+  id: string; 
   title: string;
   description: string;
   imageUrl: string;

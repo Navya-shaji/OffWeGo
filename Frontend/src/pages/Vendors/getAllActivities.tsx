@@ -76,7 +76,7 @@ const ActivitiesTable: React.FC = () => {
       setTotalActivities(response.totalActivities || normalized.length);
       setPage(pageNum);
       
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error loading activities:", err);
       
       let errorMessage = "Failed to load activities";
@@ -130,7 +130,8 @@ const ActivitiesTable: React.FC = () => {
         setTotalPages(Math.max(Math.ceil(normalized.length / limit), 1));
         setPage(1);
         
-      } catch (err: any) {
+      } catch (err) {
+       if (err instanceof Error)
         console.error("Search error:", err);
         const errorMessage = err?.message || "Search failed";
         setError(errorMessage);
@@ -293,7 +294,8 @@ const ActivitiesTable: React.FC = () => {
       setImagePreview("");
       setFormData({ title: "", description: "", imageUrl: "" });
       
-    } catch (err: any) {
+    } catch (err) {
+      if (err instanceof Error)
       console.error("Update error:", err);
       
       let errorMessage = "Failed to update activity";
@@ -356,7 +358,8 @@ const ActivitiesTable: React.FC = () => {
         }
       }
       
-    } catch (err: any) {
+    } catch (err) {
+      if (err instanceof Error)
       console.error("Delete error:", err);
       
       let errorMessage = "Failed to delete activity";

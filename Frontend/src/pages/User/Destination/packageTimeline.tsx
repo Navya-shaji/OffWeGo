@@ -36,10 +36,10 @@ export const PackageTimeline = () => {
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
 
-  const userId = useSelector((state: any) => state?.auth?.user?.id);
+  const userId = useSelector((state) => state?.auth?.user?.id);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
@@ -356,7 +356,7 @@ export const PackageTimeline = () => {
 
                       return Object.entries(groupedItinerary)
                         .sort(([a], [b]) => Number(a) - Number(b))
-                        .map(([day, activities], dayIndex) => (
+                        .map(([day, activities]) => (
                           <Card key={day} className="border-2 border-slate-200 shadow-2xl overflow-hidden rounded-3xl transform hover:scale-[1.02] transition-all duration-500">
                             <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-8">
                               <CardTitle className="flex items-center gap-6">

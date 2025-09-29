@@ -45,7 +45,7 @@ export const fetchSubscriptions = createAsyncThunk<
   try {
     const response = await subscriptionService.getSubscriptions();
     return response;
-  } catch (error: any) {
+  } catch (error) {
     if (error instanceof Error) {
       return rejectWithValue(error.message);
     }

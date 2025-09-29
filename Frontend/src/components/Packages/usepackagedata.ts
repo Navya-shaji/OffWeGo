@@ -13,8 +13,8 @@ export const usePackageData = () => {
   const [loadingHotels, setLoadingHotels] = useState(false);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
-console.log(allActivities,"actiivties another page")
-  const extractApiData = (response): any[] => {
+
+  const extractApiData = (response): unknown[] => {
     if (!response) return [];
 
     if (Array.isArray(response)) return response;
