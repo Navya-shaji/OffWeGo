@@ -565,7 +565,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
             </Card>
           </div>
 
-          {/* Submit Buttons */}
+
           <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
             <Button 
               type="button" 

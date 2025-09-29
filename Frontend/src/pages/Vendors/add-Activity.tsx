@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FormBuilder, type FieldConfig } from "@/components/Modular/FormBuilderComponent";
+import {
+  FormBuilder,
+  type FieldConfig,
+} from "@/components/Modular/FormBuilderComponent";
 import { createActivity } from "@/services/Activity/ActivityService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { ActivitySchema } from "@/Types/vendor/Package/Activity";
@@ -12,12 +15,17 @@ type ActivityForm = z.infer<typeof ActivitySchema>;
 export function AddActivity() {
   const [activityId, setActivityId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   const notifySuccess = () => toast.success("Activity added successfully!");
   const notifyError = (msg: string) => toast.error(msg);
 
   const fields: FieldConfig[] = [
-    { name: "title", label: "Title", type: "text", placeholder: "Enter activity title" },
+    {
+      name: "title",
+      label: "Title",
+      type: "text",
+      placeholder: "Enter activity title",
+    },
     {
       name: "description",
       label: "Description",
@@ -43,36 +51,35 @@ export function AddActivity() {
       setLoading(true);
       let imageUrl = "";
 
-      // Handle image upload
       if (data.imageUrl instanceof File) {
         imageUrl = await uploadToCloudinary(data.imageUrl);
-      } else if (Array.isArray(data.imageUrl) && data.imageUrl[0] instanceof File) {
+      } else if (
+        Array.isArray(data.imageUrl) &&
+        data.imageUrl[0] instanceof File
+      ) {
         imageUrl = await uploadToCloudinary(data.imageUrl[0]);
       } else {
         notifyError("Please select a valid image file");
         return;
       }
 
-      // Create activity
       const response = await createActivity({ ...data, imageUrl });
-      
+
       const id = response?.id || response?.data?.id;
       if (id) {
         setActivityId(id);
         notifySuccess();
       } else {
-        notifySuccess()
+        notifySuccess();
       }
     } catch (err: any) {
       console.error("Error creating activity:", err);
-      
-      // Handle different error scenarios
-      const errorMessage = 
+      const errorMessage =
         err?.response?.data?.error ||
         err?.response?.data?.message ||
         err.message ||
         "Failed to create activity";
-      
+
       notifyError(errorMessage);
     } finally {
       setLoading(false);
@@ -83,8 +90,7 @@ export function AddActivity() {
     <div className="flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
         <ToastContainer position="top-right" autoClose={3000} />
-        
-        {/* Header */}
+
         <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
           <h2 className="text-2xl font-bold">Create Activity</h2>
           <p className="text-sm text-gray-300 mt-1">
@@ -92,7 +98,6 @@ export function AddActivity() {
           </p>
         </div>
 
-        {/* Form */}
         <div className="p-6">
           <FormBuilder<ActivityForm>
             schema={ActivitySchema}
@@ -103,13 +108,20 @@ export function AddActivity() {
             disabled={loading}
           />
 
-          {/* Success message */}
           {activityId && (
-            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="mt-6 p-4 rounded-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-green-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">

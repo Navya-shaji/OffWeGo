@@ -15,6 +15,7 @@ import {
   Sparkles,
   CheckCircle2,
   Stars,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,7 @@ import ImageUploadSection from "./ImageUploadSection";
 import HotelsActivitiesSection from "./HotelActivitySection";
 import PricingSidebar from "./Pricing";
 import type { PackageFormData } from "@/interface/packageFormData";
-
+import { usePackageValidation } from "@/Types/vendor/Package/package"; 
 interface ItineraryActivity {
   time: string;
   activity: string;
@@ -46,6 +47,17 @@ const AddPackage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.package);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+
+  const {
+    errors,
+    touched,
+    validateField,
+    validateAllFields,
+    markFieldTouched,
+    resetValidation,
+    getFieldError,
+  } = usePackageValidation();
 
   const {
     allHotels,
@@ -56,14 +68,13 @@ const AddPackage: React.FC = () => {
     loadingDestinations,
   } = usePackageData();
 
-  console.log(allActivities, allHotels, "hotel  activity");
   const [formData, setFormData] = useState<EnhancedPackageFormData>({
     packageName: "",
     description: "",
     price: 0,
     duration: 1,
     selectedHotels: [],
-    selectedActivities: [], // start empty
+    selectedActivities: [],
     images: [],
     destinationId: "",
     checkInTime: "",
@@ -77,17 +88,34 @@ const AddPackage: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    const newValue = name === "price" || name === "duration" ? Number(value) : value;
+    
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "price" || name === "duration" ? Number(value) : value,
+      [name]: newValue,
     }));
+
+    // Validate field on change if it's been touched
+    if (touched[name]) {
+      validateField(name, newValue);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const fieldName = e.target.name;
+    markFieldTouched(fieldName);
+    validateField(fieldName, formData[fieldName as keyof EnhancedPackageFormData]);
   };
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
     setFormData((prev) => ({
       ...prev,
-      destinationId: e.target.value,
+      destinationId: newValue,
     }));
+    
+    markFieldTouched("destinationId");
+    validateField("destinationId", newValue);
   };
 
   const addDay = () => {
@@ -96,19 +124,30 @@ const AddPackage: React.FC = () => {
       activities: [{ time: "", activity: "" }],
       isExpanded: true,
     };
+    const newItinerary = [...formData.itinerary, newDay];
     setFormData((prev) => ({
       ...prev,
-      itinerary: [...prev.itinerary, newDay],
+      itinerary: newItinerary,
     }));
+
+    if (touched.itinerary) {
+      validateField("itinerary", newItinerary);
+    }
   };
 
   const removeDay = (dayIndex: number) => {
+    const newItinerary = formData.itinerary
+      .filter((_, index) => index !== dayIndex)
+      .map((day, index) => ({ ...day, day: index + 1 }));
+    
     setFormData((prev) => ({
       ...prev,
-      itinerary: prev.itinerary
-        .filter((_, index) => index !== dayIndex)
-        .map((day, index) => ({ ...day, day: index + 1 })),
+      itinerary: newItinerary,
     }));
+
+    if (touched.itinerary) {
+      validateField("itinerary", newItinerary);
+    }
   };
 
   const toggleDayExpansion = (dayIndex: number) => {
@@ -121,33 +160,45 @@ const AddPackage: React.FC = () => {
   };
 
   const addActivityToDay = (dayIndex: number) => {
+    const newItinerary = formData.itinerary.map((day, index) =>
+      index === dayIndex
+        ? {
+            ...day,
+            activities: [...day.activities, { time: "", activity: "" }],
+          }
+        : day
+    );
+    
     setFormData((prev) => ({
       ...prev,
-      itinerary: prev.itinerary.map((day, index) =>
-        index === dayIndex
-          ? {
-              ...day,
-              activities: [...day.activities, { time: "", activity: "" }],
-            }
-          : day
-      ),
+      itinerary: newItinerary,
     }));
+
+    if (touched.itinerary) {
+      validateField("itinerary", newItinerary);
+    }
   };
 
   const removeActivityFromDay = (dayIndex: number, activityIndex: number) => {
+    const newItinerary = formData.itinerary.map((day, index) =>
+      index === dayIndex
+        ? {
+            ...day,
+            activities: day.activities.filter(
+              (_, aIndex) => aIndex !== activityIndex
+            ),
+          }
+        : day
+    );
+    
     setFormData((prev) => ({
       ...prev,
-      itinerary: prev.itinerary.map((day, index) =>
-        index === dayIndex
-          ? {
-              ...day,
-              activities: day.activities.filter(
-                (_, aIndex) => aIndex !== activityIndex
-              ),
-            }
-          : day
-      ),
+      itinerary: newItinerary,
     }));
+
+    if (touched.itinerary) {
+      validateField("itinerary", newItinerary);
+    }
   };
 
   const updateActivity = (
@@ -156,24 +207,29 @@ const AddPackage: React.FC = () => {
     field: "time" | "activity",
     value: string
   ) => {
+    const newItinerary = formData.itinerary.map((day, dIndex) =>
+      dIndex === dayIndex
+        ? {
+            ...day,
+            activities: day.activities.map((activity, aIndex) =>
+              aIndex === activityIndex
+                ? { ...activity, [field]: value }
+                : activity
+            ),
+          }
+        : day
+    );
+    
     setFormData((prev) => ({
       ...prev,
-      itinerary: prev.itinerary.map((day, dIndex) =>
-        dIndex === dayIndex
-          ? {
-              ...day,
-              activities: day.activities.map((activity, aIndex) =>
-                aIndex === activityIndex
-                  ? { ...activity, [field]: value }
-                  : activity
-              ),
-            }
-          : day
-      ),
+      itinerary: newItinerary,
     }));
+
+    if (touched.itinerary) {
+      validateField("itinerary", newItinerary);
+    }
   };
 
-  // Pre-fill itinerary based on duration
   const generateBasicItinerary = () => {
     const basicItinerary: ItineraryDay[] = [];
 
@@ -181,7 +237,6 @@ const AddPackage: React.FC = () => {
       let dayActivities: ItineraryActivity[] = [];
 
       if (i === 1) {
-        // First day - arrival activities
         dayActivities = [
           {
             time: formData.checkInTime || "3:00 PM",
@@ -193,7 +248,6 @@ const AddPackage: React.FC = () => {
           { time: "8:00 PM", activity: "Dinner" },
         ];
       } else if (i === formData.duration) {
-        // Last day - departure activities
         dayActivities = [
           { time: "6:00 AM", activity: "Early morning activity" },
           { time: "8:00 AM", activity: "Breakfast" },
@@ -201,7 +255,6 @@ const AddPackage: React.FC = () => {
           { time: formData.checkOutTime || "12:00 PM", activity: "Check-out" },
         ];
       } else {
-        // Middle days - exploration activities
         dayActivities = [
           { time: "6:00 AM", activity: "Morning activity" },
           { time: "8:00 AM", activity: "Breakfast" },
@@ -221,6 +274,8 @@ const AddPackage: React.FC = () => {
     }
 
     setFormData((prev) => ({ ...prev, itinerary: basicItinerary }));
+    markFieldTouched("itinerary");
+    validateField("itinerary", basicItinerary);
   };
 
   const calculateTotalPrice = () => {
@@ -232,13 +287,24 @@ const AddPackage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowValidationErrors(true);
+
+    // Validate all fields
+    const isValid = validateAllFields(formData);
+
+    if (!isValid) {
+      // Scroll to first error
+      const firstErrorField = Object.keys(errors).find(key => errors[key]);
+      if (firstErrorField) {
+        const element = document.getElementsByName(firstErrorField)[0];
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
 
     const selectedHotelIds = formData.selectedHotels;
     const selectedActivityIds = formData.selectedActivities;
 
-    console.log(selectedActivityIds, "Activity");
-
-    // Convert enhanced itinerary back to simple format for backend compatibility
     const simpleItinerary = formData.itinerary.flatMap((day) =>
       day.activities.map((activity) => ({
         day: day.day,
@@ -258,18 +324,19 @@ const AddPackage: React.FC = () => {
       endDate: new Date(Date.now() + formData.duration * 24 * 60 * 60 * 1000),
       images: formData.images,
       hotels: selectedHotelIds,
-      activities: selectedActivityIds, // ✅ Correct now
+      activities: selectedActivityIds,
       checkOutTime: formData.checkOutTime,
       checkInTime: formData.checkInTime,
       itinerary: simpleItinerary,
       inclusions: formData.inclusions,
       amenities: formData.amenities,
     };
-    console.log(selectedActivityIds, "selectedActivityIdsselectedActivityIds");
-    console.log(formData.selectedActivities, "activities");
 
     dispatch(addPackage(completePackage));
     setIsSubmitted(true);
+    setShowValidationErrors(false);
+    resetValidation();
+    
     setFormData({
       packageName: "",
       description: "",
@@ -285,6 +352,7 @@ const AddPackage: React.FC = () => {
       inclusions: [],
       amenities: [],
     });
+    
     setTimeout(() => setIsSubmitted(false), 3000);
   };
 
@@ -292,11 +360,16 @@ const AddPackage: React.FC = () => {
   const selectedDestination = destinations.find(
     (dest) => dest.id === formData.destinationId
   );
-  const isFormValid =
-    formData.destinationId &&
-    formData.packageName.trim() &&
-    formData.description.trim() &&
-    formData.price > 0;
+
+  const ErrorMessage = ({ message }: { message: string }) => {
+    if (!message) return null;
+    return (
+      <div className="flex items-center gap-2 mt-2 text-red-600 text-sm font-medium">
+        <AlertCircle className="h-4 w-4" />
+        <span>{message}</span>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -333,22 +406,32 @@ const AddPackage: React.FC = () => {
                 <div className="flex items-center">
                   <CheckCircle2 className="h-6 w-6 text-emerald-600 mr-3 animate-pulse" />
                   <AlertDescription className="text-emerald-800 font-semibold text-lg">
-                    🎉 Package created successfully! Your customers will love
-                    this amazing experience.
+                    Package created successfully! Your customers will love this amazing experience.
                   </AlertDescription>
                 </div>
               </Alert>
             )}
 
-            {/* Error Alert */}
             {error && (
               <Alert
                 variant="destructive"
                 className="mb-8 border-l-4 border-l-red-500 shadow-lg animate-in slide-in-from-top duration-500"
               >
                 <AlertDescription className="font-semibold text-lg flex items-center">
-                  <span className="mr-2">⚠️</span>
+                  <AlertCircle className="h-5 w-5 mr-2" />
                   {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {showValidationErrors && Object.values(errors).some(e => e) && (
+              <Alert
+                variant="destructive"
+                className="mb-8 border-l-4 border-l-red-500 shadow-lg animate-in slide-in-from-top duration-500"
+              >
+                <AlertDescription className="font-semibold text-lg flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  Please fix the validation errors before submitting
                 </AlertDescription>
               </Alert>
             )}
@@ -356,27 +439,39 @@ const AddPackage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-10">
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
                 <div className="xl:col-span-2 space-y-8">
-                  {/* Package Basic Info with enhanced styling */}
                   <div className="animate-in fade-in-50 duration-700">
-                    <PackageBasicInfo
-                      formData={formData}
-                      destinations={destinations}
-                      loadingDestinations={loadingDestinations}
-                      filteredHotels={allHotels}
-                      filteredActivities={allActivities}
-                      selectedDestination={selectedDestination}
-                      onChange={handleChange}
-                      onDestinationChange={handleDestinationChange}
-                    />
+                    <div className="space-y-4">
+                      <div onBlur={handleBlur}>
+                        <PackageBasicInfo
+                          formData={formData}
+                          destinations={destinations}
+                          loadingDestinations={loadingDestinations}
+                          filteredHotels={allHotels}
+                          filteredActivities={allActivities}
+                          selectedDestination={selectedDestination}
+                          onChange={handleChange}
+                          onDestinationChange={handleDestinationChange}
+                        />
+                      </div>
+                      {getFieldError("destinationId") && <ErrorMessage message={getFieldError("destinationId")} />}
+                      {getFieldError("packageName") && <ErrorMessage message={getFieldError("packageName")} />}
+                      {getFieldError("description") && <ErrorMessage message={getFieldError("description")} />}
+                      {getFieldError("price") && <ErrorMessage message={getFieldError("price")} />}
+                      {getFieldError("duration") && <ErrorMessage message={getFieldError("duration")} />}
+                    </div>
                   </div>
 
                   <div className="animate-in fade-in-50 duration-700 delay-100">
                     <ImageUploadSection
                       images={formData.images}
-                      onImagesChange={(images) =>
-                        setFormData((prev) => ({ ...prev, images }))
-                      }
+                      onImagesChange={(images) => {
+                        setFormData((prev) => ({ ...prev, images }));
+                        if (touched.images) {
+                          validateField("images", images);
+                        }
+                      }}
                     />
+                    <ErrorMessage message={getFieldError("images")} />
                   </div>
 
                   <div className="animate-in fade-in-50 duration-700 delay-200">
@@ -386,23 +481,31 @@ const AddPackage: React.FC = () => {
                       filteredHotels={allHotels}
                       filteredActivities={allActivities}
                       selectedHotels={formData.selectedHotels}
-                      selectedActivities={formData.selectedActivities} 
+                      selectedActivities={formData.selectedActivities}
                       loadingHotels={loadingHotels}
                       loadingActivities={loadingActivities}
                       duration={formData.duration}
-                      onHotelSelection={(hotels) =>
+                      onHotelSelection={(hotels) => {
                         setFormData((prev) => ({
                           ...prev,
                           selectedHotels: hotels,
-                        }))
-                      }
-                      onActivitySelection={(activities) =>
+                        }));
+                        if (touched.selectedHotels) {
+                          validateField("selectedHotels", hotels);
+                        }
+                      }}
+                      onActivitySelection={(activities) => {
                         setFormData((prev) => ({
                           ...prev,
                           selectedActivities: activities,
-                        }))
-                      }
+                        }));
+                        if (touched.selectedActivities) {
+                          validateField("selectedActivities", activities);
+                        }
+                      }}
                     />
+                    <ErrorMessage message={getFieldError("selectedHotels")} />
+                    <ErrorMessage message={getFieldError("selectedActivities")} />
                   </div>
 
                   <Card className="shadow-xl border-0 bg-white/70 backdrop-blur-lg animate-in fade-in-50 duration-700 delay-300">
@@ -418,11 +521,15 @@ const AddPackage: React.FC = () => {
                               name="checkInTime"
                               value={formData.checkInTime}
                               onChange={handleChange}
+                              onBlur={handleBlur}
                               placeholder="e.g. 3:00 PM"
-                              className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium"
+                              className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium ${
+                                getFieldError("checkInTime") ? "border-red-500" : "border-slate-200"
+                              }`}
                             />
                             <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                           </div>
+                          <ErrorMessage message={getFieldError("checkInTime")} />
                         </div>
                         <div className="space-y-3">
                           <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
@@ -434,11 +541,15 @@ const AddPackage: React.FC = () => {
                               name="checkOutTime"
                               value={formData.checkOutTime}
                               onChange={handleChange}
+                              onBlur={handleBlur}
                               placeholder="e.g. 12:00 PM"
-                              className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium"
+                              className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium ${
+                                getFieldError("checkOutTime") ? "border-red-500" : "border-slate-200"
+                              }`}
                             />
                             <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                           </div>
+                          <ErrorMessage message={getFieldError("checkOutTime")} />
                         </div>
                       </div>
                     </CardContent>
@@ -494,8 +605,7 @@ const AddPackage: React.FC = () => {
                               No itinerary added yet
                             </p>
                             <p className="text-lg text-gray-500">
-                              Click "Add Day" or "Auto-Generate" to create your
-                              amazing itinerary
+                              Click "Add Day" or "Auto-Generate" to create your amazing itinerary
                             </p>
                           </div>
                         ) : (
@@ -522,8 +632,7 @@ const AddPackage: React.FC = () => {
                                         Day {day.day}
                                       </span>
                                       <div className="text-sm text-indigo-600 font-medium">
-                                        {day.activities.length} activities
-                                        planned
+                                        {day.activities.length} activities planned
                                       </div>
                                     </div>
                                   </div>
@@ -545,60 +654,55 @@ const AddPackage: React.FC = () => {
                               {day.isExpanded && (
                                 <CardContent className="p-6 bg-gradient-to-br from-white to-slate-50/50">
                                   <div className="space-y-4">
-                                    {day.activities.map(
-                                      (activity, activityIndex) => (
-                                        <div
-                                          key={activityIndex}
-                                          className="flex gap-4 items-start bg-white p-4 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-all duration-300"
-                                        >
-                                          <div className="relative">
-                                            <input
-                                              type="text"
-                                              placeholder="Time (e.g. 3:00 PM)"
-                                              value={activity.time}
-                                              onChange={(e) =>
-                                                updateActivity(
-                                                  dayIndex,
-                                                  activityIndex,
-                                                  "time",
-                                                  e.target.value
-                                                )
-                                              }
-                                              className="w-36 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium bg-slate-50"
-                                            />
-                                            <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
-                                          </div>
+                                    {day.activities.map((activity, activityIndex) => (
+                                      <div
+                                        key={activityIndex}
+                                        className="flex gap-4 items-start bg-white p-4 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-all duration-300"
+                                      >
+                                        <div className="relative">
                                           <input
                                             type="text"
-                                            placeholder="Activity description"
-                                            value={activity.activity}
+                                            placeholder="Time (e.g. 3:00 PM)"
+                                            value={activity.time}
                                             onChange={(e) =>
                                               updateActivity(
                                                 dayIndex,
                                                 activityIndex,
-                                                "activity",
+                                                "time",
                                                 e.target.value
                                               )
                                             }
-                                            className="flex-1 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                                            className="w-36 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium bg-slate-50"
                                           />
-                                          <Button
-                                            type="button"
-                                            onClick={() =>
-                                              removeActivityFromDay(
-                                                dayIndex,
-                                                activityIndex
-                                              )
-                                            }
-                                            variant="outline"
-                                            size="sm"
-                                            className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-all duration-300"
-                                          >
-                                            <Trash2 className="h-4 w-4" />
-                                          </Button>
+                                          <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
                                         </div>
-                                      )
-                                    )}
+                                        <input
+                                          type="text"
+                                          placeholder="Activity description"
+                                          value={activity.activity}
+                                          onChange={(e) =>
+                                            updateActivity(
+                                              dayIndex,
+                                              activityIndex,
+                                              "activity",
+                                              e.target.value
+                                            )
+                                          }
+                                          className="flex-1 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                                        />
+                                        <Button
+                                          type="button"
+                                          onClick={() =>
+                                            removeActivityFromDay(dayIndex, activityIndex)
+                                          }
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-all duration-300"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    ))}
 
                                     <Button
                                       type="button"
@@ -617,12 +721,12 @@ const AddPackage: React.FC = () => {
                           ))
                         )}
                       </div>
+                      <ErrorMessage message={getFieldError("itinerary")} />
                     </CardContent>
                   </Card>
 
-                  {/* Enhanced Inclusions with premium styling */}
                   <Card className="shadow-xl border-0 bg-gradient-to-br animate-in fade-in-50 duration-700 delay-500">
-                    <CardHeader className="bg-gradient-to-r bg-black text-white rounded-t-lg relative overflow-hidden ">
+                    <CardHeader className="bg-gradient-to-r bg-black text-white rounded-t-lg relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r"></div>
                       <CardTitle className="flex items-center gap-3 relative z-10">
                         <div>
@@ -639,27 +743,37 @@ const AddPackage: React.FC = () => {
                           What's included in this amazing package?
                         </label>
                         <textarea
-                          placeholder="Enter inclusions  &#10;e.g. Welcome drink on arrival, Tent accommodation on sharing basis, Dinner, Breakfast, Music"
+                          placeholder="Enter inclusions (comma-separated)&#10;e.g. Welcome drink on arrival, Tent accommodation on sharing basis, Dinner, Breakfast, Music"
                           value={formData.inclusions.join(", ")}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const newInclusions = e.target.value
+                              .split(",")
+                              .map((i) => i.trim())
+                              .filter((i) => i);
                             setFormData((prev) => ({
                               ...prev,
-                              inclusions: e.target.value
-                                .split(",")
-                                .map((i) => i.trim())
-                                .filter((i) => i),
-                            }))
-                          }
+                              inclusions: newInclusions,
+                            }));
+                            if (touched.inclusions) {
+                              validateField("inclusions", newInclusions);
+                            }
+                          }}
+                          onBlur={() => {
+                            markFieldTouched("inclusions");
+                            validateField("inclusions", formData.inclusions);
+                          }}
                           rows={5}
-                          className="w-full p-4 border-2 border-emerald-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm font-medium"
+                          className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm font-medium ${
+                            getFieldError("inclusions") ? "border-red-500" : "border-emerald-200"
+                          }`}
                         />
+                        <ErrorMessage message={getFieldError("inclusions")} />
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Enhanced Amenities with premium styling */}
                   <Card className="shadow-xl border-0 bg-gradient-to-br duration-700 delay-600">
-                    <CardHeader className="bg-gradient-to-rbg-black text-white rounded-t-lg relative overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r bg-black text-white rounded-t-lg relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r bg-black"></div>
                       <CardTitle className="flex items-center gap-3 relative z-10">
                         <div>
@@ -676,26 +790,36 @@ const AddPackage: React.FC = () => {
                           What amenities are available?
                         </label>
                         <textarea
-                          placeholder="Enter amenities &#10;e.g. Freshup facility, Phone charging, Washroom facility, 24/7 Caretaker services"
+                          placeholder="Enter amenities (comma-separated)&#10;e.g. Freshup facility, Phone charging, Washroom facility, 24/7 Caretaker services"
                           value={formData.amenities.join(", ")}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const newAmenities = e.target.value
+                              .split(",")
+                              .map((a) => a.trim())
+                              .filter((a) => a);
                             setFormData((prev) => ({
                               ...prev,
-                              amenities: e.target.value
-                                .split(",")
-                                .map((a) => a.trim())
-                                .filter((a) => a),
-                            }))
-                          }
+                              amenities: newAmenities,
+                            }));
+                            if (touched.amenities) {
+                              validateField("amenities", newAmenities);
+                            }
+                          }}
+                          onBlur={() => {
+                            markFieldTouched("amenities");
+                            validateField("amenities", formData.amenities);
+                          }}
                           rows={5}
-                          className="w-full p-4 border-2 border-purple-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm font-medium"
+                          className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm font-medium ${
+                            getFieldError("amenities") ? "border-red-500" : "border-purple-200"
+                          }`}
                         />
+                        <ErrorMessage message={getFieldError("amenities")} />
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Enhanced Pricing Sidebar */}
                 <div className="animate-in fade-in-50 duration-700 delay-700">
                   <PricingSidebar
                     formData={formData}
@@ -705,15 +829,13 @@ const AddPackage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Enhanced Submit Button with premium styling */}
               <div className="flex justify-center pt-10 animate-in fade-in-50 duration-700 delay-800">
                 <Button
                   type="submit"
-                  disabled={loading || !isFormValid}
+                  disabled={loading}
                   size="lg"
                   className="w-full max-w-2xl h-16 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold text-xl shadow-2xl hover:shadow-3xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
                 >
-                  {/* Button glow effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                   <div className="relative z-10 flex items-center">
@@ -721,26 +843,6 @@ const AddPackage: React.FC = () => {
                       <>
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-4"></div>
                         <span>Creating Your Amazing Package...</span>
-                      </>
-                    ) : !formData.destinationId ? (
-                      <>
-                        <MapPin className="h-6 w-6 mr-4" />
-                        Select Destination First
-                      </>
-                    ) : !formData.packageName.trim() ? (
-                      <>
-                        <FileText className="h-6 w-6 mr-4" />
-                        Enter Package Name
-                      </>
-                    ) : !formData.description.trim() ? (
-                      <>
-                        <FileText className="h-6 w-6 mr-4" />
-                        Add Description
-                      </>
-                    ) : formData.price <= 0 ? (
-                      <>
-                        <span className="mr-4 text-2xl">₹</span>
-                        Set Base Price
                       </>
                     ) : (
                       <>
@@ -753,27 +855,36 @@ const AddPackage: React.FC = () => {
                 </Button>
               </div>
 
-              {/* Progress indicator */}
               <div className="flex justify-center mt-6">
                 <div className="flex space-x-2">
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.destinationId ? "bg-green-500" : "bg-gray-300"
+                      formData.destinationId && !getFieldError("destinationId") ? "bg-green-500" : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.packageName ? "bg-green-500" : "bg-gray-300"
+                      formData.packageName && !getFieldError("packageName") ? "bg-green-500" : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.description ? "bg-green-500" : "bg-gray-300"
+                      formData.description && !getFieldError("description") ? "bg-green-500" : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.price > 0 ? "bg-green-500" : "bg-gray-300"
+                      formData.price > 0 && !getFieldError("price") ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <div
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      formData.images.length > 0 && !getFieldError("images") ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <div
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      formData.itinerary.length > 0 && !getFieldError("itinerary") ? "bg-green-500" : "bg-gray-300"
                     }`}
                   ></div>
                 </div>
@@ -782,10 +893,9 @@ const AddPackage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Footer with additional styling */}
         <div className="text-center mt-12 text-gray-500">
           <p className="text-lg font-medium">
-            ✨ Create unforgettable memories for your travelers ✨
+            Create unforgettable memories for your travelers
           </p>
         </div>
       </div>

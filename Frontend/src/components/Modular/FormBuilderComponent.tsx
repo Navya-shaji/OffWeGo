@@ -50,7 +50,7 @@ export function FormBuilder<T extends Record<string, unknown>>({
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
-      className="max-w-lg mx-auto bg-white shadow-lg rounded-2xl p-6 space-y-6 border border-gray-200"
+      className="max-w-lg mx-auto"
     >
       <h2 className="text-xl font-semibold text-gray-800 text-center">
         Fill the Form
@@ -66,7 +66,7 @@ export function FormBuilder<T extends Record<string, unknown>>({
             <textarea
               {...register(field.name as keyof T & string)}
               placeholder={field.placeholder}
-              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-black focus:outline-none"
               rows={4}
             />
           )}
@@ -75,7 +75,7 @@ export function FormBuilder<T extends Record<string, unknown>>({
             <input
               type="file"
               accept="image/*"
-              className="border border-gray-300 rounded-xl p-3 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+              className="border border-gray-300 rounded-xl p-3 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white hover:file:bg-black cursor-pointer"
               onChange={(e) =>
                 setValue(field.name as keyof T & string, e.target.files?.[0] as T[keyof T])
               }
@@ -119,7 +119,7 @@ export function FormBuilder<T extends Record<string, unknown>>({
 
       <button
         type="submit"
-        className="bg-blue-600 hover:bg-blue-700 transition text-white font-medium px-6 py-3 rounded-xl w-full shadow-md"
+        className="bg-black transition text-white font-medium px-6 py-3 rounded-xl w-full shadow-md"
       >
         {submitLabel}
       </button>
