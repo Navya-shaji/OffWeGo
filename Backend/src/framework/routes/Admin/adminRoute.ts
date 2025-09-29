@@ -7,14 +7,15 @@ import {
   categoryController,
   destinationController,
   subscriptionController,
-} from "../../Di/Admin/AdminInjection";
+  
+} from "../../Di/Admin/adminInjection";
 
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
 import { JwtService } from "../../Services/jwtService";
 import { AdminRoutes } from "../Constants/AdminRouteConstants";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection";
+import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 const TokenService = new JwtService();
 
 export class AdminRoute {
