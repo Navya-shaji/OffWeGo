@@ -1,13 +1,18 @@
-import { ICategoryRepository } from "../../domain/interface/category/ICategoryRepository";
+import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
 import { CreateCategoryDto } from "../../domain/dto/admin/CategoryDto";
-import { Category } from "../../domain/entities/categoryEntity";
-import { mapToCatrgoryDto } from "../../mappers/category/categoryMappers";
+import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
+import { CategoryDto } from "../../domain/dto/category/CategoryDto";
 
-export class CreateCategory{
-    constructor(private categoryRepo:ICategoryRepository){}
+export class CreateCategory {
+  constructor(private _categoryRepo: ICategoryRepository) {}
 
-    async execute(data:CreateCategoryDto):Promise<Category>{
-        const created=await this.categoryRepo.createCategory(data)
-        return mapToCatrgoryDto(created)
+  async execute(data: CreateCategoryDto): Promise<CategoryDto> {
+    const existingCategory = await this._categoryRepo.findByName(data.name);
+    if (existingCategory) {
+      throw new Error("Category already exists");
     }
+
+    const created = await this._categoryRepo.createCategory(data);
+    return mapToCatrgoryDto(created);
+  }
 }

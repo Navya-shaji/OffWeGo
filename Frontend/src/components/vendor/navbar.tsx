@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <User className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium">Vendor</span> {/* updated label */}
+            <span className="text-sm font-medium">Vendor</span> 
 
             {dropdownOpen && (
               <div className="absolute right-0 top-10 w-32 bg-white shadow-lg border rounded-lg z-10">

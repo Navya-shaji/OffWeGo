@@ -1,12 +1,12 @@
-import { Banner } from "../../domain/entities/BannerEntity";
+import { BannerDto } from "../../domain/dto/banner/BannerDto";
 import { IBannerRepository } from "../../domain/interface/Banner/IBannerRepository";
-import { mapToBannerDto } from "../../mappers/banner/bannerMappers";
+import { mapToBannerDto } from "../../mappers/Banner/bannerMappers";
 
 export class GetAllBanners{
-    constructor(private bannerRepo:IBannerRepository){}
+    constructor(private _bannerRepo:IBannerRepository){}
 
-    async execute():Promise<Banner[]>{
-        const banners= await this.bannerRepo.getAllBanner()
+    async execute():Promise<BannerDto[]>{
+        const banners= await this._bannerRepo.getAllBanner()
         return banners.map(mapToBannerDto)
     }
 }

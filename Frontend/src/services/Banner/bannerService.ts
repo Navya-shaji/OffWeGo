@@ -4,7 +4,7 @@ import type { BannerInterface } from "@/interface/bannerInterface";
 
 export const addBanner = async (data: BannerInterface) => {
   try {
-    const res = await axiosInstance.post("/admin/create-banner", data);
+    const res = await axiosInstance.post("/api/admin/create-banner", data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -17,15 +17,42 @@ export const addBanner = async (data: BannerInterface) => {
 
 export const getBanner = async () => {
   try {
-    const res = await axiosInstance.get("/admin/banner");
+    const res = await axiosInstance.get("/api/admin/banner");
+
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      console.log("err");
+      throw new Error(error.response?.data?.error || "Failed to fetch banner");
+    }
+    throw new Error("An unexpected error occurred while fetching banner");
+  }
+};
+
+export const actionBannerupdate = async (id: string, action: boolean) => {
+  try {
+    const res = await axiosInstance.patch(`/api/admin/banner/${id}`, {
+      action,
+    });
+    
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.error || "Failed to fetch categories"
+        error.response?.data?.error || "Failed to update actions"
       );
     }
-    throw new Error("An unexpected error occurred while fetching categories");
+    throw new Error("An unexpected error occurred while updating actions");
+  }
+};
+
+export const BannerDelete = async (id: string) => {
+  try {
+    const result = await axiosInstance.delete(`/api/admin/banner/${id}`);
+    return result.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || "Failed to delete banner");
+    }
+    throw new Error("An unexpected error occurred while delete banner");
   }
 };

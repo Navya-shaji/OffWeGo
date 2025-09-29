@@ -4,7 +4,11 @@ import toast from "react-hot-toast";
 import { resendOtp, VerifyOtp } from "@/services/user/userService";
 import type { SignupSchema } from "@/Types/User/auth/Tsignup";
 
-export default function OtpModal({  isOpen, onClose, userData,}: {
+export default function OtpModal({
+  isOpen,
+  onClose,
+  userData,
+}: {
   isOpen: boolean;
   onClose: () => void;
   userData: SignupSchema;
@@ -46,7 +50,7 @@ export default function OtpModal({  isOpen, onClose, userData,}: {
       const res = await VerifyOtp(userData, fullOtp);
       if (res.data.success) {
         toast.success("OTP Verified");
-        navigate("/home");
+        navigate("/login");
       } else {
         toast.error("Invalid OTP");
       }

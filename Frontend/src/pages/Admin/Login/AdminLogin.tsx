@@ -1,36 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { loginAdmin } from "@/store/slice/Admin/adminAuthSlice";
-import {AdminloginSchema,type AdminLoginFormData,} from "@/Types/Admin/Login/LoginzodSchema";
-import { useAppSelector } from "@/hooks";
-import { useEffect } from "react";
-
+import {
+  AdminloginSchema,
+  type AdminLoginFormData,
+} from "@/Types/Admin/Login/LoginzodSchema";
+import { setToken } from "@/store/slice/Token/tokenSlice";
 
 export default function AdminLogin() {
-const isAuthenticated = useAppSelector((state) => state.adminAuth.isAuthenticated);
+  const isAuthenticated = useAppSelector(
+    (state) => state.adminAuth.isAuthenticated
+  );
 
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    if(isAuthenticated){
-      navigate("/admin/dashboard",{replace:true})
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin/dashboard", { replace: true });
     }
-  },[isAuthenticated])
+  }, [isAuthenticated, navigate]);
 
-  const {register,handleSubmit,formState: { errors },} = useForm<AdminLoginFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AdminLoginFormData>({
     resolver: zodResolver(AdminloginSchema),
   });
 
   const onSubmit = async (data: AdminLoginFormData) => {
     try {
-      await dispatch(loginAdmin(data)).unwrap();
+      // Call API through thunk
+      const response = await dispatch(loginAdmin(data)).unwrap();
+
+    if (response?.accessToken ) {
+    dispatch(setToken(response.accessToken));
+}
+
+
       toast.success("Admin login successful");
       navigate("/admin/dashboard");
     } catch (err) {
@@ -42,14 +56,15 @@ const isAuthenticated = useAppSelector((state) => state.adminAuth.isAuthenticate
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-100 via-white to-sky-100 p-6">
       <div className="flex flex-col md:flex-row w-full max-w-5xl h-[85vh] shadow-2xl rounded-2xl bg-white overflow-hidden border border-gray-200">
+        {/* Left Image */}
         <div
           className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center"
           style={{ backgroundImage: 'url("/images/Adminlogin.jpeg")' }}
         >
           <div className="absolute inset-0 bg-opacity-40" />
-          <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6 py-10"></div>
         </div>
 
+        {/* Right Form */}
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
           <h2 className="text-3xl font-bold text-center text-black mb-6">
             Admin Login
@@ -59,27 +74,27 @@ const isAuthenticated = useAppSelector((state) => state.adminAuth.isAuthenticate
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4 max-w-sm mx-auto w-full"
           >
+            {/* Email */}
             <div>
               <input
                 {...register("email")}
                 placeholder="Email"
-                className="input w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              {errors.email ? (
+              {errors.email && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.email.message}
                 </p>
-              ) : (
-                <div className="h-[16px]" />
               )}
             </div>
 
+            {/* Password */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="Password"
-                className="input w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <span
                 className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
@@ -87,15 +102,14 @@ const isAuthenticated = useAppSelector((state) => state.adminAuth.isAuthenticate
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </span>
-              {errors.password ? (
+              {errors.password && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.password.message}
                 </p>
-              ) : (
-                <div className="h-[16px]" />
               )}
             </div>
 
+            {/* Button */}
             <button
               type="submit"
               className="w-full bg-black text-white font-semibold py-2 rounded text-sm hover:bg-black transition duration-200 shadow-md"

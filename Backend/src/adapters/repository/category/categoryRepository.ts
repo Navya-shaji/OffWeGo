@@ -1,19 +1,49 @@
-import { ICategoryRepository } from "../../../domain/interface/category/ICategoryRepository";
-import { CategoryModel,ICategoryModel } from "../../../framework/database/Models/categoryModel";
+import { ICategoryRepository } from "../../../domain/interface/Category/ICategoryRepository";
+import {CategoryModel,ICategoryModel} from "../../../framework/database/Models/categoryModel";
 import { CreateCategoryDto } from "../../../domain/dto/admin/CategoryDto";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
 
+export class CategoryRepository
+  extends BaseRepository<ICategoryModel>
+  implements ICategoryRepository
+{
+  constructor() {
+    super(CategoryModel);
+  }
 
-export class CategoryRepository implements ICategoryRepository{
-    async createCategory(data: CreateCategoryDto): Promise<ICategoryModel> {
-        return await CategoryModel.create(data)
-    }
-    async getAllCategories(): Promise<ICategoryModel[]> {
-        return CategoryModel.find()
-    }
-    async edit(category: ICategoryModel): Promise<void> {
-        await  CategoryModel.findByIdAndUpdate(category._id,category,{new :true})
-    }
-    async delete(id:string):Promise<void>{
-        await CategoryModel.findByIdAndDelete(id)
-    }
+  async createCategory(data: CreateCategoryDto): Promise<ICategoryModel> {
+    return this.create(data);
+  }
+
+  async getAllCategories(
+    skip: number,
+    limit: number
+  ): Promise<ICategoryModel[]> {
+    return this.model.find().skip(skip).limit(limit);
+  }
+
+  async edit(category: ICategoryModel): Promise<ICategoryModel | null> {
+    return this.model.findByIdAndUpdate(category._id, category, { new: true });
+  }
+
+  async delete(id: string): Promise<ICategoryModel | null> {
+    return super.delete(id);
+  }
+
+  async countCategory(): Promise<number> {
+    return this.model.countDocuments();
+  }
+
+  async searchCategory(query: string): Promise<ICategoryModel[]> {
+    const regex = new RegExp(query, "i");
+    return this.model
+      .find({ name: { $regex: regex } })
+      .select("name description imageUrl type")
+      .limit(10)
+      .exec();
+  }
+
+  async findByName(name: string): Promise<ICategoryModel | null> {
+    return await CategoryModel.findOne({ name });
+  }
 }

@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { HashLink } from "react-router-hash-link";
 
 import { logout } from "@/store/slice/user/authSlice";
+import logo from "../../../../public/images/logo.png";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,30 +33,27 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-amber-50 backdrop-blur-sm shadow-sm sticky top-4 z-50 w-full">
+    <header className="bg-white backdrop-blur-sm shadow-sm sticky top-1 z-50 w-full h-22">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <h1 className="text-3xl font-extrabold font-serif bg-gradient-to-r from-coral-500 to-black bg-clip-text text-transparent">
-            OffeGo
-          </h1>
-
-          <nav className="hidden md:flex space-x-8">
+        <div className="flex justify-between items-center h-22">
+          <div className="flex items-center p-4">
+            <img src={logo} alt="logo" className="w-35 h-10 mr-2" />
+          </div>
+          <nav className="hidden md:flex space-x-8 ">
             {[
               { name: "Home", path: "/" },
-              { name: "Destinations", path: "/#destinations" },
+              { name: "Destinations", path: "/destinations" },
               { name: "Articles", path: "/articles" },
               { name: "Buddy Travel", path: "/buddy-travel" },
-              { name: "Search", path: "/search" },
             ].map((item) =>
               item.name === "Destinations" ? (
-                <HashLink
-                  smooth
+                <Link
                   key={item.name}
                   to={item.path}
                   className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
                 >
                   {item.name}
-                </HashLink>
+                </Link>
               ) : (
                 <Link
                   key={item.name}
@@ -74,7 +71,7 @@ const Header: React.FC = () => {
               <>
                 <Button
                   variant="ghost"
-                  className="text-gray-700 hover:text-coral-500"
+                  className="text-gray-700 hover:text-coral-500 "
                   asChild
                 >
                   <Link to="/login">Login</Link>
@@ -134,21 +131,17 @@ const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <nav className="flex flex-col space-y-2">
-              {[
-                "Home",
-                "Destinations",
-                "Articles",
-                "Buddy Travel",
-                "Search",
-              ].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-gray-700 hover:text-coral-500 transition-colors py-2"
-                >
-                  {item}
-                </a>
-              ))}
+              {["Home", "Destinations", "Articles", "Buddy Travel"].map(
+                (item) => (
+                  <a
+                    key={item}
+                    href="#"
+                    className="text-gray-700 hover:text-coral-500 transition-colors py-2"
+                  >
+                    {item}
+                  </a>
+                )
+              )}
               {!isAuthenticated ? (
                 <div className="pt-4 space-y-2">
                   <Button

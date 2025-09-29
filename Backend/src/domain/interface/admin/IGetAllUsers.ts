@@ -1,8 +1,11 @@
-import { User } from "../../entities/userEntity";
+import { UserDto } from "../../dto/user/UserDto";
 
-export interface IGetAllUser{
-    execute(): Promise<{
-    users: User[];
+export interface IGetAllUserUsecase {
+  execute(
+    page: number,
+    limit: number
+  ): Promise<{
+    users: UserDto[];
     totalUsers: number;
   }>;
 }

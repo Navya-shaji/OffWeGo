@@ -1,26 +1,54 @@
-
-import { IDestinationRepository } from "../../../domain/interface/admin/IDestinationInterface";
-import { DestinationModel, IDestinationModel } from "../../../framework/database/Models/deestinationModel";
+import { IDestinationRepository } from "../../../domain/interface/Admin/IDestinationInterface";
+import { DestinationModel,IDestinationModel} from "../../../framework/database/Models/deestinationModel";
 import { CreateDestinationDTO } from "../../../domain/dto/admin/DestinationDTO";
-
-export class DestinationRepository implements IDestinationRepository {
-  async createDestination(data: CreateDestinationDTO): Promise<IDestinationModel> {
-    return await DestinationModel.create(data);
+import { BaseRepository } from "../BaseRepo/BaseRepo";
+export class DestinationRepository
+  extends BaseRepository<IDestinationModel>
+  implements IDestinationRepository
+{
+  constructor() {
+    super(DestinationModel);
   }
 
-  async getAllDestinations(): Promise<IDestinationModel[]> {
-    return DestinationModel.find();
+  async createDestination(
+    data: CreateDestinationDTO
+  ): Promise<IDestinationModel> {
+    return this.create(data);
   }
 
-  async edit(destination: IDestinationModel): Promise<void> {
-    await DestinationModel.findByIdAndUpdate(destination._id, destination, { new: true });
+  async getAllDestinations(
+    skip: number,
+    limit: number
+  ): Promise<IDestinationModel[]> {
+    return this.model.find().skip(skip).limit(limit);
   }
 
-  async delete(id: string): Promise<void> {
-    await DestinationModel.findByIdAndDelete(id);
+  async edit(
+    destination: IDestinationModel
+  ): Promise<IDestinationModel | null> {
+    return this.model.findByIdAndUpdate(destination._id, destination, {
+      new: true,
+    });
   }
- async getDestination(id: string): Promise<IDestinationModel | null> {
-  return await DestinationModel.findById(id);
-}
 
+  async delete(id: string): Promise<IDestinationModel | null> {
+    return await this.model.findByIdAndDelete(id);
+  }
+
+  async getDestination(id: string): Promise<IDestinationModel | null> {
+    return this.model.findById(id);
+  }
+
+  async countDestinations(): Promise<number> {
+    return this.model.countDocuments();
+  }
+
+  async searchDestination(query: string): Promise<IDestinationModel[]> {
+    const regex = new RegExp(query, "i");
+    return this.model
+      .find({ name: { $regex: regex } })
+      .select("name location description actions imageUrls")
+      .limit(10)
+      .exec();
+  }
 }

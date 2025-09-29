@@ -1,37 +1,27 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/statuscode";
-import { IVerifyOtpVendorUsecase } from "../../../domain/interface/vendor/IVerifyOtpVendorUseCase";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IVerifyOtpVendorUsecase } from "../../../domain/interface/Vendor/IVerifyOtpVendorUseCase";
 
 export class VendorVerifyOtpController {
-  constructor(private vendorVerifyOtpUseCase: IVerifyOtpVendorUsecase) {}
+  constructor(private _vendorVerifyOtpUseCase: IVerifyOtpVendorUsecase) {}
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, otp } = req.body;
-
-      if (!email || !otp) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Email and OTP are required",
-        });
-        return;
-      }
-
-      const verifiedVendor = await this.vendorVerifyOtpUseCase.execute(
-        email,
-        otp
-      );
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "OTP verified successfully",
-        data: verifiedVendor,
-      });
-    } catch (error) {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Vendor OTP verification failed",
+        message: "Email and OTP are required",
       });
+      return;
     }
+    const verifiedVendor = await this._vendorVerifyOtpUseCase.execute(
+      email,
+      otp
+    );
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "OTP verified successfully",
+      data: verifiedVendor,
+    });
   }
 }

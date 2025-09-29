@@ -81,12 +81,7 @@ export const CreateDestination = () => {
                 )}
               </AnimatePresence>
 
-            <form
-  onSubmit={
-    handleSubmit(onSubmit)
-  }
-  className="space-y-8"
->
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DestinationFormOne
                     register={register}

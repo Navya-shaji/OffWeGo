@@ -1,10 +1,21 @@
-import { User } from "../../../domain/entities/userEntity";
-import { IGetAllUser } from "../../../domain/interface/admin/IGetAllUsers";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-export class GetAllUsers implements IGetAllUser {
-  constructor(private userRepository: IUserRepository) {}
+import { UserDto } from "../../../domain/dto/user/UserDto";
+import { IGetAllUserUsecase } from "../../../domain/interface/Admin/IGetAllUsers";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
-  async execute(): Promise<{ users: User[]; totalUsers: number }> {
-    return await this.userRepository.getAllUsers(); // no pagination
+export class GetAllUsersUsecase implements IGetAllUserUsecase {
+  constructor(private _userRepository: IUserRepository) {}
+
+  async execute(
+    page: number,
+    limit: number
+  ): Promise<{ users: UserDto[]; totalUsers: number }> {
+    const skip = (page - 1) * limit;
+
+    const users = await this._userRepository.getAllUsers(skip, limit, {
+      role: "user",
+    });
+    const totalUsers = await this._userRepository.countUsers({ role: "user" });
+
+    return { users, totalUsers };
   }
 }

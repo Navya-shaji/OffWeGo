@@ -12,7 +12,9 @@ export interface IVendorLoginUsecase {
       name: string;
       status: string;         
       documentUrl: string;   
-      phone:string
+      phone:string,
+      isBlocked:boolean;
+      profileImage:string;
     };
   } | null>;
 }

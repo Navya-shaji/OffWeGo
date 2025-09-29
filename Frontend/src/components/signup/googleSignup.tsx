@@ -12,9 +12,9 @@ export function GoogleSignup() {
   return (
     <div className="flex flex-col items-center mt-6 space-y-4">
       <div className="w-full flex items-center gap-2">
-        <hr className="flex-grow border-t border-gray-300" />
+        <hr className="flex-grow border-t" />
         <span className="text-gray-500 text-sm">or continue with</span>
-        <hr className="flex-grow border-t border-gray-300" />
+        <hr className="flex-grow border-t" />
       </div>
 
       <div className="scale-105">
@@ -42,16 +42,17 @@ export function GoogleSignup() {
                       role: user.role,
                     },
                     token: accessToken,
+                    refreshToken: "",
                   })
                 );
 
                 toast.success("Signup successful!");
-                navigate("/home");
+                navigate("/");
               } else {
                 toast.error("Signup failed");
               }
             } catch (error) {
-             console.log(error)
+              console.log(error);
             }
           }}
           onError={() => {

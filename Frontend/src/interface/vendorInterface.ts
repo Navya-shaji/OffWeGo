@@ -7,4 +7,5 @@ export interface Vendor {
   createdAt?: string;
   documentUrl: string;
   isBlocked:boolean
+  profileImage:string
 }

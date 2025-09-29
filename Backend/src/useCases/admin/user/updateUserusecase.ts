@@ -1,13 +1,13 @@
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 
 export class UpdateUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private _userRepository: IUserRepository) {}
 
   async execute(userId: string, status: "active" | "block"): Promise<void> {
     if (!["active", "blocked"].includes(status)) {
       throw new Error("Invalid status value");
     }
 
-    await this.userRepository.updateUserStatus(userId, status);
+    await this._userRepository.updateUserStatus(userId, status);
   }
 }

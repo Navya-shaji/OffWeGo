@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/app.ts",
     "build": "tsc",
-    "start": "node dist/app.js"
+    "start": "node dist/app.js",
+     "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
+      "lint:fix": "eslint . --ext .js,.ts,.jsx,.tsx --fix"
   },
   "author": "Navya",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.0",
-    "cloudinary": "^2.7.0",
+    "cloudinary": "^1.21.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
@@ -29,18 +32,25 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.35.0",
     "@types/bcrypt": "^5.0.0",
+    "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@types/formidable": "^3.4.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
-    "@types/node": "^20.4.2",
+    "@types/node": "^20.19.10",
     "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^9.0.2",
+    "eslint": "^9.35.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.4.0",
+    "jiti": "^2.5.1",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.0"
   }
 }

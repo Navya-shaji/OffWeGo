@@ -10,6 +10,7 @@ export interface IUserLoginUseCase {
       username: string;
       role: "user" | "vendor" | "admin";
       status: string;
+      imageUrl: string;
     };
-  }>
+  }>;
 }

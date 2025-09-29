@@ -1,4 +1,4 @@
-import { IOtpService } from "../../domain/interface/serviceInterface/Iotpservice";
+import { IOtpService } from "../../domain/interface/ServiceInterface/Iotpservice";
 import Redis from "ioredis";
 import nodemailer from "nodemailer";
 
@@ -23,7 +23,6 @@ export class OtpService implements IOtpService {
   }
 
   async storeOtp(email: string, otp: string): Promise<void> {
-  
     await this.redis.set(email, otp, "EX", 60);
   }
 
@@ -42,12 +41,10 @@ export class OtpService implements IOtpService {
   }
 
   async sendOtpEmail(email: string, otp: string): Promise<void> {
-    console.log(`Sending OTP to ${email}...`);
-
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: process.env.NODEMAILER_EMAIL,       
+        user: process.env.NODEMAILER_EMAIL,
         pass: process.env.NODEMAILER_PASSWORD,
       },
     });
@@ -121,7 +118,7 @@ export class OtpService implements IOtpService {
             <div class="otp">${otp}</div>
           </div>
 
-          <p style="color: #555;">This OTP is valid for <strong>5 minutes</strong>. Please don't share it with anyone.</p>
+          <p style="color: #555;">This OTP is valid for <strong>1 minutes</strong>. Please don't share it with anyone.</p>
 
           <div class="footer">
             Need help? <a href="mailto:support@offwego.com">Contact Support</a><br/>
@@ -133,13 +130,13 @@ export class OtpService implements IOtpService {
     `;
 
     const mailOptions = {
-      from: `"OffWeGo" <${process.env.NODEMAILER_EMAIL}>`, 
+      from: `"OffWeGo" <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Your OffWeGo OTP Code",
       html,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    
+    console.log(info)
   }
 }

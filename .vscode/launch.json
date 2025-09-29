@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+    
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Backend (ts-node)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["ts-node", "src/app.ts"],
+      "cwd": "${workspaceFolder}/Backend",
+      "envFile": "${workspaceFolder}/Backend/.env",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      
+      "type": "chrome",
+      "request": "launch",
+      "name": "Debug Frontend (React)",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/Frontend/src"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Fullstack",
+      "configurations": ["Debug Backend (ts-node)", "Debug Frontend (React)"]
+    }
+  ]
+}

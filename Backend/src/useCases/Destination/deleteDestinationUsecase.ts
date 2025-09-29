@@ -1,10 +1,14 @@
-import { DestinationRepository } from "../../adapters/repository/Destination/destinationRepository";
-import { Destination } from "../../domain/entities/DestinationEntity";
 
-export class DeleteDestination{
-    constructor(private destinationRepo:DestinationRepository){}
+import { DestinationModel } from "../../framework/database/Models/deestinationModel";
 
-async execute(destination: Destination): Promise<void> {
-  return this.destinationRepo.delete(destination.id); 
-}
+export class DeleteDestination {
+  async execute(id: string): Promise<{ success: boolean; message: string }> {
+    const result = await DestinationModel.findByIdAndDelete(id);
+
+    if (!result) {
+      throw new Error("Destination not found");
+    }
+
+    return { success: true, message: "Destination deleted successfully" };
+  }
 }

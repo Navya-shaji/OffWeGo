@@ -1,23 +1,23 @@
-import { IResetPasswordUseCase } from "../../../domain/interface/usecaseInterface/IResetPasswordUseCase";
-import { IUserRepository } from "../../../domain/interface/userRepository/IuserRepository";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
+import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
+import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 
 
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
   constructor(
-    private userRepository: IUserRepository,
-    private passwordService: IPasswordService
+    private _userRepository: IUserRepository,
+    private _passwordService: IPasswordService
   ) {}
   async execute(
     email: string,
     newPassword: string
   ): Promise<{ success: boolean; message: string }> {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
 
     if (!user) throw new Error("User not found");
 
-    const hashPassword = await this.passwordService.hashPassword(newPassword);
-    await this.userRepository.updatePassword(email, hashPassword);
+    const hashPassword = await this._passwordService.hashPassword(newPassword);
+    await this._userRepository.updatePassword(email, hashPassword);
     return { success: true, message: "Password Reset successfully" };
   }
 }

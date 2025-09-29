@@ -1,51 +1,36 @@
-import { IAdminLoginUseCase } from "../../../domain/interface/admin/IAdminUsecase";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
-import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
+import { IAdminLoginUseCase } from "../../../domain/interface/Admin/IAdminUsecase";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
+import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
-import { IAdminRepository } from "../../../domain/interface/admin/IAdminRepository";
+import { IAdminRepository } from "../../../domain/interface/Admin/IAdminRepository";
+import { mapToAdmin } from "../../../mappers/Admin/AdminMapper";
+import { AdminResponseDto } from "../../../domain/dto/user/AdminResponseDto";
 
 export class AdminLoginuseCase implements IAdminLoginUseCase {
   constructor(
-    private adminRepository: IAdminRepository,
-    private hashService: IPasswordService,
-    private tokenService: ITokenService
+    private _adminRepository: IAdminRepository,
+    private _hashService: IPasswordService,
+    private _tokenService: ITokenService
+    
   ) {}
 
-  async execute(
-    data: LoginDTo
-  ): Promise<{
-    accessToken: string;
-    refreshToken: string;
-    admin: { id: string; email: string; role: "admin" | "user" | "vendor" };
-  }> {
+  async execute(data: LoginDTo): Promise<AdminResponseDto> {
     const { email, password } = data;
 
-    const admin = await this.adminRepository.findByEmail(email);
+    const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new Error("Admin not found");
 
-    const isPasswordValid = await this.hashService.compare(
+    const isPasswordValid = await this._hashService.compare(
       password,
       admin.password
     );
     if (!isPasswordValid) throw new Error("Invalid email or password");
 
-    const payload = {
-      id: admin._id,
-      email: admin.email,
-      role: admin.role,
-    };
+    const payload = { id: admin._id, email: admin.email, role: admin.role };
 
-    const accessToken = this.tokenService.generateAccessToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
-    return {
-      accessToken,
-      refreshToken,
-      admin: {
-        id: admin._id?.toString() ?? "",
-        email: admin.email,
-        role: admin.role,
-      },
-    };
+    return mapToAdmin(admin, accessToken, refreshToken);
   }
 }

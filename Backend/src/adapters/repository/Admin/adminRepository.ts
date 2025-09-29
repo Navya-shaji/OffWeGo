@@ -1,6 +1,6 @@
-import { IAdminRepository } from "../../../domain/interface/admin/IAdminRepository";
-import { User } from "../../../domain/entities/userEntity";
-import { Vendor } from "../../../domain/entities/vendorEntities";
+import { IAdminRepository } from "../../../domain/interface/Admin/IAdminRepository";
+import { User } from "../../../domain/entities/UserEntity";
+import { Vendor } from "../../../domain/entities/VendorEntities";
 import { UserModel } from "../../../framework/database/Models/userModel";
 import { VendorModel } from "../../../framework/database/Models/vendorModel";
 

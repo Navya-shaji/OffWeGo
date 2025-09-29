@@ -1,12 +1,16 @@
-import { Category } from "../../domain/entities/categoryEntity";
-import { ICategoryRepository } from "../../domain/interface/category/ICategoryRepository";
-import { mapToCatrgoryDto } from "../../mappers/category/categoryMappers";
-
+import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
+import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
+import { CategoryDto } from "../../domain/dto/category/CategoryDto";
 export class GetAllCategories{
-    constructor(private categoryRepo:ICategoryRepository){}
+    constructor(private _categoryRepo:ICategoryRepository){}
 
-    async execute():Promise<Category[]>{
-        const category=await this.categoryRepo.getAllCategories()
-        return category.map(mapToCatrgoryDto)
+    async execute(page:number,limit:number):Promise<{categories:CategoryDto[],totalCategories:number}>{
+        const skip=(page-1)*limit;
+        const category=await this._categoryRepo.getAllCategories(skip,limit)
+        const totalCategories=await this._categoryRepo.countCategory()
+        return{
+            categories:category.map(mapToCatrgoryDto),
+            totalCategories:totalCategories
+        }
     }
 }

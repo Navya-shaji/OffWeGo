@@ -1,5 +1,8 @@
-import { Category } from "../../entities/categoryEntity";
+import { CategoryDto } from "../../dto/category/CategoryDto";
 
-export interface IGetCategoryUsecase{
-    execute():Promise<Category[]|null>
+export interface IGetCategoryUsecase {
+  execute(
+    page: number,
+    limit: number
+  ): Promise<{ categories: CategoryDto[]; totalCategories: number }>;
 }

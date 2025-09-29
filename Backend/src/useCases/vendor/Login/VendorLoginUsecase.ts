@@ -1,13 +1,13 @@
-import { IVendorRepository } from "../../../domain/interface/vendor/IVendorRepository";
-import { IPasswordService } from "../../../domain/interface/serviceInterface/IhashpasswordService";
-import { ITokenService } from "../../../domain/interface/serviceInterface/ItokenService";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
+import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/user/LoginDto";
 
 export class VendorLoginUsecase {
   constructor(
-    private vendorRepository: IVendorRepository,
-    private hashService: IPasswordService,
-    private tokenService: ITokenService
+    private _vendorRepository: IVendorRepository,
+    private _hashService: IPasswordService,
+    private _tokenService: ITokenService
   ) {}
 
   async execute(data: LoginDTo): Promise<{
@@ -19,36 +19,31 @@ export class VendorLoginUsecase {
       name: string;
       status: string;
       documentUrl: string;
-      phone:string
+      phone: string;
+      isBlocked: boolean;
+      profileImage: string;
     };
   } | null> {
     const { email, password } = data;
 
-    console.log(" Login attempt for:", email);
-
-    const vendor = await this.vendorRepository.findByEmail(
+    const vendor = await this._vendorRepository.findByEmail(
       email.toLowerCase().trim()
     );
-    console.log("Vendor from DB:", vendor);
 
     if (!vendor) {
-      console.log(" Vendor not found");
       return null;
     }
 
     if (vendor.status !== "approved") {
-      console.log(`Vendor status is '${vendor.status}', not approved`);
       return null;
     }
 
-    const isPasswordValid = await this.hashService.compare(
+    const isPasswordValid = await this._hashService.compare(
       password,
       vendor.password
     );
-    console.log(" Password Valid:", isPasswordValid);
 
     if (!isPasswordValid) {
-      console.log(" Password mismatch");
       return null;
     }
 
@@ -58,21 +53,21 @@ export class VendorLoginUsecase {
       role: "vendor",
     };
 
-    const accessToken = this.tokenService.generateAccessToken(payload);
-    const refreshToken = this.tokenService.generateRefreshToken(payload);
-
-    console.log(" Tokens generated");
+    const accessToken = this._tokenService.generateAccessToken(payload);
+    const refreshToken = this._tokenService.generateRefreshToken(payload);
 
     return {
       accessToken,
       refreshToken,
       vendor: {
-        id: vendor._id?.toString() ?? "",
+        id: vendor.id,
         email: vendor.email,
         name: vendor.name,
-        phone:vendor.phone,
         status: vendor.status,
         documentUrl: vendor.documentUrl,
+        phone: vendor.phone,
+        isBlocked: vendor.isBlocked ?? false,
+        profileImage: vendor.profileImage ? vendor.profileImage.toString() : "",
       },
     };
   }

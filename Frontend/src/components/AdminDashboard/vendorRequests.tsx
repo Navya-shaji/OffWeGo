@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { getVendorsByStatus, updateVendorStatus } from "@/services/admin/adminService";
+import {
+  getVendorsByStatus,
+  updateVendorStatus,
+} from "@/services/admin/adminService";
 import toast from "react-hot-toast";
 import type { Vendor } from "@/interface/vendorInterface";
 
@@ -11,14 +14,12 @@ interface Props {
 const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
 
   const fetchVendors = () => {
     setLoading(true);
     getVendorsByStatus(filter)
-      .then((data) => {
-        console.log("Fetched Vendors:", data);
-        setVendors(data);
-      })
+      .then((data) => setVendors(data))
       .catch(() => toast.error("Failed to fetch vendors"))
       .finally(() => setLoading(false));
   };
@@ -37,7 +38,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
       if (newStatus === "approved" && onTabChange) {
         onTabChange("Approved Requests");
       } else {
-        fetchVendors();
+        setVendors((prev) => prev.filter((ven) => ven._id !== vendorId));
       }
     } catch {
       toast.error("Failed to update status");
@@ -46,7 +47,6 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Updated background and padding for a cleaner look */}
       <h2 className="text-3xl font-bold text-gray-900 mb-8 capitalize">
         {filter} Vendors
       </h2>
@@ -81,13 +81,11 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
         </p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {/* Responsive grid layout for vendor cards */}
           {vendors.map((vendor) => (
             <div
               key={vendor._id}
               className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
             >
-              {/* Card with scale animation on hover */}
               <div className="space-y-3 text-gray-700">
                 <p className="text-lg">
                   <span className="font-semibold">Name:</span> {vendor.name}
@@ -113,21 +111,19 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
                   </span>
                 </p>
                 <p className="text-lg">
-                  <span className="font-semibold">Document:</span>{" "}
-                  <a
-                    href={vendor.documentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline transition-colors"
-                  >
-                    View Document
-                  </a>
+                  {vendor.documentUrl && (
+                    <button
+                      onClick={() => setSelectedDocument(vendor.documentUrl)}
+                      className="bg-black text-white px-2 py-2 rounded-lg font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300"
+                    >
+                      View Document
+                    </button>
+                  )}
                 </p>
               </div>
 
               {filter === "pending" && (
                 <div className="mt-6 flex gap-4">
-              
                   <button
                     onClick={() => handleStatusChange(vendor._id, "approved")}
                     className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
@@ -144,6 +140,27 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+     
+      {selectedDocument && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl overflow-hidden shadow-xl max-w-3xl w-full relative">
+            <button
+              onClick={() => setSelectedDocument(null)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
+            >
+              ✕
+            </button>
+            <div className="p-4">
+              <img
+                src={selectedDocument}
+                alt="Vendor Document"
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
