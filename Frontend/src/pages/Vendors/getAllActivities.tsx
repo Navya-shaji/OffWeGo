@@ -7,7 +7,7 @@ import {
   updateActivity,
   searchActivity,
 } from "@/services/Activity/ActivityService";
-import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; // Add this import
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; 
 import { toast, ToastContainer } from "react-toastify";
 import { Edit, Trash, X, Upload } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
@@ -45,7 +45,7 @@ const ActivitiesTable: React.FC = () => {
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Normalize activity ID fields to ensure consistency
-  const normalizeActivity = useCallback((activity: any): Activity => ({
+  const normalizeActivity = useCallback((activity:Activity): Activity => ({
     ...activity,
     _id: activity._id || activity.id || activity.activityId,
     imageUrl: activity.imageUrl || "",
@@ -66,7 +66,6 @@ const ActivitiesTable: React.FC = () => {
         throw new Error('Invalid response from server');
       }
 
-      // Handle your service structure: { activities: Activity[], totalActivities, totalPages, currentPage }
       const activitiesList = Array.isArray(response.activities) ? response.activities : [];
       const normalized = activitiesList.map(normalizeActivity);
 

@@ -5,7 +5,6 @@ import { addPackage } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import {
   Plus,
-  MapPin,
   FileText,
   Clock,
   Trash2,

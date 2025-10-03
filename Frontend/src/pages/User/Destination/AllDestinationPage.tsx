@@ -77,6 +77,8 @@ export const DestinationListPage = () => {
       new Set(destinations.map((dest) => dest.category).filter(Boolean))
     ),
   ];
+    console.log(categories)
+
 
   const handleSearch = async (query) => {
     setSearchQuery(query);

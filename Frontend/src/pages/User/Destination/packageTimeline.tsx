@@ -17,8 +17,6 @@ import {
   Share2,
   Loader2,
   Star,
-  Users,
-  MapIcon,
   CheckCircle,
   Sparkles,
   ChevronRight,

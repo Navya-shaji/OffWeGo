@@ -25,9 +25,9 @@ export const DestinationDetail = () => {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [error, setError] = useState("");
 
+  console.log(searchQuery,isSearchMode)
   const navigate = useNavigate();
 
-  // Memoized displayed packages
   const displayedPackages = useMemo(() => {
     const result = searchResults ?? packages;
     console.log("🖥️ Displaying packages:", {

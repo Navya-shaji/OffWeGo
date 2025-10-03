@@ -72,7 +72,7 @@ export function AddActivity() {
       } else {
         notifySuccess();
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error creating activity:", err);
       const errorMessage =
         err?.response?.data?.error ||

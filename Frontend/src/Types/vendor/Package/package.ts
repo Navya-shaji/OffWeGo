@@ -1,4 +1,4 @@
-// src/utils/packageValidation.ts
+
 import { useState } from "react";
 
 export const validatePackageName = (name: string): string => {
@@ -43,7 +43,7 @@ export const validateTime = (time: string, label: string): string => {
   return "";
 };
 
-export const validateItinerary = (itinerary: any[]): string => {
+export const validateItinerary = (itinerary:any[]): string => {
   if (itinerary.length === 0) return "Please add at least one day to the itinerary";
   
   for (let i = 0; i < itinerary.length; i++) {
@@ -104,7 +104,7 @@ export const usePackageValidation = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const validateField = (fieldName: string, value: any): string => {
+  const validateField = (fieldName: string, value): string => {
     let error = "";
 
     switch (fieldName) {
@@ -153,7 +153,7 @@ export const usePackageValidation = () => {
     return error;
   };
 
-  const validateAllFields = (formData: any): boolean => {
+  const validateAllFields = (formData): boolean => {
     const newErrors: Record<string, string> = {};
 
     newErrors.destinationId = validateDestination(formData.destinationId);
@@ -172,7 +172,6 @@ export const usePackageValidation = () => {
 
     setErrors(newErrors);
 
-    // Mark all fields as touched
     const allTouched: Record<string, boolean> = {};
     Object.keys(newErrors).forEach(key => {
       allTouched[key] = true;
