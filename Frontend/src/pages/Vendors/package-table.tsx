@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Clock,
-  Edit,
   Trash2,
   Building,
   Activity,
@@ -11,12 +10,13 @@ import {
   Info,
   Package,
 } from "lucide-react";
-import { deletePackage, editPackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService";
-import EditPackage from "./editPackageModal";
+import { deletePackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService";
+// import EditPackage from "./editPackageModal";
 import { SearchBar } from "@/components/Modular/searchbar";
+// import { Package as PackageInterface } from "@/interface/PackageInterface";
 
 interface Package {
-  _id: string;
+  _id?: string;
   packageName: string;
   description: string;
   price: number;
@@ -42,6 +42,7 @@ interface Package {
   inclusions?: string[];
   amenities?: string[];
   exclusions?: string[];
+  destinationId:string
 }
 
 interface PackageTableProps {
@@ -69,21 +70,21 @@ const PackageTable: React.FC<PackageTableProps> = ({
     package: null,
   });
   
-  const [editModal, setEditModal] = useState<{
-    isOpen: boolean;
-    package: Package | null;
-  }>({
-    isOpen: false,
-    package: null,
-  });
+  // const [editModal, setEditModal] = useState<{
+  //   isOpen: boolean;
+  //   package: Package | null;
+  // }>({
+  //   isOpen: false,
+  //   package: null,
+  // });
   
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editFormData, setEditFormData] = useState<Package | null>(null);
+  // const [isEditing, setIsEditing] = useState(false);
+  // const [editFormData, setEditFormData] = useState<Package | null>(null);
 
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
   useEffect(() => {
     setPackageList(packages);
@@ -172,46 +173,53 @@ const PackageTable: React.FC<PackageTableProps> = ({
     };
   }, [loadPackages, packages.length]);
 
-  const handleEdit = useCallback((pkg: Package) => {
-    setEditFormData({ ...pkg });
-    setEditModal({ isOpen: true, package: pkg });
-  }, []);
+// const handleEdit = useCallback((pkg: Package) => {
+//   setEditFormData({
+//     ...pkg,
+//     destinationId: pkg.destinationId ?? "", // ensure this exists
+//   });
+//   setEditModal({ isOpen: true, package: pkg });
+// }, []);
 
-  const handleEditSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editFormData || !editModal.package) return;
+// const handleEditSubmit = useCallback(async (e: React.FormEvent) => {
+//   e.preventDefault();
+//   if (!editFormData || !editModal.package) return;
 
-    setIsEditing(true);
-    try {
-      await editPackage(editModal.package._id, editFormData);
+//   setIsEditing(true);
+//   try {
+//     if (!editModal.package?._id) return;
 
-      // Update local state instead of refetching
-      const updatePackageInList = (list: Package[]) =>
-        list.map((pkg) =>
-          pkg._id === editModal.package!._id ? editFormData : pkg
-        );
+ 
 
-      setPackageList(updatePackageInList);
-      if (!isSearchMode) {
-        setOriginalPackages(updatePackageInList);
-      }
-      
-      onPackagesUpdate?.(isSearchMode ? originalPackages : packageList);
+//     await editPackage(editModal.package._id, updatedPackage);
 
-      
-      setEditModal({ isOpen: false, package: null });
-      setEditFormData(null);
+//     // Update local state instead of refetching
+//     const updatePackageInList = (list: Package[]) =>
+//       list.map((pkg) =>
+//         pkg._id === editModal.package!._id ? updatedPackage : pkg
+//       );
 
-    } catch (error) {
-      console.error("Failed to update package:", error);
-      setError("Failed to update package. Please try again.");
-      
-      // Clear error after 3 seconds
-      setTimeout(() => setError(""), 3000);
-    } finally {
-      setIsEditing(false);
-    }
-  }, [editFormData, editModal.package, isSearchMode, packageList, originalPackages, onPackagesUpdate]);
+//     setPackageList(updatePackageInList);
+//     if (!isSearchMode) {
+//       setOriginalPackages(updatePackageInList);
+//     }
+
+//     onPackagesUpdate?.(isSearchMode ? originalPackages : packageList);
+
+//     setEditModal({ isOpen: false, package: null });
+//     setEditFormData(null);
+
+//   } catch (error) {
+//     console.error("Failed to update package:", error);
+//     setError("Failed to update package. Please try again.");
+
+//     // Clear error after 3 seconds
+//     setTimeout(() => setError(""), 3000);
+//   } finally {
+//     setIsEditing(false);
+//   }
+// }, [editFormData, editModal.package, isSearchMode, packageList, originalPackages, onPackagesUpdate]);
+
 
   const openDeleteModal = useCallback((pkg: Package) => {
     setDeleteModal({ isOpen: true, package: pkg });
@@ -226,7 +234,8 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
     setIsDeleting(true);
     try {
-      await deletePackage(deleteModal.package._id);
+      if (!deleteModal.package?._id) return;
+await deletePackage(deleteModal.package._id);
 
       // Update local state instead of refetching
       const updatedPackages = packageList.filter(
@@ -390,7 +399,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
             <SearchBar 
               placeholder="Search packages..." 
               onSearch={handleSearch}
-              value={searchQuery}
+              // value={searchQuery}
             />
           </div>
           <span className="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2 rounded-full font-medium">
@@ -554,13 +563,13 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
                   <td className="px-4 py-6 align-top">
                     <div className="flex flex-col gap-2">
-                      <button
+                      {/* <button
                         onClick={() => handleEdit(pkg)}
                         className="flex items-center gap-2 px-3 py-2 bg-slate-100 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-200 hover:border-slate-400 transition-colors text-sm font-medium"
                       >
                         <Edit className="h-4 w-4" />
                         Edit
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => openDeleteModal(pkg)}
                         className="flex items-center gap-2 px-3 py-2 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg hover:bg-rose-100 hover:border-rose-300 transition-colors text-sm font-medium"
@@ -593,8 +602,8 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editModal.isOpen && (
+  
+      {/* {editModal.isOpen && (
         <EditPackage
           pkg={editFormData}
           onClose={() => {
@@ -605,7 +614,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
           onSubmit={handleEditSubmit}
           isLoading={isEditing}
         />
-      )}
+      )} */}
 
       {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && (

@@ -1,6 +1,6 @@
-import { useForm } from "react-hook-form";
+import { useForm, type FieldValues, type Path, type PathValue, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ZodSchema } from "zod";
+import type { ZodType } from "zod";
 import { useState } from "react";
 import { Star } from "lucide-react";
 
@@ -11,20 +11,21 @@ export type FieldConfig = {
   placeholder?: string;
 };
 
-interface FormBuilderProps<T extends Record<string, unknown>> {
-  schema: ZodSchema<T>;
+interface FormBuilderProps<T extends FieldValues> {
+  schema: ZodType<T>;
   fields: FieldConfig[];
   onSubmit: (data: T & { rating?: number }) => Promise<void> | void;
   submitLabel?: string;
   defaultValues?: Partial<T>;
+  disabled?: boolean;
 }
 
-export function FormBuilder<T extends Record<string, unknown>>({
+export function FormBuilder<T extends FieldValues>({
   schema,
   fields,
   onSubmit,
   submitLabel = "Submit",
-  defaultValues = {},
+  defaultValues = {} as Partial<T>,
 }: FormBuilderProps<T>) {
   const {
     register,
@@ -33,26 +34,26 @@ export function FormBuilder<T extends Record<string, unknown>>({
     reset,
     formState: { errors },
   } = useForm<T>({
-    resolver: zodResolver(schema),
-    defaultValues: defaultValues as T,
+    resolver: zodResolver(schema as any) as Resolver<T>,
+    defaultValues: defaultValues as any,
   });
 
   const [rating, setRating] = useState<number>(
-    (defaultValues as Record<string, unknown>)["rating"] as number || 0
+    ((defaultValues as any)?.rating as number) || 0
   );
 
   const handleFormSubmit = async (data: T) => {
     await onSubmit({ ...data, rating });
-    reset(defaultValues as T);
-    setRating((defaultValues as Record<string, unknown>)["rating"] as number || 0);
+    reset(defaultValues as any);
+    setRating(((defaultValues as any)?.rating as number) || 0);
   };
 
   return (
     <form
-      onSubmit={handleSubmit(handleFormSubmit)}
-      className="max-w-lg mx-auto"
+      onSubmit={handleSubmit(handleFormSubmit as any)}
+      className="max-w-lg mx-auto space-y-6 p-6"
     >
-      <h2 className="text-xl font-semibold text-gray-800 text-center">
+      <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">
         Fill the Form
       </h2>
 
@@ -64,7 +65,7 @@ export function FormBuilder<T extends Record<string, unknown>>({
 
           {field.type === "textarea" && (
             <textarea
-              {...register(field.name as keyof T & string)}
+              {...register(field.name as Path<T>)}
               placeholder={field.placeholder}
               className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-black focus:outline-none"
               rows={4}
@@ -75,10 +76,13 @@ export function FormBuilder<T extends Record<string, unknown>>({
             <input
               type="file"
               accept="image/*"
-              className="border border-gray-300 rounded-xl p-3 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white hover:file:bg-black cursor-pointer"
-              onChange={(e) =>
-                setValue(field.name as keyof T & string, e.target.files?.[0] as T[keyof T])
-              }
+              className="border border-gray-300 rounded-xl p-3 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setValue(field.name as Path<T>, file as PathValue<T, Path<T>>);
+                }
+              }}
             />
           )}
 
@@ -102,16 +106,16 @@ export function FormBuilder<T extends Record<string, unknown>>({
             field.type !== "file" &&
             field.type !== "rating" && (
               <input
-                {...register(field.name as keyof T & string)}
+                {...register(field.name as Path<T>)}
                 type={field.type}
                 placeholder={field.placeholder}
                 className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             )}
 
-          {errors[field.name as keyof T] && (
+          {errors[field.name as keyof typeof errors] && (
             <span className="text-red-500 text-sm mt-1">
-              {String(errors[field.name as keyof T]?.message)}
+              {String(errors[field.name as keyof typeof errors]?.message)}
             </span>
           )}
         </div>
@@ -119,7 +123,7 @@ export function FormBuilder<T extends Record<string, unknown>>({
 
       <button
         type="submit"
-        className="bg-black transition text-white font-medium px-6 py-3 rounded-xl w-full shadow-md"
+        className="bg-black hover:bg-gray-800 transition text-white font-medium px-6 py-3 rounded-xl w-full shadow-md mt-6"
       >
         {submitLabel}
       </button>

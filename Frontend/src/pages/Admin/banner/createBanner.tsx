@@ -16,6 +16,7 @@ const CreateBanner: React.FC = () => {
   const [action, setAction] = useState(false);
   const [loading, setLoading] = useState(false);
 
+
   const notify = () => toast("Banner Added");
 
   const handleUpload = async () => {
@@ -40,17 +41,17 @@ const CreateBanner: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ✅ Zod validation
     const validation = BannerSchema.safeParse({
       title,
       video,
       action,
     });
 
-    if (!validation.success) {
-      validation.error.errors.forEach((err) => toast.error(err.message));
-      return;
-    }
+if (!validation.success) {
+  validation.error.issues.forEach((err) => toast.error(err.message));
+  return;
+}
+
 
     try {
       setLoading(true);

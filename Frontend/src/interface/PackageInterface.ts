@@ -1,6 +1,6 @@
 export interface Hotel {
-  id?: string;          // local/frontend id
-  hotelId?: string;     // backend id (Mongo or relational)
+  id?: string;          
+  hotelId?: string;     
   name: string;
   address: string;
   rating: number;
@@ -17,16 +17,16 @@ export interface Activity {
 }
 
 export interface Itinerary {
-  day: number;          // Day number in trip (1, 2, 3…)
-  time: string;         // HH:mm format or "Morning/Evening"
-  activity: string;     // description/title
+  day: number;         
+  time: string;        
+  activity: string;   
 }
 
 export interface Package {
-  _id?: string;         // MongoDB _id (optional for frontend)
-  id?: string;          // in case you normalize differently
+  _id?: string;         
+  id?: string;         
   destinationId: string;
-  vendorId: string;
+  vendorId?: string;
 
   packageName: string;
   description: string;
@@ -37,7 +37,7 @@ export interface Package {
   endDate?: string | Date;
 
   images: string[];
-  hotels: Hotel[];
+  hotels:Hotel [];
   activities: Activity[];
 
   checkInTime?: string;

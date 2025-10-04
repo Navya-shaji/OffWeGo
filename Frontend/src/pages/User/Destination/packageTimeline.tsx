@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import {
   MapPin,
   Clock,
@@ -34,7 +33,7 @@ export const PackageTimeline = () => {
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
 
-  const userId = useSelector((state) => state?.auth?.user?.id);
+  // const userId = useSelector((state) => state?.auth?.user?.id);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex] = useState(0);
@@ -83,10 +82,10 @@ export const PackageTimeline = () => {
     }).format(amount);
 
   const handleBooking = async () => {
-    if (!userId) {
-      setBookingError("User not logged in. Please log in to book a package.");
-      return;
-    }
+    // if (!userId) {
+    //   setBookingError("User not logged in. Please log in to book a package.");
+    //   return;
+    // }
     if (!selectedDate) {
       setBookingError("Please select a travel date.");
       return;
@@ -566,7 +565,7 @@ export const PackageTimeline = () => {
                   onChange={(e) => setSelectedDate(new Date(e.target.value))}
                   className="w-full p-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-300"
                 />
-                {selectedDate && (
+                {/* {selectedDate && (
                   <div className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
@@ -590,7 +589,7 @@ export const PackageTimeline = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
               </CardContent>
             </Card>
 
@@ -622,17 +621,17 @@ export const PackageTimeline = () => {
                       {selectedPackage.duration} days
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                    <span className="text-slate-600 font-medium">
+                  {/* <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"> */}
+                    {/* <span className="text-slate-600 font-medium">
                       Per Day Cost:
-                    </span>
-                    <span className="font-bold">
+                    </span> */}
+                    {/* <span className="font-bold">
                       {formatCurrency(
                         selectedPackage.price / selectedPackage.duration
                       )}
-                    </span>
+                    </span> */}
                   </div>
-                </div>
+                {/* </div> */}
 
                 <Separator className="my-6" />
 

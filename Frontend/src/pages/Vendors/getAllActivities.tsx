@@ -39,15 +39,13 @@ const ActivitiesTable: React.FC = () => {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const limit = 5;
 
-  // Prevent multiple API calls
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
-  // Normalize activity ID fields to ensure consistency
   const normalizeActivity = useCallback((activity:Activity): Activity => ({
     ...activity,
-    _id: activity._id || activity.id || activity.activityId,
+    id:  activity.id || activity.activityId,
     imageUrl: activity.imageUrl || "",
   }), []);
 
@@ -77,14 +75,7 @@ const ActivitiesTable: React.FC = () => {
       
     } catch (err) {
       console.error("Error loading activities:", err);
-      
-      let errorMessage = "Failed to load activities";
-      if (err.message?.includes('ERR_CONNECTION_REFUSED') || err.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to server. Please check if the backend is running.";
-      } else if (err?.message) {
-        errorMessage = err.message;
-      }
-      
+      const  errorMessage = "Failed to load activities";
       setError(errorMessage);
       setActivities([]);
       setOriginalActivities([]);
@@ -95,7 +86,6 @@ const ActivitiesTable: React.FC = () => {
     }
   }, [normalizeActivity]);
 
-  // Fixed search function to match your service structure
   const handleSearch = useCallback(async (query: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -121,7 +111,6 @@ const ActivitiesTable: React.FC = () => {
           throw new Error('Invalid search response');
         }
 
-        // Handle your service structure: res.data.data
         const searchResults = Array.isArray(response.activities) ? response.activities : [];
         const normalized = searchResults.map(normalizeActivity);
         
@@ -132,7 +121,7 @@ const ActivitiesTable: React.FC = () => {
       } catch (err) {
        if (err instanceof Error)
         console.error("Search error:", err);
-        const errorMessage = err?.message || "Search failed";
+        const errorMessage = "Search failed";
         setError(errorMessage);
         setActivities([]);
         setTotalPages(1);
@@ -144,7 +133,6 @@ const ActivitiesTable: React.FC = () => {
     }, 400);
   }, [originalActivities, totalActivities, normalizeActivity]);
 
-  // Handle page change
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage === page || newPage < 1 || newPage > totalPages) return;
     
@@ -155,7 +143,6 @@ const ActivitiesTable: React.FC = () => {
     }
   }, [page, totalPages, isSearchMode, loadActivities]);
 
-  // Initial load
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
@@ -169,7 +156,6 @@ const ActivitiesTable: React.FC = () => {
     };
   }, [loadActivities]);
 
-  // Get current page data for display
   const getCurrentPageData = useMemo(() => {
     if (!isSearchMode) {
       return activities;
@@ -180,7 +166,6 @@ const ActivitiesTable: React.FC = () => {
     }
   }, [activities, page, limit, isSearchMode]);
 
-  // Extract URL from img tag or return as-is if already a URL
   const getUrlFromImgTag = useCallback((html: string): string => {
     if (!html) return "";
     const match = html.match(/src="([^"]+)"/);
@@ -233,11 +218,10 @@ const ActivitiesTable: React.FC = () => {
     }
   }, []);
 
-  // Fixed update function with proper image upload and response handling
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedActivity?._id) {
+    if (!selectedActivity?.id) {
       toast.error("Invalid activity ID");
       return;
     }
@@ -251,11 +235,10 @@ const ActivitiesTable: React.FC = () => {
     try {
       let finalImageUrl = formData.imageUrl;
       
-      // Upload new image if selected
       if (newImageFile) {
         try {
           finalImageUrl = await uploadToCloudinary(newImageFile);
-        } catch (uploadError) {
+        } catch  {
           toast.error("Failed to upload image. Please try again.");
           setIsUpdating(false);
           return;
@@ -268,17 +251,15 @@ const ActivitiesTable: React.FC = () => {
         imageUrl: finalImageUrl,
       };
 
-      // Call update service
-      const response = await updateActivity(selectedActivity._id, updateData);
+      const response = await updateActivity(selectedActivity.id, updateData);
       
-      // Handle response - your service returns res.data
       const updatedActivity = response?.data ? normalizeActivity(response.data) : { ...selectedActivity, ...updateData };
       
       toast.success("Activity updated successfully");
 
       const updateActivityInList = (list: Activity[]) =>
         list.map((act) =>
-          act._id === selectedActivity._id ? updatedActivity : act
+          act.id === selectedActivity.id ? updatedActivity : act
         );
 
       setActivities(updateActivityInList);
@@ -286,7 +267,6 @@ const ActivitiesTable: React.FC = () => {
         setOriginalActivities(updateActivityInList);
       }
 
-      // Close modal and reset form
       setIsEditModalOpen(false);
       setSelectedActivity(null);
       setNewImageFile(null);
@@ -297,13 +277,7 @@ const ActivitiesTable: React.FC = () => {
       if (err instanceof Error)
       console.error("Update error:", err);
       
-      let errorMessage = "Failed to update activity";
-      if (err.message?.includes('ERR_CONNECTION_REFUSED') || err.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to server. Please check if the backend is running.";
-      } else if (err?.message) {
-        errorMessage = err.message;
-      }
-      
+      const  errorMessage = "Failed to update activity";
       setError(errorMessage);
       toast.error(errorMessage);
       setTimeout(() => setError(""), 3000);
@@ -323,20 +297,20 @@ const ActivitiesTable: React.FC = () => {
   }, [normalizeActivity]);
 
   const confirmDelete = useCallback(async () => {
-    if (!activityToDelete?._id) {
+    if (!activityToDelete?.id) {
       toast.error("Invalid activity ID");
       return;
     }
 
     try {
-      await deleteActivity(activityToDelete._id);
+      await deleteActivity(activityToDelete.id);
       toast.success("Activity deleted successfully");
 
       const updatedActivities = activities.filter(
-        (act) => act._id !== activityToDelete._id
+        (act) => act.id !== activityToDelete.id
       );
       const updatedOriginalActivities = originalActivities.filter(
-        (act) => act._id !== activityToDelete._id
+        (act) => act.id !== activityToDelete.id
       );
 
       setActivities(updatedActivities);
@@ -361,13 +335,7 @@ const ActivitiesTable: React.FC = () => {
       if (err instanceof Error)
       console.error("Delete error:", err);
       
-      let errorMessage = "Failed to delete activity";
-      if (err.message?.includes('ERR_CONNECTION_REFUSED') || err.code === 'ERR_NETWORK') {
-        errorMessage = "Cannot connect to server. Please check if the backend is running.";
-      } else if (err?.message) {
-        errorMessage = err.message;
-      }
-      
+      const  errorMessage = "Failed to delete activity";  
       setError(errorMessage);
       toast.error(errorMessage);
       setTimeout(() => setError(""), 3000);
@@ -479,7 +447,7 @@ const ActivitiesTable: React.FC = () => {
           <SearchBar
             placeholder="Search Activities..."
             onSearch={handleSearch}
-            value={searchQuery}
+            // value={searchQuery}
           />
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
 type ReusableTableProps<T extends object> = {
   data: T[];
   columns: ColumnDef<T>[];
+   loading?: boolean;
 };
 
 const ReusableTable = <T extends object>({

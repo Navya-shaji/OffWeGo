@@ -6,17 +6,20 @@ import { Label } from "@/components/ui/label";
 
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import type { PackageFormData } from "@/interface/packageFormData";
+import type { Activity, Hotel } from "@/interface/PackageInterface";
 
 interface PackageBasicInfoProps {
   formData: PackageFormData;
   destinations: DestinationInterface[];
   loadingDestinations: boolean;
-  filteredHotels: string[];
-  filteredActivities: string[];
+  filteredHotels: Hotel[];
+  filteredActivities: Activity[];
   selectedDestination: DestinationInterface | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onDestinationChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
+
+
 
 const PackageBasicInfo: React.FC<PackageBasicInfoProps> = ({
   formData,

@@ -107,7 +107,8 @@ export const BannerForm = () => {
                 <td className="px-6 py-4">
                   <button
                     className="text-red-500 hover:text-red-700 font-medium"
-                    onClick={() => handleDelete(ban.id)}
+                    onClick={() => ban.id && handleDelete(ban.id)}
+
                   >
                     <Trash size={16} className="text-red-600" />
                   </button>

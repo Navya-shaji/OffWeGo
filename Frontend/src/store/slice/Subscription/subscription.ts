@@ -7,6 +7,7 @@ type Subscription = {
   commissionRate: number;
   price: number;
   durationInDays: number;
+  description: string;
 };
 
 interface SubscriptionState {

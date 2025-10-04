@@ -7,7 +7,7 @@ import store from "@/store/store";
 export const addPackage = async (data: Package) => {
   try {
     const state = store.getState();
-    const vendorId = state.vendorAuth?.vendor?.id;
+    const vendorId = state.vendorAuth?.vendor?._id;
     const payload = {
       ...data,
       vendorId,
@@ -36,7 +36,7 @@ export const fetchAllPackages = async (
 }> => {
   try {
     const state = store.getState();
-    const vendorId = state.vendorAuth?.vendor?.id;
+    const vendorId = state.vendorAuth?.vendor?._id;
     const res = await axiosInstance.post("/api/vendor/packages", {
       params: { page, limit },
       vendorId,

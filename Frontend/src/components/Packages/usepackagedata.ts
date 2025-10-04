@@ -14,19 +14,43 @@ export const usePackageData = () => {
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
 
-  const extractApiData = (response): unknown[] => {
-    if (!response) return [];
+ const extractApiData = <T>(response: unknown): T[] => {
+  if (!response) return [];
 
-    if (Array.isArray(response)) return response;
-    if (response.hotels && Array.isArray(response.hotels)) return response.hotels;
-    if (response.activities && Array.isArray(response.activities)) return response.activities;
-    if (response.destinations && Array.isArray(response.destinations)) return response.destinations;
-    if (response.data && Array.isArray(response.data)) return response.data;
-    if (response.data?.data && Array.isArray(response.data.data)) return response.data.data;
+  if (Array.isArray(response)) return response as T[];
 
-    console.warn("Could not extract array data from response:", response);
-    return [];
-  };
+
+  if (typeof response === "object" && response !== null) {
+    const obj = response as Record<string, unknown>;
+
+    if (Array.isArray(obj.hotels)) {
+      return obj.hotels as T[];
+    }
+
+    if (Array.isArray(obj.activities)) {
+      return obj.activities as T[];
+    }
+
+    if (Array.isArray(obj.destinations)) {
+      return obj.destinations as T[];
+    }
+
+    if (Array.isArray(obj.data)) {
+      return obj.data as T[];
+    }
+
+    if (
+      obj.data &&
+      typeof obj.data === "object" &&
+      Array.isArray((obj.data as Record<string, unknown>).data)
+    ) {
+      return (obj.data as Record<string, unknown>).data as T[];
+    }
+  }
+
+  console.warn("Could not extract array data from response:", response);
+  return [];
+};
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,7 +63,7 @@ export const usePackageData = () => {
         let destinationsResult: DestinationInterface[] = [];
         try {
           const destResp = await fetchAllDestinations();
-          destinationsResult = extractApiData(destResp);
+          destinationsResult = extractApiData<DestinationInterface>(destResp);
         } catch (destError) {
           console.error("Error loading destinations:", destError);
         }
@@ -50,7 +74,7 @@ export const usePackageData = () => {
         let hotelsResult: Hotel[] = [];
         try {
           const hotelsResp = await getAllHotel();
-          hotelsResult = extractApiData(hotelsResp);
+          hotelsResult = extractApiData<Hotel>(hotelsResp);
         } catch (hotelsError) {
           console.error("Error loading hotels:", hotelsError);
         }
@@ -59,15 +83,12 @@ export const usePackageData = () => {
 
         // Fetch activities
         let activitiesResult: Activity[] = [];
-        console.log(activitiesResult,"resul")
         try {
           const activitiesResp = await getActivities();
-          console.log(activitiesResp,"response")
-          activitiesResult = extractApiData(activitiesResp);
+          activitiesResult = extractApiData<Activity>(activitiesResp);
         } catch (activitiesError) {
           console.error("Error loading activities:", activitiesError);
         }
-        console.log(activitiesResult,"result")
         setAllActivities(activitiesResult);
         setLoadingActivities(false);
 

@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { Search, MapPin, Star, Grid, List } from "lucide-react";
+import { Search, MapPin, Grid, List } from "lucide-react";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
+import type { DestinationInterface } from "@/interface/destinationInterface";
 
 export const DestinationListPage = () => {
-  const [destinations, setDestinations] = useState([]);
-  const [filteredDestinations, setFilteredDestinations] = useState([]);
+  const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
+  const [filteredDestinations, setFilteredDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory] = useState("all");
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("name");
 
   useEffect(() => {
@@ -32,7 +33,6 @@ export const DestinationListPage = () => {
   useEffect(() => {
     let filtered = [...destinations];
 
- 
     if (searchQuery) {
       filtered = filtered.filter(
         (dest) =>
@@ -42,54 +42,42 @@ export const DestinationListPage = () => {
       );
     }
 
-    
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((dest) => dest.category === selectedCategory);
-    }
+    // if (selectedCategory !== "all") {
+    //   filtered = filtered.filter((dest) => dest.category === selectedCategory);
+    // }
 
-
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "location":
-          return (a.location || "").localeCompare(b.location || "");
-        case "rating":
-          return (b.rating || 0) - (a.rating || 0);
-        case "visitors":
-          return parseFloat(b.visitors || "0") - parseFloat(a.visitors || "0");
-        case "newest":
-          return (
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-          );
-        default:
-          return 0;
-      }
-    });
+    // filtered.sort((a, b) => {
+    //   switch (sortBy) {
+    //     case "name":
+    //       return a.name.localeCompare(b.name);
+    //     case "location":
+    //       return (a.location || "").localeCompare(b.location || "");
+    //     case "rating":
+    //       return (b.rating || 0) - (a.rating || 0);
+    //     case "visitors":
+    //       return parseFloat(b.visitors || "0") - parseFloat(a.visitors || "0");
+    //     case "newest":
+    //       return (
+    //         new Date(b.createdAt || 0).getTime() -
+    //         new Date(a.createdAt || 0).getTime()
+    //       );
+    //     default:
+    //       return 0;
+    //   }
+    // });
 
     setFilteredDestinations(filtered);
   }, [destinations, searchQuery, selectedCategory, sortBy]);
 
-  const categories = [
-    "all",
-    ...Array.from(
-      new Set(destinations.map((dest) => dest.category).filter(Boolean))
-    ),
-  ];
-    console.log(categories)
+  // const categories = [
+  //   "all",
+  //   ...Array.from(
+  //     new Set(destinations.map((dest) => dest.category).filter(Boolean))
+  //   ),
+  // ];
 
-
-  const handleSearch = async (query) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      try {
-        const searchResults = await searchDestination(query);
-        setFilteredDestinations(searchResults);
-      } catch (err) {
-        console.error("Search failed:", err);
-      }
-    }
   };
 
   if (loading) {
@@ -123,7 +111,6 @@ export const DestinationListPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
-      {/* Hero Header */}
       <div className="relative bg-white shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-5"></div>
         <div className="relative max-w-7xl mx-auto px-6 py-12">
@@ -137,7 +124,6 @@ export const DestinationListPage = () => {
             </p>
           </div>
 
-          {/* Search Section */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-6 w-6" />
@@ -153,7 +139,6 @@ export const DestinationListPage = () => {
         </div>
       </div>
 
-      {/* Filters & Controls */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
@@ -169,7 +154,6 @@ export const DestinationListPage = () => {
               </select>
             </div>
 
-            {/* Right side controls */}
             <div className="flex items-center justify-between space-x-6">
               <div className="flex items-center space-x-2">
                 <span className="text-slate-600 font-medium">
@@ -207,7 +191,6 @@ export const DestinationListPage = () => {
         </div>
       </div>
 
-      {/* Destinations Grid/List */}
       <div className="max-w-7xl mx-auto px-6 pb-16">
         {filteredDestinations.length === 0 ? (
           <div className="text-center py-20">
@@ -241,7 +224,6 @@ export const DestinationListPage = () => {
                 }`}
               >
                 {viewMode === "grid" ? (
-                  // Grid View - Enhanced Cards
                   <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
                     <div className="relative h-64 overflow-hidden">
                       {dest.imageUrls?.length > 0 ? (
@@ -263,24 +245,22 @@ export const DestinationListPage = () => {
                         </div>
                       )}
 
-                      {/* Category Badge */}
-                      {dest.category && (
+                      {/* {dest.category && (
                         <div className="absolute top-4 left-4">
                           <span className="bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-semibold px-3 py-1 rounded-full">
                             {dest.category}
                           </span>
                         </div>
-                      )}
+                      )} */}
 
-                      {/* Rating Badge */}
-                      {dest.rating && (
+                      {/* {dest.rating && (
                         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
                           <span className="text-sm font-bold text-slate-700">
                             {dest.rating}
                           </span>
                         </div>
-                      )}
+                      )} */}
                     </div>
 
                     <div className="p-6">
@@ -310,7 +290,6 @@ export const DestinationListPage = () => {
                     </div>
                   </div>
                 ) : (
-                  // List View - Enhanced Layout
                   <div className="flex space-x-6 p-6">
                     <div className="w-60 h-40 flex-shrink-0 overflow-hidden rounded-xl">
                       {dest.imageUrls?.length > 0 ? (
@@ -349,7 +328,7 @@ export const DestinationListPage = () => {
                           )}
                         </div>
 
-                        <div className="flex items-center space-x-4">
+                        {/* <div className="flex items-center space-x-4">
                           {dest.rating && (
                             <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
                               <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
@@ -363,7 +342,7 @@ export const DestinationListPage = () => {
                               {dest.category}
                             </span>
                           )}
-                        </div>
+                        </div> */}
                       </div>
 
                       <p className="text-slate-600 mb-4 leading-relaxed line-clamp-2">
