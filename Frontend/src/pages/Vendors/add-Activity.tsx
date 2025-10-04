@@ -65,22 +65,16 @@ export function AddActivity() {
 
       const response = await createActivity({ ...data, imageUrl });
 
-      const id = response?.id || response?.data?.id;
+      const id = response.data.id;
       if (id) {
         setActivityId(id);
         notifySuccess();
       } else {
         notifySuccess();
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error creating activity:", err);
-      const errorMessage =
-        err?.response?.data?.error ||
-        err?.response?.data?.message ||
-        err.message ||
-        "Failed to create activity";
-
-      notifyError(errorMessage);
+      notifyError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }

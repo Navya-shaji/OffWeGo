@@ -5,7 +5,6 @@ import { addPackage } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import {
   Plus,
-  MapPin,
   FileText,
   Clock,
   Trash2,
@@ -25,9 +24,9 @@ import { usePackageData } from "./usepackagedata";
 import PackageBasicInfo from "./packagebasicInfo";
 import ImageUploadSection from "./ImageUploadSection";
 import HotelsActivitiesSection from "./HotelActivitySection";
-import PricingSidebar from "./Pricing";
-import type { PackageFormData } from "@/interface/packageFormData";
-import { usePackageValidation } from "@/Types/vendor/Package/package"; 
+import { usePackageValidation } from "@/Types/vendor/Package/package";
+import type { PackageData } from "@/interface/AddPAckage";
+import type { Package } from "@/interface/PackageInterface";
 interface ItineraryActivity {
   time: string;
   activity: string;
@@ -39,8 +38,12 @@ interface ItineraryDay {
   isExpanded?: boolean;
 }
 
-interface EnhancedPackageFormData extends Omit<PackageFormData, "itinerary"> {
+interface EnhancedPackageFormData extends Omit<PackageData, "itinerary"> {
   itinerary: ItineraryDay[];
+  checkInTime: string;
+  checkOutTime: string;
+  inclusions: string[];
+  amenities: string[];
 }
 
 const AddPackage: React.FC = () => {
@@ -88,24 +91,30 @@ const AddPackage: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    const newValue = name === "price" || name === "duration" ? Number(value) : value;
-    
+    const newValue =
+      name === "price" || name === "duration" ? Number(value) : value;
+
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
     }));
 
     // Validate field on change if it's been touched
-    if (touched[name]) {
-      validateField(name, newValue);
-    }
+    // if (touched[name]) {
+    //   validateField(name, newValue);
+    // }
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const fieldName = e.target.name;
-    markFieldTouched(fieldName);
-    validateField(fieldName, formData[fieldName as keyof EnhancedPackageFormData]);
-  };
+  // const handleBlur = (
+  //   e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+  // ) => {
+  //   const fieldName = e.target.name;
+  //   // markFieldTouched(fieldName);
+  //   validateField(
+  //     fieldName,
+  //     formData[fieldName as keyof EnhancedPackageFormData]
+  //   );
+  // };
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = e.target.value;
@@ -113,7 +122,7 @@ const AddPackage: React.FC = () => {
       ...prev,
       destinationId: newValue,
     }));
-    
+
     markFieldTouched("destinationId");
     validateField("destinationId", newValue);
   };
@@ -139,7 +148,7 @@ const AddPackage: React.FC = () => {
     const newItinerary = formData.itinerary
       .filter((_, index) => index !== dayIndex)
       .map((day, index) => ({ ...day, day: index + 1 }));
-    
+
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
@@ -168,7 +177,7 @@ const AddPackage: React.FC = () => {
           }
         : day
     );
-    
+
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
@@ -190,7 +199,7 @@ const AddPackage: React.FC = () => {
           }
         : day
     );
-    
+
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
@@ -219,7 +228,7 @@ const AddPackage: React.FC = () => {
           }
         : day
     );
-    
+
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
@@ -291,16 +300,17 @@ const AddPackage: React.FC = () => {
 
     // Validate all fields
     const isValid = validateAllFields(formData);
+    console.log(isValid)
 
-    if (!isValid) {
-      // Scroll to first error
-      const firstErrorField = Object.keys(errors).find(key => errors[key]);
-      if (firstErrorField) {
-        const element = document.getElementsByName(firstErrorField)[0];
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
+    // if (!isValid) {
+    //   // Scroll to first error
+    //   const firstErrorField = Object.keys(errors).find((key) => errors[key]);
+    //   if (firstErrorField) {
+    //     const element = document.getElementsByName(firstErrorField)[0];
+    //     element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    //   }
+    //   return;
+    // }
 
     const selectedHotelIds = formData.selectedHotels;
     const selectedActivityIds = formData.selectedActivities;
@@ -313,7 +323,7 @@ const AddPackage: React.FC = () => {
       }))
     );
 
-    const completePackage = {
+    const completePackage: Package = {
       id: crypto.randomUUID(),
       destinationId: formData.destinationId,
       packageName: formData.packageName,
@@ -336,7 +346,7 @@ const AddPackage: React.FC = () => {
     setIsSubmitted(true);
     setShowValidationErrors(false);
     resetValidation();
-    
+
     setFormData({
       packageName: "",
       description: "",
@@ -352,7 +362,7 @@ const AddPackage: React.FC = () => {
       inclusions: [],
       amenities: [],
     });
-    
+
     setTimeout(() => setIsSubmitted(false), 3000);
   };
 
@@ -406,7 +416,8 @@ const AddPackage: React.FC = () => {
                 <div className="flex items-center">
                   <CheckCircle2 className="h-6 w-6 text-emerald-600 mr-3 animate-pulse" />
                   <AlertDescription className="text-emerald-800 font-semibold text-lg">
-                    Package created successfully! Your customers will love this amazing experience.
+                    Package created successfully! Your customers will love this
+                    amazing experience.
                   </AlertDescription>
                 </div>
               </Alert>
@@ -424,7 +435,7 @@ const AddPackage: React.FC = () => {
               </Alert>
             )}
 
-            {showValidationErrors && Object.values(errors).some(e => e) && (
+            {showValidationErrors && Object.values(errors).some((e) => e) && (
               <Alert
                 variant="destructive"
                 className="mb-8 border-l-4 border-l-red-500 shadow-lg animate-in slide-in-from-top duration-500"
@@ -441,23 +452,42 @@ const AddPackage: React.FC = () => {
                 <div className="xl:col-span-2 space-y-8">
                   <div className="animate-in fade-in-50 duration-700">
                     <div className="space-y-4">
-                      <div onBlur={handleBlur}>
-                        <PackageBasicInfo
-                          formData={formData}
-                          destinations={destinations}
-                          loadingDestinations={loadingDestinations}
-                          filteredHotels={allHotels}
-                          filteredActivities={allActivities}
-                          selectedDestination={selectedDestination}
-                          onChange={handleChange}
-                          onDestinationChange={handleDestinationChange}
+                      <PackageBasicInfo
+                        formData={{
+                          ...formData,
+                          selectedHotels: formData.selectedHotels.map(
+                            (h) => h.hotelId
+                          ), // Hotel[] → string[]
+                          selectedActivities: formData.selectedActivities.map(
+                            (a) => a.id
+                          ), // Activity[] → string[]
+                        }}
+                        destinations={destinations}
+                        loadingDestinations={loadingDestinations}
+                        filteredHotels={allHotels}
+                        filteredActivities={allActivities}
+                        selectedDestination={selectedDestination}
+                        onChange={handleChange}
+                        onDestinationChange={handleDestinationChange}
+                      />
+
+                      {getFieldError("destinationId") && (
+                        <ErrorMessage
+                          message={getFieldError("destinationId")}
                         />
-                      </div>
-                      {getFieldError("destinationId") && <ErrorMessage message={getFieldError("destinationId")} />}
-                      {getFieldError("packageName") && <ErrorMessage message={getFieldError("packageName")} />}
-                      {getFieldError("description") && <ErrorMessage message={getFieldError("description")} />}
-                      {getFieldError("price") && <ErrorMessage message={getFieldError("price")} />}
-                      {getFieldError("duration") && <ErrorMessage message={getFieldError("duration")} />}
+                      )}
+                      {getFieldError("packageName") && (
+                        <ErrorMessage message={getFieldError("packageName")} />
+                      )}
+                      {getFieldError("description") && (
+                        <ErrorMessage message={getFieldError("description")} />
+                      )}
+                      {getFieldError("price") && (
+                        <ErrorMessage message={getFieldError("price")} />
+                      )}
+                      {getFieldError("duration") && (
+                        <ErrorMessage message={getFieldError("duration")} />
+                      )}
                     </div>
                   </div>
 
@@ -480,32 +510,34 @@ const AddPackage: React.FC = () => {
                       selectedDestination={selectedDestination}
                       filteredHotels={allHotels}
                       filteredActivities={allActivities}
-                      selectedHotels={formData.selectedHotels}
-                      selectedActivities={formData.selectedActivities}
+                      selectedHotels={formData.selectedHotels.map(
+                        (h) => h.hotelId
+                      )} // <-- map to string[]
+                      selectedActivities={formData.selectedActivities.map(
+                        (a) => a.id
+                      )}
                       loadingHotels={loadingHotels}
                       loadingActivities={loadingActivities}
                       duration={formData.duration}
-                      onHotelSelection={(hotels) => {
+                      onHotelSelection={() => {
                         setFormData((prev) => ({
                           ...prev,
-                          selectedHotels: hotels,
+                         
                         }));
-                        if (touched.selectedHotels) {
-                          validateField("selectedHotels", hotels);
-                        }
+                        
                       }}
-                      onActivitySelection={(activities) => {
+                      onActivitySelection={() => {
                         setFormData((prev) => ({
                           ...prev,
-                          selectedActivities: activities,
+                          
                         }));
-                        if (touched.selectedActivities) {
-                          validateField("selectedActivities", activities);
-                        }
+                      
                       }}
                     />
                     <ErrorMessage message={getFieldError("selectedHotels")} />
-                    <ErrorMessage message={getFieldError("selectedActivities")} />
+                    <ErrorMessage
+                      message={getFieldError("selectedActivities")}
+                    />
                   </div>
 
                   <Card className="shadow-xl border-0 bg-white/70 backdrop-blur-lg animate-in fade-in-50 duration-700 delay-300">
@@ -521,15 +553,19 @@ const AddPackage: React.FC = () => {
                               name="checkInTime"
                               value={formData.checkInTime}
                               onChange={handleChange}
-                              onBlur={handleBlur}
+                              // onBlur={handleBlur}
                               placeholder="e.g. 3:00 PM"
                               className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium ${
-                                getFieldError("checkInTime") ? "border-red-500" : "border-slate-200"
+                                getFieldError("checkInTime")
+                                  ? "border-red-500"
+                                  : "border-slate-200"
                               }`}
                             />
                             <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                           </div>
-                          <ErrorMessage message={getFieldError("checkInTime")} />
+                          <ErrorMessage
+                            message={getFieldError("checkInTime")}
+                          />
                         </div>
                         <div className="space-y-3">
                           <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
@@ -541,15 +577,19 @@ const AddPackage: React.FC = () => {
                               name="checkOutTime"
                               value={formData.checkOutTime}
                               onChange={handleChange}
-                              onBlur={handleBlur}
+                              // onBlur={handleBlur}
                               placeholder="e.g. 12:00 PM"
                               className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium ${
-                                getFieldError("checkOutTime") ? "border-red-500" : "border-slate-200"
+                                getFieldError("checkOutTime")
+                                  ? "border-red-500"
+                                  : "border-slate-200"
                               }`}
                             />
                             <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                           </div>
-                          <ErrorMessage message={getFieldError("checkOutTime")} />
+                          <ErrorMessage
+                            message={getFieldError("checkOutTime")}
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -605,7 +645,8 @@ const AddPackage: React.FC = () => {
                               No itinerary added yet
                             </p>
                             <p className="text-lg text-gray-500">
-                              Click "Add Day" or "Auto-Generate" to create your amazing itinerary
+                              Click "Add Day" or "Auto-Generate" to create your
+                              amazing itinerary
                             </p>
                           </div>
                         ) : (
@@ -632,7 +673,8 @@ const AddPackage: React.FC = () => {
                                         Day {day.day}
                                       </span>
                                       <div className="text-sm text-indigo-600 font-medium">
-                                        {day.activities.length} activities planned
+                                        {day.activities.length} activities
+                                        planned
                                       </div>
                                     </div>
                                   </div>
@@ -654,55 +696,60 @@ const AddPackage: React.FC = () => {
                               {day.isExpanded && (
                                 <CardContent className="p-6 bg-gradient-to-br from-white to-slate-50/50">
                                   <div className="space-y-4">
-                                    {day.activities.map((activity, activityIndex) => (
-                                      <div
-                                        key={activityIndex}
-                                        className="flex gap-4 items-start bg-white p-4 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-all duration-300"
-                                      >
-                                        <div className="relative">
+                                    {day.activities.map(
+                                      (activity, activityIndex) => (
+                                        <div
+                                          key={activityIndex}
+                                          className="flex gap-4 items-start bg-white p-4 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-all duration-300"
+                                        >
+                                          <div className="relative">
+                                            <input
+                                              type="text"
+                                              placeholder="Time (e.g. 3:00 PM)"
+                                              value={activity.time}
+                                              onChange={(e) =>
+                                                updateActivity(
+                                                  dayIndex,
+                                                  activityIndex,
+                                                  "time",
+                                                  e.target.value
+                                                )
+                                              }
+                                              className="w-36 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium bg-slate-50"
+                                            />
+                                            <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                                          </div>
                                           <input
                                             type="text"
-                                            placeholder="Time (e.g. 3:00 PM)"
-                                            value={activity.time}
+                                            placeholder="Activity description"
+                                            value={activity.activity}
                                             onChange={(e) =>
                                               updateActivity(
                                                 dayIndex,
                                                 activityIndex,
-                                                "time",
+                                                "activity",
                                                 e.target.value
                                               )
                                             }
-                                            className="w-36 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium bg-slate-50"
+                                            className="flex-1 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
                                           />
-                                          <Clock className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                                          <Button
+                                            type="button"
+                                            onClick={() =>
+                                              removeActivityFromDay(
+                                                dayIndex,
+                                                activityIndex
+                                              )
+                                            }
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-all duration-300"
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
                                         </div>
-                                        <input
-                                          type="text"
-                                          placeholder="Activity description"
-                                          value={activity.activity}
-                                          onChange={(e) =>
-                                            updateActivity(
-                                              dayIndex,
-                                              activityIndex,
-                                              "activity",
-                                              e.target.value
-                                            )
-                                          }
-                                          className="flex-1 p-3 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
-                                        />
-                                        <Button
-                                          type="button"
-                                          onClick={() =>
-                                            removeActivityFromDay(dayIndex, activityIndex)
-                                          }
-                                          variant="outline"
-                                          size="sm"
-                                          className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-all duration-300"
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    ))}
+                                      )
+                                    )}
 
                                     <Button
                                       type="button"
@@ -764,7 +811,9 @@ const AddPackage: React.FC = () => {
                           }}
                           rows={5}
                           className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm font-medium ${
-                            getFieldError("inclusions") ? "border-red-500" : "border-emerald-200"
+                            getFieldError("inclusions")
+                              ? "border-red-500"
+                              : "border-emerald-200"
                           }`}
                         />
                         <ErrorMessage message={getFieldError("inclusions")} />
@@ -811,7 +860,9 @@ const AddPackage: React.FC = () => {
                           }}
                           rows={5}
                           className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 resize-none bg-white/80 backdrop-blur-sm font-medium ${
-                            getFieldError("amenities") ? "border-red-500" : "border-purple-200"
+                            getFieldError("amenities")
+                              ? "border-red-500"
+                              : "border-purple-200"
                           }`}
                         />
                         <ErrorMessage message={getFieldError("amenities")} />
@@ -821,11 +872,11 @@ const AddPackage: React.FC = () => {
                 </div>
 
                 <div className="animate-in fade-in-50 duration-700 delay-700">
-                  <PricingSidebar
+                  {/* <PricingSidebar
                     formData={formData}
                     selectedDestination={selectedDestination}
                     totalPrice={totalPrice}
-                  />
+                  /> */}
                 </div>
               </div>
 
@@ -859,32 +910,45 @@ const AddPackage: React.FC = () => {
                 <div className="flex space-x-2">
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.destinationId && !getFieldError("destinationId") ? "bg-green-500" : "bg-gray-300"
+                      formData.destinationId && !getFieldError("destinationId")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.packageName && !getFieldError("packageName") ? "bg-green-500" : "bg-gray-300"
+                      formData.packageName && !getFieldError("packageName")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.description && !getFieldError("description") ? "bg-green-500" : "bg-gray-300"
+                      formData.description && !getFieldError("description")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.price > 0 && !getFieldError("price") ? "bg-green-500" : "bg-gray-300"
+                      formData.price > 0 && !getFieldError("price")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.images.length > 0 && !getFieldError("images") ? "bg-green-500" : "bg-gray-300"
+                      formData.images.length > 0 && !getFieldError("images")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
                     }`}
                   ></div>
                   <div
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      formData.itinerary.length > 0 && !getFieldError("itinerary") ? "bg-green-500" : "bg-gray-300"
+                      formData.itinerary.length > 0 &&
+                      !getFieldError("itinerary")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
                     }`}
                   ></div>
                 </div>

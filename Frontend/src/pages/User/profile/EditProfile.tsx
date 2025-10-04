@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 
 // Import validation schemas
 import { usernameSchema, phoneSchema } from '@/Types/User/Profile/profileZodeSchema'
+import z from "zod/v3";
 
 const notify = () => toast("Profile updated!");
 
@@ -69,13 +70,13 @@ export default function EditProfileModal({
   const handleUsernameChange = (value: string) => {
     setUsername(value);
     const result = usernameSchema.safeParse(value);
-    setErrorUsername(result.success ? null : result.error.errors[0].message);
+    setErrorUsername(result.success ? null : result.error.message);
   };
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
     const result = phoneSchema.safeParse(value);
-    setErrorPhone(result.success ? null : result.error.errors[0].message);
+    setErrorPhone(result.success ? null : result.error.message);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -108,7 +109,7 @@ export default function EditProfileModal({
       onClose();
     } catch (err) {
       if (err instanceof z.ZodError) {
-        // Handle first error only
+        
         const firstError = err.errors[0];
         if (firstError.path.includes("name")) setErrorUsername(firstError.message);
         else if (firstError.path.includes("phone")) setErrorPhone(firstError.message);

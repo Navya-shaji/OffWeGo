@@ -1,24 +1,21 @@
-import { RegisterUserUseCase } from "../../../useCases/user/Signup/SignupUserUsecase"; 
+import { RegisterUserUseCase } from "../../../useCases/user/Signup/signupUserUsecase"; 
 import { UserRegisterController } from "../../../adapters/controller/User/UserAuthentication"; 
-import { UserRepository } from "../../../adapters/repository/User/UserRepository";
+import { UserRepository } from "../../../adapters/repository/User/userRepository";  
 import { OtpService } from "../../Services/otpService";
 import { VerifyOtpUseCase } from "../../../useCases/user/Signup/VerifyOtpUseCase";
 import { HashPassword } from "../../Services/hashPassword";
 import { UserLoginController } from "../../../adapters/controller/User/UserLoginController"; 
 import { UserLoginUseCase } from "../../../useCases/user/Login/LoginUserUseCase";
-import {AuthRepository} from '../../../adapters/repository/User/AuthRepository'
-import { GoogleSignupController } from "../../../adapters/controller/User/AuthController"; 
-import { GoogleSignupUseCase } from "../../../useCases/user/Signup/SignupWithGoogle"; 
+import { AuthRepository } from "../../../adapters/repository/User/authRepository"; 
+import { GoogleSignupController } from "../../../adapters/controller/User/authController";
+import { GoogleSignupUseCase } from "../../../useCases/user/Signup/signupWithGoogle"; 
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
-import { UserProfileUsecase } from "../../../useCases/user/profile/CreateProfileUsecase"; 
-import { UserProfileController } from "../../../adapters/controller/User/UserProfileController"; 
+import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase"; 
+import { UserProfileController } from "../../../adapters/controller/User/userProfileController"; 
 import { JwtService } from "../../Services/jwtService";
-import { ResendOtpUsecase } from "../../../useCases/user/Signup/ResendOtpUsecase";
-// import { PackageController } from "../../../adapters/controller/Packages/PackageController"; 
-// import { GetPackageUsecase } from "../../../useCases/destination/GetPackageByDestinationUsecase";
-// import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
+import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
+
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
-// import { CreatePackagesUseCase } from "../../../useCases/package/AddPackageUsecase";
 
 
 // Setup Repos and Services

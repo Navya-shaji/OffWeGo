@@ -5,14 +5,14 @@ import {
   googleSignupController,
   userprofileController,
   
-} from "../../Di/User/UserInjections";
+} from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
-import { destinationController } from "../../Di/Admin/AdminInjection";
+import { destinationController } from "../../Di/Admin/adminInjection";
 import { UserRoutes } from "../Constants/UserRouteConstants";
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection";
+import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import { packagecontroller } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtService();
 

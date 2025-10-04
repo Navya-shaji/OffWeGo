@@ -58,7 +58,7 @@ export const useCreateDestinationForm = () => {
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by this browser.");
+    
       return;
     }
 
@@ -81,7 +81,7 @@ export const useCreateDestinationForm = () => {
           }
         } catch (err) {
           console.error("Could not get location name:", err);
-          alert("Got coordinates but couldn't determine location name.");
+        
         } finally {
           setIsGettingLocation(false);
         }
@@ -103,7 +103,7 @@ export const useCreateDestinationForm = () => {
             errorMessage += "Unknown error occurred.";
             break;
         }
-        alert(errorMessage);
+       console.log(errorMessage)
         setIsGettingLocation(false);
       },
       {
@@ -115,16 +115,13 @@ export const useCreateDestinationForm = () => {
   };
 
   const handleCoordinatesFromLocation = async () => {
-    // Debug: Log all current form values to see the structure
     const currentValues = getValues();
     console.log("All form values:", currentValues);
     
-    // Try to get location from multiple sources
     let location = currentValues.location;
-    
-    // If still undefined, try to get it directly from the DOM
+
     if (!location) {
-      // Try to find the location input field by various selectors
+      
       const locationInput = document.querySelector('input[name="location"]') as HTMLInputElement;
       if (locationInput) {
         location = locationInput.value;
@@ -132,7 +129,7 @@ export const useCreateDestinationForm = () => {
       }
     }
     
-    // Also try using watch as a fallback
+  
     if (!location) {
       location = watch("location");
     }
@@ -141,14 +138,13 @@ export const useCreateDestinationForm = () => {
     console.log("Location field type:", typeof location);
     
     if (!location || (typeof location === 'string' && location.trim() === "")) {
-      alert("Please enter a location name first. Make sure the location field is filled out.");
       return;
     }
 
     setIsGettingCoordinates(true);
 
     try {
-      // Ensure location is a string
+
       const locationString = typeof location === 'string' ? location.trim() : String(location).trim();
       console.log("Processing location:", locationString);
       
@@ -159,7 +155,7 @@ export const useCreateDestinationForm = () => {
         setValue("coordinates.lng", parseFloat(lng.toFixed(6)));
         console.log("Coordinates set:", { lat, lng });
         
-        // Force a form update
+      
         const updatedValues = getValues();
         console.log("Updated form values:", updatedValues);
       } else {
@@ -167,7 +163,6 @@ export const useCreateDestinationForm = () => {
       }
     } catch (error) {
       console.error("Could not fetch coordinates:", error);
-      alert("Could not find coordinates for this location. Please try a different location name or check the spelling.");
     } finally {
       setIsGettingCoordinates(false);
     }
@@ -180,14 +175,11 @@ export const useCreateDestinationForm = () => {
     if (files.length === 0) {
       setImageError(true);
       setIsSubmitting(false);
-      alert("Please upload at least one image.");
       return;
     }
 
     try {
-      // Validate coordinates exist
       if (!data.coordinates?.lat || !data.coordinates?.lng) {
-        alert("Please provide valid coordinates for the destination.");
         setIsSubmitting(false);
         return;
       }
@@ -210,24 +202,21 @@ export const useCreateDestinationForm = () => {
       await dispatch(addDestination(fullData)).unwrap();
       setSubmitStatus("success");
       
-      // Reset form after successful submission
       reset();
       setFiles([]);
       setImagePreviews([]);
       
-      // Clean up image previews
+
       imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
       
     } catch (err) {
       console.error("Error:", err);
       setSubmitStatus("error");
-      alert("Failed to add destination. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Debug function to help identify field names
   const debugFormFields = () => {
     const currentValues = getValues();
     console.log("=== FORM DEBUG ===");

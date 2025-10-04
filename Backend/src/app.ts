@@ -24,7 +24,7 @@ export class App {
 
     this.app.use(
       cors({
-        origin: process.env.ORIGIN,
+        origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:1212'],
         credentials: true,
       })
     );

@@ -41,7 +41,7 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
 
   // Map activities for MultiSelect
   const activityOptions = filteredActivities.map((activity) => ({
-    value: activity.id,
+    value: activity.id ?? "",
     label: `${activity.title} - ${activity.description.slice(0, 50)}...`,
     data: activity,
   }));

@@ -20,14 +20,14 @@ export const DestinationDetail = () => {
   const [packages, setPackages] = useState<Package[]>([]);
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [error, setError] = useState("");
 
+  console.log(searchQuery,isSearchMode)
   const navigate = useNavigate();
 
-  // Memoized displayed packages
   const displayedPackages = useMemo(() => {
     const result = searchResults ?? packages;
     console.log("🖥️ Displaying packages:", {

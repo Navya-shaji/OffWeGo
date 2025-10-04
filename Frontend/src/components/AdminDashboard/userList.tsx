@@ -253,7 +253,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
           <SearchBar 
             placeholder="Search users..." 
             onSearch={handleSearch}
-            value={searchQuery}
+            // value={searchQuery}
           />
         </div>
       </div>

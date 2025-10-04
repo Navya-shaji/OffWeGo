@@ -46,7 +46,7 @@ const HotelsTable: React.FC = () => {
   // Prevent multiple API calls
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
   // Load hotels function
   const loadHotels = useCallback(async (pageNum: number = 1) => {
@@ -62,11 +62,11 @@ const HotelsTable: React.FC = () => {
 
       const hotelsWithId = response.hotels.map((hotel) => ({
         ...hotel,
-        _id: hotel.hotelId || hotel._id,
+        _id: hotel.hotelId 
       }));
 
-      setHotels(hotelsWithId || []);
-      setOriginalHotels(hotelsWithId || []);
+      // setHotels(hotelsWithId || []);
+      // setOriginalHotels(hotelsWithId || []);
       setTotalPages(response.totalPages || 1);
       setTotalHotels(response.totalHotels || hotelsWithId.length);
       setPage(pageNum);
@@ -76,7 +76,7 @@ const HotelsTable: React.FC = () => {
       setError("Failed to load hotels. Please try again.");
       setHotels([]);
       setOriginalHotels([]);
-      toast.error(err.message || "Failed to load hotels");
+      toast.error("Failed to load hotels");
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
@@ -144,22 +144,19 @@ const HotelsTable: React.FC = () => {
     // In search mode, we handle pagination with data slicing below
   }, [page, isSearchMode, loadHotels]);
 
-  // Initial load - only once
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
       loadHotels(1);
     }
 
-    // Cleanup
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []); // Empty dependency array - only run once!
+  }, []); 
 
-  // Get current page data for display
   const getCurrentPageData = () => {
     if (!isSearchMode) {
       return hotels; // Server handles pagination
@@ -194,7 +191,6 @@ const HotelsTable: React.FC = () => {
       
       toast.success("Hotel updated successfully!");
 
-      // Update local state instead of refetching
       const updateHotelInList = (list: Hotel[]) =>
         list.map((h) =>
           h._id === selectedHotel._id
@@ -218,7 +214,7 @@ const HotelsTable: React.FC = () => {
     } catch (err) {
       console.error("Error while editing hotel", err);
       setError("Failed to update hotel. Please try again.");
-      toast.error(err.message || "Failed to update hotel");
+      toast.error( "Failed to update hotel");
       
       // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
@@ -248,9 +244,8 @@ const HotelsTable: React.FC = () => {
     } catch (err) {
       console.error("Delete error:", err);
       setError("Failed to delete hotel. Please try again.");
-      toast.error(err.message || "Failed to delete hotel");
+      toast.error("Failed to delete hotel");
       
-      // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleteModalOpen(false);
@@ -343,7 +338,7 @@ const HotelsTable: React.FC = () => {
             <SearchBar 
               placeholder="Search hotels..." 
               onSearch={handleSearch}
-              value={searchQuery}
+              // value={searchQuery}
             />
           </div>
           <span className="bg-slate-800 text-white px-3 py-1 rounded-full text-sm">
@@ -352,7 +347,6 @@ const HotelsTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex justify-between items-center">
@@ -367,14 +361,14 @@ const HotelsTable: React.FC = () => {
         </div>
       )}
 
-      {/* Table */}
+  
       {hotels.length > 0 ? (
         <>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable data={getCurrentPageData()} columns={columns} />
           </div>
 
-          {/* Pagination */}
+        
           {totalPages > 1 && (
             <div className="flex justify-center">
               <Pagination 
@@ -385,7 +379,7 @@ const HotelsTable: React.FC = () => {
             </div>
           )}
 
-          {/* Stats */}
+       
           <div className="text-center text-sm text-gray-500">
             {isSearchMode 
               ? `Showing ${Math.min((page - 1) * 5 + 1, hotels.length)}-${Math.min(page * 5, hotels.length)} of ${hotels.length} search results`

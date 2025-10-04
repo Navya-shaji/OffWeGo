@@ -6,8 +6,10 @@ import {
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { ChevronLeft, ChevronRight, MapPin, Search } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const Destinations = () => {
+interface DestinationsProps {
+  id?: string; // optional id prop
+}
+const Destinations = ({ id }: DestinationsProps) => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [originalDestinations, setOriginalDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
       setLoading(false);
     }
   }, []);
-
+console.log(id)
   useEffect(() => {
     fetchDestinations();
     return () => {

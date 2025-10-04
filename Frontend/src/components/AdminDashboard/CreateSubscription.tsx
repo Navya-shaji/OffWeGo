@@ -40,6 +40,7 @@ export default function AddSubscriptionForm() {
           commissionRate: Number(formData.commissionRate),
           price: Number(formData.price),
           durationInDays: Number(formData.durationInDays),
+          description:formData.description
         })
       ).unwrap();
       notify();

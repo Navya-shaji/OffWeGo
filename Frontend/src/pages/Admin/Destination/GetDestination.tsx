@@ -289,7 +289,7 @@ export const DestinationTable = () => {
           <SearchBar
             placeholder="Search destinations..."
             onSearch={handleSearch}
-            value={searchQuery}
+            // value={searchQuery}
           />
         </div>
       </div>

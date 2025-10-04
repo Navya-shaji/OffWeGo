@@ -66,7 +66,7 @@ export default function EditVendorProfileModal({
     setIsLoading(true);
     setError(null);
 
-    if (!vendor?.id) {
+    if (!vendor?._id) {
       setError("Vendor ID missing");
       setIsLoading(false);
       return;
@@ -76,7 +76,7 @@ export default function EditVendorProfileModal({
       vendorEditSchema.parse({ name, phone: phone.toString() });
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        setError(err.message);
       }
       setIsLoading(false);
       return;
@@ -89,19 +89,23 @@ export default function EditVendorProfileModal({
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      const updated = await editProfile(vendor.id, {
+      const updated = await editProfile(vendor._id, {
         name,
         phone,
         profileImage: newImageUrl,
       });
 
-      // Preserve documentUrl when updating Redux
+      
       const mappedVendor = {
         ...updated.data,
         profileImage: updated.data.profileImage || "/placeholder-avatar.png",
         documentUrl: vendor.documentUrl,
       };
-      dispatch(login({ vendor: mappedVendor, token }));
+dispatch(login({ 
+  vendor: mappedVendor, 
+  token: token || "", 
+  refreshToken: "" 
+}));
 
       setImagePreviewUrl(mappedVendor.profileImage);
 

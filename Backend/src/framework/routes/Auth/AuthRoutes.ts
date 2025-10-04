@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { refreshTokenController } from "../../Di/RefreshToken/RefreshtokenInjection"; 
+import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";  
 import { CommonRoutes } from "../Constants/commonRoutes"; 
 
 export class CommonRoute {

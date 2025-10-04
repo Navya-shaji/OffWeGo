@@ -46,7 +46,10 @@ export default function VendorLogin() {
       const vendorData: Vendor = rawVendor;
 
      
-      dispatch(login({ vendor: vendorData, token: response.accessToken }));
+      dispatch(login({
+        vendor: vendorData, token: response.accessToken,
+        refreshToken: ""
+      }));
 
     
       if (response.accessToken) {

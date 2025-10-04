@@ -86,7 +86,6 @@ export const CategoryForm = () => {
       <div className="w-full max-w-3xl bg-white border border-black rounded-xl shadow-lg">
         <div className="bg-black text-white rounded-t-xl px-6 py-4">
           <h1 className="text-2xl font-bold">Add New Category</h1>
-         
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
@@ -166,7 +165,11 @@ export const CategoryForm = () => {
           <SubCategory
             typeMain={typeMain}
             typeSub={typeSub || []}
-            setTypeSub={(val) => setValue("typeSub", val)}
+            setTypeSub={(val) => {
+              const newValue =
+                typeof val === "function" ? val(typeSub || []) : val;
+              setValue("typeSub", newValue);
+            }}
           />
           {errors.typeMain && (
             <p className="text-red-600 text-sm">{errors.typeMain.message}</p>
