@@ -7,7 +7,8 @@ import store from "@/store/store";
 export const addPackage = async (data: Package) => {
   try {
     const state = store.getState();
-    const vendorId = state.vendorAuth?.vendor?._id;
+    const vendorId = state.vendorAuth?.vendor?.id;
+    console.log(vendorId)
     const payload = {
       ...data,
       vendorId,
@@ -16,7 +17,7 @@ export const addPackage = async (data: Package) => {
     console.log(data)
     const res = await axiosInstance.post("/api/vendor/add-Package", payload);
     console.log(res.data,"hdfjh")
-    return res.data;
+    return res.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Failed to add package");
@@ -36,7 +37,7 @@ export const fetchAllPackages = async (
 }> => {
   try {
     const state = store.getState();
-    const vendorId = state.vendorAuth?.vendor?._id;
+    const vendorId = state.vendorAuth?.vendor?.id;
     const res = await axiosInstance.post("/api/vendor/packages", {
       params: { page, limit },
       vendorId,

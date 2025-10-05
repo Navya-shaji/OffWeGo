@@ -111,7 +111,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     const updateVendor = (vendorList: Vendor[]) =>
       vendorList.map((vendor) =>
-        vendor._id === vendorId ? { ...vendor, isBlocked: !currentStatus } : vendor
+        vendor.id === vendorId ? { ...vendor, isBlocked: !currentStatus } : vendor
       );
 
     setVendors(updateVendor);
@@ -236,7 +236,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
             type="checkbox"
             checked={!row.original.isBlocked}
             onChange={() =>
-              handleBlockToggle(row.original._id, row.original.isBlocked)
+              handleBlockToggle(row.original.id, row.original.isBlocked)
             }
             className="sr-only peer"
           />

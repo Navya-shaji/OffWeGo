@@ -7,6 +7,8 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { IGetDestinationBasedPackage } from "../../../domain/interface/Vendor/IGetDestinationBasedPackage";
 import { IGetPackagesUsecase } from "../../../domain/interface/Vendor/IGetAllPackageUsecase";
+import { Hotel } from "../../../domain/entities/HotelEntity";
+import { Activity } from "../../../domain/entities/ActivityEntity";
 
 export class PackageController {
   constructor(
@@ -64,38 +66,48 @@ export class PackageController {
     });
   }
 
-  async addPackage(req: Request, res: Response) {
-    try {
-      const vendorId = req.body.vendorId;
-      if (!vendorId) {
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ success: false, message: "Vendor not authenticated" });
-      }
-      const packageData = req.body;
-      console.log(req.body, "package body ");
-      const destination = await DestinationModel.findById(
-        packageData.destinationId
-      );
-      if (!destination) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: "Destination not found" });
-      }
-      packageData.destinationId = destination._id;
-      const createdPackage = await this._createPackage.execute(
-        packageData,
-        vendorId
-      );
-      res
-        .status(HttpStatus.CREATED)
-        .json({ success: true, packages: [createdPackage], totalPackages: 1 });
-    } catch (err) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Failed to create package", err });
+ async addPackage(req: Request, res: Response) {
+  try {
+    const vendorId = req.body.vendorId;
+    if (!vendorId) {
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ success: false, message: "Vendor not authenticated" });
     }
+
+    const packageData = req.body;
+
+    // ✅ Validate destination
+    const destination = await DestinationModel.findById(packageData.destinationId);
+    if (!destination) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: "Destination not found" });
+    }
+
+    packageData.destinationId = destination._id;
+
+ 
+    packageData.hotels = packageData.hotels?.map((hotel: Hotel) => hotel.hotelId) || [];
+    packageData.activities = packageData.activities?.map((act: Activity) => act.activityId || act._id) || [];
+
+    const createdPackage = await this._createPackage.execute(packageData, vendorId);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      packages: [createdPackage],
+      totalPackages: 1,
+    });
+  } catch (err ) {
+    console.error(" Error creating package:", err);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Failed to create package",
+
+    });
   }
+}
+
 
   async EditPackage(req: Request, res: Response) {
     const packageId = req.params.id;

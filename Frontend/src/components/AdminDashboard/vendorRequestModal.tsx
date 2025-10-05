@@ -54,7 +54,7 @@ const VendorRequestModal: React.FC<ModalProps> = ({ onClose }) => {
         <div className="space-y-3">
           {list.map((v) => (
             <div
-              key={v._id}
+              key={v.id}
               className={`p-4 rounded-md shadow-sm ${colorClasses} border border-gray-200`}
             >
               <p className="text-sm">
