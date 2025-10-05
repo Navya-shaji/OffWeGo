@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/CreateSubscriptionusecase";
+import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 
 export class SubscriptionController {

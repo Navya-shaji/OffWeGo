@@ -34,7 +34,7 @@ import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
 import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
-import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/CreateSubscriptionusecase";
+import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
 import { SearchUserUseCase } from "../../../useCases/admin/user/SearchUserUSecase"; 

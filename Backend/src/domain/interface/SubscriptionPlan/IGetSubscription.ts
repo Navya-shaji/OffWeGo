@@ -1,4 +1,4 @@
-import { SubscriptionPlan } from "../../entities/Subscriptionplan";
+import { SubscriptionPlan } from "../../entities/subscriptionplan";
 
 export interface IGetSubscriptionUsecase {
   execute(): Promise<SubscriptionPlan[] | null>;
