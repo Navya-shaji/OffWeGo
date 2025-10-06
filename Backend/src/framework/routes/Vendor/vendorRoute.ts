@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   activitycontroller,
+  flightcontroller,
   hotelcontroller,
   packagecontroller,
   vendorloginController,
@@ -9,13 +10,13 @@ import {
   vendorstatusCheckController,
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
-import { destinationController } from "../../Di/Admin/adminInjection"; 
+import { destinationController } from "../../Di/Admin/adminInjection";
 import { VendorRoutes } from "../Constants/VendorRouteConstants";
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
 import { JwtService } from "../../Services/jwtService";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection"; 
+import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 
 const TokenService = new JwtService();
 
@@ -104,10 +105,11 @@ export class VendorRoute {
       }
     );
     this.vendorRouter.get(
-      VendorRoutes.SEARCH_ACTIVITY,(req:Request,res:Response)=>{
-        activitycontroller.SearchActivity(req,res)
+      VendorRoutes.SEARCH_ACTIVITY,
+      (req: Request, res: Response) => {
+        activitycontroller.SearchActivity(req, res);
       }
-    )
+    );
     this.vendorRouter.post(
       VendorRoutes.CREATE_DESTINATION,
       checkRoleBasedcontrol(["vendor"]),
@@ -175,6 +177,11 @@ export class VendorRoute {
       VendorRoutes.ACTIVITIES,
       (req: Request, res: Response) =>
         activitycontroller.getAllActivities(req, res)
+    );
+    this.vendorRouter.post(
+      VendorRoutes.CREATE_FLIGHT,
+      (req: Request, res: Response) =>
+        flightcontroller.addFlightDetails(req, res)
     );
   }
 }

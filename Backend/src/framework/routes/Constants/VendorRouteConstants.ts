@@ -25,5 +25,6 @@ export const VendorRoutes={
     DELETE_HOTEL:'/hotels/:id',
     SEARCH_PACKAGE:'/packages/search',
     SEARCH_HOTEL:'/hotels/search',
-    SEARCH_ACTIVITY:'/activities/search'
+    SEARCH_ACTIVITY:'/activities/search',
+    CREATE_FLIGHT:'/create-flight'
 }
