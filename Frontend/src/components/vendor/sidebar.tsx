@@ -21,6 +21,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const [showPackageDropdown, setShowPackageDropdown] = useState(false);
   const [showHotelDropdown, setShowHotelDropdown] = useState(false);
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+  const [showFlightDropdown, setShowFlightDropdown] = useState(false);
 
   const menuItems = [
     { icon: User, label: "Profile" },
@@ -41,7 +42,6 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       </div>
 
       <nav className="mt-6">
-     
         {menuItems.map((item, index) => (
           <button
             key={index}
@@ -118,6 +118,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             <ChevronDown className="w-4 h-4" />
           )}
         </button>
+
         {showHotelDropdown && (
           <div className="ml-10">
             <button
@@ -185,6 +186,52 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             >
               <List className="inline-block mr-2 w-4 h-4" />
               All Activities
+            </button>
+          </div>
+        )}
+
+        {/* Flights Dropdown */}
+        <button
+          onClick={() => setShowFlightDropdown((prev) => !prev)}
+          className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+            activeTab.includes("Flight")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+          }`}
+        >
+          <Package className="w-5 h-5 mr-3 text-gray-600" />
+          <span className="text-gray-700 flex-1">Flights</span>
+          {showFlightDropdown ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
+
+        {showFlightDropdown && (
+          <div className="ml-10">
+            <button
+              onClick={() => handleSubTabClick("Create Flight")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "Create Flight"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <FolderPlus className="inline-block mr-2 w-4 h-4" />
+              Create Flight
+            </button>
+
+            <button
+              onClick={() => handleSubTabClick("All Flights")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "All Flights"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <List className="inline-block mr-2 w-4 h-4" />
+              All Flights
             </button>
           </div>
         )}

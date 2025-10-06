@@ -3,18 +3,19 @@ import VendorSidebar from "@/components/vendor/sidebar";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Profile } from "./Vendorprofile";
-import  {DestinationTable}  from "../Admin/Destination/GetDestination";
+import { DestinationTable } from "../Admin/Destination/GetDestination";
 
 import { fetchPackages } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import { CreateDestination } from "../Admin/Destination/CreateDestination";
 import CreateHotel from "./add-Hotel";
 import HotelsTable from "./getAllHotels";
-import {AddActivity} from "./add-Activity";
+import { AddActivity } from "./add-Activity";
 import ActivitiesTable from "./getAllActivities";
 import AddPackage from "@/components/Packages/AddPAckage";
 import PackageTable from "./package-table";
-
+import CreateFlight from "./createFlight";
+import GetAllFlight from "./GetAllFlight";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -37,11 +38,13 @@ function Dashboard() {
           {activeTab === "Add Package" && <AddPackage />}
           {activeTab === "All Packages" && <PackageTable packages={packages} />}
           {activeTab === "All Destinations" && <DestinationTable />}
-          {activeTab=="Add Destination" && <CreateDestination/>}
-          {activeTab=='Create Hotel' && <CreateHotel/>}
-          {activeTab=='All Hotels' && <HotelsTable/>}
-          {activeTab=='Create Activity' && <AddActivity/>}
-          {activeTab=='All Activities' && <ActivitiesTable/>}
+          {activeTab == "Add Destination" && <CreateDestination />}
+          {activeTab == "Create Hotel" && <CreateHotel />}
+          {activeTab == "All Hotels" && <HotelsTable />}
+          {activeTab == "Create Activity" && <AddActivity />}
+          {activeTab == "All Activities" && <ActivitiesTable />}
+          {activeTab == "Create Flight" && <CreateFlight />}
+          {activeTab == "All Flights" && <GetAllFlight />}
         </div>
       </div>
     </div>
