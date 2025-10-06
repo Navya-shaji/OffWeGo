@@ -4,24 +4,40 @@ import type { Package } from "@/interface/PackageInterface";
 import store from "@/store/store";
 
 // ================== VENDOR-SIDE ==================
+
 export const addPackage = async (data: Package) => {
   try {
     const state = store.getState();
     const vendorId = state.vendorAuth?.vendor?.id;
-    console.log(vendorId)
+    console.log("Vendor ID:", vendorId);
+
     const payload = {
       ...data,
+      price: data.basePrice,
       vendorId,
+      flightOption: data.includeFlight,
     };
 
-    console.log(data)
+    console.log("Submitting package payload:", payload);
+
     const res = await axiosInstance.post("/api/vendor/add-Package", payload);
-    console.log(res.data,"hdfjh")
-    return res.data.data;
+
+    console.log("Server response:", res.data);
+
+   
+    return res.data?.data || res.data; 
   } catch (error) {
+    console.error("Catch block error:", error);
+
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.error || "Failed to add package");
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to add package";
+      throw new Error(msg);
     }
+
     throw new Error("An unexpected error occurred while adding package");
   }
 };

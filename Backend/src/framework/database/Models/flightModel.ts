@@ -6,4 +6,4 @@ export interface IFlightModel extends Omit <Flight,"id">,Document{
     _id:ObjectId
 }
 
-export const FlightModel=model<IFlightModel>("flight",flightSchema)
+export const flightModel=model<IFlightModel>("Flight",flightSchema)

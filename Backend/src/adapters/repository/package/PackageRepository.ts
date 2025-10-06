@@ -1,5 +1,8 @@
 import { IPackageRepository } from "../../../domain/interface/Vendor/iPackageRepository";
-import {packageModel,IPackageModel} from "../../../framework/database/Models/packageModel";
+import {
+  packageModel,
+  IPackageModel,
+} from "../../../framework/database/Models/packageModel";
 import { Package } from "../../../domain/entities/PackageEntity";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
@@ -10,10 +13,10 @@ export class PackageRepository
   constructor() {
     super(packageModel);
   }
-
   async createPackage(data: Package): Promise<IPackageModel> {
     const created = await packageModel.create(data);
-    await created.populate(["hotels", "activities"]);
+    await created.populate(["hotels", "activities", "flight"]);
+    console.log("created", created);
     return created;
   }
 
@@ -28,6 +31,7 @@ export class PackageRepository
         .limit(limit)
         .populate("hotels")
         .populate("activities")
+        .populate("flight")
         .exec(),
       packageModel.countDocuments(),
     ]);
@@ -56,20 +60,23 @@ export class PackageRepository
     return await this.model.findByIdAndDelete(id);
   }
 
- async searchPackage(query: string): Promise<Package[]> {
-  const trimmedQuery = query.trim();
-  if (!trimmedQuery) return [];
+  async searchPackage(query: string): Promise<Package[]> {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return [];
 
-  const regex = new RegExp(trimmedQuery, "i");
+    const regex = new RegExp(trimmedQuery, "i");
 
-  return await this.model
-    .find({ packageName: { $regex: regex } })
-    .select("packageName itinerary inclusions amenities price duration hotels activities checkInTime checkOutTime")
-    .populate("hotels", "name")
-    .populate("activities", "title")
-    .limit(10)
-    .exec();
-}
+    return await this.model
+      .find({ packageName: { $regex: regex } })
+      .select(
+        "packageName itinerary inclusions amenities price duration hotels activities checkInTime checkOutTime includeFlight flight"
+      )
+      .populate("hotels", "name")
+      .populate("activities", "title")
+      .populate("flight")
+      .limit(10)
+      .exec();
+  }
 
   async countPackages(): Promise<number> {
     return packageModel.countDocuments();

@@ -1,7 +1,7 @@
 import { Flight } from "../../../domain/entities/flightEntity";
 import {
   IFlightModel,
-  FlightModel,
+  flightModel,
 } from "../../../framework/database/Models/flightModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 import { IFlightRepository } from "../../../domain/interface/Flight/IFlightRepository";
@@ -12,10 +12,10 @@ export class FlightRepository
   implements IFlightRepository
 {
   constructor() {
-    super(FlightModel);
+    super(flightModel);
   }
   async createFlight(flightData: Partial<FlightDto>): Promise<IFlightModel> {
-    const createdFlight = await FlightModel.create(flightData);
+    const createdFlight = await flightModel.create(flightData);
     return createdFlight;
   }
   async getAllFlights(): Promise<IFlightModel[]> {
