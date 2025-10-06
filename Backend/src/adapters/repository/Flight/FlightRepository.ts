@@ -18,7 +18,7 @@ export class FlightRepository
     const createdFlight = await FlightModel.create(flightData);
     return createdFlight;
   }
-  async getAllFlights(): Promise<Flight[]> {
+  async getAllFlights(): Promise<IFlightModel[]> {
     return this.model.find();
   }
   async getFlightById(id: string): Promise<Flight | null> {
@@ -26,8 +26,8 @@ export class FlightRepository
   }
   async updateFlight(
     id: string,
-    updateData: Partial<Flight>
-  ): Promise<Flight | null> {
+    updateData: Partial<IFlightModel>
+  ): Promise<IFlightModel | null> {
     return this.update(id, updateData);
   }
   async deleteFlight(id: string): Promise<Flight | null> {

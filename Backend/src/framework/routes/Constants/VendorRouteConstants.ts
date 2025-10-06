@@ -26,5 +26,8 @@ export const VendorRoutes={
     SEARCH_PACKAGE:'/packages/search',
     SEARCH_HOTEL:'/hotels/search',
     SEARCH_ACTIVITY:'/activities/search',
-    CREATE_FLIGHT:'/create-flight'
+    CREATE_FLIGHT:'/create-flight',
+    ALL_FLIGHTS:'/flights',
+    EDIT_FLIGHT:'/flights/:id',
+    DELETE_FLIGHT:'/flights/:id'
 }

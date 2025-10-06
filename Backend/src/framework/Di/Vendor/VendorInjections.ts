@@ -44,6 +44,9 @@ import { GetPackages } from "../../../useCases/package/GetAllPackageUsecase";
 import { CreateflightUsecase } from "../../../useCases/Flight/CreateFlightUsecase";
 import { FlightRepository } from "../../../adapters/repository/Flight/FlightRepository";
 import { FlightController } from "../../../adapters/controller/Flight/FlightController";
+import { GetAllFlightUsecase } from "../../../useCases/Flight/GetAllFlightUsecase";
+import { EditFlightUsecase } from "../../../useCases/Flight/EditFlightUsecase";
+import { DeleteFlightUsecase } from "../../../useCases/Flight/DeleteFlightUSecase";
 
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
@@ -85,6 +88,9 @@ const searchActivityusecase=new SearchActivityusecase(activityRepo)
 const getPAckageByDestination=new GetDestinationBasedPackageUseCase(packageRepo)
 const getAllpackageByVendor=new GetPackages(packageRepo)
 const createflightusecase=new CreateflightUsecase(flightRepo)
+const getallflightusecase=new GetAllFlightUsecase(flightRepo)
+const editflightusecase=new EditFlightUsecase(flightRepo)
+const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
@@ -96,4 +102,4 @@ export const packagecontroller=new PackageController(getAllpackageByVendor,creat
 // export const packagewisegroupcontroller=new PackageWiseGroupingController(packagewisegroupusecase,getallpackagewisegroups);
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
-export const flightcontroller=new FlightController(createflightusecase)
+export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)

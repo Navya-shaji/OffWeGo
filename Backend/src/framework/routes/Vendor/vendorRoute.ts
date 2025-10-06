@@ -183,5 +183,17 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         flightcontroller.addFlightDetails(req, res)
     );
+    this.vendorRouter.get(
+      VendorRoutes.ALL_FLIGHTS,
+      (req: Request, res: Response) => flightcontroller.getAllFlight(req, res)
+    );
+    this.vendorRouter.put(
+      VendorRoutes.EDIT_FLIGHT,
+      (req: Request, res: Response) => flightcontroller.EditFlight(req, res)
+    );
+    this.vendorRouter.delete(
+      VendorRoutes.DELETE_FLIGHT,
+      (req: Request, res: Response) => flightcontroller.DeleteFlight(req, res)
+    );
   }
 }
