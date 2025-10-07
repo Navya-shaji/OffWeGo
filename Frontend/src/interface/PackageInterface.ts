@@ -63,7 +63,7 @@ export interface Package {
   inclusions?: string[];
   amenities?: string[];
 
-  /** 🔹 Flight Details */
-  includeFlight: boolean;     // Whether a flight is included
-  flight?: Flight | null;     // Flight object or null
+
+  flightOption: boolean;     
+  flight?: Flight | null;   
 }

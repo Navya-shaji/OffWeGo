@@ -5,7 +5,7 @@ export const createBooking = async (
     packageId: string,
     selectedDate: string
 ) => {
-    const response = await axiosInstance.post(`/api/bookings/${packageId}`, {
+    const response = await axiosInstance.post('/api/create-bookings', {
         userId,
         packageId,
         selectedDate,

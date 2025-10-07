@@ -1,11 +1,26 @@
+export interface Traveler {
+  name: string;
+  age: number;
+  gender: "male" | "female" | "other"; // must match DTO
+}
+
 export interface Booking {
-  id?: string;
   userId: string;
-  packageId: string;
+  contactInfo: {
+    email: string;
+    mobile: string;
+    city: string;
+    address: string;
+  };
+  adults: Traveler[];
+  children: Traveler[];
+  selectedPackage: {
+    _id: string;
+    packageName: string;
+    price: number;
+    description?: string;
+    duration?: number;
+  };
   selectedDate: Date;
-  paymentStatus?: "pending" | "completed" | "failed";
-  numberOfPeople?: number;
-  notes?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  totalAmount: number;
 }

@@ -12,6 +12,10 @@ import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePa
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
 // import { DestinationListPage } from "@/pages/User/Destination/AllDestinationPage";
 import Destinations from "@/components/home/destinations/Destinations";
+// import TravelBookingPage from "@/pages/Vendors/TravalersDetails";
+import TravelerDetails from "@/pages/Vendors/TravalersDetails";
+// import Bookingconfirmation from "@/pages/Vendors/Booking-confirmation";
+import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 
 const UserRoute = () => {
   return (
@@ -33,6 +37,8 @@ const UserRoute = () => {
       <Route path="/destinations" element={<Destinations />} />
       <Route path="/destination/:id" element={<DestinationDetail />} />
       <Route path="/timeline" element={<PackageTimeline />} />
+      <Route path="/travaler-details" element={<TravelerDetails/>}/>
+      <Route path="/payment-checkout" element={<PaymentCheckout/>}/>
 
       <Route
         path="/"

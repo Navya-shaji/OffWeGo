@@ -27,11 +27,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/profile/navbar";
 import type { Package } from "@/interface/PackageInterface";
+import FlightOptionModal from "@/pages/Vendors/flightModal";
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
+  console.log(selectedPackage,"selectedpackage")
 
   // const userId = useSelector((state) => state?.auth?.user?.id);
 
@@ -41,6 +43,11 @@ export const PackageTimeline = () => {
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
 
+  const [selectedFlightOption, setSelectedFlightOption] = useState<
+    string | null
+  >(null);
+const [showFlightModal, setShowFlightModal] = useState(false);
+console.log(selectedDate,"date")
   useEffect(() => {
     if (selectedPackage) {
       console.log("Selected package:", selectedPackage);
@@ -82,38 +89,30 @@ export const PackageTimeline = () => {
     }).format(amount);
 
   const handleBooking = async () => {
-    // if (!userId) {
-    //   setBookingError("User not logged in. Please log in to book a package.");
-    //   return;
-    // }
     if (!selectedDate) {
       setBookingError("Please select a travel date.");
       return;
     }
 
-    setIsBookingLoading(true);
-    setBookingError(null);
-
-    try {
-      navigate("/booking", {
-        state: {
-          selectedPackage,
-        },
-      });
-      alert("success");
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Booking failed:", error);
-        setBookingError(
-          error.message || "Failed to book package. Please try again."
-        );
-      } else {
-        console.error("Booking failed:", error);
-        setBookingError("Failed to book package. Please try again.");
-      }
-    } finally {
-      setIsBookingLoading(false);
+    
+    if (selectedPackage.flightOption) {
+      console.log(selectedPackage.flightOption)
+      setShowFlightModal(true); 
+    } else {
+      proceedToBooking(null);
     }
+  };
+
+  const proceedToBooking = (
+    flightOption: "with-flight" | "without-flight" | null
+  ) => {
+    navigate("/travaler-details", {
+      state: {
+        selectedPackage,
+        flightOption: flightOption,
+        selectedDate: selectedDate,
+      },
+    });
   };
 
   return (
@@ -294,7 +293,7 @@ export const PackageTimeline = () => {
                   <CardHeader className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-8">
                     <CardTitle className="flex items-center gap-4 text-2xl">
                       <div className="p-3 bg-white/20 rounded-2xl">
-                    <Navigation className="h-8 w-8" />
+                        <Navigation className="h-8 w-8" />
                       </div>
                       <div>
                         <span className="block text-2xl font-black">
@@ -546,9 +545,7 @@ export const PackageTimeline = () => {
             </div>
           </div>
 
-       
           <div className="space-y-6">
-          
             <Card className="shadow-xl border-0 overflow-hidden bg-white/95 backdrop-blur-sm sticky top-6">
               <CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-lg">
@@ -593,7 +590,6 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
 
-        
             <Card className="shadow-xl border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6">
                 <CardTitle className="flex items-center gap-3 text-lg">
@@ -622,16 +618,17 @@ export const PackageTimeline = () => {
                     </span>
                   </div>
                   {/* <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"> */}
-                    {/* <span className="text-slate-600 font-medium">
+                  {/* <span className="text-slate-600 font-medium">
                       Per Day Cost:
                     </span> */}
-                    {/* <span className="font-bold">
+                  {/* <span className="font-bold">
                       {formatCurrency(
                         selectedPackage.price / selectedPackage.duration
                       )}
                     </span> */}
-                  </div>
+                </div>
                 {/* </div> */}
+
 
                 <Separator className="my-6" />
 
@@ -670,7 +667,6 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
 
-          
             <Card className="shadow-xl border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6">
                 <CardTitle className="text-lg">Package Highlights</CardTitle>
@@ -721,6 +717,15 @@ export const PackageTimeline = () => {
           </div>
         </div>
       </div>
+      <FlightOptionModal
+  show={showFlightModal}
+  onClose={() => setShowFlightModal(false)}
+  onProceed={proceedToBooking}
+  selectedPackage={{
+    price: selectedPackage.basePrice,
+    flightPrice: selectedPackage.flightPrice,
+  }}
+/>
     </div>
   );
 };

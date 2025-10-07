@@ -301,12 +301,14 @@ const AddPackage: React.FC = () => {
   }
 
   const calculateTotalPrice = () => {
-    const hotelsCost = formData.selectedHotels.length * 2000 * formData.duration
-    const activitiesCost = formData.selectedActivities.length * 1500
+    // const hotelsCost = formData.selectedHotels.length * 2000 * formData.duration
+    // const activitiesCost = formData.selectedActivities.length * 1500
     const flightCost = formData.includeFlight ? formData.flightPrice || 0 : 0
-    return formData.price + hotelsCost + activitiesCost + flightCost
-  }
+    console.log(flightCost,"flight")
 
+    return formData.price + flightCost
+  }
+console.log(calculateTotalPrice,"cal")
   // CRITICAL FIX: Submit handler with proper Package interface
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -354,7 +356,7 @@ const AddPackage: React.FC = () => {
       amenities: formData.amenities,
 
       includeFlight: hasFlight,
-      // Flight details will be generated after booking
+      
       flight: null,
     }
 

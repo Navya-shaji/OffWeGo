@@ -4,6 +4,8 @@ import {
   userLoginController,
   googleSignupController,
   userprofileController,
+  bookingcontroller,
+  paymentcontroller,
   
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
@@ -104,6 +106,18 @@ export class UserRoute {
         userprofileController.editProfileHandler(req, res);
       }
     );
+    this.userRouter.post(
+      UserRoutes.CREATE_BOOKING,
+      (req:Request,res:Response)=>{
+        bookingcontroller.createBooking(req,res)
+      }
+    )
+    this.userRouter.post(
+      UserRoutes.CREATE_PAYMENT,
+      (req:Request,res:Response)=>{
+        paymentcontroller.createPayment(req,res)
+      }
+    )
    
   }
 }

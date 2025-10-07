@@ -15,7 +15,7 @@ export const addPackage = async (data: Package) => {
       ...data,
       price: data.basePrice,
       vendorId,
-      flightOption: data.includeFlight,
+      flightOption: data.flightOption,
     };
 
     console.log("Submitting package payload:", payload);

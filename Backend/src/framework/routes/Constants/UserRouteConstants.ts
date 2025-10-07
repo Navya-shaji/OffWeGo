@@ -12,5 +12,7 @@ export const UserRoutes={
     RESEND_OTP:'/resend-otp',
     GET_ALL_PACKAGES:'/package/:id',
     EDIT_PROFILE:'/profile/:id',
-    CREATE_BOOKING:'/bookings/:packageId'
+    CREATE_BOOKING:'/create-bookings',
+    CREATE_PAYMENT:'/create-payment'
+    
 }

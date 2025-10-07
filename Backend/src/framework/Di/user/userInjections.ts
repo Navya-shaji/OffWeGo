@@ -16,6 +16,13 @@ import { JwtService } from "../../Services/jwtService";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
 
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
+import { CreateBookingUseCase } from "../../../useCases/Booking/CreateBookingUsecase";
+import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
+import { BookingController } from "../../../adapters/controller/Booking/BookingController";
+import { CreatePaymentUsecase } from "../../../useCases/Payment/CreatePaymentusecase";
+import { PaymentRepository } from "../../../adapters/repository/Payment/PaymentRepository";
+import { PaymentController } from "../../../adapters/controller/Payment/PaymentController"; 
+import { StripeService } from "../../Services/stripeService";
 
 
 // Setup Repos and Services
@@ -24,7 +31,10 @@ const authRepository=new AuthRepository()
 const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const jwtService=new JwtService
+const bookingRepo=new BookingRepository()
+const stripeService = new StripeService();
 // const packageRepo=new PackageRepository();
+const paymentRepo=new PaymentRepository(stripeService)
 
 
 
@@ -38,6 +48,8 @@ const userprofile=new UserProfileUsecase(userRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
 // const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
 const edituserProfile=new EditUserProfile()
+const createbookingusecase=new CreateBookingUseCase(bookingRepo)
+const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
 
 
 
@@ -46,4 +58,6 @@ export const userRegisterController = new UserRegisterController(registerUsecase
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
+export const bookingcontroller=new BookingController(createbookingusecase)
 // export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
+export const paymentcontroller=new PaymentController(createpaymentusecase)
