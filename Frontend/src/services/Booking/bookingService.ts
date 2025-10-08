@@ -1,14 +1,11 @@
 import axiosInstance from "@/axios/instance";
 
 export const createBooking = async (
-    userId: string,
-    packageId: string,
-    selectedDate: string
+   data:string,
+   payment_id:string
 ) => {
     const response = await axiosInstance.post('/api/create-bookings', {
-        userId,
-        packageId,
-        selectedDate,
+       data,payment_id
     });
   
   return response.data;

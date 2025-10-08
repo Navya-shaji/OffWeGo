@@ -1,3 +1,4 @@
+import { ContactInfo, PackageInfo, Traveler } from "../../entities/BookingEntity";
 
 
 export interface TravelerDto {
@@ -21,12 +22,19 @@ export interface ContactInfoDto {
   address: string;
 }
 
-export interface CreateBookingDto {
-  userId: string;
-  contactInfo: ContactInfoDto;
-  adults: TravelerDto[];
-  children: TravelerDto[];
-  selectedPackage: PackageDto;
+
+interface BookData {
+   userId: string;
+  contactInfo: ContactInfo;
+  adults: Traveler[];
+  children: Traveler[];
+  selectedPackage: PackageInfo;
   selectedDate: Date;
   totalAmount: number;
+  paymentIntentId?: string;
+  paymentStatus?: "pending" | "succeeded" | "failed";
+}
+export interface CreateBookingDto {
+ data :BookData,
+ payment_id:string
 }

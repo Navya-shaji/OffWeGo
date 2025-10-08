@@ -1,3 +1,4 @@
+// 1. Updated TravelerDetails.tsx - Create booking immediately
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TravelerForm from "./TravlerForm";
@@ -15,7 +16,7 @@ export default function TravelerDetails() {
   const [adultCount, setAdultCount] = useState(0);
   const [childCount, setChildCount] = useState(0);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
-  console.log(userId);
+  
   const [adultTravelers, setAdultTravelers] = useState([]);
   const [childTravelers, setChildTravelers] = useState([]);
 
@@ -67,22 +68,43 @@ export default function TravelerDetails() {
       return;
     }
 
-    try {
-      const response = await createBooking(
-        userId,
-        selectedPackage._id,
-        selectedDate
-      );
+    // Validate traveler details
+    if (adultCount > 0 && adultTravelers.some((t: any) => !t.name || !t.age || !t.gender)) {
+      toast.error("Please fill all adult traveler details");
+      return;
+    }
 
-      console.log("Booking Created:", response);
-      toast.success("Booking created successfully!");
+    if (childCount > 0 && childTravelers.some((t: any) => !t.name || !t.age || !t.gender)) {
+      toast.error("Please fill all child traveler details");
+      return;
+    }
+
+    try {
+      // Create booking with "pending" status
+      const bookingData = {
+        userId,
+        contactInfo,
+        adults: adultTravelers,
+        children: childTravelers,
+        selectedPackage: {
+          _id: selectedPackage._id,
+          name: selectedPackage.name,
+          price: selectedPackage.price,
+        },
+        selectedDate,
+        totalAmount,
+        status: "pending", // Mark as pending
+        paymentStatus: "pending",
+      };
+
+   
+      // localStorage.setItem('pendingBookingId', response._id);
+      
+      // Navigate to payment with bookingId
       navigate("/payment-checkout", {
         state: {
-          bookingId: response._id,
+          bookingData,
           totalAmount,
-          selectedPackage,
-          adultCount,
-          childCount,
         },
       });
     } catch (error) {
@@ -90,7 +112,6 @@ export default function TravelerDetails() {
       toast.error("Booking failed!");
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-5 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800">
       <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full overflow-hidden">

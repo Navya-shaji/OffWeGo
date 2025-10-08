@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 
 export const TravelerSchema = new Schema({
   name: { type: String, required: true },
@@ -25,7 +25,7 @@ export const BookingSchema = new Schema({
   contactInfo: { type: ContactInfoSchema, required: true },
   adults: { type: [TravelerSchema], default: [] },
   children: { type: [TravelerSchema], default: [] },
-  selectedPackage: { type: SelectedPackageSchema, required: true },
+  selectedPackage: { type: Types.ObjectId, required: true },
   selectedDate: { type: Date, required: true },
   totalAmount: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },

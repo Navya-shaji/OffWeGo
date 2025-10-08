@@ -13,6 +13,7 @@ export const UserRoutes={
     GET_ALL_PACKAGES:'/package/:id',
     EDIT_PROFILE:'/profile/:id',
     CREATE_BOOKING:'/create-bookings',
-    CREATE_PAYMENT:'/create-payment'
+    CREATE_PAYMENT:'/create-payment',
+    WEBHOOK:'/webhook'
     
 }

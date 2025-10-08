@@ -16,6 +16,7 @@ import Destinations from "@/components/home/destinations/Destinations";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 // import Bookingconfirmation from "@/pages/Vendors/Booking-confirmation";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
+import BookingSuccess from "@/pages/Vendors/bookingSuccess";
 
 const UserRoute = () => {
   return (
@@ -39,6 +40,7 @@ const UserRoute = () => {
       <Route path="/timeline" element={<PackageTimeline />} />
       <Route path="/travaler-details" element={<TravelerDetails/>}/>
       <Route path="/payment-checkout" element={<PaymentCheckout/>}/>
+      <Route path="/booking-success" element={<BookingSuccess/>}/>
 
       <Route
         path="/"

@@ -5,6 +5,7 @@ export interface Traveler {
 }
 
 export interface ContactInfo {
+  name: string;
   email: string;
   mobile: string;
   city: string;
@@ -27,10 +28,9 @@ export interface Booking {
   children: Traveler[];
   selectedPackage: PackageInfo;
   selectedDate: Date;
-  totalAmount: number;
+  totalAmount: number; // MUST be number for Stripe
   paymentIntentId?: string;
   paymentStatus?: "pending" | "succeeded" | "failed";
   createdAt?: Date;
   updatedAt?: Date;
-  status?: "pending" | "succeeded" | "failed";
 }

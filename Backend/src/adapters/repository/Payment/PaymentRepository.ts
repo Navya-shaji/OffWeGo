@@ -6,7 +6,6 @@ export class PaymentRepository implements IPaymentRepository {
   constructor(private stripeService: StripeService) {}
 
   async createPayment(amount: number, currency: string): Promise<Payment> {
-    // Call the StripeService to create a payment intent
     const clientSecret = await this.stripeService.createPaymentIntent(amount);
 
     return {

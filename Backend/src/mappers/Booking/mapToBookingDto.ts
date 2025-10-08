@@ -1,31 +1,29 @@
+import { CreateBookingDto } from "../../domain/dto/Booking/BookingDto";
 import { Booking } from "../../domain/entities/BookingEntity";
-import { CreateBookingDto, TravelerDto } from'../../domain/dto/Booking/BookingDto'
 
+export const mapCreateBookingDtoToBooking = (dto: CreateBookingDto): Booking => {
+  return {
+    userId: dto.userId,
+    contactInfo: dto.contactInfo,
+    adults: dto.adults,
+    children: dto.children,
+    selectedPackage: dto.selectedPackage,
+    selectedDate: dto.selectedDate,
+    totalAmount: dto.totalAmount,
+    paymentStatus: "pending",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+};
 
-const mapTravelerDtoToEntity = (travelerDto: TravelerDto) => ({
-  name: travelerDto.name,
-  age: travelerDto.age,
-  gender: travelerDto.gender,
-});
-
-
-export const mapCreateBookingDtoToBooking = (dto: CreateBookingDto): Booking => ({
-  userId: dto.userId,
-  contactInfo: {
-    email: dto.contactInfo.email,
-    mobile: dto.contactInfo.mobile,
-    city: dto.contactInfo.city,
-    address: dto.contactInfo.address,
-  },
-  adults: dto.adults.map(mapTravelerDtoToEntity),
-  children: dto.children.map(mapTravelerDtoToEntity),
-  selectedPackage: {
-    _id: dto.selectedPackage._id,
-    packageName: dto.selectedPackage.packageName,
-    price: dto.selectedPackage.price,
-    description: dto.selectedPackage.description,
-    duration: dto.selectedPackage.duration,
-  },
-  selectedDate: dto.selectedDate,
-  totalAmount: dto.totalAmount,
-});
+export const mapBookingToCreateBookingDto = (booking: Booking): CreateBookingDto => {
+  return {
+    userId: booking.userId,
+    contactInfo: booking.contactInfo,
+    adults: booking.adults,
+    children: booking.children,
+    selectedPackage: booking.selectedPackage,
+    selectedDate: booking.selectedDate,
+    totalAmount: Number(booking.totalAmount),
+  };
+};

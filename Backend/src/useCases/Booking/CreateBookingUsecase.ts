@@ -1,21 +1,25 @@
 import { CreateBookingDto } from "../../domain/dto/Booking/BookingDto";
+import { Booking } from "../../domain/entities/BookingEntity";
 import { IBookingRepository } from "../../domain/interface/Booking/IBookingRepository";
 import { ICreateBookingUseCase } from "../../domain/interface/Booking/ICreateBookingUSecase";
-import { mapCreateBookingDtoToBooking } from "../../mappers/Booking/mapToBookingDto";
 
 export class CreateBookingUseCase implements ICreateBookingUseCase {
   constructor(private bookingRepository: IBookingRepository) {}
 
-  async execute(booking: CreateBookingDto): Promise<CreateBookingDto> {
+  async execute({data,payment_id}: CreateBookingDto): Promise<Booking> {
+    
   
-    const totalAmount =
-      booking.adults.length * booking.selectedPackage.price +
-      booking.children.length * booking.selectedPackage.price * 0.8;
+    console.log('dddddddddddd',data)
+     console.log(payment_id)
+ const bookingData:Booking = {
+  ...data,
+  paymentIntentId:payment_id,
+  paymentStatus:"succeeded",
+  status:"succeeded"
+ }
 
-    const bookingWithAmount: CreateBookingDto = { ...booking, totalAmount };
+const  result = await this.bookingRepository.createBooking(bookingData)
+console.log('result',result)
 
-    const bookData = await this.bookingRepository.createBooking(bookingWithAmount);
-
-    return mapCreateBookingDtoToBooking(bookData);
-  }
+return result}
 }
