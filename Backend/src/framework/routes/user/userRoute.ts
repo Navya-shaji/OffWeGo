@@ -118,11 +118,11 @@ export class UserRoute {
         paymentcontroller.createPayment(req,res)
       }
     )
-  //  this.userRouter.post(
-  //   UserRoutes.WEBHOOK,
-  //   (req:Request,res:Response)=>{
-  //     bookingcontroller.handleStripeWebhook(req,res)
-  //   }
-  //  )
+   this.userRouter.get(
+    UserRoutes.USER_BOOKINGS,
+    (req:Request,res:Response)=>{
+      bookingcontroller.getUserBookings(req,res)
+    }
+   )
   }
 }

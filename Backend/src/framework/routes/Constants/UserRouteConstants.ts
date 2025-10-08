@@ -14,6 +14,6 @@ export const UserRoutes={
     EDIT_PROFILE:'/profile/:id',
     CREATE_BOOKING:'/create-bookings',
     CREATE_PAYMENT:'/create-payment',
-    WEBHOOK:'/webhook'
+    USER_BOOKINGS:'/bookings/:userId'
     
 }

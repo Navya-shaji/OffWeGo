@@ -1,0 +1,21 @@
+import { Booking } from "../../domain/entities/BookingEntity";
+import { CreateBookingDto } from "../../domain/dto/Booking/BookingDto";
+
+export const mapBookingToCreateBookingDto = (bookings: Booking[]): CreateBookingDto[] => {
+  return bookings.map((b) => {
+    return {
+      data: {
+        userId: b.userId,
+        contactInfo: b.contactInfo,
+        adults: b.adults || [],
+        children: b.children || [],
+        selectedPackage: b.selectedPackage,
+        selectedDate: b.selectedDate,
+        totalAmount: b.totalAmount,
+        paymentIntentId: b.paymentIntentId,
+        paymentStatus: b.paymentStatus,
+      },
+      payment_id: b.paymentIntentId || "",
+    };
+  });
+};

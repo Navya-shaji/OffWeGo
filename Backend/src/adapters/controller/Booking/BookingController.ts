@@ -1,9 +1,12 @@
 import { ICreateBookingUseCase } from "../../../domain/interface/Booking/ICreateBookingUSecase";
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IGetUserBookingUsecase } from "../../../domain/interface/Booking/IGetUserBookingUsecase";
 
 export class BookingController {
-  constructor(private _createBooking: ICreateBookingUseCase) {}
+  constructor(private _createBooking: ICreateBookingUseCase,
+    private _userbookings:IGetUserBookingUsecase
+  ) {}
 
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
@@ -16,36 +19,18 @@ export class BookingController {
     }
 
   }
-//   async handleStripeWebhook(req: Request, res: Response) {
-//     const sig = req.headers["stripe-signature"] as string;
-//     let event: Stripe.Event;
-
-//     try {
-//       event = Stripe.webhooks.constructEvent(
-//         req.body,
-//         sig,
-//         process.env.STRIPE_WEBHOOK_SECRET as string
-//       );
-//     } catch (err) {
-//       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
-//     }
-
-//     if (event.type === "payment_intent.succeeded") {
-//       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-
-// const bookingData: CreateBookingDto = {
-//   userId: paymentIntent.metadata.userId,
-//   contactInfo: JSON.parse(paymentIntent.metadata.contactInfo),
-//   adults: JSON.parse(paymentIntent.metadata.adults),
-//   children: JSON.parse(paymentIntent.metadata.children),
-//   selectedPackage: JSON.parse(paymentIntent.metadata.selectedPackage),
-//   selectedDate: new Date(paymentIntent.metadata.selectedDate),
-//   totalAmount: paymentIntent.amount / 100, // convert paise to INR
-// };;
-
-//       await this._createBooking.execute(bookingData);
-//     }
-
-//     res.status(200).json({ received: true });
-//   }
+   async getUserBookings(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.params.userId; 
+      console.log(userId)
+      const bookings = await this._userbookings.execute(userId);
+console.log(bookings)
+      res.status(HttpStatus.OK).json({ success: true, bookings });
+    } catch (error) {
+      console.error('Error fetching user bookings:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+    }
+  }
 }
+
+
