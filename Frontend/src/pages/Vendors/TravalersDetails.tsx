@@ -27,7 +27,8 @@ export default function TravelerDetails() {
     address: "",
   });
 
-  const adultPrice = selectedPackage ? selectedPackage.price : 500;
+ const packagePrice = selectedPackage?.totalPrice || selectedPackage?.price || 500;
+  const adultPrice = packagePrice;
   const childPrice = adultPrice * 0.8;
   const totalAmount = adultCount * adultPrice + childCount * childPrice;
 
@@ -68,7 +69,6 @@ export default function TravelerDetails() {
       return;
     }
 
-    // Validate traveler details
     if (adultCount > 0 && adultTravelers.some((t: any) => !t.name || !t.age || !t.gender)) {
       toast.error("Please fill all adult traveler details");
       return;
@@ -80,7 +80,6 @@ export default function TravelerDetails() {
     }
 
     try {
-      // Create booking with "pending" status
       const bookingData = {
         userId,
         contactInfo,
@@ -89,22 +88,22 @@ export default function TravelerDetails() {
         selectedPackage: {
           _id: selectedPackage._id,
           name: selectedPackage.name,
-          price: selectedPackage.price,
+          basePrice: selectedPackage.basePrice,
+          flightPrice: selectedPackage.flightPrice,
+          totalPrice: selectedPackage.totalPrice,
         },
+      
         selectedDate,
         totalAmount,
-        status: "pending", // Mark as pending
+        status: "pending",
         paymentStatus: "pending",
       };
 
-   
-      // localStorage.setItem('pendingBookingId', response._id);
-      
-      // Navigate to payment with bookingId
       navigate("/payment-checkout", {
         state: {
           bookingData,
           totalAmount,
+          
         },
       });
     } catch (error) {
@@ -234,6 +233,7 @@ export default function TravelerDetails() {
                 Confirm Booking
               </button>
             </div>
+            
           </div>
         </div>
       </div>

@@ -1,84 +1,105 @@
-"use client"
+"use client";
 
 // Complete AddPackage.tsx with all fixes
-import type React from "react"
-import { useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { addPackage } from "@/store/slice/packages/packageSlice"
-import type { AppDispatch, RootState } from "@/store/store"
-import { Plus, Trash2, Calendar, ChevronDown, ChevronRight, Sparkles, CheckCircle2, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { usePackageData } from "./usepackagedata"
-import PackageBasicInfo from "./packagebasicInfo"
-import ImageUploadSection from "./ImageUploadSection"
-import HotelsActivitiesSection from "./HotelActivitySection"
-import { usePackageValidation } from "@/Types/vendor/Package/package"
-import type { Package } from "@/interface/PackageInterface"
+import type React from "react";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addPackage } from "@/store/slice/packages/packageSlice";
+import type { AppDispatch, RootState } from "@/store/store";
+import {
+  Plus,
+  Trash2,
+  Calendar,
+  ChevronDown,
+  ChevronRight,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { usePackageData } from "./usepackagedata";
+import PackageBasicInfo from "./packagebasicInfo";
+import ImageUploadSection from "./ImageUploadSection";
+import HotelsActivitiesSection from "./HotelActivitySection";
+import { usePackageValidation } from "@/Types/vendor/Package/package";
+import type { Package } from "@/interface/PackageInterface";
 
 interface ItineraryActivity {
-  time: string
-  activity: string
+  time: string;
+  activity: string;
 }
 
 interface ItineraryDay {
-  day: number
-  activities: ItineraryActivity[]
-  isExpanded?: boolean
+  day: number;
+  activities: ItineraryActivity[];
+  isExpanded?: boolean;
 }
 
 interface Hotel {
-  hotelId?: string
-  id?: string
-  name: string
-  address: string
-  rating: number
-  destinationId?: string
+  hotelId?: string;
+  id?: string;
+  name: string;
+  address: string;
+  rating: number;
+  destinationId?: string;
 }
 
 interface Activity {
-  id?: string
-  title: string
-  description: string
-  imageUrl?: string
-  destinationId?: string
+  id?: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+  destinationId?: string;
 }
 
 interface EnhancedPackageFormData {
-  packageName: string
-  description: string
-  basePrice: number
-  duration: number
-  selectedHotels: Hotel[]
-  selectedActivities: Activity[]
-  images: string[]
-  destinationId: string
-  checkInTime: string
-  checkOutTime: string
-  itinerary: ItineraryDay[]
-  inclusions: string[]
-  amenities: string[]
-  includeFlight?: boolean
-  flightPrice?: number
+  packageName: string;
+  description: string;
+  Price: number;
+  duration: number;
+  selectedHotels: Hotel[];
+  selectedActivities: Activity[];
+  images: string[];
+  destinationId: string;
+  checkInTime: string;
+  checkOutTime: string;
+  itinerary: ItineraryDay[];
+  inclusions: string[];
+  amenities: string[];
+  includeFlight?: boolean;
 }
 
 const AddPackage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const { loading, error } = useSelector((state: RootState) => state.package)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [showValidationErrors, setShowValidationErrors] = useState(false)
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.package);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
-  const { errors, touched, validateField, validateAllFields, markFieldTouched, resetValidation, getFieldError } =
-    usePackageValidation()
+  const {
+    errors,
+    touched,
+    validateField,
+    validateAllFields,
+    markFieldTouched,
+    resetValidation,
+    getFieldError,
+  } = usePackageValidation();
 
-  const { allHotels, allActivities, destinations, loadingHotels, loadingActivities, loadingDestinations } =
-    usePackageData()
+  const {
+    allHotels,
+    allActivities,
+    destinations,
+    loadingHotels,
+    loadingActivities,
+    loadingDestinations,
+  } = usePackageData();
 
   const [formData, setFormData] = useState<EnhancedPackageFormData>({
     packageName: "",
     description: "",
-    basePrice: 0,
+    Price: 0,
     duration: 1,
     selectedHotels: [],
     selectedActivities: [],
@@ -90,105 +111,110 @@ const AddPackage: React.FC = () => {
     inclusions: [],
     amenities: [],
     includeFlight: false,
-    flightPrice: 0,
-  })
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    const numericFields = new Set(["price", "duration", "flightPrice"])
-    const newValue = numericFields.has(name) ? Number(value) : value
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    const numericFields = new Set(["price", "duration"]);
+    const newValue = numericFields.has(name) ? Number(value) : value;
 
     setFormData((prev) => ({
       ...prev,
       [name]: newValue as any,
-    }))
+    }));
 
-    if (touched[name as keyof EnhancedPackageFormData]) {
-      validateField(name as keyof EnhancedPackageFormData, newValue)
-    }
-  }
+    // if (touched[name as keyof EnhancedPackageFormData]) {
+    //   validateField(name as keyof EnhancedPackageFormData, newValue);
+    // }
+  };
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = e.target.value
+    const newValue = e.target.value;
     setFormData((prev) => ({
       ...prev,
       destinationId: newValue,
       selectedHotels: [],
       selectedActivities: [],
-    }))
+    }));
 
-    markFieldTouched("destinationId")
-    validateField("destinationId", newValue)
-  }
+    markFieldTouched("destinationId");
+    validateField("destinationId", newValue);
+  };
 
   // CRITICAL FIX: Proper hotel selection handler
   const handleHotelSelection = (hotelIds: string[]) => {
-    const selectedHotelObjects = allHotels.filter((hotel) => hotelIds.includes(hotel.hotelId || hotel.id || ""))
+    const selectedHotelObjects = allHotels.filter((hotel) =>
+      hotelIds.includes(hotel.hotelId || hotel.id || "")
+    );
 
     setFormData((prev) => ({
       ...prev,
       selectedHotels: selectedHotelObjects,
-    }))
+    }));
 
     if (touched.selectedHotels) {
-      validateField("selectedHotels", selectedHotelObjects)
+      validateField("selectedHotels", selectedHotelObjects);
     }
-  }
+  };
 
   // CRITICAL FIX: Proper activity selection handler
   const handleActivitySelection = (activityIds: string[]) => {
-    const selectedActivityObjects = allActivities.filter((activity) => activityIds.includes(activity.id || ""))
+    const selectedActivityObjects = allActivities.filter((activity) =>
+      activityIds.includes(activity.id || "")
+    );
 
     setFormData((prev) => ({
       ...prev,
       selectedActivities: selectedActivityObjects,
-    }))
+    }));
 
     if (touched.selectedActivities) {
-      validateField("selectedActivities", selectedActivityObjects)
+      validateField("selectedActivities", selectedActivityObjects);
     }
-  }
+  };
 
   const addDay = () => {
     const newDay: ItineraryDay = {
       day: formData.itinerary.length + 1,
       activities: [{ time: "", activity: "" }],
       isExpanded: true,
-    }
-    const newItinerary = [...formData.itinerary, newDay]
+    };
+    const newItinerary = [...formData.itinerary, newDay];
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
-    }))
+    }));
 
     if (touched.itinerary) {
-      validateField("itinerary", newItinerary)
+      validateField("itinerary", newItinerary);
     }
-  }
+  };
 
   const removeDay = (dayIndex: number) => {
     const newItinerary = formData.itinerary
       .filter((_, index) => index !== dayIndex)
-      .map((day, index) => ({ ...day, day: index + 1 }))
+      .map((day, index) => ({ ...day, day: index + 1 }));
 
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
-    }))
+    }));
 
     if (touched.itinerary) {
-      validateField("itinerary", newItinerary)
+      validateField("itinerary", newItinerary);
     }
-  }
+  };
 
   const toggleDayExpansion = (dayIndex: number) => {
     setFormData((prev) => ({
       ...prev,
       itinerary: prev.itinerary.map((day, index) =>
-        index === dayIndex ? { ...day, isExpanded: !day.isExpanded } : day,
+        index === dayIndex ? { ...day, isExpanded: !day.isExpanded } : day
       ),
-    }))
-  }
+    }));
+  };
 
   const addActivityToDay = (dayIndex: number) => {
     const newItinerary = formData.itinerary.map((day, index) =>
@@ -197,66 +223,75 @@ const AddPackage: React.FC = () => {
             ...day,
             activities: [...day.activities, { time: "", activity: "" }],
           }
-        : day,
-    )
+        : day
+    );
 
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
-    }))
+    }));
 
     if (touched.itinerary) {
-      validateField("itinerary", newItinerary)
+      validateField("itinerary", newItinerary);
     }
-  }
+  };
 
   const removeActivityFromDay = (dayIndex: number, activityIndex: number) => {
     const newItinerary = formData.itinerary.map((day, index) =>
       index === dayIndex
         ? {
             ...day,
-            activities: day.activities.filter((_, aIndex) => aIndex !== activityIndex),
+            activities: day.activities.filter(
+              (_, aIndex) => aIndex !== activityIndex
+            ),
           }
-        : day,
-    )
+        : day
+    );
 
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
-    }))
+    }));
 
     if (touched.itinerary) {
-      validateField("itinerary", newItinerary)
+      validateField("itinerary", newItinerary);
     }
-  }
+  };
 
-  const updateActivity = (dayIndex: number, activityIndex: number, field: "time" | "activity", value: string) => {
+  const updateActivity = (
+    dayIndex: number,
+    activityIndex: number,
+    field: "time" | "activity",
+    value: string
+  ) => {
     const newItinerary = formData.itinerary.map((day, dIndex) =>
       dIndex === dayIndex
         ? {
             ...day,
             activities: day.activities.map((activity, aIndex) =>
-              aIndex === activityIndex ? { ...activity, [field]: value } : activity,
+              aIndex === activityIndex
+                ? { ...activity, [field]: value }
+                : activity
             ),
           }
-        : day,
-    )
+        : day
+    );
 
     setFormData((prev) => ({
       ...prev,
       itinerary: newItinerary,
-    }))
+    }));
 
     if (touched.itinerary) {
-      validateField("itinerary", newItinerary)
+      validateField("itinerary", newItinerary);
     }
-  }
+  };
 
   const generateBasicItinerary = () => {
-    const basicItinerary: ItineraryDay[] = []
+    const basicItinerary: ItineraryDay[] = [];
 
     for (let i = 1; i <= formData.duration; i++) {
-      let dayActivities: ItineraryActivity[] = []
+      let dayActivities: ItineraryActivity[] = [];
 
       if (i === 1) {
         dayActivities = [
@@ -268,14 +303,14 @@ const AddPackage: React.FC = () => {
           { time: "5:00 PM", activity: "Local area exploration" },
           { time: "7:00 PM", activity: "Evening tea & snacks" },
           { time: "8:00 PM", activity: "Dinner" },
-        ]
+        ];
       } else if (i === formData.duration) {
         dayActivities = [
           { time: "6:00 AM", activity: "Early morning activity" },
           { time: "8:00 AM", activity: "Breakfast" },
           { time: "10:00 AM", activity: "Final sightseeing" },
           { time: formData.checkOutTime || "12:00 PM", activity: "Check-out" },
-        ]
+        ];
       } else {
         dayActivities = [
           { time: "6:00 AM", activity: "Morning activity" },
@@ -285,43 +320,37 @@ const AddPackage: React.FC = () => {
           { time: "3:00 PM", activity: "Afternoon activity" },
           { time: "7:00 PM", activity: "Evening activity" },
           { time: "8:00 PM", activity: "Dinner" },
-        ]
+        ];
       }
 
       basicItinerary.push({
         day: i,
         activities: dayActivities,
         isExpanded: true,
-      })
+      });
     }
 
-    setFormData((prev) => ({ ...prev, itinerary: basicItinerary }))
-    markFieldTouched("itinerary")
-    validateField("itinerary", basicItinerary)
-  }
-
+    setFormData((prev) => ({ ...prev, itinerary: basicItinerary }));
+    markFieldTouched("itinerary");
+    validateField("itinerary", basicItinerary);
+  };
   const calculateTotalPrice = () => {
-    // const hotelsCost = formData.selectedHotels.length * 2000 * formData.duration
-    // const activitiesCost = formData.selectedActivities.length * 1500
-    const flightCost = formData.includeFlight ? formData.flightPrice || 0 : 0
-    console.log(flightCost,"flight")
-
-    return formData.price + flightCost
-  }
-console.log(calculateTotalPrice,"cal")
+    return formData.price;
+  };
+  console.log(calculateTotalPrice, "cal");
   // CRITICAL FIX: Submit handler with proper Package interface
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setShowValidationErrors(true)
+    e.preventDefault();
+    setShowValidationErrors(true);
 
-    const isValid = validateAllFields(formData)
+    const isValid = validateAllFields(formData);
     if (!isValid) {
-      const firstErrorField = Object.keys(errors).find((key) => errors[key])
+      const firstErrorField = Object.keys(errors).find((key) => errors[key]);
       if (firstErrorField) {
-        const element = document.getElementsByName(firstErrorField)[0]
-        element?.scrollIntoView({ behavior: "smooth", block: "center" })
+        const element = document.getElementsByName(firstErrorField)[0];
+        element?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
-      return
+      return;
     }
 
     const simpleItinerary = formData.itinerary.flatMap((day) =>
@@ -329,10 +358,10 @@ console.log(calculateTotalPrice,"cal")
         day: day.day,
         time: activity.time,
         activity: activity.activity,
-      })),
-    )
+      }))
+    );
 
-    const hasFlight = !!formData.includeFlight
+    const hasFlight = !!formData.includeFlight;
 
     const completePackage: Package = {
       id: crypto.randomUUID(),
@@ -356,15 +385,15 @@ console.log(calculateTotalPrice,"cal")
       amenities: formData.amenities,
 
       includeFlight: hasFlight,
-      
-      flight: null,
-    }
 
-    console.log("Submitting package:", completePackage)
-    dispatch(addPackage(completePackage))
-    setIsSubmitted(true)
-    setShowValidationErrors(false)
-    resetValidation()
+      flight: null,
+    };
+
+    console.log("Submitting package:", completePackage);
+    dispatch(addPackage(completePackage));
+    setIsSubmitted(true);
+    setShowValidationErrors(false);
+    resetValidation();
 
     setFormData({
       packageName: "",
@@ -382,23 +411,25 @@ console.log(calculateTotalPrice,"cal")
       amenities: [],
       includeFlight: false,
       flightPrice: 0,
-    })
+    });
 
-    setTimeout(() => setIsSubmitted(false), 3000)
-  }
+    setTimeout(() => setIsSubmitted(false), 3000);
+  };
 
-  const totalPrice = calculateTotalPrice()
-  const selectedDestination = destinations.find((dest) => dest.id === formData.destinationId)
+  const totalPrice = calculateTotalPrice();
+  const selectedDestination = destinations.find(
+    (dest) => dest.id === formData.destinationId
+  );
 
   const ErrorMessage = ({ message }: { message: string }) => {
-    if (!message) return null
+    if (!message) return null;
     return (
       <div className="flex items-center gap-2 mt-2 text-red-600 text-sm font-medium">
         <AlertCircle className="h-4 w-4" />
         <span>{message}</span>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -413,7 +444,9 @@ console.log(calculateTotalPrice,"cal")
           <h1 className="text-6xl font-extrabold bg-gradient-to-r from-black to-black bg-clip-text text-transparent mb-4">
             Create Travel Package
           </h1>
-          <p className="text-xl text-slate-600 font-medium">Design extraordinary travel experiences</p>
+          <p className="text-xl text-slate-600 font-medium">
+            Design extraordinary travel experiences
+          </p>
         </div>
 
         <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-xl">
@@ -437,7 +470,9 @@ console.log(calculateTotalPrice,"cal")
             {showValidationErrors && Object.values(errors).some((e) => e) && (
               <Alert variant="destructive" className="mb-8">
                 <AlertCircle className="h-5 w-5" />
-                <AlertDescription>Please fix the validation errors before submitting</AlertDescription>
+                <AlertDescription>
+                  Please fix the validation errors before submitting
+                </AlertDescription>
               </Alert>
             )}
 
@@ -448,8 +483,12 @@ console.log(calculateTotalPrice,"cal")
                     <PackageBasicInfo
                       formData={{
                         ...formData,
-                        selectedHotels: formData.selectedHotels.map((h) => h.hotelId || h.id || ""),
-                        selectedActivities: formData.selectedActivities.map((a) => a.id || ""),
+                        selectedHotels: formData.selectedHotels.map(
+                          (h) => h.hotelId || h.id || ""
+                        ),
+                        selectedActivities: formData.selectedActivities.map(
+                          (a) => a.id || ""
+                        ),
                       }}
                       destinations={destinations}
                       loadingDestinations={loadingDestinations}
@@ -470,9 +509,9 @@ console.log(calculateTotalPrice,"cal")
                     <ImageUploadSection
                       images={formData.images}
                       onImagesChange={(images) => {
-                        setFormData((prev) => ({ ...prev, images }))
+                        setFormData((prev) => ({ ...prev, images }));
                         if (touched.images) {
-                          validateField("images", images)
+                          validateField("images", images);
                         }
                       }}
                     />
@@ -485,8 +524,12 @@ console.log(calculateTotalPrice,"cal")
                       selectedDestination={selectedDestination}
                       filteredHotels={allHotels}
                       filteredActivities={allActivities}
-                      selectedHotels={formData.selectedHotels.map((h) => h.hotelId || h.id || "")}
-                      selectedActivities={formData.selectedActivities.map((a) => a.id || "")}
+                      selectedHotels={formData.selectedHotels.map(
+                        (h) => h.hotelId || h.id || ""
+                      )}
+                      selectedActivities={formData.selectedActivities.map(
+                        (a) => a.id || ""
+                      )}
                       loadingHotels={loadingHotels}
                       loadingActivities={loadingActivities}
                       duration={formData.duration}
@@ -494,14 +537,18 @@ console.log(calculateTotalPrice,"cal")
                       onActivitySelection={handleActivitySelection}
                     />
                     <ErrorMessage message={getFieldError("selectedHotels")} />
-                    <ErrorMessage message={getFieldError("selectedActivities")} />
+                    <ErrorMessage
+                      message={getFieldError("selectedActivities")}
+                    />
                   </div>
 
                   <Card className="shadow-xl">
                     <CardContent className="p-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                          <label className="block text-sm font-bold mb-2">Check-in Time</label>
+                          <label className="block text-sm font-bold mb-2">
+                            Check-in Time
+                          </label>
                           <input
                             type="text"
                             name="checkInTime"
@@ -510,10 +557,14 @@ console.log(calculateTotalPrice,"cal")
                             placeholder="e.g. 3:00 PM"
                             className="w-full p-4 border-2 rounded-xl"
                           />
-                          <ErrorMessage message={getFieldError("checkInTime")} />
+                          <ErrorMessage
+                            message={getFieldError("checkInTime")}
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm font-bold mb-2">Check-out Time</label>
+                          <label className="block text-sm font-bold mb-2">
+                            Check-out Time
+                          </label>
                           <input
                             type="text"
                             name="checkOutTime"
@@ -522,13 +573,14 @@ console.log(calculateTotalPrice,"cal")
                             placeholder="e.g. 12:00 PM"
                             className="w-full p-4 border-2 rounded-xl"
                           />
-                          <ErrorMessage message={getFieldError("checkOutTime")} />
+                          <ErrorMessage
+                            message={getFieldError("checkOutTime")}
+                          />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Itinerary section - keeping the original detailed UI */}
                   <Card className="shadow-xl">
                     <CardHeader className="bg-gradient-to-r bg-black text-white">
                       <CardTitle className="flex items-center justify-between">
@@ -544,7 +596,13 @@ console.log(calculateTotalPrice,"cal")
                             <Sparkles className="h-4 w-4 mr-2" />
                             Auto-Generate
                           </Button>
-                          <Button type="button" onClick={addDay} variant="outline" size="sm" className="bg-white/20">
+                          <Button
+                            type="button"
+                            onClick={addDay}
+                            variant="outline"
+                            size="sm"
+                            className="bg-white/20"
+                          >
                             <Plus className="h-4 w-4 mr-2" />
                             Add Day
                           </Button>
@@ -555,13 +613,18 @@ console.log(calculateTotalPrice,"cal")
                       {formData.itinerary.length === 0 ? (
                         <div className="text-center py-16 text-gray-500">
                           <Calendar className="h-20 w-20 mx-auto mb-6 text-gray-300" />
-                          <p className="text-2xl font-bold mb-2">No itinerary added yet</p>
+                          <p className="text-2xl font-bold mb-2">
+                            No itinerary added yet
+                          </p>
                           <p>Click "Add Day" or "Auto-Generate"</p>
                         </div>
                       ) : (
                         formData.itinerary.map((day, dayIndex) => (
                           <Card key={dayIndex} className="mb-4">
-                            <CardHeader className="cursor-pointer" onClick={() => toggleDayExpansion(dayIndex)}>
+                            <CardHeader
+                              className="cursor-pointer"
+                              onClick={() => toggleDayExpansion(dayIndex)}
+                            >
                               <CardTitle className="flex justify-between">
                                 <div className="flex items-center gap-4">
                                   {day.isExpanded ? (
@@ -574,8 +637,8 @@ console.log(calculateTotalPrice,"cal")
                                 <Button
                                   type="button"
                                   onClick={(e) => {
-                                    e.stopPropagation()
-                                    removeDay(dayIndex)
+                                    e.stopPropagation();
+                                    removeDay(dayIndex);
                                   }}
                                   variant="outline"
                                   size="sm"
@@ -587,24 +650,46 @@ console.log(calculateTotalPrice,"cal")
                             {day.isExpanded && (
                               <CardContent>
                                 {day.activities.map((activity, actIndex) => (
-                                  <div key={actIndex} className="flex gap-4 mb-4">
+                                  <div
+                                    key={actIndex}
+                                    className="flex gap-4 mb-4"
+                                  >
                                     <input
                                       type="text"
                                       placeholder="Time"
                                       value={activity.time}
-                                      onChange={(e) => updateActivity(dayIndex, actIndex, "time", e.target.value)}
+                                      onChange={(e) =>
+                                        updateActivity(
+                                          dayIndex,
+                                          actIndex,
+                                          "time",
+                                          e.target.value
+                                        )
+                                      }
                                       className="w-36 p-3 border-2 rounded-lg"
                                     />
                                     <input
                                       type="text"
                                       placeholder="Activity"
                                       value={activity.activity}
-                                      onChange={(e) => updateActivity(dayIndex, actIndex, "activity", e.target.value)}
+                                      onChange={(e) =>
+                                        updateActivity(
+                                          dayIndex,
+                                          actIndex,
+                                          "activity",
+                                          e.target.value
+                                        )
+                                      }
                                       className="flex-1 p-3 border-2 rounded-lg"
                                     />
                                     <Button
                                       type="button"
-                                      onClick={() => removeActivityFromDay(dayIndex, actIndex)}
+                                      onClick={() =>
+                                        removeActivityFromDay(
+                                          dayIndex,
+                                          actIndex
+                                        )
+                                      }
                                       variant="outline"
                                       size="sm"
                                     >
@@ -643,11 +728,11 @@ console.log(calculateTotalPrice,"cal")
                           const newInclusions = e.target.value
                             .split(",")
                             .map((i) => i.trim())
-                            .filter((i) => i)
+                            .filter((i) => i);
                           setFormData((prev) => ({
                             ...prev,
                             inclusions: newInclusions,
-                          }))
+                          }));
                         }}
                         rows={5}
                         className="w-full p-4 border-2 rounded-xl"
@@ -669,11 +754,11 @@ console.log(calculateTotalPrice,"cal")
                           const newAmenities = e.target.value
                             .split(",")
                             .map((a) => a.trim())
-                            .filter((a) => a)
+                            .filter((a) => a);
                           setFormData((prev) => ({
                             ...prev,
                             amenities: newAmenities,
-                          }))
+                          }));
                         }}
                         rows={5}
                         className="w-full p-4 border-2 rounded-xl"
@@ -689,7 +774,9 @@ console.log(calculateTotalPrice,"cal")
                     </CardHeader>
                     <CardContent className="p-8 space-y-6">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold">Offer with-flight option</label>
+                        <label className="text-sm font-semibold">
+                          Offer with-flight option
+                        </label>
                         {/* Using shadcn switch */}
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-600">No</span>
@@ -697,7 +784,12 @@ console.log(calculateTotalPrice,"cal")
                             aria-label="Include flight option"
                             type="checkbox"
                             checked={!!formData.includeFlight}
-                            onChange={(e) => setFormData((prev) => ({ ...prev, includeFlight: e.target.checked }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                includeFlight: e.target.checked,
+                              }))
+                            }
                             className="h-5 w-5 rounded"
                           />
                           <span className="text-sm text-gray-600">Yes</span>
@@ -706,20 +798,9 @@ console.log(calculateTotalPrice,"cal")
 
                       {formData.includeFlight && (
                         <div className="grid grid-cols-1 gap-4">
-                          <div>
-                            <label className="block text-sm font-bold mb-2">Flight Add-on Price (₹)</label>
-                            <input
-                              type="number"
-                              name="flightPrice"
-                              value={formData.flightPrice ?? 0}
-                              onChange={handleChange}
-                              placeholder="e.g. 12000"
-                              className="w-full p-4 border-2 rounded-xl"
-                              min={0}
-                            />
-                          </div>
                           <p className="text-sm text-gray-600">
-                            Flight details are not required now and will be generated after the booking is confirmed.
+                            Flight details are not required now and will be
+                            generated after the booking is confirmed.
                           </p>
                         </div>
                       )}
@@ -743,9 +824,7 @@ console.log(calculateTotalPrice,"cal")
                   ) : (
                     <>
                       <Sparkles className="h-6 w-6 mr-4" />
-                      {formData.includeFlight
-                        ? `Create Package - ₹${formData.basePrice.toLocaleString()} (without flight) / ₹${totalPrice.toLocaleString()} (with flight)`
-                        : `Create Package - ₹${formData.basePrice.toLocaleString()}`}
+                      {formData.Price}
                     </>
                   )}
                 </Button>
@@ -755,7 +834,7 @@ console.log(calculateTotalPrice,"cal")
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddPackage
+export default AddPackage;

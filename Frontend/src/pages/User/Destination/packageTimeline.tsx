@@ -26,8 +26,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/profile/navbar";
-import type { Package } from "@/interface/PackageInterface";
-import FlightOptionModal from "@/pages/Vendors/flightModal";
+import type { Flight, Package } from "@/interface/PackageInterface";
+import FlightSearchModal from "@/pages/Vendors/flightModal";
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
@@ -102,18 +102,29 @@ console.log(selectedDate,"date")
       proceedToBooking(null);
     }
   };
+const proceedToBooking = (
+  flightOption: "with-flight" | "without-flight" | null,
+  selectedFlight?: Flight
+) => {
+  // Calculate total price
+  const basePackagePrice = selectedPackage.price;
+  const flightPrice = selectedFlight ? selectedFlight.price : 0;
+  const totalPrice = basePackagePrice + flightPrice;
 
-  const proceedToBooking = (
-    flightOption: "with-flight" | "without-flight" | null
-  ) => {
-    navigate("/travaler-details", {
-      state: {
-        selectedPackage,
-        flightOption: flightOption,
-        selectedDate: selectedDate,
+  navigate("/travaler-details", {
+    state: {
+      selectedPackage: {
+        ...selectedPackage,
+        totalPrice: totalPrice, // Total including flight if selected
+        basePrice: basePackagePrice, // Original package price
+        flightPrice: flightPrice, // Flight price (0 if no flight)
       },
-    });
-  };
+      flightOption: flightOption,
+      selectedFlight: selectedFlight, // Pass the full flight object
+      selectedDate: selectedDate,
+    },
+  });
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
@@ -717,12 +728,12 @@ console.log(selectedDate,"date")
           </div>
         </div>
       </div>
-      <FlightOptionModal
+<FlightSearchModal
   show={showFlightModal}
   onClose={() => setShowFlightModal(false)}
   onProceed={proceedToBooking}
   selectedPackage={{
-    price: selectedPackage.basePrice,
+    price: selectedPackage.price,
     flightPrice: selectedPackage.flightPrice,
   }}
 />
