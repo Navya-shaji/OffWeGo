@@ -40,6 +40,7 @@ export const getAllHotel = async (
         currentPage: 1,
       };
     }
+    
 
     return {
       hotels,

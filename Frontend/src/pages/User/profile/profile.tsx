@@ -3,34 +3,33 @@ import type { RootState } from "@/store/store";
 import Navbar from "@/components/profile/navbar";
 import EditProfileModal from "./EditProfile";
 import { useState } from "react";
-import ProfileSidebar from "@/components/profile/sidebar"; 
-import BookingDetailsSection from "../Bookings/UserBookings"; 
+import ProfileSidebar from "@/components/profile/sidebar";
+import BookingDetailsSection from "../Bookings/UserBookings";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isEditOpen, setEditOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<"profile" | "bookings">("profile");
+  const [activeSection, setActiveSection] = useState<"profile" | "bookings">(
+    "profile"
+  );
 
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gray-50">
-  
       <Navbar />
 
-
       <div className="flex gap-6 p-6 mt-16 max-w-7xl mx-auto">
-   
         <div className="w-80 flex-shrink-0">
           <ProfileSidebar
             activeSection={activeSection}
-            setActiveSection={setActiveSection}
+            setActiveSection={(section: string) =>
+              setActiveSection(section as "profile" | "bookings")
+            }
           />
         </div>
 
-
         <div className="flex-1 min-w-0">
-      
           {activeSection === "profile" && (
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-8 py-6">
@@ -49,7 +48,9 @@ const Profile = () => {
                     )}
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-white">My Profile</h1>
+                    <h1 className="text-2xl font-bold text-white">
+                      My Profile
+                    </h1>
                     <p className="text-gray-300">
                       Manage your account information
                     </p>
@@ -114,7 +115,10 @@ const Profile = () => {
       </div>
 
       {/* Edit Profile Modal */}
-      <EditProfileModal isOpen={isEditOpen} onClose={() => setEditOpen(false)} />
+      <EditProfileModal
+        isOpen={isEditOpen}
+        onClose={() => setEditOpen(false)}
+      />
     </div>
   );
 };

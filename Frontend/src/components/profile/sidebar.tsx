@@ -7,7 +7,6 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState } from "@/store/store";
-import ImageUploader from "./uploadImage";
 
 interface ProfileSidebarProps {
   activeSection: string;

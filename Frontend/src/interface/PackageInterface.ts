@@ -40,26 +40,26 @@ export interface Package {
   packageName: string;
   description: string;
 
-  /** 🔹 Prices */
-  basePrice: number;          // Main package price
-  flightPrice?: number;       // Price of flight (if applicable)
 
-  /** 🔹 Duration & Dates */
+  price: number;         
+  flightPrice?: number;       
+
+
   duration?: number;
   startDate?: string | Date;
   endDate?: string | Date;
 
-  /** 🔹 Media & Related Models */
+
   images: string[];
   hotels: Hotel[];
   activities: Activity[];
 
-  /** 🔹 Times & Schedule */
+
   checkInTime?: string;
   checkOutTime?: string;
   itinerary?: Itinerary[];
 
-  /** 🔹 Details */
+
   inclusions?: string[];
   amenities?: string[];
 

@@ -1,6 +1,3 @@
-"use client";
-
-// Complete AddPackage.tsx with all fixes
 import type React from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +35,7 @@ interface ItineraryDay {
 }
 
 interface Hotel {
-  hotelId?: string;
+  hotelId: string;
   id?: string;
   name: string;
   address: string;
@@ -47,17 +44,17 @@ interface Hotel {
 }
 
 interface Activity {
-  id?: string;
+  id: string;
   title: string;
   description: string;
-  imageUrl?: string;
+  imageUrl: string;
   destinationId?: string;
 }
 
 interface EnhancedPackageFormData {
   packageName: string;
   description: string;
-  price: number;
+  price: number; 
   duration: number;
   selectedHotels: Hotel[];
   selectedActivities: Activity[];
@@ -68,7 +65,8 @@ interface EnhancedPackageFormData {
   itinerary: ItineraryDay[];
   inclusions: string[];
   amenities: string[];
-  includeFlight?: boolean;
+  flightOption: boolean; 
+  flightPrice?: number; 
 }
 
 const AddPackage: React.FC = () => {
@@ -81,7 +79,7 @@ const AddPackage: React.FC = () => {
     errors,
     touched,
     validateField,
-    validateAllFields,
+   
     markFieldTouched,
     resetValidation,
     getFieldError,
@@ -99,7 +97,7 @@ const AddPackage: React.FC = () => {
   const [formData, setFormData] = useState<EnhancedPackageFormData>({
     packageName: "",
     description: "",
-    Price: 0,
+    price: 0, 
     duration: 1,
     selectedHotels: [],
     selectedActivities: [],
@@ -110,24 +108,21 @@ const AddPackage: React.FC = () => {
     itinerary: [],
     inclusions: [],
     amenities: [],
-    includeFlight: false,
+    flightOption: false,
+    flightPrice: 0, 
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    const numericFields = new Set(["price", "duration"]);
+    const numericFields = new Set(["price", "duration", "flightPrice"]);
     const newValue = numericFields.has(name) ? Number(value) : value;
 
     setFormData((prev) => ({
       ...prev,
       [name]: newValue as any,
     }));
-
-    // if (touched[name as keyof EnhancedPackageFormData]) {
-    //   validateField(name as keyof EnhancedPackageFormData, newValue);
-    // }
   };
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -138,42 +133,45 @@ const AddPackage: React.FC = () => {
       selectedHotels: [],
       selectedActivities: [],
     }));
+    
 
     markFieldTouched("destinationId");
     validateField("destinationId", newValue);
   };
 
-  // CRITICAL FIX: Proper hotel selection handler
-  const handleHotelSelection = (hotelIds: string[]) => {
-    const selectedHotelObjects = allHotels.filter((hotel) =>
-      hotelIds.includes(hotel.hotelId || hotel.id || "")
-    );
-
-    setFormData((prev) => ({
-      ...prev,
-      selectedHotels: selectedHotelObjects,
+const handleHotelSelection = (hotelIds: string[]) => {
+  const selectedHotelObjects = allHotels
+    .filter((hotel) => hotelIds.includes(hotel.hotelId || hotel.id || ""))
+    .map((hotel) => ({
+      ...hotel,
+      hotelId: hotel.hotelId || hotel.id || "", 
     }));
 
-    if (touched.selectedHotels) {
-      validateField("selectedHotels", selectedHotelObjects);
-    }
-  };
+  setFormData((prev) => ({
+    ...prev,
+    selectedHotels: selectedHotelObjects,
+  }));
+};
 
-  // CRITICAL FIX: Proper activity selection handler
-  const handleActivitySelection = (activityIds: string[]) => {
-    const selectedActivityObjects = allActivities.filter((activity) =>
-      activityIds.includes(activity.id || "")
-    );
 
-    setFormData((prev) => ({
-      ...prev,
-      selectedActivities: selectedActivityObjects,
+const handleActivitySelection = (activityIds: string[]) => {
+  const selectedActivityObjects = allActivities
+    .filter((activity) => activityIds.includes(activity.id || ""))
+    .map((activity) => ({
+      ...activity,
+      id: activity.id || "", 
     }));
 
-    if (touched.selectedActivities) {
-      validateField("selectedActivities", selectedActivityObjects);
-    }
-  };
+  setFormData((prev) => ({
+    ...prev,
+    selectedActivities: selectedActivityObjects,
+  }));
+
+  // if (touched.selectedActivities) {
+  //   validateField("selectedActivities", selectedActivityObjects);
+  // }
+};
+
 
   const addDay = () => {
     const newDay: ItineraryDay = {
@@ -334,24 +332,20 @@ const AddPackage: React.FC = () => {
     markFieldTouched("itinerary");
     validateField("itinerary", basicItinerary);
   };
-  const calculateTotalPrice = () => {
-    return formData.price;
-  };
-  console.log(calculateTotalPrice, "cal");
-  // CRITICAL FIX: Submit handler with proper Package interface
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowValidationErrors(true);
 
-    const isValid = validateAllFields(formData);
-    if (!isValid) {
-      const firstErrorField = Object.keys(errors).find((key) => errors[key]);
-      if (firstErrorField) {
-        const element = document.getElementsByName(firstErrorField)[0];
-        element?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      return;
-    }
+    // const isValid = validateAllFields(formData);
+    // if (!isValid) {
+    //   const firstErrorField = Object.keys(errors).find((key) => errors[key]);
+    //   if (firstErrorField) {
+    //     const element = document.getElementsByName(firstErrorField)[0];
+    //     element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    //   }
+    //   return;
+    // }
 
     const simpleItinerary = formData.itinerary.flatMap((day) =>
       day.activities.map((activity) => ({
@@ -361,17 +355,16 @@ const AddPackage: React.FC = () => {
       }))
     );
 
-    const hasFlight = !!formData.includeFlight;
+
+    const hasFlight = formData.flightOption === true;
 
     const completePackage: Package = {
       id: crypto.randomUUID(),
       destinationId: formData.destinationId,
       packageName: formData.packageName,
       description: formData.description,
-
-      basePrice: Number(formData.price || 0),
+      price: Number(formData.price || 0),
       flightPrice: hasFlight ? Number(formData.flightPrice || 0) : undefined,
-
       duration: formData.duration,
       startDate: new Date(),
       endDate: new Date(Date.now() + formData.duration * 24 * 60 * 60 * 1000),
@@ -383,13 +376,13 @@ const AddPackage: React.FC = () => {
       itinerary: simpleItinerary,
       inclusions: formData.inclusions,
       amenities: formData.amenities,
-
-      includeFlight: hasFlight,
-
+      flightOption: hasFlight, 
       flight: null,
     };
 
     console.log("Submitting package:", completePackage);
+    console.log("includeFlight value:", hasFlight);
+    
     dispatch(addPackage(completePackage));
     setIsSubmitted(true);
     setShowValidationErrors(false);
@@ -398,7 +391,7 @@ const AddPackage: React.FC = () => {
     setFormData({
       packageName: "",
       description: "",
-      basePrice: 0,
+      price: 0, 
       duration: 1,
       selectedHotels: [],
       selectedActivities: [],
@@ -409,14 +402,14 @@ const AddPackage: React.FC = () => {
       itinerary: [],
       inclusions: [],
       amenities: [],
-      includeFlight: false,
+      flightOption: false,
       flightPrice: 0,
     });
 
     setTimeout(() => setIsSubmitted(false), 3000);
   };
 
-  const totalPrice = calculateTotalPrice();
+
   const selectedDestination = destinations.find(
     (dest) => dest.id === formData.destinationId
   );
@@ -433,7 +426,6 @@ const AddPackage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Background decorations */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl animate-pulse"></div>
@@ -715,7 +707,6 @@ const AddPackage: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Inclusions */}
                   <Card>
                     <CardHeader className="bg-black text-white">
                       <CardTitle>Package Inclusions</CardTitle>
@@ -741,7 +732,6 @@ const AddPackage: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Amenities */}
                   <Card>
                     <CardHeader className="bg-black text-white">
                       <CardTitle>Available Amenities</CardTitle>
@@ -767,7 +757,7 @@ const AddPackage: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Flight (optional) */}
+                
                   <Card className="shadow-xl">
                     <CardHeader className="bg-black text-white">
                       <CardTitle>Flight (optional)</CardTitle>
@@ -777,17 +767,16 @@ const AddPackage: React.FC = () => {
                         <label className="text-sm font-semibold">
                           Offer with-flight option
                         </label>
-                        {/* Using shadcn switch */}
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-600">No</span>
                           <input
                             aria-label="Include flight option"
                             type="checkbox"
-                            checked={!!formData.includeFlight}
+                            checked={formData.flightOption}
                             onChange={(e) =>
                               setFormData((prev) => ({
                                 ...prev,
-                                includeFlight: e.target.checked,
+                                flightOption: e.target.checked,
                               }))
                             }
                             className="h-5 w-5 rounded"
@@ -796,12 +785,25 @@ const AddPackage: React.FC = () => {
                         </div>
                       </div>
 
-                      {formData.includeFlight && (
+                      {formData.flightOption && (
                         <div className="grid grid-cols-1 gap-4">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 mb-2">
                             Flight details are not required now and will be
                             generated after the booking is confirmed.
                           </p>
+                          <div>
+                            <label className="block text-sm font-bold mb-2">
+                              Flight Price (optional)
+                            </label>
+                            <input
+                              type="number"
+                              name="flightPrice"
+                              value={formData.flightPrice || 0}
+                              onChange={handleChange}
+                              placeholder="Enter flight price"
+                              className="w-full p-4 border-2 rounded-xl"
+                            />
+                          </div>
                         </div>
                       )}
                     </CardContent>
@@ -824,7 +826,7 @@ const AddPackage: React.FC = () => {
                   ) : (
                     <>
                       <Sparkles className="h-6 w-6 mr-4" />
-                      {formData.Price}
+                      Create Package - ₹{formData.price}
                     </>
                   )}
                 </Button>

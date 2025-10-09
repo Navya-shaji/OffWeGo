@@ -33,21 +33,18 @@ export const PackageTimeline = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
-  console.log(selectedPackage,"selectedpackage")
+  console.log(selectedPackage, "selectedpackage");
 
   // const userId = useSelector((state) => state?.auth?.user?.id);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [isBookingLoading, setIsBookingLoading] = useState(false);
+  const [isBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
 
-  const [selectedFlightOption, setSelectedFlightOption] = useState<
-    string | null
-  >(null);
-const [showFlightModal, setShowFlightModal] = useState(false);
-console.log(selectedDate,"date")
+  const [showFlightModal, setShowFlightModal] = useState(false);
+  console.log(selectedDate, "date");
   useEffect(() => {
     if (selectedPackage) {
       console.log("Selected package:", selectedPackage);
@@ -94,37 +91,36 @@ console.log(selectedDate,"date")
       return;
     }
 
-    
     if (selectedPackage.flightOption) {
-      console.log(selectedPackage.flightOption)
-      setShowFlightModal(true); 
+      console.log(selectedPackage.flightOption);
+      setShowFlightModal(true);
     } else {
       proceedToBooking(null);
     }
   };
-const proceedToBooking = (
-  flightOption: "with-flight" | "without-flight" | null,
-  selectedFlight?: Flight
-) => {
-  // Calculate total price
-  const basePackagePrice = selectedPackage.price;
-  const flightPrice = selectedFlight ? selectedFlight.price : 0;
-  const totalPrice = basePackagePrice + flightPrice;
+  const proceedToBooking = (
+    flightOption: "with-flight" | "without-flight" | null,
+    selectedFlight?: Flight
+  ) => {
+    // Calculate total price
+    const basePackagePrice = selectedPackage.price;
+    const flightPrice = selectedFlight ? selectedFlight.price : 0;
+    const totalPrice = basePackagePrice + flightPrice;
 
-  navigate("/travaler-details", {
-    state: {
-      selectedPackage: {
-        ...selectedPackage,
-        totalPrice: totalPrice, // Total including flight if selected
-        basePrice: basePackagePrice, // Original package price
-        flightPrice: flightPrice, // Flight price (0 if no flight)
+    navigate("/travaler-details", {
+      state: {
+        selectedPackage: {
+          ...selectedPackage,
+          totalPrice: totalPrice, // Total including flight if selected
+          basePrice: basePackagePrice, // Original package price
+          flightPrice: flightPrice, // Flight price (0 if no flight)
+        },
+        flightOption: flightOption,
+        selectedFlight: selectedFlight, // Pass the full flight object
+        selectedDate: selectedDate,
       },
-      flightOption: flightOption,
-      selectedFlight: selectedFlight, // Pass the full flight object
-      selectedDate: selectedDate,
-    },
-  });
-};
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
@@ -640,7 +636,6 @@ const proceedToBooking = (
                 </div>
                 {/* </div> */}
 
-
                 <Separator className="my-6" />
 
                 <div className="flex justify-between items-center p-4 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl text-white">
@@ -728,15 +723,22 @@ const proceedToBooking = (
           </div>
         </div>
       </div>
-<FlightSearchModal
-  show={showFlightModal}
-  onClose={() => setShowFlightModal(false)}
-  onProceed={proceedToBooking}
-  selectedPackage={{
-    price: selectedPackage.price,
-    flightPrice: selectedPackage.flightPrice,
-  }}
-/>
+      <FlightSearchModal
+        show={showFlightModal}
+        onClose={() => setShowFlightModal(false)}
+        onProceed={proceedToBooking}
+        selectedPackage={{
+          price: selectedPackage.price,
+          flightPrice: selectedPackage.flightPrice,
+          packageName: selectedPackage.packageName,
+          description: selectedPackage.description,
+          images: selectedPackage.images,
+          destinationId: selectedPackage.destinationId || "",
+          hotels: selectedPackage.hotels || [],
+          activities: selectedPackage.activities || [],
+          flightOption: selectedPackage.flightOption,
+        }}
+      />
     </div>
   );
 };

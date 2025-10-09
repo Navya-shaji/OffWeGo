@@ -1,8 +1,7 @@
-// 1. Updated TravelerDetails.tsx - Create booking immediately
+
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TravelerForm from "./TravlerForm";
-import { createBooking } from "@/services/Booking/bookingService";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";

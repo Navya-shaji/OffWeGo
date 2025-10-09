@@ -5,7 +5,7 @@ import {
   PaymentElement,
   useStripe,
   useElements,
-  CardElement,
+
 } from '@stripe/react-stripe-js';
 import { createPayment } from '@/services/Payment/PaymentService'; 
 import { createBooking } from '@/services/Booking/bookingService';
@@ -13,7 +13,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-function CheckoutForm({ amount ,clientSecret}: { amount: number,clientSecret:string }) {
+function CheckoutForm({ amount }: { amount: number,clientSecret:string }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -24,7 +24,7 @@ function CheckoutForm({ amount ,clientSecret}: { amount: number,clientSecret:str
 //  console.log(JSON.stringify(bData),"travaler")
 console.log(JSON.stringify(bData))
   if(!elements) return null
-const cardElement = elements.getElement(CardElement);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

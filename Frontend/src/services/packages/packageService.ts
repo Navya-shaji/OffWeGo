@@ -13,7 +13,7 @@ export const addPackage = async (data: Package) => {
 
     const payload = {
       ...data,
-      price: data.basePrice,
+      price: data.price,
       vendorId,
       flightOption: data.flightOption,
     };

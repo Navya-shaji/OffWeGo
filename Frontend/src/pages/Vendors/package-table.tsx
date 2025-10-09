@@ -31,8 +31,10 @@ interface Package {
     amenities?: string[];
   }>;
   activities?: Array<{
+    id:string
     title: string;
     description: string;
+    imageUrl:string
   }>;
   itinerary?: Array<{
     day: number;
@@ -61,7 +63,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [error, setError] = useState("");
-  
+  console.log(packageList)
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     package: Package | null;
@@ -69,7 +71,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     isOpen: false,
     package: null,
   });
-  
+  console.log(originalPackages,"o")
   // const [editModal, setEditModal] = useState<{
   //   isOpen: boolean;
   //   package: Package | null;
@@ -280,27 +282,44 @@ await deletePackage(deleteModal.package._id);
       </div>
     );
   }, []);
-
-  const renderActivitiesList = useCallback((activities?: Package["activities"]) => {
-    if (!activities || activities.length === 0) {
+const renderActivitiesList = useCallback((activities?: Package["activities"]) => {
+    const validActivities = activities?.filter(activity => activity != null) || [];
+    console.log(validActivities)
+    const hasInvalidActivities = activities && activities.length > validActivities.length;
+ 
+    if (validActivities.length === 0) {
       return (
-        <span className="text-gray-500 italic text-sm">No activities</span>
+        <div className="space-y-1">
+          <span className="text-gray-500 italic text-sm">No activities</span>
+          {hasInvalidActivities && (
+            <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-md mt-1">
+              ⚠️ Invalid activity references
+            </div>
+          )}
+        </div>
       );
     }
 
     return (
       <div className="space-y-2 max-w-xs">
-        {activities.map((activity, idx) => (
-          <div key={idx}>
-            <div className="font-semibold text-indigo-900">
+        {validActivities.map((activity, idx) => (
+          <div key={activity.id|| activity.id || idx} className="bg-indigo-50 border border-indigo-200 p-2 rounded-md">
+            <div className="font-semibold text-indigo-900 text-sm">
               {activity.title}
+            </div>
+            <div className="text-xs text-indigo-700 mt-1 line-clamp-2">
+              {activity.description}
             </div>
           </div>
         ))}
+        {hasInvalidActivities && (
+          <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-md">
+            ⚠️ Some activities not found
+          </div>
+        )}
       </div>
     );
   }, []);
-
   const renderItineraryCount = useCallback((itinerary?: Package["itinerary"]) => {
     if (!itinerary || itinerary.length === 0) {
       return <span className="text-gray-500 italic text-sm">No itinerary</span>;

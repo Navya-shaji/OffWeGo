@@ -76,10 +76,10 @@ export default function BookingSuccess() {
                 <span className="font-semibold">{bookingDetails._id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Status:</span>
+                {/* <span className="text-gray-600">Status:</span>
                 <span className="font-semibold text-green-600 capitalize">
-                  {bookingDetails.status}
-                </span>
+                  {bookingDetails.paymentStatus}
+                </span> */}
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Payment Status:</span>
