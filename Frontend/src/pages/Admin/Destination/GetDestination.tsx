@@ -99,7 +99,6 @@ export const DestinationTable = () => {
           setTotalPages(Math.ceil(searchResults.length / 5));
           setPage(1);
         } catch (err) {
-          
           const error = err instanceof Error ? err : new Error(String(err));
 
           console.error("Error during search:", error);
@@ -128,27 +127,23 @@ export const DestinationTable = () => {
           setDestinations([]);
           setTotalPages(1);
         }
-      }, 500); 
+      }, 500);
     },
     [originalDestinations, totalDestinations]
   );
 
-  
   const handlePageChange = useCallback(
     (newPage: number) => {
-      if (newPage === page) return; 
+      if (newPage === page) return;
 
       setPage(newPage);
 
       if (!isSearchMode) {
-      
         fetchData(newPage);
       }
-     
     },
     [page, isSearchMode, fetchData]
   );
-
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -156,7 +151,6 @@ export const DestinationTable = () => {
       fetchData(1);
     }
 
-  
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
@@ -166,7 +160,7 @@ export const DestinationTable = () => {
 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
-      return destinations; 
+      return destinations;
     } else {
       const startIndex = (page - 1) * 5;
       const endIndex = startIndex + 5;
@@ -234,7 +228,6 @@ export const DestinationTable = () => {
       try {
         await updateDestination(selectedDestination.id, selectedDestination);
 
-       
         const updateDestinationInList = (list: DestinationInterface[]) =>
           list.map((dest) =>
             dest.id === selectedDestination.id ? selectedDestination : dest
@@ -250,7 +243,6 @@ export const DestinationTable = () => {
         console.error("Update failed:", err);
         setError("Failed to update destination. Please try again.");
 
-       
         setTimeout(() => setError(""), 3000);
       }
     },
@@ -270,7 +262,6 @@ export const DestinationTable = () => {
 
   return (
     <div className="p-4 space-y-4">
-   
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
@@ -289,12 +280,10 @@ export const DestinationTable = () => {
           <SearchBar
             placeholder="Search destinations..."
             onSearch={handleSearch}
-            // value={searchQuery}
           />
         </div>
       </div>
 
-   
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex justify-between items-center">
@@ -309,7 +298,6 @@ export const DestinationTable = () => {
         </div>
       )}
 
-     
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
@@ -427,7 +415,6 @@ export const DestinationTable = () => {
         </div>
       </div>
 
-     
       {totalPages > 1 && (
         <div className="flex justify-center">
           <Pagination
@@ -438,7 +425,6 @@ export const DestinationTable = () => {
         </div>
       )}
 
- 
       {destinations.length > 0 && (
         <div className="text-center text-sm text-gray-500">
           {isSearchMode
@@ -455,7 +441,6 @@ export const DestinationTable = () => {
         </div>
       )}
 
-   
       {isEditModalOpen && selectedDestination && (
         <EditDestinationModal
           destination={selectedDestination}

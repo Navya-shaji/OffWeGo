@@ -17,6 +17,7 @@ import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 // import Bookingconfirmation from "@/pages/Vendors/Booking-confirmation";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
+import BookingDetailsPage from "@/pages/User/Bookings/UserBookings";
 
 const UserRoute = () => {
   return (
@@ -41,7 +42,7 @@ const UserRoute = () => {
       <Route path="/travaler-details" element={<TravelerDetails/>}/>
       <Route path="/payment-checkout" element={<PaymentCheckout/>}/>
       <Route path="/booking-success" element={<BookingSuccess/>}/>
-
+         <Route path="/bookings" element={<BookingDetailsPage/>}/>
       <Route
         path="/"
         element={

@@ -12,7 +12,8 @@ export const createBooking = async (
 };
 
 export const getUserBookings = async (userId: string) => {
-  const response = await axiosInstance.get(`/api/bookings/user/${userId}`);
+  const response = await axiosInstance.get(`/api/bookings/${userId}`);
+
   return response.data.bookings;
 };
 

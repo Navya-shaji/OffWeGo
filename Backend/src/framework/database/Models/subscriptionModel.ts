@@ -7,3 +7,4 @@ export interface ISubscriptionPlanModel extends Omit<SubscriptionPlan, "id">, Do
 
 
 export const subscriptionPlanModel = model<ISubscriptionPlanModel>("SubscriptionPlan", SubscriptionPlanSchema);
+  

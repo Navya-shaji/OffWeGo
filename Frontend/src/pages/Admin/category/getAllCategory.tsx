@@ -13,63 +13,12 @@ import EditCategory from "./EditCategory";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SearchBar } from "@/components/Modular/searchbar";
+import { DeleteConfirmationModal } from "./DeleteConfirmation";
 
 interface CellInfo<T> {
   getValue?: () => unknown;
   row?: { original: T };
 }
-
-interface DeleteModalProps {
-  isOpen: boolean;
-  category?: CategoryType | null;
-  onCancel: () => void;
-  onConfirm: () => void;
-  loading: boolean;
-}
-
-const DeleteConfirmationModal: React.FC<DeleteModalProps> = ({
-  isOpen,
-  category,
-  onCancel,
-  onConfirm,
-  loading,
-}) => {
-  if (!isOpen || !category) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Confirm Delete
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Are you sure you want to delete the category "
-            <span className="font-medium">{category.name}</span>"? This action
-            cannot be undone.
-          </p>
-
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={onCancel}
-              disabled={loading}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onConfirm}
-              disabled={loading}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-            >
-              {loading ? "Deleting..." : "Delete"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const CategoryTable = () => {
   const [category, setCategory] = useState<CategoryType[]>([]);
@@ -86,7 +35,6 @@ export const CategoryTable = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ fetch categories
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
@@ -101,7 +49,6 @@ export const CategoryTable = () => {
     }
   }, [page]);
 
-  // ✅ debounce search
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
       if (searchQuery.trim()) {
@@ -119,15 +66,13 @@ export const CategoryTable = () => {
           setLoading(false);
         }
       } else {
-        // if search is empty → fetch normally
         fetchCategories();
       }
-    }, 500); // ⏳ waits 500ms after typing stops
+    }, 500);
 
     return () => clearTimeout(delayDebounce);
   }, [searchQuery, page, fetchCategories]);
 
-  // ✅ handler
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };

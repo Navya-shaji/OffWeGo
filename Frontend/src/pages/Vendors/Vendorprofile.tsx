@@ -8,7 +8,7 @@ export const Profile = () => {
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
 
   const [isEditOpen, setEditOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); 
  
   if (!vendor) return null;
 

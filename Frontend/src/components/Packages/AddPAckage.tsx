@@ -57,7 +57,7 @@ interface Activity {
 interface EnhancedPackageFormData {
   packageName: string;
   description: string;
-  Price: number;
+  price: number;
   duration: number;
   selectedHotels: Hotel[];
   selectedActivities: Activity[];

@@ -66,7 +66,7 @@ export default function EditVendorProfileModal({
     setIsLoading(true);
     setError(null);
 
-    if (!vendor?._id) {
+    if (!vendor?.id) {
       setError("Vendor ID missing");
       setIsLoading(false);
       return;
@@ -89,23 +89,25 @@ export default function EditVendorProfileModal({
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      const updated = await editProfile(vendor._id, {
+      const updated = await editProfile(vendor.id, {
         name,
         phone,
         profileImage: newImageUrl,
       });
-
-      
+console.log(updated,"")
       const mappedVendor = {
         ...updated.data,
         profileImage: updated.data.profileImage || "/placeholder-avatar.png",
         documentUrl: vendor.documentUrl,
       };
-dispatch(login({ 
-  vendor: mappedVendor, 
-  token: token || "", 
-  refreshToken: "" 
-}));
+      console.log(mappedVendor)
+      dispatch(
+        login({
+          vendor: mappedVendor,
+          token: token || "",
+          refreshToken: "",
+        })
+      );
 
       setImagePreviewUrl(mappedVendor.profileImage);
 
@@ -202,9 +204,7 @@ dispatch(login({
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <DialogFooter>
             <Button type="submit" disabled={isLoading}>

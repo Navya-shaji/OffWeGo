@@ -93,7 +93,7 @@ export const CategoryForm = () => {
 
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
-              Category Name *
+              Category Name 
             </label>
             <input
               type="text"
@@ -108,7 +108,7 @@ export const CategoryForm = () => {
 
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
-              Description *
+              Description 
             </label>
             <textarea
               {...register("description")}
@@ -125,7 +125,7 @@ export const CategoryForm = () => {
 
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
-              Category Image *
+              Category Image 
             </label>
             {!imagePreview ? (
               <div className="relative border border-gray-300 rounded-md bg-gray-100 h-32 flex items-center justify-center text-gray-500 text-sm cursor-pointer">

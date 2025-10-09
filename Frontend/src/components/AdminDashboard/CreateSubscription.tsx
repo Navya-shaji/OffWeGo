@@ -1,72 +1,55 @@
-import type React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast, ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { useState } from "react";
 import { addSubscription } from "@/store/slice/Subscription/subscription";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { isAxiosError } from "axios";
+import {
+  SubscriptionSchema,
+  type SubscriptionFormData,
+} from "@/Types/Admin/Subscription/subscrriptionSchema";
 
 export default function AddSubscriptionForm() {
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.subscription);
   const loading = status === "loading";
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    commissionRate: "",
-    price: "",
-    durationInDays: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<SubscriptionFormData>({
+    resolver: zodResolver(SubscriptionSchema),
   });
 
   const notify = () => toast("Subscription added");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: SubscriptionFormData) => {
     try {
       await dispatch(
         addSubscription({
-          name: formData.name,
-          commissionRate: Number(formData.commissionRate),
-          price: Number(formData.price),
-          durationInDays: Number(formData.durationInDays),
-          description:formData.description
+          name: data.name,
+          description: data.description,
+          commissionRate: data.commissionRate,
+          price: data.price,
+          durationInDays: data.durationInDays,
         })
       ).unwrap();
-      notify();
 
-      setFormData({
-        name: "",
-        description: "",
-        commissionRate: "",
-        price: "",
-        durationInDays: "",
-      });
-    } catch (error) {
-      console.error("Full error adding subscription:", error);
-      if (isAxiosError(error)) {
-        console.error("Axios response data:", error.response?.data);
-        toast.error(error.response?.data?.error || "Failed to add subscription");
-      } else {
-        toast.error("An unexpected error occurred");
-      }
+      notify();
+      reset();
+    } catch (err) {
+      console.error("Error adding subscription:", err);
+      toast.error("Failed to add subscription");
     }
   };
 
   return (
     <div className="flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
-
         {/* Header */}
         <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
           <h2 className="text-2xl font-bold">Add Subscription Plan</h2>
@@ -76,86 +59,103 @@ export default function AddSubscriptionForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
           <ToastContainer position="top-right" autoClose={3000} />
 
           <div>
-            <Label htmlFor="name" className="text-sm font-semibold text-gray-700 mb-1 block">
+            <Label
+              htmlFor="name"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
               Plan Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
               type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
+              {...register("name")}
               placeholder="Premium Plan"
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="description" className="text-sm font-semibold text-gray-700 mb-1 block">
+            <Label
+              htmlFor="description"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
               Description <span className="text-red-500">*</span>
             </Label>
             <Input
               id="description"
               type="text"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
+              {...register("description")}
               placeholder="Plan with advanced features"
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="commissionRate" className="text-sm font-semibold text-gray-700 mb-1 block">
+            <Label
+              htmlFor="commissionRate"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
               Commission Rate (%) <span className="text-red-500">*</span>
             </Label>
             <Input
               id="commissionRate"
               type="number"
-              name="commissionRate"
-              value={formData.commissionRate}
-              onChange={handleChange}
-              required
-              min="0"
-              max="100"
+              {...register("commissionRate", { valueAsNumber: true })}
               placeholder="10"
             />
+            {errors.commissionRate && (
+              <p className="text-red-500 text-sm">
+                {errors.commissionRate.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="price" className="text-sm font-semibold text-gray-700 mb-1 block">
+            <Label
+              htmlFor="price"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
               Price <span className="text-red-500">*</span>
             </Label>
             <Input
               id="price"
               type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              required
-              min="0"
+              {...register("price", { valueAsNumber: true })}
               placeholder="999"
             />
+            {errors.price && (
+              <p className="text-red-500 text-sm">{errors.price.message}</p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="durationInDays" className="text-sm font-semibold text-gray-700 mb-1 block">
+            <Label
+              htmlFor="durationInDays"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
               Duration (Days) <span className="text-red-500">*</span>
             </Label>
             <Input
               id="durationInDays"
               type="number"
-              name="durationInDays"
-              value={formData.durationInDays}
-              onChange={handleChange}
-              required
-              min="1"
+              {...register("durationInDays", { valueAsNumber: true })}
               placeholder="30"
             />
+            {errors.durationInDays && (
+              <p className="text-red-500 text-sm">
+                {errors.durationInDays.message}
+              </p>
+            )}
           </div>
 
           <Button
