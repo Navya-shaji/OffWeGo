@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 interface Traveler {
   name: string;
   age: number;
-  gender: string;
+  gender: "male" | "female" | "other";
 }
 
 interface TravelerFormProps {
@@ -18,13 +18,14 @@ export default function TravelerForm({
   onChange,
 }: TravelerFormProps) {
   const [travelers, setTravelers] = useState<Traveler[]>(
-    Array.from({ length: count }, () => ({ name: "", age: 0, gender: "" }))
+    Array.from({ length: count }, () => ({ name: "", age: 0, gender: "" as "male" | "female" | "other" }))
   );
 
   useEffect(() => {
-   
     setTravelers((prev) => {
-      const newTravelers = Array.from({ length: count }, (_, i) => prev[i] || { name: "", age: 0, gender: "" });
+      const newTravelers = Array.from({ length: count }, (_, i) => 
+        prev[i] || { name: "", age: 0, gender: "" as "male" | "female" | "other" }
+      );
       return newTravelers;
     });
   }, [count]);
@@ -33,7 +34,11 @@ export default function TravelerForm({
     onChange(travelers);
   }, [travelers]);
 
-  const handleChange = (index: number, field: keyof Traveler, value: string | number) => {
+  const handleChange = <K extends keyof Traveler>(
+    index: number,
+    field: K,
+    value: Traveler[K]
+  ) => {
     const newTravelers = [...travelers];
     newTravelers[index][field] = value;
     setTravelers(newTravelers);
@@ -63,12 +68,13 @@ export default function TravelerForm({
           />
           <select
             value={traveler.gender}
-            onChange={(e) => handleChange(idx, "gender", e.target.value)}
+            onChange={(e) => handleChange(idx, "gender", e.target.value as "male" | "female" | "other")}
             className="px-3 py-2 border rounded"
           >
             <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
           </select>
         </div>
       ))}

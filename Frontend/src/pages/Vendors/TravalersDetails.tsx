@@ -5,6 +5,9 @@ import TravelerForm from "./TravlerForm";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import type { Traveler } from "@/interface/Boooking";
+
+
 
 export default function TravelerDetails() {
   const { state } = useLocation();
@@ -16,8 +19,9 @@ export default function TravelerDetails() {
   const [childCount, setChildCount] = useState(0);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   
-  const [adultTravelers, setAdultTravelers] = useState([]);
-  const [childTravelers, setChildTravelers] = useState([]);
+const [adultTravelers, setAdultTravelers] = useState<Traveler[]>([]);
+const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
+
 
   const [contactInfo, setContactInfo] = useState({
     email: "",

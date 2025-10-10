@@ -11,45 +11,12 @@ import {
   Package,
 } from "lucide-react";
 import { deletePackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService";
-// import EditPackage from "./editPackageModal";
 import { SearchBar } from "@/components/Modular/searchbar";
-// import { Package as PackageInterface } from "@/interface/PackageInterface";
-
-interface Package {
-  _id?: string;
-  packageName: string;
-  description: string;
-  price: number;
-  duration?: number;
-  checkInTime?: string;
-  checkOutTime?: string;
-  images?: string[];
-  hotels?: Array<{
-    name: string;
-    address: string;
-    rating: number;
-    amenities?: string[];
-  }>;
-  activities?: Array<{
-    id:string
-    title: string;
-    description: string;
-    imageUrl:string
-  }>;
-  itinerary?: Array<{
-    day: number;
-    time: string;
-    activity: string;
-  }>;
-  inclusions?: string[];
-  amenities?: string[];
-  exclusions?: string[];
-  destinationId:string
-}
+import { type Package as PackageInterface } from "@/interface/PackageInterface";
 
 interface PackageTableProps {
-  packages: Package[];
-  onPackagesUpdate?: (packages: Package[]) => void;
+  packages: PackageInterface[];
+  onPackagesUpdate?: (packages: PackageInterface[]) => void;
   loading?: boolean;
 }
 
@@ -58,35 +25,26 @@ const PackageTable: React.FC<PackageTableProps> = ({
   onPackagesUpdate,
   loading = false,
 }) => {
-  const [packageList, setPackageList] = useState<Package[]>(packages);
-  const [originalPackages, setOriginalPackages] = useState<Package[]>(packages);
+  const [packageList, setPackageList] = useState<PackageInterface[]>(packages);
+  const [originalPackages, setOriginalPackages] = useState<PackageInterface[]>(packages);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [error, setError] = useState("");
   console.log(packageList)
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    package: Package | null;
+    package: PackageInterface | null;
   }>({
     isOpen: false,
     package: null,
   });
   console.log(originalPackages,"o")
-  // const [editModal, setEditModal] = useState<{
-  //   isOpen: boolean;
-  //   package: Package | null;
-  // }>({
-  //   isOpen: false,
-  //   package: null,
-  // });
   
   const [isDeleting, setIsDeleting] = useState(false);
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [editFormData, setEditFormData] = useState<Package | null>(null);
 
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setPackageList(packages);
@@ -175,55 +133,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     };
   }, [loadPackages, packages.length]);
 
-// const handleEdit = useCallback((pkg: Package) => {
-//   setEditFormData({
-//     ...pkg,
-//     destinationId: pkg.destinationId ?? "", // ensure this exists
-//   });
-//   setEditModal({ isOpen: true, package: pkg });
-// }, []);
-
-// const handleEditSubmit = useCallback(async (e: React.FormEvent) => {
-//   e.preventDefault();
-//   if (!editFormData || !editModal.package) return;
-
-//   setIsEditing(true);
-//   try {
-//     if (!editModal.package?._id) return;
-
- 
-
-//     await editPackage(editModal.package._id, updatedPackage);
-
-//     // Update local state instead of refetching
-//     const updatePackageInList = (list: Package[]) =>
-//       list.map((pkg) =>
-//         pkg._id === editModal.package!._id ? updatedPackage : pkg
-//       );
-
-//     setPackageList(updatePackageInList);
-//     if (!isSearchMode) {
-//       setOriginalPackages(updatePackageInList);
-//     }
-
-//     onPackagesUpdate?.(isSearchMode ? originalPackages : packageList);
-
-//     setEditModal({ isOpen: false, package: null });
-//     setEditFormData(null);
-
-//   } catch (error) {
-//     console.error("Failed to update package:", error);
-//     setError("Failed to update package. Please try again.");
-
-//     // Clear error after 3 seconds
-//     setTimeout(() => setError(""), 3000);
-//   } finally {
-//     setIsEditing(false);
-//   }
-// }, [editFormData, editModal.package, isSearchMode, packageList, originalPackages, onPackagesUpdate]);
-
-
-  const openDeleteModal = useCallback((pkg: Package) => {
+  const openDeleteModal = useCallback((pkg: PackageInterface) => {
     setDeleteModal({ isOpen: true, package: pkg });
   }, []);
 
@@ -237,7 +147,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     setIsDeleting(true);
     try {
       if (!deleteModal.package?._id) return;
-await deletePackage(deleteModal.package._id);
+      await deletePackage(deleteModal.package._id);
 
       // Update local state instead of refetching
       const updatedPackages = packageList.filter(
@@ -266,7 +176,7 @@ await deletePackage(deleteModal.package._id);
     }
   }, [deleteModal.package, packageList, originalPackages, isSearchMode, onPackagesUpdate, closeDeleteModal]);
 
-  const renderHotelsList = useCallback((hotels?: Package["hotels"]) => {
+  const renderHotelsList = useCallback((hotels?: PackageInterface["hotels"]) => {
     if (!hotels || hotels.length === 0) {
       return <span className="text-gray-500 italic text-sm">No hotels</span>;
     }
@@ -282,7 +192,8 @@ await deletePackage(deleteModal.package._id);
       </div>
     );
   }, []);
-const renderActivitiesList = useCallback((activities?: Package["activities"]) => {
+
+  const renderActivitiesList = useCallback((activities?: PackageInterface["activities"]) => {
     const validActivities = activities?.filter(activity => activity != null) || [];
     console.log(validActivities)
     const hasInvalidActivities = activities && activities.length > validActivities.length;
@@ -303,7 +214,7 @@ const renderActivitiesList = useCallback((activities?: Package["activities"]) =>
     return (
       <div className="space-y-2 max-w-xs">
         {validActivities.map((activity, idx) => (
-          <div key={activity.id|| activity.id || idx} className="bg-indigo-50 border border-indigo-200 p-2 rounded-md">
+          <div key={activity.id || idx} className="bg-indigo-50 border border-indigo-200 p-2 rounded-md">
             <div className="font-semibold text-indigo-900 text-sm">
               {activity.title}
             </div>
@@ -320,7 +231,8 @@ const renderActivitiesList = useCallback((activities?: Package["activities"]) =>
       </div>
     );
   }, []);
-  const renderItineraryCount = useCallback((itinerary?: Package["itinerary"]) => {
+
+  const renderItineraryCount = useCallback((itinerary?: PackageInterface["itinerary"]) => {
     if (!itinerary || itinerary.length === 0) {
       return <span className="text-gray-500 italic text-sm">No itinerary</span>;
     }
@@ -418,7 +330,6 @@ const renderActivitiesList = useCallback((activities?: Package["activities"]) =>
             <SearchBar 
               placeholder="Search packages..." 
               onSearch={handleSearch}
-              // value={searchQuery}
             />
           </div>
           <span className="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2 rounded-full font-medium">
@@ -582,13 +493,6 @@ const renderActivitiesList = useCallback((activities?: Package["activities"]) =>
 
                   <td className="px-4 py-6 align-top">
                     <div className="flex flex-col gap-2">
-                      {/* <button
-                        onClick={() => handleEdit(pkg)}
-                        className="flex items-center gap-2 px-3 py-2 bg-slate-100 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-200 hover:border-slate-400 transition-colors text-sm font-medium"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Edit
-                      </button> */}
                       <button
                         onClick={() => openDeleteModal(pkg)}
                         className="flex items-center gap-2 px-3 py-2 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg hover:bg-rose-100 hover:border-rose-300 transition-colors text-sm font-medium"
@@ -620,20 +524,6 @@ const renderActivitiesList = useCallback((activities?: Package["activities"]) =>
           </p>
         </div>
       )}
-
-  
-      {/* {editModal.isOpen && (
-        <EditPackage
-          pkg={editFormData}
-          onClose={() => {
-            setEditModal({ isOpen: false, package: null });
-            setEditFormData(null);
-          }}
-          onChange={setEditFormData}
-          onSubmit={handleEditSubmit}
-          isLoading={isEditing}
-        />
-      )} */}
 
       {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && (
