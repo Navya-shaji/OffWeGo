@@ -1,4 +1,4 @@
-import { X, Calendar, MapPin, Package, Users, Mail, Phone, Home, CreditCard, Clock, Star, Tag, Info } from "lucide-react";
+import { X, Calendar, MapPin, Package, Users, Mail, Phone, Home, CreditCard, Clock,  Tag, Info } from "lucide-react";
 
 interface BookingDetailsModalProps {
   booking: any;
@@ -8,7 +8,7 @@ interface BookingDetailsModalProps {
 const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => {
   const packageData = booking.package || booking.selectedPackage;
   const destinationData = booking.destination || packageData?.destination;
-
+console.log("detals",packageData)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="bg-white border-4 border-black max-w-6xl w-full max-h-[90vh] overflow-y-auto">
@@ -143,7 +143,7 @@ const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => 
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-2xl font-bold mb-2">{packageData.name || "N/A"}</p>
+                  <p className="text-2xl font-bold mb-2">{packageData.packageName || "N/A"}</p>
                   {packageData.description && (
                     <p className="text-sm text-gray-700 leading-relaxed">{packageData.description}</p>
                   )}
@@ -168,15 +168,7 @@ const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => 
                       <p className="text-sm font-bold">₹{packageData.price}</p>
                     </div>
                   )}
-                  {packageData.difficulty && (
-                    <div className="bg-gray-50 border border-gray-900 p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Star className="w-4 h-4" />
-                        <p className="text-xs font-semibold text-gray-600 uppercase">Difficulty</p>
-                      </div>
-                      <p className="text-sm font-bold">{packageData.difficulty}</p>
-                    </div>
-                  )}
+                
                   {packageData.groupSize && (
                     <div className="bg-gray-50 border border-gray-900 p-3">
                       <div className="flex items-center gap-2 mb-1">
@@ -187,20 +179,6 @@ const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => 
                     </div>
                   )}
                 </div>
-
-                {packageData.itinerary && packageData.itinerary.length > 0 && (
-                  <div>
-                    <p className="text-sm font-bold uppercase mb-3">Itinerary</p>
-                    <div className="space-y-2">
-                      {packageData.itinerary.map((day: any, index: number) => (
-                        <div key={index} className="bg-gray-50 border-l-4 border-black p-3">
-                          <p className="font-bold text-sm mb-1">Day {day.day || index + 1}: {day.title}</p>
-                          <p className="text-xs text-gray-700">{day.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {packageData.inclusions && packageData.inclusions.length > 0 && (
                   <div>
@@ -216,35 +194,9 @@ const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => 
                   </div>
                 )}
 
-                {packageData.exclusions && packageData.exclusions.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-600 uppercase mb-2">Exclusions</p>
-                    <div className="grid md:grid-cols-2 gap-2">
-                      {packageData.exclusions.map((exclusion: string, index: number) => (
-                        <div key={index} className="flex items-start gap-2 text-sm">
-                          <span className="text-red-600 font-bold">✗</span>
-                          <span>{exclusion}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            
 
-                {packageData.images && packageData.images.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-600 uppercase mb-2">Package Images</p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {packageData.images.slice(0, 4).map((image: string, index: number) => (
-                        <img
-                          key={index}
-                          src={image}
-                          alt={`Package ${index + 1}`}
-                          className="w-full h-24 object-cover border-2 border-gray-900"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+
               </div>
             </section>
           )}
@@ -351,7 +303,7 @@ const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => 
             )}
           </section>
 
-          {/* Action Buttons */}
+        
           <div className="flex justify-end gap-3 pt-4 border-t-4 border-gray-900">
             <button
               onClick={onClose}

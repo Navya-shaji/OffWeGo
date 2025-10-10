@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,7 +11,6 @@ import {
   CreditCard,
   Utensils,
   Heart,
-  Share2,
   Loader2,
   Star,
   CheckCircle,
@@ -34,8 +31,6 @@ export const PackageTimeline = () => {
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
   console.log(selectedPackage, "selectedpackage");
-
-  // const userId = useSelector((state) => state?.auth?.user?.id);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex] = useState(0);
@@ -102,7 +97,6 @@ export const PackageTimeline = () => {
     flightOption: "with-flight" | "without-flight" | null,
     selectedFlight?: Flight
   ) => {
-    // Calculate total price
     const basePackagePrice = selectedPackage.price;
     const flightPrice = selectedFlight ? selectedFlight.price : 0;
     const totalPrice = basePackagePrice + flightPrice;
@@ -111,12 +105,12 @@ export const PackageTimeline = () => {
       state: {
         selectedPackage: {
           ...selectedPackage,
-          totalPrice: totalPrice, // Total including flight if selected
-          basePrice: basePackagePrice, // Original package price
-          flightPrice: flightPrice, // Flight price (0 if no flight)
+          totalPrice: totalPrice,
+          basePrice: basePackagePrice,
+          flightPrice: flightPrice,
         },
         flightOption: flightOption,
-        selectedFlight: selectedFlight, // Pass the full flight object
+        selectedFlight: selectedFlight,
         selectedDate: selectedDate,
       },
     });
@@ -163,23 +157,11 @@ export const PackageTimeline = () => {
                     }`}
                   />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-white/90 backdrop-blur-sm border-white/20 text-slate-800 hover:bg-white shadow-lg"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           </div>
 
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              Premium Package
-              <Sparkles className="h-4 w-4" />
-            </div>
             <div>
               <h1 className="text-5xl font-bold text-black mb-4 leading-tight">
                 {selectedPackage.packageName}
@@ -312,35 +294,37 @@ export const PackageTimeline = () => {
                       </div>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-10">
+                  <CardContent className="p-8 md:p-10 space-y-12">
+                    {/* Check-in & Check-out Section */}
                     {(selectedPackage.checkInTime ||
                       selectedPackage.checkOutTime) && (
-                      <div className="mb-12 p-8 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-3xl border-2 border-blue-200/50 shadow-lg">
-                        <h4 className="font-black text-2xl text-slate-800 mb-6 flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-r from-black to-black rounded-2xl flex items-center justify-center shadow-lg">
-                            <Timer className="h-6 w-6 text-white" />
+                      <div className="p-8 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-3xl border border-blue-200 shadow-xl">
+                        <h4 className="flex items-center gap-4 text-2xl font-extrabold text-slate-800 mb-6">
+                          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg">
+                            <Timer className="w-6 h-6 text-white" />
                           </div>
                           Check-in & Check-out Schedule
                         </h4>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {selectedPackage.checkInTime && (
-                            <div className="flex items-center gap-4 p-4 bg-white/80 rounded-2xl border border-green-200 shadow-md">
+                            <div className="flex items-center gap-4 p-4 bg-white/90 rounded-2xl border border-green-200 shadow hover:shadow-lg transition-shadow duration-300">
                               <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                              <span className="font-bold text-slate-700 text-lg">
+                              <span className="font-semibold text-slate-700 text-lg">
                                 Check-in:
                               </span>
-                              <span className="font-black text-slate-900 text-xl">
+                              <span className="font-bold text-slate-900 text-xl">
                                 {selectedPackage.checkInTime}
                               </span>
                             </div>
                           )}
                           {selectedPackage.checkOutTime && (
-                            <div className="flex items-center gap-4 p-4 bg-white/80 rounded-2xl border border-red-200 shadow-md">
+                            <div className="flex items-center gap-4 p-4 bg-white/90 rounded-2xl border border-red-200 shadow hover:shadow-lg transition-shadow duration-300">
                               <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
-                              <span className="font-bold text-slate-700 text-lg">
+                              <span className="font-semibold text-slate-700 text-lg">
                                 Check-out:
                               </span>
-                              <span className="font-black text-slate-900 text-xl">
+                              <span className="font-bold text-slate-900 text-xl">
                                 {selectedPackage.checkOutTime}
                               </span>
                             </div>
@@ -349,13 +333,12 @@ export const PackageTimeline = () => {
                       </div>
                     )}
 
-                    <div className="space-y-6">
+                    {/* Itinerary Section */}
+                    <div className="space-y-8">
                       {(() => {
                         const groupedItinerary =
                           selectedPackage.itinerary.reduce((acc, item) => {
-                            if (!acc[item.day]) {
-                              acc[item.day] = [];
-                            }
+                            if (!acc[item.day]) acc[item.day] = [];
                             acc[item.day].push(item);
                             return acc;
                           }, {} as Record<number, typeof selectedPackage.itinerary>);
@@ -365,59 +348,53 @@ export const PackageTimeline = () => {
                           .map(([day, activities]) => (
                             <Card
                               key={day}
-                              className="border border-gray-300 bg-white rounded-lg overflow-hidden shadow-sm"
+                              className="border border-gray-300 rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
                             >
                               <CardHeader className="bg-gray-50 border-b border-gray-200 p-6">
                                 <CardTitle className="flex items-center gap-4">
-                                  <div className="w-12 h-12 bg-black text-white rounded-lg flex items-center justify-center font-bold text-xl">
+                                  <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-black to-gray-800 text-white rounded-xl font-bold text-xl shadow">
                                     {day}
                                   </div>
                                   <div>
-                                    <span className="text-xl font-bold text-gray-900 block">
+                                    <span className="block text-xl font-bold text-gray-900">
                                       Day {day}
                                     </span>
-                                    <div className="text-sm text-gray-600 flex items-center gap-2 mt-1">
-                                      <Activity className="w-4 h-4" />
+                                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                                      <Activity className="w-4 h-4 text-indigo-500" />
                                       {activities.length} activities
                                     </div>
                                   </div>
                                 </CardTitle>
                               </CardHeader>
+
                               <CardContent className="p-6">
-                                <div className="space-y-4">
+                                <div className="space-y-4 relative">
                                   {activities
-                                    .sort((a, b) => {
-                                      if (a.time && b.time) {
-                                        return a.time.localeCompare(b.time);
-                                      }
-                                      return 0;
-                                    })
-                                    .map((activity, activityIndex) => (
+                                    .sort((a, b) =>
+                                      a.time && b.time
+                                        ? a.time.localeCompare(b.time)
+                                        : 0
+                                    )
+                                    .map((activity, idx) => (
                                       <div
-                                        key={activityIndex}
-                                        className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+                                        key={idx}
+                                        className="flex items-start gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 relative hover:bg-gray-100 transition-colors duration-200"
                                       >
-                                        {activityIndex !==
-                                          activities.length - 1 && (
-                                          <div className="absolute left-10 top-20 w-0.5 h-8 bg-gray-300"></div>
+                                        {idx !== activities.length - 1 && (
+                                          <div className="absolute left-12 top-16 w-0.5 h-10 bg-gray-300"></div>
                                         )}
-
-                                        <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 bg-black text-white rounded-lg">
-                                          <Clock className="h-6 w-6" />
+                                        <div className="flex-shrink-0 flex items-center justify-center w-14 h-14 bg-black text-white rounded-xl shadow">
+                                          <Clock className="w-6 h-6" />
                                         </div>
-
                                         <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 mb-2">
-                                            <span className="font-semibold text-gray-900 text-sm px-3 py-1 bg-gray-200 rounded-md">
-                                              {activity.time || "Flexible"}
-                                            </span>
-                                          </div>
-                                          <h5 className="font-semibold text-lg text-gray-900 leading-tight">
+                                          <span className="inline-block px-3 py-1 mb-2 text-sm font-semibold bg-gray-200 rounded-full text-gray-800">
+                                            {activity.time || "Flexible"}
+                                          </span>
+                                          <h5 className="text-lg font-semibold text-gray-900">
                                             {activity.activity}
                                           </h5>
                                         </div>
-
-                                        <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                                        <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                                       </div>
                                     ))}
                                 </div>
@@ -432,74 +409,87 @@ export const PackageTimeline = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               {selectedPackage.hotels && selectedPackage.hotels.length > 0 && (
-                <Card className="shadow-lg border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
-                  <CardHeader className="bg-gradient-to-r bg-black text-white p-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
+                <Card className="bg-white/90 backdrop-blur-md shadow-xl rounded-3xl border border-gray-100 overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r bg-black p-4">
+                    <CardTitle className="flex items-center gap-2 text-lg text-white font-bold">
                       <Building className="h-5 w-5" />
                       Premium Hotels
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      {selectedPackage.hotels.map((hotel, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 p-3 bg-blue-50 rounded-xl"
-                        >
-                          <div className="w-2 h-2 bg-blue-600 rounded-full mt-2" />
-                          <div>
-                            <div className="font-semibold text-slate-800">
-                              {hotel.name}
-                            </div>
-                            <div className="text-sm text-slate-600">
-                              {hotel.address}
-                            </div>
-                            <div className="flex items-center gap-1 mt-1">
-                              {[...Array(Math.floor(hotel.rating))].map(
-                                (_, i) => (
-                                  <Star
-                                    key={i}
-                                    className="h-3 w-3 fill-yellow-400 text-yellow-400"
-                                  />
-                                )
-                              )}
-                              <span className="text-xs text-slate-600 ml-1">
-                                ({hotel.rating})
-                              </span>
-                            </div>
+
+                  {/* Content */}
+                  <CardContent className="p-6 space-y-4">
+                    {selectedPackage.hotels.map((hotel, idx) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
+                      >
+                        {/* Indicator dot */}
+                        <div className="flex-shrink-0">
+                          <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                        </div>
+
+                        {/* Hotel info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-lg font-semibold text-gray-900">
+                            {hotel.name}
+                          </div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            {hotel.address}
+                          </div>
+                          <div className="flex items-center gap-1 mt-2">
+                            {[...Array(Math.floor(hotel.rating))].map(
+                              (_, i) => (
+                                <Star
+                                  key={i}
+                                  className="h-4 w-4 text-yellow-400 fill-yellow-400"
+                                />
+                              )
+                            )}
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({hotel.rating})
+                            </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               )}
 
               {selectedPackage.activities &&
                 selectedPackage.activities.length > 0 && (
-                  <Card className="shadow-lg border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
-                    <CardHeader className="bg-gradient-to-r bg-black text-white p-4">
-                      <CardTitle className="flex items-center gap-2 text-lg">
+                  <Card className="bg-white/90 backdrop-blur-md shadow-xl rounded-3xl border border-gray-100 overflow-hidden">
+                    {/* Header */}
+                    <CardHeader className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 p-4">
+                      <CardTitle className="flex items-center gap-2 text-lg font-bold text-white">
                         <Activity className="h-5 w-5" />
                         Exciting Activities
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        {selectedPackage.activities.map((act, idx) => (
-                          <div
-                            key={idx}
-                            className="p-3 bg-orange-50 rounded-xl"
-                          >
-                            <div className="font-semibold text-slate-800">
+
+                    <CardContent className="p-6 space-y-4">
+                      {selectedPackage.activities.map((act, idx) => (
+                        <div
+                          key={idx}
+                          className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
+                        >
+                          <div className="w-1.5 bg-gradient-to-b from-yellow-400 via-orange-400 to-red-400 rounded-full"></div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="text-lg font-semibold text-gray-900">
                               {act.title}
                             </div>
-                            <div className="text-sm text-slate-600 mt-1">
+                            <div className="text-sm text-gray-500 mt-1">
                               {act.description}
                             </div>
                           </div>
-                        ))}
-                      </div>
+
+                          <div className="hidden sm:flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full text-orange-600 font-bold">
+                            <Activity className="h-5 w-5" />
+                          </div>
+                        </div>
+                      ))}
                     </CardContent>
                   </Card>
                 )}

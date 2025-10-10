@@ -1,23 +1,35 @@
-// import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/createsubscriptionDto";
-// import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-// import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
-// import { mapDtoToSubscriptionModel } from "../../mappers/subscription/mapDtoToSubscriptionModel";
-// import {  mapDtoToPartialModel } from "../../mappers/subscription/updatedMapper";
+import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
+import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/createsubscriptionDto"; 
+import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
+import { mapDtoToPartialModel } from "../../mappers/subscription/updatedMapper"; 
 
-// export class EditSubscriptionUsecase implements IEditSubscriptionusecase {
-//   constructor(private _subscriptionRepo: ISubscriptionPlanRepository) {}
+export class EditSubscriptionUseCase implements IEditSubscriptionusecase {
+  constructor(private subscriptionRepository: ISubscriptionPlanRepository) {}
 
-//   async execute(
-//     id: string,
-//     updatedData: CreateSubscriptionDTO
-//   ): Promise<CreateSubscriptionDTO | null> {
-//     // Map DTO → partial Mongoose model
-//     const updateObj = mapDtoToSubscriptionModel(updatedData);
+  async execute(
+    id: string,
+    updatedData: CreateSubscriptionDTO
+  ): Promise<CreateSubscriptionDTO | null> {
+    try {
+      const updatePayload = mapDtoToPartialModel(updatedData);
 
-//     // Perform the update in the repository
-//     const updatedDoc = await this._subscriptionRepo.update(id, updateObj);
+      const updatedSubscription = await this.subscriptionRepository.update(
+        id,
+        updatePayload
+      );
 
-//     // Map updated Mongoose doc → DTO
-//     return updatedDoc ? mapDtoToPartialModel(updatedDoc) : null;
-//   }
-// }
+      if (!updatedSubscription) return null;
+
+      return {
+        name: updatedSubscription.name,
+        description: updatedSubscription.description,
+        price: updatedSubscription.price,
+        durationInDays: updatedSubscription.durationInDays,
+        commissionRate: updatedSubscription.commissionRate,
+      };
+    } catch (error) {
+      console.error("Error updating subscription:", error);
+      throw error;
+    }
+  }
+}

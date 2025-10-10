@@ -11,12 +11,13 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
   
     console.log('dddddddddddd',data)
      console.log(payment_id)
- const bookingData:Booking = {
+const bookingData: Booking = {
   ...data,
-  paymentIntentId:payment_id,
-  paymentStatus:"succeeded",
-  status:"succeeded"
- }
+  // status: "succeeded",
+  paymentStatus: "succeeded",
+  paymentIntentId: payment_id,
+};
+
 
 const  result = await this.bookingRepository.createBooking(bookingData)
 console.log('result',result)

@@ -67,7 +67,7 @@ export default function AddSubscriptionForm() {
               htmlFor="name"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Plan Name <span className="text-red-500">*</span>
+              Plan Name <span className="text-red-500"></span>
             </Label>
             <Input
               id="name"
@@ -85,7 +85,7 @@ export default function AddSubscriptionForm() {
               htmlFor="description"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Description <span className="text-red-500">*</span>
+              Description <span className="text-red-500"></span>
             </Label>
             <Input
               id="description"
@@ -105,7 +105,7 @@ export default function AddSubscriptionForm() {
               htmlFor="commissionRate"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Commission Rate (%) <span className="text-red-500">*</span>
+              Commission Rate (%) <span className="text-red-500"></span>
             </Label>
             <Input
               id="commissionRate"
@@ -143,7 +143,7 @@ export default function AddSubscriptionForm() {
               htmlFor="durationInDays"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Duration (Days) <span className="text-red-500">*</span>
+              Duration (Days) <span className="text-red-500"></span>
             </Label>
             <Input
               id="durationInDays"

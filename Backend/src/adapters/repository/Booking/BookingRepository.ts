@@ -25,13 +25,12 @@ export class BookingRepository implements IBookingRepository {
     if (!updatedBooking) throw new Error("Booking not found");
     return updatedBooking;
   }
-async findByUserId(userId: string): Promise<Booking[]> {
- return BookingModel.find({ userId })
-    .populate("selectedPackage")
-    .lean<Booking[]>()            
-    .exec();
-
-}
+  async findByUserId(userId: string): Promise<Booking[]> {
+    return BookingModel.find({ userId })
+      .populate("selectedPackage")
+      .lean<Booking[]>()
+      .exec();
+  }
 
   async findByVendorId(vendorId: string): Promise<Booking[]> {
     return BookingModel.find({ vendorId })

@@ -1,229 +1,174 @@
 import { useState } from "react";
-import { CreditCard, Wallet, CreditCard as StripeIcon } from "lucide-react";
+import { Wallet, CreditCard as StripeIcon, Lock } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import StripeCheckout from "./stripeCheckout";
 
 export default function PaymentCheckout() {
-  
   const { state } = useLocation();
   const totalAmount = state?.totalAmount || 0;
 
-  
-  const [selectedPayment, setSelectedPayment] = useState("razorpay");
-  const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [selectedPayment, setSelectedPayment] = useState("stripe");
   const [showStripeCheckout, setShowStripeCheckout] = useState(false);
- 
-  const [orderNotes, setOrderNotes] = useState("");
 
   const subtotal = totalAmount;
-  const finalAmount = totalAmount - discount;
 
-  const handleApplyCoupon = () => {
-    if (couponCode.toUpperCase() === "SAVE10") {
-      const discountAmount = Math.floor(totalAmount * 0.1);
-      setDiscount(discountAmount);
-      alert(`Coupon applied! You saved ₹${discountAmount}`);
-    } else if (couponCode) {
-      alert("Invalid coupon code!");
+
+
+  const handlePayment = () => {
+    if (selectedPayment === "stripe") {
+      setShowStripeCheckout(true);
+    } else if (selectedPayment === "wallet") {
+      alert("Processing wallet payment...");
     }
   };
-const handlePayment = () => {
-  if (selectedPayment === "stripe") {
-    // Show Stripe payment modal/component
-    setShowStripeCheckout(true);
-  } else if (selectedPayment === "razorpay") {
-    // Razorpay logic
-    alert("Redirecting to Razorpay payment gateway...");
-  } else if (selectedPayment === "wallet") {
-    // Wallet logic
-    alert("Processing wallet payment...");
-  }
-};
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-     
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-serif mb-2">Payment</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Payment</h1>
+          <p className="text-gray-600 text-sm">
+            Secure and quick payment for your booking
+          </p>
         </div>
 
+        {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Section - Payment Methods */}
+          {/* Left Section */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Payment Method Selection */}
-            <div className="bg-white rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Select Payment Method</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button
-                  onClick={() => setSelectedPayment("razorpay")}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border-2 transition-all ${
-                    selectedPayment === "razorpay"
-                      ? "border-black bg-gray-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5" />
-                  <span className="font-medium">Razorpay</span>
-                </button>
-                
+            {/* Payment Methods */}
+            <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-gray-100">
+              <h3 className="text-lg font-semibold mb-6 text-gray-900">
+                Choose Your Payment Method
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Stripe */}
                 <button
                   onClick={() => setSelectedPayment("stripe")}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 ${
                     selectedPayment === "stripe"
-                      ? "border-black bg-gray-50"
+                      ? "border-black bg-gray-50 shadow-md scale-105"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <StripeIcon className="w-5 h-5" />
-                  <span className="font-medium">Stripe</span>
+                  <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center">
+                    <StripeIcon className="h-6 w-6" />
+                  </div>
+                  <span>Stripe (Card Payment)</span>
                 </button>
-                
+
+                {/* Wallet */}
                 <button
                   onClick={() => setSelectedPayment("wallet")}
-                  className={`flex items-center justify-center gap-2 py-4 px-4 rounded-lg border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 ${
                     selectedPayment === "wallet"
-                      ? "border-black bg-gray-50"
+                      ? "border-black bg-gray-50 shadow-md scale-105"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <Wallet className="w-5 h-5" />
-                  <span className="font-medium">My Wallet</span>
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full flex items-center justify-center">
+                    <Wallet className="h-6 w-6" />
+                  </div>
+                  <span>My Wallet</span>
                 </button>
               </div>
-              
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                {selectedPayment === "razorpay" && (
-                  <p className="text-sm text-gray-600">
-                    <strong>Razorpay:</strong> Pay securely using Credit/Debit Cards, Net Banking, UPI, and Wallets.
-                  </p>
-                )}
+
+              <div className="mt-6 bg-gray-50 p-4 rounded-2xl text-sm text-gray-600">
                 {selectedPayment === "stripe" && (
-                  <p className="text-sm text-gray-600">
-                    <strong>Stripe:</strong> International payment gateway supporting Credit/Debit Cards worldwide.
+                  <p>
+                    <strong>Stripe:</strong> International payment gateway for
+                    secure card payments.
                   </p>
                 )}
                 {selectedPayment === "wallet" && (
-                  <p className="text-sm text-gray-600">
-                    <strong>My Wallet:</strong> Use your OffWeGo wallet balance for instant payment.
+                  <p>
+                    <strong>My Wallet:</strong> Use your OffWeGo wallet balance
+                    for instant payment.
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Additional Information</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-2">
-                    Order Notes (Optional)
-                  </label>
-                  <textarea
-                    value={orderNotes}
-                    onChange={(e) => setOrderNotes(e.target.value)}
-                    placeholder="Notes about your order, e.g. special notes for delivery"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black resize-none"
-                    rows={4}
-                  />
-                </div>
-              </div>
-            </div>
+          
             {showStripeCheckout && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-lg p-8 max-w-md w-full">
-      <h2 className="text-2xl font-bold mb-6">Complete Payment</h2>
-      <StripeCheckout amount={finalAmount} />
-      <button
-        onClick={() => setShowStripeCheckout(false)}
-        className="mt-4 text-gray-600 hover:text-black"
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
-          </div>
-
-
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg p-6 sticky top-6">
-              <h3 className="text-lg font-semibold mb-4">Summary</h3>
-              
-              <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">₹{subtotal}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Discount</span>
-                    <span className="font-semibold text-green-600">-₹{discount}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-between mb-6 pb-6 border-b border-gray-200">
-                <span className="font-semibold text-lg">Total</span>
-                <span className="text-2xl font-bold">₹{finalAmount}</span>
-              </div>
-
-       
-              <div className="mb-6">
-                <label className="block text-sm text-gray-600 mb-2">
-                  Have a coupon code?
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter coupon code"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black uppercase"
-                  />
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+                  <h2 className="text-2xl font-bold mb-6 text-center">
+                    Complete Payment
+                  </h2>
+                  <StripeCheckout amount={subtotal} />
                   <button
-                    onClick={handleApplyCoupon}
-                    className="px-6 py-3 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                    onClick={() => setShowStripeCheckout(false)}
+                    className="mt-6 w-full py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all"
                   >
-                    Apply
+                    Cancel
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Try: SAVE10 for 10% off</p>
+              </div>
+            )}
+          </div>
+
+        
+          <div className="lg:col-span-1">
+            <div className="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-gray-100 sticky top-6">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                Summary
+              </h3>
+
+             
+              <div className="space-y-3 mb-6 pb-4 border-b border-gray-200">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-semibold text-gray-900">
+                    ₹{subtotal}
+                  </span>
+                </div>
+                
               </div>
 
-           
+              <div className="flex justify-between items-center mb-6 pb-6 border-b border-gray-200">
+                <span className="font-semibold text-lg text-gray-800">Total</span>
+                <span className="text-2xl font-bold text-gray-900">
+                  ₹{subtotal}
+                </span>
+              </div>
+
               <button
                 onClick={handlePayment}
                 disabled={totalAmount === 0}
-                className={`w-full py-4 bg-black text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-                  totalAmount === 0 
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:bg-gray-800'
+                className={`w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-white ${
+                  totalAmount === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-black via-gray-800 to-gray-900 hover:from-gray-900 hover:to-black"
                 }`}
               >
-                <span>Proceed to Pay ₹{finalAmount}</span>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <span>Pay ₹{subtotal}</span>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
 
-           
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>Secure Payment</span>
+              
+              <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500">
+                <Lock className="h-4 w-4" />
+                <span>100% Secure Payment</span>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-  
-      
     </div>
   );
 }

@@ -29,7 +29,7 @@ export interface Booking {
   selectedDate: Date;
   totalAmount: number;
   paymentIntentId?: string;
-  paymentStatus?: "pending" | "succeeded" | "failed";
+  paymentStatus: "pending" | "succeeded" | "failed";
   createdAt?: Date;
   updatedAt?: Date;
   status?: "pending" | "succeeded" | "failed";

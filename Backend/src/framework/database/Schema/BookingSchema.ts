@@ -1,4 +1,4 @@
-import { Schema, Types } from "mongoose";
+import { Schema } from "mongoose";
 
 export const TravelerSchema = new Schema({
   name: { type: String, required: true },
@@ -18,6 +18,7 @@ export const SelectedPackageSchema = new Schema({
   packageName: { type: String, required: true },
   price: { type: Number, required: true },
   duration: { type: Number, required: true },
+  
 });
 
 export const BookingSchema = new Schema({
@@ -25,8 +26,10 @@ export const BookingSchema = new Schema({
   contactInfo: { type: ContactInfoSchema, required: true },
   adults: { type: [TravelerSchema], default: [] },
   children: { type: [TravelerSchema], default: [] },
-  selectedPackage: { type: Types.ObjectId, required: true },
+  selectedPackage: { type: Schema.Types.ObjectId, ref: "Package" },
   selectedDate: { type: Date, required: true },
   totalAmount: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
+  paymentStatus: { type: String, default: "pending" },
+  paymentIntentId: { type: String },
 });

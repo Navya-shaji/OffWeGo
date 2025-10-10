@@ -32,9 +32,11 @@ interface BookData {
   selectedDate: Date;
   totalAmount: number;
   paymentIntentId?: string;
-  paymentStatus?: "pending" | "succeeded" | "failed";
+  paymentStatus: "pending" | "succeeded" | "failed";
 }
 export interface CreateBookingDto {
  data :BookData,
  payment_id:string
+ paymentStatus:"pending" | "succeeded" | "failed";
 }
+

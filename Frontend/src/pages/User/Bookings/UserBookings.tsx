@@ -3,7 +3,7 @@ import { Calendar} from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { getUserBookings } from "@/services/Booking/bookingService";
-import BookingDetailsModal from "./BookingSetails";
+import BookingDetailsModal from "./BookingDetails";
 
 const BookingDetailsSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -45,7 +45,9 @@ const BookingDetailsSection = () => {
       </div>
     );
   }
-  console.log(bookings,"bookin")
+
+  console.log(bookings)
+  
 
   return (
     <>
@@ -68,9 +70,7 @@ const BookingDetailsSection = () => {
               <table className="w-full border-collapse border border-gray-900">
                 <thead>
                   <tr className="bg-black text-white">
-                    <th className="border border-gray-900 px-4 py-3 text-left font-semibold">
-                      Destination
-                    </th>
+                 
                     <th className="border border-gray-900 px-4 py-3 text-left font-semibold">
                       Package Name
                     </th>
@@ -96,11 +96,9 @@ const BookingDetailsSection = () => {
                         index % 2 === 0 ? "bg-white" : "bg-gray-100"
                       } hover:bg-gray-200 transition`}
                     >
+                     
                       <td className="border border-gray-900 px-4 py-3 text-sm">
-                        {booking.destination?.name || "N/A"}
-                      </td>
-                      <td className="border border-gray-900 px-4 py-3 text-sm">
-                        {booking.package?.name || "N/A"}
+                        {booking.selectedPackage.packageName|| "N/A"}
                       </td>
                       <td className="border border-gray-900 px-4 py-3 text-sm">
                         {new Date(booking.selectedDate).toLocaleDateString()}

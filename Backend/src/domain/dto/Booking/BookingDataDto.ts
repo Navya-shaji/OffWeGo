@@ -29,5 +29,5 @@ export interface BookingDataDto {
   totalAmount: number;
   paymentIntentId?: string;
   paymentStatus?: "pending" | "succeeded" | "failed";
-  payment_id?: string; // optional
+  payment_id?: string;
 }

@@ -28,9 +28,9 @@ export interface Booking {
   children: Traveler[];
   selectedPackage: PackageInfo;
   selectedDate: Date;
-  totalAmount: number; // MUST be number for Stripe
+  totalAmount: number; 
   paymentIntentId?: string;
-  paymentStatus?: "pending" | "succeeded" | "failed";
+  paymentStatus: "pending" | "succeeded" | "failed";
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -8,17 +8,21 @@ export class BookingController {
     private _userbookings:IGetUserBookingUsecase
   ) {}
 
-  async createBooking(req: Request, res: Response): Promise<void> {
-    try {
-          const {data,payment_id} = req.body;
-    const result = await this._createBooking.execute({data,payment_id});
-    console.log('console from controller',result)
+async createBooking(req: Request, res: Response): Promise<void> {
+  try {
+    const { data, payment_id, paymentStatus } = req.body; 
+    const result = await this._createBooking.execute({ data, payment_id, paymentStatus });
+    
+    console.log("Booking created:", result);
     res.status(HttpStatus.CREATED).json({ success: true, booking: result });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({sucess:false,error})
-    }
-
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, error });
   }
+}
+
    async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId; 

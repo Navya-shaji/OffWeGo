@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TravelerForm from "./TravlerForm";
@@ -6,8 +5,7 @@ import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import type { Traveler } from "@/interface/Boooking";
-
-
+import { Users, Baby, Mail, Phone, MapPin, Home, Ticket, CreditCard } from "lucide-react";
 
 export default function TravelerDetails() {
   const { state } = useLocation();
@@ -19,9 +17,8 @@ export default function TravelerDetails() {
   const [childCount, setChildCount] = useState(0);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   
-const [adultTravelers, setAdultTravelers] = useState<Traveler[]>([]);
-const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
-
+  const [adultTravelers, setAdultTravelers] = useState<Traveler[]>([]);
+  const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
 
   const [contactInfo, setContactInfo] = useState({
     email: "",
@@ -30,7 +27,7 @@ const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
     address: "",
   });
 
- const packagePrice = selectedPackage?.totalPrice || selectedPackage?.price || 500;
+  const packagePrice = selectedPackage?.totalPrice || selectedPackage?.price || 500;
   const adultPrice = packagePrice;
   const childPrice = adultPrice * 0.8;
   const totalAmount = adultCount * adultPrice + childCount * childPrice;
@@ -95,7 +92,6 @@ const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
           flightPrice: selectedPackage.flightPrice,
           totalPrice: selectedPackage.totalPrice,
         },
-      
         selectedDate,
         totalAmount,
         status: "pending",
@@ -106,7 +102,6 @@ const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
         state: {
           bookingData,
           totalAmount,
-          
         },
       });
     } catch (error) {
@@ -114,132 +109,239 @@ const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
       toast.error("Booking failed!");
     }
   };
+
+  const inputFields = [
+    { name: "email", icon: Mail, type: "email", placeholder: "your.email@example.com" },
+    { name: "mobile", icon: Phone, type: "tel", placeholder: "+91 98765 43210" },
+    { name: "city", icon: MapPin, type: "text", placeholder: "Your city" },
+    { name: "address", icon: Home, type: "text", placeholder: "Complete address" },
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-5 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-          {/* Left Section */}
-          <div className="bg-gray-50 p-10 border-r border-gray-200">
-            <h2 className="text-gray-800 text-2xl font-semibold mb-8">
-              Select Tickets
-            </h2>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+       
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-4xl font-bold bg-gradient-to-r text-black  mb-2">
+            Complete Your Booking
+          </h1>
+          <p className="text-gray-600">Just a few more details to confirm your adventure</p>
+        </div>
 
-            {/* Adult Ticket */}
-            <div className="bg-white p-5 rounded-xl mb-4 shadow-sm flex justify-between items-center">
-              <div className="flex-1">
-                <div className="text-gray-600 text-sm mb-1">Adult</div>
-                <div className="text-gray-800 text-lg font-semibold">
-                  ₹{adultPrice} per person
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden backdrop-blur-sm bg-opacity-95">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+            <div className="bg-gradient-to-br from-gray-50 to-purple-50 p-8 lg:p-10 border-r border-gray-200">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Ticket className="w-6 h-6 text-purple-600" />
+                </div>
+                <h2 className="text-gray-800 text-2xl font-bold">Select Tickets</h2>
+              </div>
+
+              {/* Adult Ticket */}
+              <div className="group bg-white p-6 rounded-2xl mb-5 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-purple-200">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
+                      <Users className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-sm font-medium mb-1">Adult Ticket</div>
+                      <div className="text-gray-900 text-xl font-bold">₹{adultPrice.toLocaleString()}</div>
+                      <div className="text-gray-400 text-xs">per person</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2">
+                    <button
+                      onClick={() => updateCount("adult", -1)}
+                      className="w-10 h-10 bg-white hover:bg-purple-100 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={adultCount === 0}
+                    >
+                      −
+                    </button>
+                    <span className="min-w-10 text-center text-lg font-bold text-purple-600">
+                      {adultCount}
+                    </span>
+                    <button
+                      onClick={() => updateCount("adult", 1)}
+                      className="w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => updateCount("adult", -1)}
-                  className="bg-gray-200 px-3 py-1 rounded"
-                >
-                  −
-                </button>
-                <span className="min-w-8 text-center text-base font-semibold">
-                  {adultCount}
+
+           
+              <div className="group bg-white p-6 rounded-2xl mb-8 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-fuchsia-200">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="p-3 bg-fuchsia-100 rounded-xl group-hover:bg-fuchsia-200 transition-colors">
+                      <Baby className="w-6 h-6 text-fuchsia-600" />
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-sm font-medium mb-1">Child Ticket</div>
+                      <div className="text-gray-900 text-xl font-bold">₹{childPrice.toLocaleString()}</div>
+                      <div className="text-gray-400 text-xs">per person (20% off)</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2">
+                    <button
+                      onClick={() => updateCount("child", -1)}
+                      className="w-10 h-10 bg-white hover:bg-fuchsia-100 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={childCount === 0}
+                    >
+                      −
+                    </button>
+                    <span className="min-w-10 text-center text-lg font-bold text-fuchsia-600">
+                      {childCount}
+                    </span>
+                    <button
+                      onClick={() => updateCount("child", 1)}
+                      className="w-10 h-10 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm">
+                <h3 className="text-gray-800 text-xl font-bold mb-6 flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-purple-600" />
+                  Contact Information
+                </h3>
+                <div className="space-y-4">
+                  {inputFields.map((field) => {
+                    const Icon = field.icon;
+                    return (
+                      <div key={field.name} className="relative group">
+                        <label className="block text-gray-600 text-xs uppercase font-semibold mb-2 tracking-wide">
+                          {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
+                        </label>
+                        <div className="relative">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-600 transition-colors">
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <input
+                            type={field.type}
+                            name={field.name}
+                            value={(contactInfo as any)[field.name]}
+                            onChange={handleInputChange}
+                            placeholder={field.placeholder}
+                            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+         
+            <div className="p-8 lg:p-10 bg-white">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-gray-800 text-2xl font-bold flex items-center gap-2">
+                  <Users className="w-6 h-6 text-purple-600" />
+                  Traveller Details
+                </h2>
+                <span className="text-red-500 text-xs font-semibold px-3 py-1 bg-red-50 rounded-full">
+                  *Mandatory
                 </span>
-                <button
-                  onClick={() => updateCount("adult", 1)}
-                  className="bg-gray-200 px-3 py-1 rounded"
-                >
-                  +
-                </button>
               </div>
-            </div>
 
-            {/* Child Ticket */}
-            <div className="bg-white p-5 rounded-xl shadow-sm flex justify-between items-center">
-              <div className="flex-1">
-                <div className="text-gray-600 text-sm mb-1">Child</div>
-                <div className="text-gray-800 text-lg font-semibold">
-                  ₹{childPrice} per person
+              <div className="space-y-6 mb-6">
+                {adultCount > 0 && (
+                  <div className="animate-slide-in">
+                    <TravelerForm
+                      travelerType="Adult"
+                      count={adultCount}
+                      onChange={setAdultTravelers}
+                    />
+                  </div>
+                )}
+                {childCount > 0 && (
+                  <div className="animate-slide-in">
+                    <TravelerForm
+                      travelerType="Child"
+                      count={childCount}
+                      onChange={setChildTravelers}
+                    />
+                  </div>
+                )}
+              </div>
+
+          
+              <div className="bg-gradient-to-br bg-gray  rounded-2xl p-6 text-black shadow-lg mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-black font-medium">Booking Summary</span>
+                  <CreditCard className="w-5 h-5 text-purple-200" />
+                </div>
+                <div className="space-y-2 mb-4 text-sm">
+                  {adultCount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-black">Children × {childCount}</span>
+                      <span className="font-semibold">₹{(childCount * childPrice).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="border-t border-purple-400 pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-medium">Total Amount</span>
+                    <span className="text-3xl font-bold">₹{totalAmount.toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => updateCount("child", -1)}
-                  className="bg-gray-200 px-3 py-1 rounded"
-                >
-                  −
-                </button>
-                <span className="min-w-8 text-center text-base font-semibold">
-                  {childCount}
-                </span>
-                <button
-                  onClick={() => updateCount("child", 1)}
-                  className="bg-gray-200 px-3 py-1 rounded"
-                >
-                  +
-                </button>
-              </div>
-            </div>
 
-            {/* Contact Info */}
-            <div className="mb-8 mt-8">
-              <h3 className="text-gray-800 text-lg font-semibold mb-5">
-                Contact Information
-              </h3>
-              {["email", "mobile", "city", "address"].map((field) => (
-                <div key={field} className="mb-5">
-                  <label className="block text-gray-600 text-xs uppercase font-semibold mb-2 tracking-wide">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </label>
-                  <input
-                    type={field === "email" ? "email" : "text"}
-                    name={field}
-                    value={(contactInfo as any)[field]}
-                    onChange={handleInputChange}
-                    placeholder={`Enter your ${field}`}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-purple-600 transition-colors"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Section: Traveler Forms */}
-          <div className="p-10">
-            <h2 className="text-gray-800 text-2xl font-semibold mb-8">
-              Traveller Details
-              <span className="text-red-500 text-xs float-right">
-                *Mandatory
-              </span>
-            </h2>
-
-            {adultCount > 0 && (
-              <TravelerForm
-                travelerType="Adult"
-                count={adultCount}
-                onChange={setAdultTravelers}
-              />
-            )}
-            {childCount > 0 && (
-              <TravelerForm
-                travelerType="Child"
-                count={childCount}
-                onChange={setChildTravelers}
-              />
-            )}
-
-            <div className="mt-5">
-              <p className="text-gray-700 font-semibold mb-3">
-                Total Amount: ₹{totalAmount}
-              </p>
+             
               <button
                 onClick={handleNext}
-                className="w-full px-4 py-4 bg-black text-white rounded-lg text-base font-semibold hover:bg-gray-800 transition-colors"
+                className="w-full px-6 py-4 bg-gradient-to-r bg-white  transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                Confirm Booking
+                Proceed to Payment
               </button>
+
+              <p className="text-center text-xs text-gray-500 mt-4">
+                Secure payment • 100% refund on cancellation
+              </p>
             </div>
-            
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slide-in {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out;
+        }
+
+        .animate-slide-in {
+          animation: slide-in 0.4s ease-out;
+        }
+      `}</style>
     </div>
-  );
+  )
 }
