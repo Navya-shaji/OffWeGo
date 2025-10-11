@@ -5,6 +5,7 @@ import { IVerifyOtpUseCase } from "../../../domain/interface/UsecaseInterface/IV
 import { IResendOtpUsecase } from "../../../domain/interface/UserRepository/IResendOtpUsecase";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
+import { Role } from "../../../domain/constants/Roles";
 
 export class UserRegisterController {
   constructor(
@@ -60,7 +61,7 @@ async registerUser(req: Request, res: Response): Promise<void> {
     const payload = {
       id: verifiedUser._id,
       email: verifiedUser.email,
-      role: verifiedUser.role || "user",
+      role: Role.USER || "user",
     };
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);

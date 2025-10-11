@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IAdminLoginUseCase } from "../../../domain/interface/Admin/IAdminUsecase";
 import { AppError } from "../../../domain/errors/AppEroor";
+import { Role } from "../../../domain/constants/Roles";
 
 export class AdminController {
   constructor(private _adminLoginuseCase: IAdminLoginUseCase) {}
@@ -9,7 +10,7 @@ export class AdminController {
   async login(req: Request, res: Response): Promise<void> {
     const { email, password } = req.body;
     const result = await this._adminLoginuseCase.execute({ email, password });
-    if (result.admin.role !== "admin") {
+    if (result.admin.role !==Role.ADMIN) {
       throw new AppError(
         "Only admins are allowed to log in here.",
         HttpStatus.FORBIDDEN

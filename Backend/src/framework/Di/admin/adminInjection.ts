@@ -1,4 +1,4 @@
-import { AdminRepository } from "../../../adapters/repository/Admin/adminRepository";
+import { AdminRepository } from "../../../adapters/repository/Admin/AdminRepository";
 import { AdminLoginuseCase } from "../../../useCases/admin/Login/AdminLoginuseCase";
 import { AdminController } from "../../../adapters/controller/Admin/AdminController";
 import { AdminVendorController } from "../../../adapters/controller/Admin/AdminVendorController";
@@ -10,16 +10,16 @@ import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updat
 import { GetAllVendorsUseCase } from "../../../useCases/admin/vendor/getAllVendorsUsecase";
 // Update the import to match the actual export from GetAllUserUsecase.ts
 import { GetAllUsersUsecase } from "../../../useCases/admin/user/getAllUserUsecase";
-import { UserRepository } from "../../../adapters/repository/User/userRepository";
+import { UserRepository } from "../../../adapters/repository/User/UserRepository";
 import { UpdateUserUseCase } from "../../../useCases/admin/user/updateUserusecase";
 import { GetAllDestinations } from "../../../useCases/destination/getAllDestinationUsecase"; 
 import { CreateDestination } from "../../../useCases/destination/createDestinationUsecase"; 
-import { DestinationRepository } from "../../../adapters/repository/Destination/destinationRepository";
+import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { EditDestination } from "../../../useCases/destination/editDestinationUsecase";
 import { UpdateVendorUsecase } from "../../../useCases/admin/vendor/updateVendorUsecase";
 import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
-import { CreateCatogoryController } from "../../../adapters/controller/category/categoryController";
-import { CategoryRepository } from "../../../adapters/repository/Category/categoryRepository";
+import { CreateCatogoryController } from "../../../adapters/controller/category/CategoryController";
+import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
 import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
 import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";
 import { BannerRepository } from "../../../adapters/repository/Banner/BannerRepository";
@@ -33,7 +33,7 @@ import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
 import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
-import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
+import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/SubscriptionPlanController";
 import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";

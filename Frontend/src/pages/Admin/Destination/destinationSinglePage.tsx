@@ -224,9 +224,7 @@ console.log(packagesLoading,searchLoading,error)
               </p>
 
               <div className="flex gap-4 flex-wrap justify-center">
-                <button className="px-8 py-4 bg-coral-500 hover:bg-coral-600 text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl">
-                  Book Now
-                </button>
+                
                 <button
                   onClick={() => navigate("/destinations")}
                   className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 border-2 border-white/50"
