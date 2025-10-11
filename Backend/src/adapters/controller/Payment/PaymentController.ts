@@ -6,15 +6,11 @@ export class PaymentController {
 
   async createPayment(req: Request, res: Response): Promise<void> {
     const { amount, currency } = req.body;
-    
+
     console.log("Payment data:", { amount, currency });
-    
+
     try {
-      const result = await this._createPayment.execute(
-        amount,
-        currency,
-       
-      );
+      const result = await this._createPayment.execute(amount, currency);
       res.status(HttpStatus.CREATED).json({
         success: true,
         client_secret: result.client_secret,

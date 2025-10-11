@@ -2,8 +2,8 @@ import { IUserRepository } from "../../../domain/interface/UserRepository/IuserR
 import { IUserLoginUseCase } from "../../../domain/interface/UsecaseInterface/ILoginUserUseCaseInterface";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
-import { LoginDTo } from "../../../domain/dto/user/LoginDto"; 
-import { LoginResponseDto } from "../../../domain/dto/user/LoginResponseDto";
+import { LoginDTo } from "../../../domain/dto/User/LoginDto"; 
+import { LoginResponseDto } from "../../../domain/dto/User/LoginResponseDto";
 import { mapToLoginUserDto } from "../../../mappers/User/loginuserMapper"; 
 import { mapNumericRoleToString } from "../../../mappers/User/mapping";
 

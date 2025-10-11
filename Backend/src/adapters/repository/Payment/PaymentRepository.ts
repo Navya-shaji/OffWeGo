@@ -9,7 +9,7 @@ export class PaymentRepository implements IPaymentRepository {
     const clientSecret = await this.stripeService.createPaymentIntent(amount);
 
     return {
-      id:"", // using clientSecret as the payment ID reference
+      id:"", 
       amount,
       currency,
       status: "pending", 

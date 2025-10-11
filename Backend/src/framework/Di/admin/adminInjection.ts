@@ -8,7 +8,6 @@ import { GetVendorByEmailUseCase } from "../../../useCases/admin/vendor/getVendo
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { UpdateVendorstatusUseCase } from "../../../useCases/vendor/Signup/updateVendorStatusUsecase"; 
 import { GetAllVendorsUseCase } from "../../../useCases/admin/vendor/getAllVendorsUsecase";
-// Update the import to match the actual export from GetAllUserUsecase.ts
 import { GetAllUsersUsecase } from "../../../useCases/admin/user/getAllUserUsecase";
 import { UserRepository } from "../../../adapters/repository/User/UserRepository";
 import { UpdateUserUseCase } from "../../../useCases/admin/user/updateUserusecase";
@@ -18,7 +17,7 @@ import { DestinationRepository } from "../../../adapters/repository/Destination/
 import { EditDestination } from "../../../useCases/destination/editDestinationUsecase";
 import { UpdateVendorUsecase } from "../../../useCases/admin/vendor/updateVendorUsecase";
 import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
-import { CreateCatogoryController } from "../../../adapters/controller/category/CategoryController";
+import { CreateCatogoryController } from "../../../adapters/controller/Category/CategoryController";
 import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
 import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
 import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";

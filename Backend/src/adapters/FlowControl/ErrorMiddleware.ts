@@ -5,7 +5,7 @@ export const errorMiddleware = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  _next: NextFunction 
+  _next: NextFunction
 ): void => {
   try {
     const statusCode = err instanceof AppError ? err.statusCode : 500;
@@ -28,5 +28,5 @@ export const errorMiddleware = (
   } catch (error) {
     console.log("Error in error handling middleware", error);
   }
-  console.log(_next)
+  console.log(_next);
 };

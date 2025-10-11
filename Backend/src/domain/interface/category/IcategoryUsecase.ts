@@ -1,4 +1,4 @@
-import { CreateCategoryDto } from "../../dto/admin/CategoryDto";
+import { CreateCategoryDto } from "../../dto/Admin/CategoryDto";
 import { Category } from "../../entities/CategoryEntity";
 
 export interface ICreateCategoryUsecase {

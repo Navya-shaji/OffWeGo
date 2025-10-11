@@ -10,7 +10,7 @@ export class AdminController {
   async login(req: Request, res: Response): Promise<void> {
     const { email, password } = req.body;
     const result = await this._adminLoginuseCase.execute({ email, password });
-    if (result.admin.role !==Role.ADMIN) {
+    if (result.admin.role !== Role.ADMIN) {
       throw new AppError(
         "Only admins are allowed to log in here.",
         HttpStatus.FORBIDDEN

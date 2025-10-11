@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { LoginDTo } from "../../../domain/dto/user/LoginDto";
+import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 import { IVendorLoginUsecase } from "../../../domain/interface/Vendor/IVendorLoginUsecase";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 

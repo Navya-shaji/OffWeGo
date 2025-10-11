@@ -1,7 +1,7 @@
 import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/createsubscriptionDto"; 
+import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/CreatesubscriptionDto"; 
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
-import { mapDtoToPartialModel } from "../../mappers/subscription/updatedMapper"; 
+import { mapDtoToPartialModel } from "../../mappers/Subscription/updatedMapper"; 
 
 export class EditSubscriptionUseCase implements IEditSubscriptionusecase {
   constructor(private subscriptionRepository: ISubscriptionPlanRepository) {}

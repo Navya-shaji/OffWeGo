@@ -1,4 +1,4 @@
-import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/createsubscriptionDto"; 
+import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/CreatesubscriptionDto"; 
 import { SubscriptionPlan } from "../../domain/entities/subscriptionplan"; 
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
 

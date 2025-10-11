@@ -1,6 +1,9 @@
 import { Hotel } from "../../../domain/entities/HotelEntity";
 import { IHotelRepository } from "../../../domain/interface/Vendor/IHotelRepository";
-import { HotelModel,IHotelModel} from "../../../framework/database/Models/HotelModel";
+import {
+  HotelModel,
+  IHotelModel,
+} from "../../../framework/database/Models/HotelModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class HotelRepository
@@ -34,7 +37,7 @@ export class HotelRepository
   async searchHotel(query: string): Promise<Hotel[]> {
     const regex = new RegExp(query, "i");
     return HotelModel.find({ name: { $regex: regex } })
-      .select("name address" )
+      .select("name address")
       .limit(10)
       .exec();
   }

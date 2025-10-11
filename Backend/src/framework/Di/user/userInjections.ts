@@ -14,15 +14,14 @@ import { UserProfileUsecase } from "../../../useCases/user/profile/createProfile
 import { UserProfileController } from "../../../adapters/controller/User/UserProfileController"; 
 import { JwtService } from "../../Services/jwtService";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
-
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
-import { CreateBookingUseCase } from "../../../useCases/Booking/CreateBookingUsecase";
+import { CreateBookingUseCase } from "../../../useCases/booking/CreateBookingUsecase";
 import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
 import { BookingController } from "../../../adapters/controller/Booking/BookingController";
-import { CreatePaymentUsecase } from "../../../useCases/Payment/CreatePaymentusecase";
+import { CreatePaymentUsecase } from "../../../useCases/payment/CreatePaymentusecase";
 import { PaymentRepository } from "../../../adapters/repository/Payment/PaymentRepository";
 import { PaymentController } from "../../../adapters/controller/Payment/PaymentController"; 
-import { GetUserBookingUsecase } from "../../../useCases/Booking/GetUserBokingsUsecase";
+import { GetUserBookingUsecase } from "../../../useCases/booking/GetUserBokingsUsecase";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -34,7 +33,6 @@ const hashPassword=new HashPassword();
 const jwtService=new JwtService
 const bookingRepo=new BookingRepository()
 const stripeService = new StripeService();
-// const packageRepo=new PackageRepository();
 const paymentRepo=new PaymentRepository(stripeService)
 
 
@@ -47,7 +45,6 @@ const loginUserUseCase=new UserLoginUseCase(userRepository,hashPassword,jwtServi
 const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword);
 const userprofile=new UserProfileUsecase(userRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
-// const getpackagebydestinationusecase=new GetPackageUsecase(packageRepo);
 const edituserProfile=new EditUserProfile()
 const createbookingusecase=new CreateBookingUseCase(bookingRepo)
 const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
@@ -61,5 +58,4 @@ export const userLoginController =new UserLoginController(loginUserUseCase,jwtSe
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
 export const bookingcontroller=new BookingController(createbookingusecase,userbookings)
-// export const getpackageByDestinationController=new PackageController(getpackagebydestinationusecase);
 export const paymentcontroller=new PaymentController(createpaymentusecase)

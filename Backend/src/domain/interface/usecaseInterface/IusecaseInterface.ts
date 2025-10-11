@@ -1,4 +1,4 @@
-import { UserDto } from "../../dto/user/UserDto";
+import { UserDto } from "../../dto/User/UserDto";
 
 export interface IregisterUserUseCase {
   execute(userData: UserDto): Promise<boolean>;

@@ -1,4 +1,4 @@
-import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/createsubscriptionDto";
+import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/CreatesubscriptionDto";
 import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
 
 export const mapDtoToSubscriptionModel = (

@@ -3,7 +3,7 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { IEditSubscriptionusecase } from "../../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-import { CreateSubscriptionDTO } from "../../../domain/dto/Subscription/createsubscriptionDto";
+import { CreateSubscriptionDTO } from "../../../domain/dto/Subscription/CreatesubscriptionDto";
 import { IDeleteSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IDeletesubscription";
 
 export class SubscriptionController {
@@ -11,7 +11,7 @@ export class SubscriptionController {
     private _createSubscriptionPlan: CreateSubscriptionPlanUseCase,
     private _getsubscriptions: IGetSubscriptionUsecase,
     private _editSubscription: IEditSubscriptionusecase,
-    private _deletesubscription:IDeleteSubscriptionUsecase
+    private _deletesubscription: IDeleteSubscriptionUsecase
   ) {}
 
   async createSubscription(req: Request, res: Response) {
@@ -71,7 +71,7 @@ export class SubscriptionController {
       data: result,
     });
   }
-    async deleteDestinationController(req: Request, res: Response) {
+  async deleteDestinationController(req: Request, res: Response) {
     const { id } = req.params;
     const result = await this._deletesubscription.execute(id);
     return res.status(HttpStatus.OK).json(result);

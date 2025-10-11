@@ -1,4 +1,4 @@
-import { UserDto } from "../../../domain/dto/user/UserDto";
+import { UserDto } from "../../../domain/dto/User/UserDto";
 import { IGetAllUserUsecase } from "../../../domain/interface/Admin/IGetAllUsers";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 

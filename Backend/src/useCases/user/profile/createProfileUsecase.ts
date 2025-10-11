@@ -1,4 +1,4 @@
-import { ProfileDto } from "../../../domain/dto/user/ProfileDto";
+import { ProfileDto } from "../../../domain/dto/User/ProfileDto";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
 export class UserProfileUsecase implements IUserProfileUsecase {

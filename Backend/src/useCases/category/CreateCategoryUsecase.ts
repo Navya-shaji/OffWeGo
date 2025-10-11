@@ -1,5 +1,5 @@
 import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
-import { CreateCategoryDto } from "../../domain/dto/admin/CategoryDto";
+import { CreateCategoryDto } from "../../domain/dto/Admin/CategoryDto";
 import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
 import { CategoryDto } from "../../domain/dto/category/CategoryDto";
 

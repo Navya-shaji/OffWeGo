@@ -1,6 +1,9 @@
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
-import {IUserModel,UserModel} from "../../../framework/database/Models/userModel";
-import { ProfileDto } from "../../../domain/dto/user/ProfileDto";
+import {
+  IUserModel,
+  UserModel,
+} from "../../../framework/database/Models/userModel";
+import { ProfileDto } from "../../../domain/dto/User/ProfileDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class UserRepository
