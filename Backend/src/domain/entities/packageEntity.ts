@@ -7,7 +7,7 @@ export interface Package {
   destinationId: string;
   packageName: string;
   description: string;
-  basePrice: number;
+  price: number;
   duration: number;
   startDate: Date;
   endDate: Date;

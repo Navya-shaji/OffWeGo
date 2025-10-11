@@ -83,7 +83,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
     }
   }, [onPackagesUpdate]);
 
-  // Debounced search function
   const handleSearch = useCallback(async (query: string) => {
     
     if (searchTimeoutRef.current) {
@@ -92,7 +91,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
     setSearchQuery(query);
 
-    // Debounce search
     searchTimeoutRef.current = setTimeout(async () => {
       if (!query.trim()) {
       
@@ -113,7 +111,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         setError("Search failed. Please try again.");
         setPackageList([]);
         
-        // Clear error after 3 seconds
+        
         setTimeout(() => setError(""), 3000);
       }
     }, 400);
@@ -125,7 +123,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       loadPackages();
     }
 
-    // Cleanup
+
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
@@ -149,7 +147,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
       if (!deleteModal.package?._id) return;
       await deletePackage(deleteModal.package._id);
 
-      // Update local state instead of refetching
       const updatedPackages = packageList.filter(
         (pkg) => pkg._id !== deleteModal.package!._id
       );
@@ -169,7 +166,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
       console.error("Delete failed:", error);
       setError("Failed to delete package. Please try again.");
       
-      // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleting(false);
@@ -210,7 +206,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       );
     }
-
+    
     return (
       <div className="space-y-2 max-w-xs">
         {validActivities.map((activity, idx) => (

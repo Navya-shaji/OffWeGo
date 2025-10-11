@@ -7,7 +7,7 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
   destinationId: doc.destinationId?.toString() || "",
   packageName: doc.packageName || "",
   description: doc.description || "",
-  basePrice: doc.basePrice || 0,
+  price: doc.price || 0,
   flightPrice: doc.flight?.price || 0,
   duration: doc.duration || 0,
   startDate: doc.startDate || null,

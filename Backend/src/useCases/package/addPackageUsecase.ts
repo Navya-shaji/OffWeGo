@@ -9,9 +9,16 @@ export class CreatePackagesUseCase implements ICreatePackage {
 
   async execute(data: Package, vendorId: string): Promise<PackageDTO> {
     const packageData: Package = { ...data, vendorId };
-   
+
+    packageData.hotels = (packageData.hotels || []).filter(Boolean);
+    packageData.activities = (packageData.activities || []).filter(Boolean);
+
+    console.log(packageData, "pp");
+
     const createdDoc = await this._packageRepo.createPackage(packageData);
-    
+    console.log(createdDoc,"created")
+
     return mapToPackageDTO(createdDoc);
   }
 }
+

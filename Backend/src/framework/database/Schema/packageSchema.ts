@@ -30,9 +30,8 @@ export const packageSchema = new Schema(
     amenities: [{ type: String }],
     vendorId: { type: String },
 
-    // Flight related
-    flightOption: { type: Boolean, default: false }, // whether flight is included
-    flight: { type: Schema.Types.ObjectId, ref: "Flight", default: null }, // reference to flight document
+    flightOption: { type: Boolean, default: false }, 
+    flight: { type: Schema.Types.ObjectId, ref: "Flight", default: null }, 
   },
   { timestamps: true }
 );

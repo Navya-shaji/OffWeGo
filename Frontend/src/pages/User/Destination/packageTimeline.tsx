@@ -106,7 +106,7 @@ export const PackageTimeline = () => {
         selectedPackage: {
           ...selectedPackage,
           totalPrice: totalPrice,
-          basePrice: basePackagePrice,
+          price: basePackagePrice,
           flightPrice: flightPrice,
         },
         flightOption: flightOption,

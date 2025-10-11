@@ -60,6 +60,7 @@ export const fetchAllPackages = async (
     });
 
     const { packages, totalPackages, totalPages, currentPage } = res.data;
+    console.log(packages,"service")
 
     if (!Array.isArray(packages)) {
       return {

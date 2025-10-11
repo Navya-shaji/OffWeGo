@@ -88,7 +88,7 @@ export default function TravelerDetails() {
         selectedPackage: {
           _id: selectedPackage._id,
           name: selectedPackage.name,
-          basePrice: selectedPackage.basePrice,
+          price: selectedPackage.price,
           flightPrice: selectedPackage.flightPrice,
           totalPrice: selectedPackage.totalPrice,
         },

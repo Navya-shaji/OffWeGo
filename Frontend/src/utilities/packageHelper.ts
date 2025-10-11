@@ -1,5 +1,5 @@
 export const calculatePackagePrice = (
-  basePrice: number,
+  price: number,
   selectedHotels: string[],
   selectedActivities: string[],
   duration: number,
@@ -8,7 +8,7 @@ export const calculatePackagePrice = (
 ) => {
   const hotelsCost = selectedHotels.length * hotelCostPerNight * duration;
   const activitiesCost = selectedActivities.length * activityCost;
-  return basePrice + hotelsCost + activitiesCost;
+  return price + hotelsCost + activitiesCost;
 };
 
 export const validatePackageForm = (formData: {

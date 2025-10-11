@@ -4,7 +4,7 @@ export interface PackageDTO {
   destinationId: string;
   packageName: string;
   description: string;
-  basePrice: number;         
+  price: number;         
   flightPrice: number;     
   duration: number;
   startDate: Date | null;

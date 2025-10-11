@@ -77,7 +77,6 @@ export class PackageController {
 
       const packageData = req.body;
 
-      // ✅ Validate destination
       const destination = await DestinationModel.findById(
         packageData.destinationId
       );
@@ -92,9 +91,7 @@ export class PackageController {
       packageData.hotels =
         packageData.hotels?.map((hotel: Hotel) => hotel.hotelId) || [];
       packageData.activities =
-        packageData.activities?.map(
-          (act: Activity) => act.activityId || act._id
-        ) || [];
+        packageData.activities?.map((act:any) => act.activityId || act?.id) || [];
 
       const createdPackage = await this._createPackage.execute(
         packageData,
