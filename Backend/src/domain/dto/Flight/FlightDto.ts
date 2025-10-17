@@ -1,8 +1,10 @@
 export interface FlightDto {
-  id?: string;          
-  date: Date;
-  fromLocation: string;
-  toLocation: string;
+  id?: string;
+
   airLine: string;
-  price: number;
+  price: {
+    economy: number;
+    premium?: number;
+    business?: number;
+  };
 }

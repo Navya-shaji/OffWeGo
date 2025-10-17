@@ -8,7 +8,7 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
   packageName: doc.packageName || "",
   description: doc.description || "",
   price: doc.price || 0,
-  flightPrice: doc.flight?.price || 0,
+  flightPrice: doc.flight?.price.economy || 0,
   duration: doc.duration || 0,
   startDate: doc.startDate || null,
   endDate: doc.endDate || null,
@@ -52,12 +52,13 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
   flightOption: doc.flightOption || false,
   flight: doc.flight
     ? {
-        id: doc.flight.id?.toString() || "",
-        fromLocation: doc.flight.fromLocation || "",
-        toLocation: doc.flight.toLocation || "",
+        id: doc.flight.id,
         airLine: doc.flight.airLine || "",
-        date: doc.flight.date || null,
-        price: doc.flight.price || 0,
+        price: {
+          economy: doc.flight.price.economy || 0,
+          premium: doc.flight.price.premium,
+          business: doc.flight.price.business,
+        },
       }
     : null,
 });

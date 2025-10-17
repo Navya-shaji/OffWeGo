@@ -8,11 +8,13 @@ export interface IPackageModel extends Omit<Package, "id">, Document {
   flightOption: boolean;
   flight?: {
     id: string;
-    fromLocation: string;
-    toLocation: string;
     airLine: string;
-    date: Date;
-    price: number;
+   
+    price: {
+      economy:number
+      premium:number
+      business:number
+    }
   } | null;
 }
 

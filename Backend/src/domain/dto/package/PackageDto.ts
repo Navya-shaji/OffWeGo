@@ -18,5 +18,5 @@ export interface PackageDTO {
   inclusions: string[];
   amenities: string[];
   flightOption: boolean; 
-  flight?: { id: string; fromLocation: string; toLocation: string; airLine: string; date: Date | null; price: number } | null;
+  flight?: { id: string; airLine: string;  price: {economy:number,premium:number,business:number} } | null;
 }

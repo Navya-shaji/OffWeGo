@@ -1,23 +1,23 @@
 import { Schema } from "mongoose";
 
-export const flightSchema=new Schema({
-    date:{type:Date,
-        required:true
-    },
-    fromLocation:{
-        type:String,
-        required:true
-    },
-    toLocation:{
-        type:String,
-        required:true
-    },
-    airLine:{
-        type:String,
-        required:true
-    },
-    price:{
-        type:Number,
-        required:true
-    }
-})
+export const flightSchema = new Schema({
+
+
+  airLine: {
+    type: String,
+    required: true
+  },
+  price: {
+    economy: { type: Number, required: true },
+    premium: { type: Number },   
+    business: { type: Number }   
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
