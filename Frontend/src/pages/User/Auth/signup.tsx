@@ -74,7 +74,7 @@ export default function Signup() {
           <div className="absolute inset-0 bg-black/10" />
         </div>
 
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center bg-amber-50/40">
+        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center bg-amber-50/60">
           <h2 className="text-3xl font-serif text-center text-black mb-6 ">
             Create Your Account
           </h2>

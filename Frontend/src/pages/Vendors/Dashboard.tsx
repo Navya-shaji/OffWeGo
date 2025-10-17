@@ -10,7 +10,7 @@ import type { AppDispatch, RootState } from "@/store/store";
 import { CreateDestination } from "../Admin/Destination/CreateDestination";
 import CreateHotel from "./add-Hotel";
 import HotelsTable from "./getAllHotels";
-import { AddActivity } from "./add-Activity";
+import AddActivity  from "./add-Activity";
 import ActivitiesTable from "./getAllActivities";
 import AddPackage from "@/components/Packages/AddPAckage";
 import PackageTable from "./package-table";

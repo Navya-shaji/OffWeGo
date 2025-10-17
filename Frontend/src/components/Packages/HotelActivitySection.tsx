@@ -32,15 +32,15 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
   onHotelSelection,
   onActivitySelection,
 }) => {
-  // Map hotels for MultiSelect
-  const hotelOptions = filteredHotels.map((hotel) => ({
-    value: hotel.hotelId || hotel.id || "", // fallback to empty string
+const hotelOptions = filteredHotels
+  .filter((hotel) => hotel.destinationId === destinationId)
+  .map((hotel) => ({
+    value: hotel.hotelId, 
     label: `${hotel.name} - ${hotel.address} (${hotel.rating}⭐)`,
     data: hotel,
   }));
-
-  // Map activities for MultiSelect
-  const activityOptions = filteredActivities.map((activity) => ({
+  const activityOptions = filteredActivities.filter((activity)=>activity.destinationId===destinationId)
+  .map((activity) => ({
     value: activity.id ?? "",
     label: `${activity.title} - ${activity.description.slice(0, 50)}...`,
     data: activity,

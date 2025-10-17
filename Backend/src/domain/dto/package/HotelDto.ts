@@ -4,5 +4,5 @@ export interface HotelDto {
   name: string;
   address: string;
   rating: number;
-  destinationId?: string;
+  destinationId: string;
 }

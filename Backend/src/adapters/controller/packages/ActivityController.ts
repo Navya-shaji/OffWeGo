@@ -16,8 +16,9 @@ export class ActivityController {
   ) {}
 
   async createActivities(req: Request, res: Response) {
+    const destinationId = req.params.id;
     const ActivityData = req.body;
-    const result = await this._creatActivity.execute(ActivityData);
+    const result = await this._creatActivity.execute(ActivityData,destinationId);
     res.status(HttpStatus.OK).json({
       success: true,
       data: result,

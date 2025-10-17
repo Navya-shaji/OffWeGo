@@ -6,3 +6,4 @@ export const ActivitySchema = z.object({
   imageUrl: z.any().optional(), 
 });
 
+export type ActivityFormData = z.infer<typeof ActivitySchema>;

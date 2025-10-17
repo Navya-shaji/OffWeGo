@@ -7,6 +7,7 @@ export const HotelSchema = new Schema({
   rating: { type: Number, required: true },
   destinationId: {
     type: Schema.Types.ObjectId,
-    ref: "Destination"
+    ref: "Destination",
+    required:true
   }
 });

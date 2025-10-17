@@ -40,7 +40,7 @@ interface Hotel {
   name: string;
   address: string;
   rating: number;
-  destinationId?: string;
+  destinationId: string;
 }
 
 interface Activity {
@@ -167,9 +167,7 @@ const handleActivitySelection = (activityIds: string[]) => {
     selectedActivities: selectedActivityObjects,
   }));
 
-  // if (touched.selectedActivities) {
-  //   validateField("selectedActivities", selectedActivityObjects);
-  // }
+
 };
 
 
@@ -337,15 +335,7 @@ const handleActivitySelection = (activityIds: string[]) => {
     e.preventDefault();
     setShowValidationErrors(true);
 
-    // const isValid = validateAllFields(formData);
-    // if (!isValid) {
-    //   const firstErrorField = Object.keys(errors).find((key) => errors[key]);
-    //   if (firstErrorField) {
-    //     const element = document.getElementsByName(firstErrorField)[0];
-    //     element?.scrollIntoView({ behavior: "smooth", block: "center" });
-    //   }
-    //   return;
-    // }
+
 
     const simpleItinerary = formData.itinerary.flatMap((day) =>
       day.activities.map((activity) => ({

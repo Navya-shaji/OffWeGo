@@ -49,7 +49,6 @@ const ActivitiesTable: React.FC = () => {
     imageUrl: activity.imageUrl || "",
   }), []);
 
-  // Load activities function - Fixed to match your service structure
   const loadActivities = useCallback(async (pageNum: number = 1) => {
     if (isLoadingRef.current) return;
     
