@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { addFlight } from "@/services/Flight/FlightService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   flightSchema,
   type FlightFormData,
@@ -25,11 +25,12 @@ const CreateFlight: React.FC = () => {
   } = useForm<FlightFormData>({
     resolver: zodResolver(flightSchema),
     defaultValues: {
-      date: "",
-      fromLocation: "",
-      toLocation: "",
       airLine: "",
-      price: 0,
+      price: {
+        economy: 0,
+        premium: 0,
+        business: 0,
+      },
     },
   });
 
@@ -40,9 +41,14 @@ const CreateFlight: React.FC = () => {
     try {
       setLoading(true);
       const formattedData: Flight = {
-        ...data,
-        date: new Date(data.date),
-        price: Number(data.price),
+        airLine: data.airLine,
+        price: {
+          economy: Number(data.price.economy),
+          premium: data.price.premium ? Number(data.price.premium) : undefined,
+          business: data.price.business
+            ? Number(data.price.business)
+            : undefined,
+        },
       };
       await addFlight(formattedData);
       notifySuccess();
@@ -57,7 +63,7 @@ const CreateFlight: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center py-10 px-4">
-      <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
+      <div className="w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
         {/* Header */}
         <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
           <h2 className="text-2xl font-bold">Create Flight</h2>
@@ -69,51 +75,6 @@ const CreateFlight: React.FC = () => {
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           <ToastContainer position="top-right" autoClose={3000} />
-
-          {/* Date */}
-          <div>
-            <Label htmlFor="date">
-              Flight Date <span className="text-red-500">*</span>
-            </Label>
-            <Input id="date" type="date" {...register("date")} />
-            {errors.date && (
-              <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
-            )}
-          </div>
-
-          {/* From Location */}
-          <div>
-            <Label htmlFor="fromLocation">
-              From <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="fromLocation"
-              placeholder="Enter departure location"
-              {...register("fromLocation")}
-            />
-            {errors.fromLocation && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.fromLocation.message}
-              </p>
-            )}
-          </div>
-
-          {/* To Location */}
-          <div>
-            <Label htmlFor="toLocation">
-              To <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="toLocation"
-              placeholder="Enter destination location"
-              {...register("toLocation")}
-            />
-            {errors.toLocation && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.toLocation.message}
-              </p>
-            )}
-          </div>
 
           {/* Airline */}
           <div>
@@ -132,25 +93,47 @@ const CreateFlight: React.FC = () => {
             )}
           </div>
 
-          {/* Price */}
-          <div>
-            <Label htmlFor="price">
-              Price (₹) <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              placeholder="Enter ticket price"
-              {...register("price", { valueAsNumber: true })}
-            />
-            {errors.price && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.price.message}
-              </p>
-            )}
+          {/* Price Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="price.economy">
+                Economy Price (₹) <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="price.economy"
+                type="number"
+                placeholder="Economy"
+                {...register("price.economy", { valueAsNumber: true })}
+              />
+              {errors.price?.economy && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.price.economy.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="price.premium">Premium Price (₹)</Label>
+              <Input
+                id="price.premium"
+                type="number"
+                placeholder="Premium"
+                {...register("price.premium", { valueAsNumber: true })}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="price.business">Business Price (₹)</Label>
+              <Input
+                id="price.business"
+                type="number"
+                placeholder="Business"
+                {...register("price.business", { valueAsNumber: true })}
+              />
+            </div>
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <Button
             type="submit"
             className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"

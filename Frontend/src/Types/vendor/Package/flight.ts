@@ -1,13 +1,12 @@
 import { z } from "zod";
 
 export const flightSchema = z.object({
-  date: z.string().min(1, "Date is Required"),
-  fromLocation: z.string().min(1, "from location is required"),
-  toLocation: z.string().min(1, "To location is required"),
-  airLine: z.string().min(1, "Airline name is required"),
-  price: z
-    .number("Price must be a number")
-    .min(1, "Price must be greater than 0"),
+  airLine: z.string().nonempty("Airline name is required"),
+  price: z.object({
+    economy: z.number().min(1, "Economy price must be greater than 0"),
+    premium: z.number().optional(),
+    business: z.number().optional(),
+  }),
 });
 
 export type FlightFormData = z.infer<typeof flightSchema>;

@@ -23,11 +23,10 @@ const FlightsPage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
   const [formData, setFormData] = useState({
-    fromLocation: "",
-    toLocation: "",
-    date: "",
     airLine: "",
-    price: 0,
+    economy: 0,
+    premium: 0,
+    business: 0,
   });
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -35,6 +34,7 @@ const FlightsPage: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [flightToDelete, setFlightToDelete] = useState<Flight | null>(null);
 
+  // Load all flights
   const loadFlights = useCallback(async () => {
     try {
       setLoading(true);
@@ -51,13 +51,11 @@ const FlightsPage: React.FC = () => {
     }
   }, []);
 
-
-  console.log("allFlights",flights)
   useEffect(() => {
     loadFlights();
   }, [loadFlights]);
 
-  // Search flights
+  // Search flights by airline name
   const handleSearch = useCallback(
     (query: string) => {
       setSearchQuery(query);
@@ -69,32 +67,27 @@ const FlightsPage: React.FC = () => {
       }
 
       setIsSearchMode(true);
-      const filtered = originalFlights.filter(
-        (f) =>
-          f.fromLocation.toLowerCase().includes(query.toLowerCase()) ||
-          f.toLocation.toLowerCase().includes(query.toLowerCase()) ||
-          f.airLine.toLowerCase().includes(query.toLowerCase())
+      const filtered = originalFlights.filter((f) =>
+        f.airLine.toLowerCase().includes(query.toLowerCase())
       );
       setFlights(filtered);
     },
     [originalFlights]
   );
 
+  // Edit flight modal open
   const handleEdit = useCallback((flight: Flight) => {
     setSelectedFlight(flight);
     setFormData({
-      fromLocation: flight.fromLocation,
-      toLocation: flight.toLocation,
       airLine: flight.airLine,
-      price: flight.price,
-      date:
-        flight.date instanceof Date
-          ? flight.date.toISOString().split("T")[0]
-          : flight.date,
+      economy: flight.price?.economy || 0,
+      premium: flight.price?.premium || 0,
+      business: flight.price?.business || 0,
     });
     setIsEditModalOpen(true);
   }, []);
 
+  // Update flight
   const handleUpdate = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -106,8 +99,12 @@ const FlightsPage: React.FC = () => {
       setIsUpdating(true);
       try {
         const updateData = {
-          ...formData,
-          date: formData.date ? new Date(formData.date) : new Date(),
+          airLine: formData.airLine,
+          price: {
+            economy: Number(formData.economy),
+            premium: formData.premium ? Number(formData.premium) : undefined,
+            business: formData.business ? Number(formData.business) : undefined,
+          },
         };
 
         const updatedFlight = await updateFlight(selectedFlight.id, updateData);
@@ -129,6 +126,7 @@ const FlightsPage: React.FC = () => {
     [selectedFlight, formData, flights, isSearchMode]
   );
 
+  // Delete logic
   const handleDeleteClick = useCallback((flight: Flight) => {
     setFlightToDelete(flight);
     setIsDeleteModalOpen(true);
@@ -156,14 +154,37 @@ const FlightsPage: React.FC = () => {
     }
   }, [flightToDelete, flights, isSearchMode]);
 
+  // Table columns
   const columns: ColumnDef<Flight>[] = useMemo(
     () => [
       { header: "#", cell: ({ row }) => row.index + 1 },
-      { accessorKey: "fromLocation", header: "From" },
-      { accessorKey: "toLocation", header: "To" },
       { accessorKey: "airLine", header: "Airline" },
-      { accessorKey: "date", header: "Date" },
-      { accessorKey: "price", header: "Price" },
+      {
+        header: "Economy Price (₹)",
+        cell: ({ row }) => row.original.price?.economy ?? "-",
+      },
+      {
+        header: "Premium Price (₹)",
+        cell: ({ row }) => row.original.price?.premium ?? "-",
+      },
+      {
+        header: "Business Price (₹)",
+        cell: ({ row }) => row.original.price?.business ?? "-",
+      },
+      {
+        header: "Created At",
+        cell: ({ row }) =>
+          row.original.createdAt
+            ? new Date(row.original.createdAt).toLocaleDateString()
+            : "-",
+      },
+      {
+        header: "Updated At",
+        cell: ({ row }) =>
+          row.original.updatedAt
+            ? new Date(row.original.updatedAt).toLocaleDateString()
+            : "-",
+      },
       {
         header: "Actions",
         cell: ({ row }) => (
@@ -187,7 +208,7 @@ const FlightsPage: React.FC = () => {
     [handleEdit, handleDeleteClick]
   );
 
-  // Loading state
+  // Loading UI
   if (loading && flights.length === 0) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -204,7 +225,7 @@ const FlightsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-xl font-bold text-gray-900">Flights List</h2>
         <div className="w-full sm:w-60">
-          <SearchBar placeholder="Search Flights..." onSearch={handleSearch} />
+          <SearchBar placeholder="Search by Airline..." onSearch={handleSearch} />
         </div>
       </div>
 
@@ -264,28 +285,6 @@ const FlightsPage: React.FC = () => {
             <form onSubmit={handleUpdate} className="p-6 space-y-4">
               <input
                 type="text"
-                placeholder="From Location"
-                value={formData.fromLocation}
-                onChange={(e) =>
-                  setFormData({ ...formData, fromLocation: e.target.value })
-                }
-                required
-                disabled={isUpdating}
-                className="w-full border rounded px-3 py-2"
-              />
-              <input
-                type="text"
-                placeholder="To Location"
-                value={formData.toLocation}
-                onChange={(e) =>
-                  setFormData({ ...formData, toLocation: e.target.value })
-                }
-                required
-                disabled={isUpdating}
-                className="w-full border rounded px-3 py-2"
-              />
-              <input
-                type="text"
                 placeholder="Airline"
                 value={formData.airLine}
                 onChange={(e) =>
@@ -295,24 +294,37 @@ const FlightsPage: React.FC = () => {
                 disabled={isUpdating}
                 className="w-full border rounded px-3 py-2"
               />
+
               <input
-                type="date"
-                value={formData.date}
+                type="number"
+                placeholder="Economy Price"
+                value={formData.economy}
                 onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
+                  setFormData({ ...formData, economy: Number(e.target.value) })
                 }
                 required
                 disabled={isUpdating}
                 className="w-full border rounded px-3 py-2"
               />
+
               <input
                 type="number"
-                placeholder="Price"
-                value={formData.price}
+                placeholder="Premium Price"
+                value={formData.premium}
                 onChange={(e) =>
-                  setFormData({ ...formData, price: Number(e.target.value) })
+                  setFormData({ ...formData, premium: Number(e.target.value) })
                 }
-                required
+                disabled={isUpdating}
+                className="w-full border rounded px-3 py-2"
+              />
+
+              <input
+                type="number"
+                placeholder="Business Price"
+                value={formData.business}
+                onChange={(e) =>
+                  setFormData({ ...formData, business: Number(e.target.value) })
+                }
                 disabled={isUpdating}
                 className="w-full border rounded px-3 py-2"
               />
@@ -342,7 +354,7 @@ const FlightsPage: React.FC = () => {
       {/* Delete Modal */}
       {isDeleteModalOpen && flightToDelete && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-96 p-6 text-center">
+          <div className="bg-white rounded-2xl shadow-2xl w-96 p-6 text-center relative">
             <button
               onClick={() => setIsDeleteModalOpen(false)}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
@@ -354,9 +366,7 @@ const FlightsPage: React.FC = () => {
             <p className="text-gray-600 mb-4">
               Are you sure you want to delete this flight?
             </p>
-            <p className="font-semibold">
-              {flightToDelete.fromLocation} → {flightToDelete.toLocation}
-            </p>
+            <p className="font-semibold">{flightToDelete.airLine}</p>
             <div className="flex justify-center gap-4 mt-6">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}

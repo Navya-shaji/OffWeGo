@@ -27,10 +27,22 @@ export default function TravelerDetails() {
     address: "",
   });
 
-  const packagePrice = selectedPackage?.totalPrice || selectedPackage?.price || 500;
-  const adultPrice = packagePrice;
-  const childPrice = adultPrice * 0.8;
-  const totalAmount = adultCount * adultPrice + childCount * childPrice;
+const basePrice = Number(selectedPackage?.price) || 0;
+
+
+const flightPriceObj = selectedPackage?.flightPrice;
+const selectedClass = "economy"; 
+const flightClassPrice = typeof flightPriceObj === "object" 
+  ? flightPriceObj[selectedClass] || 0
+  : Number(flightPriceObj) || 0;
+
+const packagePrice = basePrice + flightClassPrice;
+
+const adultPrice = packagePrice;
+const childPrice = adultPrice * 0.8;
+const totalAmount = adultCount * adultPrice + childCount * childPrice;
+
+
 
   const updateCount = (type: "adult" | "child", change: number) => {
     if (type === "adult") {
@@ -122,7 +134,7 @@ export default function TravelerDetails() {
       <div className="max-w-7xl mx-auto">
        
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold bg-gradient-to-r text-black  mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Complete Your Booking
           </h1>
           <p className="text-gray-600">Just a few more details to confirm your adventure</p>
@@ -138,7 +150,7 @@ export default function TravelerDetails() {
                 <h2 className="text-gray-800 text-2xl font-bold">Select Tickets</h2>
               </div>
 
-              {/* Adult Ticket */}
+            
               <div className="group bg-white p-6 rounded-2xl mb-5 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-purple-200">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 flex-1">
@@ -147,7 +159,7 @@ export default function TravelerDetails() {
                     </div>
                     <div>
                       <div className="text-gray-500 text-sm font-medium mb-1">Adult Ticket</div>
-                      <div className="text-gray-900 text-xl font-bold">₹{adultPrice.toLocaleString()}</div>
+                      <div className="text-gray-900 text-xl font-bold">₹{adultPrice}</div>
                       <div className="text-gray-400 text-xs">per person</div>
                     </div>
                   </div>
@@ -172,7 +184,7 @@ export default function TravelerDetails() {
                 </div>
               </div>
 
-           
+              {/* Child Ticket */}
               <div className="group bg-white p-6 rounded-2xl mb-8 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-fuchsia-200">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 flex-1">
@@ -240,7 +252,7 @@ export default function TravelerDetails() {
               </div>
             </div>
 
-         
+            {/* Right Column - Traveler Details */}
             <div className="p-8 lg:p-10 bg-white">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-gray-800 text-2xl font-bold flex items-center gap-2">
@@ -273,16 +285,22 @@ export default function TravelerDetails() {
                 )}
               </div>
 
-          
-              <div className="bg-gradient-to-br bg-gray  rounded-2xl p-6 text-black shadow-lg mb-6">
+              {/* Booking Summary */}
+              <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-black font-medium">Booking Summary</span>
-                  <CreditCard className="w-5 h-5 text-purple-200" />
+                  <span className="font-medium">Booking Summary</span>
+                  <CreditCard className="w-5 h-5 text-white/60" />
                 </div>
                 <div className="space-y-2 mb-4 text-sm">
                   {adultCount > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-black">Children × {childCount}</span>
+                      <span className="text-purple-100">Adults × {adultCount}</span>
+                      <span className="font-semibold">₹{(adultCount * adultPrice).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {childCount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-purple-100">Children × {childCount}</span>
                       <span className="font-semibold">₹{(childCount * childPrice).toLocaleString()}</span>
                     </div>
                   )}
@@ -295,10 +313,10 @@ export default function TravelerDetails() {
                 </div>
               </div>
 
-             
+              {/* Proceed Button */}
               <button
                 onClick={handleNext}
-                className="w-full px-6 py-4 bg-gradient-to-r bg-white  transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-lg font-bold rounded-2xl hover:from-purple-700 hover:to-fuchsia-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 Proceed to Payment
               </button>

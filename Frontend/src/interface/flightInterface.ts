@@ -1,10 +1,11 @@
-export interface Flight{
-    id?:string;
-    date:Date;
-    fromLocation:string;
-    toLocation:string;
-    airLine:string;
-    price:number;
-    createdAt?:Date;
-    updatedAt?:Date;
+export interface Flight {
+  id?: string;
+  airLine: string;
+  price: {
+    economy: number;
+    premium?: number;
+    business?: number;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
 }
