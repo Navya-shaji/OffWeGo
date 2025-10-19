@@ -10,6 +10,8 @@ import {
   Plus,
   Building2,
   Activity as ActivityIcon,
+  Calendar,
+  BookOpen,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -22,6 +24,8 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const [showHotelDropdown, setShowHotelDropdown] = useState(false);
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [showFlightDropdown, setShowFlightDropdown] = useState(false);
+  const [showBookingDropdown, setShowBookingDropdown] = useState(false);
+  
 
   const menuItems = [
     { icon: User, label: "Profile" },
@@ -32,6 +36,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const handlePackageClick = () => setShowPackageDropdown((prev) => !prev);
   const handleHotelClick = () => setShowHotelDropdown((prev) => !prev);
   const handleActivityClick = () => setShowActivityDropdown((prev) => !prev);
+  const handleBookingClick = () => setShowBookingDropdown((prev) => !prev);
 
   const handleSubTabClick = (label: string) => setActiveTab(label);
 
@@ -232,6 +237,51 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             >
               <List className="inline-block mr-2 w-4 h-4" />
               All Flights
+            </button>
+          </div>
+        )}
+
+        {/* Bookings Dropdown */}
+        <button
+          onClick={handleBookingClick}
+          className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+            activeTab.includes("Booking")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+          }`}
+        >
+          <BookOpen className="w-5 h-5 mr-3 text-gray-600" />
+          <span className="text-gray-700 flex-1">Bookings</span>
+          {showBookingDropdown ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
+
+        {showBookingDropdown && (
+          <div className="ml-10">
+            <button
+              onClick={() => handleSubTabClick("All Bookings")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "All Bookings"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <List className="inline-block mr-2 w-4 h-4" />
+              All Bookings
+            </button>
+            <button
+              onClick={() => handleSubTabClick("Booking Slots")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "Booking Slots"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <Calendar className="inline-block mr-2 w-4 h-4" />
+              Booking Slots
             </button>
           </div>
         )}

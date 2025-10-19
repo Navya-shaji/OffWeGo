@@ -16,6 +16,7 @@ import AddPackage from "@/components/Packages/AddPAckage";
 import PackageTable from "./package-table";
 import CreateFlight from "./createFlight";
 import GetAllFlight from "./GetAllFlight";
+import AllBookings from "./Bookings/UserBookings";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -45,6 +46,7 @@ function Dashboard() {
           {activeTab == "All Activities" && <ActivitiesTable />}
           {activeTab == "Create Flight" && <CreateFlight />}
           {activeTab == "All Flights" && <GetAllFlight />}
+          {activeTab == "All Bookings" && <AllBookings />}
         </div>
       </div>
     </div>
