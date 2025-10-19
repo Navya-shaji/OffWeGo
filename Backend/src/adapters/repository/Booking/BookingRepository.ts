@@ -31,10 +31,10 @@ export class BookingRepository implements IBookingRepository {
       .lean<Booking[]>()
       .exec();
   }
-
+  
   async findByVendorId(vendorId: string): Promise<Booking[]> {
     return BookingModel.find({ vendorId })
-      .populate("packageId")
+      .populate("selectedPackage")
       .populate("userId")
       .lean<Booking[]>()
       .exec();
