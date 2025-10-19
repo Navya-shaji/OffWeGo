@@ -200,5 +200,9 @@ export class VendorRoute {
       VendorRoutes.USER_BOOKINGS,
       (req:Request,res:Response)=>bookingcontroller.getVendorsideBookings(req,res)
     )
+    this.vendorRouter.get(
+      VendorRoutes.BOOKING_DATES,
+      (req:Request,res:Response)=>bookingcontroller.bookingDates(req,res)
+    )
   }
 }

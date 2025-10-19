@@ -42,6 +42,7 @@ import { GetAllFlightUsecase } from "../../../useCases/flight/GetAllFlightUsecas
 import { EditFlightUsecase } from "../../../useCases/flight/EditFlightUsecase";
 import { DeleteFlightUsecase } from "../../../useCases/flight/DeleteFlightUSecase";
 
+
 //  Setup Repository and Services
 const vendorRepository = new VendorRepository();
 const otpService = new OtpService();
@@ -80,6 +81,7 @@ const createflightusecase=new CreateflightUsecase(flightRepo)
 const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
+
 
 //  Controllers
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);

@@ -23,6 +23,7 @@ import { PaymentRepository } from "../../../adapters/repository/Payment/PaymentR
 import { PaymentController } from "../../../adapters/controller/Payment/PaymentController"; 
 import { GetUserBookingUsecase } from "../../../useCases/booking/GetUserBokingsUsecase";
 import { GetVendorSideBookingUsecase } from "../../../useCases/booking/GetVendorSideBookingUsecase";
+import { BookingDateUsecase } from "../../../useCases/booking/BookingDatesUsecase";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -51,6 +52,7 @@ const createbookingusecase=new CreateBookingUseCase(bookingRepo)
 const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
 const userbookings=new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
+const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 
 
 
@@ -59,5 +61,5 @@ export const userRegisterController = new UserRegisterController(registerUsecase
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
-export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings)
+export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)

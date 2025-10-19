@@ -39,4 +39,13 @@ export class BookingRepository implements IBookingRepository {
       .lean<Booking[]>()
       .exec();
   }
+  async getBookedDatesByVendor(vendorId:string):Promise<Date[]>{
+   const bookings = await BookingModel.find({ vendorId })
+    .select("selectedDate") 
+    .lean()
+    .exec();
+
+  
+  return bookings.flatMap((b) => b.selectedDate || []); 
+  }
 }
