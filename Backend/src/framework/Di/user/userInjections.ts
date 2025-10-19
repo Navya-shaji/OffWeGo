@@ -22,6 +22,7 @@ import { CreatePaymentUsecase } from "../../../useCases/payment/CreatePaymentuse
 import { PaymentRepository } from "../../../adapters/repository/Payment/PaymentRepository";
 import { PaymentController } from "../../../adapters/controller/Payment/PaymentController"; 
 import { GetUserBookingUsecase } from "../../../useCases/booking/GetUserBokingsUsecase";
+import { GetVendorSideBookingUsecase } from "../../../useCases/booking/GetVendorSideBookingUsecase";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -49,6 +50,7 @@ const edituserProfile=new EditUserProfile()
 const createbookingusecase=new CreateBookingUseCase(bookingRepo)
 const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
 const userbookings=new GetUserBookingUsecase(bookingRepo)
+const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
 
 
 
@@ -57,5 +59,5 @@ export const userRegisterController = new UserRegisterController(registerUsecase
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
-export const bookingcontroller=new BookingController(createbookingusecase,userbookings)
+export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings)
 export const paymentcontroller=new PaymentController(createpaymentusecase)

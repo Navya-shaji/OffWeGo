@@ -21,6 +21,7 @@ export interface PackageDto {
 
 export interface BookingDataDto {
   userId: string;
+  vendorId?:string
   contactInfo: ContactInfo;
   adults: Traveler[];
   children: Traveler[];

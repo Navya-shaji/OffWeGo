@@ -29,5 +29,6 @@ export const VendorRoutes={
     CREATE_FLIGHT:'/create-flight',
     ALL_FLIGHTS:'/flights',
     EDIT_FLIGHT:'/flights/:id',
-    DELETE_FLIGHT:'/flights/:id'
+    DELETE_FLIGHT:'/flights/:id',
+    USER_BOOKINGS:'/bookings/:id'
 }

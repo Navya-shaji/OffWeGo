@@ -17,6 +17,7 @@ import { JwtService } from "../../Services/jwtService";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
+import { bookingcontroller } from "../../Di/User/userInjections";
 
 const TokenService = new JwtService();
 
@@ -195,5 +196,9 @@ export class VendorRoute {
       VendorRoutes.DELETE_FLIGHT,
       (req: Request, res: Response) => flightcontroller.DeleteFlight(req, res)
     );
+    this.vendorRouter.get(
+      VendorRoutes.USER_BOOKINGS,
+      (req:Request,res:Response)=>bookingcontroller.getVendorsideBookings(req,res)
+    )
   }
 }
