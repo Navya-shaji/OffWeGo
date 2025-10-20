@@ -15,5 +15,6 @@ export const UserRoutes={
     CREATE_BOOKING:'/create-bookings',
     CREATE_PAYMENT:'/create-payment',
     USER_BOOKINGS:'/bookings/:userId',
-    REVIEWS:'/create-reviews'
+    REVIEWS:'/create-reviews',
+    All_REVIEWS:'/reviews/:id'
 }

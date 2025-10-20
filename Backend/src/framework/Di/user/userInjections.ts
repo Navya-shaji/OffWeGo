@@ -27,6 +27,7 @@ import { BookingDateUsecase } from "../../../useCases/booking/BookingDatesUsecas
 import { ReviewController } from "../../../adapters/controller/Reviews/ReviewController";
 import { ReviewRepository } from "../../../adapters/repository/Reviews/ReviewRepository";
 import { CreateReviewUseCase } from "../../../useCases/reviews/createReviewUsecase";
+import { GetReviewUsecase } from "../../../useCases/reviews/getAllReviewsUsecase";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -58,6 +59,7 @@ const userbookings=new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
 const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo)
+const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 
 
 
@@ -68,4 +70,4 @@ export const googleSignupController=new GoogleSignupController(googleSignupUseCa
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
 export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
-export const reviewcontroller=new ReviewController(createReviewusecase)
+export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)

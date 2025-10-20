@@ -131,5 +131,11 @@ export class UserRoute {
       reviewcontroller.createReview(req,res)
     }
    )
+   this.userRouter.get(
+    UserRoutes.All_REVIEWS,
+    (req:Request,res:Response)=>{
+      reviewcontroller.getReviews(req,res)
+    }
+   )
   }
 }

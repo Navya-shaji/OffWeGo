@@ -2,7 +2,8 @@ import {
   User,
   Calendar,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Star
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +26,9 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
       case "My Profile":
         setActiveSection("profile");
         break;
+      case "Create Review":
+        setActiveSection("create-review"); 
+        break;
       case "Logout":
         localStorage.removeItem("user");
         navigate("/login");
@@ -37,13 +41,13 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
   const sidebarItems = [
     { icon: User, label: "My Profile", section: "profile" },
     { icon: Calendar, label: "Booking", section: "bookings" },
+    { icon: Star, label: "Create Review", section: "create-review" }, // new item
     { icon: LogOut, label: "Logout", section: "logout" },
   ];
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
       <div className="flex flex-col items-center mb-8">
-      
         <h2 className="mt-4 text-xl font-semibold text-gray-900">
           {user?.username || "Your name"}
         </h2>

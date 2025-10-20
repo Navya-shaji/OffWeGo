@@ -5,11 +5,12 @@ import EditProfileModal from "./EditProfile";
 import { useState } from "react";
 import ProfileSidebar from "@/components/profile/sidebar";
 import BookingDetailsSection from "../Bookings/UserBookings";
+import UserAddReview from "./AddReview";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isEditOpen, setEditOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<"profile" | "bookings">(
+  const [activeSection, setActiveSection] = useState<"profile" | "bookings"| "create-review">(
     "profile"
   );
 
@@ -109,8 +110,10 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Booking Section */}
+        
           {activeSection === "bookings" && <BookingDetailsSection />}
+          {activeSection === "create-review" && <UserAddReview />}
+          
         </div>
       </div>
 

@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { ICreateReviewUseCase } from "../../../domain/interface/Reviews/IcreateReviewUsecase";
+import { IGetReviewUsecase } from "../../../domain/interface/Reviews/IgetReviewUsecase";
 
 export class ReviewController {
-  constructor(private _createReview: ICreateReviewUseCase) {}
+  constructor(private _createReview: ICreateReviewUseCase,
+    private _allReviews:IGetReviewUsecase
+  ) {}
 
   async createReview(req: Request, res: Response) {
     const reviewData = req.body;
@@ -13,5 +16,16 @@ export class ReviewController {
       data: result,
       message: "Review created successfully",
     });
+  }
+
+  async getReviews(req:Request,res:Response){
+    const  packageId=req.params.packageId
+    const result=await this._allReviews.execute(packageId)
+console.log(result,"result")
+    res.status(HttpStatus.OK).json({
+      success:true,
+      data:result,
+      message:"Reviews fetched successfully"
+    })
   }
 }

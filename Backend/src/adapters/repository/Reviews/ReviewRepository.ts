@@ -7,10 +7,10 @@ export class ReviewRepository implements IReviewRepository {
     return await ReviewModel.create(review);
   }
 
- 
-  async findByPackage(packageName: string): Promise<IReviewModel[]> {
-    return await ReviewModel.find({ packageName });
-  }
+async findByPackage(packageId: string): Promise<IReviewModel[]> {
+  return await ReviewModel.find({ packageId }); 
+}
+
 
   async findByUser(userId: string): Promise<IReviewModel[]> {
     return await ReviewModel.find({ userId });

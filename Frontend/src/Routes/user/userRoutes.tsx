@@ -18,6 +18,7 @@ import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
 import BookingDetailsPage from "@/pages/User/Bookings/UserBookings";
+import UserAddReview from "@/pages/User/profile/AddReview";
 
 const UserRoute = () => {
   return (
@@ -43,6 +44,7 @@ const UserRoute = () => {
       <Route path="/payment-checkout" element={<PaymentCheckout/>}/>
       <Route path="/booking-success" element={<BookingSuccess/>}/>
          <Route path="/bookings" element={<BookingDetailsPage/>}/>
+         <Route path="create-review" element={<UserAddReview/>}/>
       <Route
         path="/"
         element={
