@@ -1,0 +1,18 @@
+import { IReviewRepository } from "../../../domain/interface/Reviews/IReviewRepository"; 
+import { IReview } from "../../../domain/entities/ReviewEntity"; 
+import { ReviewModel, IReviewModel } from "../../../framework/database/Models/ReviewModel"
+
+export class ReviewRepository implements IReviewRepository {
+  async create(review: IReview): Promise<IReviewModel> {
+    return await ReviewModel.create(review);
+  }
+
+ 
+  async findByPackage(packageName: string): Promise<IReviewModel[]> {
+    return await ReviewModel.find({ packageName });
+  }
+
+  async findByUser(userId: string): Promise<IReviewModel[]> {
+    return await ReviewModel.find({ userId });
+  }
+}

@@ -6,6 +6,7 @@ import {
   userprofileController,
   bookingcontroller,
   paymentcontroller,
+  reviewcontroller,
   
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
@@ -122,6 +123,12 @@ export class UserRoute {
     UserRoutes.USER_BOOKINGS,
     (req:Request,res:Response)=>{
       bookingcontroller.getUserBookings(req,res)
+    }
+   )
+   this.userRouter.post(
+    UserRoutes.REVIEWS,
+    (req:Request,res:Response)=>{
+      reviewcontroller.createReview(req,res)
     }
    )
   }

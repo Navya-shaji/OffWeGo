@@ -64,12 +64,13 @@ async bookingDates(req: Request, res: Response): Promise<void> {
     const vendorId = req.params.vendorId;
     console.log(vendorId);
 
-    // Await the result
+    
     const booking_dates = await this._bookingDates.execute(vendorId);
 
     res.status(HttpStatus.OK).json({
       success: true,
-      booking_dates: booking_dates, // correctly return the array
+      booking_dates: booking_dates, 
+     
     });
   } catch (error) {
     console.error("Error fetching user booking dates:", error);

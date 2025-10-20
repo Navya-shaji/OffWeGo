@@ -24,6 +24,9 @@ import { PaymentController } from "../../../adapters/controller/Payment/PaymentC
 import { GetUserBookingUsecase } from "../../../useCases/booking/GetUserBokingsUsecase";
 import { GetVendorSideBookingUsecase } from "../../../useCases/booking/GetVendorSideBookingUsecase";
 import { BookingDateUsecase } from "../../../useCases/booking/BookingDatesUsecase";
+import { ReviewController } from "../../../adapters/controller/Reviews/ReviewController";
+import { ReviewRepository } from "../../../adapters/repository/Reviews/ReviewRepository";
+import { CreateReviewUseCase } from "../../../useCases/reviews/createReviewUsecase";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -35,6 +38,7 @@ const hashPassword=new HashPassword();
 const jwtService=new JwtService
 const bookingRepo=new BookingRepository()
 const stripeService = new StripeService();
+const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
 
 
@@ -53,6 +57,7 @@ const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
 const userbookings=new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
 const bookingdateusecase=new BookingDateUsecase(bookingRepo)
+const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 
 
 
@@ -63,3 +68,4 @@ export const googleSignupController=new GoogleSignupController(googleSignupUseCa
 export const userprofileController=new UserProfileController(userprofile,edituserProfile);
 export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
+export const reviewcontroller=new ReviewController(createReviewusecase)

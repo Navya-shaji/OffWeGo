@@ -27,3 +27,9 @@ export const getAllUserBookings = async (vendorId:string) => {
  
   return response.data.bookings;
 };
+
+export const bookingdates=async(vendorId:string)=>{
+  const response=await axiosInstance.get(`/api/vendor/bookings/date/${vendorId}`)
+  console.log(response.data.booking_dates,"hfjh")
+  return response.data.booking_dates
+}
