@@ -25,6 +25,8 @@ import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/profile/navbar";
 import type { Flight, Package } from "@/interface/PackageInterface";
 import FlightSearchModal from "@/pages/Vendors/flightModal";
+import { PackageReviews } from "./PackageReviews";
+
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
@@ -625,6 +627,9 @@ export const PackageTimeline = () => {
                     </span> */}
                 </div>
                 {/* </div> */}
+ {selectedPackage?._id && (
+  <PackageReviews packageId={selectedPackage._id} />
+)}
 
                 <Separator className="my-6" />
 
@@ -712,6 +717,7 @@ export const PackageTimeline = () => {
             </Card>
           </div>
         </div>
+
       </div>
       <FlightSearchModal
         show={showFlightModal}

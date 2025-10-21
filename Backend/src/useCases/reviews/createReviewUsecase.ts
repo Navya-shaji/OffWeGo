@@ -10,7 +10,7 @@ export class CreateReviewUseCase implements ICreateReviewUseCase {
     if (review.rating < 1 || review.rating > 5) {
       throw new Error("Rating must be between 1 and 5");
     }
-
+   
     const createdReview = await this._reviewRepo.create(review); 
     return mapToSingleReviewEntity(createdReview); 
   }

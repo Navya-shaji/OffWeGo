@@ -117,7 +117,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+    
       <EditProfileModal
         isOpen={isEditOpen}
         onClose={() => setEditOpen(false)}

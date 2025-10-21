@@ -18,7 +18,8 @@ export const createReviews = async (data: IReview) => {
 export const allReviews = async (packageId: string) => {
   try {
     const res = await axiosInstance.get(`/api/reviews/${packageId}`);
-    return res.data;
+    console.log(res.data.data)
+    return res.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Failed to get reviews");

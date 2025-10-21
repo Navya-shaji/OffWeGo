@@ -6,6 +6,6 @@ export const ReviewSchema = new mongoose.Schema({
   destination: { type: String, required: true },
   description: { type: String, required: true },
   rating: { type: Number, min: 1, max: 5, required: true },
-  photo: { type: String }, // URL or path of uploaded photo
+  photo: { type: String }, 
   createdAt: { type: Date, default: Date.now },
 });
