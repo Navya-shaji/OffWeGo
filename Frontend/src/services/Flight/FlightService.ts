@@ -30,7 +30,8 @@ export const fetchAllFlights = async (): Promise<Flight[]> => {
 
 export const updateFlight = async (id: string, data: Flight) => {
   try {
-    const res = await axiosInstance.put(`/api/vendor/flight/${id}`, data);
+    const res = await axiosInstance.put(`/api/vendor/flights/${id}`, data);
+    console.log(res.data.flights)
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -42,7 +43,7 @@ export const updateFlight = async (id: string, data: Flight) => {
 
 export const deleteFlight = async (id: string): Promise<void> => {
   try {
-    const res = await axiosInstance.delete(`/api/vendor/flight/${id}`);
+    const res = await axiosInstance.delete(`/api/vendor/flights/${id}`);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

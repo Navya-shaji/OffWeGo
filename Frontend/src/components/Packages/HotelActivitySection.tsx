@@ -35,10 +35,11 @@ const HotelsActivitiesSection: React.FC<HotelsActivitiesSectionProps> = ({
 const hotelOptions = filteredHotels
   .filter((hotel) => hotel.destinationId === destinationId)
   .map((hotel) => ({
-    value: hotel.hotelId, 
+    value: hotel.hotelId ?? "",  
     label: `${hotel.name} - ${hotel.address} (${hotel.rating}⭐)`,
     data: hotel,
   }));
+
   const activityOptions = filteredActivities.filter((activity)=>activity.destinationId===destinationId)
   .map((activity) => ({
     value: activity.id ?? "",
@@ -67,7 +68,7 @@ const hotelOptions = filteredHotels
       </h3>
 
       <div className="space-y-6">
-        {/* Hotels Section */}
+   
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
             <Building className="h-4 w-4 text-green-600" />

@@ -30,6 +30,7 @@ const FlightsPage: React.FC = () => {
   });
 
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [flightToDelete, setFlightToDelete] = useState<Flight | null>(null);
@@ -98,7 +99,9 @@ const FlightsPage: React.FC = () => {
 
       setIsUpdating(true);
       try {
-        const updateData = {
+        // Create the updated flight object matching the Flight interface
+        const updatedFlightData: Flight = {
+          ...selectedFlight, // Keep existing properties like id, createdAt, etc.
           airLine: formData.airLine,
           price: {
             economy: Number(formData.economy),
@@ -107,23 +110,27 @@ const FlightsPage: React.FC = () => {
           },
         };
 
-        const updatedFlight = await updateFlight(selectedFlight.id, updateData);
-        const updatedList = flights.map((f) =>
-          f.id === selectedFlight.id ? updatedFlight : f
-        );
-        setFlights(updatedList);
-        if (!isSearchMode) setOriginalFlights(updatedList);
+        const updatedFlight = await updateFlight(selectedFlight.id, updatedFlightData);
+        
+        // Update both the displayed flights and original flights
+        const updateFlightsList = (list: Flight[]) =>
+          list.map((f) => (f.id === selectedFlight.id ? updatedFlight : f));
+        
+        setFlights(updateFlightsList);
+        setOriginalFlights(updateFlightsList);
+        
         toast.success("Flight updated successfully");
         setIsEditModalOpen(false);
         setSelectedFlight(null);
       } catch (err) {
         console.error(err);
-        toast.error("Failed to update flight");
+        const errorMessage = err instanceof Error ? err.message : "Failed to update flight";
+        toast.error(errorMessage);
       } finally {
         setIsUpdating(false);
       }
     },
-    [selectedFlight, formData, flights, isSearchMode]
+    [selectedFlight, formData]
   );
 
   // Delete logic
@@ -139,20 +146,33 @@ const FlightsPage: React.FC = () => {
       return;
     }
 
+    setIsDeleting(true);
     try {
       await deleteFlight(flightToDelete.id);
-      const updatedList = flights.filter((f) => f.id !== flightToDelete.id);
-      setFlights(updatedList);
-      if (!isSearchMode) setOriginalFlights(updatedList);
+      
+      // Remove the deleted flight from both lists
+      const removeFromList = (list: Flight[]) =>
+        list.filter((f) => f.id !== flightToDelete.id);
+      
+      setFlights(removeFromList);
+      setOriginalFlights(removeFromList);
+      
       toast.success("Flight deleted successfully");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete flight");
-    } finally {
       setIsDeleteModalOpen(false);
       setFlightToDelete(null);
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete flight";
+      toast.error(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
-  }, [flightToDelete, flights, isSearchMode]);
+  }, [flightToDelete]);
+
+  const cancelDelete = useCallback(() => {
+    setIsDeleteModalOpen(false);
+    setFlightToDelete(null);
+  }, []);
 
   // Table columns
   const columns: ColumnDef<Flight>[] = useMemo(
@@ -192,12 +212,14 @@ const FlightsPage: React.FC = () => {
             <button
               onClick={() => handleEdit(row.original)}
               title="Edit flight"
+              className="text-blue-600 hover:text-blue-800 transition-colors"
             >
               <Edit size={16} />
             </button>
             <button
               onClick={() => handleDeleteClick(row.original)}
               title="Delete flight"
+              className="text-red-600 hover:text-red-800 transition-colors"
             >
               <Trash size={16} />
             </button>
@@ -283,66 +305,92 @@ const FlightsPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleUpdate} className="p-6 space-y-4">
-              <input
-                type="text"
-                placeholder="Airline"
-                value={formData.airLine}
-                onChange={(e) =>
-                  setFormData({ ...formData, airLine: e.target.value })
-                }
-                required
-                disabled={isUpdating}
-                className="w-full border rounded px-3 py-2"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Airline Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Airline"
+                  value={formData.airLine}
+                  onChange={(e) =>
+                    setFormData({ ...formData, airLine: e.target.value })
+                  }
+                  required
+                  disabled={isUpdating}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
 
-              <input
-                type="number"
-                placeholder="Economy Price"
-                value={formData.economy}
-                onChange={(e) =>
-                  setFormData({ ...formData, economy: Number(e.target.value) })
-                }
-                required
-                disabled={isUpdating}
-                className="w-full border rounded px-3 py-2"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Economy Price (₹) *
+                </label>
+                <input
+                  type="number"
+                  placeholder="Economy Price"
+                  value={formData.economy}
+                  onChange={(e) =>
+                    setFormData({ ...formData, economy: Number(e.target.value) })
+                  }
+                  required
+                  min="0"
+                  disabled={isUpdating}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
 
-              <input
-                type="number"
-                placeholder="Premium Price"
-                value={formData.premium}
-                onChange={(e) =>
-                  setFormData({ ...formData, premium: Number(e.target.value) })
-                }
-                disabled={isUpdating}
-                className="w-full border rounded px-3 py-2"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Premium Price (₹)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Premium Price (Optional)"
+                  value={formData.premium}
+                  onChange={(e) =>
+                    setFormData({ ...formData, premium: Number(e.target.value) })
+                  }
+                  min="0"
+                  disabled={isUpdating}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
 
-              <input
-                type="number"
-                placeholder="Business Price"
-                value={formData.business}
-                onChange={(e) =>
-                  setFormData({ ...formData, business: Number(e.target.value) })
-                }
-                disabled={isUpdating}
-                className="w-full border rounded px-3 py-2"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Price (₹)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Business Price (Optional)"
+                  value={formData.business}
+                  onChange={(e) =>
+                    setFormData({ ...formData, business: Number(e.target.value) })
+                  }
+                  min="0"
+                  disabled={isUpdating}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
                   disabled={isUpdating}
-                  className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
+                  className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isUpdating}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
+                  {isUpdating && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  )}
                   {isUpdating ? "Updating..." : "Save Changes"}
                 </button>
               </div>
@@ -356,8 +404,9 @@ const FlightsPage: React.FC = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div className="bg-white rounded-2xl shadow-2xl w-96 p-6 text-center relative">
             <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+              onClick={cancelDelete}
+              disabled={isDeleting}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ✕
             </button>
@@ -366,19 +415,24 @@ const FlightsPage: React.FC = () => {
             <p className="text-gray-600 mb-4">
               Are you sure you want to delete this flight?
             </p>
-            <p className="font-semibold">{flightToDelete.airLine}</p>
+            <p className="font-semibold text-gray-900">{flightToDelete.airLine}</p>
             <div className="flex justify-center gap-4 mt-6">
               <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-5 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={cancelDelete}
+                disabled={isDeleting}
+                className="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-5 py-2 bg-red-500 rounded text-white hover:bg-red-600"
+                disabled={isDeleting}
+                className="px-5 py-2 bg-red-500 rounded-lg text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Delete Flight
+                {isDeleting && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                {isDeleting ? "Deleting..." : "Delete Flight"}
               </button>
             </div>
           </div>

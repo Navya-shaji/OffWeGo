@@ -1,180 +1,220 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import {
-  Clock,
-  Trash2,
-  Building,
-  Activity,
-  CheckCircle,
-  Sparkles,
-  DollarSign,
-  Info,
-  Package,
-} from "lucide-react";
-import { deletePackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService";
-import { SearchBar } from "@/components/Modular/searchbar";
-import { type Package as PackageInterface } from "@/interface/PackageInterface";
+"use client"
+
+import type React from "react"
+
+import { useState, useCallback, useEffect, useRef } from "react"
+import { Clock, Trash2, Building, Activity, CheckCircle, Sparkles, DollarSign, Info, Package, Edit } from "lucide-react"
+import { deletePackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService"
+import { SearchBar } from "@/components/Modular/searchbar"
+import type { Package as PackageInterface } from "@/interface/PackageInterface"
+import EditPackage from "./editPackageModal" 
 
 interface PackageTableProps {
-  packages: PackageInterface[];
-  onPackagesUpdate?: (packages: PackageInterface[]) => void;
-  loading?: boolean;
+  packages: PackageInterface[]
+  onPackagesUpdate?: (packages: PackageInterface[]) => void
+  loading?: boolean
 }
 
-const PackageTable: React.FC<PackageTableProps> = ({
-  packages = [],
-  onPackagesUpdate,
-  loading = false,
-}) => {
-  const [packageList, setPackageList] = useState<PackageInterface[]>(packages);
-  const [originalPackages, setOriginalPackages] = useState<PackageInterface[]>(packages);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchMode, setIsSearchMode] = useState(false);
-  const [error, setError] = useState("");
+const PackageTable: React.FC<PackageTableProps> = ({ packages = [], onPackagesUpdate, loading = false }) => {
+  const [packageList, setPackageList] = useState<PackageInterface[]>(packages)
+  const [originalPackages, setOriginalPackages] = useState<PackageInterface[]>(packages)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isSearchMode, setIsSearchMode] = useState(false)
+  const [error, setError] = useState("")
   console.log(packageList)
   const [deleteModal, setDeleteModal] = useState<{
-    isOpen: boolean;
-    package: PackageInterface | null;
+    isOpen: boolean
+    package: PackageInterface | null
   }>({
     isOpen: false,
     package: null,
-  });
-  console.log(originalPackages,"o")
-  
-  const [isDeleting, setIsDeleting] = useState(false);
+  })
+  console.log(originalPackages, "o")
 
-  const hasInitialized = useRef(false);
-  const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [editModal, setEditModal] = useState<{
+    isOpen: boolean
+    package: PackageInterface | null
+  }>({
+    isOpen: false,
+    package: null,
+  })
+  const [editedPackage, setEditedPackage] = useState<PackageInterface | null>(null)
+  const [isEditLoading, setIsEditLoading] = useState(false)
+
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const hasInitialized = useRef(false)
+  const isLoadingRef = useRef(false)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    setPackageList(packages);
-    setOriginalPackages(packages);
-  }, [packages]);
+    setPackageList(packages)
+    setOriginalPackages(packages)
+  }, [packages])
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0,
-    }).format(amount);
-
+    }).format(amount)
 
   const loadPackages = useCallback(async () => {
-    if (isLoadingRef.current) return;
-    
+    if (isLoadingRef.current) return
+
     try {
-      isLoadingRef.current = true;
-      setError("");
-      
-      const response = await fetchAllPackages();
-      const allPackages = response?.packages ?? [];
-      
-      setPackageList(allPackages);
-      setOriginalPackages(allPackages);
-      onPackagesUpdate?.(allPackages);
-      
+      isLoadingRef.current = true
+      setError("")
+
+      const response = await fetchAllPackages()
+      const allPackages = response?.packages ?? []
+
+      setPackageList(allPackages)
+      setOriginalPackages(allPackages)
+      onPackagesUpdate?.(allPackages)
     } catch (error) {
-      console.error("Error loading packages:", error);
-      setError("Failed to load packages. Please try again.");
-      setPackageList([]);
-      setOriginalPackages([]);
+      console.error("Error loading packages:", error)
+      setError("Failed to load packages. Please try again.")
+      setPackageList([])
+      setOriginalPackages([])
     } finally {
-      isLoadingRef.current = false;
+      isLoadingRef.current = false
     }
-  }, [onPackagesUpdate]);
+  }, [onPackagesUpdate])
 
-  const handleSearch = useCallback(async (query: string) => {
-    
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    setSearchQuery(query);
-
-    searchTimeoutRef.current = setTimeout(async () => {
-      if (!query.trim()) {
-      
-        setIsSearchMode(false);
-        setPackageList(originalPackages);
-        return;
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
       }
 
-      setIsSearchMode(true);
-      try {
-        const response = await searchPackages(query);
-        const searchResults = Array.isArray(response) ? response : [];
-        
-        setPackageList(searchResults);
-        
-      } catch (error) {
-        console.error("Search error:", error);
-        setError("Search failed. Please try again.");
-        setPackageList([]);
-        
-        
-        setTimeout(() => setError(""), 3000);
-      }
-    }, 400);
-  }, [originalPackages]);
+      setSearchQuery(query)
+
+      searchTimeoutRef.current = setTimeout(async () => {
+        if (!query.trim()) {
+          setIsSearchMode(false)
+          setPackageList(originalPackages)
+          return
+        }
+
+        setIsSearchMode(true)
+        try {
+          const response = await searchPackages(query)
+          const searchResults = Array.isArray(response) ? response : []
+
+          setPackageList(searchResults)
+        } catch (error) {
+          console.error("Search error:", error)
+          setError("Search failed. Please try again.")
+          setPackageList([])
+
+          setTimeout(() => setError(""), 3000)
+        }
+      }, 400)
+    },
+    [originalPackages],
+  )
 
   useEffect(() => {
     if (!hasInitialized.current && packages.length === 0) {
-      hasInitialized.current = true;
-      loadPackages();
+      hasInitialized.current = true
+      loadPackages()
     }
-
 
     return () => {
       if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
+        clearTimeout(searchTimeoutRef.current)
       }
-    };
-  }, [loadPackages, packages.length]);
+    }
+  }, [loadPackages, packages.length])
 
   const openDeleteModal = useCallback((pkg: PackageInterface) => {
-    setDeleteModal({ isOpen: true, package: pkg });
-  }, []);
+    setDeleteModal({ isOpen: true, package: pkg })
+  }, [])
 
   const closeDeleteModal = useCallback(() => {
-    setDeleteModal({ isOpen: false, package: null });
-  }, []);
+    setDeleteModal({ isOpen: false, package: null })
+  }, [])
+
+  const openEditModal = useCallback((pkg: PackageInterface) => {
+    setEditModal({ isOpen: true, package: pkg })
+    setEditedPackage(pkg)
+  }, [])
+
+  const closeEditModal = useCallback(() => {
+    setEditModal({ isOpen: false, package: null })
+    setEditedPackage(null)
+  }, [])
+
+  const handleEditChange = useCallback((updatedPackage: PackageInterface) => {
+    setEditedPackage(updatedPackage)
+  }, [])
+
+  const handleEditSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (!editedPackage) return
+
+      setIsEditLoading(true)
+      try {
+        // TODO: Replace with your actual API call to update the package
+        // await updatePackage(editedPackage._id, editedPackage);
+
+        // Update local state
+        const updatedPackages = packageList.map((pkg) => (pkg._id === editedPackage._id ? editedPackage : pkg))
+        const updatedOriginalPackages = originalPackages.map((pkg) =>
+          pkg._id === editedPackage._id ? editedPackage : pkg,
+        )
+
+        setPackageList(updatedPackages)
+        if (!isSearchMode) {
+          setOriginalPackages(updatedOriginalPackages)
+        }
+
+        onPackagesUpdate?.(isSearchMode ? updatedOriginalPackages : updatedPackages)
+        closeEditModal()
+      } catch (error) {
+        console.error("Edit failed:", error)
+        setError("Failed to update package. Please try again.")
+        setTimeout(() => setError(""), 3000)
+      } finally {
+        setIsEditLoading(false)
+      }
+    },
+    [editedPackage, packageList, originalPackages, isSearchMode, onPackagesUpdate, closeEditModal],
+  )
 
   const confirmDelete = useCallback(async () => {
-    if (!deleteModal.package) return;
+    if (!deleteModal.package) return
 
-    setIsDeleting(true);
+    setIsDeleting(true)
     try {
-      if (!deleteModal.package?._id) return;
-      await deletePackage(deleteModal.package._id);
+      if (!deleteModal.package?._id) return
+      await deletePackage(deleteModal.package._id)
 
-      const updatedPackages = packageList.filter(
-        (pkg) => pkg._id !== deleteModal.package!._id
-      );
-      const updatedOriginalPackages = originalPackages.filter(
-        (pkg) => pkg._id !== deleteModal.package!._id
-      );
+      const updatedPackages = packageList.filter((pkg) => pkg._id !== deleteModal.package!._id)
+      const updatedOriginalPackages = originalPackages.filter((pkg) => pkg._id !== deleteModal.package!._id)
 
-      setPackageList(updatedPackages);
+      setPackageList(updatedPackages)
       if (!isSearchMode) {
-        setOriginalPackages(updatedOriginalPackages);
+        setOriginalPackages(updatedOriginalPackages)
       }
-      
-      onPackagesUpdate?.(isSearchMode ? updatedOriginalPackages : updatedPackages);
-      closeDeleteModal();
 
+      onPackagesUpdate?.(isSearchMode ? updatedOriginalPackages : updatedPackages)
+      closeDeleteModal()
     } catch (error) {
-      console.error("Delete failed:", error);
-      setError("Failed to delete package. Please try again.");
-      
-      setTimeout(() => setError(""), 3000);
+      console.error("Delete failed:", error)
+      setError("Failed to delete package. Please try again.")
+
+      setTimeout(() => setError(""), 3000)
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
-  }, [deleteModal.package, packageList, originalPackages, isSearchMode, onPackagesUpdate, closeDeleteModal]);
+  }, [deleteModal.package, packageList, originalPackages, isSearchMode, onPackagesUpdate, closeDeleteModal])
 
   const renderHotelsList = useCallback((hotels?: PackageInterface["hotels"]) => {
     if (!hotels || hotels.length === 0) {
-      return <span className="text-gray-500 italic text-sm">No hotels</span>;
+      return <span className="text-gray-500 italic text-sm">No hotels</span>
     }
 
     return (
@@ -186,14 +226,14 @@ const PackageTable: React.FC<PackageTableProps> = ({
           </div>
         ))}
       </div>
-    );
-  }, []);
+    )
+  }, [])
 
   const renderActivitiesList = useCallback((activities?: PackageInterface["activities"]) => {
-    const validActivities = activities?.filter(activity => activity != null) || [];
+    const validActivities = activities?.filter((activity) => activity != null) || []
     console.log(validActivities)
-    const hasInvalidActivities = activities && activities.length > validActivities.length;
- 
+    const hasInvalidActivities = activities && activities.length > validActivities.length
+
     if (validActivities.length === 0) {
       return (
         <div className="space-y-1">
@@ -204,19 +244,15 @@ const PackageTable: React.FC<PackageTableProps> = ({
             </div>
           )}
         </div>
-      );
+      )
     }
-    
+
     return (
       <div className="space-y-2 max-w-xs">
         {validActivities.map((activity, idx) => (
           <div key={activity.id || idx} className="bg-indigo-50 border border-indigo-200 p-2 rounded-md">
-            <div className="font-semibold text-indigo-900 text-sm">
-              {activity.title}
-            </div>
-            <div className="text-xs text-indigo-700 mt-1 line-clamp-2">
-              {activity.description}
-            </div>
+            <div className="font-semibold text-indigo-900 text-sm">{activity.title}</div>
+            <div className="text-xs text-indigo-700 mt-1 line-clamp-2">{activity.description}</div>
           </div>
         ))}
         {hasInvalidActivities && (
@@ -225,15 +261,15 @@ const PackageTable: React.FC<PackageTableProps> = ({
           </div>
         )}
       </div>
-    );
-  }, []);
+    )
+  }, [])
 
   const renderItineraryCount = useCallback((itinerary?: PackageInterface["itinerary"]) => {
     if (!itinerary || itinerary.length === 0) {
-      return <span className="text-gray-500 italic text-sm">No itinerary</span>;
+      return <span className="text-gray-500 italic text-sm">No itinerary</span>
     }
 
-    const uniqueDays = new Set(itinerary.map((item) => item.day));
+    const uniqueDays = new Set(itinerary.map((item) => item.day))
 
     return (
       <div className="text-center">
@@ -245,41 +281,34 @@ const PackageTable: React.FC<PackageTableProps> = ({
           {itinerary.length} Activities
         </div>
       </div>
-    );
-  }, []);
+    )
+  }, [])
 
   const renderInclusionsList = useCallback((inclusions?: string[]) => {
     if (!inclusions || inclusions.length === 0) {
-      return (
-        <span className="text-gray-500 italic text-sm">No inclusions</span>
-      );
+      return <span className="text-gray-500 italic text-sm">No inclusions</span>
     }
 
     return (
       <div className="max-w-xs">
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {inclusions.slice(0, 3).map((inclusion, idx) => (
-            <div
-              key={idx}
-              className="flex items-start gap-2 text-xs bg-teal-25 border border-teal-100 p-2 rounded-md"
-            >
+            <div key={idx} className="flex items-start gap-2 text-xs bg-teal-25 border border-teal-100 p-2 rounded-md">
               <CheckCircle className="h-3 w-3 text-teal-600 flex-shrink-0 mt-0.5" />
               <span className="text-teal-800">{inclusion}</span>
             </div>
           ))}
           {inclusions.length > 3 && (
-            <div className="text-xs text-teal-700 font-medium text-center py-2">
-              +{inclusions.length - 3} more
-            </div>
+            <div className="text-xs text-teal-700 font-medium text-center py-2">+{inclusions.length - 3} more</div>
           )}
         </div>
       </div>
-    );
-  }, []);
+    )
+  }, [])
 
   const renderAmenitiesList = useCallback((amenities?: string[]) => {
     if (!amenities || amenities.length === 0) {
-      return <span className="text-gray-500 italic text-sm">No amenities</span>;
+      return <span className="text-gray-500 italic text-sm">No amenities</span>
     }
 
     return (
@@ -295,14 +324,12 @@ const PackageTable: React.FC<PackageTableProps> = ({
             </div>
           ))}
           {amenities.length > 3 && (
-            <div className="text-xs text-violet-700 font-medium text-center py-2">
-              +{amenities.length - 3} more
-            </div>
+            <div className="text-xs text-violet-700 font-medium text-center py-2">+{amenities.length - 3} more</div>
           )}
         </div>
       </div>
-    );
-  }, []);
+    )
+  }, [])
 
   if (loading) {
     return (
@@ -310,26 +337,21 @@ const PackageTable: React.FC<PackageTableProps> = ({
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600"></div>
         <span className="ml-3 text-slate-600">Loading packages...</span>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-          Package Details Overview
-        </h2>
-        
+        <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">Package Details Overview</h2>
+
         <div className="flex items-center gap-4">
           <div className="w-60">
-            <SearchBar 
-              placeholder="Search packages..." 
-              onSearch={handleSearch}
-            />
+            <SearchBar placeholder="Search packages..." onSearch={handleSearch} />
           </div>
           <span className="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2 rounded-full font-medium">
-            {packageList.length} Package{packageList.length !== 1 ? 's' : ''}
+            {packageList.length} Package{packageList.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
@@ -339,10 +361,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
           <div className="flex justify-between items-center">
             <span>{error}</span>
-            <button
-              onClick={() => setError("")}
-              className="text-red-800 hover:text-red-900"
-            >
+            <button onClick={() => setError("")} className="text-red-800 hover:text-red-900">
               ✕
             </button>
           </div>
@@ -352,7 +371,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       {/* Search Status */}
       {isSearchMode && (
         <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4">
-          Found {packageList.length} package{packageList.length !== 1 ? 's' : ''} for "{searchQuery}"
+          Found {packageList.length} package{packageList.length !== 1 ? "s" : ""} for "{searchQuery}"
         </div>
       )}
 
@@ -362,36 +381,16 @@ const PackageTable: React.FC<PackageTableProps> = ({
           <table className="w-full">
             <thead className="bg-slate-800 text-white">
               <tr>
-                <th className="px-4 py-4 text-left font-semibold min-w-[200px]">
-                  Package Details
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[120px]">
-                  Price & Duration
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[100px]">
-                  Check-In Time
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[100px]">
-                  Check-Out Time
-                </th>
-                <th className="px-4 py-4 text-left font-semibold">
-                  Hotels
-                </th>
-                <th className="px-4 py-4 text-left font-semibold">
-                  Activities
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[120px]">
-                  Itinerary
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[200px]">
-                  Inclusions
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[200px]">
-                  Amenities
-                </th>
-                <th className="px-4 py-4 text-left font-semibold min-w-[100px]">
-                  Actions
-                </th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[200px]">Package Details</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[120px]">Price & Duration</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[100px]">Check-In Time</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[100px]">Check-Out Time</th>
+                <th className="px-4 py-4 text-left font-semibold">Hotels</th>
+                <th className="px-4 py-4 text-left font-semibold">Activities</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[120px]">Itinerary</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[200px]">Inclusions</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[200px]">Amenities</th>
+                <th className="px-4 py-4 text-left font-semibold min-w-[100px]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -404,29 +403,19 @@ const PackageTable: React.FC<PackageTableProps> = ({
                 >
                   <td className="px-4 py-6 align-top">
                     <div className="max-w-[200px]">
-                      <h3 className="font-bold text-lg text-slate-900 mb-2 leading-tight">
-                        {pkg.packageName}
-                      </h3>
-                      <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">
-                        {pkg.description}
-                      </p>
+                      <h3 className="font-bold text-lg text-slate-900 mb-2 leading-tight">{pkg.packageName}</h3>
+                      <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">{pkg.description}</p>
                     </div>
                   </td>
 
                   <td className="px-4 py-6 align-top">
                     <div className="space-y-3">
                       <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-center">
-                        <div className="text-lg font-bold text-emerald-800">
-                          {formatCurrency(pkg.price)}
-                        </div>
+                        <div className="text-lg font-bold text-emerald-800">{formatCurrency(pkg.price)}</div>
                       </div>
                       <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-center">
-                        <div className="text-lg font-bold text-blue-800">
-                          {pkg.duration}
-                        </div>
-                        <div className="text-xs text-blue-600 font-medium">
-                          Days
-                        </div>
+                        <div className="text-lg font-bold text-blue-800">{pkg.duration}</div>
+                        <div className="text-xs text-blue-600 font-medium">Days</div>
                       </div>
                     </div>
                   </td>
@@ -436,9 +425,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
                       {pkg.checkInTime ? (
                         <div>
                           <Clock className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
-                          <div className="font-bold text-emerald-800">
-                            {pkg.checkInTime}
-                          </div>
+                          <div className="font-bold text-emerald-800">{pkg.checkInTime}</div>
                         </div>
                       ) : (
                         <div>
@@ -454,9 +441,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
                       {pkg.checkOutTime ? (
                         <div>
                           <Clock className="h-5 w-5 text-rose-600 mx-auto mb-2" />
-                          <div className="font-bold text-rose-800">
-                            {pkg.checkOutTime}
-                          </div>
+                          <div className="font-bold text-rose-800">{pkg.checkOutTime}</div>
                         </div>
                       ) : (
                         <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
@@ -467,28 +452,25 @@ const PackageTable: React.FC<PackageTableProps> = ({
                     </div>
                   </td>
 
-                  <td className="px-4 py-6 align-top">
-                    {renderHotelsList(pkg.hotels)}
-                  </td>
+                  <td className="px-4 py-6 align-top">{renderHotelsList(pkg.hotels)}</td>
 
-                  <td className="px-4 py-6 align-top">
-                    {renderActivitiesList(pkg.activities)}
-                  </td>
+                  <td className="px-4 py-6 align-top">{renderActivitiesList(pkg.activities)}</td>
 
-                  <td className="px-4 py-6 align-top">
-                    {renderItineraryCount(pkg.itinerary)}
-                  </td>
+                  <td className="px-4 py-6 align-top">{renderItineraryCount(pkg.itinerary)}</td>
 
-                  <td className="px-4 py-6 align-top">
-                    {renderInclusionsList(pkg.inclusions)}
-                  </td>
+                  <td className="px-4 py-6 align-top">{renderInclusionsList(pkg.inclusions)}</td>
 
-                  <td className="px-4 py-6 align-top">
-                    {renderAmenitiesList(pkg.amenities)}
-                  </td>
+                  <td className="px-4 py-6 align-top">{renderAmenitiesList(pkg.amenities)}</td>
 
                   <td className="px-4 py-6 align-top">
                     <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => openEditModal(pkg)}
+                        className="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-100 hover:border-indigo-300 transition-colors text-sm font-medium"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit
+                      </button>
                       <button
                         onClick={() => openDeleteModal(pkg)}
                         className="flex items-center gap-2 px-3 py-2 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg hover:bg-rose-100 hover:border-rose-300 transition-colors text-sm font-medium"
@@ -509,16 +491,24 @@ const PackageTable: React.FC<PackageTableProps> = ({
       {packageList.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-slate-200">
           <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">
-            No Packages Found
-          </h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-2">No Packages Found</h3>
           <p className="text-slate-600">
-            {searchQuery 
+            {searchQuery
               ? `No packages match your search for "${searchQuery}"`
-              : "Start by creating your first travel package."
-            }
+              : "Start by creating your first travel package."}
           </p>
         </div>
+      )}
+
+      {/* Edit Modal */}
+      {editModal.isOpen && editedPackage && (
+        <EditPackage
+          pkg={editedPackage}
+          onClose={closeEditModal}
+          onChange={handleEditChange}
+          onSubmit={handleEditSubmit}
+          isLoading={isEditLoading}
+        />
       )}
 
       {/* Delete Confirmation Modal */}
@@ -532,9 +522,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">Delete Package</h3>
-                  <p className="text-slate-300 text-sm">
-                    This action cannot be undone
-                  </p>
+                  <p className="text-slate-300 text-sm">This action cannot be undone</p>
                 </div>
               </div>
             </div>
@@ -542,42 +530,31 @@ const PackageTable: React.FC<PackageTableProps> = ({
             <div className="p-6">
               <div className="mb-6">
                 <p className="text-slate-700 mb-4">
-                  Are you sure you want to delete this package? This will
-                  permanently remove:
+                  Are you sure you want to delete this package? This will permanently remove:
                 </p>
 
                 {deleteModal.package && (
                   <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl border-l-4 border-l-rose-500">
-                    <h4 className="font-bold text-rose-800 text-lg mb-2">
-                      {deleteModal.package.packageName}
-                    </h4>
+                    <h4 className="font-bold text-rose-800 text-lg mb-2">{deleteModal.package.packageName}</h4>
                     <div className="space-y-2 text-sm text-rose-700">
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4" />
-                        <span>
-                          Price: {formatCurrency(deleteModal.package.price)}
-                        </span>
+                        <span>Price: {formatCurrency(deleteModal.package.price)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
-                        <span>
-                          Duration: {deleteModal.package.duration} days
-                        </span>
+                        <span>Duration: {deleteModal.package.duration} days</span>
                       </div>
                       {deleteModal.package.hotels && (
                         <div className="flex items-center gap-2">
                           <Building className="h-4 w-4" />
-                          <span>
-                            {deleteModal.package.hotels.length} hotels
-                          </span>
+                          <span>{deleteModal.package.hotels.length} hotels</span>
                         </div>
                       )}
                       {deleteModal.package.activities && (
                         <div className="flex items-center gap-2">
                           <Activity className="h-4 w-4" />
-                          <span>
-                            {deleteModal.package.activities.length} activities
-                          </span>
+                          <span>{deleteModal.package.activities.length} activities</span>
                         </div>
                       )}
                     </div>
@@ -588,9 +565,8 @@ const PackageTable: React.FC<PackageTableProps> = ({
                   <div className="flex items-start gap-2">
                     <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-amber-800">
-                      <strong>Warning:</strong> All package data including
-                      itinerary, images, and bookings will be permanently
-                      deleted.
+                      <strong>Warning:</strong> All package data including itinerary, images, and bookings will be
+                      permanently deleted.
                     </div>
                   </div>
                 </div>
@@ -627,7 +603,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PackageTable;
+export default PackageTable

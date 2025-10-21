@@ -415,7 +415,7 @@ const handleActivitySelection = (activityIds: string[]) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl animate-pulse"></div>
@@ -775,27 +775,6 @@ const handleActivitySelection = (activityIds: string[]) => {
                         </div>
                       </div>
 
-                      {formData.flightOption && (
-                        <div className="grid grid-cols-1 gap-4">
-                          <p className="text-sm text-gray-600 mb-2">
-                            Flight details are not required now and will be
-                            generated after the booking is confirmed.
-                          </p>
-                          <div>
-                            <label className="block text-sm font-bold mb-2">
-                              Flight Price (optional)
-                            </label>
-                            <input
-                              type="number"
-                              name="flightPrice"
-                              value={formData.flightPrice || 0}
-                              onChange={handleChange}
-                              placeholder="Enter flight price"
-                              className="w-full p-4 border-2 rounded-xl"
-                            />
-                          </div>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 </div>

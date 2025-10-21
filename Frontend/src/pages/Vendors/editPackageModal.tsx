@@ -116,7 +116,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
     onChange(updated)
   }
 
-  // Itinerary management functions
+
   const addDay = () => {
     const newDay: ItineraryDay = {
       day: enhancedItinerary.length + 1,

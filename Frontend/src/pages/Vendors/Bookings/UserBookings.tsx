@@ -69,14 +69,12 @@ export default function AllBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [paymentFilter, setPaymentFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const vendorId = useSelector((state: RootState) => state.auth.user?.id);
-
+console.log(bookings,"boo")
   useEffect(() => {
     if (vendorId) {
       loadBookings();
@@ -85,7 +83,7 @@ export default function AllBookings() {
 
   useEffect(() => {
     filterBookings();
-  }, [searchQuery, statusFilter, paymentFilter, bookings]);
+  }, [searchQuery, bookings]);
 
   const loadBookings = async () => {
     if (!vendorId) return;
@@ -107,7 +105,6 @@ export default function AllBookings() {
   const filterBookings = () => {
     let filtered = [...bookings];
 
-    // Search filter
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -117,16 +114,6 @@ export default function AllBookings() {
           booking.packageId?.name?.toLowerCase().includes(query) ||
           booking._id.toLowerCase().includes(query)
       );
-    }
-
-    // Status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((booking) => booking.status === statusFilter);
-    }
-
-    // Payment filter
-    if (paymentFilter !== "all") {
-      filtered = filtered.filter((booking) => booking.paymentStatus === paymentFilter);
     }
 
     setFilteredBookings(filtered);
@@ -275,7 +262,7 @@ export default function AllBookings() {
 
           
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                {/* <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -286,13 +273,13 @@ export default function AllBookings() {
                   <option value="confirmed">Confirmed</option>
                   <option value="cancelled">Cancelled</option>
                   <option value="completed">Completed</option>
-                </select>
+                </select> */}
               </div>
 
         
               <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <select
+                {/* <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" /> */}
+                {/* <select
                   value={paymentFilter}
                   onChange={(e) => setPaymentFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors appearance-none"
@@ -302,7 +289,7 @@ export default function AllBookings() {
                   <option value="paid">Paid</option>
                   <option value="failed">Failed</option>
                   <option value="refunded">Refunded</option>
-                </select>
+                </select> */}
               </div>
             </div>
           </div>

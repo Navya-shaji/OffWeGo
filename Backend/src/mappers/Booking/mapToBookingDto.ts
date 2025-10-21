@@ -3,6 +3,7 @@ import { Booking } from "../../domain/entities/BookingEntity";
 
 export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDto[] => {
   return bookings.map((b): BookingDataDto => ({
+    _id: b._id ?? "",
     userId: b.userId,
     contactInfo: b.contactInfo,
     adults: b.adults || [],

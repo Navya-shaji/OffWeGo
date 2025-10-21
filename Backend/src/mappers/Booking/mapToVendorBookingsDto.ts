@@ -4,6 +4,7 @@ import type { BookingDataDto } from "../../domain/dto/Booking/BookingDataDto";
 
 export function mapBookingDataToDto(booking: Booking): BookingDataDto {
   return {
+    _id: booking._id ?? "",
     userId: booking.userId,
     vendorId: booking.selectedPackage?._id,
     contactInfo: booking.contactInfo,

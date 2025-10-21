@@ -20,6 +20,7 @@ export interface PackageDto {
 }
 
 export interface BookingDataDto {
+  _id:string,
   userId: string;
   vendorId?:string
   contactInfo: ContactInfo;
