@@ -2,7 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast, ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { addSubscription } from "@/store/slice/Subscription/subscription";
+import {
+  addSubscriptionStart,
+  addSubscriptionSuccess,
+  addSubscriptionFailure,
+} from "@/store/slice/Subscription/subscription";
+import * as subscriptionService from "@/services/subscription/subscriptionservice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,32 +30,33 @@ export default function AddSubscriptionForm() {
     resolver: zodResolver(SubscriptionSchema),
   });
 
-  const notify = () => toast("Subscription added");
+  const notify = () => toast.success("Subscription added successfully!");
 
-  const onSubmit = async (data: SubscriptionFormData) => {
-    try {
-      await dispatch(
-        addSubscription({
-          name: data.name,
-          description: data.description,
-          commissionRate: data.commissionRate,
-          price: data.price,
-          durationInDays: data.durationInDays,
-        })
-      ).unwrap();
+ const onSubmit = async (data: SubscriptionFormData) => {
+  try {
+    dispatch(addSubscriptionStart());
 
-      notify();
-      reset();
-    } catch (err) {
-      console.error("Error adding subscription:", err);
-      toast.error("Failed to add subscription");
-    }
-  };
+    const response = await subscriptionService.addSubscription({
+      name: data.name,
+      price: data.price,
+      maxPackages: data.maxPackages,
+      features: data.features.split(',').map(f => f.trim()), 
+      duration: data.durationInDays,
+    });
+
+    dispatch(addSubscriptionSuccess(response));
+    notify();
+    reset();
+  } catch (err: unknown) {
+    console.error("Error adding subscription:", err);
+    dispatch(addSubscriptionFailure("Failed to add subscription"));
+    toast.error("Failed to add subscription");
+  }
+};
 
   return (
     <div className="flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden">
-        {/* Header */}
         <div className="bg-black text-white px-6 py-5 rounded-t-2xl">
           <h2 className="text-2xl font-bold">Add Subscription Plan</h2>
           <p className="text-sm text-gray-300 mt-1">
@@ -58,7 +64,6 @@ export default function AddSubscriptionForm() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
           <ToastContainer position="top-right" autoClose={3000} />
 
@@ -67,7 +72,7 @@ export default function AddSubscriptionForm() {
               htmlFor="name"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Plan Name <span className="text-red-500"></span>
+              Plan Name
             </Label>
             <Input
               id="name"
@@ -82,50 +87,10 @@ export default function AddSubscriptionForm() {
 
           <div>
             <Label
-              htmlFor="description"
-              className="text-sm font-semibold text-gray-700 mb-1 block"
-            >
-              Description <span className="text-red-500"></span>
-            </Label>
-            <Input
-              id="description"
-              type="text"
-              {...register("description")}
-              placeholder="Plan with advanced features"
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label
-              htmlFor="commissionRate"
-              className="text-sm font-semibold text-gray-700 mb-1 block"
-            >
-              Commission Rate (%) <span className="text-red-500"></span>
-            </Label>
-            <Input
-              id="commissionRate"
-              type="number"
-              {...register("commissionRate", { valueAsNumber: true })}
-              placeholder="10"
-            />
-            {errors.commissionRate && (
-              <p className="text-red-500 text-sm">
-                {errors.commissionRate.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label
               htmlFor="price"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Price <span className="text-red-500">*</span>
+              Price *
             </Label>
             <Input
               id="price"
@@ -143,7 +108,7 @@ export default function AddSubscriptionForm() {
               htmlFor="durationInDays"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Duration (Days) <span className="text-red-500"></span>
+              Duration (Days)
             </Label>
             <Input
               id="durationInDays"
@@ -158,6 +123,45 @@ export default function AddSubscriptionForm() {
             )}
           </div>
 
+          <div>
+            <Label
+              htmlFor="maxPackages"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
+              Max Packages
+            </Label>
+            <Input
+              id="maxPackages"
+              type="number"
+              {...register("maxPackages", { valueAsNumber: true })}
+              placeholder="3"
+            />
+            {errors.maxPackages && (
+              <p className="text-red-500 text-sm">
+                {errors.maxPackages.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label
+              htmlFor="features"
+              className="text-sm font-semibold text-gray-700 mb-1 block"
+            >
+              Features (comma separated)
+            </Label>
+            <Input
+              id="features"
+              type="text"
+              {...register("features")}
+              placeholder="Feature1, Feature2, Feature3"
+            />
+
+            {errors.features && (
+              <p className="text-red-500 text-sm">{errors.features.message}</p>
+            )}
+          </div>
+
           <Button
             type="submit"
             className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"
@@ -166,7 +170,9 @@ export default function AddSubscriptionForm() {
             {loading ? "Adding..." : "Add Subscription"}
           </Button>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+          )}
         </form>
       </div>
     </div>

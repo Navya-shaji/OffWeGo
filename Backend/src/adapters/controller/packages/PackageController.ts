@@ -8,7 +8,6 @@ import { DestinationModel } from "../../../framework/database/Models/deestinatio
 import { IGetDestinationBasedPackage } from "../../../domain/interface/Vendor/IGetDestinationBasedPackage";
 import { IGetPackagesUsecase } from "../../../domain/interface/Vendor/IGetAllPackageUsecase";
 import { Hotel } from "../../../domain/entities/HotelEntity";
-import { Activity } from "../../../domain/entities/ActivityEntity";
 
 export class PackageController {
   constructor(

@@ -22,6 +22,8 @@ import ImageUploadSection from "./ImageUploadSection";
 import HotelsActivitiesSection from "./HotelActivitySection";
 import { usePackageValidation } from "@/Types/vendor/Package/package";
 import type { Package } from "@/interface/PackageInterface";
+import { toast } from "react-toastify";
+
 
 interface ItineraryActivity {
   time: string;
@@ -71,9 +73,16 @@ interface EnhancedPackageFormData {
 
 const AddPackage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.package);
+  
+  
+  const packages = useSelector((state: RootState) => state.package.packages);
+  const vendorId = useSelector((state: RootState) => state.auth.user?.id);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showValidationErrors, setShowValidationErrors] = useState(false);
+
+    const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [packageLimitError, setPackageLimitError] = useState(false);
+    const { loading, error } = useSelector((state: RootState) => state.package);
 
   const {
     errors,
@@ -331,12 +340,27 @@ const handleActivitySelection = (activityIds: string[]) => {
     validateField("itinerary", basicItinerary);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setShowValidationErrors(true);
+console.log(packages,"package count")
 
 
+const vendorPackageCount=packages.length
 
+
+   console.log(vendorPackageCount,"count")
+ if (vendorPackageCount >= 3) {
+
+      setPackageLimitError(true);
+      toast.error("Package limit reached! You can only create up to 3 packages.", {
+        position: "top-center",
+        autoClose: 5000,
+      });
+     
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     const simpleItinerary = formData.itinerary.flatMap((day) =>
       day.activities.map((activity) => ({
         day: day.day,
@@ -370,9 +394,8 @@ const handleActivitySelection = (activityIds: string[]) => {
       flight: null,
     };
 
-    console.log("Submitting package:", completePackage);
-    console.log("includeFlight value:", hasFlight);
     
+  
     dispatch(addPackage(completePackage));
     setIsSubmitted(true);
     setShowValidationErrors(false);

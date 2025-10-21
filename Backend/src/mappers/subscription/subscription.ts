@@ -1,12 +1,10 @@
-import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
-import { SubscriptionPlan } from "../../domain/entities/subscriptionplan"; 
+// import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
+// import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
 
-export const mapToSubscriptionPlanModel = (
-  plan: Partial<SubscriptionPlan>
-): Partial<ISubscriptionPlanModel> => ({
-  name: plan.name,
-  description: plan.description,
-  price: plan.price,
-  durationInDays: plan.durationInDays,
-  commissionRate: plan.commissionRate,
-});
+// export const mapToSubscriptionPlanModel = (
+//   plan: Partial<SubscriptionPlanDto>
+// ): Partial<ISubscriptionPlanModel> => ({
+//   name: plan.name,
+//   price: plan.price,
+ 
+// });

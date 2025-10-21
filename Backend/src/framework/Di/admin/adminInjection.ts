@@ -33,7 +33,7 @@ import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
 import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/SubscriptionPlanController";
-import { CreateSubscriptionPlanUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
+import { createSubscriptionusecase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
 import { SearchUserUseCase } from "../../../useCases/admin/user/SearchUserUSecase"; 
@@ -41,7 +41,7 @@ import { SearchVendorUsecase } from "../../../useCases/admin/vendor/SearchVendor
 import { SearchDestination } from "../../../useCases/destination/searchDestinationUsecase"; 
 import { SearchCategoryUsecase } from "../../../useCases/category/searchcategoryUSecase"; 
 import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecase";
-import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
+// import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
 import { DeleteSubscriptionUsecase } from "../../../useCases/subscription/DeleteSubscriptionusecase";
 
 // Repositories
@@ -80,14 +80,14 @@ const editCategory=new EditCategory(catogoryRepo)
 const deleteCategory=new DeleteCategory()
 const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
-const subscriptionusecase=new CreateSubscriptionPlanUseCase(subscriptionrepo)
+const subscriptionusecase=new createSubscriptionusecase(subscriptionrepo)
 const getallsubscriptions=new GetAllSubscription(subscriptionrepo)
 const searchuserusecase=new SearchUserUseCase(userRepository)
 const searchvendorusecase=new SearchVendorUsecase(vendorRepository)
 const searchdestinationusecase=new SearchDestination(destinationRepository)
 const searchcategory=new SearchCategoryUsecase(catogoryRepo)
 const Banneractionusecase=new BannerActionUsecase(bannerRepo)
-const subscriptioneditusecase=new EditSubscriptionUseCase(subscriptionrepo)
+// const subscriptioneditusecase=new EditSubscriptionUseCase(subscriptionrepo)
 const deletesubscriptionusecase=new DeleteSubscriptionUsecase(subscriptionrepo)
 
 // Controllers
@@ -104,5 +104,5 @@ export const destinationController = new DestinationController(
 )
 export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
 export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
-export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,subscriptioneditusecase,deletesubscriptionusecase)
+export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,deletesubscriptionusecase)
 

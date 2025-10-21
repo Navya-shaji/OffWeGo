@@ -1,14 +1,7 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import * as subscriptionService from "@/services/subscription/subscriptionservice";
+import type { Subscription } from "@/interface/subscription";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-type Subscription = {
-  id?: string;
-  name: string;
-  commissionRate: number;
-  price: number;
-  durationInDays: number;
-  description: string;
-};
+
 
 interface SubscriptionState {
   subscriptions: Subscription[];
@@ -22,69 +15,47 @@ const initialState: SubscriptionState = {
   error: null,
 };
 
-export const addSubscription = createAsyncThunk<
-  Subscription,
-  Subscription,
-  { rejectValue: string }
->("subscription/addSubscription", async (subscriptionData, { rejectWithValue }) => {
-  try {
-    const response = await subscriptionService.addSubscription(subscriptionData);
-    return response;
-  } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue("An unknown error occurred while adding subscription.");
-  }
-});
-
-export const fetchSubscriptions = createAsyncThunk<
-  Subscription[],
-  void,
-  { rejectValue: string }
->("subscription/fetchSubscriptions", async (_, { rejectWithValue }) => {
-  try {
-    const response = await subscriptionService.getSubscriptions();
-    return response;
-  } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue("An unknown error occurred while fetching subscriptions.");
-  }
-});
-
 const subscriptionSlice = createSlice({
   name: "subscription",
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(addSubscription.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(addSubscription.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.subscriptions.push(action.payload);
-      })
-      .addCase(addSubscription.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload || "Failed to add subscription";
-      })
-      .addCase(fetchSubscriptions.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(fetchSubscriptions.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.subscriptions = action.payload;
-      })
-      .addCase(fetchSubscriptions.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload || "Failed to fetch subscriptions";
-      });
+  reducers: {
+    
+    addSubscriptionStart(state) {
+      state.status = "loading";
+      state.error = null;
+    },
+    addSubscriptionSuccess(state, action: PayloadAction<Subscription>) {
+      state.status = "succeeded";
+      state.subscriptions.push(action.payload);
+    },
+    addSubscriptionFailure(state, action: PayloadAction<string>) {
+      state.status = "failed";
+      state.error = action.payload;
+    },
+
+  
+    fetchSubscriptionsStart(state) {
+      state.status = "loading";
+      state.error = null;
+    },
+    fetchSubscriptionsSuccess(state, action: PayloadAction<Subscription[]>) {
+      state.status = "succeeded";
+      state.subscriptions = action.payload;
+    },
+    fetchSubscriptionsFailure(state, action: PayloadAction<string>) {
+      state.status = "failed";
+      state.error = action.payload;
+    },
   },
 });
+
+export const {
+  addSubscriptionStart,
+  addSubscriptionSuccess,
+  addSubscriptionFailure,
+  fetchSubscriptionsStart,
+  fetchSubscriptionsSuccess,
+  fetchSubscriptionsFailure,
+} = subscriptionSlice.actions;
 
 export default subscriptionSlice.reducer;

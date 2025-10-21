@@ -25,7 +25,8 @@ export const addPackage = async (data: Package) => {
     console.log("Server response:", res.data);
 
    
-    return res.data?.data || res.data; 
+   return res.data.package;
+
   } catch (error) {
     console.error("Catch block error:", error);
 

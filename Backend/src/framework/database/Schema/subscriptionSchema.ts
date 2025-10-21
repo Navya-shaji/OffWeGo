@@ -1,4 +1,4 @@
-import  { Schema } from "mongoose";
+import { Schema } from "mongoose";
 
 export const SubscriptionPlanSchema = new Schema({
   name: {
@@ -22,6 +22,15 @@ export const SubscriptionPlanSchema = new Schema({
     type: Number,
     required: true,
     min: 1,
+  },
+  maxPackages: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  features: {
+    type: [String],
+    default: [],
   },
 }, {
   timestamps: true,

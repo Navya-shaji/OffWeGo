@@ -1,5 +1,5 @@
 import { ISubscriptionPlanRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionplan";
-import { SubscriptionPlan } from "../../../domain/entities/subscriptionplan";
+import { ISubscriptionPlan } from "../../../domain/entities/subscriptionplan";
 import {
   subscriptionPlanModel,
   ISubscriptionPlanModel,
@@ -31,7 +31,7 @@ export class SubscriptionPlanRepository
 
   async update(
     id: string,
-    updateData: Partial<SubscriptionPlan>
+    updateData: Partial<ISubscriptionPlan>
   ): Promise<ISubscriptionPlanModel | null> {
     return subscriptionPlanModel
       .findByIdAndUpdate(id, updateData, { new: true })

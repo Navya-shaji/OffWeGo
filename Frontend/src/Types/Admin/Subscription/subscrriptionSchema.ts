@@ -11,6 +11,13 @@ export const SubscriptionSchema = z.object({
   durationInDays: z
     .number("Duration must be a number")
     .min(1, "Duration must be at least 1 day"),
+  maxPackages: z
+    .number("Max packages must be a number")
+    .min(1, "Max packages must be at least 1"),
+  features: z
+    .string()
+    .min(1, "At least one feature is required")
+    .transform((val) => val.split(",").map((f) => f.trim())),
 });
 
 export type SubscriptionFormData = z.infer<typeof SubscriptionSchema>;

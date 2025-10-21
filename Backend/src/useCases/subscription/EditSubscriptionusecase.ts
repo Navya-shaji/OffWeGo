@@ -1,35 +1,30 @@
-import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/CreatesubscriptionDto"; 
-import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
-import { mapDtoToPartialModel } from "../../mappers/Subscription/updatedMapper"; 
+// import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
+// import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
 
-export class EditSubscriptionUseCase implements IEditSubscriptionusecase {
-  constructor(private subscriptionRepository: ISubscriptionPlanRepository) {}
+// import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan"; 
+// import { mapDtoToPartialModel } from "../../mappers/Subscription/updatedMapper"; 
 
-  async execute(
-    id: string,
-    updatedData: CreateSubscriptionDTO
-  ): Promise<CreateSubscriptionDTO | null> {
-    try {
-      const updatePayload = mapDtoToPartialModel(updatedData);
+// export class EditSubscriptionUseCase implements IEditSubscriptionusecase {
+//   constructor(private subscriptionRepository: ISubscriptionPlanRepository) {}
 
-      const updatedSubscription = await this.subscriptionRepository.update(
-        id,
-        updatePayload
-      );
+//   async execute(
+//     id: string,
+//     updatedData: SubscriptionPlanDto
+//   ): Promise<SubscriptionPlanDto | null> {
+//     try {
+//       const updatePayload = mapDtoToPartialModel(updatedData);
 
-      if (!updatedSubscription) return null;
+//       const updatedSubscription = await this.subscriptionRepository.update(
+//         id,
+//         updatePayload
+//       );
 
-      return {
-        name: updatedSubscription.name,
-        description: updatedSubscription.description,
-        price: updatedSubscription.price,
-        durationInDays: updatedSubscription.durationInDays,
-        commissionRate: updatedSubscription.commissionRate,
-      };
-    } catch (error) {
-      console.error("Error updating subscription:", error);
-      throw error;
-    }
-  }
-}
+//       if (!updatedSubscription) return null;
+
+    
+//     } catch (error) {
+//       console.error("Error updating subscription:", error);
+//       throw error;
+//     }
+//   }
+// }
