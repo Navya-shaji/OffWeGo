@@ -139,7 +139,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.HOTELS,
-      checkRoleBasedcontrol(["vendor"]),
+      checkRoleBasedcontrol(["vendor","user"]),
       (req: Request, res: Response) => hotelcontroller.getHotels(req, res)
     );
     this.vendorRouter.put(

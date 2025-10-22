@@ -76,13 +76,14 @@ const AddPackage: React.FC = () => {
   
   
   const packages = useSelector((state: RootState) => state.package.packages);
-  const vendorId = useSelector((state: RootState) => state.auth.user?.id);
+  // const vendorId = useSelector((state: RootState) => state.auth.user?.id);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
     const [showValidationErrors, setShowValidationErrors] = useState(false);
-  const [packageLimitError, setPackageLimitError] = useState(false);
+  const [packageLimitError, setPackageLimitError] = useState<boolean>(false);
     const { loading, error } = useSelector((state: RootState) => state.package);
+    console.log(packageLimitError)
 
   const {
     errors,

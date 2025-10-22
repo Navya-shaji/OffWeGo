@@ -18,7 +18,7 @@ const FlightsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchMode, setIsSearchMode] = useState(false);
+  // const [ setIsSearchMode] = useState(false);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
@@ -31,11 +31,13 @@ const FlightsPage: React.FC = () => {
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState<boolean>(false);
+
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [flightToDelete, setFlightToDelete] = useState<Flight | null>(null);
 
-  // Load all flights
+console.log(isSearchMode)
   const loadFlights = useCallback(async () => {
     try {
       setLoading(true);
@@ -56,7 +58,7 @@ const FlightsPage: React.FC = () => {
     loadFlights();
   }, [loadFlights]);
 
-  // Search flights by airline name
+
   const handleSearch = useCallback(
     (query: string) => {
       setSearchQuery(query);
@@ -76,7 +78,7 @@ const FlightsPage: React.FC = () => {
     [originalFlights]
   );
 
-  // Edit flight modal open
+ 
   const handleEdit = useCallback((flight: Flight) => {
     setSelectedFlight(flight);
     setFormData({

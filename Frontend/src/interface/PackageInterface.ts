@@ -1,3 +1,5 @@
+import type { Flight } from "./flightInterface";
+
 export interface Hotel {
   id?: string;
   hotelId?: string;
@@ -16,14 +18,7 @@ export interface Activity {
   imageUrl: string;
 }
 
-export interface Flight {
-  id?: string;
-  date: string | Date;
-  fromLocation: string;
-  toLocation: string;
-  airLine: string;
-  price: number;
-}
+
 
 export interface Itinerary {
   day: number;

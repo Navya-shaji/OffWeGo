@@ -11,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Star } from "lucide-react";
 import type { DestinationInterface } from "@/interface/destinationInterface";
+import type { Hotel } from "@/interface/PackageInterface";
 
 const CreateHotel: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -52,25 +53,28 @@ const CreateHotel: React.FC = () => {
     loadDestinations();
   }, []);
 
-  const onSubmit = async (data: HotelFormData) => {
-    if (!destinationId) {
-      notifyError("Please select a destination");
-      return;
-    }
+const onSubmit = async (data: HotelFormData) => {
+  if (!destinationId) {
+    notifyError("Please select a destination");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      await createHotel(data, destinationId);
-      notifySuccess();
-      reset();
-      setDestinationId("");
-    } catch (error) {
-      console.error("Error creating hotel:", error);
-      notifyError("Failed to create hotel");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const hotelData: Hotel = { ...data, destinationId }; 
+
+  try {
+    setLoading(true);
+    await createHotel(hotelData, destinationId); 
+    notifySuccess();
+    reset();
+    setDestinationId("");
+  } catch (error) {
+    console.error("Error creating hotel:", error);
+    notifyError("Failed to create hotel");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center py-10 px-4">
@@ -85,7 +89,6 @@ const CreateHotel: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           <ToastContainer position="top-right" autoClose={3000} />
 
-          {/* Destination Selector */}
           <div>
             <Label htmlFor="destination">Select Destination <span className="text-red-500">*</span></Label>
             <select

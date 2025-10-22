@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type { Package } from "@/interface/PackageInterface"
 
 interface ItineraryActivity {
   time: string
@@ -24,20 +25,6 @@ interface ItineraryDay {
   day: number
   activities: ItineraryActivity[]
   isExpanded?: boolean
-}
-
-interface Package {
-  _id: string
-  packageName: string
-  description: string
-  price: number
-  duration: number
-  checkInTime?: string
-  checkOutTime?: string
-  images?: string[]
-  itinerary?: Array<{ day: number; time: string; activity: string }>
-  inclusions?: string[]
-  amenities?: string[]
 }
 
 interface EditPackageProps {
@@ -116,7 +103,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
     onChange(updated)
   }
 
-
   const addDay = () => {
     const newDay: ItineraryDay = {
       day: enhancedItinerary.length + 1,
@@ -192,6 +178,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
   }
 
   const generateBasicItinerary = () => {
+    if (!localData.duration) return;
     const basicItinerary: ItineraryDay[] = []
     
     for (let i = 1; i <= localData.duration; i++) {
@@ -297,7 +284,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
           </div>
         </div>
 
-        <div className="p-6 space-y-8" onSubmit={onSubmit}>
+        <div className="p-6 space-y-8">
           {/* Basic Information */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-slate-50">
             <CardHeader className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-t-lg">
@@ -565,7 +552,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
             </Card>
           </div>
 
-
+          {/* Action Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
             <Button 
               type="button" 
@@ -578,7 +565,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
             </Button>
             <Button 
               type="button"
-              onClick={(e) => onSubmit(e )}
+              onClick={(e) => onSubmit(e)}
               disabled={isLoading}
               size="lg"
               className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"

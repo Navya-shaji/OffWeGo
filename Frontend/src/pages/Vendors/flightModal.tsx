@@ -19,12 +19,11 @@ interface FlightSearchModalProps {
   onClose: () => void;
   onProceed: (
     flightOption: "with-flight" | "without-flight",
-    selectedFlight?: Flight,
+    selectedFlight?: Flight,  
     selectedClass?: string
   ) => void;
   selectedPackage: Package;
 }
-
 const FlightSearchModal = ({
   show,
   onClose,

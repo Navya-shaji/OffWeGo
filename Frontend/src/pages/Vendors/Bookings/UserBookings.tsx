@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Search,
-  Filter,
+  
   Calendar,
   User,
   MapPin,
@@ -55,7 +55,7 @@ interface Booking {
   contactInfo: ContactInfo;
   totalAmount: number;
   status: "pending" | "confirmed" | "cancelled" | "completed";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  paymentStatus: "pending" | "succeeded" | "failed" | "refunded";
   flightDetails?: {
     airline: string;
     class: string;
@@ -365,7 +365,8 @@ console.log(bookings,"boo")
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {booking.selectedPackage.packageName || "N/A"}
+                          {(booking as any).selectedPackage?.packageName || "N/A"}
+
                         </div>
                         {booking.packageId?.destination && (
                           <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">

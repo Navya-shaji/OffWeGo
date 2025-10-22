@@ -211,10 +211,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
       setIsEditLoading(true);
       try {
-        // TODO: Replace with your actual API call to update the package
-        // await updatePackage(editedPackage._id, editedPackage);
-
-        // Update local state
+      
         const updatedPackages = packageList.map((pkg) =>
           pkg._id === editedPackage._id ? editedPackage : pkg
         );
@@ -651,10 +648,10 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       )}
 
-      {/* Edit Modal */}
+  
       {editModal.isOpen && editedPackage && (
         <EditPackage
-          pkg={editedPackage}
+          pkg={editedPackage }
           onClose={closeEditModal}
           onChange={handleEditChange}
           onSubmit={handleEditSubmit}
@@ -662,7 +659,6 @@ const PackageTable: React.FC<PackageTableProps> = ({
         />
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-slate-300">

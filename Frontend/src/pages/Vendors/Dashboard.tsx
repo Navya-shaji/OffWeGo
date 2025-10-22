@@ -23,7 +23,8 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
   const dispatch = useDispatch<AppDispatch>();
   const { packages } = useSelector((state: RootState) => state.package);
-
+const vendorId=useSelector((state:RootState)=>state.vendorAuth.vendor?.id)
+console.log(vendorId,"ve")
   useEffect(() => {
     dispatch(fetchPackages());
   }, [dispatch]);
@@ -48,7 +49,7 @@ function Dashboard() {
           {activeTab == "Create Flight" && <CreateFlight />}
           {activeTab == "All Flights" && <GetAllFlight />}
           {activeTab == "All Bookings" && <AllBookings />}
-          {activeTab == "Booking Slots" && <TravelCalendar  />}
+          {activeTab == "Booking Slots" && <TravelCalendar vendorId={vendorId || ""} />}
         </div>
       </div>
     </div>

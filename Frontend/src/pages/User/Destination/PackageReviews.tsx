@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, User, ThumbsUp, MessageCircle } from "lucide-react";
+import { Star, User, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { allReviews } from "@/services/Reviews/reviewService";
 import type { IReview } from "@/interface/reviews";
@@ -52,14 +52,7 @@ export const PackageReviews: React.FC<PackageReviewsProps> = ({
     return distribution.reverse();
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+
 
   if (loading) {
     return (
@@ -163,16 +156,17 @@ export const PackageReviews: React.FC<PackageReviewsProps> = ({
               </div>
             </div>
 
-            {/* Individual Reviews */}
+           
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-slate-800 mb-4">
                 What travelers are saying
               </h3>
               {reviews.map((review) => (
-                <div
-                  key={review.userId}
-                  className="p-6 bg-white rounded-2xl border border-slate-200 hover:shadow-lg transition-shadow duration-300"
-                >
+             <div
+  key={typeof review.userId === "string" ? review.userId : review.userId._id}
+  className="p-6 bg-white ..."
+>
+
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-700 to-slate-900 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
@@ -187,13 +181,15 @@ export const PackageReviews: React.FC<PackageReviewsProps> = ({
                         )}
                       </div>
 
-                      {/* User Info */}
+                    
                       <div>
                         <div className="font-bold text-slate-800">
-                          {review.userId.name}
+                       {typeof review.userId === "string" ? "Anonymous" : review.userId.name}
+
+
                         </div>
                         <div className="text-sm text-slate-500">
-                          {/* {formatDate(review.createdAt)} */}
+                       
                         </div>
                       </div>
                     </div>

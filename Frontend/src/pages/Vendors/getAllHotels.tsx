@@ -42,11 +42,11 @@ const HotelsTable: React.FC = () => {
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-
+const [destinationId, setDestinationId] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-
+console.log(setDestinationId)
   const loadHotels = useCallback(async (pageNum: number = 1) => {
   if (isLoadingRef.current) return;
 
@@ -102,7 +102,6 @@ const HotelsTable: React.FC = () => {
         const response = await searchHotel(query);
         const searchResults = Array.isArray(response) ? response : [];
         
-        // Map search results to ensure consistent ID structure
         const hotelsWithId = searchResults.map((hotel) => ({
           ...hotel,
           _id: hotel.hotelId || hotel._id,
@@ -118,8 +117,7 @@ const HotelsTable: React.FC = () => {
         setHotels([]);
         setTotalPages(1);
         toast.error("Failed to search hotels");
-        
-        // Clear error after 3 seconds
+       
         setTimeout(() => setError(""), 3000);
       }
     }, 400);
@@ -177,12 +175,12 @@ const HotelsTable: React.FC = () => {
     if (!selectedHotel?._id) return;
 
     try {
-      await updateHotel(selectedHotel._id, {
-        name: formData.name,
-        address: formData.address,
-        rating: Math.min(5, formData.rating),
-      });
-      
+     await updateHotel(selectedHotel._id, {
+  destinationId, 
+  name: formData.name,
+  address: formData.address,
+  rating: Math.min(5, formData.rating),
+});
       toast.success("Hotel updated successfully!");
 
       const updateHotelInList = (list: Hotel[]) =>

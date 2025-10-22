@@ -16,6 +16,7 @@ import {
   CheckCircle,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Timer,
   Navigation,
 } from "lucide-react";
@@ -23,30 +24,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/profile/navbar";
-import type { Flight, Package } from "@/interface/PackageInterface";
+import type { Package } from "@/interface/PackageInterface";
 import FlightSearchModal from "@/pages/Vendors/flightModal";
 import { PackageReviews } from "./PackageReviews";
-
-
+import type { Flight } from "@/interface/flightInterface";
 export const PackageTimeline = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
-  console.log(selectedPackage, "selectedpackage");
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
-
   const [showFlightModal, setShowFlightModal] = useState(false);
-  console.log(selectedDate, "date");
+  const [expandedDays, setExpandedDays] = useState<Record<number, boolean>>({});
+
+
   useEffect(() => {
     if (selectedPackage) {
       console.log("Selected package:", selectedPackage);
     }
   }, [selectedPackage]);
+
+  const toggleDay = (day: number) => {
+    setExpandedDays(prev => ({
+      ...prev,
+      [day]: !prev[day]
+    }));
+  };
 
   if (!selectedPackage) {
     return (
@@ -89,35 +96,34 @@ export const PackageTimeline = () => {
     }
 
     if (selectedPackage.flightOption) {
-      console.log(selectedPackage.flightOption);
       setShowFlightModal(true);
     } else {
       proceedToBooking(null);
     }
   };
-  const proceedToBooking = (
-    flightOption: "with-flight" | "without-flight" | null,
-    selectedFlight?: Flight
-  ) => {
-    const basePackagePrice = selectedPackage.price;
-    const flightPrice = selectedFlight ? selectedFlight.price : 0;
-    const totalPrice = basePackagePrice + flightPrice;
 
-    navigate("/travaler-details", {
-      state: {
-        selectedPackage: {
-          ...selectedPackage,
-          totalPrice: totalPrice,
-          price: basePackagePrice,
-          flightPrice: flightPrice,
-        },
-        flightOption: flightOption,
-        selectedFlight: selectedFlight,
-        selectedDate: selectedDate,
+const proceedToBooking = (
+  flightOption: "with-flight" | "without-flight" | null,
+  selectedFlight?: Flight
+) => {
+  const basePackagePrice = selectedPackage.price;
+  const flightPrice = selectedFlight ? selectedFlight.price : 0;
+  // const totalPrice = basePackagePrice + flightPrice;
+
+  navigate("/travaler-details", {
+    state: {
+      selectedPackage: {
+        ...selectedPackage,
+        // totalPrice: totalPrice,
+        price: basePackagePrice,
+        flightPrice: flightPrice,
       },
-    });
-  };
-
+      flightOption: flightOption,
+      selectedFlight: selectedFlight,
+      selectedDate: selectedDate,
+    },
+  });
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
       <Navbar />
@@ -165,10 +171,10 @@ export const PackageTimeline = () => {
 
           <div className="max-w-4xl">
             <div>
-              <h1 className="text-5xl font-bold text-black mb-4 leading-tight">
+              <h1 className="text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
                 {selectedPackage.packageName}
               </h1>
-              <p className="text-xl text-black/90  leading-relaxed">
+              <p className="text-xl text-white/95 leading-relaxed drop-shadow-md">
                 {selectedPackage.description}
               </p>
             </div>
@@ -336,7 +342,7 @@ export const PackageTimeline = () => {
                     )}
 
                     {/* Itinerary Section */}
-                    <div className="space-y-8">
+                    <div className="space-y-4">
                       {(() => {
                         const groupedItinerary =
                           selectedPackage.itinerary.reduce((acc, item) => {
@@ -347,62 +353,86 @@ export const PackageTimeline = () => {
 
                         return Object.entries(groupedItinerary)
                           .sort(([a], [b]) => Number(a) - Number(b))
-                          .map(([day, activities]) => (
-                            <Card
-                              key={day}
-                              className="border border-gray-300 rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
-                            >
-                              <CardHeader className="bg-gray-50 border-b border-gray-200 p-6">
-                                <CardTitle className="flex items-center gap-4">
-                                  <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-black to-gray-800 text-white rounded-xl font-bold text-xl shadow">
-                                    {day}
-                                  </div>
-                                  <div>
-                                    <span className="block text-xl font-bold text-gray-900">
-                                      Day {day}
-                                    </span>
-                                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                                      <Activity className="w-4 h-4 text-indigo-500" />
-                                      {activities.length} activities
+                          .map(([day, activities]) => {
+                            const dayNum = Number(day);
+                            const isExpanded = expandedDays[dayNum];
+
+                            return (
+                              <Card
+                                key={day}
+                                className="border border-slate-200 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
+                                <CardHeader 
+                                  className="bg-gradient-to-r from-slate-800 to-slate-700 p-6 cursor-pointer hover:from-slate-900 hover:to-slate-800 transition-colors"
+                                  onClick={() => toggleDay(dayNum)}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="flex items-center gap-4">
+                                      <div className="w-14 h-14 flex items-center justify-center bg-white text-slate-900 rounded-xl font-bold text-xl shadow-lg">
+                                        {day}
+                                      </div>
+                                      <div>
+                                        <span className="block text-xl font-bold text-white">
+                                          Day {day}
+                                        </span>
+                                        <div className="flex items-center gap-2 mt-1 text-sm text-slate-300">
+                                          <Activity className="w-4 h-4" />
+                                          {activities.length} activities planned
+                                        </div>
+                                      </div>
+                                    </CardTitle>
+                                    <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                                      <ChevronDown className="w-6 h-6 text-white" />
                                     </div>
                                   </div>
-                                </CardTitle>
-                              </CardHeader>
+                                </CardHeader>
 
-                              <CardContent className="p-6">
-                                <div className="space-y-4 relative">
-                                  {activities
-                                    .sort((a, b) =>
-                                      a.time && b.time
-                                        ? a.time.localeCompare(b.time)
-                                        : 0
-                                    )
-                                    .map((activity, idx) => (
-                                      <div
-                                        key={idx}
-                                        className="flex items-start gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 relative hover:bg-gray-100 transition-colors duration-200"
-                                      >
-                                        {idx !== activities.length - 1 && (
-                                          <div className="absolute left-12 top-16 w-0.5 h-10 bg-gray-300"></div>
-                                        )}
-                                        <div className="flex-shrink-0 flex items-center justify-center w-14 h-14 bg-black text-white rounded-xl shadow">
-                                          <Clock className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <span className="inline-block px-3 py-1 mb-2 text-sm font-semibold bg-gray-200 rounded-full text-gray-800">
-                                            {activity.time || "Flexible"}
-                                          </span>
-                                          <h5 className="text-lg font-semibold text-gray-900">
-                                            {activity.activity}
-                                          </h5>
-                                        </div>
-                                        <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                                      </div>
-                                    ))}
+                                <div 
+                                  className={`transition-all duration-500 ease-in-out ${
+                                    isExpanded 
+                                      ? 'max-h-[2000px] opacity-100' 
+                                      : 'max-h-0 opacity-0 overflow-hidden'
+                                  }`}
+                                >
+                                  <CardContent className="p-6 bg-slate-50">
+                                    <div className="space-y-4 relative">
+                                      {activities
+                                        .sort((a, b) =>
+                                          a.time && b.time
+                                            ? a.time.localeCompare(b.time)
+                                            : 0
+                                        )
+                                        .map((activity, idx) => (
+                                          <div
+                                            key={idx}
+                                            className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-slate-200 relative hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                                          >
+                                            {idx !== activities.length - 1 && (
+                                              <div className="absolute left-[3.25rem] top-20 w-0.5 h-[calc(100%+1rem)] bg-gradient-to-b from-slate-300 to-transparent"></div>
+                                            )}
+                                            <div className="flex-shrink-0 flex items-center justify-center w-14 h-14 bg-gradient-to-br from-slate-800 to-slate-700 text-white rounded-xl shadow-md z-10">
+                                              <Clock className="w-6 h-6" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <span className="inline-block px-3 py-1.5 mb-2 text-xs font-bold bg-gradient-to-r from-emerald-100 to-emerald-50 border border-emerald-200 rounded-full text-emerald-700 shadow-sm">
+                                                {activity.time || "Flexible Timing"}
+                                              </span>
+                                              <h5 className="text-lg font-bold text-slate-900 mb-1">
+                                                {activity.activity}
+                                              </h5>
+                                              <p className="text-sm text-slate-600">
+                                                Enjoy this scheduled activity
+                                              </p>
+                                            </div>
+                                            <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0 mt-4" />
+                                          </div>
+                                        ))}
+                                    </div>
+                                  </CardContent>
                                 </div>
-                              </CardContent>
-                            </Card>
-                          ));
+                              </Card>
+                            );
+                          });
                       })()}
                     </div>
                   </CardContent>
@@ -411,44 +441,39 @@ export const PackageTimeline = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               {selectedPackage.hotels && selectedPackage.hotels.length > 0 && (
-                <Card className="bg-white/90 backdrop-blur-md shadow-xl rounded-3xl border border-gray-100 overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r bg-black p-4">
-                    <CardTitle className="flex items-center gap-2 text-lg text-white font-bold">
-                      <Building className="h-5 w-5" />
+                <Card className="bg-white backdrop-blur-md shadow-xl rounded-3xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                  <CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 p-6">
+                    <CardTitle className="flex items-center gap-3 text-lg text-white font-bold">
+                      <Building className="h-6 w-6" />
                       Premium Hotels
                     </CardTitle>
                   </CardHeader>
 
-                  {/* Content */}
                   <CardContent className="p-6 space-y-4">
                     {selectedPackage.hotels.map((hotel, idx) => (
                       <div
                         key={idx}
-                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
+                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 bg-gradient-to-br from-slate-50 to-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-slate-100 hover:border-slate-200"
                       >
-                        {/* Indicator dot */}
                         <div className="flex-shrink-0">
-                          <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                          <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full shadow-lg"></div>
                         </div>
 
-                        {/* Hotel info */}
                         <div className="flex-1 min-w-0">
-                          <div className="text-lg font-semibold text-gray-900">
+                          <div className="text-lg font-bold text-slate-900 mb-1">
                             {hotel.name}
                           </div>
-                          <div className="text-sm text-gray-500 mt-1">
+                          <div className="text-sm text-slate-600 mb-2">
                             {hotel.address}
                           </div>
-                          <div className="flex items-center gap-1 mt-2">
-                            {[...Array(Math.floor(hotel.rating))].map(
-                              (_, i) => (
-                                <Star
-                                  key={i}
-                                  className="h-4 w-4 text-yellow-400 fill-yellow-400"
-                                />
-                              )
-                            )}
-                            <span className="text-xs text-gray-500 ml-1">
+                          <div className="flex items-center gap-1">
+                            {[...Array(Math.floor(hotel.rating))].map((_, i) => (
+                              <Star
+                                key={i}
+                                className="h-4 w-4 text-yellow-400 fill-yellow-400"
+                              />
+                            ))}
+                            <span className="text-xs text-slate-500 ml-1 font-semibold">
                               ({hotel.rating})
                             </span>
                           </div>
@@ -461,11 +486,10 @@ export const PackageTimeline = () => {
 
               {selectedPackage.activities &&
                 selectedPackage.activities.length > 0 && (
-                  <Card className="bg-white/90 backdrop-blur-md shadow-xl rounded-3xl border border-gray-100 overflow-hidden">
-                    {/* Header */}
-                    <CardHeader className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 p-4">
-                      <CardTitle className="flex items-center gap-2 text-lg font-bold text-white">
-                        <Activity className="h-5 w-5" />
+                  <Card className="bg-white backdrop-blur-md shadow-xl rounded-3xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                    <CardHeader className="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 p-6">
+                      <CardTitle className="flex items-center gap-3 text-lg font-bold text-white">
+                        <Activity className="h-6 w-6" />
                         Exciting Activities
                       </CardTitle>
                     </CardHeader>
@@ -474,20 +498,20 @@ export const PackageTimeline = () => {
                       {selectedPackage.activities.map((act, idx) => (
                         <div
                           key={idx}
-                          className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
+                          className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 bg-gradient-to-br from-orange-50 to-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-orange-100 hover:border-orange-200"
                         >
-                          <div className="w-1.5 bg-gradient-to-b from-yellow-400 via-orange-400 to-red-400 rounded-full"></div>
+                          <div className="w-2 h-16 bg-gradient-to-b from-orange-400 via-orange-500 to-orange-600 rounded-full flex-shrink-0"></div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="text-lg font-semibold text-gray-900">
+                            <div className="text-lg font-bold text-slate-900 mb-1">
                               {act.title}
                             </div>
-                            <div className="text-sm text-gray-500 mt-1">
+                            <div className="text-sm text-slate-600">
                               {act.description}
                             </div>
                           </div>
 
-                          <div className="hidden sm:flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full text-orange-600 font-bold">
+                          <div className="hidden sm:flex items-center justify-center w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full text-orange-600 font-bold border-2 border-orange-200">
                             <Activity className="h-5 w-5" />
                           </div>
                         </div>
@@ -500,19 +524,19 @@ export const PackageTimeline = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {selectedPackage.inclusions &&
                 selectedPackage.inclusions.length > 0 && (
-                  <Card className="shadow-lg border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
-                    <CardHeader className="bg-gradient-to-r bg-black text-white p-4">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <CheckCircle className="h-5 w-5" />
+                  <Card className="shadow-xl border-0 overflow-hidden bg-white backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+                    <CardHeader className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-6">
+                      <CardTitle className="flex items-center gap-3 text-lg">
+                        <CheckCircle className="h-6 w-6" />
                         What's Included
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-6">
                       <div className="space-y-3">
                         {selectedPackage.inclusions.map((inc, idx) => (
-                          <div key={idx} className="flex items-center gap-3">
-                            <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                            <span className="text-slate-700">{inc}</span>
+                          <div key={idx} className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors">
+                            <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                            <span className="text-slate-700 font-medium">{inc}</span>
                           </div>
                         ))}
                       </div>
@@ -522,19 +546,19 @@ export const PackageTimeline = () => {
 
               {selectedPackage.amenities &&
                 selectedPackage.amenities.length > 0 && (
-                  <Card className="shadow-lg border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
-                    <CardHeader className="bg-gradient-to-r bg-black text-white p-4">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Sparkles className="h-5 w-5" />
+                  <Card className="shadow-xl border-0 overflow-hidden bg-white backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+                    <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
+                      <CardTitle className="flex items-center gap-3 text-lg">
+                        <Sparkles className="h-6 w-6" />
                         Premium Amenities
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-6">
                       <div className="space-y-3">
                         {selectedPackage.amenities.map((amenity, idx) => (
-                          <div key={idx} className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-purple-600 rounded-full flex-shrink-0" />
-                            <span className="text-slate-700">{amenity}</span>
+                          <div key={idx} className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl border border-purple-100 hover:bg-purple-100 transition-colors">
+                            <div className="w-3 h-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex-shrink-0 shadow-lg" />
+                            <span className="text-slate-700 font-medium">{amenity}</span>
                           </div>
                         ))}
                       </div>
@@ -561,31 +585,6 @@ export const PackageTimeline = () => {
                   onChange={(e) => setSelectedDate(new Date(e.target.value))}
                   className="w-full p-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all duration-300"
                 />
-                {/* {selectedDate && (
-                  <div className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium">
-                          Departure:
-                        </span>
-                        <span className="font-bold text-slate-800">
-                          {selectedDate.toDateString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium">
-                          Return:
-                        </span>
-                        <span className="font-bold text-slate-800">
-                          {new Date(
-                            selectedDate.getTime() +
-                              (selectedPackage.duration - 1) * 864e5
-                          ).toDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )} */}
               </CardContent>
             </Card>
 
@@ -616,20 +615,11 @@ export const PackageTimeline = () => {
                       {selectedPackage.duration} days
                     </span>
                   </div>
-                  {/* <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg"> */}
-                  {/* <span className="text-slate-600 font-medium">
-                      Per Day Cost:
-                    </span> */}
-                  {/* <span className="font-bold">
-                      {formatCurrency(
-                        selectedPackage.price / selectedPackage.duration
-                      )}
-                    </span> */}
-                </div>
-                {/* </div> */}
- {selectedPackage?._id && (
-  <PackageReviews packageId={selectedPackage._id} />
-)}
+                  </div>
+
+                {selectedPackage?._id && (
+                  <PackageReviews packageId={selectedPackage._id} />
+                )}
 
                 <Separator className="my-6" />
 
@@ -717,7 +707,6 @@ export const PackageTimeline = () => {
             </Card>
           </div>
         </div>
-
       </div>
       <FlightSearchModal
         show={showFlightModal}
