@@ -90,6 +90,9 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
       toast.error("Please fill all child traveler details");
       return;
     }
+    if(adultCount==0 && childCount >=1){
+      toast.error("No one is allowed without an Adult")
+    }
 
     try {
       const bookingData = {
