@@ -31,18 +31,22 @@ export default function AddSubscriptionForm() {
   });
 
   const notify = () => toast.success("Subscription added successfully!");
-
+console.log("Component loaded ✅");
  const onSubmit = async (data: SubscriptionFormData) => {
+  console.log("Form submitted with data:", data);
+  
   try {
     dispatch(addSubscriptionStart());
+    console.log("Dispatched start action");
 
     const response = await subscriptionService.addSubscription({
       name: data.name,
       price: data.price,
       maxPackages: data.maxPackages,
-      features: data.features.split(',').map(f => f.trim()), 
-      duration: data.durationInDays,
+      duration: data.duration, // Make sure this matches your service expectation
     });
+    
+    console.log("Response received:", response);
 
     dispatch(addSubscriptionSuccess(response));
     notify();
@@ -64,7 +68,22 @@ export default function AddSubscriptionForm() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+ <form 
+  onSubmit={(e) => {
+    console.log("Form onSubmit triggered");
+    e.preventDefault(); // Add this to prevent default behavior
+    handleSubmit(
+      (data) => {
+        console.log("✅ Validation passed, data:", data);
+        onSubmit(data);
+      },
+      (errors) => {
+        console.log("❌ Validation errors:", errors);
+      }
+    )(e);
+  }} 
+  className="p-6 space-y-5"
+>
           <ToastContainer position="top-right" autoClose={3000} />
 
           <div>
@@ -113,12 +132,12 @@ export default function AddSubscriptionForm() {
             <Input
               id="durationInDays"
               type="number"
-              {...register("durationInDays", { valueAsNumber: true })}
+              {...register("duration", { valueAsNumber: true })}
               placeholder="30"
             />
-            {errors.durationInDays && (
+            {errors.duration && (
               <p className="text-red-500 text-sm">
-                {errors.durationInDays.message}
+                {errors.duration.message}
               </p>
             )}
           </div>
@@ -143,27 +162,11 @@ export default function AddSubscriptionForm() {
             )}
           </div>
 
-          <div>
-            <Label
-              htmlFor="features"
-              className="text-sm font-semibold text-gray-700 mb-1 block"
-            >
-              Features (comma separated)
-            </Label>
-            <Input
-              id="features"
-              type="text"
-              {...register("features")}
-              placeholder="Feature1, Feature2, Feature3"
-            />
-
-            {errors.features && (
-              <p className="text-red-500 text-sm">{errors.features.message}</p>
-            )}
-          </div>
+       
 
           <Button
-            type="submit"
+              type="submit"
+  onClick={() => console.log("Button clicked!")}
             className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"
             disabled={loading}
           >

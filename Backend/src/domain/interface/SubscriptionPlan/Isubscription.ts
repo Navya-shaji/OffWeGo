@@ -3,10 +3,10 @@ export interface ISubscriptionPlanModel {
   name: string;
   description: string;
   price: number;
-  durationInDays: number;
+  duration: number;
   commissionRate: number;
   maxPackages: number;
-  features: string[];
+  
   createdAt?: Date;
   updatedAt?: Date;
 }

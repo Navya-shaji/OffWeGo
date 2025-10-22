@@ -9,5 +9,5 @@ export const mapModelToSubscriptionDto = (
   price: model.price,
   maxPackages: model.maxPackages,
   duration: model.duration,
-  features: model.features,
+  
 });

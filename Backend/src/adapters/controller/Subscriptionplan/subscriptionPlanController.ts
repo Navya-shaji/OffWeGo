@@ -4,19 +4,20 @@ import { createSubscriptionusecase } from "../../../useCases/subscription/create
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { IEditSubscriptionusecase } from "../../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
 import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/CreatesubscriptionDto";
-// import { IDeleteSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IDeletesubscription";
+import { IDeleteSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IDeletesubscription";
 
 export class SubscriptionController {
   constructor(
     private _createSubscriptionPlan: createSubscriptionusecase,
     private _getsubscriptions: IGetSubscriptionUsecase,
     private _editSubscription: IEditSubscriptionusecase,
-    // private _deletesubscription: IDeleteSubscriptionUsecase
-  ) {}
+    private _deletesubscription: IDeleteSubscriptionUsecase
+  ) 
+  {}
 
   async createSubscription(req: Request, res: Response) {
     try {
-      const { name, price, maxPackages, duration, features } = req.body;
+      const { name, price, maxPackages, duration } = req.body;
 
       if (!name || price <= 0 || maxPackages <= 0 || duration <= 0) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -30,10 +31,8 @@ export class SubscriptionController {
         price,
         maxPackages,
         duration,
-        features,
-        _id: "",
       });
-
+      
       return res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Subscription plan created successfully",
@@ -72,9 +71,20 @@ export class SubscriptionController {
       data: result,
     });
   }
-  // async deleteDestinationController(req: Request, res: Response) {
-  //   const { id } = req.params;
-  //   const result = await this._deletesubscription.execute(id);
-  //   return res.status(HttpStatus.OK).json(result);
-  // }
+ async deleteDestinationController(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const result = await this._deletesubscription.execute(id);
+
+    if (!result) {
+      return res.status(HttpStatus.NOT_FOUND).json({ error: "Subscription not found" });
+    }
+
+    return res.status(HttpStatus.OK).json({ data: result });
+  } catch (error) {
+    console.error("Error deleting subscription:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Failed to delete subscription" });
+  }
+}
+
 }

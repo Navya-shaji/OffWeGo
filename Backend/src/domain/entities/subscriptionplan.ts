@@ -6,5 +6,5 @@ export interface ISubscriptionPlan {
   price: number;        
   maxPackages: number;   
   duration: number;      
-  features: string[];    
+    
 }

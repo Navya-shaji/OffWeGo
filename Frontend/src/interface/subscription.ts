@@ -4,5 +4,5 @@ export interface Subscription {
   price: number;         
   maxPackages: number;   
   duration: number;      
-  features?: string[];    
+   
 }

@@ -4,7 +4,9 @@ import type { Subscription } from "@/interface/subscription";
 
 export const addSubscription = async (data: Subscription) => {
   try {
+    console.log("hajdkjhjfhj")
     const res = await axiosInstance.post("/api/admin/create-subscription", data);
+    console.log(res.data)
     return res.data;
   } catch (error) {
     console.error("Error adding subscription", error);
@@ -43,7 +45,8 @@ export const updateSubscription = async (id: string, data: Subscription) => {
 export const deleteSubscription = async (id: string) => {
   try {
     const res = await axiosInstance.delete(`/api/admin/subscriptions/${id}`);
-    return res.data;
+    console.log(res)
+    return res.data
   } catch (error) {
     console.error("Error deleting subscription", error);
     if (isAxiosError(error)) {
@@ -52,3 +55,4 @@ export const deleteSubscription = async (id: string) => {
     throw new Error("An unexpected error occurred while deleting subscription");
   }
 };
+;

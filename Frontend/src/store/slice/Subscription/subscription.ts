@@ -1,7 +1,5 @@
-import type { Subscription } from "@/interface/subscription";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-
+import type { Subscription } from "@/interface/subscription";
 
 interface SubscriptionState {
   subscriptions: Subscription[];
@@ -19,30 +17,63 @@ const subscriptionSlice = createSlice({
   name: "subscription",
   initialState,
   reducers: {
-    
-    addSubscriptionStart(state) {
+   
+    addSubscriptionStart: (state) => {
       state.status = "loading";
-      state.error = null;
     },
-    addSubscriptionSuccess(state, action: PayloadAction<Subscription>) {
+    addSubscriptionSuccess: (state, action: PayloadAction<Subscription>) => {
       state.status = "succeeded";
       state.subscriptions.push(action.payload);
     },
-    addSubscriptionFailure(state, action: PayloadAction<string>) {
+    addSubscriptionFailure: (state, action: PayloadAction<string>) => {
       state.status = "failed";
       state.error = action.payload;
     },
 
-  
-    fetchSubscriptionsStart(state) {
+    getSubscriptionsStart: (state) => {
       state.status = "loading";
       state.error = null;
     },
-    fetchSubscriptionsSuccess(state, action: PayloadAction<Subscription[]>) {
+    getSubscriptionsSuccess: (state, action: PayloadAction<Subscription[]>) => {
       state.status = "succeeded";
       state.subscriptions = action.payload;
     },
-    fetchSubscriptionsFailure(state, action: PayloadAction<string>) {
+    getSubscriptionsFailure: (state, action: PayloadAction<string>) => {
+      state.status = "failed";
+      state.error = action.payload;
+    },
+
+   
+    updateSubscriptionStart: (state) => {
+      state.status = "loading";
+      state.error = null;
+    },
+    updateSubscriptionSuccess: (state, action: PayloadAction<Subscription>) => {
+      state.status = "succeeded";
+      const index = state.subscriptions.findIndex(
+        (sub) => sub._id === action.payload._id
+      );
+      if (index !== -1) {
+        state.subscriptions[index] = action.payload;
+      }
+    },
+    updateSubscriptionFailure: (state, action: PayloadAction<string>) => {
+      state.status = "failed";
+      state.error = action.payload;
+    },
+
+    
+    deleteSubscriptionStart: (state) => {
+      state.status = "loading";
+      state.error = null;
+    },
+    deleteSubscriptionSuccess: (state, action: PayloadAction<string>) => {
+      state.status = "succeeded";
+      state.subscriptions = state.subscriptions.filter(
+        (sub) => sub._id !== action.payload
+      );
+    },
+    deleteSubscriptionFailure: (state, action: PayloadAction<string>) => {
       state.status = "failed";
       state.error = action.payload;
     },
@@ -53,9 +84,15 @@ export const {
   addSubscriptionStart,
   addSubscriptionSuccess,
   addSubscriptionFailure,
-  fetchSubscriptionsStart,
-  fetchSubscriptionsSuccess,
-  fetchSubscriptionsFailure,
+  getSubscriptionsStart,
+  getSubscriptionsSuccess,
+  getSubscriptionsFailure,
+  updateSubscriptionStart,
+  updateSubscriptionSuccess,
+  updateSubscriptionFailure,
+  deleteSubscriptionStart,
+  deleteSubscriptionSuccess,
+  deleteSubscriptionFailure,
 } = subscriptionSlice.actions;
 
 export default subscriptionSlice.reducer;

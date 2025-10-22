@@ -245,12 +245,12 @@ export class AdminRoute {
         subscriptionController.updateSubscription(req, res);
       }
     );
-    // this.adminRouter.delete(
-    //   AdminRoutes.DELETE_SUBSCRIPTION,
-    //   checkRoleBasedcontrol(["admin"]),
-    //   (req:Request,res:Response)=>{
-    //     subscriptionController.deleteDestinationController(req,res)
-    //   }
-    // )
+    this.adminRouter.delete(
+      AdminRoutes.DELETE_SUBSCRIPTION,
+      checkRoleBasedcontrol(["admin"]),
+      (req:Request,res:Response)=>{
+        subscriptionController.deleteDestinationController(req,res)
+      }
+    )
   }
 }
