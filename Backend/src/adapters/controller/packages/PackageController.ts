@@ -7,7 +7,8 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { DestinationModel } from "../../../framework/database/Models/deestinationModel";
 import { IGetDestinationBasedPackage } from "../../../domain/interface/Vendor/IGetDestinationBasedPackage";
 import { IGetPackagesUsecase } from "../../../domain/interface/Vendor/IGetAllPackageUsecase";
-import { Hotel } from "../../../domain/entities/HotelEntity";
+import { Role } from "../../../domain/constants/Roles";
+// import { Hotel } from "../../../domain/entities/HotelEntity";
 
 export class PackageController {
   constructor(
@@ -18,33 +19,37 @@ export class PackageController {
     private _searchPackage: ISearchPackageUsecase,
     private _getPackageByDestination: IGetDestinationBasedPackage
   ) {}
+async getAllPackage(req: Request, res: Response) {
+  const page = parseInt(req.body.params?.page) || 1;
+  const limit = parseInt(req.body.params?.limit) || 3;
+  const vendorId = req.body.vendorId;
 
-  async getAllPackage(req: Request, res: Response) {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-    const vendorId = req.body.vendorId;
-    if (!vendorId) {
-      return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: "Vendor not authenticated" });
-    }
-    const result = await this._getPackage.execute({
-      vendorId,
-      limit,
-      page,
-      role: "vendor",
-    });
-    res.status(HttpStatus.OK).json({
-      success: true,
-      packages: result.packages,
-      totalPackages: result.totalPackages,
-    });
+  if (!vendorId) {
+    return res
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ success: false, message: "Vendor not authenticated" });
   }
+
+  const result = await this._getPackage.execute({
+    vendorId,
+    limit,
+    page,
+    role: Role.VENDOR
+  });
+console.log(result)
+  res.status(HttpStatus.OK).json({
+    success: true,
+    packages: result.packages,
+    totalPackages: result.totalPackages,
+    
+  });
+}
+
 
   async getPackagesForUser(req: Request, res: Response) {
     const destinationId = req.params.id;
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
+    const limit = parseInt(req.query.limit as string) || 3;
     if (!destinationId) {
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -87,10 +92,11 @@ export class PackageController {
 
       packageData.destinationId = destination._id;
 
-      packageData.hotels =
-        packageData.hotels?.map((hotel: Hotel) => hotel.hotelId) || [];
-      packageData.activities =
-        packageData.activities?.map((act:any) => act.activityId || act?.id) || [];
+      // packageData.hotels =
+      //   packageData.hotels?.map((hotel: Hotel) => hotel.hotelId) || [];
+      // packageData.activities =
+      //   packageData.activities?.map((act: any) => act.activityId || act?.id) ||
+      //   [];
 
       const createdPackage = await this._createPackage.execute(
         packageData,

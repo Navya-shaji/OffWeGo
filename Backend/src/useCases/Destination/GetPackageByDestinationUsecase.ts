@@ -8,7 +8,7 @@ export class GetPackageUsecase implements IGetPackageUsecase {
   async execute(
     destination?: string,
     page: number = 1,
-    limit: number = 5
+    limit: number = 3
   ): Promise<{ packages: IPackageModel[]; totalPackages: number; totalPages: number; currentPage: number }> {
     if (!destination) {
       return { packages: [], totalPackages: 0, totalPages: 0, currentPage: page };

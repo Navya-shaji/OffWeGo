@@ -6,7 +6,7 @@ export class GetDestinationBasedPackageUseCase implements IGetDestinationBasedPa
     constructor(
         private packageRepo:IPackageRepository
     ){}
- async execute(destinationId: string, skip: number = 0, limit: number = 5): Promise<{
+ async execute(destinationId: string, skip: number = 0, limit: number = 3): Promise<{
     packages: Package[];
     totalPackages: number;
   }> {

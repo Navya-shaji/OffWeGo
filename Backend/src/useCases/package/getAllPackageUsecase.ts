@@ -1,3 +1,4 @@
+import { Role } from "../../domain/constants/Roles";
 import { IGetPackagesUsecase } from "../../domain/interface/Vendor/IGetAllPackageUsecase";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
@@ -14,7 +15,7 @@ export class GetPackages implements IGetPackagesUsecase {
   }: {
     page: number;
     limit: number;
-    role: "vendor" | "user";
+    role: Role
     vendorId?: string;
     destinationId?: string;
   }): Promise<{
@@ -27,7 +28,7 @@ export class GetPackages implements IGetPackagesUsecase {
     let packages: IPackageModel[] = [];
     let totalPackages = 0;
 
-    if (role === "vendor" && vendorId) {
+    if (role === Role.VENDOR && vendorId) {
       const result = await this._packageRepo.getAllPackagesByVendor(
         vendorId,
         skip,
@@ -35,8 +36,8 @@ export class GetPackages implements IGetPackagesUsecase {
       );
       packages = result.packages;
       totalPackages = result.totalPackages;
-    } else if (role === "user" && destinationId) {
-      console.log("user");
+    } else if (role === Role.USER && destinationId) {
+      
       const result = await this._packageRepo.getPackagesByDestination(
         destinationId,
         skip,

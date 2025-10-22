@@ -1,10 +1,11 @@
 import { IPackageModel } from "../../../framework/database/Models/packageModel";
+import { Role } from "../../constants/Roles";
 
 export interface IGetPackagesUsecase {
   execute(params: {
     page: number;
     limit: number;
-    role: "vendor" | "user";
+    role: Role
     vendorId?: string;
     destinationId?: string;
   }): Promise<{
