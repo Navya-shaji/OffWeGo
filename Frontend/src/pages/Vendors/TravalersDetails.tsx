@@ -19,6 +19,10 @@ export default function TravelerDetails() {
   
   const [adultTravelers, setAdultTravelers] = useState<Traveler[]>([]);
   const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
+  
+  // Add validation states
+  const [isAdultFormValid, setIsAdultFormValid] = useState(false);
+  const [isChildFormValid, setIsChildFormValid] = useState(false);
 
   const [contactInfo, setContactInfo] = useState({
     email: "",
@@ -27,28 +31,31 @@ export default function TravelerDetails() {
     address: "",
   });
 
-const basePrice = Number(selectedPackage?.price) || 0;
+  const basePrice = Number(selectedPackage?.price) || 0;
 
+  const flightPriceObj = selectedPackage?.flightPrice;
+  const selectedClass = "economy"; 
+  const flightClassPrice = typeof flightPriceObj === "object" 
+    ? flightPriceObj[selectedClass] || 0
+    : Number(flightPriceObj) || 0;
 
-const flightPriceObj = selectedPackage?.flightPrice;
-const selectedClass = "economy"; 
-const flightClassPrice = typeof flightPriceObj === "object" 
-  ? flightPriceObj[selectedClass] || 0
-  : Number(flightPriceObj) || 0;
+  const packagePrice = basePrice + flightClassPrice;
 
-const packagePrice = basePrice + flightClassPrice;
-
-const adultPrice = packagePrice;
-const childPrice = adultPrice * 0.8;
-const totalAmount = adultCount * adultPrice + childCount * childPrice;
-
-
+  const adultPrice = packagePrice;
+  const childPrice = adultPrice * 0.8;
+  const totalAmount = adultCount * adultPrice + childCount * childPrice;
 
   const updateCount = (type: "adult" | "child", change: number) => {
     if (type === "adult") {
-      setAdultCount(Math.max(0, adultCount + change));
+      const newCount = Math.max(0, adultCount + change);
+      setAdultCount(newCount);
+      // Reset validation when count changes
+      if (change < 0) setIsAdultFormValid(newCount === 0);
     } else {
-      setChildCount(Math.max(0, childCount + change));
+      const newCount = Math.max(0, childCount + change);
+      setChildCount(newCount);
+      // Reset validation when count changes
+      if (change < 0) setIsChildFormValid(newCount === 0);
     }
   };
 
@@ -57,6 +64,60 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
       ...contactInfo,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // Validate contact information
+  const validateContactInfo = () => {
+    const { email, mobile, city, address } = contactInfo;
+    
+    if (!email.trim()) {
+      toast.error("Email is required");
+      return false;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return false;
+    }
+
+    if (!mobile.trim()) {
+      toast.error("Mobile number is required");
+      return false;
+    }
+
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobileRegex.test(mobile.replace(/\D/g, ''))) {
+      toast.error("Please enter a valid 10-digit mobile number");
+      return false;
+    }
+
+    if (!city.trim()) {
+      toast.error("City is required");
+      return false;
+    }
+
+    if (!address.trim()) {
+      toast.error("Address is required");
+      return false;
+    }
+
+    return true;
+  };
+
+  // Validate traveler forms based on count
+  const validateTravelerForms = () => {
+    if (adultCount > 0 && !isAdultFormValid) {
+      toast.error("Please fill all adult traveler details correctly");
+      return false;
+    }
+
+    if (childCount > 0 && !isChildFormValid) {
+      toast.error("Please fill all child traveler details correctly");
+      return false;
+    }
+
+    return true;
   };
 
   const handleNext = async () => {
@@ -71,28 +132,19 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
       return;
     }
 
-    if (
-      !contactInfo.email ||
-      !contactInfo.mobile ||
-      !contactInfo.city ||
-      !contactInfo.address
-    ) {
-      toast.error("Please fill all contact information");
+    if (adultCount === 0 && childCount >= 1) {
+      toast.error("Children must be accompanied by at least one adult");
       return;
     }
 
-    if (adultCount > 0 && adultTravelers.some((t: any) => !t.name || !t.age || !t.gender)) {
-      toast.error("Please fill all adult traveler details");
+    // Validate contact information
+    if (!validateContactInfo()) {
       return;
     }
 
-    if (childCount > 0 && childTravelers.some((t: any) => !t.name || !t.age || !t.gender)) {
-      toast.error("Please fill all child traveler details");
+    // Validate traveler forms
+    if (!validateTravelerForms()) {
       return;
-    }
-    if(adultCount==0 && childCount >=1){
-      toast.error("No one is allowed without an Adult")
-      return ;
     }
 
     try {
@@ -128,15 +180,25 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
 
   const inputFields = [
     { name: "email", icon: Mail, type: "email", placeholder: "your.email@example.com" },
-    { name: "mobile", icon: Phone, type: "tel", placeholder: "+91 98765 43210" },
+    { name: "mobile", icon: Phone, type: "tel", placeholder: "9876543210" },
     { name: "city", icon: MapPin, type: "text", placeholder: "Your city" },
     { name: "address", icon: Home, type: "text", placeholder: "Complete address" },
   ];
 
+  // Check if we can proceed to payment
+  const canProceedToPayment = 
+    (adultCount > 0 || childCount > 0) &&
+    (adultCount === 0 || isAdultFormValid) &&
+    (childCount === 0 || isChildFormValid) &&
+    contactInfo.email &&
+    contactInfo.mobile &&
+    contactInfo.city &&
+    contactInfo.address &&
+    !(adultCount === 0 && childCount >= 1);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-       
         <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Complete Your Booking
@@ -154,7 +216,7 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
                 <h2 className="text-gray-800 text-2xl font-bold">Select Tickets</h2>
               </div>
 
-            
+              {/* Adult Ticket */}
               <div className="group bg-white p-6 rounded-2xl mb-5 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-purple-200">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 flex-1">
@@ -256,7 +318,7 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
               </div>
             </div>
 
-            {/* Right Column - Traveler Details */}
+           
             <div className="p-8 lg:p-10 bg-white">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-gray-800 text-2xl font-bold flex items-center gap-2">
@@ -275,6 +337,7 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
                       travelerType="Adult"
                       count={adultCount}
                       onChange={setAdultTravelers}
+                      onValidationChange={setIsAdultFormValid}
                     />
                   </div>
                 )}
@@ -284,12 +347,13 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
                       travelerType="Child"
                       count={childCount}
                       onChange={setChildTravelers}
+                      onValidationChange={setIsChildFormValid}
                     />
                   </div>
                 )}
               </div>
 
-              {/* Booking Summary */}
+          
               <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-medium">Booking Summary</span>
@@ -317,53 +381,41 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
                 </div>
               </div>
 
-              {/* Proceed Button */}
+    
               <button
                 onClick={handleNext}
-                className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-lg font-bold rounded-2xl hover:from-purple-700 hover:to-fuchsia-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+                disabled={!canProceedToPayment}
+                className={`w-full px-6 py-4 text-lg font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 ${
+                  canProceedToPayment
+                    ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white hover:from-purple-700 hover:to-fuchsia-700 cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
-                Proceed to Payment
+                {canProceedToPayment ? "Proceed to Payment" : "Please Complete All Details"}
               </button>
 
-              <p className="text-center text-xs text-gray-500 mt-4">
-                Secure payment • 100% refund on cancellation
-              </p>
+         
+              <div className="mt-4 space-y-2 text-sm">
+                {adultCount > 0 && !isAdultFormValid && (
+                  <p className="text-red-500 flex items-center gap-2">
+                    <span>⚠</span> Please complete all adult traveler details
+                  </p>
+                )}
+                {childCount > 0 && !isChildFormValid && (
+                  <p className="text-red-500 flex items-center gap-2">
+                    <span>⚠</span> Please complete all child traveler details
+                  </p>
+                )}
+                {adultCount === 0 && childCount >= 1 && (
+                  <p className="text-red-500 flex items-center gap-2">
+                    <span>⚠</span> At least one adult is required when traveling with children
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slide-in {
-          from {
-            opacity: 0;
-            transform: translateX(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
-        }
-
-        .animate-slide-in {
-          animation: slide-in 0.4s ease-out;
-        }
-      `}</style>
     </div>
-  )
+  );
 }
