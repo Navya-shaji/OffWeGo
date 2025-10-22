@@ -92,6 +92,7 @@ const totalAmount = adultCount * adultPrice + childCount * childPrice;
     }
     if(adultCount==0 && childCount >=1){
       toast.error("No one is allowed without an Adult")
+      return ;
     }
 
     try {
