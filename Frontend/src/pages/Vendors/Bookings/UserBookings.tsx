@@ -23,6 +23,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
 
+
 interface Traveler {
   name: string;
   age: number;
@@ -179,7 +180,8 @@ console.log(bookings,"boo")
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-      
+    
+
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -258,38 +260,6 @@ console.log(bookings,"boo")
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
                 />
-              </div>
-
-          
-              <div className="relative">
-                {/* <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors appearance-none"
-                >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="completed">Completed</option>
-                </select> */}
-              </div>
-
-        
-              <div className="relative">
-                {/* <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" /> */}
-                {/* <select
-                  value={paymentFilter}
-                  onChange={(e) => setPaymentFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors appearance-none"
-                >
-                  <option value="all">All Payments</option>
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="failed">Failed</option>
-                  <option value="refunded">Refunded</option>
-                </select> */}
               </div>
             </div>
           </div>

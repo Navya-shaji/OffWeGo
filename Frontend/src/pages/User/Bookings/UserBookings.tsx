@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
-import { Calendar} from "lucide-react";
+import { Calendar, Package} from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { getUserBookings } from "@/services/Booking/bookingService";
 import BookingDetailsModal from "./BookingDetails";
-
+import { useNavigate } from "react-router-dom";
+import { Home } from "lucide-react";
 const BookingDetailsSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+const navigate = useNavigate();
   useEffect(() => {
     const fetchBookings = async () => {
       if (user?.id) {
@@ -57,6 +58,19 @@ const BookingDetailsSection = () => {
             My Bookings
           </h1>
 
+  <div className="mb-6 flex items-center gap-4">
+  <button
+    onClick={() => navigate("/")}
+    className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+  >
+    <Home className="w-5 h-5" />
+    Home
+  </button>
+  <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+    <Package className="w-8 h-8 text-purple-600" />
+    All Bookings
+  </h1>
+</div>
           {bookings.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="w-16 h-16 text-gray-600 mx-auto mb-4" />
