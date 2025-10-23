@@ -21,7 +21,7 @@ export class ReviewController {
   async getReviews(req:Request,res:Response){
     const  packageId=req.params.packageId
     const result=await this._allReviews.execute(packageId)
-console.log(result,"result")
+
     res.status(HttpStatus.OK).json({
       success:true,
       data:result,

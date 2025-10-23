@@ -137,9 +137,20 @@ const UserAddReview: React.FC = () => {
         rating,
         photo: photoUrl,
       };
-
-      await createReviews(reviewData);
-      toast.success("Review Added")
+  
+      const response=await createReviews(reviewData);
+      if (response.data.success) {
+      toast.success(response.data.message || "Review added successfully!");
+      setDescription("");
+      setRating(5);
+      setPhotoFile(null);
+      setPreviewUrl("");
+      setSelectedPackageId("");
+    } else {
+    
+      toast.error(response.data.message || "You have already submitted a review for this package");
+    }
+      // toast.success("Review Added")
 
       setDescription("");
       setRating(5);
