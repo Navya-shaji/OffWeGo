@@ -1,7 +1,7 @@
 import { IDestinationRepository } from "../../domain/interface/Admin/IDestinationInterface";
-import { CreateDestinationDTO } from "../../domain/dto/admin/DestinationDTO";
+import { CreateDestinationDTO } from "../../domain/dto/Admin/DestinationDTO";
 import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper";
-import { DestinationDto } from "../../domain/dto/destination/DestinationDto";
+import { DestinationDto } from "../../domain/dto/Destination/DestinationDto";
 export class CreateDestination {
   constructor(private _destinationRepo: IDestinationRepository) {}
 

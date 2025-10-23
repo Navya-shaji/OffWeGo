@@ -1,6 +1,9 @@
 import { ICategoryRepository } from "../../../domain/interface/Category/ICategoryRepository";
-import {CategoryModel,ICategoryModel} from "../../../framework/database/Models/categoryModel";
-import { CreateCategoryDto } from "../../../domain/dto/admin/CategoryDto";
+import {
+  CategoryModel,
+  ICategoryModel,
+} from "../../../framework/database/Models/categoryModel";
+import { CreateCategoryDto } from "../../../domain/dto/Admin/CategoryDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class CategoryRepository

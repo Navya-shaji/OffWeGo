@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { RegisterDTO } from "../../../domain/dto/user/RegisterDto";
+import { RegisterDTO } from "../../../domain/dto/User/RegisterDto";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IVerifyOtpUseCase } from "../../../domain/interface/UsecaseInterface/IVerifyOtpUseCase";
 import { IResendOtpUsecase } from "../../../domain/interface/UserRepository/IResendOtpUsecase";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { IregisterUserUseCase } from "../../../domain/interface/UsecaseInterface/IusecaseInterface";
+import { Role } from "../../../domain/constants/Roles";
 
 export class UserRegisterController {
   constructor(
@@ -14,41 +15,40 @@ export class UserRegisterController {
     private _tokenService: ITokenService
   ) {}
 
-async registerUser(req: Request, res: Response): Promise<void> {
-  const formData: RegisterDTO = req.body;
+  async registerUser(req: Request, res: Response): Promise<void> {
+    const formData: RegisterDTO = req.body;
 
-  if (!formData.email || !formData.password || !formData.name) {
-    res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: "Email, password and name are required",
+    if (!formData.email || !formData.password || !formData.name) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Email, password and name are required",
+      });
+      return;
+    }
+
+    const otpSent = await this._registerUserUseCase.execute(formData);
+
+    if (!otpSent) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to send OTP. Please try again.",
+      });
+      return;
+    }
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: "OTP sent to your email address",
+      data: {
+        email: formData.email,
+        username: formData.name,
+      },
     });
-    return;
   }
-
-  const otpSent = await this._registerUserUseCase.execute(formData);
-
-  if (!otpSent) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Failed to send OTP. Please try again.",
-    });
-    return;
-  }
-
-  res.status(HttpStatus.CREATED).json({
-    success: true,
-    message: "OTP sent to your email address",
-    data: {
-      email: formData.email,
-      username: formData.name,
-    },
-  });
-}
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
-   
     const { userData, otp } = req.body;
-    
+
     if (!otp || !userData?.email) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -60,7 +60,7 @@ async registerUser(req: Request, res: Response): Promise<void> {
     const payload = {
       id: verifiedUser._id,
       email: verifiedUser.email,
-      role: verifiedUser.role || "user",
+      role: Role.USER || "user",
     };
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);

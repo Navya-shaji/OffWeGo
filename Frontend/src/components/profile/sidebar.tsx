@@ -1,74 +1,82 @@
-
 import {
   User,
-  History,
   Calendar,
-  Wallet,
-  Bell,
-  MessageCircle,
-  FileText,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Star
 } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type { RootState } from "@/store/store";
-import ImageUploader from "./uploadImage";
 
-const ProfileSidebar = () => {
+interface ProfileSidebarProps {
+  activeSection: string;
+  setActiveSection: (section: string) => void;
+}
+
+const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps) => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
+
+  const handleNavigation = (label: string) => {
+    switch (label) {
+      case "Booking":
+        setActiveSection("bookings");
+        break;
+      case "My Profile":
+        setActiveSection("profile");
+        break;
+      case "Create Review":
+        setActiveSection("create-review"); 
+        break;
+      case "Logout":
+        localStorage.removeItem("user");
+        navigate("/login");
+        break;
+      default:
+        break;
+    }
+  };
 
   const sidebarItems = [
-    { icon: User, label: "My Profile", active: true },
-    { icon: History, label: "Travel History" },
-    { icon: Calendar, label: "Booking" },
-    { icon: Wallet, label: "Wallet" },
-    { icon: Bell, label: "Notifications" },
-    { icon: MessageCircle, label: "Chat" },
-    { icon: FileText, label: "Posts" },
-    { icon: LogOut, label: "Logout" },
+    { icon: User, label: "My Profile", section: "profile" },
+    { icon: Calendar, label: "Booking", section: "bookings" },
+    { icon: Star, label: "Create Review", section: "create-review" }, // new item
+    { icon: LogOut, label: "Logout", section: "logout" },
   ];
 
   return (
-  <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xs">
+    <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
+      <div className="flex flex-col items-center mb-8">
+        <h2 className="mt-4 text-xl font-semibold text-gray-900">
+          {user?.username || "Your name"}
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          {user?.email || "your.email@gmail.com"}
+        </p>
+      </div>
 
-  <div className="flex items-center space-x-4 mb-6">
-    <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200">
-      <ImageUploader />
-    </div>
-    <div>
-      <h3 className="text-lg font-semibold text-gray-800">
-        {user?.username || "Your name"}
-      </h3>
-      <p className="text-sm text-gray-500">
-        {user?.email || "your.email@gmail.com"}
-      </p>
-    </div>
-  </div>
-
-
-  <nav className="space-y-1">
-    {sidebarItems.map((item, index) => (
-      <button
-        key={index}
-        className={`group w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
-          item.active
-            ? "bg-blue-100 text-blue-700 font-semibold"
-            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-        }`}
-      >
-        <div className="flex items-center space-x-3">
-          <item.icon
-            className={`w-5 h-5 ${
-              item.active ? "text-blue-600" : "group-hover:text-gray-800"
+      <nav className="space-y-1">
+        {sidebarItems.map((item, index) => (
+          <button
+            key={index}
+            onClick={() => handleNavigation(item.label)}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              activeSection === item.section
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-700 hover:bg-gray-50"
             }`}
-          />
-          <span>{item.label}</span>
-        </div>
-        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-      </button>
-    ))}
-  </nav>
-</div>
-)}
+          >
+            <div className="flex items-center gap-3">
+              <item.icon className="w-5 h-5" />
+              <span className="font-medium">{item.label}</span>
+            </div>
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+};
 
 export default ProfileSidebar;

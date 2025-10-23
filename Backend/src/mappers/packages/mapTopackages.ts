@@ -8,6 +8,7 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
   packageName: doc.packageName || "",
   description: doc.description || "",
   price: doc.price || 0,
+  flightPrice: doc.flight?.price.economy || 0,
   duration: doc.duration || 0,
   startDate: doc.startDate || null,
   endDate: doc.endDate || null,
@@ -23,17 +24,16 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
     : [],
 
   activities: Array.isArray(doc.activities)
-  ? doc.activities
-      .filter(activity => activity) // remove nulls
-      .map(activity => ({
-        id: activity._id?.toString() || "",          // _id → id
-        title: activity.title || "",
-        description: activity.description || "",
-        imageUrl: activity.imageUrl || "",
-        destinationId: activity.destinationId?.toString() || "",
-      }))
-  : [],
-
+    ? doc.activities
+        .filter((activity) => activity)
+        .map((activity) => ({
+          id: activity._id?.toString() || "",
+          title: activity.title || "",
+          description: activity.description || "",
+          imageUrl: activity.imageUrl || "",
+          destinationId: activity.destinationId?.toString() || "",
+        }))
+    : [],
 
   checkInTime: doc.checkInTime || "",
   checkOutTime: doc.checkOutTime || "",
@@ -48,4 +48,17 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
 
   inclusions: Array.isArray(doc.inclusions) ? doc.inclusions : [],
   amenities: Array.isArray(doc.amenities) ? doc.amenities : [],
+
+  flightOption: doc.flightOption || false,
+  flight: doc.flight
+    ? {
+        id: doc.flight.id,
+        airLine: doc.flight.airLine || "",
+        price: {
+          economy: doc.flight.price.economy || 0,
+          premium: doc.flight.price.premium,
+          business: doc.flight.price.business,
+        },
+      }
+    : null,
 });

@@ -1,4 +1,4 @@
-import { DestinationDto } from "../../domain/dto/destination/DestinationDto";
+import { DestinationDto } from "../../domain/dto/Destination/DestinationDto";
 import { DestinationModel } from "../../framework/database/Models/deestinationModel";
 import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper"; 
 

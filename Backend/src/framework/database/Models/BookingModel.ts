@@ -1,10 +1,28 @@
 import { Document, model, models, ObjectId } from "mongoose";
-import { Booking } from "../../../domain/entities/BookingEntity";
-import { BookingSchema } from "../Schema/BookingSchema";
+import { BookingSchema } from "../Schema/BookingSchema"; 
 
-export interface IBookingModel extends Omit<Booking, "id">, Document {
-  _id: ObjectId;
+
+export interface IBookingDocument extends Document {
+  userId: ObjectId;
+  contactInfo: {
+    email: string;
+    mobile: string;
+    city: string;
+    address: string;
+  };
+  adults: { name: string; age?: number; gender?: string }[];
+  children: { name: string; age?: number; gender?: string }[];
+  selectedPackage: {
+    _id: ObjectId;
+    packageName: string;
+    price: number;
+    duration: number;
+  };
+  selectedDate: Date;
+  totalAmount: number;
+  createdAt: Date;
 }
 
+
 export const BookingModel =
-  models.package || model<IBookingModel>("package", BookingSchema);
+  models.Booking || model<IBookingDocument>("Booking", BookingSchema);

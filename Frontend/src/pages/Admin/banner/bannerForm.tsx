@@ -1,12 +1,16 @@
-import { getBanner, actionBannerupdate } from "@/services/Banner/bannerService";
-import { BannerDelete } from "@/services/Banner/bannerService";
+import { getBanner, actionBannerupdate, BannerDelete } from "@/services/Banner/bannerService";
 import type { BannerInterface } from "@/interface/bannerInterface";
 import { useEffect, useState } from "react";
-import { Trash } from "lucide-react";
+import { Trash, XCircle } from "lucide-react";
 
 export const BannerForm = () => {
   const [banner, setBanner] = useState<BannerInterface[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; id: string | null; title: string | null }>({
+    open: false,
+    id: null,
+    title: null,
+  });
 
   const fetchData = async () => {
     try {
@@ -36,10 +40,12 @@ export const BannerForm = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!confirmModal.id) return;
     try {
-      await BannerDelete(id);
-      setBanner((prev) => prev.filter((b) => b.id !== id));
+      await BannerDelete(confirmModal.id);
+      setBanner((prev) => prev.filter((b) => b.id !== confirmModal.id));
+      setConfirmModal({ open: false, id: null, title: null });
     } catch (error) {
       console.error("Failed to delete banner", error);
     }
@@ -50,12 +56,10 @@ export const BannerForm = () => {
   }, []);
 
   if (loading)
-    return (
-      <p className="text-center text-lg font-medium">Loading banners...</p>
-    );
+    return <p className="text-center text-lg font-medium">Loading banners...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10 relative">
       <h2 className="text-xl font-bold mb-4">Banner Listing</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm border border-gray-200 rounded-md overflow-hidden">
@@ -85,9 +89,7 @@ export const BannerForm = () => {
                     <span className="text-gray-400 italic">No video</span>
                   )}
                 </td>
-                <td className="px-6 py-4 font-medium text-gray-800">
-                  {ban.title}
-                </td>
+                <td className="px-6 py-4 font-medium text-gray-800">{ban.title}</td>
                 <td className="px-6 py-4">
                   <label className="inline-flex items-center cursor-pointer">
                     <input
@@ -107,8 +109,9 @@ export const BannerForm = () => {
                 <td className="px-6 py-4">
                   <button
                     className="text-red-500 hover:text-red-700 font-medium"
-                    onClick={() => ban.id && handleDelete(ban.id)}
-
+                    onClick={() =>
+                      setConfirmModal({ open: true, id: ban.id || null, title: ban.title || null })
+                    }
                   >
                     <Trash size={16} className="text-red-600" />
                   </button>
@@ -118,6 +121,46 @@ export const BannerForm = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] sm:w-[400px]">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Confirm Deletion
+              </h3>
+              <button
+                onClick={() => setConfirmModal({ open: false, id: null, title: null })}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-black">
+                {confirmModal.title || "this banner"}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmModal({ open: false, id: null, title: null })}
+                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

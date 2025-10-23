@@ -13,7 +13,7 @@ import { login } from "@/store/slice/vendor/authSlice";
 import { vendorLogin } from "@/services/vendor/VendorLoginService";
 import type { AxiosError } from "axios";
 import type { Vendor } from "@/interface/vendorInterface";
-import { setToken } from "@/store/slice/Token/tokenSlice"; 
+import { setToken } from "@/store/slice/Token/tokenSlice";
 
 export default function VendorLogin() {
   const dispatch = useAppDispatch();
@@ -45,13 +45,14 @@ export default function VendorLogin() {
 
       const vendorData: Vendor = rawVendor;
 
-     
-      dispatch(login({
-        vendor: vendorData, token: response.accessToken,
-        refreshToken: ""
-      }));
+      dispatch(
+        login({
+          vendor: vendorData,
+          token: response.accessToken,
+          refreshToken: "",
+        })
+      );
 
-    
       if (response.accessToken) {
         dispatch(setToken(response.accessToken));
       }
@@ -69,26 +70,32 @@ export default function VendorLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-white via-blue-50 to-sky-100 p-6">
-      <div className="flex flex-col md:flex-row w-full max-w-4xl h-[85vh] shadow-2xl rounded-2xl bg-white overflow-hidden border border-gray-200">
-        {/* Left Image Section */}
-        <div
-          className="bg-black text-white md:w-1/2 flex flex-col justify-center items-center p-8 space-y-2 text-center bg-cover bg-center"
-          style={{
-            backgroundImage: 'url("/images/vendorLogin.jpeg")',
-          }}
-        >
-          <h1 className="text-4xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
-            OffWeGo
-          </h1>
-          <p className="text-sm text-gray-300 mt-2">
-            Vendor Access – Manage your services and grow your business!
-          </p>
+    <div
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{
+        backgroundImage: 'url("/images/vLogin.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "50% 60%",
+      }}
+    >
+      <div className="flex flex-col md:flex-row w-full max-w-5xl h-[85vh] shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
+        <div className="md:w-1/2 h-64 md:h-full relative">
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center p-8">
+              <h1 className="text-5xl font-extrabold italic text-white mb-6 drop-shadow-lg">
+                OffWeGo
+              </h1>
+              <p className="text-white text-lg drop-shadow-md max-w-md">
+                "Vendor Access – Manage your services and grow your business!"
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Right Form Section */}
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-6">
+        {/* Right Side - Form Section */}
+        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center bg-amber-50/40 backdrop-blur-sm">
+          <h2 className="text-3xl font-serif text-center text-black mb-6">
             Vendor Login
           </h2>
 
@@ -99,7 +106,7 @@ export default function VendorLogin() {
             <input
               {...register("email")}
               placeholder="Email"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border rounded px-3 py-2 font-serif backdrop-blur-sm focus:bg-white transition-all"
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1">
@@ -112,7 +119,7 @@ export default function VendorLogin() {
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="Password"
-                className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border rounded px-3 py-2 pr-10 font-serif backdrop-blur-sm focus:bg-white transition-all"
               />
               <span
                 className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
@@ -129,17 +136,17 @@ export default function VendorLogin() {
 
             <button
               type="submit"
-              className="w-full bg-blue-800 text-white font-semibold py-2 rounded text-sm hover:bg-blue-900 transition duration-200 shadow-md"
+              className="w-full bg-transparent border border-black text-black font-semibold py-2 rounded text-sm hover:bg-black hover:text-white transition duration-200 shadow-md"
             >
               Login
             </button>
           </form>
 
-          <p className="text-sm text-center text-gray-600 mt-4">
+          <p className="text-sm text-center text-gray-700 mt-4 font-serif tracking-wide">
             Don’t have an account?{" "}
             <Link
               to="/vendor/signup"
-              className="text-blue-800 font-semibold hover:underline"
+              className="text-black font-semibold hover:underline transition-colors"
             >
               Sign up
             </Link>

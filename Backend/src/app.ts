@@ -24,7 +24,7 @@ export class App {
 
     this.app.use(
       cors({
-        origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:1212'],
+        origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:1212',"https://jvm9v112-5173.inc1.devtunnels.ms"],
         credentials: true,
       })
     );

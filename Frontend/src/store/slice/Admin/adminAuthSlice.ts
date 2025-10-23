@@ -11,7 +11,7 @@ interface AuthState {
 
 const storedToken = localStorage.getItem("adminToken");
 const storedRefreshToken = localStorage.getItem("adminRefreshToken");
-const storedAdmin = localStorage.getItem("adminData");
+const storedAdmin = localStorage.getItem("admin");
 
 const initialState: AuthState = {
   isAuthenticated: !!storedToken,

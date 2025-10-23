@@ -1,4 +1,4 @@
-import { CreateDestinationDTO } from "../../dto/admin/DestinationDTO";
+import { CreateDestinationDTO } from "../../dto/Admin/DestinationDTO";
 import { Destination } from "../../entities/DestinationEntity";
 
 export interface ICreateDestinationUsecase {

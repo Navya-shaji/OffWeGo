@@ -1,10 +1,12 @@
+import type { Flight } from "./flightInterface";
+
 export interface Hotel {
-  id?: string;          
-  hotelId?: string;     
+  id?: string;
+  hotelId?: string;
   name: string;
   address: string;
   rating: number;
-  destinationId?: string;
+  destinationId: string;
 }
 
 export interface Activity {
@@ -16,33 +18,47 @@ export interface Activity {
   imageUrl: string;
 }
 
+
+
 export interface Itinerary {
-  day: number;         
-  time: string;        
-  activity: string;   
+  day: number;
+  time: string;
+  activity: string;
 }
 
 export interface Package {
-  _id?: string;         
-  id?: string;         
-  destinationId: string;
+  _id?: string;
+  id?: string;
   vendorId?: string;
+  destinationId: string;
 
   packageName: string;
   description: string;
-  price: number;
-  duration?: number;
 
+
+  price: number;         
+  flightPrice?: number;       
+
+
+  duration?: number;
   startDate?: string | Date;
   endDate?: string | Date;
 
+
   images: string[];
-  hotels:Hotel [];
+  hotels: Hotel[];
   activities: Activity[];
+
 
   checkInTime?: string;
   checkOutTime?: string;
   itinerary?: Itinerary[];
+
+
   inclusions?: string[];
   amenities?: string[];
+
+
+  flightOption: boolean;     
+  flight?: Flight | null;   
 }

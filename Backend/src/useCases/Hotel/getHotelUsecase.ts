@@ -11,9 +11,12 @@ export class GetHotelUsecase implements IgetHotelUsecase{
 
         const hotel=await this._hotelRepo.getAllHotel(skip,limit)
         const totalHotels=await this._hotelRepo.countHotels()
+        console.log("Hotels fetched:", hotel);
+
         return {
             hotels:hotel.map(mapToHotelDto),
             totalHotels:totalHotels
         }
+
     }
 }

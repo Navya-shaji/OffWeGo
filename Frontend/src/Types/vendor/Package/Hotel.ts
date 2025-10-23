@@ -7,6 +7,7 @@ export const hotelSchema = z.object({
     .number()
     .min(1, "Rating must be at least 1")
     .max(5, "Rating cannot be more than 5"),
+    
 });
 
 export type HotelFormData = z.infer<typeof hotelSchema>;

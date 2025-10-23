@@ -1,7 +1,7 @@
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
-import { LoginDTo } from "../../../domain/dto/user/LoginDto";
+import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 
 export class VendorLoginUsecase {
   constructor(

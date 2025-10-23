@@ -1,4 +1,4 @@
-import { LoginDTo } from "../../dto/user/LoginDto";
+import { LoginDTo } from "../../dto/User/LoginDto";
 
 export interface IVendorLoginUsecase {
   execute(

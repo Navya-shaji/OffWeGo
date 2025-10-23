@@ -1,4 +1,4 @@
-import  { Schema } from "mongoose";
+import { Schema } from "mongoose";
 
 export const SubscriptionPlanSchema = new Schema({
   name: {
@@ -7,22 +7,23 @@ export const SubscriptionPlanSchema = new Schema({
     unique: true,
     trim: true,
   },
-  commissionRate: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 100,
-  },
+
   price: {
     type: Number,
     required: true,
     min: 0,
   },
-  durationInDays: {
+  duration: {
     type: Number,
     required: true,
     min: 1,
   },
+  maxPackages: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+
 }, {
   timestamps: true,
 });

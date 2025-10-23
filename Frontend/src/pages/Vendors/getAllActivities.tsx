@@ -49,7 +49,6 @@ const ActivitiesTable: React.FC = () => {
     imageUrl: activity.imageUrl || "",
   }), []);
 
-  // Load activities function - Fixed to match your service structure
   const loadActivities = useCallback(async (pageNum: number = 1) => {
     if (isLoadingRef.current) return;
     
@@ -467,14 +466,14 @@ const ActivitiesTable: React.FC = () => {
         </div>
       )}
 
-      {/* Table */}
+
       {getCurrentPageData.length > 0 ? (
         <>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable data={getCurrentPageData} columns={columns} />
           </div>
 
-          {/* Pagination */}
+       
           {totalPages > 1 && (
             <div className="flex justify-center">
               <Pagination 
@@ -485,7 +484,7 @@ const ActivitiesTable: React.FC = () => {
             </div>
           )}
 
-          {/* Stats */}
+ 
           <div className="text-center text-sm text-gray-500">
             {isSearchMode 
               ? `Showing ${Math.min((page - 1) * limit + 1, activities.length)}-${Math.min(page * limit, activities.length)} of ${activities.length} search results`

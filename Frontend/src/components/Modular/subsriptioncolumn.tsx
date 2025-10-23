@@ -2,6 +2,7 @@ import type { Subscription } from "@/interface/subscription";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react"; 
 
+
 export const subscriptionColumns = (
   onEdit: (row: Subscription) => void,
   onDelete: (row: Subscription) => void
@@ -17,14 +18,14 @@ export const subscriptionColumns = (
     cell: info => `₹${info.getValue()}`,
   },
   {
-    accessorKey: "durationInDays",
+    accessorKey: "duration",
     header: "Duration",
     cell: info => `${info.getValue()} days`,
   },
   {
-    accessorKey: "commissionRate",
-    header: "Commission Rate",
-    cell: info => `${info.getValue()}%`,
+    accessorKey: "maxPackages",
+    header: "maxPackages",
+    cell: info => `${info.getValue()}`,
   },
  
   {

@@ -15,8 +15,8 @@ export const VendorRoutes={
     EDIT_PROFILE:'/profile/:id',
     PACKAGE_WISE_GROUPING:'/package-groups',
     PACKAGE_WISE_GROUPS:'/package-group/:id',
-    CREATE_HOTEL:'/add-hotel',
-    CREATE_ACTIVITY:'/add-activity',
+    CREATE_HOTEL:'/add-hotel/:id',
+    CREATE_ACTIVITY:'/add-activity/:id',
     HOTELS:'/hotels',
     ACTIVITIES:'/activities',
     EDIT_ACTIVITY:'/activities/:id',
@@ -25,5 +25,11 @@ export const VendorRoutes={
     DELETE_HOTEL:'/hotels/:id',
     SEARCH_PACKAGE:'/packages/search',
     SEARCH_HOTEL:'/hotels/search',
-    SEARCH_ACTIVITY:'/activities/search'
+    SEARCH_ACTIVITY:'/activities/search',
+    CREATE_FLIGHT:'/create-flight',
+    ALL_FLIGHTS:'/flights',
+    EDIT_FLIGHT:'/flights/:id',
+    DELETE_FLIGHT:'/flights/:id',
+    USER_BOOKINGS:'/bookings/:id',
+    BOOKING_DATES:'/bookings/date/:id'
 }

@@ -1,4 +1,8 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+"use client";
+
+import type React from "react";
+
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   Clock,
   Trash2,
@@ -9,45 +13,21 @@ import {
   DollarSign,
   Info,
   Package,
+  Edit,
 } from "lucide-react";
-import { deletePackage, fetchAllPackages, searchPackages } from "@/services/packages/packageService";
-// import EditPackage from "./editPackageModal";
+import {
+  deletePackage,
+  fetchAllPackages,
+  searchPackages,
+} from "@/services/packages/packageService";
 import { SearchBar } from "@/components/Modular/searchbar";
-// import { Package as PackageInterface } from "@/interface/PackageInterface";
-
-interface Package {
-  _id?: string;
-  packageName: string;
-  description: string;
-  price: number;
-  duration?: number;
-  checkInTime?: string;
-  checkOutTime?: string;
-  images?: string[];
-  hotels?: Array<{
-    name: string;
-    address: string;
-    rating: number;
-    amenities?: string[];
-  }>;
-  activities?: Array<{
-    title: string;
-    description: string;
-  }>;
-  itinerary?: Array<{
-    day: number;
-    time: string;
-    activity: string;
-  }>;
-  inclusions?: string[];
-  amenities?: string[];
-  exclusions?: string[];
-  destinationId:string
-}
+import type { Package as PackageInterface } from "@/interface/PackageInterface";
+import EditPackage from "./editPackageModal";
+import Pagination from "@/components/pagination/pagination";
 
 interface PackageTableProps {
-  packages: Package[];
-  onPackagesUpdate?: (packages: Package[]) => void;
+  packages: PackageInterface[];
+  onPackagesUpdate?: (packages: PackageInterface[]) => void;
   loading?: boolean;
 }
 
@@ -56,35 +36,41 @@ const PackageTable: React.FC<PackageTableProps> = ({
   onPackagesUpdate,
   loading = false,
 }) => {
-  const [packageList, setPackageList] = useState<Package[]>(packages);
-  const [originalPackages, setOriginalPackages] = useState<Package[]>(packages);
+  const [packageList, setPackageList] = useState<PackageInterface[]>(packages);
+  const [originalPackages, setOriginalPackages] =
+    useState<PackageInterface[]>(packages);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [error, setError] = useState("");
   
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    package: Package | null;
+    package: PackageInterface | null;
   }>({
     isOpen: false,
     package: null,
   });
-  
-  // const [editModal, setEditModal] = useState<{
-  //   isOpen: boolean;
-  //   package: Package | null;
-  // }>({
-  //   isOpen: false,
-  //   package: null,
-  // });
-  
+
+  const [editModal, setEditModal] = useState<{
+    isOpen: boolean;
+    package: PackageInterface | null;
+  }>({
+    isOpen: false,
+    package: null,
+  });
+  const [editedPackage, setEditedPackage] = useState<PackageInterface | null>(
+    null
+  );
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [totalPackages, setTotalPackages] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [editFormData, setEditFormData] = useState<Package | null>(null);
 
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 3;
 
   useEffect(() => {
     setPackageList(packages);
@@ -98,130 +84,105 @@ const PackageTable: React.FC<PackageTableProps> = ({
       maximumFractionDigits: 0,
     }).format(amount);
 
+  const loadPackages = useCallback(
+    async (pageNum: number = 1) => {
+      if (isLoadingRef.current) return;
 
-  const loadPackages = useCallback(async () => {
-    if (isLoadingRef.current) return;
-    
-    try {
-      isLoadingRef.current = true;
-      setError("");
-      
-      const response = await fetchAllPackages();
-      const allPackages = response?.packages ?? [];
-      
-      setPackageList(allPackages);
-      setOriginalPackages(allPackages);
-      onPackagesUpdate?.(allPackages);
-      
-    } catch (error) {
-      console.error("Error loading packages:", error);
-      setError("Failed to load packages. Please try again.");
-      setPackageList([]);
-      setOriginalPackages([]);
-    } finally {
-      isLoadingRef.current = false;
-    }
-  }, [onPackagesUpdate]);
-
-  // Debounced search function
-  const handleSearch = useCallback(async (query: string) => {
-    
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    setSearchQuery(query);
-
-    // Debounce search
-    searchTimeoutRef.current = setTimeout(async () => {
-      if (!query.trim()) {
-      
-        setIsSearchMode(false);
-        setPackageList(originalPackages);
-        return;
-      }
-
-      setIsSearchMode(true);
       try {
-        const response = await searchPackages(query);
-        const searchResults = Array.isArray(response) ? response : [];
-        
-        setPackageList(searchResults);
-        
+        isLoadingRef.current = true;
+        setError("");
+
+        const response = await fetchAllPackages(pageNum, limit);
+        const allPackages = response?.packages ?? [];
+
+        setPackageList(allPackages);
+        setOriginalPackages(allPackages);
+        setTotalPages(Math.max(response.totalPages || 1, 1));
+        setTotalPackages(response.totalPackages || 0);
+        onPackagesUpdate?.(allPackages);
+        setPage(pageNum);
       } catch (error) {
-        console.error("Search error:", error);
-        setError("Search failed. Please try again.");
+        console.error("Error loading packages:", error);
+        setError("Failed to load packages. Please try again.");
         setPackageList([]);
-        
-        // Clear error after 3 seconds
-        setTimeout(() => setError(""), 3000);
+        setOriginalPackages([]);
+      } finally {
+        isLoadingRef.current = false;
       }
-    }, 400);
-  }, [originalPackages]);
+    },
+    [onPackagesUpdate, limit]
+  );
+
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
+      setSearchQuery(query);
+
+      searchTimeoutRef.current = setTimeout(async () => {
+        if (!query.trim()) {
+          setIsSearchMode(false);
+          setPage(1);
+          loadPackages(1);
+          return;
+        }
+
+        setIsSearchMode(true);
+        try {
+          const response = await searchPackages(query);
+          const searchResults = Array.isArray(response) ? response : [];
+
+          setPackageList(searchResults);
+          setTotalPages(Math.max(Math.ceil(searchResults.length / limit), 1));
+          setPage(1);
+        } catch (error) {
+          console.error("Search error:", error);
+          setError("Search failed. Please try again.");
+          setPackageList([]);
+
+          setTimeout(() => setError(""), 3000);
+        }
+      }, 400);
+    },
+    [loadPackages, limit]
+  );
+
+  const handlePageChange = useCallback((newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    
+    setPage(newPage);
+    
+    if (!isSearchMode) {
+      loadPackages(newPage);
+    }
+  }, [totalPages, isSearchMode, loadPackages]);
 
   useEffect(() => {
-    if (!hasInitialized.current && packages.length === 0) {
+    if (!hasInitialized.current) {
       hasInitialized.current = true;
-      loadPackages();
+      loadPackages(1);
     }
 
-    // Cleanup
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [loadPackages, packages.length]);
+  }, [loadPackages]);
 
-// const handleEdit = useCallback((pkg: Package) => {
-//   setEditFormData({
-//     ...pkg,
-//     destinationId: pkg.destinationId ?? "", // ensure this exists
-//   });
-//   setEditModal({ isOpen: true, package: pkg });
-// }, []);
+  const getCurrentPageData = useMemo(() => {
+    if (!isSearchMode) {
+      return packageList;
+    } else {
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      return packageList.slice(startIndex, endIndex);
+    }
+  }, [packageList, page, limit, isSearchMode]);
 
-// const handleEditSubmit = useCallback(async (e: React.FormEvent) => {
-//   e.preventDefault();
-//   if (!editFormData || !editModal.package) return;
-
-//   setIsEditing(true);
-//   try {
-//     if (!editModal.package?._id) return;
-
- 
-
-//     await editPackage(editModal.package._id, updatedPackage);
-
-//     // Update local state instead of refetching
-//     const updatePackageInList = (list: Package[]) =>
-//       list.map((pkg) =>
-//         pkg._id === editModal.package!._id ? updatedPackage : pkg
-//       );
-
-//     setPackageList(updatePackageInList);
-//     if (!isSearchMode) {
-//       setOriginalPackages(updatePackageInList);
-//     }
-
-//     onPackagesUpdate?.(isSearchMode ? originalPackages : packageList);
-
-//     setEditModal({ isOpen: false, package: null });
-//     setEditFormData(null);
-
-//   } catch (error) {
-//     console.error("Failed to update package:", error);
-//     setError("Failed to update package. Please try again.");
-
-//     // Clear error after 3 seconds
-//     setTimeout(() => setError(""), 3000);
-//   } finally {
-//     setIsEditing(false);
-//   }
-// }, [editFormData, editModal.package, isSearchMode, packageList, originalPackages, onPackagesUpdate]);
-
-
-  const openDeleteModal = useCallback((pkg: Package) => {
+  const openDeleteModal = useCallback((pkg: PackageInterface) => {
     setDeleteModal({ isOpen: true, package: pkg });
   }, []);
 
@@ -229,97 +190,185 @@ const PackageTable: React.FC<PackageTableProps> = ({
     setDeleteModal({ isOpen: false, package: null });
   }, []);
 
+  const openEditModal = useCallback((pkg: PackageInterface) => {
+    setEditModal({ isOpen: true, package: pkg });
+    setEditedPackage(pkg);
+  }, []);
+
+  const closeEditModal = useCallback(() => {
+    setEditModal({ isOpen: false, package: null });
+    setEditedPackage(null);
+  }, []);
+
+  const handleEditChange = useCallback((updatedPackage: PackageInterface) => {
+    setEditedPackage(updatedPackage);
+  }, []);
+
+  const handleEditSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editedPackage) return;
+
+      setIsEditLoading(true);
+      try {
+      
+        const updatedPackages = packageList.map((pkg) =>
+          pkg._id === editedPackage._id ? editedPackage : pkg
+        );
+        const updatedOriginalPackages = originalPackages.map((pkg) =>
+          pkg._id === editedPackage._id ? editedPackage : pkg
+        );
+
+        setPackageList(updatedPackages);
+        if (!isSearchMode) {
+          setOriginalPackages(updatedOriginalPackages);
+        }
+
+        onPackagesUpdate?.(
+          isSearchMode ? updatedOriginalPackages : updatedPackages
+        );
+        closeEditModal();
+      } catch (error) {
+        console.error("Edit failed:", error);
+        setError("Failed to update package. Please try again.");
+        setTimeout(() => setError(""), 3000);
+      } finally {
+        setIsEditLoading(false);
+      }
+    },
+    [
+      editedPackage,
+      packageList,
+      originalPackages,
+      isSearchMode,
+      onPackagesUpdate,
+      closeEditModal,
+    ]
+  );
+
   const confirmDelete = useCallback(async () => {
     if (!deleteModal.package) return;
 
     setIsDeleting(true);
     try {
       if (!deleteModal.package?._id) return;
-await deletePackage(deleteModal.package._id);
+      await deletePackage(deleteModal.package._id);
 
-      // Update local state instead of refetching
-      const updatedPackages = packageList.filter(
-        (pkg) => pkg._id !== deleteModal.package!._id
-      );
-      const updatedOriginalPackages = originalPackages.filter(
-        (pkg) => pkg._id !== deleteModal.package!._id
-      );
-
-      setPackageList(updatedPackages);
-      if (!isSearchMode) {
-        setOriginalPackages(updatedOriginalPackages);
-      }
-      
-      onPackagesUpdate?.(isSearchMode ? updatedOriginalPackages : updatedPackages);
       closeDeleteModal();
-
+      
+      // Reload the current page after deletion
+      if (isSearchMode && searchQuery) {
+        handleSearch(searchQuery);
+      } else {
+        loadPackages(page);
+      }
     } catch (error) {
       console.error("Delete failed:", error);
       setError("Failed to delete package. Please try again.");
-      
-      // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleting(false);
     }
-  }, [deleteModal.package, packageList, originalPackages, isSearchMode, onPackagesUpdate, closeDeleteModal]);
+  }, [
+    deleteModal.package,
+    isSearchMode,
+    searchQuery,
+    page,
+    handleSearch,
+    loadPackages,
+    closeDeleteModal,
+  ]);
 
-  const renderHotelsList = useCallback((hotels?: Package["hotels"]) => {
-    if (!hotels || hotels.length === 0) {
-      return <span className="text-gray-500 italic text-sm">No hotels</span>;
-    }
+  const renderHotelsList = useCallback(
+    (hotels?: PackageInterface["hotels"]) => {
+      if (!hotels || hotels.length === 0) {
+        return <span className="text-gray-500 italic text-sm">No hotels</span>;
+      }
 
-    return (
-      <div className="space-y-2 max-w-xs">
-        {hotels.map((hotel, idx) => (
-          <div key={idx}>
-            <div className="font-semibold text-slate-800">{hotel.name}</div>
-            <div className="flex items-center gap-1 mt-2"></div>
-          </div>
-        ))}
-      </div>
-    );
-  }, []);
-
-  const renderActivitiesList = useCallback((activities?: Package["activities"]) => {
-    if (!activities || activities.length === 0) {
       return (
-        <span className="text-gray-500 italic text-sm">No activities</span>
-      );
-    }
-
-    return (
-      <div className="space-y-2 max-w-xs">
-        {activities.map((activity, idx) => (
-          <div key={idx}>
-            <div className="font-semibold text-indigo-900">
-              {activity.title}
+        <div className="space-y-2 max-w-xs">
+          {hotels.map((hotel, idx) => (
+            <div key={idx}>
+              <div className="font-semibold text-slate-800">{hotel.name}</div>
+              <div className="flex items-center gap-1 mt-2"></div>
             </div>
+          ))}
+        </div>
+      );
+    },
+    []
+  );
+
+  const renderActivitiesList = useCallback(
+    (activities?: PackageInterface["activities"]) => {
+      const validActivities =
+        activities?.filter((activity) => activity != null) || [];
+      const hasInvalidActivities =
+        activities && activities.length > validActivities.length;
+
+      if (validActivities.length === 0) {
+        return (
+          <div className="space-y-1">
+            <span className="text-gray-500 italic text-sm">No activities</span>
+            {hasInvalidActivities && (
+              <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-md mt-1">
+                ⚠️ Invalid activity references
+              </div>
+            )}
           </div>
-        ))}
-      </div>
-    );
-  }, []);
+        );
+      }
 
-  const renderItineraryCount = useCallback((itinerary?: Package["itinerary"]) => {
-    if (!itinerary || itinerary.length === 0) {
-      return <span className="text-gray-500 italic text-sm">No itinerary</span>;
-    }
-
-    const uniqueDays = new Set(itinerary.map((item) => item.day));
-
-    return (
-      <div className="text-center">
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-3 rounded-lg">
-          <div className="font-bold text-xl">{uniqueDays.size}</div>
-          <div className="text-xs font-medium">Days Planned</div>
+      return (
+        <div className="space-y-2 max-w-xs">
+          {validActivities.map((activity, idx) => (
+            <div
+              key={activity.id || idx}
+              className="bg-indigo-50 border border-indigo-200 p-2 rounded-md"
+            >
+              <div className="font-semibold text-indigo-900 text-sm">
+                {activity.title}
+              </div>
+              <div className="text-xs text-indigo-700 mt-1 line-clamp-2">
+                {activity.description}
+              </div>
+            </div>
+          ))}
+          {hasInvalidActivities && (
+            <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-md">
+              ⚠️ Some activities not found
+            </div>
+          )}
         </div>
-        <div className="bg-emerald-25 border border-emerald-100 text-emerald-700 px-2 py-2 rounded-md mt-2 text-xs">
-          {itinerary.length} Activities
+      );
+    },
+    []
+  );
+
+  const renderItineraryCount = useCallback(
+    (itinerary?: PackageInterface["itinerary"]) => {
+      if (!itinerary || itinerary.length === 0) {
+        return (
+          <span className="text-gray-500 italic text-sm">No itinerary</span>
+        );
+      }
+
+      const uniqueDays = new Set(itinerary.map((item) => item.day));
+
+      return (
+        <div className="text-center">
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-3 rounded-lg">
+            <div className="font-bold text-xl">{uniqueDays.size}</div>
+            <div className="text-xs font-medium">Days Planned</div>
+          </div>
+          <div className="bg-emerald-25 border border-emerald-100 text-emerald-700 px-2 py-2 rounded-md mt-2 text-xs">
+            {itinerary.length} Activities
+          </div>
         </div>
-      </div>
-    );
-  }, []);
+      );
+    },
+    []
+  );
 
   const renderInclusionsList = useCallback((inclusions?: string[]) => {
     if (!inclusions || inclusions.length === 0) {
@@ -393,17 +442,16 @@ await deletePackage(deleteModal.package._id);
         <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
           Package Details Overview
         </h2>
-        
+
         <div className="flex items-center gap-4">
           <div className="w-60">
-            <SearchBar 
-              placeholder="Search packages..." 
+            <SearchBar
+              placeholder="Search packages..."
               onSearch={handleSearch}
-              // value={searchQuery}
             />
           </div>
           <span className="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-2 rounded-full font-medium">
-            {packageList.length} Package{packageList.length !== 1 ? 's' : ''}
+            {isSearchMode ? packageList.length : totalPackages} Package{(isSearchMode ? packageList.length : totalPackages) !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
@@ -426,7 +474,8 @@ await deletePackage(deleteModal.package._id);
       {/* Search Status */}
       {isSearchMode && (
         <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4">
-          Found {packageList.length} package{packageList.length !== 1 ? 's' : ''} for "{searchQuery}"
+          Found {packageList.length} package
+          {packageList.length !== 1 ? "s" : ""} for "{searchQuery}"
         </div>
       )}
 
@@ -448,9 +497,7 @@ await deletePackage(deleteModal.package._id);
                 <th className="px-4 py-4 text-left font-semibold min-w-[100px]">
                   Check-Out Time
                 </th>
-                <th className="px-4 py-4 text-left font-semibold">
-                  Hotels
-                </th>
+                <th className="px-4 py-4 text-left font-semibold">Hotels</th>
                 <th className="px-4 py-4 text-left font-semibold">
                   Activities
                 </th>
@@ -469,7 +516,7 @@ await deletePackage(deleteModal.package._id);
               </tr>
             </thead>
             <tbody>
-              {packageList.map((pkg, index) => (
+              {getCurrentPageData.map((pkg, index) => (
                 <tr
                   key={pkg._id}
                   className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${
@@ -563,13 +610,13 @@ await deletePackage(deleteModal.package._id);
 
                   <td className="px-4 py-6 align-top">
                     <div className="flex flex-col gap-2">
-                      {/* <button
-                        onClick={() => handleEdit(pkg)}
-                        className="flex items-center gap-2 px-3 py-2 bg-slate-100 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-200 hover:border-slate-400 transition-colors text-sm font-medium"
+                      <button
+                        onClick={() => openEditModal(pkg)}
+                        className="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-100 hover:border-indigo-300 transition-colors text-sm font-medium"
                       >
                         <Edit className="h-4 w-4" />
                         Edit
-                      </button> */}
+                      </button>
                       <button
                         onClick={() => openDeleteModal(pkg)}
                         className="flex items-center gap-2 px-3 py-2 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg hover:bg-rose-100 hover:border-rose-300 transition-colors text-sm font-medium"
@@ -587,36 +634,31 @@ await deletePackage(deleteModal.package._id);
       </div>
 
       {/* Empty State */}
-      {packageList.length === 0 && (
+      {getCurrentPageData.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-slate-200">
           <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-slate-800 mb-2">
             No Packages Found
           </h3>
           <p className="text-slate-600">
-            {searchQuery 
+            {searchQuery
               ? `No packages match your search for "${searchQuery}"`
-              : "Start by creating your first travel package."
-            }
+              : "Start by creating your first travel package."}
           </p>
         </div>
       )}
 
   
-      {/* {editModal.isOpen && (
+      {editModal.isOpen && editedPackage && (
         <EditPackage
-          pkg={editFormData}
-          onClose={() => {
-            setEditModal({ isOpen: false, package: null });
-            setEditFormData(null);
-          }}
-          onChange={setEditFormData}
+          pkg={editedPackage }
+          onClose={closeEditModal}
+          onChange={handleEditChange}
           onSubmit={handleEditSubmit}
-          isLoading={isEditing}
+          isLoading={isEditLoading}
         />
-      )} */}
+      )}
 
-      {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-slate-300">
@@ -719,6 +761,15 @@ await deletePackage(deleteModal.package._id);
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {totalPages > 1 && (
+        <div className="flex justify-center">
+          <Pagination
+            total={totalPages}
+            current={page}
+            setPage={handlePageChange}
+          />
         </div>
       )}
     </div>

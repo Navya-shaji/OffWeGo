@@ -1,7 +1,7 @@
 import { BannerDto } from "../../domain/dto/banner/BannerDto";
 import { Banner } from "../../domain/entities/BannerEntity";
 import { IBannerRepository } from "../../domain/interface/Banner/IBannerRepository";
-import { mapToBannerDto } from "../../mappers/Banner/bannerMappers";
+import { mapToBannerDto } from "../../mappers/Banner/BannerMappers";
 
 export class CreateBanner{
     constructor(private _bannerRepo:IBannerRepository){}

@@ -1,4 +1,4 @@
-import { AdminResponseDto } from "../../domain/dto/user/AdminResponseDto";
+import { AdminResponseDto } from "../../domain/dto/User/AdminResponseDto";
 import { User } from "../../domain/entities/UserEntity";
 
 export const mapToAdmin  = (

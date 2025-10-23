@@ -16,8 +16,10 @@ export class HotelController {
   ) {}
 
   async createHotels(req: Request, res: Response) {
+    const destinationId = req.params.id;
     const hotelData = req.body;
-    const result = await this._createHotel.execute(hotelData);
+
+    const result = await this._createHotel.execute(hotelData, destinationId);
     res.status(HttpStatus.OK).json({
       success: true,
       data: result,

@@ -1,7 +1,8 @@
 export interface Subscription {
-  name: string;
-  commissionRate: number;
-  price: number;
-  durationInDays: number;
-  description: string;
+  _id?: string;         
+  name: string;         
+  price: number;         
+  maxPackages: number;   
+  duration: number;      
+   
 }

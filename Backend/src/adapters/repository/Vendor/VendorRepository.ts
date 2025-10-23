@@ -1,7 +1,10 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
 import { Vendor } from "../../../domain/entities/VendorEntities";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
-import {VendorModel,IVendorModel} from "../../../framework/database/Models/vendorModel";
+import {
+  VendorModel,
+  IVendorModel,
+} from "../../../framework/database/Models/vendorModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class VendorRepository

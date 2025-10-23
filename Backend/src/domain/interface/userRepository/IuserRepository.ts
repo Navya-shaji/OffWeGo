@@ -1,4 +1,4 @@
-import { ProfileDto } from "../../dto/user/ProfileDto";
+import { ProfileDto } from "../../dto/User/ProfileDto";
 import { User } from "../../entities/UserEntity";
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;

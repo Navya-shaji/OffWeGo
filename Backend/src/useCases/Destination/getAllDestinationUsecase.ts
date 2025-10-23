@@ -1,7 +1,7 @@
 import { IDestinationRepository } from "../../domain/interface/Admin/IDestinationInterface"; 
 import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper";
 import { IGetAllDestinations } from "../../domain/interface/Destination/IGetAllDestinations";
-import { DestinationDto } from "../../domain/dto/destination/DestinationDto";
+import { DestinationDto } from "../../domain/dto/Destination/DestinationDto";
 
 export class GetAllDestinations implements IGetAllDestinations{
   constructor(private  _destinationRepo: IDestinationRepository) {}

@@ -1,4 +1,4 @@
-import { DestinationDto } from "../../domain/dto/destination/DestinationDto";
+import { DestinationDto } from "../../domain/dto/Destination/DestinationDto";
 import { IDestinationRepository } from "../../domain/interface/Admin/IDestinationInterface";
 import { mapToDestinationDto } from "../../mappers/Destination/destinationMapper";
 

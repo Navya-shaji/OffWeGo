@@ -4,30 +4,46 @@ import type { Package } from "@/interface/PackageInterface";
 import store from "@/store/store";
 
 // ================== VENDOR-SIDE ==================
+
 export const addPackage = async (data: Package) => {
   try {
     const state = store.getState();
-    const vendorId = state.vendorAuth?.vendor?._id;
+    const vendorId = state.vendorAuth?.vendor?.id;
+    console.log("Vendor ID:", vendorId);
+
     const payload = {
       ...data,
+      price: data.price,
       vendorId,
+      flightOption: data.flightOption,
     };
 
-    console.log(data)
+    console.log("Submitting package payload:", payload);
+
     const res = await axiosInstance.post("/api/vendor/add-Package", payload);
-    console.log(res.data,"hdfjh")
-    return res.data;
+
+    console.log("Server response:", res.data);
+
+    return res.data.package;
   } catch (error) {
+    console.error("Catch block error:", error);
+
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.error || "Failed to add package");
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to add package";
+      throw new Error(msg);
     }
+
     throw new Error("An unexpected error occurred while adding package");
   }
 };
 
 export const fetchAllPackages = async (
   page: number = 1,
-  limit: number = 5
+  limit: number = 2
 ): Promise<{
   packages: Package[];
   totalPackages: number;
@@ -36,13 +52,14 @@ export const fetchAllPackages = async (
 }> => {
   try {
     const state = store.getState();
-    const vendorId = state.vendorAuth?.vendor?._id;
+    const vendorId = state.vendorAuth?.vendor?.id;
     const res = await axiosInstance.post("/api/vendor/packages", {
       params: { page, limit },
       vendorId,
     });
 
     const { packages, totalPackages, totalPages, currentPage } = res.data;
+    console.log(packages, "service");
 
     if (!Array.isArray(packages)) {
       return {
@@ -72,7 +89,7 @@ export const fetchAllPackages = async (
 export const editPackage = async (id: string, data: Package) => {
   try {
     const res = await axiosInstance.put(`/api/vendor/packages/${id}`, data);
-    console.log(res.data,"frontemd")
+    console.log(res.data, "frontemd");
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -108,18 +125,12 @@ export const searchPackages = async (query: string) => {
 
 // ================== USER-SIDE ==================
 export const getPackagesByDestination = async (
-  destinationId: string,
- 
+  destinationId: string
 ): Promise<{
   packages: Package[];
-  
 }> => {
- 
   try {
-    const res = await axiosInstance.get(
-      `/api/package/${destinationId}`,
-  
-    );
+    const res = await axiosInstance.get(`/api/package/${destinationId}`);
 
     return res.data;
   } catch (error) {
@@ -128,6 +139,8 @@ export const getPackagesByDestination = async (
         error.response?.data?.error || "Failed to fetch user packages"
       );
     }
-    throw new Error("An unexpected error occurred while fetching user packages");
+    throw new Error(
+      "An unexpected error occurred while fetching user packages"
+    );
   }
 };

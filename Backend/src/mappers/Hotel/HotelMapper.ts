@@ -5,5 +5,6 @@ export const mapToHotelDto=(doc:IHotelModel):Hotel=>({
     hotelId:doc._id.toString(),
     name:doc.name,
     address:doc.address,
-    rating:doc.rating  
+    rating:doc.rating,
+    destinationId:doc.destinationId
 })

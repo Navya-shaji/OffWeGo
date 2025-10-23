@@ -42,50 +42,44 @@ const HotelsTable: React.FC = () => {
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-
-  // Prevent multiple API calls
+const [destinationId, setDestinationId] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-
-  // Load hotels function
+console.log(setDestinationId)
   const loadHotels = useCallback(async (pageNum: number = 1) => {
-    // Prevent multiple simultaneous calls
-    if (isLoadingRef.current) return;
-    
-    try {
-      isLoadingRef.current = true;
-      setLoading(true);
-      setError("");
-      
-      const response = await getAllHotel(pageNum, 5);
+  if (isLoadingRef.current) return;
 
-      const hotelsWithId = response.hotels.map((hotel) => ({
-        ...hotel,
-        _id: hotel.hotelId 
-      }));
+  try {
+    isLoadingRef.current = true;
+    setLoading(true);
+    setError("");
 
-      // setHotels(hotelsWithId || []);
-      // setOriginalHotels(hotelsWithId || []);
-      setTotalPages(response.totalPages || 1);
-      setTotalHotels(response.totalHotels || hotelsWithId.length);
-      setPage(pageNum);
-      
-    } catch (err) {
-      console.error("Error loading hotels:", err);
-      setError("Failed to load hotels. Please try again.");
-      setHotels([]);
-      setOriginalHotels([]);
-      toast.error("Failed to load hotels");
-    } finally {
-      isLoadingRef.current = false;
-      setLoading(false);
-    }
-  }, []);
+    const response = await getAllHotel(pageNum, 5);
 
-  // Debounced search function
+    const hotelsWithId = response.hotels.map((hotel) => ({
+      ...hotel,
+      _id: hotel.hotelId || "",
+    }));
+
+    setHotels(hotelsWithId);
+    setOriginalHotels(hotelsWithId); // ✅ Preserve original data
+    setTotalPages(response.totalPages || 1);
+    setTotalHotels(response.totalHotels || hotelsWithId.length);
+    setPage(pageNum);
+  } catch (err) {
+    console.error("Error loading hotels:", err);
+    setError("Failed to load hotels. Please try again.");
+    setHotels([]);
+    toast.error("Failed to load hotels");
+  } finally {
+    isLoadingRef.current = false;
+    setLoading(false);
+  }
+}, []);
+
+
   const handleSearch = useCallback(async (query: string) => {
-    // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -108,7 +102,6 @@ const HotelsTable: React.FC = () => {
         const response = await searchHotel(query);
         const searchResults = Array.isArray(response) ? response : [];
         
-        // Map search results to ensure consistent ID structure
         const hotelsWithId = searchResults.map((hotel) => ({
           ...hotel,
           _id: hotel.hotelId || hotel._id,
@@ -124,8 +117,7 @@ const HotelsTable: React.FC = () => {
         setHotels([]);
         setTotalPages(1);
         toast.error("Failed to search hotels");
-        
-        // Clear error after 3 seconds
+       
         setTimeout(() => setError(""), 3000);
       }
     }, 400);
@@ -183,12 +175,12 @@ const HotelsTable: React.FC = () => {
     if (!selectedHotel?._id) return;
 
     try {
-      await updateHotel(selectedHotel._id, {
-        name: formData.name,
-        address: formData.address,
-        rating: Math.min(5, formData.rating),
-      });
-      
+     await updateHotel(selectedHotel._id, {
+  destinationId, 
+  name: formData.name,
+  address: formData.address,
+  rating: Math.min(5, formData.rating),
+});
       toast.success("Hotel updated successfully!");
 
       const updateHotelInList = (list: Hotel[]) =>
@@ -252,7 +244,7 @@ const HotelsTable: React.FC = () => {
       setSelectedHotel(null);
     }
   }, [selectedHotel, hotels, originalHotels, isSearchMode, totalHotels]);
-
+console.log(hotels,"hotels")
   const columns = useMemo<ColumnDef<Hotel>[]>(
     () => [
       { 

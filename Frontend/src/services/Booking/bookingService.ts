@@ -1,38 +1,35 @@
 import axiosInstance from "@/axios/instance";
 
 export const createBooking = async (
-    userId: string,
-    packageId: string,
-    selectedDate: string
+  data: string,              
+  payment_id: string,     
+ 
 ) => {
-    const response = await axiosInstance.post(`/api/bookings/${packageId}`, {
-        userId,
-        packageId,
-        selectedDate,
-    });
-  
+  const response = await axiosInstance.post("/api/create-bookings", {
+    data,
+    payment_id,
+ 
+  });
+
   return response.data;
 };
+
 
 export const getUserBookings = async (userId: string) => {
-  const response = await axiosInstance.get(`/api/bookings/user/${userId}`);
+  const response = await axiosInstance.get(`/api/bookings/${userId}`);
+  console.log(response.data.bookings)
   return response.data.bookings;
 };
 
-export const getAllBookings = async () => {
-  const response = await axiosInstance.get("/api/admin/bookings");
+export const getAllUserBookings = async (vendorId:string) => {
+  const response = await axiosInstance.get(`/api/vendor/bookings/${vendorId}`);
+  console.log(response.data.bookings,"bookings")
+ 
   return response.data.bookings;
 };
 
-export const updateBooking = async (
-  bookingId: string,
-  updateData: { selectedDate?: string; status?: string }
-) => {
-  const response = await axiosInstance.patch(`/api/bookings/${bookingId}`, updateData);
-  return response.data;
-};
-
-export const deleteBooking = async (bookingId: string) => {
-  const response = await axiosInstance.delete(`/api/bookings/${bookingId}`);
-  return response.data;
-};
+export const bookingdates=async(vendorId:string)=>{
+  const response=await axiosInstance.get(`/api/vendor/bookings/date/${vendorId}`)
+  console.log(response.data.booking_dates,"hfjh")
+  return response.data.booking_dates
+}

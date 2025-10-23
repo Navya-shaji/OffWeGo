@@ -1,5 +1,5 @@
 import { ICategoryModel } from "../../../framework/database/Models/categoryModel";
-import { CreateCategoryDto } from "../../dto/admin/CategoryDto";
+import { CreateCategoryDto } from "../../dto/Admin/CategoryDto";
 
 export interface ICategoryRepository {
   createCategory(data: CreateCategoryDto): Promise<ICategoryModel>;

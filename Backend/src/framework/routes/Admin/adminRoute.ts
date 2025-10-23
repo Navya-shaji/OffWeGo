@@ -7,7 +7,6 @@ import {
   categoryController,
   destinationController,
   subscriptionController,
-  
 } from "../../Di/Admin/adminInjection";
 
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
@@ -116,7 +115,7 @@ export class AdminRoute {
 
     this.adminRouter.post(
       AdminRoutes.CREATE_DESTINATION,
-    
+
       (req: Request, res: Response) => {
         destinationController.addDestination(req, res);
       }
@@ -239,5 +238,19 @@ export class AdminRoute {
         subscriptionController.getAllSubscriptions(req, res);
       }
     );
+    this.adminRouter.put(
+      AdminRoutes.EDIT_SUBSCRIPTION,
+      checkRoleBasedcontrol(["admin"]),
+      (req: Request, res: Response) => {
+        subscriptionController.updateSubscription(req, res);
+      }
+    );
+    this.adminRouter.delete(
+      AdminRoutes.DELETE_SUBSCRIPTION,
+      checkRoleBasedcontrol(["admin"]),
+      (req:Request,res:Response)=>{
+        subscriptionController.deleteDestinationController(req,res)
+      }
+    )
   }
 }

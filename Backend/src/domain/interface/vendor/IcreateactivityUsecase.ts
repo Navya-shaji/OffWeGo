@@ -1,6 +1,5 @@
 import { ActivityDto } from "../../dto/package/ActivityDto";
-import { Activity } from "../../entities/ActivityEntity";
 
 export interface IcreateActivityUsecase{
-    execute(data:Activity):Promise<ActivityDto>
+    execute(data:ActivityDto,destinationId:string):Promise<ActivityDto>
 }

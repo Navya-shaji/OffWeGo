@@ -1,4 +1,4 @@
-import { UserDto } from "../../../domain/dto/user/UserDto";
+import { UserDto } from "../../../domain/dto/User/UserDto";
 import { ISearchUserUsecase } from "../../../domain/interface/Admin/ISerachUSerUsecase";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { mapToUser } from "../../../mappers/User/userMapper";

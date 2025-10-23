@@ -2,9 +2,12 @@ import axiosInstance from "@/axios/instance";
 import type { Hotel } from "@/interface/PackageInterface";
 import { isAxiosError } from "axios";
 
-export const createHotel = async (data: Hotel) => {
+export const createHotel = async (data: Hotel, destinationId: string) => {
   try {
-    const res = await axiosInstance.post("/api/vendor/add-hotel", data);
+    const res = await axiosInstance.post(
+      `/api/vendor/add-hotel/${destinationId}`,
+      data
+    );
     return res;
   } catch (error) {
     console.error("Error adding hotel", error);
@@ -14,6 +17,7 @@ export const createHotel = async (data: Hotel) => {
     throw new Error("An unexpected error occurred while adding hotel");
   }
 };
+
 export const getAllHotel = async (
   page: number = 1,
   limit: number = 5
@@ -27,12 +31,10 @@ export const getAllHotel = async (
     const res = await axiosInstance.get("/api/vendor/hotels", {
       params: { page, limit },
     });
- 
 
     const { hotels = [], totalHotels = 0 } = res.data.data;
 
     if (!Array.isArray(hotels)) {
-   
       return {
         hotels: [],
         totalHotels: 0,
@@ -55,7 +57,6 @@ export const getAllHotel = async (
   }
 };
 
-
 export const updateHotel = async (id: string, data: Hotel) => {
   try {
     const res = await axiosInstance.put(`/api/vendor/hotels/${id}`, data);
@@ -69,28 +70,24 @@ export const updateHotel = async (id: string, data: Hotel) => {
 };
 
 export const deleteHotel = async (id: string) => {
-
   try {
-  
-
     const response = await axiosInstance.delete(`/api/vendor/hotels/${id}`);
-   
-    return response.data; 
+
+    return response.data;
   } catch (error) {
-  
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || "Failed to delete hotel");
+      throw new Error(
+        error.response?.data?.message || "Failed to delete hotel"
+      );
     }
     throw new Error("An unexpected error occurred while deleting hotel");
   }
 };
 
-
 export const searchHotel = async (query: string) => {
-  
   const response = await axiosInstance.get("/api/vendor/hotels/search", {
     params: { q: query },
   });
-  
+
   return response.data.data;
 };

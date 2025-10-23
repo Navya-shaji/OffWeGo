@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   activitycontroller,
+  flightcontroller,
   hotelcontroller,
   packagecontroller,
   vendorloginController,
@@ -9,13 +10,14 @@ import {
   vendorstatusCheckController,
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
-import { destinationController } from "../../Di/Admin/adminInjection"; 
+import { destinationController } from "../../Di/Admin/adminInjection";
 import { VendorRoutes } from "../Constants/VendorRouteConstants";
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
 import { JwtService } from "../../Services/jwtService";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection"; 
+import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
+import { bookingcontroller } from "../../Di/User/userInjections";
 
 const TokenService = new JwtService();
 
@@ -104,10 +106,11 @@ export class VendorRoute {
       }
     );
     this.vendorRouter.get(
-      VendorRoutes.SEARCH_ACTIVITY,(req:Request,res:Response)=>{
-        activitycontroller.SearchActivity(req,res)
+      VendorRoutes.SEARCH_ACTIVITY,
+      (req: Request, res: Response) => {
+        activitycontroller.SearchActivity(req, res);
       }
-    )
+    );
     this.vendorRouter.post(
       VendorRoutes.CREATE_DESTINATION,
       checkRoleBasedcontrol(["vendor"]),
@@ -136,7 +139,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.HOTELS,
-      checkRoleBasedcontrol(["vendor"]),
+      checkRoleBasedcontrol(["vendor","user"]),
       (req: Request, res: Response) => hotelcontroller.getHotels(req, res)
     );
     this.vendorRouter.put(
@@ -176,5 +179,30 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         activitycontroller.getAllActivities(req, res)
     );
+    this.vendorRouter.post(
+      VendorRoutes.CREATE_FLIGHT,
+      (req: Request, res: Response) =>
+        flightcontroller.addFlightDetails(req, res)
+    );
+    this.vendorRouter.get(
+      VendorRoutes.ALL_FLIGHTS,
+      (req: Request, res: Response) => flightcontroller.getAllFlight(req, res)
+    );
+    this.vendorRouter.put(
+      VendorRoutes.EDIT_FLIGHT,
+      (req: Request, res: Response) => flightcontroller.EditFlight(req, res)
+    );
+    this.vendorRouter.delete(
+      VendorRoutes.DELETE_FLIGHT,
+      (req: Request, res: Response) => flightcontroller.DeleteFlight(req, res)
+    );
+    this.vendorRouter.get(
+      VendorRoutes.USER_BOOKINGS,
+      (req:Request,res:Response)=>bookingcontroller.getVendorsideBookings(req,res)
+    )
+    this.vendorRouter.get(
+      VendorRoutes.BOOKING_DATES,
+      (req:Request,res:Response)=>bookingcontroller.bookingDates(req,res)
+    )
   }
 }

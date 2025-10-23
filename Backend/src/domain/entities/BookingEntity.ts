@@ -1,11 +1,36 @@
+export interface Traveler {
+  name: string;
+  age: number;
+  gender: "male" | "female" | "other";
+}
+
+export interface ContactInfo {
+  email: string;
+  mobile: string;
+  city: string;
+  address: string;
+}
+
+export interface PackageInfo {
+  _id: string;
+  packageName: string;
+  price: number;
+  description?: string;
+  duration?: number;
+}
+
 export interface Booking {
-  id?: string;
+  _id?: string;
   userId: string;
-  packageId: string;
+  contactInfo: ContactInfo;
+  adults: Traveler[];
+  children: Traveler[];
+  selectedPackage: PackageInfo;
   selectedDate: Date;
-  paymentStatus?: "pending" | "completed" | "failed";
-  numberOfPeople?: number;
-  notes?: string;
+  totalAmount: number;
+  paymentIntentId?: string;
+  paymentStatus: "pending" | "succeeded" | "failed";
   createdAt?: Date;
   updatedAt?: Date;
+  status?: "pending" | "succeeded" | "failed";
 }

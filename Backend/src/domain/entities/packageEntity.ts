@@ -1,5 +1,6 @@
 import { Hotel } from "./HotelEntity";
 import { Activity } from "./ActivityEntity";
+import { Flight } from "./flightEntity"; 
 
 export interface Package {
   id?: string;
@@ -21,7 +22,9 @@ export interface Package {
     time: string;
     activity: string;
   }[];
-
   inclusions: string[];
   amenities: string[];
+
+  includeFlight: boolean;  
+  flight?: Flight | null;  
 }

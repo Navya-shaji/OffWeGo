@@ -2,9 +2,9 @@ import axiosInstance from "@/axios/instance";
 import type { Activity } from "@/interface/PackageInterface";
 import { isAxiosError } from "axios";
 
-export const createActivity = async (data: Activity) => {
+export const createActivity = async (data: Activity,destinationId:string) => {
   try {
-    const res = await axiosInstance.post("/api/vendor/add-activity", data);
+    const res = await axiosInstance.post(`/api/vendor/add-activity/${destinationId}`, data);
     return res;
   } catch (error) {
     if (isAxiosError(error)) {
