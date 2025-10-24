@@ -70,10 +70,11 @@ export class UserProfileController {
       oldPassword,
       newPassword,
     });
-
+console.log(result)
    return res.status(HttpStatus.OK).json({
     success:true,
-    message:result
+    message:result,
+    userId
    })
   } catch (error) {
     console.error("Error changing password:", error);

@@ -10,8 +10,7 @@ findById(userId: string): Promise<User | null>
   updatePassword(email: string, newHashedPassword: string): Promise<void>;
 
   /** Optional: Change password by userId */
-  updatePasswordById?(userId: string, newHashedPassword: string): Promise<void>;
-
+updatePasswordById(userId: string, newHashedPassword: string): Promise<void>;
   getAllUsers(
     skip: number,
     limit: number,

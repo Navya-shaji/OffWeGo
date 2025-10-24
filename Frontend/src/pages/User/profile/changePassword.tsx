@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
+import { changePassword } from "@/services/user/Userprofile";
+import { toast } from "react-toastify";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -9,6 +13,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,23 +50,27 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       return;
     }
 
+    if (!user?.id) {
+      setError("User not found. Please log in again.");
+      return;
+    }
+
     try {
       setLoading(true);
       
-      // TODO: Replace with your actual API call
-      // await changePasswordAPI({ currentPassword, newPassword });
-      
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call the actual API
+      await changePassword({
+        userId: user.id,
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+      });
       
       // Reset form and close modal
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       onClose();
-      
-      // Show success message (you can use toast notification here)
-      alert("Password changed successfully!");
+      toast.success("Password changed successfully")
     } catch (err: any) {
       setError(err.message || "Failed to change password");
     } finally {
@@ -78,7 +87,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-sm">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">

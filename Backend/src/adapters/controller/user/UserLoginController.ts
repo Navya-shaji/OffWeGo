@@ -13,7 +13,8 @@ export class UserLoginController {
     private _resetPasswordUseCase: IResetPasswordUseCase
   ) {}
 
-  async loginUser(req: Request, res: Response): Promise<void> {
+async loginUser(req: Request, res: Response): Promise<void> {
+  try {
     const { email, password } = req.body;
     if (!email || !password) {
       res.status(HttpStatus.BAD_REQUEST).json({
@@ -22,8 +23,11 @@ export class UserLoginController {
       });
       return;
     }
+
     const result = await this._loginUserUseCase.execute({ email, password });
+
     const user = result.user;
+
     if (user.role?.toLowerCase() === "admin") {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -31,6 +35,7 @@ export class UserLoginController {
       });
       return;
     }
+
     if (user.status?.toLowerCase().includes("block")) {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -39,6 +44,7 @@ export class UserLoginController {
       });
       return;
     }
+
     const payload = { userId: user.id, role: user.role };
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
@@ -54,9 +60,19 @@ export class UserLoginController {
       success: true,
       message: "Login successful",
       accessToken,
+      refreshToken,
       user,
     });
+  } catch (error: any) {
+    console.error("Login error:", error.message || error);
+
+    res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: error.message || "Invalid credentials",
+    });
   }
+}
+
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
     const { email } = req.body;
