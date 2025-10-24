@@ -44,6 +44,7 @@ export const updateVendorBlockStatus = async (
       isBlocked,
     }
   );
+  console.log(response.data.vendorId)
   return response.data;
 };
 export const searchVendor = async (query: string) => {

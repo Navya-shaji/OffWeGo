@@ -43,6 +43,7 @@ export class AdminVendorController {
       page,
       limit
     );
+    console.log("Vendors:", vendors); 
     res.status(HttpStatus.OK).json({
       success: true,
       vendors,
@@ -50,6 +51,7 @@ export class AdminVendorController {
       page,
       totalPages: Math.ceil(totalvendors / limit),
       currentPage: page,
+      
     });
   }
 
@@ -89,21 +91,24 @@ export class AdminVendorController {
 
   async blockOrUnblockVendor(req: Request, res: Response): Promise<void> {
     const vendorId = req.params.id;
+    console.log(vendorId,"id")
+    console.log(req.body,"body")
     const { isBlocked } = req.body;
     if (typeof isBlocked !== "boolean") {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "`isBlocked` must be a boolean (true or false)",
+        message: "isBlocked must be a boolean ",
       });
       return;
     }
-    await this._updateVendorUseCase.execute(vendorId, isBlocked);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: `Vendor has been ${
-        isBlocked ? "blocked" : "unblocked"
-      } successfully.`,
-    });
+   const result= await this._updateVendorUseCase.execute(vendorId, isBlocked);
+   console.log(result)
+   res.status(HttpStatus.OK).json({
+  success: true,
+  message: `Vendor has been ${isBlocked ? "blocked" : "unblocked"} successfully.`,
+  
+});
+
   }
 
   async searchVendor(req: Request, res: Response): Promise<void> {

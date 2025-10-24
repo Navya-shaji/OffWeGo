@@ -18,6 +18,8 @@ export class UserRepository
     return this.model.findOne({ email });
   }
 
+
+
   async createUser(user: IUserModel): Promise<IUserModel> {
     return this.create(user);
   }
@@ -32,6 +34,20 @@ export class UserRepository
   ): Promise<void> {
     await this.model.updateOne(
       { email },
+      { $set: { password: newHashedPassword } }
+    );
+  }
+
+  async findById(userId: string): Promise<IUserModel | null> {
+    return this.model.findById(userId);
+  }
+
+  async updatePasswordById(
+    userId: string,
+    newHashedPassword: string
+  ): Promise<void> {
+    await this.model.updateOne(
+      { _id: userId },
       { $set: { password: newHashedPassword } }
     );
   }

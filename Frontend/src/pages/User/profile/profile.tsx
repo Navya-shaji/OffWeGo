@@ -6,10 +6,12 @@ import { useState } from "react";
 import ProfileSidebar from "@/components/profile/sidebar";
 import BookingDetailsSection from "../Bookings/UserBookings";
 import UserAddReview from "./AddReview";
+import ChangePasswordModal from "./changePassword"; 
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isEditOpen, setEditOpen] = useState(false);
+  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<"profile" | "bookings"| "create-review">(
     "profile"
   );
@@ -96,6 +98,27 @@ const Profile = () => {
                       className="w-full px-4 py-3 border rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none"
                     />
                   </div>
+
+                  {/* Password Section */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Password
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="password"
+                        value="••••••••"
+                        readOnly
+                        className="flex-1 px-4 py-3 border rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none"
+                      />
+                      <button
+                        onClick={() => setPasswordModalOpen(true)}
+                        className="px-4 py-3 bg-gray-800 text-white rounded-xl font-medium hover:bg-gray-700 transition-colors whitespace-nowrap"
+                      >
+                        Change Password
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-8 flex justify-center">
@@ -110,17 +133,21 @@ const Profile = () => {
             </div>
           )}
 
-        
           {activeSection === "bookings" && <BookingDetailsSection />}
           {activeSection === "create-review" && <UserAddReview />}
-          
         </div>
       </div>
 
-    
+      {/* Edit Profile Modal */}
       <EditProfileModal
         isOpen={isEditOpen}
         onClose={() => setEditOpen(false)}
+      />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setPasswordModalOpen(false)}
       />
     </div>
   );

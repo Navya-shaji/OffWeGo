@@ -8,17 +8,15 @@ import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
 import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
-// import { Destinations } from "@/components/home/destinations/Destinations";
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
-// import { DestinationListPage } from "@/pages/User/Destination/AllDestinationPage";
-import Destinations from "@/components/home/destinations/Destinations";
-// import TravelBookingPage from "@/pages/Vendors/TravalersDetails";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
-// import Bookingconfirmation from "@/pages/Vendors/Booking-confirmation";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
 import BookingDetailsPage from "@/pages/User/Bookings/UserBookings";
 import UserAddReview from "@/pages/User/profile/AddReview";
+import AllDestinationsPage from "@/pages/User/Destination/AllDestinationPage";
+import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
+import AboutUs from "@/components/home/AboutUs/AboutUs";
 
 const UserRoute = () => {
   return (
@@ -37,14 +35,16 @@ const UserRoute = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/destinations" element={<Destinations />} />
+      <Route path="/destinations" element={<AllDestinationsPage />} />
       <Route path="/destination/:id" element={<DestinationDetail />} />
       <Route path="/timeline" element={<PackageTimeline />} />
-      <Route path="/travaler-details" element={<TravelerDetails/>}/>
-      <Route path="/payment-checkout" element={<PaymentCheckout/>}/>
-      <Route path="/booking-success" element={<BookingSuccess/>}/>
-         <Route path="/bookings" element={<BookingDetailsPage/>}/>
-         <Route path="create-review" element={<UserAddReview/>}/>
+      <Route path="/travaler-details" element={<TravelerDetails />} />
+      <Route path="/payment-checkout" element={<PaymentCheckout />} />
+      <Route path="/booking-success" element={<BookingSuccess />} />
+      <Route path="/bookings" element={<BookingDetailsPage />} />
+      <Route path="/create-review" element={<UserAddReview />} />
+      <Route path="/contact" element={<ExpandedContactUsPage />} />
+      <Route path="/about" element={<AboutUs />} />
       <Route
         path="/"
         element={

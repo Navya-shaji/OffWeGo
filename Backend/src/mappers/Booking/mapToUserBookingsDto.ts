@@ -16,6 +16,7 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): CreateBooking
         paymentStatus: b.paymentStatus,
       },
       payment_id: b.paymentIntentId || "",
+      
     };
   });
 };

@@ -28,6 +28,7 @@ import { ReviewController } from "../../../adapters/controller/Reviews/ReviewCon
 import { ReviewRepository } from "../../../adapters/repository/Reviews/ReviewRepository";
 import { CreateReviewUseCase } from "../../../useCases/reviews/createReviewUsecase";
 import { GetReviewUsecase } from "../../../useCases/reviews/getAllReviewsUsecase";
+import { ChangePasswordUseCase } from "../../../useCases/user/profile/changePasswordUsecase";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -60,6 +61,7 @@ const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
 const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
+const changepasswordusecase=new ChangePasswordUseCase(userRepository)
 
 
 
@@ -67,7 +69,7 @@ const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
-export const userprofileController=new UserProfileController(userprofile,edituserProfile);
+export const userprofileController=new UserProfileController(userprofile,edituserProfile,changepasswordusecase);
 export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)

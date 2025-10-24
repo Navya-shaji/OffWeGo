@@ -137,5 +137,11 @@ export class UserRoute {
       reviewcontroller.getReviews(req,res)
     }
    )
+   this.userRouter.put(
+    UserRoutes.PASSWORD,
+    (req:Request,res:Response)=>{
+      userprofileController.changePasswordHandler(req,res)
+    }
+   )
   }
 }

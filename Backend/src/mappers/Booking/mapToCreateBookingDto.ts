@@ -15,4 +15,5 @@ export const mapBookingDto = (b: Booking): CreateBookingDto => ({
   },
   payment_id: b.paymentIntentId || "",
   paymentStatus: b.paymentStatus,
+
 });

@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
 import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
-import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IUserProfileEditUsecase } from "../../../domain/interface/UsecaseInterface/IEditProfileOfUserUsecas";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { IChangePasswordUseCase } from "../../../domain/dto/User/changePassDto";
 
 export class UserProfileController {
   constructor(
     private _userProfileUsecase: IUserProfileUsecase,
-    private _editUserProfile: IUserProfileEditUsecase
+    private _editUserProfile: IUserProfileEditUsecase,
+    private _changePasswordUsecase: IChangePasswordUseCase 
   ) {}
 
   async GetProfile(req: Request, res: Response): Promise<void> {
@@ -49,4 +51,38 @@ export class UserProfileController {
       },
     });
   }
+
+  // -------------------- Change Password Handler --------------------
+ async changePasswordHandler(req: Request, res: Response) {
+  try {
+    const userId = req.params.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Both current and new passwords are required",
+      });
+    }
+
+    const result = await this._changePasswordUsecase.execute({
+      userId,
+      oldPassword,
+      newPassword,
+    });
+
+   return res.status(HttpStatus.OK).json({
+    success:true,
+    message:result
+   })
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Internal server error",
+      error,
+    });
+  }
+}
+
 }
