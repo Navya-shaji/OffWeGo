@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Image as ImageIcon, Tag } from "lucide-react";
 import type { CategoryType } from "@/interface/categoryInterface";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import MainCategorySelect from "@/components/category/categorymapping";
@@ -151,143 +151,183 @@ const EditCategory: React.FC<Props> = ({
   const isSubmitDisabled = loading || isUploading;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100 animate-fadeIn">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Edit Category</h2>
-          <button
-            onClick={onClose}
-            disabled={isSubmitDisabled}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-50"
-          >
-            <X className="w-6 h-6" />
-          </button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden transform transition-all duration-300 scale-100">
+        <div className="relative bg-gradient-to-r bg-gray-100 px-5 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+                <Tag className="w-4 h-4 text-black" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-black">Edit Category</h2>
+                <p className="text-black text-xs">Update category details</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              disabled={isSubmitDisabled}
+              className="p-1 hover:bg-white/20 rounded-lg transition-all duration-200 group disabled:opacity-50"
+            >
+              <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category Name *
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-black transition ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Enter category name"
-              disabled={isSubmitDisabled}
-            />
-            {errors.name && (
-              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-            )}
-          </div>
+        {/* Two Column Layout - No Scroll */}
+        <form onSubmit={handleSubmit} className="p-5">
+          <div className="grid grid-cols-5 gap-5">
+            {/* Left Column - Image (2 columns) */}
+            <div className="col-span-2 space-y-3">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+                <ImageIcon className="w-3 h-3 text-blue-600" />
+                Category Image
+              </label>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description *
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={3}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-black resize-none transition ${
-                errors.description ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Enter category description"
-              disabled={isSubmitDisabled}
-            />
-            {errors.description && (
-              <p className="text-red-500 text-xs mt-1">{errors.description}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category Image
-            </label>
-            <div className="space-y-3">
-              {imagePreview && (
-                <div className="relative inline-block">
+              {imagePreview ? (
+                <div className="relative rounded-xl overflow-hidden border-2 border-gray-200 group">
                   <img
                     src={imagePreview}
                     alt="Category preview"
-                    className="h-24 w-32 object-cover rounded-lg border border-gray-200"
+                    className="w-full h-56 object-cover"
                   />
-                  {imageFile && (
-                    <button
-                      type="button"
-                      onClick={removeImage}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                    <label
+                      htmlFor="image-upload"
+                      className="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-medium cursor-pointer hover:bg-gray-100 transition-colors flex items-center gap-1.5"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
+                      <Upload className="w-3 h-3" />
+                      Change Image
+                    </label>
+                    {imageFile && (
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-medium hover:bg-red-600 transition-colors flex items-center gap-1.5"
+                      >
+                        <X className="w-3 h-3" />
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
+              ) : (
+                <label
+                  htmlFor="image-upload"
+                  className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 hover:bg-blue-50/30 transition-all duration-200 cursor-pointer group"
+                >
+                  <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <Upload className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <p className="text-xs font-medium text-gray-700 mt-2">
+                    {isUploading ? "Uploading..." : "Upload Image"}
+                  </p>
+                  <p className="text-xs text-gray-500">PNG, JPG (Max 5MB)</p>
+                </label>
               )}
-              <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-black transition">
+
+              <input
+                type="file"
+                accept="image/*"
+                id="image-upload"
+                className="hidden"
+                onChange={handleImageChange}
+                disabled={isSubmitDisabled}
+              />
+
+              {errors.image && (
+                <p className="text-red-500 text-xs">{errors.image}</p>
+              )}
+            </div>
+
+            <div className="col-span-3 space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  Category Name
+                </label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition ${
+                    errors.name ? "border-red-500" : "border-gray-200"
+                  }`}
+                  placeholder="Enter category name"
                   disabled={isSubmitDisabled}
                 />
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  {isUploading
-                    ? "Uploading..."
-                    : "Click to upload new image or drag and drop"}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={3}
+                  className={`w-full px-3 py-2 text-sm border-2 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 resize-none transition ${
+                    errors.description ? "border-red-500" : "border-gray-200"
+                  }`}
+                  placeholder="Enter category description"
+                  disabled={isSubmitDisabled}
+                />
+                {errors.description && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.description}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <MainCategorySelect
+                  typeMain={typeMain}
+                  setTypeMain={setTypeMain}
+                />
+                {errors.typeMain && (
+                  <p className="text-red-500 text-xs mt-1">{errors.typeMain}</p>
+                )}
+              </div>
+
+              <div>
+                <SubCategory
+                  typeMain={typeMain}
+                  typeSub={typeSub}
+                  setTypeSub={setTypeSub}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={isSubmitDisabled}
+                  className="px-5 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitDisabled}
+                  className="px-5 py-2 bg-gradient-to-r bg-black  text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isSubmitDisabled && (
+                    <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+                  )}
+                  <span>
+                    {loading
+                      ? "Saving..."
+                      : isUploading
+                      ? "Uploading..."
+                      : "Save Changes"}
+                  </span>
+                </button>
               </div>
             </div>
-            {errors.image && (
-              <p className="text-red-500 text-xs mt-1">{errors.image}</p>
-            )}
-          </div>
-
-          <div>
-            <MainCategorySelect typeMain={typeMain} setTypeMain={setTypeMain} />
-            {errors.typeMain && (
-              <p className="text-red-500 text-xs mt-1">{errors.typeMain}</p>
-            )}
-          </div>
-
-          <SubCategory
-            typeMain={typeMain}
-            typeSub={typeSub}
-            setTypeSub={setTypeSub}
-          />
-
-          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitDisabled}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitDisabled}
-              className="px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-900 transition disabled:opacity-50 flex items-center gap-2"
-            >
-              {isSubmitDisabled && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              )}
-              <span>
-                {loading
-                  ? "Saving..."
-                  : isUploading
-                  ? "Uploading..."
-                  : "Save Changes"}
-              </span>
-            </button>
           </div>
         </form>
       </div>

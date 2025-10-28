@@ -15,6 +15,7 @@ import { AdminRoutes } from "../Constants/AdminRouteConstants";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
+import { Role } from "../../../domain/constants/Roles";
 const TokenService = new JwtService();
 
 export class AdminRoute {
@@ -51,7 +52,7 @@ export class AdminRoute {
     this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
     this.adminRouter.get(
       AdminRoutes.SEARCH_VENDOR,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         adminVendorController.searchVendor(req, res);
       }
@@ -59,7 +60,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_EMAIL,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         adminVendorController.getVendorByEmail(req, res);
       }
@@ -67,7 +68,7 @@ export class AdminRoute {
 
     this.adminRouter.patch(
       AdminRoutes.ADMIN_VENDOR_APPROVAL,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         adminVendorController.updateVendorApprovalStatus(req, res);
       }
@@ -75,7 +76,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_VENDORS,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         adminVendorController.getAllVendors(req, res);
       }
@@ -83,7 +84,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_STATUS,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         adminVendorController.getVendorsByStatus(req, res);
       }
@@ -91,7 +92,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_USERS,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         AdminuserController.getAllUsers(req, res);
       }
@@ -99,7 +100,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.SEARCH_USER,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         AdminuserController.searchUser(req, res);
       }
@@ -107,7 +108,7 @@ export class AdminRoute {
 
     this.adminRouter.patch(
       AdminRoutes.UPDATE_USER_STATUS,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         AdminuserController.updateStatus(req, res);
       }
@@ -115,7 +116,6 @@ export class AdminRoute {
 
     this.adminRouter.post(
       AdminRoutes.CREATE_DESTINATION,
-
       (req: Request, res: Response) => {
         destinationController.addDestination(req, res);
       }
@@ -123,7 +123,7 @@ export class AdminRoute {
 
     this.adminRouter.put(
       AdminRoutes.EDIT_DESTINATION,
-      checkRoleBasedcontrol(["vendor", "admin"]),
+      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
       (req: Request, res: Response) => {
         destinationController.editDestinationHandler(req, res);
       }
@@ -138,7 +138,7 @@ export class AdminRoute {
 
     this.adminRouter.patch(
       AdminRoutes.BLOCK_UNBLOCK_VENDOR,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         adminVendorController.blockOrUnblockVendor(req, res);
       }
@@ -146,7 +146,7 @@ export class AdminRoute {
 
     this.adminRouter.post(
       AdminRoutes.CREATE_CATEGORY,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         categoryController.createCategory(req, res);
       }
@@ -154,7 +154,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_CATEGORIES,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         categoryController.getCategories(req, res);
       }
@@ -162,7 +162,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.SEARCH_CATEGORY,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         categoryController.SearchCategory(req, res);
       }
@@ -170,7 +170,7 @@ export class AdminRoute {
 
     this.adminRouter.post(
       AdminRoutes.CREATE_BANNER,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         bannerController.createBanner(req, res);
       }
@@ -179,7 +179,7 @@ export class AdminRoute {
     this.adminRouter.delete(
       AdminRoutes.DELETE_DESTINATION,
       verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["vendor", "admin"]),
+      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
       (req: Request, res: Response) => {
         destinationController.deleteDestinationController(req, res);
       }
@@ -187,7 +187,7 @@ export class AdminRoute {
 
     this.adminRouter.put(
       AdminRoutes.EDIT_CATEGORY,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         categoryController.EditCategory(req, res);
       }
@@ -195,7 +195,7 @@ export class AdminRoute {
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_CATEGORY,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         categoryController.DeleteCategory(req, res);
       }
@@ -203,7 +203,7 @@ export class AdminRoute {
 
     this.adminRouter.put(
       AdminRoutes.EDIT_BANNER,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         bannerController.editBanner(req, res);
       }
@@ -211,7 +211,7 @@ export class AdminRoute {
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_BANNER,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         bannerController.bannerDelete(req, res);
       }
@@ -225,7 +225,7 @@ export class AdminRoute {
     );
     this.adminRouter.post(
       AdminRoutes.CREATE_SUBSCRIPTION,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         subscriptionController.createSubscription(req, res);
       }
@@ -233,21 +233,21 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_SUBSCRIPTIONS,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
       (req: Request, res: Response) => {
         subscriptionController.getAllSubscriptions(req, res);
       }
     );
     this.adminRouter.put(
       AdminRoutes.EDIT_SUBSCRIPTION,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req: Request, res: Response) => {
         subscriptionController.updateSubscription(req, res);
       }
     );
     this.adminRouter.delete(
       AdminRoutes.DELETE_SUBSCRIPTION,
-      checkRoleBasedcontrol(["admin"]),
+      checkRoleBasedcontrol([Role.ADMIN]),
       (req:Request,res:Response)=>{
         subscriptionController.deleteDestinationController(req,res)
       }

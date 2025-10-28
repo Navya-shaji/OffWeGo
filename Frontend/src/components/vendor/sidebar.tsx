@@ -62,7 +62,6 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
 
-        {/* Packages Dropdown */}
         <button
           onClick={handlePackageClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -106,7 +105,6 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </div>
         )}
 
-        {/* Hotels Dropdown */}
         <button
           onClick={handleHotelClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${

@@ -20,6 +20,7 @@ export const addSubscription = async (data: Subscription) => {
 export const getSubscriptions = async () => {
   try {
     const res = await axiosInstance.get("/api/admin/subscriptions");
+    console.log(res.data,"response")
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

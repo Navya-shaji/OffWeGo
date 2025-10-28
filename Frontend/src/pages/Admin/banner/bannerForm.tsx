@@ -1,12 +1,18 @@
 import { getBanner, actionBannerupdate, BannerDelete } from "@/services/Banner/bannerService";
 import type { BannerInterface } from "@/interface/bannerInterface";
 import { useEffect, useState } from "react";
-import { Trash, XCircle } from "lucide-react";
+import { Trash } from "lucide-react";
+import { ConfirmModal } from "@/components/Modular/ConfirmModal";
 
 export const BannerForm = () => {
   const [banner, setBanner] = useState<BannerInterface[]>([]);
   const [loading, setLoading] = useState(true);
-  const [confirmModal, setConfirmModal] = useState<{ open: boolean; id: string | null; title: string | null }>({
+
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    id: string | null;
+    title: string | null;
+  }>({
     open: false,
     id: null,
     title: null,
@@ -73,7 +79,7 @@ export const BannerForm = () => {
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white">
             {banner.map((ban, index) => (
-              <tr key={ban.id} className="hover:bg-gray-50 transition">
+              <tr key={ban.id || index} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4">
                   {ban.Banner_video_url ? (
                     <video
@@ -89,7 +95,11 @@ export const BannerForm = () => {
                     <span className="text-gray-400 italic">No video</span>
                   )}
                 </td>
-                <td className="px-6 py-4 font-medium text-gray-800">{ban.title}</td>
+
+                <td className="px-6 py-4 font-medium text-gray-800">
+                  {ban.title}
+                </td>
+
                 <td className="px-6 py-4">
                   <label className="inline-flex items-center cursor-pointer">
                     <input
@@ -106,11 +116,16 @@ export const BannerForm = () => {
                     </span>
                   </label>
                 </td>
+
                 <td className="px-6 py-4">
                   <button
                     className="text-red-500 hover:text-red-700 font-medium"
                     onClick={() =>
-                      setConfirmModal({ open: true, id: ban.id || null, title: ban.title || null })
+                      setConfirmModal({
+                        open: true,
+                        id: ban.id || null,
+                        title: ban.title || null,
+                      })
                     }
                   >
                     <Trash size={16} className="text-red-600" />
@@ -122,45 +137,16 @@ export const BannerForm = () => {
         </table>
       </div>
 
-      {/* Confirmation Modal */}
-      {confirmModal.open && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] sm:w-[400px]">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Confirm Deletion
-              </h3>
-              <button
-                onClick={() => setConfirmModal({ open: false, id: null, title: null })}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <XCircle size={20} />
-              </button>
-            </div>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete{" "}
-              <span className="font-semibold text-black">
-                {confirmModal.title || "this banner"}
-              </span>
-              ?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setConfirmModal({ open: false, id: null, title: null })}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title="Delete Banner"
+        message={`Are you sure you want to delete "${confirmModal.title}"?`}
+        onConfirm={handleDelete}
+        onCancel={() =>
+          setConfirmModal({ open: false, id: null, title: null })
+        }
+        confirmText="Yes, Delete"
+      />
     </div>
   );
 };

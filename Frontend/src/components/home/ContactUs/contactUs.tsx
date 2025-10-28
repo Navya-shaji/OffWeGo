@@ -14,14 +14,14 @@ const ExpandedContactUsPage = () => {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e:any) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
     setSubmitted(true);
@@ -125,14 +125,14 @@ const ExpandedContactUsPage = () => {
     }
   ];
 
-  const getColorClasses = (color) => {
+  const getColorClasses = () => {
     const colors = {
       blue: "bg-blue-100 text-blue-600",
       purple: "bg-purple-100 text-purple-600",
       green: "bg-green-100 text-green-600",
       orange: "bg-orange-100 text-orange-600"
     };
-    return colors[color] || colors.blue;
+    return colors.blue || colors.green || colors.orange || colors.purple;
   };
 
   return (

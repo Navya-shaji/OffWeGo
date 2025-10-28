@@ -31,32 +31,31 @@ export default function AddSubscriptionForm() {
   });
 
   const notify = () => toast.success("Subscription added successfully!");
-console.log("Component loaded ✅");
- const onSubmit = async (data: SubscriptionFormData) => {
-  console.log("Form submitted with data:", data);
-  
-  try {
-    dispatch(addSubscriptionStart());
-    console.log("Dispatched start action");
+  const onSubmit = async (data: SubscriptionFormData) => {
+    console.log("Form submitted with data:", data);
 
-    const response = await subscriptionService.addSubscription({
-      name: data.name,
-      price: data.price,
-      maxPackages: data.maxPackages,
-      duration: data.duration, // Make sure this matches your service expectation
-    });
-    
-    console.log("Response received:", response);
+    try {
+      dispatch(addSubscriptionStart());
+      console.log("Dispatched start action");
 
-    dispatch(addSubscriptionSuccess(response));
-    notify();
-    reset();
-  } catch (err: unknown) {
-    console.error("Error adding subscription:", err);
-    dispatch(addSubscriptionFailure("Failed to add subscription"));
-    toast.error("Failed to add subscription");
-  }
-};
+      const response = await subscriptionService.addSubscription({
+        name: data.name,
+        price: data.price,
+        maxPackages: data.maxPackages,
+        duration: data.duration,
+      });
+
+      console.log("Response received:", response);
+
+      dispatch(addSubscriptionSuccess(response));
+      notify();
+      reset();
+    } catch (err: unknown) {
+      console.error("Error adding subscription:", err);
+      dispatch(addSubscriptionFailure("Failed to add subscription"));
+      toast.error("Failed to add subscription");
+    }
+  };
 
   return (
     <div className="flex items-center justify-center py-10 px-4">
@@ -68,22 +67,22 @@ console.log("Component loaded ✅");
           </p>
         </div>
 
- <form 
-  onSubmit={(e) => {
-    console.log("Form onSubmit triggered");
-    e.preventDefault(); // Add this to prevent default behavior
-    handleSubmit(
-      (data) => {
-        console.log("✅ Validation passed, data:", data);
-        onSubmit(data);
-      },
-      (errors) => {
-        console.log("❌ Validation errors:", errors);
-      }
-    )(e);
-  }} 
-  className="p-6 space-y-5"
->
+        <form
+          onSubmit={(e) => {
+            console.log("Form onSubmit triggered");
+            e.preventDefault();
+            handleSubmit(
+              (data) => {
+                console.log(" Validation passed, data:", data);
+                onSubmit(data);
+              },
+              (errors) => {
+                console.log(" Validation errors:", errors);
+              }
+            )(e);
+          }}
+          className="p-6 space-y-5"
+        >
           <ToastContainer position="top-right" autoClose={3000} />
 
           <div>
@@ -109,7 +108,7 @@ console.log("Component loaded ✅");
               htmlFor="price"
               className="text-sm font-semibold text-gray-700 mb-1 block"
             >
-              Price *
+              Price
             </Label>
             <Input
               id="price"
@@ -136,9 +135,7 @@ console.log("Component loaded ✅");
               placeholder="30"
             />
             {errors.duration && (
-              <p className="text-red-500 text-sm">
-                {errors.duration.message}
-              </p>
+              <p className="text-red-500 text-sm">{errors.duration.message}</p>
             )}
           </div>
 
@@ -162,11 +159,9 @@ console.log("Component loaded ✅");
             )}
           </div>
 
-       
-
           <Button
-              type="submit"
-  onClick={() => console.log("Button clicked!")}
+            type="submit"
+            onClick={() => console.log("Button clicked!")}
             className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition disabled:opacity-50"
             disabled={loading}
           >

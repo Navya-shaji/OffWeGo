@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 
 export default function AboutUs() {
   const [activeTimeline, setActiveTimeline] = useState(null);
@@ -187,7 +187,6 @@ export default function AboutUs() {
               <div 
                 key={index} 
                 className={`relative mb-12 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12 md:text-left'}`}
-                onMouseEnter={() => setActiveTimeline(index)}
                 onMouseLeave={() => setActiveTimeline(null)}
               >
                 <div className={`bg-gray-50 rounded-xl p-6 border-2 ${activeTimeline === index ? 'border-indigo-600 shadow-lg' : 'border-gray-200'} transition-all duration-300`}>

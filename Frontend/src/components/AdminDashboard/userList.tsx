@@ -217,7 +217,7 @@ const UserList = () => {
               openStatusModal(
                 row.original._id,
                 row.original.status,
-                row.original.name
+                row.original.username
               )
             }
             className="sr-only peer"

@@ -11,8 +11,9 @@ import { CategoryForm } from "../category/category";
 import { CategoryTable } from "../category/getAllCategory";
 import CreateBanner from "../banner/createBanner";
 import { BannerForm } from "../banner/bannerForm";
-import AddSubscription from "@/components/AdminDashboard/CreateSubscription";
-import SubscriptionList from "@/components/AdminDashboard/GetAllSubscription";
+import AddSubscription from "@/pages/Admin/Subscription/CreateSubscription";
+import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
+import AdminDashboard from "./Dashboard";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -63,11 +64,8 @@ const AdminLayout = () => {
         <div className="flex-1 overflow-auto">
           <div className="p-4 sm:p-6">
             {activeTab === "Dashboard" && (
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-serif mb-4">Welcome to Dashboard</h1>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                </div>
-              </div>
+              
+              <AdminDashboard/>
             )}
 
             {activeTab === "Pending Requests" && (
