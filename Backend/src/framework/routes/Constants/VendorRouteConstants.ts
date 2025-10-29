@@ -31,5 +31,6 @@ export const VendorRoutes={
     EDIT_FLIGHT:'/flights/:id',
     DELETE_FLIGHT:'/flights/:id',
     USER_BOOKINGS:'/bookings/:id',
-    BOOKING_DATES:'/bookings/date/:id'
+    BOOKING_DATES:'/bookings/date/:id',
+    SUBSCRIPTION_BOOKING:'/subscription-booking'
 }

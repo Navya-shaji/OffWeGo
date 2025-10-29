@@ -4,5 +4,5 @@ export interface SubscriptionPlanDto {
   price: number;        
   maxPackages: number;   
   duration: number;      
-    
+  stripePriceId: string;
 }

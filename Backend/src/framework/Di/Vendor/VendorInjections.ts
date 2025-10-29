@@ -41,6 +41,8 @@ import { FlightController } from "../../../adapters/controller/Flight/FlightCont
 import { GetAllFlightUsecase } from "../../../useCases/flight/GetAllFlightUsecase";
 import { EditFlightUsecase } from "../../../useCases/flight/EditFlightUsecase";
 import { DeleteFlightUsecase } from "../../../useCases/flight/DeleteFlightUSecase";
+import { CreateBookingSubscriptionUseCase } from "../../../useCases/subscription/createBookingSubscriptionUsecase";
+import { SubscriptionBookingController } from "../../../adapters/controller/Subscriptionplan/SubscriptionBookingController";
 
 
 //  Setup Repository and Services
@@ -81,6 +83,7 @@ const createflightusecase=new CreateflightUsecase(flightRepo)
 const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
+const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase()
 
 
 //  Controllers
@@ -93,3 +96,4 @@ export const packagecontroller=new PackageController(getAllpackageByVendor,creat
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
+export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase)

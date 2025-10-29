@@ -4,6 +4,7 @@ import {
   flightcontroller,
   hotelcontroller,
   packagecontroller,
+  subscriptionBookingController,
   vendorloginController,
   vendorProfilecontroller,
   vendorsignupcontroller,
@@ -140,7 +141,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.HOTELS,
-      checkRoleBasedcontrol([Role.VENDOR,Role.USER]),
+      checkRoleBasedcontrol([Role.VENDOR, Role.USER]),
       (req: Request, res: Response) => hotelcontroller.getHotels(req, res)
     );
     this.vendorRouter.put(
@@ -199,11 +200,17 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.USER_BOOKINGS,
-      (req:Request,res:Response)=>bookingcontroller.getVendorsideBookings(req,res)
-    )
+      (req: Request, res: Response) =>
+        bookingcontroller.getVendorsideBookings(req, res)
+    );
     this.vendorRouter.get(
       VendorRoutes.BOOKING_DATES,
-      (req:Request,res:Response)=>bookingcontroller.bookingDates(req,res)
-    )
+      (req: Request, res: Response) => bookingcontroller.bookingDates(req, res)
+    );
+    this.vendorRouter.post(
+      VendorRoutes.SUBSCRIPTION_BOOKING,
+      (req: Request, res: Response) =>
+        subscriptionBookingController.createSubscriptionBooking(req, res)
+    );
   }
 }

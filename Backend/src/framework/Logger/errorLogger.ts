@@ -1,4 +1,3 @@
-// src/framework/Logger/errorLogger.ts
 import fs from "fs";
 import path from "path";
 
