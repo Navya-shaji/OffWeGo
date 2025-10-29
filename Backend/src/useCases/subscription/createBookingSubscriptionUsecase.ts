@@ -4,7 +4,7 @@ import { ICreateBookingSubscriptionRequest } from "../../domain/interface/Subscr
 import { ICreateBookingSubscriptionResponse } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionResponse";
 import { ICreateBookingSubscriptionUseCase } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionUsecase";
 import { StripeService } from "../../framework/Services/stripeService";
-
+import QRCode from "qrcode"
 export class CreateBookingSubscriptionUseCase
   implements ICreateBookingSubscriptionUseCase
 {
@@ -46,13 +46,15 @@ export class CreateBookingSubscriptionUseCase
     // ✅ 3. Create Stripe checkout session using Stripe Price ID
     const session = await this.stripeService.createSubscriptionCheckoutSession(
       plan.stripePriceId, // <-- use Stripe price ID
-      domainUrl
+      domainUrl,
+       booking._id.toString()
     );
-
+const qrCodeUrl = await QRCode.toDataURL(session.url);
     // ✅ 4. Return booking + checkout link
     return {
       bookingId: booking._id.toString(),
       checkoutUrl: session.url,
+       qrCode: qrCodeUrl,
     };
   }
 }
