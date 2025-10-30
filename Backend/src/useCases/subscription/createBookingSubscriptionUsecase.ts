@@ -49,11 +49,11 @@ export class CreateBookingSubscriptionUseCase
       domainUrl,
        booking._id.toString()
     );
-const qrCodeUrl = await QRCode.toDataURL(session.url);
+const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
     // ✅ 4. Return booking + checkout link
     return {
       bookingId: booking._id.toString(),
-      checkoutUrl: session.url,
+      checkoutUrl: session.checkoutUrl,
        qrCode: qrCodeUrl,
     };
   }

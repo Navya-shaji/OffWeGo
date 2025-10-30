@@ -18,7 +18,11 @@ import { JwtService } from "../../Services/jwtService";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
-import { bookingcontroller } from "../../Di/User/userInjections";
+import {
+  bookingcontroller,
+  
+  subscriptionpaymentcontroller,
+} from "../../Di/User/userInjections";
 import { Role } from "../../../domain/constants/Roles";
 
 const TokenService = new JwtService();
@@ -211,6 +215,11 @@ export class VendorRoute {
       VendorRoutes.SUBSCRIPTION_BOOKING,
       (req: Request, res: Response) =>
         subscriptionBookingController.createSubscriptionBooking(req, res)
+    );
+    this.vendorRouter.post(
+      VendorRoutes.VERIFY_PAYMENT,
+      (req: Request, res: Response) =>
+        subscriptionpaymentcontroller.verifyPayment(req, res)
     );
   }
 }

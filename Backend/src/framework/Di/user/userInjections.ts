@@ -29,6 +29,8 @@ import { ReviewRepository } from "../../../adapters/repository/Reviews/ReviewRep
 import { CreateReviewUseCase } from "../../../useCases/reviews/createReviewUsecase";
 import { GetReviewUsecase } from "../../../useCases/reviews/getAllReviewsUsecase";
 import { ChangePasswordUseCase } from "../../../useCases/user/profile/changePasswordUsecase";
+import { VerifyPaymentUseCase } from "../../../useCases/subscription/VerifyPaymentUsecase";
+import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -62,6 +64,7 @@ const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
+const verifypaymentusecase=new VerifyPaymentUseCase(stripeService)
 
 
 
@@ -73,3 +76,4 @@ export const userprofileController=new UserProfileController(userprofile,edituse
 export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
+export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)

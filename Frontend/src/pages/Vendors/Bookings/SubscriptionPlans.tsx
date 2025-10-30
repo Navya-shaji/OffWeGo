@@ -11,15 +11,21 @@ import {
   Shield,
   Award,
   Home,
+  Calendar,
+  Clock,
+  CreditCard,
 } from "lucide-react";
 import { getSubscriptions } from "@/services/subscription/subscriptionservice";
 import { fetchAllPackages } from "@/services/packages/packageService";
 import VendorNavbar from "@/components/vendor/navbar";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
+import { createSubscriptionBooking } from "@/services/Payment/stripecheckoutservice";
+
 interface SubscriptionPlan {
   _id: string;
   name: string;
-  description: string;
   price: number;
   packageLimit: number;
   duration: number;
@@ -30,13 +36,19 @@ export default function VendorSubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionPlan[]>([]);
   const [usedSlots, setUsedSlots] = useState(0);
   const [totalFreeSlots] = useState(3);
-  const [showQR, setShowQR] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
     null
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-   const navigate = useNavigate();
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const vendorId = useSelector((state: RootState) => state.auth.user?.id);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,29 +72,67 @@ export default function VendorSubscriptionPage() {
         setLoading(false);
       }
     };
+
     fetchData();
+
+    const today = new Date().toISOString().split("T")[0];
+    setBookingDate(today);
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    setBookingTime(`${hours}:${minutes}`);
   }, []);
 
   const remainingSlots = totalFreeSlots - usedSlots;
 
   const handleBookPlan = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
-    setShowQR(true);
+    setShowBookingModal(true);
   };
 
-  const handlePaymentSuccess = async () => {
-    try {
-      setShowQR(false);
-      const [subData, packagesData] = await Promise.all([
-        getSubscriptions(),
-        fetchAllPackages(1, 100),
-      ]);
+  const handleProceedToPayment = async () => {
+    if (!selectedPlan || !bookingDate || !bookingTime) {
+      alert("Please fill in all booking details");
+      return;
+    }
 
-      setSubscriptions(subData);
-      setUsedSlots(packagesData.packages?.length || 0);
+    if (!vendorId) {
+      alert("Vendor ID not found. Please login again.");
+      return;
+    }
+
+    try {
+      setBookingLoading(true);
+
+      sessionStorage.setItem(
+        "bookingDetails",
+        JSON.stringify({
+          vendorId,
+          planId: selectedPlan._id,
+          date: bookingDate,
+          time: bookingTime,
+        })
+      );
+
+      const response = await createSubscriptionBooking({
+        vendorId,
+        planId: selectedPlan._id,
+        planName: selectedPlan.name,
+        amount: selectedPlan.price,
+        date: bookingDate,
+        time: bookingTime,
+      });
+ 
+      if (response.success && response.data.checkoutUrl) {
+       
+        window.location.href = response.data.checkoutUrl;
+      } else {
+        throw new Error("Failed to create payment session");
+      }
     } catch (err) {
       console.error("Payment error:", err);
-      setError(err instanceof Error ? err.message : "Payment failed");
+      alert(err instanceof Error ? err.message : "Failed to initiate payment");
+      setBookingLoading(false);
     }
   };
 
@@ -90,7 +140,6 @@ export default function VendorSubscriptionPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-    
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading subscription plans...</p>
         </div>
@@ -136,7 +185,6 @@ export default function VendorSubscriptionPage() {
 
     return (
       <div className="relative inline-flex items-center justify-center">
-        
         <svg width={size} height={size} className="transform -rotate-90">
           <circle
             cx={size / 2}
@@ -182,14 +230,14 @@ export default function VendorSubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-         <VendorNavbar/>
+      <VendorNavbar />
       <div className="max-w-7xl mx-auto p-6 md:p-8">
-          <div
-        onClick={() => navigate("/vendor/profile")}
-        className="cursor-pointer hover:text-indigo-600 transition-all"
-      >
-        <Home />
-      </div>
+        <div
+          onClick={() => navigate("/vendor/profile")}
+          className="cursor-pointer hover:text-indigo-600 transition-all"
+        >
+          <Home />
+        </div>
         <div className="text-center mb-12 mt-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full mb-4">
             <Sparkles className="w-4 h-4 text-blue-600" />
@@ -205,7 +253,6 @@ export default function VendorSubscriptionPage() {
           </p>
         </div>
 
-      
         <div className="mb-12 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="space-y-6">
@@ -271,7 +318,6 @@ export default function VendorSubscriptionPage() {
           </div>
         </div>
 
-  
         <div className="mb-8">
           <h2 className="text-4xl font-black text-center text-gray-900 mb-3">
             Choose Your Plan
@@ -338,10 +384,6 @@ export default function VendorSubscriptionPage() {
                     <h4 className="text-2xl font-black text-gray-900 mb-2">
                       {plan.name}
                     </h4>
-                    <p className="text-gray-600 text-sm mb-6 min-h-[40px]">
-                      {plan.description}
-                    </p>
-
                     <div className="mb-8">
                       <div className="flex items-baseline gap-2 mb-1">
                         <span className="text-5xl font-black text-gray-900">
@@ -398,7 +440,7 @@ export default function VendorSubscriptionPage() {
                       } hover:scale-105`}
                       onClick={() => handleBookPlan(plan)}
                     >
-                      Get Started
+                      Book Now
                     </Button>
                   </div>
                 </div>
@@ -407,12 +449,13 @@ export default function VendorSubscriptionPage() {
           </div>
         )}
 
-        {showQR && selectedPlan && (
+        {showBookingModal && selectedPlan && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
             <div className="relative bg-white border border-gray-200 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-300">
               <button
-                onClick={() => setShowQR(false)}
+                onClick={() => setShowBookingModal(false)}
                 className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors z-10"
+                disabled={bookingLoading}
               >
                 <X className="w-5 h-5 text-gray-600" />
               </button>
@@ -420,26 +463,47 @@ export default function VendorSubscriptionPage() {
               <div className="p-8">
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full mb-4">
-                    <Sparkles className="w-4 h-4 text-blue-600" />
+                    <CreditCard className="w-4 h-4 text-blue-600" />
                     <span className="text-sm font-medium text-blue-600">
-                      Secure Payment
+                      Secure Payment via Stripe
                     </span>
                   </div>
                   <h3 className="text-3xl font-black text-gray-900 mb-2">
-                    Complete Payment
+                    {selectedPlan.name}
                   </h3>
                   <p className="text-gray-600">
-                    Scan QR for {selectedPlan.name} plan
+                    Select your preferred date and time
                   </p>
                 </div>
 
-                <div className="mb-6 p-6 bg-gray-50 border border-gray-200 rounded-xl">
-                  <div className="w-full aspect-square bg-white rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                    <div className="text-center text-gray-400">
-                      <Package className="w-20 h-20 mx-auto mb-2" />
-                      <p className="text-sm font-medium">QR Code Placeholder</p>
-                      <p className="text-xs mt-1">Integrate payment gateway</p>
-                    </div>
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                      <Calendar className="w-4 h-4" />
+                      Booking Date
+                    </label>
+                    <input
+                      type="date"
+                      value={bookingDate}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={bookingLoading}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                      <Clock className="w-4 h-4" />
+                      Booking Time
+                    </label>
+                    <input
+                      type="time"
+                      value={bookingTime}
+                      onChange={(e) => setBookingTime(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={bookingLoading}
+                    />
                   </div>
                 </div>
 
@@ -458,18 +522,36 @@ export default function VendorSubscriptionPage() {
                       {selectedPlan.duration} days
                     </span>
                   </div>
+                  <div className="flex justify-between items-center text-sm mt-1">
+                    <span className="text-gray-500">Package Slots:</span>
+                    <span className="text-gray-700 font-medium">
+                      {selectedPlan.packageLimit} slots
+                    </span>
+                  </div>
                 </div>
 
                 <Button
-                  className="w-full mb-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-bold text-white shadow-md hover:shadow-lg transition-all duration-300"
-                  onClick={handlePaymentSuccess}
+                  className="w-full mb-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 font-bold text-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                  onClick={handleProceedToPayment}
+                  disabled={bookingLoading || !bookingDate || !bookingTime}
                 >
-                  ✓ Payment Completed
+                  {bookingLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Redirecting to Stripe...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4" />
+                      Proceed to Payment
+                    </>
+                  )}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium"
-                  onClick={() => setShowQR(false)}
+                  onClick={() => setShowBookingModal(false)}
+                  disabled={bookingLoading}
                 >
                   Cancel
                 </Button>

@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from "@/pages/Vendors/Dashboard";
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
 import VendorSubscriptionPage from "@/pages/Vendors/Bookings/SubscriptionPlans";
+import PaymentSuccessPage from "@/pages/Vendors/Bookings/PAymentSuccessPage";
 
 const VendorRoutes = () => {
   return (
@@ -11,6 +12,7 @@ const VendorRoutes = () => {
       <Route path="/signup" element={<VendorSignup />} />
       <Route path="/login" element={<VendorLogin />} />
       <Route path="/subscriptionplans" element={<VendorSubscriptionPage/>}/>
+      <Route path="/payment/success" element={<PaymentSuccessPage />} />
       <Route
         path="/profile"
         element={

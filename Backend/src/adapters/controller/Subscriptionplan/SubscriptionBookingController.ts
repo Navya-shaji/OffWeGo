@@ -28,7 +28,7 @@ export class SubscriptionBookingController {
         data: result,
       });
     } catch (error) {
-      console.error("❌ Error creating subscription booking:", error);
+      console.error(" Error creating subscription booking:", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, error: (error as Error).message });

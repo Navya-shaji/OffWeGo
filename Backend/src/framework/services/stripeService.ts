@@ -1,48 +1,69 @@
 import Stripe from "stripe";
 import { IStripeService } from "../../domain/interface/Payment/IStripeservice";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-09-30.clover",
-});
 
 export class StripeService implements IStripeService {
-  async createPaymentIntent(amount: number): Promise<string> {
-    console.log("💰 Creating Payment Intent for:", amount);
+  private stripe: Stripe;
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100),
-      currency: "inr",
-      automatic_payment_methods: { enabled: true },
+  constructor() {
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+      apiVersion: "2025-09-30.clover",
     });
+  }
 
-    console.log("✅ PaymentIntent created:", paymentIntent.client_secret);
-    return paymentIntent.client_secret!;
+  async createPaymentIntent(amount: number): Promise<string> {
+    console.log("💰 Creating Payment Intent for amount:", amount);
+
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: Math.round(amount * 100),
+        currency: "inr",
+        automatic_payment_methods: { enabled: true },
+      });
+
+      console.log(" PaymentIntent created:", paymentIntent.id);
+      return paymentIntent.client_secret!;
+    } catch (error) {
+      console.error(" Error creating PaymentIntent:", error);
+      throw new Error("Failed to create payment intent");
+    }
   }
 
   async createSubscriptionCheckoutSession(
     priceId: string,
     domainUrl: string,
     bookingId?: string
-  ): Promise<{ url: string }> {
-    console.log("🌀 Creating Stripe Subscription Checkout for Price:", priceId);
+  ): Promise<{ checkoutUrl: string }> {
+    console.log("🌀 Creating Stripe Checkout session for priceId:", priceId);
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
+    try {
+      const session = await this.stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        line_items: [{ price: priceId, quantity: 1 }],
+        metadata: {
+          bookingId: bookingId ?? "N/A",
         },
-      ],
-      metadata: {
-        bookingId: bookingId ?? "N/A",
-      },
-      success_url: `${domainUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domainUrl}/payment/cancel`,
-    });
+        success_url: `${domainUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${domainUrl}/payment/cancel`,
+      });
 
-    console.log(" Checkout session created:", session.url);
-
-    return { url: session.url! };
+      console.log("✅ Checkout Session created:", session.url);
+      return { checkoutUrl: session.url! };
+    } catch (error) {
+      console.error(" Error creating Checkout Session:", error);
+      throw new Error("Failed to create Stripe Checkout session");
+    }
+  }
+  async retrieveSession(sessionId: string): Promise<{
+    id: string;
+    payment_status: string;
+    customer_email?: string;
+  }> {
+    const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+    return {
+      id: session.id,
+      payment_status: session.payment_status,
+      customer_email: session.customer_details?.email ?? undefined,
+    };
   }
 }
