@@ -4,7 +4,11 @@ import { BookingModel } from "../../../framework/database/Models/BookingModel";
 
 export class BookingRepository implements IBookingRepository {
   async createBooking(booking: Booking): Promise<Booking> {
-    const createdBooking = new BookingModel({...booking,bookingStatus:booking.bookingStatus||"upcoming",bookingId:booking.bookingId});
+    const createdBooking = new BookingModel({
+      ...booking,
+      bookingStatus: booking.bookingStatus || "upcoming",
+      bookingId: booking.bookingId,
+    });
     await createdBooking.save();
     return createdBooking.toObject();
   }
@@ -47,12 +51,28 @@ export class BookingRepository implements IBookingRepository {
 
     return bookings.flatMap((b) => b.selectedDate || []);
   }
-  async cancelBooking(id: string): Promise<Booking> {
-    const updated = await BookingModel.findByIdAndUpdate(
-      id,
+  async cancelBooking(bookingId: string): Promise<Booking> {
+    const updated = await BookingModel.findOneAndUpdate(
+      { bookingId },
       { bookingStatus: "cancelled" },
       { new: true }
-    );
-    return updated as Booking;
+    )
+      .lean<Booking>()
+      .exec();
+
+    if (!updated) {
+      throw new Error("Booking not found");
+    }
+
+    return updated;
   }
+async findOne(bookingId: string): Promise<Booking | null> {
+  console.log("Finding booking by bookingId:", bookingId);
+  const booking = await BookingModel.findOne({ bookingId }).lean<Booking>().exec();
+  console.log("Result from DB:", booking);
+  return booking;
+}
+
+
+
 }

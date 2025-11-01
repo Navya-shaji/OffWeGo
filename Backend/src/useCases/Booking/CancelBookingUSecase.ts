@@ -10,8 +10,10 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
     private _userRepo: IUserRepository
   ) {}
 
-  async execute(bookingID: string): Promise<BookingDataDto> {
-  const booking = await this._bookingRepo.findById(bookingID);
+  async execute(bookingId: string): Promise<BookingDataDto> {
+       console.log("Finding booking by bookingId:", bookingId);
+  const booking = await this._bookingRepo.findOne(bookingId);
+  console.log(booking)
   if (!booking) throw new Error("Booking not Found");
 
   if (booking.bookingStatus === "cancelled")
@@ -22,7 +24,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
   if (bookingDate <= now)
     throw new Error("Past bookings cannot be cancelled");
 
-  const result = await this._bookingRepo.cancelBooking(bookingID);
+  const result = await this._bookingRepo.cancelBooking(bookingId);
 
   await this._userRepo.updateWallet(booking.userId, booking.totalAmount);
 

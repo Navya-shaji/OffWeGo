@@ -85,14 +85,16 @@ console.log(data,"d")
   }
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
-      const bookingId = req.params.bookingID;
+      const bookingId = req.params.bookingId;
       console.log(bookingId);
       const bookings = await this._cancelBooking.execute(bookingId);
+      console.log(bookings,"b")
       res.status(HttpStatus.OK).json({
         success: true,
         bookings: bookings,
       });
     } catch (error) {
+      console.log(error)
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error,

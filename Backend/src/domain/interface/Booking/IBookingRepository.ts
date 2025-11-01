@@ -8,4 +8,5 @@ export interface IBookingRepository {
   findByVendorId(vendorId: string): Promise<Booking[]>;
   getBookedDatesByVendor(vendorId: string): Promise<Date[]>;
   cancelBooking(id: string): Promise<Booking>;
+  findOne(bookingId:string):Promise<Booking|null>
 }
