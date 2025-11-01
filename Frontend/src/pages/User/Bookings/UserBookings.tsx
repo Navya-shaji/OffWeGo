@@ -5,12 +5,16 @@ import {
   Home,
   ArrowUpDown,
   Star,
-  FileText,
+  X,
+  Eye,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { useNavigate } from "react-router-dom";
-import { cancelBooking, getUserBookings } from "@/services/Booking/bookingService";
+import {
+  cancelBooking,
+  getUserBookings,
+} from "@/services/Booking/bookingService";
 
 const BookingDetailsSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -24,6 +28,7 @@ const BookingDetailsSection = () => {
   });
   const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchBookings = async () => {
       if (user?.id) {
@@ -42,23 +47,27 @@ const BookingDetailsSection = () => {
     };
     fetchBookings();
   }, [user?.id]);
-const handleCancelBooking = async (bookingId: string) => {
-  if (!window.confirm("Are you sure you want to cancel this booking?")) return;
 
-  try {
-    setLoading(true);
-    const response = await cancelBooking(bookingId);
-    alert(response.message || "Booking cancelled and refund added to wallet.");
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?"))
+      return;
 
-    const updatedBookings = await getUserBookings(user.id);
-    setBookings(updatedBookings);
-  } catch (error) {
-    console.error("Error cancelling booking:", error);
-    alert("Something went wrong while cancelling the booking.");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const response = await cancelBooking(bookingId);
+      alert(
+        response.message || "Booking cancelled and refund added to wallet."
+      );
+
+      const updatedBookings = await getUserBookings(user.id);
+      setBookings(updatedBookings);
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert("Something went wrong while cancelling the booking.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getBookingStatus = (booking: any) => {
     const bookingDate = new Date(booking.selectedDate);
@@ -130,9 +139,7 @@ const handleCancelBooking = async (bookingId: string) => {
   };
 
   const handleAddReview = (booking: any) => {
-    // Navigate to review section or open review modal
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    // You can also use navigate('/reviews') or trigger a review modal
   };
 
   if (loading) {
@@ -309,32 +316,31 @@ const handleCancelBooking = async (bookingId: string) => {
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[status]}`}
-                            >
-                              {status.charAt(0).toUpperCase() + status.slice(1)}
+                            <span>
+                              {booking.bookingStatus}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-center gap-2">
-                              {/* View Button */}
                               <button
                                 onClick={() => handleViewDetails(booking)}
-                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md text-sm font-medium flex items-center gap-2"
+                                className="p-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
+                                title="View Details"
                               >
-                                <FileText className="w-4 h-4" />
-                                View
+                                <Eye className="w-5 h-5" />
                               </button>
 
-                              {/* Cancel Button */}
-                              {getBookingStatus(booking) === "upcoming" && (
+                              {/* Only show cancel button if status is upcoming AND not cancelled */}
+                              {getBookingStatus(booking) === "upcoming" && 
+                               booking.bookingStatus?.toLowerCase() !== "cancelled" && (
                                 <button
                                   onClick={() =>
-                                    handleCancelBooking(booking._id)
+                                    handleCancelBooking(booking.bookingId)
                                   }
-                                  className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg hover:from-red-600 hover:to-rose-600 transition-all shadow-sm hover:shadow-md text-sm font-medium flex items-center gap-2"
+                                  className="p-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg hover:from-red-600 hover:to-rose-600 transition-all shadow-sm hover:shadow-md"
+                                  title="Cancel Booking"
                                 >
-                                  Cancel
+                                  <X className="w-5 h-5" />
                                 </button>
                               )}
                             </div>
@@ -351,7 +357,7 @@ const handleCancelBooking = async (bookingId: string) => {
       </div>
 
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0   bg-black/40 backdrop-blur-sm  flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-white">Booking Details</h2>
@@ -376,6 +382,12 @@ const handleCancelBooking = async (bookingId: string) => {
             </div>
             <div className="p-6">
               <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Booking ID</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {selectedBooking.bookingId || "N/A"}
+                  </p>
+                </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Package Name</p>
                   <p className="text-lg font-semibold text-gray-900">

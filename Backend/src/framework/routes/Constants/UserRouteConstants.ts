@@ -18,5 +18,5 @@ export const UserRoutes = {
   REVIEWS: "/create-reviews",
   All_REVIEWS: "/reviews/:id",
   PASSWORD: "/password/:id",
-  CANCEL_BOOKING: "/bookings/:bookingId",
+  CANCEL_BOOKING: "/bookings/:id",
 };

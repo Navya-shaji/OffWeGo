@@ -19,12 +19,11 @@ export class BookingController {
     try {
       console.log(req.body, "body");
       const { data, payment_id, paymentStatus } = req.body;
-console.log(data,"d")
+
       const result = await this._createBooking.execute({
         data,
         payment_id,
         paymentStatus,
-    
       });
 
       console.log("Booking created:", result);
@@ -40,7 +39,6 @@ console.log(data,"d")
   async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId;
-      console.log(userId);
       const bookings = await this._userbookings.execute(userId);
       console.log(bookings);
       res.status(HttpStatus.OK).json({ success: true, bookings });
@@ -67,8 +65,6 @@ console.log(data,"d")
   async bookingDates(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.vendorId;
-      console.log(vendorId);
-
       const booking_dates = await this._bookingDates.execute(vendorId);
 
       res.status(HttpStatus.OK).json({
@@ -76,7 +72,6 @@ console.log(data,"d")
         booking_dates: booking_dates,
       });
     } catch (error) {
-      console.error("Error fetching user booking dates:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error,
@@ -85,16 +80,14 @@ console.log(data,"d")
   }
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
-      const bookingId = req.params.bookingId;
-      console.log(bookingId);
+      const bookingId = req.params.id;
       const bookings = await this._cancelBooking.execute(bookingId);
-      console.log(bookings,"b")
       res.status(HttpStatus.OK).json({
         success: true,
         bookings: bookings,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error,
