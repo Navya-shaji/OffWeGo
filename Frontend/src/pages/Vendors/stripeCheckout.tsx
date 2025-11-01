@@ -36,9 +36,6 @@ function CheckoutForm({ amount }: { amount: number; clientSecret: string }) {
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
-      confirmParams: {
-        return_url: window.location.origin + "/payment-success",
-      },
       redirect: "if_required",
     });
 
@@ -46,7 +43,7 @@ function CheckoutForm({ amount }: { amount: number; clientSecret: string }) {
       try {
         
         const result = await createBooking(bData, paymentIntent.id);
-        navigate("/booking-success", {
+        navigate("/payment-success", {
           state: {
             booking: result.booking,
           },

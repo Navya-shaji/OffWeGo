@@ -8,6 +8,7 @@ export class SubscriptionPaymentController {
   async verifyPayment(req: Request, res: Response): Promise<void> {
     try {
       const { sessionId } = req.body;
+      console.log("Received sessionId:", sessionId);
 
       if (!sessionId) {
         res.status(HttpStatus.BAD_REQUEST).json({
@@ -19,11 +20,11 @@ export class SubscriptionPaymentController {
 
       const result = await this.verifyPaymentUseCase.execute(sessionId);
 
-     
+      console.log(result, "result from backend");
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Payment verified successfully",
-        data: result.message
+        data: result.message,
       });
     } catch (error) {
       console.error("Error verifying payment:", error);

@@ -32,6 +32,7 @@ import { ChangePasswordUseCase } from "../../../useCases/user/profile/changePass
 import { VerifyPaymentUseCase } from "../../../useCases/subscription/VerifyPaymentUsecase";
 import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
 import { StripeService } from "../../Services/stripeService";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 
 
 // Setup Repos and Services
@@ -44,7 +45,7 @@ const bookingRepo=new BookingRepository()
 const stripeService = new StripeService();
 const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
-
+const subscriptionRepo=new SubscriptionPlanRepository()
 
 
 // Use Cases
@@ -64,7 +65,7 @@ const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
-const verifypaymentusecase=new VerifyPaymentUseCase(stripeService)
+const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
 
 
 

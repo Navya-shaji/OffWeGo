@@ -30,3 +30,15 @@ export const createSubscriptionBooking = async (data: SubscriptionBookingPayload
     throw new Error("An unexpected error occurred while creating subscription booking");
   }
 };
+
+export const verifyPayment = async (paymentData) => {
+  try {
+    const res = await axiosInstance.post("api/vendor/payment-success", paymentData);
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Payment verification failed");
+    }
+    throw new Error("Unexpected error verifying payment");
+  }
+};

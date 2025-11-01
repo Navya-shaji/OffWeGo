@@ -123,11 +123,12 @@ export default function VendorSubscriptionPage() {
         time: bookingTime,
       });
  
+      console.log("Redirecting to Stripe:", response.data.checkoutUrl);
       if (response.success && response.data.checkoutUrl) {
        
         window.location.href = response.data.checkoutUrl;
       } else {
-        throw new Error("Failed to create payment session");
+        throw new Error("Failed to create payment session");  
       }
     } catch (err) {
       console.error("Payment error:", err);
@@ -135,6 +136,7 @@ export default function VendorSubscriptionPage() {
       setBookingLoading(false);
     }
   };
+console.log("Stored booking details:", sessionStorage.getItem("bookingDetails"));
 
   if (loading) {
     return (

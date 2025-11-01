@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { verifyPaymentAndCreateBooking } from "@/services/Payment/stripecheckoutservice"; 
+import { verifyPaymentAndCreateBooking } from "@/services/Payment/stripecheckoutservice";
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("Verifying your payment...");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const PaymentSuccessPage = () => {
       const bookingDetails = JSON.parse(sessionStorage.getItem("bookingDetails") || "{}");
 
       if (!sessionId || !bookingDetails.vendorId || !bookingDetails.planId) {
-        setMessage("Missing session or booking details.");
+        setMessage("⚠️ Missing session or booking details.");
         setLoading(false);
         return;
       }
@@ -32,8 +32,8 @@ const PaymentSuccessPage = () => {
         } else {
           setMessage("❌ Payment verification failed.");
         }
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error("Payment verification error:", error);
         setMessage("❌ Error verifying payment.");
       } finally {
         setLoading(false);

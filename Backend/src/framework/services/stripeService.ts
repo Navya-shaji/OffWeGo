@@ -6,7 +6,7 @@ export class StripeService implements IStripeService {
 
   constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-      apiVersion: "2025-09-30.clover",
+     apiVersion: "2025-09-30.clover",
     });
   }
 
@@ -20,10 +20,10 @@ export class StripeService implements IStripeService {
         automatic_payment_methods: { enabled: true },
       });
 
-      console.log(" PaymentIntent created:", paymentIntent.id);
+      console.log("✅ PaymentIntent created:", paymentIntent.id);
       return paymentIntent.client_secret!;
     } catch (error) {
-      console.error(" Error creating PaymentIntent:", error);
+      console.error("❌ Error creating PaymentIntent:", error);
       throw new Error("Failed to create payment intent");
     }
   }
@@ -43,23 +43,28 @@ export class StripeService implements IStripeService {
         metadata: {
           bookingId: bookingId ?? "N/A",
         },
-        success_url: `${domainUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${domainUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`, 
         cancel_url: `${domainUrl}/payment/cancel`,
       });
 
       console.log("✅ Checkout Session created:", session.url);
       return { checkoutUrl: session.url! };
     } catch (error) {
-      console.error(" Error creating Checkout Session:", error);
+      console.error("❌ Error creating Checkout Session:", error);
       throw new Error("Failed to create Stripe Checkout session");
     }
   }
+
   async retrieveSession(sessionId: string): Promise<{
     id: string;
     payment_status: string;
     customer_email?: string;
   }> {
+    console.log("🔍 Retrieving session:", sessionId);
+
     const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+    console.log("✅ Session retrieved:", session.id, session.payment_status);
+
     return {
       id: session.id,
       payment_status: session.payment_status,

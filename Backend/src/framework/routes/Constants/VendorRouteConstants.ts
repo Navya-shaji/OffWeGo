@@ -33,5 +33,5 @@ export const VendorRoutes = {
   USER_BOOKINGS: "/bookings/:id",
   BOOKING_DATES: "/bookings/date/:id",
   SUBSCRIPTION_BOOKING: "/subscription-booking",
-  VERIFY_PAYMENT: "/subscription/verify-payment",
+  VERIFY_PAYMENT: "/payment-success",
 };
