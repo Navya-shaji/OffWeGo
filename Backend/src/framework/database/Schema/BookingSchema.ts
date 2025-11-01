@@ -23,6 +23,7 @@ export const SelectedPackageSchema = new Schema({
 
 export const BookingSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  bookingId: { type: String, required: true, unique: true },
   contactInfo: { type: ContactInfoSchema, required: true },
   adults: { type: [TravelerSchema], default: [] },
   children: { type: [TravelerSchema], default: [] },
@@ -32,4 +33,5 @@ export const BookingSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   paymentStatus: { type: String, default: "pending" },
   paymentIntentId: { type: String },
+  bookingStatus:{type:String,default:"upcoming"}
 });

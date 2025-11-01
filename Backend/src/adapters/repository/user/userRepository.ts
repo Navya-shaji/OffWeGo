@@ -1,9 +1,9 @@
+import { ProfileDto } from "../../../domain/dto/User/profileDto";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import {
   IUserModel,
   UserModel,
 } from "../../../framework/database/Models/userModel";
-import { ProfileDto } from "../../../domain/dto/User/ProfileDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class UserRepository
@@ -17,8 +17,6 @@ export class UserRepository
   async findByEmail(email: string): Promise<IUserModel | null> {
     return this.model.findOne({ email });
   }
-
-
 
   async createUser(user: IUserModel): Promise<IUserModel> {
     return this.create(user);
@@ -86,5 +84,8 @@ export class UserRepository
       .select("name email phone createdAt ")
       .limit(10)
       .exec();
+  }
+  async updateWallet(userId: string, amount: number): Promise<void> {
+    await UserModel.findByIdAndUpdate(userId, { $inc: { walletBalance: amount } });
   }
 }

@@ -10,7 +10,7 @@ import {
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { useNavigate } from "react-router-dom";
-import { getUserBookings } from "@/services/Booking/bookingService";
+import { cancelBooking, getUserBookings } from "@/services/Booking/bookingService";
 
 const BookingDetailsSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -42,6 +42,23 @@ const BookingDetailsSection = () => {
     };
     fetchBookings();
   }, [user?.id]);
+const handleCancelBooking = async (bookingId: string) => {
+  if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+
+  try {
+    setLoading(true);
+    const response = await cancelBooking(bookingId);
+    alert(response.message || "Booking cancelled and refund added to wallet.");
+
+    const updatedBookings = await getUserBookings(user.id);
+    setBookings(updatedBookings);
+  } catch (error) {
+    console.error("Error cancelling booking:", error);
+    alert("Something went wrong while cancelling the booking.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getBookingStatus = (booking: any) => {
     const bookingDate = new Date(booking.selectedDate);
@@ -300,6 +317,7 @@ const BookingDetailsSection = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-center gap-2">
+                              {/* View Button */}
                               <button
                                 onClick={() => handleViewDetails(booking)}
                                 className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md text-sm font-medium flex items-center gap-2"
@@ -307,6 +325,18 @@ const BookingDetailsSection = () => {
                                 <FileText className="w-4 h-4" />
                                 View
                               </button>
+
+                              {/* Cancel Button */}
+                              {getBookingStatus(booking) === "upcoming" && (
+                                <button
+                                  onClick={() =>
+                                    handleCancelBooking(booking._id)
+                                  }
+                                  className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg hover:from-red-600 hover:to-rose-600 transition-all shadow-sm hover:shadow-md text-sm font-medium flex items-center gap-2"
+                                >
+                                  Cancel
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>

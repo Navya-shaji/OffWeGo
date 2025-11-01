@@ -1,4 +1,4 @@
-import { User } from "../../entities/UserEntity";
+import { User } from "../../entities/userEntity";
 
 export interface IUserProfileEditUsecase {
   execute(id: string, updatedData: User): Promise<User | null>;

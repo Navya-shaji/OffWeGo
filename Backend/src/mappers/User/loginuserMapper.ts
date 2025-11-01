@@ -1,5 +1,5 @@
 
-import { User } from "../../domain/entities/UserEntity";
+import { User } from "../../domain/entities/userEntity";
 import { mapNumericRoleToString } from "./mapping";
 
 export const mapToLoginUserDto = (user: User) => {

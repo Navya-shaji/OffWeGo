@@ -3,8 +3,9 @@ import { Booking } from "../../domain/entities/BookingEntity";
 import { IBookingRepository } from "../../domain/interface/Booking/IBookingRepository";
 import { ICreateBookingUseCase } from "../../domain/interface/Booking/ICreateBookingUSecase";
 import { mapBookingDto } from "../../mappers/Booking/mapToCreateBookingDto";
+import { generateBookingId } from "../../utilities/BookingIDCreation";
 export class CreateBookingUseCase implements ICreateBookingUseCase {
-  constructor(private bookingRepository: IBookingRepository) {}
+  constructor(private _bookingRepository: IBookingRepository) {}
 
   async execute({
     data,
@@ -17,7 +18,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       );
     }
 
-    const bookedDates = await this.bookingRepository.getBookedDatesByVendor(
+    const bookedDates = await this._bookingRepository.getBookedDatesByVendor(
       data.selectedPackage._id
     );
 
@@ -32,11 +33,14 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const bookingData: Booking = {
       ...data,
+      bookingId: generateBookingId(),
       paymentStatus: "succeeded",
       paymentIntentId: payment_id,
     };
+    console.log(bookingData,"data")
+console.log("Booking data before create:", bookingData);
 
-    const result = await this.bookingRepository.createBooking(bookingData);
+    const result = await this._bookingRepository.createBooking(bookingData);
     console.log("Booking created:", result);
 
     return mapBookingDto(result);

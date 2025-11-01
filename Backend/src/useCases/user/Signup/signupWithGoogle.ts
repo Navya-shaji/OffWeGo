@@ -1,5 +1,6 @@
 import { AuthRepository } from "../../../adapters/repository/User/AuthRepository";
-import { User } from "../../../domain/entities/UserEntity";
+import { Role } from "../../../domain/constants/Roles";
+import { User } from "../../../domain/entities/userEntity";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { mapToUser } from "../../../mappers/User/userMapper";
 
@@ -20,7 +21,7 @@ export class GoogleSignupUseCase{
             email:googleUser.email,
             phone:googleUser.phone,
             password:"",
-            role:"user"
+            role:Role.USER
         }
 
         const savedUser=await this._userRepository.createUser(newUser)

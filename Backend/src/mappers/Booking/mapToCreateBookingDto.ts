@@ -4,6 +4,7 @@ import { Booking } from "../../domain/entities/BookingEntity";
 export const mapBookingDto = (b: Booking): CreateBookingDto => ({
   data: {
     userId: b.userId,
+    bookingId: b.bookingId,
     contactInfo: b.contactInfo,
     adults: b.adults || [],
     children: b.children || [],
@@ -12,8 +13,8 @@ export const mapBookingDto = (b: Booking): CreateBookingDto => ({
     totalAmount: b.totalAmount,
     paymentIntentId: b.paymentIntentId,
     paymentStatus: b.paymentStatus,
+    bookingStatus: b.bookingStatus,
   },
   payment_id: b.paymentIntentId || "",
   paymentStatus: b.paymentStatus,
-
 });

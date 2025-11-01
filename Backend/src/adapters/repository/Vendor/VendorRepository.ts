@@ -1,5 +1,5 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
-import { Vendor } from "../../../domain/entities/VendorEntities";
+import { Vendor } from "../../../domain/entities/vendorEntities";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import {
   VendorModel,

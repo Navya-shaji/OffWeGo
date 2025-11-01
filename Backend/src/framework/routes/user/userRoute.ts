@@ -7,7 +7,6 @@ import {
   bookingcontroller,
   paymentcontroller,
   reviewcontroller,
-  
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -98,7 +97,7 @@ export class UserRoute {
     this.userRouter.get(
       UserRoutes.GET_ALL_PACKAGES,
       (req: Request, res: Response) => {
-        packagecontroller.getPackagesForUser(req,res)
+        packagecontroller.getPackagesForUser(req, res);
       }
     );
     this.userRouter.patch(
@@ -109,39 +108,39 @@ export class UserRoute {
     );
     this.userRouter.post(
       UserRoutes.CREATE_BOOKING,
-      (req:Request,res:Response)=>{
-        bookingcontroller.createBooking(req,res)
+      (req: Request, res: Response) => {
+        bookingcontroller.createBooking(req, res);
       }
-    )
+    );
     this.userRouter.post(
       UserRoutes.CREATE_PAYMENT,
-      (req:Request,res:Response)=>{
-        paymentcontroller.createPayment(req,res)
+      (req: Request, res: Response) => {
+        paymentcontroller.createPayment(req, res);
       }
-    )
-   this.userRouter.get(
-    UserRoutes.USER_BOOKINGS,
-    (req:Request,res:Response)=>{
-      bookingcontroller.getUserBookings(req,res)
-    }
-   )
-   this.userRouter.post(
-    UserRoutes.REVIEWS,
-    (req:Request,res:Response)=>{
-      reviewcontroller.createReview(req,res)
-    }
-   )
-   this.userRouter.get(
-    UserRoutes.All_REVIEWS,
-    (req:Request,res:Response)=>{
-      reviewcontroller.getReviews(req,res)
-    }
-   )
-   this.userRouter.put(
-    UserRoutes.PASSWORD,
-    (req:Request,res:Response)=>{
-      userprofileController.changePasswordHandler(req,res)
-    }
-   )
+    );
+    this.userRouter.get(
+      UserRoutes.USER_BOOKINGS,
+      (req: Request, res: Response) => {
+        bookingcontroller.getUserBookings(req, res);
+      }
+    );
+    this.userRouter.post(UserRoutes.REVIEWS, (req: Request, res: Response) => {
+      reviewcontroller.createReview(req, res);
+    });
+    this.userRouter.get(
+      UserRoutes.All_REVIEWS,
+      (req: Request, res: Response) => {
+        reviewcontroller.getReviews(req, res);
+      }
+    );
+    this.userRouter.put(UserRoutes.PASSWORD, (req: Request, res: Response) => {
+      userprofileController.changePasswordHandler(req, res);
+    });
+    this.userRouter.patch(
+      UserRoutes.CANCEL_BOOKING,
+      (req: Request, res: Response) => {
+        bookingcontroller.cancelBooking(req, res);
+      }
+    );
   }
 }

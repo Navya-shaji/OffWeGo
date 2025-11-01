@@ -1,4 +1,4 @@
-import { User } from "../../domain/entities/UserEntity";
+import { User } from "../../domain/entities/userEntity";
 
 
 export const mapToUser = (user: User) => ({

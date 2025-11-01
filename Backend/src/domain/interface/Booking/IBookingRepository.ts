@@ -6,5 +6,6 @@ export interface IBookingRepository {
   update(id: string, updateData: Partial<Booking>): Promise<Booking>;
   findByUserId(userId: string): Promise<Booking[]>;
   findByVendorId(vendorId: string): Promise<Booking[]>;
-  getBookedDatesByVendor(vendorId:string):Promise<Date[]>
+  getBookedDatesByVendor(vendorId: string): Promise<Date[]>;
+  cancelBooking(id: string): Promise<Booking>;
 }
