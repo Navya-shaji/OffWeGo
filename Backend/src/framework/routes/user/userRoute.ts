@@ -150,5 +150,11 @@ export class UserRoute {
         walletcontroller.createUserWallet(req,res)
       }
     )
+        this.userRouter.get(
+      UserRoutes.GET_USER_WALLET,
+      (req:Request,res:Response)=>{
+        walletcontroller.GetUserWallet(req,res)
+      }
+    )
   }
 }

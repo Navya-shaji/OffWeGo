@@ -1,10 +1,4 @@
-import {
-  User,
-  Calendar,
-  LogOut,
-  ChevronRight,
-  Star
-} from "lucide-react";
+import { User, Calendar, LogOut, ChevronRight, Star, Wallet } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState } from "@/store/store";
@@ -14,7 +8,10 @@ interface ProfileSidebarProps {
   setActiveSection: (section: string) => void;
 }
 
-const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps) => {
+const ProfileSidebar = ({
+  activeSection,
+  setActiveSection,
+}: ProfileSidebarProps) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
@@ -27,11 +24,14 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
         setActiveSection("profile");
         break;
       case "Create Review":
-        setActiveSection("create-review"); 
+        setActiveSection("create-review");
         break;
       case "Logout":
         localStorage.removeItem("user");
         navigate("/login");
+        break;
+      case "wallet":
+        setActiveSection("wallet");
         break;
       default:
         break;
@@ -41,7 +41,8 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
   const sidebarItems = [
     { icon: User, label: "My Profile", section: "profile" },
     { icon: Calendar, label: "Booking", section: "bookings" },
-    { icon: Star, label: "Create Review", section: "create-review" }, // new item
+    { icon: Star, label: "Create Review", section: "create-review" },
+    { icon: Wallet, label: "wallet", section: "wallet" },
     { icon: LogOut, label: "Logout", section: "logout" },
   ];
 

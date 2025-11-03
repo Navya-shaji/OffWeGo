@@ -1,5 +1,5 @@
-import { IWallet } from "../../entities/WalletEntity";
+import { WalletDto } from "../../dto/Wallet/WalletDto";
 
 export interface ICreateUserWalletUsecase{
-    execute(ownerId:string,ownerType:string):Promise<IWallet>
+    execute(ownerId:string,ownerType:string):Promise<WalletDto>
 }

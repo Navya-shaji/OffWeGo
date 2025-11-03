@@ -17,6 +17,7 @@ import UserAddReview from "@/pages/User/profile/AddReview";
 import AllDestinationsPage from "@/pages/User/Destination/AllDestinationPage";
 import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
+import WalletManagement from "@/pages/User/wallet/userWallet";
 
 const UserRoute = () => {
   return (
@@ -45,6 +46,7 @@ const UserRoute = () => {
       <Route path="/create-review" element={<UserAddReview />} />
       <Route path="/contact" element={<ExpandedContactUsPage />} />
       <Route path="/about" element={<AboutUs />} />
+      <Route path="/wallet" element={<WalletManagement />} />
       <Route
         path="/"
         element={

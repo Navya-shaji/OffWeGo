@@ -37,6 +37,7 @@ import { cancelBookingUsecase } from "../../../useCases/booking/CancelBookingUSe
 import { CreateUserWalletUsecase } from "../../../useCases/wallet/createUserWalletUsecase";
 import { WalletController } from "../../../adapters/controller/Wallet/Walletcontroller";
 import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
+import { GetUserWalletUsecase } from "../../../useCases/wallet/getusewalletUsecase";
 
 
 // Setup Repos and Services
@@ -73,6 +74,7 @@ const changepasswordusecase=new ChangePasswordUseCase(userRepository)
 const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
 const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
 const createuserwalletusecase=new CreateUserWalletUsecase(walletRepo)
+const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 
 
 // Controllers
@@ -84,4 +86,4 @@ export const bookingcontroller=new BookingController(createbookingusecase,userbo
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
-export const walletcontroller=new WalletController(createuserwalletusecase)
+export const walletcontroller=new WalletController(createuserwalletusecase,getUserWalletusecase)

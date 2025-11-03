@@ -1,9 +1,9 @@
-import { Role } from "../../constants/Roles"
 
-export interface WalletDto{
+
+export interface IWallet{
     _id?:string
     ownerId:string
-    ownerType:Role
+    ownerType:"user"|"admin"|"vendor"
     balance:number
     transactions:{
         type:"credit"|"debit"

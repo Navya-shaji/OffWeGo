@@ -7,14 +7,16 @@ import ProfileSidebar from "@/components/profile/sidebar";
 import BookingDetailsSection from "../Bookings/UserBookings";
 import UserAddReview from "./AddReview";
 import ChangePasswordModal from "./changePassword"; 
+import WalletManagement from "../wallet/userWallet";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<"profile" | "bookings"| "create-review">(
-    "profile"
-  );
+ const [activeSection, setActiveSection] = useState<
+  "profile" | "bookings" | "create-review" | "wallet"
+>("profile");
+
 
   if (!user) return null;
 
@@ -27,7 +29,7 @@ const Profile = () => {
           <ProfileSidebar
             activeSection={activeSection}
             setActiveSection={(section: string) =>
-              setActiveSection(section as "profile" | "bookings")
+              setActiveSection(section as "profile" | "bookings" |"wallet")
             }
           />
         </div>
@@ -135,6 +137,8 @@ const Profile = () => {
 
           {activeSection === "bookings" && <BookingDetailsSection />}
           {activeSection === "create-review" && <UserAddReview />}
+          {activeSection === "wallet" && <WalletManagement />}
+
         </div>
       </div>
 
