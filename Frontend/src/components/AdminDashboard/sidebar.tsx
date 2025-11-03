@@ -13,6 +13,7 @@ import {
   List,
   FolderPlus,
   X,
+  Wallet,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,12 +28,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showBannerDropdown, setShowBannerDropdown] = useState(false);
   const [showSubscriptionDropdown, setShowSubscriptionDropdown] = useState(false);
+  const [showWalletDropdown, setShowWalletDropdown] = useState(false);
+
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
     { icon: Users, label: "Users" },
     { icon: UserCheck, label: "Vendors" },
     { icon: MapPin, label: "Destinations" },
+     { icon: Wallet, label: "Wallet" }, 
   ];
 
   const handleRequestClick = () => {
@@ -297,6 +301,50 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
               </button>
             </div>
           )}
+
+          {/* Wallet Dropdown */}
+<button
+  onClick={() => setShowWalletDropdown((prev) => !prev)}
+  className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+    activeTab.includes("Wallet")
+      ? "bg-gray-100 border-r-4 border-black"
+      : ""
+  }`}
+>
+  <Wallet className="w-5 h-5 mr-3 text-gray-600" />
+  <span className="text-gray-700 flex-1">Wallet</span>
+  {showWalletDropdown ? (
+    <ChevronUp className="w-4 h-4" />
+  ) : (
+    <ChevronDown className="w-4 h-4" />
+  )}
+</button>
+
+{showWalletDropdown && (
+  <div className="ml-10">
+    <button
+      onClick={() => handleSubTabClick("Wallet-Transactions")}
+      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+        activeTab === "Admin Wallet"
+          ? "text-black font-semibold"
+          : "text-gray-600"
+      }`}
+    >
+      Admin Wallet
+    </button>
+    <button
+      onClick={() => handleSubTabClick("Vendor Wallet")}
+      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+        activeTab === "Vendor Wallet"
+          ? "text-black font-semibold"
+          : "text-gray-600"
+      }`}
+    >
+      Vendor Wallet
+    </button>
+  </div>
+)}
+
         </nav>
 
         {/* Fixed bottom button */}

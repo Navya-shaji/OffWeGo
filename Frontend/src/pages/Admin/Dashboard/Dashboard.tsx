@@ -63,7 +63,7 @@ const AdminDashboard: React.FC = () => {
     { name: 'Users', value: stats.totalUsers, color: '#3b82f6' },
     { name: 'Vendors', value: stats.totalVendors, color: '#10b981' },
     { name: 'Destinations', value: stats.totalDestinations, color: '#a855f7' },
-    { name: 'Subscriptions', value: stats.totalSubscriptions, color: '#f59e0b' },
+    { name: 'Subscriptions', value: stats.totalSubscriptions, color: '#f59e0b' }  ,
   ];
 
  
