@@ -7,6 +7,7 @@ import {
   bookingcontroller,
   paymentcontroller,
   reviewcontroller,
+  walletcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -142,5 +143,12 @@ export class UserRoute {
         bookingcontroller.cancelBooking(req, res);
       }
     );
+   
+    this.userRouter.post(
+      UserRoutes.USER_WALLET,
+      (req:Request,res:Response)=>{
+        walletcontroller.createUserWallet(req,res)
+      }
+    )
   }
 }

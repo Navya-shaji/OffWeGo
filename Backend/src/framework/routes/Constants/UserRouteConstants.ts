@@ -19,4 +19,5 @@ export const UserRoutes = {
   All_REVIEWS: "/reviews/:id",
   PASSWORD: "/password/:id",
   CANCEL_BOOKING: "/bookings/:id",
+  USER_WALLET:'/wallet'
 };

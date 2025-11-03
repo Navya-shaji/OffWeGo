@@ -34,6 +34,9 @@ import { SubscriptionPaymentController } from "../../../adapters/controller/Subs
 import { StripeService } from "../../Services/stripeService";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { cancelBookingUsecase } from "../../../useCases/booking/CancelBookingUSecase";
+import { CreateUserWalletUsecase } from "../../../useCases/wallet/createUserWalletUsecase";
+import { WalletController } from "../../../adapters/controller/Wallet/Walletcontroller";
+import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
 
 
 // Setup Repos and Services
@@ -47,6 +50,7 @@ const stripeService = new StripeService();
 const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
 const subscriptionRepo=new SubscriptionPlanRepository()
+const walletRepo=new WalletRepository()
 
 
 // Use Cases
@@ -68,7 +72,7 @@ const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
 const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
 const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,userRepository)
-
+const createuserwalletusecase=new CreateUserWalletUsecase(walletRepo)
 
 
 // Controllers
@@ -80,3 +84,4 @@ export const bookingcontroller=new BookingController(createbookingusecase,userbo
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
+export const walletcontroller=new WalletController(createuserwalletusecase)
