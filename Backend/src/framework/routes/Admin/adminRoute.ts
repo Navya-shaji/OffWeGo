@@ -259,5 +259,11 @@ export class AdminRoute {
       walletcontroller.createWallet(req,res)
       }
     )
+    this.adminRouter.get(
+      AdminRoutes.GET_ADMIN_WALLET,
+      (req:Request,res:Response)=>{
+      walletcontroller.GetWallet(req,res)
+      }
+    )
   }
 }

@@ -4,14 +4,21 @@ import { IBookingRepository } from "../../domain/interface/Booking/IBookingRepos
 import { ICreateBookingUseCase } from "../../domain/interface/Booking/ICreateBookingUSecase";
 import { mapBookingDto } from "../../mappers/Booking/mapToCreateBookingDto";
 import { generateBookingId } from "../../utilities/BookingIDCreation";
+import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
+import { Role } from "../../domain/constants/Roles";
+
 export class CreateBookingUseCase implements ICreateBookingUseCase {
-  constructor(private _bookingRepository: IBookingRepository) {}
+  constructor(
+    private _bookingRepository: IBookingRepository,
+    private _walletRepository: IWalletRepository
+  ) {}
 
   async execute({
     data,
     payment_id,
   }: CreateBookingDto): Promise<CreateBookingDto> {
     const completionDate = new Date(data.selectedDate);
+
     if (data.selectedPackage.duration) {
       completionDate.setDate(
         completionDate.getDate() + data.selectedPackage.duration
@@ -37,11 +44,21 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       paymentStatus: "succeeded",
       paymentIntentId: payment_id,
     };
-    console.log(bookingData,"data")
-console.log("Booking data before create:", bookingData);
+
 
     const result = await this._bookingRepository.createBooking(bookingData);
-    console.log("Booking created:", result);
+
+    if (result.paymentStatus === "succeeded") {
+      const adminId = process.env.ADMIN_ID || "68666f952c4ebbe1b6989dd9"; 
+
+      await this._walletRepository.updateBalance(
+        adminId,
+        Role.ADMIN,
+        result.totalAmount,
+        "credit",
+        `Booking received from user ${result.userId}`,
+      );
+    }
 
     return mapBookingDto(result);
   }

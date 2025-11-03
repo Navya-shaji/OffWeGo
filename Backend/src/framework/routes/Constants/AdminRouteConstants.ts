@@ -29,4 +29,5 @@ export const AdminRoutes={
     EDIT_SUBSCRIPTION:'/subscriptions/:id',
     DELETE_SUBSCRIPTION:'/subscriptions/:id',
     ADMIN_WALLET:'/wallet',
+    GET_ADMIN_WALLET:'/wallet/:id'
 }

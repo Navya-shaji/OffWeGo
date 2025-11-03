@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { IGetWalletUserUSecase } from "../../../domain/interface/Wallet/IGetWalletUsecase";
+import { IGetWalletUSecase } from "../../../domain/interface/Wallet/IGetWalletUsecase";
 import { ICreateWalletUsecase } from "../../../domain/interface/Wallet/ICreateUserWalletUsecase";
 
 export class WalletController {
   constructor(
     private _createWallet: ICreateWalletUsecase,
-    private _getUserWallet: IGetWalletUserUSecase
+    private _getWallet: IGetWalletUSecase
   ) {}
 
   async createWallet(req: Request, res: Response): Promise<void> {
@@ -37,11 +37,10 @@ export class WalletController {
       });
     }
   }
-  async GetUserWallet(req: Request, res: Response): Promise<void> {
-    const userId = req.params.id;
-    const result = await this._getUserWallet.execute(userId);
+  async GetWallet(req: Request, res: Response): Promise<void> {
+    const Id = req.params.id;
+    const result = await this._getWallet.execute(Id);
     res.status(HttpStatus.OK).json(result);
   }
-
  
 }

@@ -153,7 +153,7 @@ export class UserRoute {
         this.userRouter.get(
       UserRoutes.GET_USER_WALLET,
       (req:Request,res:Response)=>{
-        walletcontroller.GetUserWallet(req,res)
+        walletcontroller.GetWallet(req,res)
       }
     )
     

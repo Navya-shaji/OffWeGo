@@ -3,7 +3,7 @@ import { IGetWalletUSecase } from "../../domain/interface/Wallet/IGetWalletUseca
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
 import { mapToWalletDto } from "../../mappers/Wallet/mapToWallet";
 
-export class GetUserWalletUsecase implements IGetWalletUSecase {
+export class GetAdminWalletUsecase implements IGetWalletUSecase {
   constructor(private _walletRepo: IWalletRepository) {}
 
   async execute(id: string): Promise<WalletDto | null> {

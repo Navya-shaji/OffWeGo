@@ -1,5 +1,5 @@
 import { WalletDto } from "../../dto/Wallet/WalletDto";
 
-export interface IGetWalletUserUSecase{
+export interface IGetWalletUSecase{
     execute(id:string):Promise<WalletDto|null>
 }
