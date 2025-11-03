@@ -1,40 +1,38 @@
 import { SubscriptionBookingRepository } from "../../adapters/repository/Booking/subscriptionBookingRepo";
 import { SubscriptionPlanRepository } from "../../adapters/repository/Subscription/subscriptionRepo";
+import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
 import { ICreateBookingSubscriptionRequest } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionRequest";
 import { ICreateBookingSubscriptionResponse } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionResponse";
 import { ICreateBookingSubscriptionUseCase } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionUsecase";
 import { StripeService } from "../../framework/Services/stripeService";
-import QRCode from "qrcode"
+import { Role } from "../../domain/constants/Roles";
+import QRCode from "qrcode";
+
 export class CreateBookingSubscriptionUseCase
   implements ICreateBookingSubscriptionUseCase
 {
-  private subscriptionBookingRepo: SubscriptionBookingRepository;
-  private subscriptionPlanRepo: SubscriptionPlanRepository;
-  private stripeService: StripeService;
-
-  constructor() {
-    this.subscriptionBookingRepo = new SubscriptionBookingRepository();
-    this.subscriptionPlanRepo = new SubscriptionPlanRepository();
-    this.stripeService = new StripeService();
-  }
+  constructor(
+    private _subscriptionBookingRepo: SubscriptionBookingRepository,
+    private _subscriptionPlanRepo: SubscriptionPlanRepository,
+    private _walletRepository: IWalletRepository,
+    private _stripeService: StripeService
+  ) {}
 
   async execute(
     data: ICreateBookingSubscriptionRequest
   ): Promise<ICreateBookingSubscriptionResponse> {
     const { vendorId, planId, date, time, domainUrl } = data;
 
-    // ✅ 1. Find the plan in Mongo
-    const plan = await this.subscriptionPlanRepo.findById(planId);
+ 
+    const plan = await this._subscriptionPlanRepo.findById(planId);
     if (!plan) throw new Error("Subscription plan not found");
-
-    if (!plan.stripePriceId) {
+    if (!plan.stripePriceId)
       throw new Error("This plan does not have a Stripe Price ID assigned.");
-    }
 
-    // ✅ 2. Create a booking record in your DB
-    const booking = await this.subscriptionBookingRepo.create({
+  
+    const booking = await this._subscriptionBookingRepo.create({
       vendorId,
-      planId: plan._id, // <-- store your Mongo plan ID here
+      planId: plan._id,
       planName: plan.name,
       amount: plan.price,
       date,
@@ -43,18 +41,30 @@ export class CreateBookingSubscriptionUseCase
       status: "pending",
     });
 
-    // ✅ 3. Create Stripe checkout session using Stripe Price ID
-    const session = await this.stripeService.createSubscriptionCheckoutSession(
-      plan.stripePriceId, // <-- use Stripe price ID
+
+    const session = await this._stripeService.createSubscriptionCheckoutSession(
+      plan.stripePriceId,
       domainUrl,
-       booking._id.toString()
+      booking._id.toString()
     );
-const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
-    // ✅ 4. Return booking + checkout link
+
+
+    const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
+
+  
+    const adminId = process.env.ADMIN_ID || "68666f952c4ebbe1b6989dd9";
+    await this._walletRepository.updateBalance(
+      adminId,
+      Role.ADMIN,
+      plan.price,
+      "credit",
+      `Subscription purchased by vendor ${vendorId}`
+    );
+
     return {
       bookingId: booking._id.toString(),
       checkoutUrl: session.checkoutUrl,
-       qrCode: qrCodeUrl,
+      qrCode: qrCodeUrl,
     };
   }
 }

@@ -43,6 +43,10 @@ import { EditFlightUsecase } from "../../../useCases/flight/EditFlightUsecase";
 import { DeleteFlightUsecase } from "../../../useCases/flight/DeleteFlightUSecase";
 import { CreateBookingSubscriptionUseCase } from "../../../useCases/subscription/createBookingSubscriptionUsecase";
 import { SubscriptionBookingController } from "../../../adapters/controller/Subscriptionplan/SubscriptionBookingController";
+import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
+import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
+import { StripeService } from "../../Services/stripeService";
 
 
 //  Setup Repository and Services
@@ -54,6 +58,10 @@ const packageRepo=new PackageRepository()
 const hotelRepo=new HotelRepository()
 const activityRepo=new ActivityRepository()
 const flightRepo=new FlightRepository()
+const subscriptionRepo=new SubscriptionBookingRepository()
+const subscriptionplanRepo=new SubscriptionPlanRepository()
+const walletRepo=new WalletRepository()
+const stripeservice=new StripeService()
 
 
 //  Use Cases
@@ -83,7 +91,7 @@ const createflightusecase=new CreateflightUsecase(flightRepo)
 const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
-const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase()
+const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase(subscriptionRepo,subscriptionplanRepo,walletRepo,stripeservice)
 
 
 //  Controllers
