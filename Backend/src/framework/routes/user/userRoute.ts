@@ -147,7 +147,7 @@ export class UserRoute {
     this.userRouter.post(
       UserRoutes.USER_WALLET,
       (req:Request,res:Response)=>{
-        walletcontroller.createUserWallet(req,res)
+        walletcontroller.createWallet(req,res)
       }
     )
         this.userRouter.get(
@@ -156,5 +156,6 @@ export class UserRoute {
         walletcontroller.GetUserWallet(req,res)
       }
     )
+    
   }
 }

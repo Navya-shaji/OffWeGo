@@ -73,7 +73,7 @@ const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
 const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
 const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
-const createuserwalletusecase=new CreateUserWalletUsecase(walletRepo)
+const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 
 
@@ -86,4 +86,4 @@ export const bookingcontroller=new BookingController(createbookingusecase,userbo
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
-export const walletcontroller=new WalletController(createuserwalletusecase,getUserWalletusecase)
+export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase)

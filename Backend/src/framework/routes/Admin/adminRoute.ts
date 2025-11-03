@@ -16,6 +16,7 @@ import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedCo
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import { Role } from "../../../domain/constants/Roles";
+import { walletcontroller } from "../../Di/User/userInjections";
 const TokenService = new JwtService();
 
 export class AdminRoute {
@@ -250,6 +251,12 @@ export class AdminRoute {
       checkRoleBasedcontrol([Role.ADMIN]),
       (req:Request,res:Response)=>{
         subscriptionController.deleteDestinationController(req,res)
+      }
+    )
+    this.adminRouter.post(
+      AdminRoutes.ADMIN_WALLET,
+      (req:Request,res:Response)=>{
+      walletcontroller.createWallet(req,res)
       }
     )
   }

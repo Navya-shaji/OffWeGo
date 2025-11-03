@@ -1,17 +1,18 @@
 import { Request, Response } from "express";
-import { ICreateUserWalletUsecase } from "../../../domain/interface/Wallet/ICreateUserWalletUsecase";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IGetWalletUserUSecase } from "../../../domain/interface/Wallet/IGetWalletUsecase";
+import { ICreateWalletUsecase } from "../../../domain/interface/Wallet/ICreateUserWalletUsecase";
 
 export class WalletController {
   constructor(
-    private _createUserWallet: ICreateUserWalletUsecase,
+    private _createWallet: ICreateWalletUsecase,
     private _getUserWallet: IGetWalletUserUSecase
   ) {}
 
-  async createUserWallet(req: Request, res: Response): Promise<void> {
+  async createWallet(req: Request, res: Response): Promise<void> {
     try {
       const { ownerId, ownerType } = req.body;
+      console.log(ownerId)
       if (!ownerId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -20,7 +21,7 @@ export class WalletController {
         return;
       }
 
-      const wallet = await this._createUserWallet.execute(ownerId, ownerType);
+      const wallet = await this._createWallet.execute(ownerId, ownerType);
 
       res.status(HttpStatus.CREATED).json({
         success: true,
@@ -41,4 +42,6 @@ export class WalletController {
     const result = await this._getUserWallet.execute(userId);
     res.status(HttpStatus.OK).json(result);
   }
+
+ 
 }
