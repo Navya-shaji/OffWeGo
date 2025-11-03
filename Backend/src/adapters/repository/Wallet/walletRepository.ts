@@ -1,6 +1,9 @@
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 import { IWalletRepository } from "../../../domain/interface/Wallet/IWalletRepository";
-import { IWalletModel, WalletModel } from "../../../framework/database/Models/walletModel";
+import {
+  IWalletModel,
+  WalletModel,
+} from "../../../framework/database/Models/walletModel";
 import { IWallet } from "../../../domain/entities/WalletEntity";
 
 export class WalletRepository

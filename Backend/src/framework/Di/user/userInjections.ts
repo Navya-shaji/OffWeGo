@@ -71,7 +71,7 @@ const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
 const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
-const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,userRepository)
+const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
 const createuserwalletusecase=new CreateUserWalletUsecase(walletRepo)
 
 

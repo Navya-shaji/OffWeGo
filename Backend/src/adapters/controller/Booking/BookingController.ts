@@ -78,6 +78,7 @@ export class BookingController {
       });
     }
   }
+  
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
       const bookingId = req.params.id;
