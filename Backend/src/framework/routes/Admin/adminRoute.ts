@@ -155,7 +155,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_CATEGORIES,
-      checkRoleBasedcontrol([Role.ADMIN]),
+      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
       (req: Request, res: Response) => {
         categoryController.getCategories(req, res);
       }

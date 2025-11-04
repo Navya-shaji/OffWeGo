@@ -62,10 +62,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
 
-        <button
+                <button
           onClick={handlePackageClick}
           className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-            activeTab.includes("Package")
+            activeTab.includes("Package") || activeTab.includes("Buddy Travel")
               ? "bg-gray-100 border-r-4 border-black"
               : ""
           }`}
@@ -78,6 +78,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             <ChevronDown className="w-4 h-4" />
           )}
         </button>
+
         {showPackageDropdown && (
           <div className="ml-10">
             <button
@@ -91,6 +92,20 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               <FolderPlus className="inline-block mr-2 w-4 h-4" />
               Add Package
             </button>
+
+
+            <button
+              onClick={() => handleSubTabClick("Add Buddy Travel")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "Add Buddy Travel"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <FolderPlus className="inline-block mr-2 w-4 h-4" />
+              Add Buddy Travel
+            </button>
+
             <button
               onClick={() => handleSubTabClick("All Packages")}
               className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${

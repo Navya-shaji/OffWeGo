@@ -13,6 +13,7 @@ const VendorRoutes = () => {
       <Route path="/login" element={<VendorLogin />} />
       <Route path="/subscriptionplans" element={<VendorSubscriptionPage/>}/>
       <Route path="/payment-success" element={<PaymentSuccessPage />} />
+      
       <Route
         path="/profile"
         element={

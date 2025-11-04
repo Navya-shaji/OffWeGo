@@ -14,7 +14,7 @@ export class BuddyTravelRepository
 
   async createBuddyTrip(data: BuddyTravel): Promise<IBuddyTravelModel> {
     const created = await this.model.create(data);
-    return created;
+    return created.toObject();
   }
 
   async getAllBuddyTrips(skip: number, limit: number) {

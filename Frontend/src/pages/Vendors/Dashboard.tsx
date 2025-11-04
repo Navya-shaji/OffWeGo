@@ -18,6 +18,7 @@ import CreateFlight from "./createFlight";
 import GetAllFlight from "./GetAllFlight";
 import AllBookings from "./Bookings/UserBookings";
 import {TravelCalendar} from "./Bookings/TravelCalendar";
+import AddBuddyTravelPage from "./BuddyTravel/Buddytravel-create";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -39,6 +40,7 @@ console.log(vendorId,"ve")
         <div className="flex-1 p-6 overflow-y-auto">
           {activeTab === "Profile" && <Profile />}
           {activeTab === "Add Package" && <AddPackage />}
+          {activeTab === "Add Buddy Travel" && <AddBuddyTravelPage />}
           {activeTab === "All Packages" && <PackageTable packages={packages} />}
           {activeTab === "All Destinations" && <DestinationTable />}
           {activeTab == "Add Destination" && <CreateDestination />}
