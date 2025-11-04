@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   activitycontroller,
+  buddyTravelcontroller,
   flightcontroller,
   hotelcontroller,
   packagecontroller,
@@ -220,6 +221,11 @@ export class VendorRoute {
       VendorRoutes.VERIFY_PAYMENT,
       (req: Request, res: Response) =>
         subscriptionpaymentcontroller.verifyPayment(req, res)
+    );
+    this.vendorRouter.post(
+      VendorRoutes.CREATE_BUDDY_TRAVEL,
+      (req: Request, res: Response) =>
+       buddyTravelcontroller.createBuddyTravel(req,res)
     );
   }
 }

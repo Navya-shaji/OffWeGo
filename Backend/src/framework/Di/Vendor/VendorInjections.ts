@@ -46,6 +46,9 @@ import { SubscriptionBookingController } from "../../../adapters/controller/Subs
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
+import { CreateBuddyTravelUseCase } from "../../../useCases/buddyTravel/createBuddyTravelUSecase";
+import { BuddyTravelRepository } from "../../../adapters/repository/BuddyTravel/buddyTravelRepository";
+import { BuddyTravelController } from "../../../adapters/controller/BuddyTravel/BuddyController";
 import { StripeService } from "../../Services/stripeService";
 
 
@@ -60,6 +63,7 @@ const activityRepo=new ActivityRepository()
 const flightRepo=new FlightRepository()
 const subscriptionRepo=new SubscriptionBookingRepository()
 const subscriptionplanRepo=new SubscriptionPlanRepository()
+const buddyRepo=new BuddyTravelRepository()
 const walletRepo=new WalletRepository()
 const stripeservice=new StripeService()
 
@@ -92,6 +96,7 @@ const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
 const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase(subscriptionRepo,subscriptionplanRepo,walletRepo,stripeservice)
+const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo)
 
 
 //  Controllers
@@ -105,3 +110,4 @@ export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
 export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase)
+export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase)
