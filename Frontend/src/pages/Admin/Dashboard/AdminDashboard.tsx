@@ -15,6 +15,7 @@ import AddSubscription from "@/pages/Admin/Subscription/CreateSubscription";
 import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
 import AdminDashboard from "./Dashboard";
 import AdminWalletManagement from "../Wallet/AdminWallet";
+import IncomingBuddyRequests from "../buddyTravel/buddyTravelConfirmation";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -33,19 +34,19 @@ const AdminLayout = () => {
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar 
-        activeTab={activeTab} 
+      <Sidebar
+        activeTab={activeTab}
         setActiveTab={setActiveTab}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="lg:hidden bg-white shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <button
@@ -64,10 +65,7 @@ const AdminLayout = () => {
 
         <div className="flex-1 overflow-auto">
           <div className="p-4 sm:p-6">
-            {activeTab === "Dashboard" && (
-              
-              <AdminDashboard/>
-            )}
+            {activeTab === "Dashboard" && <AdminDashboard />}
 
             {activeTab === "Pending Requests" && (
               <VendorRequests filter="pending" />
@@ -92,6 +90,18 @@ const AdminLayout = () => {
             {activeTab === "Create Subscription" && <AddSubscription />}
             {activeTab === "All Subscriptions" && <SubscriptionList />}
             {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
+
+            {activeTab === "Pending Buddy Packages" && (
+              <IncomingBuddyRequests filter="pending" />
+            )}
+
+            {activeTab === "Approved Buddy Packages" && (
+              <IncomingBuddyRequests filter="approved" />
+            )}
+
+            {activeTab === "Rejected Buddy Packages" && (
+              <IncomingBuddyRequests filter="rejected" />
+            )}
           </div>
         </div>
       </div>

@@ -30,5 +30,6 @@ export const AdminRoutes={
     DELETE_SUBSCRIPTION:'/subscriptions/:id',
     ADMIN_WALLET:'/wallet',
     GET_ADMIN_WALLET:'/wallet/:id',
-    UPDATE_PACKAGE_STATUS:'/buddy-travel/:id'
+    UPDATE_PACKAGE_STATUS:'/buddy-travel/:id',
+    GET_BUDDY_PACKAGES:'/buddy-packages/:status'
 }

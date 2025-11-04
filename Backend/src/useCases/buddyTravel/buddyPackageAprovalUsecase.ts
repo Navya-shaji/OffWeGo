@@ -6,7 +6,7 @@ export class BuddyTravalAdminApprovalUsecase implements IAdminBuddyPackageApprov
   constructor(private _buddyTravelRepo: IBuddyTravelRepository) {}
 
   async execute(
-    status?: "getPending" | "approve" | "reject",
+    status?: "Pending" | "approve" | "reject",
     id?: string
   ): Promise<BuddyTravel[] | BuddyTravel | null> {
     if (!status) throw new Error("Action is required");
@@ -14,7 +14,7 @@ export class BuddyTravalAdminApprovalUsecase implements IAdminBuddyPackageApprov
     const normalizedAction = status.toLowerCase(); 
 
     switch (normalizedAction) {
-      case "getpending":
+      case "pending":
         return await this._buddyTravelRepo.findByStatus("PENDING");
 
       case "approve":

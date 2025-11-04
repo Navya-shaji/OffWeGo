@@ -125,7 +125,7 @@ export class AdminRoute {
 
     this.adminRouter.put(
       AdminRoutes.EDIT_DESTINATION,
-      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
       (req: Request, res: Response) => {
         destinationController.editDestinationHandler(req, res);
       }
@@ -156,7 +156,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_CATEGORIES,
-      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
       (req: Request, res: Response) => {
         categoryController.getCategories(req, res);
       }
@@ -181,7 +181,7 @@ export class AdminRoute {
     this.adminRouter.delete(
       AdminRoutes.DELETE_DESTINATION,
       verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
       (req: Request, res: Response) => {
         destinationController.deleteDestinationController(req, res);
       }
@@ -235,7 +235,7 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_SUBSCRIPTIONS,
-      checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
       (req: Request, res: Response) => {
         subscriptionController.getAllSubscriptions(req, res);
       }
@@ -250,27 +250,35 @@ export class AdminRoute {
     this.adminRouter.delete(
       AdminRoutes.DELETE_SUBSCRIPTION,
       checkRoleBasedcontrol([Role.ADMIN]),
-      (req:Request,res:Response)=>{
-        subscriptionController.deleteDestinationController(req,res)
+      (req: Request, res: Response) => {
+        subscriptionController.deleteDestinationController(req, res);
       }
-    )
+    );
     this.adminRouter.post(
       AdminRoutes.ADMIN_WALLET,
-      (req:Request,res:Response)=>{
-      walletcontroller.createWallet(req,res)
+      (req: Request, res: Response) => {
+        walletcontroller.createWallet(req, res);
       }
-    )
+    );
     this.adminRouter.get(
       AdminRoutes.GET_ADMIN_WALLET,
-      (req:Request,res:Response)=>{
-      walletcontroller.GetWallet(req,res)
+      (req: Request, res: Response) => {
+        walletcontroller.GetWallet(req, res);
       }
-    )
+    );
     this.adminRouter.patch(
       AdminRoutes.UPDATE_PACKAGE_STATUS,
-      (req:Request,res:Response)=>{
-        buddyTravelcontroller.updateBuddyPackageStatus(req,res)
+        checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.updateBuddyPackageStatus(req, res);
       }
-    )
+    );
+    this.adminRouter.get(
+      AdminRoutes.GET_BUDDY_PACKAGES,
+        checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.getBuddyTravelPackages(req, res);
+      }
+    );
   }
 }

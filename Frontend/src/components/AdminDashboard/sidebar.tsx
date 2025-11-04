@@ -1,4 +1,3 @@
-
 // Sidebar.tsx - Responsive Version
 import React, { useState } from "react";
 import {
@@ -23,20 +22,26 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  isOpen,
+  onClose,
+}) => {
   const [showRequestsDropdown, setShowRequestsDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showBannerDropdown, setShowBannerDropdown] = useState(false);
-  const [showSubscriptionDropdown, setShowSubscriptionDropdown] = useState(false);
+  const [showSubscriptionDropdown, setShowSubscriptionDropdown] =
+    useState(false);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
-
+  const [showBuddyDropdown, setShowBuddyDropdown] = useState(false);
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
     { icon: Users, label: "Users" },
     { icon: UserCheck, label: "Vendors" },
     { icon: MapPin, label: "Destinations" },
-     { icon: Wallet, label: "Wallet" }, 
+    { icon: Wallet, label: "Wallet" },
   ];
 
   const handleRequestClick = () => {
@@ -57,7 +62,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
 
   const handleSubTabClick = (label: string) => {
     setActiveTab(label);
-    // Close sidebar on mobile after selection
     if (window.innerWidth < 1024) {
       onClose();
     }
@@ -74,23 +78,25 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
     <>
       {/* Overlay for mobile */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed lg:relative
         w-64 bg-white shadow-lg h-screen overflow-y-auto
         z-50 transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
+        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+      `}
+      >
         {/* Header with close button for mobile */}
         <div className="p-6 flex items-center justify-between">
           <div className="text-2xl font-bold text-gray-800">OffWeGo 🕊️</div>
-          <button 
+          <button
             onClick={onClose}
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
           >
@@ -211,6 +217,58 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
               </button>
             </div>
           )}
+          {/* Buddy Packages Dropdown */}
+          <button
+            onClick={() => setShowBuddyDropdown((prev) => !prev)}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+              activeTab.includes("Buddy")
+                ? "bg-gray-100 border-r-4 border-black"
+                : ""
+            }`}
+          >
+            <MapPin className="w-5 h-5 mr-3 text-gray-600" />
+            <span className="text-gray-700 flex-1">Buddy Packages</span>
+            {showBuddyDropdown ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          {showBuddyDropdown && (
+            <div className="ml-10">
+              <button
+                onClick={() => handleSubTabClick("Pending Buddy Packages")}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                  activeTab === "Pending Buddy Packages"
+                    ? "text-black font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                Pending
+              </button>
+              <button
+                onClick={() => handleSubTabClick("Approved Buddy Packages")}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                  activeTab === "Approved Buddy Packages"
+                    ? "text-black font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                Approved
+              </button>
+              <button
+                onClick={() => handleSubTabClick("Rejected Buddy Packages")}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                  activeTab === "Rejected Buddy Packages"
+                    ? "text-black font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                Rejected
+              </button>
+            </div>
+          )}
 
           {/* Banner Dropdown */}
           <button
@@ -303,48 +361,47 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
           )}
 
           {/* Wallet Dropdown */}
-<button
-  onClick={() => setShowWalletDropdown((prev) => !prev)}
-  className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-    activeTab.includes("Wallet")
-      ? "bg-gray-100 border-r-4 border-black"
-      : ""
-  }`}
->
-  <Wallet className="w-5 h-5 mr-3 text-gray-600" />
-  <span className="text-gray-700 flex-1">Wallet</span>
-  {showWalletDropdown ? (
-    <ChevronUp className="w-4 h-4" />
-  ) : (
-    <ChevronDown className="w-4 h-4" />
-  )}
-</button>
+          <button
+            onClick={() => setShowWalletDropdown((prev) => !prev)}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+              activeTab.includes("Wallet")
+                ? "bg-gray-100 border-r-4 border-black"
+                : ""
+            }`}
+          >
+            <Wallet className="w-5 h-5 mr-3 text-gray-600" />
+            <span className="text-gray-700 flex-1">Wallet</span>
+            {showWalletDropdown ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
 
-{showWalletDropdown && (
-  <div className="ml-10">
-    <button
-      onClick={() => handleSubTabClick("Wallet-Transactions")}
-      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-        activeTab === "Admin Wallet"
-          ? "text-black font-semibold"
-          : "text-gray-600"
-      }`}
-    >
-      Admin Wallet
-    </button>
-    <button
-      onClick={() => handleSubTabClick("Vendor Wallet")}
-      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-        activeTab === "Vendor Wallet"
-          ? "text-black font-semibold"
-          : "text-gray-600"
-      }`}
-    >
-      Vendor Wallet
-    </button>
-  </div>
-)}
-
+          {showWalletDropdown && (
+            <div className="ml-10">
+              <button
+                onClick={() => handleSubTabClick("Wallet-Transactions")}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                  activeTab === "Admin Wallet"
+                    ? "text-black font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                Admin Wallet
+              </button>
+              <button
+                onClick={() => handleSubTabClick("Vendor Wallet")}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                  activeTab === "Vendor Wallet"
+                    ? "text-black font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                Vendor Wallet
+              </button>
+            </div>
+          )}
         </nav>
 
         {/* Fixed bottom button */}
