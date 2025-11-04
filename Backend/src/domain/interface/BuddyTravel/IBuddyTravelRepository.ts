@@ -22,4 +22,8 @@ export interface IBuddyTravelRepository {
     skip: number,
     limit: number
   ): Promise<{ trips: BuddyTravel[]; totalTrips: number }>;
+
+  findByStatus(status: string): Promise<BuddyTravel[]>;
+  approveBuddyPackage(id: string): Promise<BuddyTravel | null>;
+  rejectBuddyPackage(id: string): Promise<BuddyTravel | null>;
 }

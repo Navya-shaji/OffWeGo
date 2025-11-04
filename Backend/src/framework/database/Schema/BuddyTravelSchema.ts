@@ -48,6 +48,7 @@ export const buddyTravelSchema = new Schema(
       enum: ["PENDING", "ACTIVE", "CANCELLED", "COMPLETED", "APPROVED"],
       default: "PENDING",
     },
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

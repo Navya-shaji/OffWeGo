@@ -1,7 +1,6 @@
 import { BuddyTravel } from "../../../domain/entities/BuddyTripEntity";
 import { IBuddyTravelRepository } from "../../../domain/interface/BuddyTravel/IBuddyTravelRepository";
 import { BuddyTravelModel, IBuddyTravelModel } from "../../../framework/database/Models/BuddyTravelModel";
-
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class BuddyTravelRepository
@@ -60,5 +59,32 @@ export class BuddyTravelRepository
       this.model.countDocuments({ vendorId }),
     ]);
     return { trips, totalTrips };
+  }
+
+  // ✅ New methods for admin approval logic
+  async findByStatus(status: string): Promise<IBuddyTravelModel[]> {
+    return this.model.find({ status });
+  }
+
+  async approveBuddyPackage(id: string): Promise<IBuddyTravelModel | null> {
+    return this.model.findByIdAndUpdate(
+      id,
+      {
+        status: "APPROVED",
+        isApproved: true,
+      },
+      { new: true }
+    );
+  }
+
+  async rejectBuddyPackage(id: string): Promise<IBuddyTravelModel | null> {
+    return this.model.findByIdAndUpdate(
+      id,
+      {
+        status: "CANCELLED",
+        isApproved: false,
+      },
+      { new: true }
+    );
   }
 }

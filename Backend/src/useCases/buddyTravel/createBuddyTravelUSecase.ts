@@ -12,7 +12,7 @@ export class CreateBuddyTravelUseCase implements ICreateBuddyTravelUseCase {
       throw new Error("Missing required fields");
     } 
 
-    const created = await this._buddyTravelRepository.createBuddyTrip(data);
+    const created = await this._buddyTravelRepository.createBuddyTrip({...data,isApproved:false});
       console.log("✅ Repository returned:", created);
     return mapToBuddyTravelDto( created as any);
   }

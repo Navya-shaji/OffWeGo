@@ -17,6 +17,7 @@ import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import { Role } from "../../../domain/constants/Roles";
 import { walletcontroller } from "../../Di/User/userInjections";
+import { buddyTravelcontroller } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtService();
 
 export class AdminRoute {
@@ -263,6 +264,12 @@ export class AdminRoute {
       AdminRoutes.GET_ADMIN_WALLET,
       (req:Request,res:Response)=>{
       walletcontroller.GetWallet(req,res)
+      }
+    )
+    this.adminRouter.patch(
+      AdminRoutes.UPDATE_PACKAGE_STATUS,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.updateBuddyPackageStatus(req,res)
       }
     )
   }

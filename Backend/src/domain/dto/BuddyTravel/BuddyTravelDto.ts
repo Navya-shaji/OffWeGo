@@ -11,4 +11,5 @@ description: string;
 category: string;
 status: 'PENDING' | 'ACTIVE' | 'CANCELLED' | 'COMPLETED' | 'APPROVED';
 vendorId: string;
+isApproved:boolean
 }

@@ -15,4 +15,5 @@ export const mapToBuddyTravelDto = (doc: IBuddyTravelModel): BuddyTravel => ({
   category: doc.category,
   status: doc.status,
   vendorId: doc.vendorId,
+  isApproved:doc.isApproved
 });
