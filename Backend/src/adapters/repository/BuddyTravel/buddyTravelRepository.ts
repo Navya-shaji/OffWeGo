@@ -87,4 +87,7 @@ export class BuddyTravelRepository
       { new: true }
     );
   }
+  async findAll(): Promise<IBuddyTravelModel[]> {
+  return this.model.find().lean();
+}
 }

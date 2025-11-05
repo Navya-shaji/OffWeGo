@@ -227,5 +227,11 @@ export class VendorRoute {
       (req: Request, res: Response) =>
        buddyTravelcontroller.createBuddyTravel(req,res)
     );
+    this.vendorRouter.get(
+      VendorRoutes.BUDDY_PACKAGES,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.getVendorBuddyPackages(req,res)
+      }
+    )
   }
 }

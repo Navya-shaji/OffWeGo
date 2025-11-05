@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { getBuddyTravelPackages, updateBuddyPackageStatus } from '@/services/BuddyTravel/buddytravelService';
 
-const IncomingBuddyRequests = ({ filter = 'pending' }) => {
+const IncomingBuddyRequests = ({ filter = 'pending'}) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,19 +31,16 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Reset to page 1 when filter prop changes
   useEffect(() => {
     setStatusFilter(filter);
     setCurrentPage(1);
     setSearchQuery('');
   }, [filter]);
 
-  // Fetch requests when status filter changes
   useEffect(() => {
     fetchRequests();
   }, [statusFilter]);
 
-  // Reset to page 1 when search query changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -53,7 +50,6 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
       setLoading(true);
       setError(null);
       
-      // Convert status to uppercase for API
       const apiStatus = statusFilter.toUpperCase();
       const data = await getBuddyTravelPackages(apiStatus);
       setRequests(Array.isArray(data) ? data : []);
@@ -72,11 +68,9 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
 
       await updateBuddyPackageStatus(requestId, newStatus === 'approved' ? 'approve' : 'reject');
 
-      // Close modal first
       setShowModal(false);
       setSelectedRequest(null);
       
-      // Refresh the list after update
       await fetchRequests();
     } catch (error) {
       console.error('Error updating status:', error);
@@ -87,13 +81,14 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
   };
 
   const getStatusBadge = (status) => {
+    const statusLower = status?.toLowerCase();
     const badges = {
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: Clock, label: 'Pending Review' },
       approved: { bg: 'bg-green-100', text: 'text-green-800', icon: Check, label: 'Approved' },
       rejected: { bg: 'bg-red-100', text: 'text-red-800', icon: X, label: 'Rejected' }
     };
     
-    const badge = badges[status] || badges.pending;
+    const badge = badges[statusLower] || badges.pending;
     const Icon = badge.icon;
     
     return (
@@ -104,24 +99,22 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
     );
   };
 
-  // Filter requests based on search query
   const filteredRequests = requests.filter(req => {
     const matchesSearch = 
-      req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.vendor?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.category.toLowerCase().includes(searchQuery.toLowerCase());
+      req.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      req.destination?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      req.category?.toLowerCase().includes(searchQuery.toLowerCase());
     
     return matchesSearch;
   });
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentRequests = filteredRequests.slice(startIndex, endIndex);
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -130,6 +123,7 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
   };
 
   const getTimeAgo = (dateString) => {
+    if (!dateString) return 'Recently';
     const now = new Date();
     const past = new Date(dateString);
     const diffMs = now - past;
@@ -162,7 +156,7 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <span className="flex items-center">
                     <Clock className="w-4 h-4 mr-1" />
-                    Submitted {getTimeAgo(request.submittedAt || request.createdAt)}
+                    Submitted {getTimeAgo(request.createdAt)}
                   </span>
                   {getStatusBadge(request.status)}
                 </div>
@@ -175,37 +169,15 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
               </button>
             </div>
 
-            {request.vendor && (
+            {request.vendorId && (
               <div className="bg-indigo-50 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                   <Building2 className="w-4 h-4 mr-2 text-indigo-600" />
                   Vendor Information
                 </h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {request.vendor.companyName && (
-                    <div>
-                      <span className="text-gray-600">Company:</span>
-                      <p className="font-medium text-gray-900">{request.vendor.companyName}</p>
-                    </div>
-                  )}
-                  {request.vendor.name && (
-                    <div>
-                      <span className="text-gray-600">Contact Person:</span>
-                      <p className="font-medium text-gray-900">{request.vendor.name}</p>
-                    </div>
-                  )}
-                  {request.vendor.email && (
-                    <div>
-                      <span className="text-gray-600">Email:</span>
-                      <p className="font-medium text-gray-900">{request.vendor.email}</p>
-                    </div>
-                  )}
-                  {request.vendor.phone && (
-                    <div>
-                      <span className="text-gray-600">Phone:</span>
-                      <p className="font-medium text-gray-900">{request.vendor.phone}</p>
-                    </div>
-                  )}
+                <div className="text-sm">
+                  <span className="text-gray-600">Vendor ID:</span>
+                  <p className="font-medium text-gray-900 font-mono">{request.vendorId}</p>
                 </div>
               </div>
             )}
@@ -267,7 +239,7 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
               </div>
             </div>
 
-            {request.status !== 'pending' && request.reviewNotes && (
+            {request.status?.toLowerCase() !== 'pending' && request.reviewNotes && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-blue-900 mb-2 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-2" />
@@ -277,7 +249,7 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
               </div>
             )}
 
-            {request.status === 'pending' && (
+            {request.status?.toLowerCase() === 'pending' && (
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Review Notes (Optional)
@@ -292,7 +264,7 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
               </div>
             )}
 
-            {request.status === 'pending' && (
+            {request.status?.toLowerCase() === 'pending' && (
               <div className="flex gap-3 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => handleStatusUpdate(request._id, 'approved', reviewNotes)}
@@ -331,9 +303,9 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
   };
 
   const stats = {
-    pending: requests.filter(r => r.status === 'pending').length,
-    approved: requests.filter(r => r.status === 'approved').length,
-    rejected: requests.filter(r => r.status === 'rejected').length,
+    pending: requests.filter(r => r.status?.toLowerCase() === 'pending').length,
+    approved: requests.filter(r => r.status?.toLowerCase() === 'approved').length,
+    rejected: requests.filter(r => r.status?.toLowerCase() === 'rejected').length,
     total: requests.length
   };
 
@@ -428,7 +400,7 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by title, destination, vendor, or category..."
+                placeholder="Search by title, destination, or category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -465,14 +437,12 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
                       {getStatusBadge(request.status)}
                     </div>
 
-                    {request.vendor && (
-                      <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-                        <Building2 className="w-4 h-4" />
-                        <span className="font-medium truncate">{request.vendor.name}</span>
-                        <span className="text-gray-400">•</span>
-                        <span>{getTimeAgo(request.submittedAt || request.createdAt)}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                      <Building2 className="w-4 h-4" />
+                      <span className="font-medium truncate font-mono text-xs">{request.vendorId}</span>
+                      <span className="text-gray-400">•</span>
+                      <span>{getTimeAgo(request.createdAt)}</span>
+                    </div>
 
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                       {request.description}
@@ -515,33 +485,29 @@ const IncomingBuddyRequests = ({ filter = 'pending' }) => {
                         Review
                       </button>
                       
-                      {request.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleStatusUpdate(request._id, 'approved')}
+                      {request.status?.toLowerCase() === 'pending' && (
+                        <div className="flex gap-2">
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                handleStatusUpdate(request._id, e.target.value);
+                                e.target.value = '';
+                              }
+                            }}
                             disabled={updatingId === request._id}
-                            className="flex items-center justify-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                            title="Approve"
+                            className="px-3 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {updatingId === request._id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Check className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleStatusUpdate(request._id, 'rejected')}
-                            disabled={updatingId === request._id}
-                            className="flex items-center justify-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition disabled:opacity-50"
-                            title="Reject"
-                          >
-                            {updatingId === request._id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <X className="w-4 h-4" />
-                            )}
-                          </button>
-                        </>
+                            <option value="">Change Status</option>
+                            <option value="approved">✓ Approve</option>
+                            <option value="rejected">✕ Reject</option>
+                          </select>
+                          
+                          {updatingId === request._id && (
+                            <div className="flex items-center px-3">
+                              <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

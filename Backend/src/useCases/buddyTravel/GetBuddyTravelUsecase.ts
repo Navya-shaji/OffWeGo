@@ -21,14 +21,12 @@ export class GetBuddyTravelUsecase implements IBuddyPackageApprovalUsecase {
       return await this._buddyRepo.findByStatus("PENDING");
     }
 
-    if (normalizedAction === "approve") {
-      if (!buddyId) throw new Error("BuddyTravel ID is required for approval");
-      return await this._buddyRepo.approveBuddyPackage(buddyId);
+    if (normalizedAction === "approved") {
+    return await this._buddyRepo.findByStatus("APPROVED");
     }
 
     if (normalizedAction === "reject") {
-      if (!buddyId) throw new Error("BuddyTravel ID is required for rejection");
-      return await this._buddyRepo.rejectBuddyPackage(buddyId);
+ return await this._buddyRepo.findByStatus("REJECTED");
     }
 
     throw new Error(`Invalid action type: ${action}`);

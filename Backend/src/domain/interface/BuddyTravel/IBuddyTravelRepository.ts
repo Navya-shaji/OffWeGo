@@ -26,4 +26,5 @@ export interface IBuddyTravelRepository {
   findByStatus(status: string): Promise<BuddyTravel[]>;
   approveBuddyPackage(id: string): Promise<BuddyTravel | null>;
   rejectBuddyPackage(id: string): Promise<BuddyTravel | null>;
+  findAll(): Promise<BuddyTravel[]>;
 }

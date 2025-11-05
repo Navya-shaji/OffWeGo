@@ -9,9 +9,11 @@ export class BuddyTravalAdminApprovalUsecase implements IAdminBuddyPackageApprov
     status?: "Pending" | "approve" | "reject",
     id?: string
   ): Promise<BuddyTravel[] | BuddyTravel | null> {
-    if (!status) throw new Error("Action is required");
+    if (!status) {
+      return await this._buddyTravelRepo.findAll();
+    }
 
-    const normalizedAction = status.toLowerCase(); 
+    const normalizedAction = status.toLowerCase();
 
     switch (normalizedAction) {
       case "pending":

@@ -3,12 +3,14 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { ICreateBuddyTravelUseCase } from "../../../domain/interface/BuddyTravel/ICreateBuddytravelUSecase";
 import { IAdminBuddyPackageApprovalUseCase } from "../../../domain/interface/BuddyTravel/IBuddyPackageApprovalUsecase";
 import { IBuddyPackageApprovalUsecase } from "../../../domain/interface/BuddyTravel/IGetPendingBuddyPAckagesUsecase";
+import { IGetVendorBuddyPackageUasecase } from "../../../domain/interface/BuddyTravel/IGetVendorBuddyPackageusecase";
 
 export class BuddyTravelController {
   constructor(
     private _createBuddyTravel: ICreateBuddyTravelUseCase,
     private _updateTravelUsecase: IAdminBuddyPackageApprovalUseCase,
-    private _getTravelusecase: IBuddyPackageApprovalUsecase
+    private _getTravelusecase: IBuddyPackageApprovalUsecase,
+    private _getVendorBuddyPackages: IGetVendorBuddyPackageUasecase
   ) {}
 
   async createBuddyTravel(req: Request, res: Response) {
@@ -34,7 +36,7 @@ export class BuddyTravelController {
     try {
       const buddyId = req.params.id?.trim();
       const { status } = req.body;
-console.log(status)
+      console.log(status);
       if (!buddyId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -81,12 +83,13 @@ console.log(status)
   async getBuddyTravelPackages(req: Request, res: Response): Promise<void> {
     try {
       const { status } = req.query;
-      const result = await this._getTravelusecase.execute(
-        "pending",
-        undefined,
-        status as string
-      );
-console.log(result,"jmkkjkkkk")
+
+      const filterStatus = status ? (status as string) : undefined;
+      const action = filterStatus ?? "pending";
+      const result = await this._getTravelusecase.execute(action);
+
+      console.log(result, "Fetched Buddy Travel Packages");
+
       if (!result || (Array.isArray(result) && result.length === 0)) {
         res.status(HttpStatus.NOT_FOUND).json({
           success: false,
@@ -101,7 +104,23 @@ console.log(result,"jmkkjkkkk")
         data: result,
       });
     } catch (error) {
-      console.error(" Error in getBuddyTravelPackages:", error);
+      console.error("Error in getBuddyTravelPackages:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+  async getVendorBuddyPackages(req: Request, res: Response): Promise<void> {
+    try {
+      const vendorId = req.params.id;
+      const result = await this._getVendorBuddyPackages.execute(vendorId);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Buddy packages fetched",
+        data: result,
+      });
+    } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
