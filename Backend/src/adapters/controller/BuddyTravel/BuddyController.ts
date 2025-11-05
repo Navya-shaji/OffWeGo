@@ -4,13 +4,15 @@ import { ICreateBuddyTravelUseCase } from "../../../domain/interface/BuddyTravel
 import { IAdminBuddyPackageApprovalUseCase } from "../../../domain/interface/BuddyTravel/IBuddyPackageApprovalUsecase";
 import { IBuddyPackageApprovalUsecase } from "../../../domain/interface/BuddyTravel/IGetPendingBuddyPAckagesUsecase";
 import { IGetVendorBuddyPackageUasecase } from "../../../domain/interface/BuddyTravel/IGetVendorBuddyPackageusecase";
+import { IGetAllBuddyPackageUsecase } from "../../../domain/interface/BuddyTravel/IgetAllBuddypackageUsecase";
 
 export class BuddyTravelController {
   constructor(
     private _createBuddyTravel: ICreateBuddyTravelUseCase,
     private _updateTravelUsecase: IAdminBuddyPackageApprovalUseCase,
     private _getTravelusecase: IBuddyPackageApprovalUsecase,
-    private _getVendorBuddyPackages: IGetVendorBuddyPackageUasecase
+    private _getVendorBuddyPackages: IGetVendorBuddyPackageUasecase,
+    private _getallBuddyPackages: IGetAllBuddyPackageUsecase
   ) {}
 
   async createBuddyTravel(req: Request, res: Response) {
@@ -118,6 +120,23 @@ export class BuddyTravelController {
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Buddy packages fetched",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getAllbuddyPackages(req: Request, res: Response): Promise<void> {
+    try {
+  
+      const result = await this._getallBuddyPackages.execute();
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Buddy packages fetches",
         data: result,
       });
     } catch (error) {

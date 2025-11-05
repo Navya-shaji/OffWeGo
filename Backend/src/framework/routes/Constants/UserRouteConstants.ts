@@ -20,5 +20,6 @@ export const UserRoutes = {
   PASSWORD: "/password/:id",
   CANCEL_BOOKING: "/bookings/:id",
   USER_WALLET:'/wallet',
-  GET_USER_WALLET:'/wallet/:id'
+  GET_USER_WALLET:'/wallet/:id',
+  BUDDY_PACKAGES:'/buddy-packages'
 };

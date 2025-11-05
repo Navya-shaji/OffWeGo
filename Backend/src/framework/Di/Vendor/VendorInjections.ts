@@ -53,6 +53,7 @@ import { StripeService } from "../../Services/stripeService";
 import { BuddyTravalAdminApprovalUsecase } from "../../../useCases/buddyTravel/buddyPackageAprovalUsecase";
 import { GetBuddyTravelUsecase } from "../../../useCases/buddyTravel/GetBuddyTravelUsecase";
 import { GetVendorBuddyPackageUsecase } from "../../../useCases/buddyTravel/GetVendorBuddyPacakgeUsecase";
+import { GetAllBuddyTravelUsecase } from "../../../useCases/buddyTravel/GetAllBuddyTravelUsecase";
 
 
 //  Setup Repository and Services
@@ -103,6 +104,7 @@ const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo)
 const adminPackageApprovalusecase=new BuddyTravalAdminApprovalUsecase(buddyRepo)
 const getTravelUsecase=new GetBuddyTravelUsecase(buddyRepo)
 const getvendorBuddypackagesusecase=new GetVendorBuddyPackageUsecase(buddyRepo)
+const getallbuddypackages=new GetAllBuddyTravelUsecase(buddyRepo)
 
 
 //  Controllers
@@ -116,4 +118,4 @@ export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
 export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase)
-export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase, adminPackageApprovalusecase,getTravelUsecase,getvendorBuddypackagesusecase)
+export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase, adminPackageApprovalusecase,getTravelUsecase,getvendorBuddypackagesusecase,getallbuddypackages)

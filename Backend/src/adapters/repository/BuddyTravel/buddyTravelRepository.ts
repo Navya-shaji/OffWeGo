@@ -61,9 +61,8 @@ export class BuddyTravelRepository
     return { trips, totalTrips };
   }
 
-  // ✅ New methods for admin approval logic
-  async findByStatus(status: string): Promise<IBuddyTravelModel[]> {
-    return this.model.find({ status });
+  async findByStatus(): Promise<IBuddyTravelModel[]> {
+    return this.model.find({ status: "APPROVED" });
   }
 
   async approveBuddyPackage(id: string): Promise<IBuddyTravelModel | null> {

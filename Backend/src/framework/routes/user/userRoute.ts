@@ -16,7 +16,7 @@ import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/Toke
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
-import { packagecontroller } from "../../Di/Vendor/VendorInjections";
+import { buddyTravelcontroller, packagecontroller } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtService();
 
 export class UserRoute {
@@ -156,6 +156,11 @@ export class UserRoute {
         walletcontroller.GetWallet(req,res)
       }
     )
-    
+    this.userRouter.get(
+      UserRoutes.BUDDY_PACKAGES,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.getAllbuddyPackages(req,res)
+      }
+    )
   }
 }
