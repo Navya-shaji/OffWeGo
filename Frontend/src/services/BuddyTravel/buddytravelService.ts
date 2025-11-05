@@ -1,4 +1,4 @@
-import { isAxiosError } from "axios";
+import axios, { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { BuddyTravel } from "@/interface/BuddyTravelInterface";
 import store from "@/store/store";
@@ -112,9 +112,34 @@ export const getBuddyTravelPackages = async (status: string) => {
 
 export const getBuddypackagesByvendor = async (vendorId: string) => {
   try {
-    const response = await axiosInstance.get(`/api/vendor/buddy-packages/${vendorId}`);
-    console.log(response.data)
+    const response = await axiosInstance.get(
+      `/api/vendor/buddy-packages/${vendorId}`
+    );
+    console.log(response.data);
     return response.data.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to fetch buddy travel packages";
+      throw new Error(msg);
+    }
+
+    throw new Error("An unexpected error occurred while fetching packages");
+  }
+};
+
+export const getAllBuddyPackages = async () => {
+  try {
+    const response = await axiosInstance.get("/api/buddy-packages");
+
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.message || "Failed to fetch buddy travel packages");
+    }
   } catch (error) {
     if (isAxiosError(error)) {
       const msg =
