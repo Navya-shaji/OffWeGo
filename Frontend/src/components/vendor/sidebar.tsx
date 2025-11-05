@@ -117,6 +117,18 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               <List className="inline-block mr-2 w-4 h-4" />
               All Packages
             </button>
+
+              <button
+              onClick={() => handleSubTabClick("Buddy Packages")}
+              className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                activeTab === "Buddy Packages"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+              }`}
+            >
+              <FolderPlus className="inline-block mr-2 w-4 h-4" />
+            Buddy packages
+            </button>
           </div>
         )}
 

@@ -19,6 +19,7 @@ import GetAllFlight from "./GetAllFlight";
 import AllBookings from "./Bookings/UserBookings";
 import {TravelCalendar} from "./Bookings/TravelCalendar";
 import AddBuddyTravelPage from "./BuddyTravel/Buddytravel-create";
+import VendorApprovedPackages from "./BuddyTravel/BuddyPackage-table";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -42,6 +43,7 @@ console.log(vendorId,"ve")
           {activeTab === "Add Package" && <AddPackage />}
           {activeTab === "Add Buddy Travel" && <AddBuddyTravelPage />}
           {activeTab === "All Packages" && <PackageTable packages={packages} />}
+          {activeTab === "Buddy Packages" && <VendorApprovedPackages vendorId=""  />}
           {activeTab === "All Destinations" && <DestinationTable />}
           {activeTab == "Add Destination" && <CreateDestination />}
           {activeTab == "Create Hotel" && <CreateHotel />}

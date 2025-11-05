@@ -55,15 +55,15 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
 
 export const updateBuddyPackageStatus = async (
   buddyId: string,
-  status: "pending"|"approve" | "reject"
+  status: "pending" | "approve" | "reject"
 ) => {
   try {
-    console.log("resss")
+    console.log("resss");
     const response = await axiosInstance.patch(
       `/api/admin/buddy-travel/${buddyId}`,
-      { status } 
+      { status }
     );
-console.log(response.data)
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating buddy package status:", error);
@@ -77,21 +77,45 @@ console.log(response.data)
       throw new Error(msg);
     }
 
-    throw new Error("An unexpected error occurred while updating package status");
+    throw new Error(
+      "An unexpected error occurred while updating package status"
+    );
   }
 };
 
-export const getBuddyTravelPackages = async (status: string ) => {
+export const getBuddyTravelPackages = async (status: string) => {
   try {
-    console.log("bbfhb")
-    const response = await axiosInstance.get(`/api/admin/buddy-packages/:status`, {
-      params: { status },
-    });
-console.log(response.data.data,"res")
+    console.log("bbfhb");
+    const response = await axiosInstance.get(
+      `/api/admin/buddy-packages/:status`,
+      {
+        params: { status },
+      }
+    );
+    console.log(response.data.data, "res");
     return response.data.data || [];
   } catch (error) {
     console.error(" Error fetching buddy travel packages:", error);
 
+    if (isAxiosError(error)) {
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to fetch buddy travel packages";
+      throw new Error(msg);
+    }
+
+    throw new Error("An unexpected error occurred while fetching packages");
+  }
+};
+
+export const getBuddypackagesByvendor = async (vendorId: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/vendor/buddy-packages/${vendorId}`);
+    console.log(response.data)
+    return response.data.data;
+  } catch (error) {
     if (isAxiosError(error)) {
       const msg =
         error.response?.data?.message ||
