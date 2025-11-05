@@ -32,17 +32,27 @@ export class BuddyTravelRepository
     return { trips, totalTrips };
   }
 
-  async joinBuddyTrip(tripId: string, userId: string) {
-    const trip = await this.model.findById(tripId);
-    if (!trip || trip.maxPeople <= 0) return null;
+async joinBuddyTrip(tripId: string, userId: string) {
+  const trip = await this.model.findById(tripId);
 
-    if (!trip.joinedUsers.includes(userId)) {
-      trip.joinedUsers.push(userId);
-      trip.maxPeople -= 1;
-      await trip.save();
-    }
-    return trip;
-  }
+  if (!trip) return null;
+
+  // Only allow joining if approved
+  if (trip.status !== "APPROVED") return null;
+
+  // Check if user already joined
+  if (trip.joinedUsers.includes(userId)) return trip;
+
+  // Check if trip has available slots
+  if (trip.joinedUsers.length >= trip.maxPeople) return null;
+
+  trip.joinedUsers.push(userId);
+  trip.maxPeople = trip.maxPeople - 1;
+
+  await trip.save();
+  return trip;
+}
+
 
   async deleteBuddyTrip(id: string) {
     return await this.model.findByIdAndDelete(id);

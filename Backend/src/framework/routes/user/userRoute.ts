@@ -162,5 +162,11 @@ export class UserRoute {
         buddyTravelcontroller.getAllbuddyPackages(req,res)
       }
     )
+    this.userRouter.post(
+      UserRoutes.JOIN_TRAVEL,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.JoinBuddyTravel(req,res)
+      }
+    )
   }
 }

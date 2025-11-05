@@ -21,5 +21,6 @@ export const UserRoutes = {
   CANCEL_BOOKING: "/bookings/:id",
   USER_WALLET:'/wallet',
   GET_USER_WALLET:'/wallet/:id',
-  BUDDY_PACKAGES:'/buddy-packages'
+  BUDDY_PACKAGES:'/buddy-packages',
+  JOIN_TRAVEL:'/join-travel/:travelId/:userId'
 };

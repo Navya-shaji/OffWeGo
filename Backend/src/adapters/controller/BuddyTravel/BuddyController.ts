@@ -5,6 +5,7 @@ import { IAdminBuddyPackageApprovalUseCase } from "../../../domain/interface/Bud
 import { IBuddyPackageApprovalUsecase } from "../../../domain/interface/BuddyTravel/IGetPendingBuddyPAckagesUsecase";
 import { IGetVendorBuddyPackageUasecase } from "../../../domain/interface/BuddyTravel/IGetVendorBuddyPackageusecase";
 import { IGetAllBuddyPackageUsecase } from "../../../domain/interface/BuddyTravel/IgetAllBuddypackageUsecase";
+import { IJoinTravelUsecase } from "../../../domain/interface/BuddyTravel/IJoinTravelUsecase";
 
 export class BuddyTravelController {
   constructor(
@@ -12,7 +13,8 @@ export class BuddyTravelController {
     private _updateTravelUsecase: IAdminBuddyPackageApprovalUseCase,
     private _getTravelusecase: IBuddyPackageApprovalUsecase,
     private _getVendorBuddyPackages: IGetVendorBuddyPackageUasecase,
-    private _getallBuddyPackages: IGetAllBuddyPackageUsecase
+    private _getallBuddyPackages: IGetAllBuddyPackageUsecase,
+    private _joinbuddyTravel: IJoinTravelUsecase
   ) {}
 
   async createBuddyTravel(req: Request, res: Response) {
@@ -130,23 +132,50 @@ export class BuddyTravelController {
     }
   }
 
-async getAllbuddyPackages(req: Request, res: Response): Promise<void> {
-  try {
-    const result = await this._getallBuddyPackages.execute();
+  async getAllbuddyPackages(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this._getallBuddyPackages.execute();
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Buddy packages fetched successfully",
-      data: result,
-    });
-  } catch (error) {
-    console.error("Error in getAllbuddyPackages:", error);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Buddy packages fetched successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error in getAllbuddyPackages:", error);
 
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
+  async JoinBuddyTravel(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.params.userId as string | undefined;
+      const travelId = req.params.travelId as string | undefined;
 
+      if (!userId || !travelId) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "userId and travelId are required",
+        });
+        return;
+      }
+
+      const result = await this._joinbuddyTravel.execute(userId, travelId);
+      console.log(result);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Joined buddy travel successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error in JoinBuddyTravel:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }
