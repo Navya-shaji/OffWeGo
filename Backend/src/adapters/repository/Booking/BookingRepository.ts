@@ -1,9 +1,10 @@
 import { Booking } from "../../../domain/entities/BookingEntity";
+import { BuddyTravel } from "../../../domain/entities/BuddyTripEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
 import { BookingModel } from "../../../framework/database/Models/BookingModel";
 
 export class BookingRepository implements IBookingRepository {
-  async createBooking(booking: Booking): Promise<Booking> {
+  async createBooking(booking: Booking ): Promise<Booking> {
     const createdBooking = new BookingModel({
       ...booking,
       bookingStatus: booking.bookingStatus || "upcoming",
@@ -73,6 +74,21 @@ async findOne(bookingId: string): Promise<Booking | null> {
   return booking;
 }
 
+async createbuddyBooking(booking: BuddyTravel): Promise<BuddyTravel> {
+  const createdBooking = new BookingModel({
+      ...booking,
+  });
 
+  await createdBooking.save();
+  return createdBooking.toObject() as unknown as BuddyTravel;
+}
 
+async BuddyBooking(booking: BuddyTravel): Promise<Booking> {
+  const createdBooking = new BookingModel({
+      ...booking,
+  });
+
+  await createdBooking.save();
+  return createdBooking.toObject();
+}
 }

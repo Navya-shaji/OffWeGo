@@ -19,6 +19,12 @@ import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
+// import BuddyTravelCheckoutForm from "@/components/home/Travalbuddies/buddyTravelCheckout";
+// import { Elements } from "@stripe/react-stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
+
+
+// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
 
 const UserRoute = () => {
   return (
@@ -29,6 +35,7 @@ const UserRoute = () => {
       <Route path="/forgot-password" element={<Forgotpassword />} />
       <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+
       <Route
         path="/profile"
         element={
@@ -37,6 +44,7 @@ const UserRoute = () => {
           </ProtectedRoute>
         }
       />
+
       <Route path="/destinations" element={<AllDestinationsPage />} />
       <Route path="/destination/:id" element={<DestinationDetail />} />
       <Route path="/timeline" element={<PackageTimeline />} />
@@ -49,6 +57,20 @@ const UserRoute = () => {
       <Route path="/about" element={<AboutUs />} />
       <Route path="/wallet" element={<WalletManagement />} />
       <Route path="/buddy-packages" element={<Travalbuddies />} />
+        <Route path="/payment-success" element={<BookingSuccess />} />
+      
+{/* 
+      <Route
+        path="/payment-buddycheckout"
+        element={
+          <Elements stripe={stripePromise}>
+            <BuddyTravelCheckoutForm amount={0} clientSecret="" />
+          </Elements>
+        }
+      /> */}
+
+      {/* <Route path="/payment-buddycheckout" element={<BuddyTravelPaymentPage />} /> */}
+
       <Route
         path="/"
         element={

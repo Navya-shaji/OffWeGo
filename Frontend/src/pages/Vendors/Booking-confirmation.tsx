@@ -12,7 +12,7 @@ export default function PaymentCheckout() {
 
   const subtotal = totalAmount;
 
-
+console.log(subtotal,"slkdslkd")
 
   const handlePayment = () => {
     if (selectedPayment === "stripe") {

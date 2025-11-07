@@ -168,5 +168,11 @@ export class UserRoute {
         buddyTravelcontroller.JoinBuddyTravel(req,res)
       }
     )
+    this.userRouter.post(
+      UserRoutes.BOOKING_BUDDYTRAVEL,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.createBuddyBooking(req,res)
+      }
+    )
   }
 }

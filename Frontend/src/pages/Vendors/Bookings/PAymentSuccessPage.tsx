@@ -14,7 +14,7 @@ const PaymentSuccessPage = () => {
       const bookingDetails = JSON.parse(sessionStorage.getItem("bookingDetails") || "{}");
 
       if (!sessionId || !bookingDetails.vendorId || !bookingDetails.planId) {
-        setMessage("⚠️ Missing session or booking details.");
+        setMessage(" Missing session or booking details.");
         setLoading(false);
         return;
       }
@@ -27,14 +27,14 @@ const PaymentSuccessPage = () => {
         });
 
         if (response.success) {
-          setMessage("✅ Payment verified successfully!");
+          setMessage(" Payment verified successfully!");
           setTimeout(() => navigate("/profile"), 2000);
         } else {
-          setMessage("❌ Payment verification failed.");
+          setMessage(" Payment verification failed.");
         }
       } catch (error) {
         console.error("Payment verification error:", error);
-        setMessage("❌ Error verifying payment.");
+        setMessage(" Error verifying payment.");
       } finally {
         setLoading(false);
       }

@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { 
   Users, 
   Calendar, 
   MapPin, 
-  DollarSign, 
+  IndianRupee, 
   Check, 
   X, 
   Clock, 
@@ -20,15 +20,15 @@ import {
 import { getBuddyTravelPackages, updateBuddyPackageStatus } from '@/services/BuddyTravel/buddytravelService';
 
 const IncomingBuddyRequests = ({ filter = 'pending'}) => {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(filter);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
-  const [updatingId, setUpdatingId] = useState(null);
-  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -55,14 +55,13 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
       setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching requests:', error);
-      setError(error.message || 'Failed to load requests');
       setRequests([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (requestId, newStatus, notes = '') => {
+  const handleStatusUpdate = async (requestId: string, newStatus: string) => {
     try {
       setUpdatingId(requestId);
 
@@ -74,23 +73,26 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
       await fetchRequests();
     } catch (error) {
       console.error('Error updating status:', error);
-      alert(error.message || 'Failed to update status');
+      alert((error as any)?.message || 'Failed to update status');
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const getStatusBadge = (status) => {
-    const statusLower = status?.toLowerCase();
-    const badges = {
+  const getStatusBadge = (status?: string) => {
+    type StatusKey = 'pending' | 'approved' | 'rejected';
+    type Badge = { bg: string; text: string; icon: any; label: string };
+
+    const badges: Record<StatusKey, Badge> = {
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: Clock, label: 'Pending Review' },
       approved: { bg: 'bg-green-100', text: 'text-green-800', icon: Check, label: 'Approved' },
       rejected: { bg: 'bg-red-100', text: 'text-red-800', icon: X, label: 'Rejected' }
     };
-    
-    const badge = badges[statusLower] || badges.pending;
+
+    const statusLower = (status || 'pending').toLowerCase() as StatusKey;
+    const badge = badges[statusLower] ?? badges.pending;
     const Icon = badge.icon;
-    
+
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${badge.bg} ${badge.text}`}>
         <Icon className="w-4 h-4 mr-1" />
@@ -113,7 +115,7 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
   const endIndex = startIndex + itemsPerPage;
   const currentRequests = filteredRequests.slice(startIndex, endIndex);
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string | number | Date) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -122,11 +124,11 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
     });
   };
 
-  const getTimeAgo = (dateString) => {
+  const getTimeAgo = (dateString: string | number | Date) => {
     if (!dateString) return 'Recently';
     const now = new Date();
     const past = new Date(dateString);
-    const diffMs = now - past;
+    const diffMs = now.getTime() - past.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffHours / 24);
     
@@ -140,14 +142,14 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
       return formatDate(dateString);
     }
   };
-
-  const RequestDetailsModal = ({ request, onClose }) => {
-    const [reviewNotes, setReviewNotes] = useState(request?.reviewNotes || '');
+console.log(currentRequests,"hjghg")
+  const RequestDetailsModal = ({ request, onClose }: { request: any | null; onClose: () => void }) => {
+    const [reviewNotes, setReviewNotes] = useState<string>(request?.reviewNotes || '');
 
     if (!request) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-start mb-4">
@@ -208,7 +210,7 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
 
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                  <DollarSign className="w-4 h-4 mr-2 text-indigo-600" />
+                  <IndianRupee className="w-4 h-4 mr-2 text-indigo-600" />
                   Price per Person
                 </h3>
                 <p className="text-gray-900 font-medium text-lg">₹{request.price.toLocaleString()}</p>
@@ -259,7 +261,6 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
                   onChange={(e) => setReviewNotes(e.target.value)}
                   placeholder="Add any notes or feedback for the vendor..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-                  rows="3"
                 />
               </div>
             )}
@@ -267,7 +268,7 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
             {request.status?.toLowerCase() === 'pending' && (
               <div className="flex gap-3 pt-4 border-t border-gray-200">
                 <button
-                  onClick={() => handleStatusUpdate(request._id, 'approved', reviewNotes)}
+                  onClick={() => handleStatusUpdate(request._id, 'approved')}
                   disabled={updatingId === request._id}
                   className="flex-1 flex items-center justify-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -281,7 +282,7 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
                   )}
                 </button>
                 <button
-                  onClick={() => handleStatusUpdate(request._id, 'rejected', reviewNotes)}
+                  onClick={() => handleStatusUpdate(request._id, 'rejected')}
                   disabled={updatingId === request._id}
                   className="flex-1 flex items-center justify-center px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -339,17 +340,13 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Buddy Travel Requests
+            Buddy Travel Requests
           </h1>
-          <p className="text-gray-600">
-            {statusFilter === 'pending' && 'Review and approve vendor-submitted buddy travel packages'}
-            {statusFilter === 'approved' && 'View all approved buddy travel packages'}
-            {statusFilter === 'rejected' && 'View all rejected buddy travel packages'}
-          </p>
+        
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -438,9 +435,6 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
                     </div>
 
                     <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-                      <Building2 className="w-4 h-4" />
-                      <span className="font-medium truncate font-mono text-xs">{request.vendorId}</span>
-                      <span className="text-gray-400">•</span>
                       <span>{getTimeAgo(request.createdAt)}</span>
                     </div>
 
@@ -449,10 +443,7 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
                     </p>
 
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
-                        <span className="truncate">{request.destination}</span>
-                      </div>
+                    
                       <div className="flex items-center text-sm text-gray-600">
                         <Tag className="w-4 h-4 mr-2 text-indigo-600 flex-shrink-0" />
                         {request.category}
@@ -463,7 +454,7 @@ const IncomingBuddyRequests = ({ filter = 'pending'}) => {
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center text-gray-600">
-                          <DollarSign className="w-4 h-4 mr-1 text-indigo-600" />
+                          <IndianRupee className="w-4 h-4 mr-1 text-indigo-600" />
                           ₹{request.price.toLocaleString()}
                         </span>
                         <span className="flex items-center text-gray-600">

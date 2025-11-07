@@ -11,6 +11,7 @@ export const createBooking = async (
     payment_id,
  
   });
+  console.log(data)
 console.log(response,"res")
   return response.data;
 };

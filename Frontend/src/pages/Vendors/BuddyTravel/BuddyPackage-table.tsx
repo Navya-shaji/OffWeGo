@@ -4,7 +4,7 @@ import {
   Loader2, 
   Calendar, 
   MapPin, 
-  DollarSign, 
+  IndianRupee, 
   Users, 
   Tag, 
   Eye,
@@ -113,7 +113,7 @@ const VendorApprovedPackages: React.FC = () => {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
         <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
-          {/* Header with gradient */}
+        
           <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 p-8 text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-black opacity-10"></div>
             <div className="relative z-10">
@@ -138,14 +138,14 @@ const VendorApprovedPackages: React.FC = () => {
             </div>
           </div>
 
-          {/* Content */}
+      
           <div className="p-8 overflow-y-auto max-h-[calc(90vh-200px)]">
             <div className="space-y-6">
-              {/* Quick Stats */}
+             
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 border border-blue-200">
                   <div className="flex items-center justify-between mb-2">
-                    <DollarSign className="w-8 h-8 text-blue-600" />
+                    <IndianRupee className="w-8 h-8 text-blue-600" />
                   </div>
                   <p className="text-2xl font-bold text-blue-900">₹{pkg.price.toLocaleString()}</p>
                   <p className="text-xs text-blue-700 mt-1">Per Person</p>
@@ -225,7 +225,7 @@ const VendorApprovedPackages: React.FC = () => {
                 </div>
               </div>
 
-              {/* Revenue Info */}
+             
               <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border-2 border-emerald-200">
                 <div className="flex items-center justify-between">
                   <div>
@@ -243,7 +243,7 @@ const VendorApprovedPackages: React.FC = () => {
                 </div>
               </div>
 
-              {/* Meta Info */}
+        
               <div className="bg-gray-100 rounded-xl p-4 text-xs text-gray-600 space-y-1">
                 <p><span className="font-semibold">Package ID:</span> <span className="font-mono">{pkg._id}</span></p>
                 <p><span className="font-semibold">Created:</span> {formatDate(pkg.createdAt)}</p>
@@ -359,7 +359,7 @@ const VendorApprovedPackages: React.FC = () => {
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition text-white">
             <div className="flex items-center justify-between mb-3">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <DollarSign className="w-6 h-6 text-white" />
+                <IndianRupee className="w-6 h-6 text-white" />
               </div>
               <Sparkles className="w-5 h-5" />
             </div>

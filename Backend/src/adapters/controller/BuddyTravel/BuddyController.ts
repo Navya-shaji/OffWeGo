@@ -6,6 +6,7 @@ import { IBuddyPackageApprovalUsecase } from "../../../domain/interface/BuddyTra
 import { IGetVendorBuddyPackageUasecase } from "../../../domain/interface/BuddyTravel/IGetVendorBuddyPackageusecase";
 import { IGetAllBuddyPackageUsecase } from "../../../domain/interface/BuddyTravel/IgetAllBuddypackageUsecase";
 import { IJoinTravelUsecase } from "../../../domain/interface/BuddyTravel/IJoinTravelUsecase";
+import { IcreateBuddyBooking } from "../../../domain/interface/BuddyTravel/IcreateBuddyBokkkingUsecase";
 
 export class BuddyTravelController {
   constructor(
@@ -14,7 +15,8 @@ export class BuddyTravelController {
     private _getTravelusecase: IBuddyPackageApprovalUsecase,
     private _getVendorBuddyPackages: IGetVendorBuddyPackageUasecase,
     private _getallBuddyPackages: IGetAllBuddyPackageUsecase,
-    private _joinbuddyTravel: IJoinTravelUsecase
+    private _joinbuddyTravel: IJoinTravelUsecase,
+    private _bookingBuddytravel: IcreateBuddyBooking
   ) {}
 
   async createBuddyTravel(req: Request, res: Response) {
@@ -150,11 +152,12 @@ export class BuddyTravelController {
       });
     }
   }
+
   async JoinBuddyTravel(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId as string | undefined;
       const travelId = req.params.travelId as string | undefined;
-
+      const { paymentId } = req.body;
       if (!userId || !travelId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -163,7 +166,11 @@ export class BuddyTravelController {
         return;
       }
 
-      const result = await this._joinbuddyTravel.execute(userId, travelId);
+      const result = await this._joinbuddyTravel.execute(
+        userId,
+        travelId,
+        paymentId
+      );
       console.log(result);
       res.status(HttpStatus.OK).json({
         success: true,
@@ -178,4 +185,16 @@ export class BuddyTravelController {
       });
     }
   }
-}
+  async createBuddyBooking(req: Request, res: Response): Promise<void> {
+    try {
+      const { data } = req.body;
+      const result = await this._createBuddyTravel.execute(data);
+      res.status(HttpStatus.CREATED).json({ success: true, booking: result });
+    } catch (error) {
+        res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error });
+    }
+    }
+  }
+

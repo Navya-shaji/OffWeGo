@@ -1,4 +1,3 @@
-// Sidebar.tsx - Responsive Version
 import React, { useState } from "react";
 import {
   Users,
@@ -13,6 +12,7 @@ import {
   FolderPlus,
   X,
   Wallet,
+  Handshake,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -34,14 +34,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [showSubscriptionDropdown, setShowSubscriptionDropdown] =
     useState(false);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
-  const [showBuddyDropdown, setShowBuddyDropdown] = useState(false);
+  // const [showBuddyDropdown, setShowBuddyDropdown] = useState(false);
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
     { icon: Users, label: "Users" },
     { icon: UserCheck, label: "Vendors" },
     { icon: MapPin, label: "Destinations" },
-    { icon: Wallet, label: "Wallet" },
   ];
 
   const handleRequestClick = () => {
@@ -76,7 +75,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -84,7 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={`
         fixed lg:relative
@@ -93,7 +90,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
       >
-        {/* Header with close button for mobile */}
         <div className="p-6 flex items-center justify-between">
           <div className="text-2xl font-bold text-gray-800">OffWeGo 🕊️</div>
           <button
@@ -119,8 +115,17 @@ const Sidebar: React.FC<SidebarProps> = ({
               <span className="text-gray-700">{item.label}</span>
             </button>
           ))}
-
-          {/* Requests Dropdown */}
+          <button
+            onClick={() => handleSubTabClick("Buddy Packages")}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+              activeTab === "Buddy Packages"
+                ? "bg-gray-100 border-r-4 border-black"
+                : ""
+            }`}
+          >
+            <Handshake className="w-5 h-5 mr-3 text-gray-600" />
+            <span className="text-gray-700">Buddy Packages</span>
+          </button>
           <button
             onClick={handleRequestClick}
             className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -173,7 +178,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
 
-          {/* Category Dropdown */}
           <button
             onClick={handleCategoryClick}
             className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -217,60 +221,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </button>
             </div>
           )}
-          {/* Buddy Packages Dropdown */}
-          <button
-            onClick={() => setShowBuddyDropdown((prev) => !prev)}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab.includes("Buddy")
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
-          >
-            <MapPin className="w-5 h-5 mr-3 text-gray-600" />
-            <span className="text-gray-700 flex-1">Buddy Packages</span>
-            {showBuddyDropdown ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-          </button>
 
-          {showBuddyDropdown && (
-            <div className="ml-10">
-              <button
-                onClick={() => handleSubTabClick("Pending Buddy Packages")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Pending Buddy Packages"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Pending
-              </button>
-              <button
-                onClick={() => handleSubTabClick("Approved Buddy Packages")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Approved Buddy Packages"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Approved
-              </button>
-              <button
-                onClick={() => handleSubTabClick("Rejected Buddy Packages")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Rejected Buddy Packages"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Rejected
-              </button>
-            </div>
-          )}
-
-          {/* Banner Dropdown */}
           <button
             onClick={handleBannerClick}
             className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -315,7 +266,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
 
-          {/* Subscription Dropdown */}
           <button
             onClick={handleSubscriptionClick}
             className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -360,7 +310,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
 
-          {/* Wallet Dropdown */}
           <button
             onClick={() => setShowWalletDropdown((prev) => !prev)}
             className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
@@ -404,7 +353,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </nav>
 
-        {/* Fixed bottom button */}
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
           <button
             onClick={() => handleMainTabClick("Add Destination")}

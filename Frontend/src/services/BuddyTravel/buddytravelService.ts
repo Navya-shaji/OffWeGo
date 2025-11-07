@@ -153,3 +153,38 @@ export const getAllBuddyPackages = async () => {
     throw new Error("An unexpected error occurred while fetching packages");
   }
 };
+export const joinBuddyTravel = async (
+  userId: string,
+  travelId: string
+): Promise<BuddyTravel> => {
+  try {
+    const response = await axiosInstance.post(
+      `/api/join-travel/${travelId}/${userId}`,
+      {},
+    );
+console.log(response,"djh")
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to join buddy travel"
+      );
+    }
+    throw error;
+  }
+};
+
+export const createBuddyTravelBooking = async (data: BuddyTravel) => {
+  try {
+    const response = await axiosInstance.post("/api/booking/travel", { data });
+    console.log("Buddy travel booking created:", response);
+    return response.data;
+  } catch (error) {
+ if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to join buddy travel"
+      );
+    }
+    throw error;
+  }
+};

@@ -37,13 +37,8 @@ async joinBuddyTrip(tripId: string, userId: string) {
 
   if (!trip) return null;
 
-  // Only allow joining if approved
   if (trip.status !== "APPROVED") return null;
-
-  // Check if user already joined
   if (trip.joinedUsers.includes(userId)) return trip;
-
-  // Check if trip has available slots
   if (trip.joinedUsers.length >= trip.maxPeople) return null;
 
   trip.joinedUsers.push(userId);
@@ -71,9 +66,11 @@ async joinBuddyTrip(tripId: string, userId: string) {
     return { trips, totalTrips };
   }
 
-  async findByStatus(): Promise<IBuddyTravelModel[]> {
-    return this.model.find({ status: "APPROVED" });
-  }
+async findByStatus(): Promise<IBuddyTravelModel[]> {
+  const statuses = ["APPROVED", "PENDING", "REJECTED"];
+  return this.model.find({ status: { $in: statuses } });
+}
+
 
   async approveBuddyPackage(id: string): Promise<IBuddyTravelModel | null> {
     return this.model.findByIdAndUpdate(
@@ -90,7 +87,7 @@ async joinBuddyTrip(tripId: string, userId: string) {
     return this.model.findByIdAndUpdate(
       id,
       {
-        status: "CANCELLED",
+        status: "REJECTED",
         isApproved: false,
       },
       { new: true }

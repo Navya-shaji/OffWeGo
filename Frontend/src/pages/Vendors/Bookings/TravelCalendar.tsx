@@ -6,7 +6,7 @@ import {
   Star,
   X,
   Phone,
-  DollarSign,
+  IndianRupee,
   Users,
   Play,
   Square,
@@ -314,7 +314,7 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4" />
+                            <IndianRupee className="w-4 h-4" />
                             <span className="font-semibold">
                               ₹{booking.totalAmount.toLocaleString()}
                             </span>

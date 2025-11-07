@@ -72,16 +72,16 @@ export default function AdminWalletManagement() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+     
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-800 flex items-center gap-3">
-            <Wallet className="text-blue-600" size={40} />
+          
             Admin Wallet Management
           </h1>
           <p className="text-slate-600 mt-2">View wallet information</p>
         </div>
 
-        {/* Alerts */}
+ 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
@@ -94,7 +94,7 @@ export default function AdminWalletManagement() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
+<div className="bg-gradient-to-br from-black via-gray-900 to-black rounded-xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between mb-2">
               <span className="text-blue-100">Admin Balance</span>
               <Wallet size={24} />

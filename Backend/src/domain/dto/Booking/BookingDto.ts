@@ -39,7 +39,7 @@ interface BookData {
   bookingStatus: "upcoming" | "completed" | "cancelled";
 }
 export interface CreateBookingDto {
-  data: BookData;
+  data: BookData 
   payment_id: string;
   paymentStatus: "pending" | "succeeded" | "failed";
 }
