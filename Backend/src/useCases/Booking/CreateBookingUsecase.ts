@@ -49,6 +49,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const result = await this._bookingRepository.createBooking(bookingData);
 
+console.log(result,"result")
     if (result.paymentStatus === "succeeded") {
       const adminId = process.env.ADMIN_ID || "68666f952c4ebbe1b6989dd9"; 
 

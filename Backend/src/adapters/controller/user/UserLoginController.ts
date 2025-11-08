@@ -4,13 +4,15 @@ import { IUserLoginUseCase } from "../../../domain/interface/UsecaseInterface/IL
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
+import { IForgotpassUsecase } from "../../../domain/interface/UserLogin/IForgotPassUSecase";
 
 export class UserLoginController {
   constructor(
     private _loginUserUseCase: IUserLoginUseCase,
     private _tokenService: ITokenService,
     private _otpService: IOtpService,
-    private _resetPasswordUseCase: IResetPasswordUseCase
+    private _resetPasswordUseCase: IResetPasswordUseCase,
+    private _forgotPassUsecase:IForgotpassUsecase
   ) {}
 
 async loginUser(req: Request, res: Response): Promise<void> {
@@ -63,12 +65,10 @@ async loginUser(req: Request, res: Response): Promise<void> {
       refreshToken,
       user,
     });
-  } catch (error: any) {
-    console.error("Login error:", error.message || error);
-
+  } catch (error) {
     res.status(HttpStatus.UNAUTHORIZED).json({
       success: false,
-      message: error.message || "Invalid credentials",
+      message:  "Invalid credentials",
     });
   }
 }
@@ -76,13 +76,7 @@ async loginUser(req: Request, res: Response): Promise<void> {
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
     const { email } = req.body;
-    if (!email || typeof email !== "string") {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: "Provide a valid email",
-      });
-      return;
-    }
+    await this._forgotPassUsecase.execute(email)
     const otp = this._otpService.generateOtp();
     await this._otpService.storeOtp(email, otp);
     await this._otpService.sendOtpEmail(email, otp);

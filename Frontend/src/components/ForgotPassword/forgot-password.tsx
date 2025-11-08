@@ -5,7 +5,11 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import VerifyResetOtpModal from "./otp-verification ";
 
-export default function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
+export default function ForgotPasswordModal({
+  onClose,
+}: {
+  onClose: () => void;
+}) {
   const [email, setEmail] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
@@ -16,9 +20,15 @@ export default function ForgotPasswordModal({ onClose }: { onClose: () => void }
     }
 
     try {
-      await sendOtpForReset(email);
-      toast.success("OTP sent to your email");
-      setShowVerifyModal(true);
+      console.log("djsjdsh");
+      const response = await sendOtpForReset(email);
+      console.log(response, "shh");
+      if (response?.success) {
+        toast.success("OTP sent to your Email");
+        setShowVerifyModal(true);
+      } else {
+        toast.error("Email not found in our records");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong");
@@ -26,12 +36,7 @@ export default function ForgotPasswordModal({ onClose }: { onClose: () => void }
   };
 
   if (showVerifyModal) {
-    return (
-      <VerifyResetOtpModal
-        email={email}
-        onClose={onClose} 
-      />
-    );
+    return <VerifyResetOtpModal email={email} onClose={onClose} />;
   }
 
   return (

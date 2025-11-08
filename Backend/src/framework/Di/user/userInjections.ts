@@ -38,6 +38,7 @@ import { CreateUserWalletUsecase } from "../../../useCases/wallet/createUserWall
 import { WalletController } from "../../../adapters/controller/Wallet/Walletcontroller";
 import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
 import { GetUserWalletUsecase } from "../../../useCases/wallet/getusewalletUsecase";
+import { ForgotPassUsecase } from "../../../useCases/user/Login/forgotPassUSecase";
 
 
 // Setup Repos and Services
@@ -75,11 +76,12 @@ const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRe
 const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
 const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
+const forgotPassUsecase=new ForgotPassUsecase(userRepository)
 
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
-export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
+export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase,forgotPassUsecase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile,changepasswordusecase);
 export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase,cancelbookingusecase)

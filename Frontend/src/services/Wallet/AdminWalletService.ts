@@ -23,7 +23,7 @@ export const createWallet = async (
 export const getWallet = async (id: string): Promise<IWallet> => {
   try {
     const response = await axiosInstance.get(`/api/admin/wallet/${id}`);
-    console.log(response.data)
+    console.log(response.data,"hjhhj")
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
