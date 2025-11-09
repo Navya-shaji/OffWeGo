@@ -1,12 +1,25 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UserRoute from "./Routes/user/userRoutes";
 import AdminRoute from "./Routes/Admin/adminRoutes";
 import VendorRoute from "./Routes/Vendor/vendorRoutes";
+import { useEffect } from "react";
+import { onMessageListener, requestForToken } from "./Firebase/firebase";
 
 function App() {
+
+    useEffect(() => {
+    requestForToken();
+
+    onMessageListener()
+      .then((payload) => {
+        console.log("Foreground message received:", payload);
+        toast.info(`${payload.notification?.title} - ${payload.notification?.body}`);
+      })
+      .catch((err) => console.error("FCM listener failed: ", err));
+  }, []);
   return (
     <BrowserRouter>
       <Routes>
