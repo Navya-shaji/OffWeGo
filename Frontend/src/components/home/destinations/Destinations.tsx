@@ -7,7 +7,7 @@ import type { DestinationInterface } from "@/interface/destinationInterface";
 import { ChevronLeft, ChevronRight, MapPin, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 interface DestinationsProps {
-  id?: string; // optional id prop
+  id?: string; 
 }
 const Destinations = ({ id }: DestinationsProps) => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
@@ -21,7 +21,6 @@ const Destinations = ({ id }: DestinationsProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // fetch initial data
   const fetchDestinations = useCallback(async () => {
     try {
       setLoading(true);
@@ -265,7 +264,7 @@ const DestinationCard = React.memo(
                   "Discover this amazing destination and create unforgettable memories."}
               </p>
 
-              {/* Explore Button */}
+            
               <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/30 hover:bg-white/30 transition-colors">
                   Explore Destination →

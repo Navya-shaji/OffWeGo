@@ -17,7 +17,7 @@ export class SubscriptionController {
 
   async createSubscription(req: Request, res: Response) {
     try {
-      const { name, price, maxPackages, duration } = req.body;
+      const { name, price, maxPackages, duration,stripePriceId  } = req.body;
 
       if (!name || price <= 0 || maxPackages <= 0 || duration <= 0) {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -31,6 +31,7 @@ export class SubscriptionController {
         price,
         maxPackages,
         duration,
+        stripePriceId
       });
       
       return res.status(HttpStatus.CREATED).json({

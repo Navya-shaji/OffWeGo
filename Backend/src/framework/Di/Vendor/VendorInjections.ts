@@ -41,6 +41,22 @@ import { FlightController } from "../../../adapters/controller/Flight/FlightCont
 import { GetAllFlightUsecase } from "../../../useCases/flight/GetAllFlightUsecase";
 import { EditFlightUsecase } from "../../../useCases/flight/EditFlightUsecase";
 import { DeleteFlightUsecase } from "../../../useCases/flight/DeleteFlightUSecase";
+import { CreateBookingSubscriptionUseCase } from "../../../useCases/subscription/createBookingSubscriptionUsecase";
+import { SubscriptionBookingController } from "../../../adapters/controller/Subscriptionplan/SubscriptionBookingController";
+import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
+import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
+import { CreateBuddyTravelUseCase } from "../../../useCases/buddyTravel/createBuddyTravelUSecase";
+import { BuddyTravelRepository } from "../../../adapters/repository/BuddyTravel/buddyTravelRepository";
+import { BuddyTravelController } from "../../../adapters/controller/BuddyTravel/BuddyController";
+import { StripeService } from "../../Services/stripeService";
+import { BuddyTravalAdminApprovalUsecase } from "../../../useCases/buddyTravel/buddyPackageAprovalUsecase";
+import { GetBuddyTravelUsecase } from "../../../useCases/buddyTravel/GetBuddyTravelUsecase";
+import { GetVendorBuddyPackageUsecase } from "../../../useCases/buddyTravel/GetVendorBuddyPacakgeUsecase";
+import { GetAllBuddyTravelUsecase } from "../../../useCases/buddyTravel/GetAllBuddyTravelUsecase";
+import { JoinTravelUsecase } from "../../../useCases/buddyTravel/JoinTravelUSecase";
+import { CreateBuddyBookingUsecase } from "../../../useCases/buddyTravel/createBuddyBookingusecase";
+import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
 
 
 //  Setup Repository and Services
@@ -52,6 +68,13 @@ const packageRepo=new PackageRepository()
 const hotelRepo=new HotelRepository()
 const activityRepo=new ActivityRepository()
 const flightRepo=new FlightRepository()
+const subscriptionRepo=new SubscriptionBookingRepository()
+const subscriptionplanRepo=new SubscriptionPlanRepository()
+const buddyRepo=new BuddyTravelRepository()
+const walletRepo=new WalletRepository()
+const stripeservice=new StripeService()
+const bookingRepo=new BookingRepository()
+
 
 
 //  Use Cases
@@ -81,6 +104,14 @@ const createflightusecase=new CreateflightUsecase(flightRepo)
 const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
+const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase(subscriptionRepo,subscriptionplanRepo,walletRepo,stripeservice)
+const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo)
+const adminPackageApprovalusecase=new BuddyTravalAdminApprovalUsecase(buddyRepo)
+const getTravelUsecase=new GetBuddyTravelUsecase(buddyRepo)
+const getvendorBuddypackagesusecase=new GetVendorBuddyPackageUsecase(buddyRepo)
+const getallbuddypackages=new GetAllBuddyTravelUsecase(buddyRepo)
+const joinBuddyTravelusecase=new JoinTravelUsecase(buddyRepo,walletRepo)
+const bookingBuddyTravelusecase=new CreateBuddyBookingUsecase(bookingRepo,walletRepo)
 
 
 //  Controllers
@@ -93,3 +124,5 @@ export const packagecontroller=new PackageController(getAllpackageByVendor,creat
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
+export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase)
+export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase, adminPackageApprovalusecase,getTravelUsecase,getvendorBuddypackagesusecase,getallbuddypackages,joinBuddyTravelusecase,bookingBuddyTravelusecase)

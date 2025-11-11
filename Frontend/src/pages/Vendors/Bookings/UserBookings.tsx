@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import {
   Search,
-  
   Calendar,
   User,
   MapPin,
   Package,
   CreditCard,
   Eye,
- 
   RefreshCw,
   Users,
   Baby,
@@ -22,6 +20,7 @@ import { getAllUserBookings } from "@/services/Booking/bookingService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
+
 
 interface Traveler {
   name: string;
@@ -45,9 +44,10 @@ interface Booking {
   };
   packageId: {
     _id: string;
-    name: string;
+    packageName: string;
     price: number;
     destination?: string;
+    destinationId?: string;
   };
   selectedDate: string;
   adults: Traveler[];
@@ -73,8 +73,9 @@ export default function AllBookings() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  const vendorId = useSelector((state: RootState) => state.auth.user?.id);
-console.log(bookings,"boo")
+  const vendorId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
+
+  
   useEffect(() => {
     if (vendorId) {
       loadBookings();
@@ -91,9 +92,9 @@ console.log(bookings,"boo")
     setIsLoading(true);
     try {
       const data = await getAllUserBookings(vendorId);
+      console.log(data,"data")
       setBookings(data);
       setFilteredBookings(data);
-      toast.success("Bookings loaded successfully");
     } catch (error) {
       console.error("Failed to load bookings:", error);
       toast.error("Failed to load bookings");
@@ -111,7 +112,7 @@ console.log(bookings,"boo")
         (booking) =>
           booking.userId?.name?.toLowerCase().includes(query) ||
           booking.userId?.email?.toLowerCase().includes(query) ||
-          booking.packageId?.name?.toLowerCase().includes(query) ||
+          booking.packageId?.packageName?.toLowerCase().includes(query) ||
           booking._id.toLowerCase().includes(query)
       );
     }
@@ -140,7 +141,7 @@ console.log(bookings,"boo")
   const getPaymentBadge = (paymentStatus: string) => {
     const badges = {
       pending: { bg: "bg-gray-100", text: "text-gray-700" },
-      paid: { bg: "bg-emerald-100", text: "text-emerald-700" },
+      succeeded: { bg: "bg-emerald-100", text: "text-emerald-700" },
       failed: { bg: "bg-red-100", text: "text-red-700" },
       refunded: { bg: "bg-purple-100", text: "text-purple-700" },
     };
@@ -179,7 +180,8 @@ console.log(bookings,"boo")
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-      
+    
+
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -259,38 +261,6 @@ console.log(bookings,"boo")
                   className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
                 />
               </div>
-
-          
-              <div className="relative">
-                {/* <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors appearance-none"
-                >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="completed">Completed</option>
-                </select> */}
-              </div>
-
-        
-              <div className="relative">
-                {/* <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" /> */}
-                {/* <select
-                  value={paymentFilter}
-                  onChange={(e) => setPaymentFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors appearance-none"
-                >
-                  <option value="all">All Payments</option>
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="failed">Failed</option>
-                  <option value="refunded">Refunded</option>
-                </select> */}
-              </div>
             </div>
           </div>
         </div>
@@ -345,7 +315,7 @@ console.log(bookings,"boo")
                     <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-mono text-gray-900">
-                      {booking._id}
+                          {booking._id}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -365,8 +335,7 @@ console.log(bookings,"boo")
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {(booking as any).selectedPackage?.packageName || "N/A"}
-
+                          {booking.packageId?.packageName || "N/A"}
                         </div>
                         {booking.packageId?.destination && (
                           <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
@@ -484,7 +453,7 @@ console.log(bookings,"boo")
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600">Package Name:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.packageId?.name}</p>
+                      <p className="font-medium text-gray-900">{selectedBooking.packageId?.packageName}</p>
                     </div>
                     <div>
                       <span className="text-gray-600">Travel Date:</span>

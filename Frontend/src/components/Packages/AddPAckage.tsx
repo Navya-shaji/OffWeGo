@@ -76,7 +76,6 @@ const AddPackage: React.FC = () => {
   
   
   const packages = useSelector((state: RootState) => state.package.packages);
-  // const vendorId = useSelector((state: RootState) => state.auth.user?.id);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -442,7 +441,7 @@ const vendorPackageCount=packages.length
     <div className="min-h-screen bg-gradient-to-br">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl animate-pulse"></div>
+       
       </div>
 
       <div className="relative max-w-7xl mx-auto p-6">
@@ -455,7 +454,7 @@ const vendorPackageCount=packages.length
           </p>
         </div>
 
-        <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-xl">
+        <Card className="shadow-2xl border-0 backdrop-blur-xl">
           <CardContent className="p-10">
             {isSubmitted && (
               <Alert className="mb-8 border-0 bg-gradient-to-r from-emerald-50 to-green-50">
@@ -482,9 +481,9 @@ const vendorPackageCount=packages.length
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-                <div className="xl:col-span-2 space-y-8">
+            <form onSubmit={handleSubmit} >
+              <div >
+                <div >
                   <div>
                     <PackageBasicInfo
                       formData={{

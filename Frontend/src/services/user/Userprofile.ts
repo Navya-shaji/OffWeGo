@@ -34,4 +34,20 @@ export const editProfile = async (
     throw new Error("An unexpected error occurred while editing the profile.");
   }
 };
-
+export const changePassword = async (data: {
+  userId: string;
+  oldPassword: string;
+  newPassword: string;
+}) => {
+  try {
+    const res = await axiosInstance.put(`/api/password/${data.userId}`, data);
+    console.log(res.data.da)
+    return res.data.data;
+  } catch (error) {
+    console.error("Error while changing password:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || "Failed to change password.");
+    }
+    throw new Error("An unexpected error occurred while changing the password.");
+  }
+};

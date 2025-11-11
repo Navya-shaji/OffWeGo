@@ -7,6 +7,7 @@ export interface ISubscriptionPlanModel
   extends Omit<ISubscriptionPlan, "id">,
     Document {
   _id: ObjectId;
+  stripePriceId: string;
 }
 
 

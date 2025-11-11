@@ -1,9 +1,9 @@
+import { ProfileDto } from "../../../domain/dto/User/profileDto";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import {
   IUserModel,
   UserModel,
 } from "../../../framework/database/Models/userModel";
-import { ProfileDto } from "../../../domain/dto/User/ProfileDto";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class UserRepository
@@ -32,6 +32,20 @@ export class UserRepository
   ): Promise<void> {
     await this.model.updateOne(
       { email },
+      { $set: { password: newHashedPassword } }
+    );
+  }
+
+  async findById(userId: string): Promise<IUserModel | null> {
+    return this.model.findById(userId);
+  }
+
+  async updatePasswordById(
+    userId: string,
+    newHashedPassword: string
+  ): Promise<void> {
+    await this.model.updateOne(
+      { _id: userId },
       { $set: { password: newHashedPassword } }
     );
   }
@@ -70,5 +84,8 @@ export class UserRepository
       .select("name email phone createdAt ")
       .limit(10)
       .exec();
+  }
+  async updateWallet(userId: string, amount: number): Promise<void> {
+    await UserModel.findByIdAndUpdate(userId, { $inc: { walletBalance: amount } });
   }
 }

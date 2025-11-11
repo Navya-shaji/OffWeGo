@@ -1,5 +1,5 @@
 import { model, Document, ObjectId } from "mongoose";
-import { Vendor } from "../../../domain/entities/VendorEntities";
+import { Vendor } from "../../../domain/entities/vendorEntities";
 import { vendorSchema } from "../Schema/vendorSchema";
 
 

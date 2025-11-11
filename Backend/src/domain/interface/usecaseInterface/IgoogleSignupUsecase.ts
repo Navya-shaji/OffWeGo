@@ -1,4 +1,4 @@
-import { User } from "../../entities/UserEntity";
+import { User } from "../../entities/userEntity";
 
 export interface IGoogleSignupUseCase {
   execute(googleToken: string): Promise<User>;

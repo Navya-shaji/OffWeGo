@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Menu } from "lucide-react";
 import Sidebar from "@/components/AdminDashboard/sidebar";
 import VendorRequests from "@/components/AdminDashboard/vendorRequests";
 import Navbar from "@/components/AdminDashboard/navbar";
@@ -10,50 +11,99 @@ import { CategoryForm } from "../category/category";
 import { CategoryTable } from "../category/getAllCategory";
 import CreateBanner from "../banner/createBanner";
 import { BannerForm } from "../banner/bannerForm";
-import AddSubscription from "@/components/AdminDashboard/CreateSubscription";
-import SubscriptionList from "@/components/AdminDashboard/GetAllSubscription";
+import AddSubscription from "@/pages/Admin/Subscription/CreateSubscription";
+import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
+import AdminDashboard from "./Dashboard";
+import AdminWalletManagement from "../Wallet/AdminWallet";
+import IncomingBuddyRequests from "../buddyTravel/buddyTravelConfirmation";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState<string>(() => {
     return localStorage.getItem("activeTab") || "Dashboard";
   });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="flex-1 overflow-auto">
-        <Navbar />
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-        {activeTab === "Dashboard" && (
-          <h1 className="text-2xl font-serif p-6">Welcome to Dashboard</h1>
-        )}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="lg:hidden bg-white shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Menu className="w-6 h-6 text-gray-700" />
+          </button>
+          <div className="text-xl font-bold text-gray-800">OffWeGo 🕊️</div>
+          <div className="w-10" />
+        </div>
 
-        {activeTab === "Pending Requests" && (
-          <VendorRequests filter="pending" />
-        )}
+        <div className="hidden lg:block">
+          <Navbar />
+        </div>
 
-        {activeTab === "Approved Requests" && (
-          <VendorRequests filter="approved" />
-        )}
+        <div className="flex-1 overflow-auto">
+          <div className="p-4 sm:p-6">
+            {activeTab === "Dashboard" && <AdminDashboard />}
 
-        {activeTab === "Rejected Requests" && (
-          <VendorRequests filter="rejected" />
-        )}
+            {activeTab === "Pending Requests" && (
+              <VendorRequests filter="pending" />
+            )}
 
-        {activeTab === "Users" && <UserList />}
-        {activeTab === "Vendors" && <VendorList />}
-        {activeTab === "Add Destination" && <CreateDestination />}
-        {activeTab === "Destinations" && <DestinationTable />}
-        {activeTab === "Create Category" && <CategoryForm />}
-        {activeTab === "All Categories" && <CategoryTable />}
-        {activeTab === "Add Banner" && <CreateBanner />}
-        {activeTab === "All Banners" && <BannerForm />}
-        {activeTab === "Create Subscription" && <AddSubscription />}
-        {activeTab === "All Subscriptions" && <SubscriptionList />}
+            {activeTab === "Approved Requests" && (
+              <VendorRequests filter="approved" />
+            )}
+
+            {activeTab === "Rejected Requests" && (
+              <VendorRequests filter="rejected" />
+            )}
+
+            {activeTab === "Users" && <UserList />}
+            {activeTab === "Vendors" && <VendorList />}
+            {activeTab === "Add Destination" && <CreateDestination />}
+            {activeTab === "Destinations" && <DestinationTable />}
+            {activeTab === "Create Category" && <CategoryForm />}
+            {activeTab === "All Categories" && <CategoryTable />}
+            {activeTab === "Add Banner" && <CreateBanner />}
+            {activeTab === "All Banners" && <BannerForm />}
+            {activeTab === "Create Subscription" && <AddSubscription />}
+            {activeTab === "All Subscriptions" && <SubscriptionList />}
+            {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
+
+            {activeTab === "Buddy Packages" && (
+              <IncomingBuddyRequests/>
+            )}
+
+            {/* {activeTab === "Approved Buddy Packages" && (
+              <IncomingBuddyRequests filter="approved" />
+            )}
+
+            {activeTab === "Rejected Buddy Packages" && (
+              <IncomingBuddyRequests filter="rejected" />
+            )} */}
+          </div>
+        </div>
       </div>
     </div>
   );

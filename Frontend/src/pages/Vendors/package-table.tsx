@@ -1,7 +1,4 @@
-"use client";
-
 import type React from "react";
-
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   Clock,
@@ -10,10 +7,10 @@ import {
   Activity,
   CheckCircle,
   Sparkles,
-  DollarSign,
   Info,
   Package,
   Edit,
+  IndianRupee,
 } from "lucide-react";
 import {
   deletePackage,
@@ -690,7 +687,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
                     </h4>
                     <div className="space-y-2 text-sm text-rose-700">
                       <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4" />
+                        <IndianRupee className="h-4 w-4" />
                         <span>
                           Price: {formatCurrency(deleteModal.package.price)}
                         </span>

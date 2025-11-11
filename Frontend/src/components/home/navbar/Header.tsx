@@ -33,37 +33,29 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white backdrop-blur-sm shadow-sm sticky top-1 z-50 w-full h-22">
+    <header className="from-blue-50 via-white to-amber-50 backdrop-blur-sm shadow-sm sticky top-1 z-50 w-full h-22">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-22">
           <div className="flex items-center p-4">
             <img src={logo} alt="logo" className="w-35 h-10 mr-2" />
           </div>
-          <nav className="hidden md:flex space-x-8 ">
+          <nav className="hidden md:flex space-x-8">
             {[
               { name: "Home", path: "/" },
               { name: "Destinations", path: "/destinations" },
-              { name: "Articles", path: "/articles" },
-              { name: "Buddy Travel", path: "/buddy-travel" },
-            ].map((item) =>
-              item.name === "Destinations" ? (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ) : (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
-                >
-                  {item.name}
-                </Link>
-              )
-            )}
+              { name: "Contact Us", path: "/contact" },
+              { name: "Buddy Travel", path: "/buddy-packages" },
+              // { name: "Travel Buddies", path: "/travel-buddies" }, 
+              { name: "About Us", path: "/about" },
+            ].map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
+              >
+                {item.name}
+              </Link>
+            ))}
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -131,7 +123,7 @@ const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <nav className="flex flex-col space-y-2">
-              {["Home", "Destinations", "Articles", "Buddy Travel"].map(
+              {["Home", "Destinations", "Articles", "Buddy Travel", "Travel Buddies"].map( // <-- Added "Travel Buddies" here
                 (item) => (
                   <a
                     key={item}

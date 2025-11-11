@@ -20,14 +20,15 @@ export const VendorList = () => {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState<{ id: string; isBlocked: boolean; name: string } | null>(null);
 
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   
   const fetchVendors = useCallback(async (pageNum: number = 1) => {
-    
     if (isLoadingRef.current) return;
     
     try {
@@ -55,17 +56,14 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 
   const handleSearch = useCallback(async (query: string) => {
-    
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
 
     setSearchQuery(query);
 
-  
     searchTimeoutRef.current = setTimeout(async () => {
       if (!query.trim()) {
-      
         setIsSearchMode(false);
         setVendors(originalVendors);
         setTotalPages(Math.ceil(totalVendors / 10));
@@ -97,39 +95,54 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     setPage(newPage);
     
     if (!isSearchMode) {
-   
       fetchVendors(newPage);
     }
   }, [page, isSearchMode, fetchVendors]);
 
-  const handleBlockToggle = useCallback(async (
-    vendorId: string,
-    currentStatus: boolean
-  ) => {
-    const previousVendors = [...vendors];
-    const previousOriginalVendors = [...originalVendors];
-    
-    const updateVendor = (vendorList: Vendor[]) =>
-      vendorList.map((vendor) =>
-        vendor.id === vendorId ? { ...vendor, isBlocked: !currentStatus } : vendor
-      );
+  const handleConfirmBlock = async () => {
+    if (!selectedVendor) return;
+    await handleBlockToggle(selectedVendor.id, selectedVendor.isBlocked);
+    setModalOpen(false);
+    setSelectedVendor(null);
+  };
 
-    setVendors(updateVendor);
-    if (!isSearchMode) {
-      setOriginalVendors(updateVendor);
-    }
+  const handleCancelBlock = () => {
+    setModalOpen(false);
+    setSelectedVendor(null);
+  };
 
-    try {
-      await updateVendorBlockStatus(vendorId, !currentStatus);
-    } catch (err) {
-      console.error("Failed to update vendor status", err);
-      setVendors(previousVendors);
-      setOriginalVendors(previousOriginalVendors);
-      setError("Failed to update vendor status. Please try again.");
-      
-      setTimeout(() => setError(""), 3000);
-    }
-  }, [vendors, originalVendors, isSearchMode]);
+  const handleBlockToggle = useCallback(
+    async (vendorId: string, currentStatus: boolean) => {
+      const previousVendors = [...vendors];
+      const previousOriginalVendors = [...originalVendors];
+
+      const updateVendor = (vendorList: Vendor[]) =>
+        vendorList.map((vendor) =>
+          vendor._id === vendorId ? { ...vendor, isBlocked: !currentStatus } : vendor
+        );
+
+      setVendors(updateVendor);
+      if (!isSearchMode) {
+        setOriginalVendors(updateVendor);
+      }
+
+      try {
+        await updateVendorBlockStatus(vendorId, !currentStatus);
+      } catch (err) {
+        console.error("Failed to update vendor status", err);
+        setVendors(previousVendors);
+        setOriginalVendors(previousOriginalVendors);
+        setError("Failed to update vendor status. Please try again.");
+        setTimeout(() => setError(""), 3000);
+      }
+    },
+    [vendors, originalVendors, isSearchMode]
+  );
+
+  const openBlockModal = (vendorId: string, isBlocked: boolean, vendorName: string) => {
+    setSelectedVendor({ id: vendorId, isBlocked, name: vendorName });
+    setModalOpen(true);
+  };
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -144,7 +157,6 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     };
   }, []); 
 
- 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
       return vendors; 
@@ -235,9 +247,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
           <input
             type="checkbox"
             checked={!row.original.isBlocked}
-            onChange={() =>
-              handleBlockToggle(row.original.id, row.original.isBlocked)
-            }
+            onChange={() => openBlockModal(row.original._id, row.original.isBlocked, row.original.name)}
             className="sr-only peer"
           />
           <div className="w-14 h-8 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-all duration-300 peer-focus:ring-2 peer-focus:ring-green-300" />
@@ -260,6 +270,54 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   return (
     <div className="p-4 space-y-4">
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 transform transition-all scale-100 animate-in">
+            <div className="flex items-start mb-4">
+              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+                selectedVendor?.isBlocked ? 'bg-green-100' : 'bg-red-100'
+              }`}>
+                <span className="text-2xl">
+                  {selectedVendor?.isBlocked ? '✓' : '⚠'}
+                </span>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {selectedVendor?.isBlocked ? 'Unblock Vendor' : 'Block Vendor'}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Are you sure you want to {selectedVendor?.isBlocked ? 'unblock' : 'block'} <span className="font-medium">{selectedVendor?.name}</span>?
+                </p>
+                {!selectedVendor?.isBlocked && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    This vendor will not be able to access their account.
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleCancelBlock}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmBlock}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                  selectedVendor?.isBlocked
+                    ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                    : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                }`}
+              >
+                {selectedVendor?.isBlocked ? 'Unblock' : 'Block'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -276,12 +334,11 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
           <SearchBar 
             placeholder="Search Vendors..." 
             onSearch={handleSearch}
-            // value={searchQuery}
           />
         </div>
       </div>
 
-     
+      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex justify-between items-center">
@@ -296,7 +353,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
         </div>
       )}
 
-   
+      {/* Content */}
       {vendors.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 text-gray-300 text-6xl">
@@ -314,7 +371,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
         </div>
       ) : (
         <>
-         
+          {/* Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable<Vendor> 
               data={getCurrentPageData()} 
@@ -322,7 +379,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
             />
           </div>
 
-         
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center">
               <Pagination 
@@ -333,7 +390,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
             </div>
           )}
 
-        
+          {/* Results Info */}
           <div className="text-center text-sm text-gray-500">
             {isSearchMode 
               ? `Showing ${Math.min((page - 1) * 10 + 1, vendors.length)}-${Math.min(page * 10, vendors.length)} of ${vendors.length} search results`

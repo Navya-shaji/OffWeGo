@@ -28,7 +28,17 @@ import { ReviewController } from "../../../adapters/controller/Reviews/ReviewCon
 import { ReviewRepository } from "../../../adapters/repository/Reviews/ReviewRepository";
 import { CreateReviewUseCase } from "../../../useCases/reviews/createReviewUsecase";
 import { GetReviewUsecase } from "../../../useCases/reviews/getAllReviewsUsecase";
+import { ChangePasswordUseCase } from "../../../useCases/user/profile/changePasswordUsecase";
+import { VerifyPaymentUseCase } from "../../../useCases/subscription/VerifyPaymentUsecase";
+import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
 import { StripeService } from "../../Services/stripeService";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
+import { cancelBookingUsecase } from "../../../useCases/booking/CancelBookingUSecase";
+import { CreateUserWalletUsecase } from "../../../useCases/wallet/createUserWalletUsecase";
+import { WalletController } from "../../../adapters/controller/Wallet/Walletcontroller";
+import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
+import { GetUserWalletUsecase } from "../../../useCases/wallet/getusewalletUsecase";
+import { ForgotPassUsecase } from "../../../useCases/user/Login/forgotPassUSecase";
 
 
 // Setup Repos and Services
@@ -41,7 +51,8 @@ const bookingRepo=new BookingRepository()
 const stripeService = new StripeService();
 const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
-
+const subscriptionRepo=new SubscriptionPlanRepository()
+const walletRepo=new WalletRepository()
 
 
 // Use Cases
@@ -53,21 +64,28 @@ const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
 const userprofile=new UserProfileUsecase(userRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
 const edituserProfile=new EditUserProfile()
-const createbookingusecase=new CreateBookingUseCase(bookingRepo)
+const createbookingusecase=new CreateBookingUseCase(bookingRepo,walletRepo)
 const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
 const userbookings=new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
 const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
-
+const changepasswordusecase=new ChangePasswordUseCase(userRepository)
+const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
+const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
+const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
+const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
+const forgotPassUsecase=new ForgotPassUsecase(userRepository)
 
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
-export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase);
+export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase,forgotPassUsecase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
-export const userprofileController=new UserProfileController(userprofile,edituserProfile);
-export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase)
+export const userprofileController=new UserProfileController(userprofile,edituserProfile,changepasswordusecase);
+export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase,cancelbookingusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
+export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
+export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase)

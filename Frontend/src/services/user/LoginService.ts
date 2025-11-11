@@ -3,8 +3,9 @@ import { isAxiosError } from "axios";
 
 export const sendOtpForReset= async (email:string)=>{
     try {
+      console.log("keri")
         const res= await axiosInstance.post("/api/forgot-password",{email})
-     
+        console.log("res",res)
         return res.data
     } catch (error) {
         console.error("Error while sending otp for reset",error)

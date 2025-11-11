@@ -21,6 +21,7 @@ export interface PackageInfo {
 
 export interface Booking {
   _id?: string;
+  bookingId: string;
   userId: string;
   contactInfo: ContactInfo;
   adults: Traveler[];
@@ -32,5 +33,5 @@ export interface Booking {
   paymentStatus: "pending" | "succeeded" | "failed";
   createdAt?: Date;
   updatedAt?: Date;
-  status?: "pending" | "succeeded" | "failed";
+  bookingStatus: "upcoming" | "completed" | "cancelled";
 }

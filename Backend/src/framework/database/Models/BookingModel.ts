@@ -1,6 +1,5 @@
 import { Document, model, models, ObjectId } from "mongoose";
-import { BookingSchema } from "../Schema/BookingSchema"; 
-
+import { BookingSchema } from "../Schema/BookingSchema";
 
 export interface IBookingDocument extends Document {
   userId: ObjectId;
@@ -22,7 +21,6 @@ export interface IBookingDocument extends Document {
   totalAmount: number;
   createdAt: Date;
 }
-
 
 export const BookingModel =
   models.Booking || model<IBookingDocument>("Booking", BookingSchema);

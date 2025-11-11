@@ -8,7 +8,6 @@ export class GetReviewUsecase implements IGetReviewUsecase{
     
     async execute(packageId:string): Promise<CreateReviewDTO[] |null> {
         const reviews=await this._reviewRepo.findByPackage(packageId)
-        console.log(reviews,"review usecase")
         return mapToReviewEntity(reviews)
     }
 }

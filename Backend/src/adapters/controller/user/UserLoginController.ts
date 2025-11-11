@@ -4,16 +4,19 @@ import { IUserLoginUseCase } from "../../../domain/interface/UsecaseInterface/IL
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
+import { IForgotpassUsecase } from "../../../domain/interface/UserLogin/IForgotPassUSecase";
 
 export class UserLoginController {
   constructor(
     private _loginUserUseCase: IUserLoginUseCase,
     private _tokenService: ITokenService,
     private _otpService: IOtpService,
-    private _resetPasswordUseCase: IResetPasswordUseCase
+    private _resetPasswordUseCase: IResetPasswordUseCase,
+    private _forgotPassUsecase:IForgotpassUsecase
   ) {}
 
-  async loginUser(req: Request, res: Response): Promise<void> {
+async loginUser(req: Request, res: Response): Promise<void> {
+  try {
     const { email, password } = req.body;
     if (!email || !password) {
       res.status(HttpStatus.BAD_REQUEST).json({
@@ -22,8 +25,11 @@ export class UserLoginController {
       });
       return;
     }
+
     const result = await this._loginUserUseCase.execute({ email, password });
+
     const user = result.user;
+
     if (user.role?.toLowerCase() === "admin") {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -31,6 +37,7 @@ export class UserLoginController {
       });
       return;
     }
+
     if (user.status?.toLowerCase().includes("block")) {
       res.status(HttpStatus.FORBIDDEN).json({
         success: false,
@@ -39,6 +46,7 @@ export class UserLoginController {
       });
       return;
     }
+
     const payload = { userId: user.id, role: user.role };
     const accessToken = this._tokenService.generateAccessToken(payload);
     const refreshToken = this._tokenService.generateRefreshToken(payload);
@@ -54,19 +62,21 @@ export class UserLoginController {
       success: true,
       message: "Login successful",
       accessToken,
+      refreshToken,
       user,
     });
+  } catch (error) {
+    res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
+      message:  "Invalid credentials",
+    });
   }
+}
+
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
     const { email } = req.body;
-    if (!email || typeof email !== "string") {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: "Provide a valid email",
-      });
-      return;
-    }
+    await this._forgotPassUsecase.execute(email)
     const otp = this._otpService.generateOtp();
     await this._otpService.storeOtp(email, otp);
     await this._otpService.sendOtpEmail(email, otp);

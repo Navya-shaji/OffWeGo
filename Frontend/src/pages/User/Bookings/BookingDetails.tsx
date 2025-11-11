@@ -1,3 +1,4 @@
+import { generateBookingId } from "@/lib/generateBookingId";
 import { X, Calendar, MapPin, Package, Users, Mail, Phone, Home, CreditCard, Clock,  Tag, Info } from "lucide-react";
 
 interface BookingDetailsModalProps {
@@ -8,6 +9,8 @@ interface BookingDetailsModalProps {
 const BookingDetailsModal = ({ booking, onClose }: BookingDetailsModalProps) => {
   const packageData = booking.package || booking.selectedPackage;
   const destinationData = booking.destination || packageData?.destination;
+  const displayBookingId = booking.bookingId || generateBookingId();
+
 console.log("detals",packageData)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -31,7 +34,8 @@ console.log("detals",packageData)
               <h3 className="text-2xl font-bold">BOOKING SUMMARY</h3>
               <div className="text-right">
                 <p className="text-xs text-gray-600 uppercase">Booking ID</p>
-                <p className="font-mono text-sm font-bold">#{booking._id?.slice(-8) || 'N/A'}</p>
+                <p className="font-mono text-sm font-bold">#{displayBookingId}</p>
+
               </div>
             </div>
             <div className="grid md:grid-cols-4 gap-4 mt-4">

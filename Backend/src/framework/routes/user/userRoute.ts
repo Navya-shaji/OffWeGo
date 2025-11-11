@@ -7,7 +7,7 @@ import {
   bookingcontroller,
   paymentcontroller,
   reviewcontroller,
-  
+  walletcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -16,7 +16,7 @@ import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/Toke
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
-import { packagecontroller } from "../../Di/Vendor/VendorInjections";
+import { buddyTravelcontroller, packagecontroller } from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtService();
 
 export class UserRoute {
@@ -98,7 +98,7 @@ export class UserRoute {
     this.userRouter.get(
       UserRoutes.GET_ALL_PACKAGES,
       (req: Request, res: Response) => {
-        packagecontroller.getPackagesForUser(req,res)
+        packagecontroller.getPackagesForUser(req, res);
       }
     );
     this.userRouter.patch(
@@ -109,33 +109,70 @@ export class UserRoute {
     );
     this.userRouter.post(
       UserRoutes.CREATE_BOOKING,
+      (req: Request, res: Response) => {
+        bookingcontroller.createBooking(req, res);
+      }
+    );
+    this.userRouter.post(
+      UserRoutes.CREATE_PAYMENT,
+      (req: Request, res: Response) => {
+        paymentcontroller.createPayment(req, res);
+      }
+    );
+    this.userRouter.get(
+      UserRoutes.USER_BOOKINGS,
+      (req: Request, res: Response) => {
+        bookingcontroller.getUserBookings(req, res);
+      }
+    );
+    this.userRouter.post(UserRoutes.REVIEWS, (req: Request, res: Response) => {
+      reviewcontroller.createReview(req, res);
+    });
+    this.userRouter.get(
+      UserRoutes.All_REVIEWS,
+      (req: Request, res: Response) => {
+        reviewcontroller.getReviews(req, res);
+      }
+    );
+    this.userRouter.put(UserRoutes.PASSWORD, (req: Request, res: Response) => {
+      userprofileController.changePasswordHandler(req, res);
+    });
+    this.userRouter.patch(
+      UserRoutes.CANCEL_BOOKING,
+      (req: Request, res: Response) => {
+        bookingcontroller.cancelBooking(req, res);
+      }
+    );
+   
+    this.userRouter.post(
+      UserRoutes.USER_WALLET,
       (req:Request,res:Response)=>{
-        bookingcontroller.createBooking(req,res)
+        walletcontroller.createWallet(req,res)
+      }
+    )
+        this.userRouter.get(
+      UserRoutes.GET_USER_WALLET,
+      (req:Request,res:Response)=>{
+        walletcontroller.GetWallet(req,res)
+      }
+    )
+    this.userRouter.get(
+      UserRoutes.BUDDY_PACKAGES,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.getAllbuddyPackages(req,res)
       }
     )
     this.userRouter.post(
-      UserRoutes.CREATE_PAYMENT,
+      UserRoutes.JOIN_TRAVEL,
       (req:Request,res:Response)=>{
-        paymentcontroller.createPayment(req,res)
+        buddyTravelcontroller.JoinBuddyTravel(req,res)
       }
     )
-   this.userRouter.get(
-    UserRoutes.USER_BOOKINGS,
-    (req:Request,res:Response)=>{
-      bookingcontroller.getUserBookings(req,res)
-    }
-   )
-   this.userRouter.post(
-    UserRoutes.REVIEWS,
-    (req:Request,res:Response)=>{
-      reviewcontroller.createReview(req,res)
-    }
-   )
-   this.userRouter.get(
-    UserRoutes.All_REVIEWS,
-    (req:Request,res:Response)=>{
-      reviewcontroller.getReviews(req,res)
-    }
-   )
+    this.userRouter.post(
+      UserRoutes.BOOKING_BUDDYTRAVEL,
+      (req:Request,res:Response)=>{
+        buddyTravelcontroller.createBuddyBooking(req,res)
+      }
+    )
   }
 }

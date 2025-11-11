@@ -6,7 +6,7 @@ import { mapBookingsArrayToDto } from "../../mappers/Booking/mapToVendorBookings
 export class GetVendorSideBookingUsecase implements IGetVendorSideBookingUsecase {
   constructor(private _bookingRepo: IBookingRepository) {}
 
-  async execute(VendorId: string): Promise<BookingDataDto[]> {  // <--- return array
+  async execute(VendorId: string): Promise<BookingDataDto[]> {  
     const Booking_Data = await this._bookingRepo.findByVendorId(VendorId);
     return mapBookingsArrayToDto(Booking_Data);
   }

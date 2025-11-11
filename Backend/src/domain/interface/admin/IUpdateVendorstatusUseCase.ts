@@ -1,4 +1,4 @@
-import { Vendor } from "../../entities/VendorEntities";
+import { Vendor } from "../../entities/vendorEntities";
 
 export interface IUpdateVendorStatusUseCase {
   execute(

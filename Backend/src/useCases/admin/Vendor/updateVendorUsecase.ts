@@ -1,6 +1,6 @@
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 
-export class UpdateVendorUsecase {
+export class UpdateVendorUsecase{
   constructor(private _vendorRepository: IVendorRepository) {}
 
   async execute(vendorId: string, isBlocked: boolean): Promise<void> {

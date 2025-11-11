@@ -2,7 +2,8 @@ import axiosInstance from "@/axios/instance";
 
 export const createBooking = async (
   data: string,              
-  payment_id: string,     
+  payment_id: string,    
+   
  
 ) => {
   const response = await axiosInstance.post("/api/create-bookings", {
@@ -10,7 +11,8 @@ export const createBooking = async (
     payment_id,
  
   });
-
+  console.log(data)
+console.log(response,"res")
   return response.data;
 };
 
@@ -33,3 +35,8 @@ export const bookingdates=async(vendorId:string)=>{
   console.log(response.data.booking_dates,"hfjh")
   return response.data.booking_dates
 }
+export const cancelBooking = async (bookingId: string) => {
+  const response = await axiosInstance.patch(`/api/bookings/${bookingId}`);
+  console.log(response)
+  return response.data
+};

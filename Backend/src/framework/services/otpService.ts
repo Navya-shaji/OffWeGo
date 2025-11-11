@@ -137,6 +137,5 @@ export class OtpService implements IOtpService {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(info)
   }
 }

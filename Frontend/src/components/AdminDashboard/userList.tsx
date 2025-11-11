@@ -21,11 +21,12 @@ const UserList = () => {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; status: string; name: string } | null>(null);
 
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
-const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
  
   const fetchUsers = useCallback(async (pageNum: number = 1) => {
@@ -99,18 +100,32 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     setPage(newPage);
     
     if (!isSearchMode) {
-     
       fetchUsers(newPage);
     }
-   
   }, [page, isSearchMode, fetchUsers]);
 
- 
+  const openStatusModal = (userId: string, currentStatus: string, userName: string) => {
+    setSelectedUser({ id: userId, status: currentStatus, name: userName });
+    setModalOpen(true);
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!selectedUser) return;
+    const newStatus = selectedUser.status === "active" ? "blocked" : "active";
+    await handleActionChange(selectedUser.id, newStatus);
+    setModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleCancelStatusChange = () => {
+    setModalOpen(false);
+    setSelectedUser(null);
+  };
+
   const handleActionChange = useCallback(async (
     userId: string,
     newStatus: "active" | "blocked"
   ) => {
-   
     const previousUsers = [...users];
     const previousOriginalUsers = [...originalUsers];
     
@@ -128,9 +143,10 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
       await updateUserStatus(userId, newStatus);
     } catch (err) {
       console.error("Failed to update user status", err);
- 
       setUsers(previousUsers);
       setOriginalUsers(previousOriginalUsers);
+      setError("Failed to update user status. Please try again.");
+      setTimeout(() => setError(""), 3000);
     }
   }, [users, originalUsers, isSearchMode]);
 
@@ -141,7 +157,6 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
       fetchUsers(1);
     }
 
-   
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
@@ -154,7 +169,6 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     if (!isSearchMode) {
       return users; 
     } else {
-     
       const startIndex = (page - 1) * 10;
       const endIndex = startIndex + 10;
       return users.slice(startIndex, endIndex);
@@ -200,14 +214,15 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
             type="checkbox"
             checked={row.original.status === "active"}
             onChange={() =>
-              handleActionChange(
+              openStatusModal(
                 row.original._id,
-                row.original.status === "active" ? "blocked" : "active"
+                row.original.status,
+                row.original.username
               )
             }
             className="sr-only peer"
           />
-          <div className="w-14 h-8 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-all duration-300" />
+          <div className="w-14 h-8 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-all duration-300 peer-focus:ring-2 peer-focus:ring-green-300" />
           <span className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full shadow-md transform peer-checked:translate-x-6 transition-transform duration-300" />
         </label>
       ),
@@ -225,19 +240,58 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-4 space-y-4">
-      
+    
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 transform transition-all scale-100 animate-in">
+            <div className="flex items-start mb-4">
+              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+                selectedUser?.status === "blocked" ? 'bg-green-100' : 'bg-red-100'
+              }`}>
+                <span className="text-2xl">
+                  {selectedUser?.status === "blocked" ? '✓' : '⚠'}
+                </span>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {selectedUser?.status === "blocked" ? 'Unblock User' : 'Block User'}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Are you sure you want to {selectedUser?.status === "blocked" ? 'unblock' : 'block'} <span className="font-medium">{selectedUser?.name}</span>?
+                </p>
+                {selectedUser?.status === "active" && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    This user will not be able to access their account.
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleCancelStatusChange}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmStatusChange}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                  selectedUser?.status === "blocked"
+                    ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                    : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                }`}
+              >
+                {selectedUser?.status === "blocked" ? 'Unblock' : 'Block'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900">All Users</h2>
@@ -253,12 +307,26 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
           <SearchBar 
             placeholder="Search users..." 
             onSearch={handleSearch}
-            // value={searchQuery}
           />
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span>{error}</span>
+            <button
+              onClick={() => setError("")}
+              className="text-red-800 hover:text-red-900"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
+      {/* Content */}
       {users.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 text-gray-300 text-6xl">
@@ -276,7 +344,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
         </div>
       ) : (
         <>
-        
+          {/* Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable 
               data={getCurrentPageData()} 
@@ -284,7 +352,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
             />
           </div>
 
-         
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center">
               <Pagination 
@@ -295,7 +363,7 @@ const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
             </div>
           )}
 
-       
+          {/* Results Info */}
           <div className="text-center text-sm text-gray-500">
             {isSearchMode 
               ? `Showing ${Math.min((page - 1) * 10 + 1, users.length)}-${Math.min(page * 10, users.length)} of ${users.length} search results`

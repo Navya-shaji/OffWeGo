@@ -1,5 +1,8 @@
-import { ContactInfo, PackageInfo, Traveler } from "../../entities/BookingEntity";
-
+import {
+  ContactInfo,
+  PackageInfo,
+  Traveler,
+} from "../../entities/BookingEntity";
 
 export interface TravelerDto {
   name: string;
@@ -22,9 +25,9 @@ export interface ContactInfoDto {
   address: string;
 }
 
-
 interface BookData {
-   userId: string;
+  userId: string;
+  bookingId: string;
   contactInfo: ContactInfo;
   adults: Traveler[];
   children: Traveler[];
@@ -33,10 +36,10 @@ interface BookData {
   totalAmount: number;
   paymentIntentId?: string;
   paymentStatus: "pending" | "succeeded" | "failed";
+  bookingStatus: "upcoming" | "completed" | "cancelled";
 }
 export interface CreateBookingDto {
- data :BookData,
- payment_id:string
- paymentStatus:"pending" | "succeeded" | "failed";
+  data: BookData 
+  payment_id: string;
+  paymentStatus: "pending" | "succeeded" | "failed";
 }
-
