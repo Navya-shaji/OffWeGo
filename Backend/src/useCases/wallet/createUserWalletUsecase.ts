@@ -2,6 +2,7 @@ import { Role } from "../../domain/constants/Roles";
 import { WalletDto } from "../../domain/dto/Wallet/WalletDto";
 import { ICreateWalletUsecase } from "../../domain/interface/Wallet/ICreateUserWalletUsecase";
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
+import { mapToWalletDto } from "../../mappers/Wallet/mapToWallet";
 
 export class CreateUserWalletUsecase implements ICreateWalletUsecase{
     constructor(
@@ -18,6 +19,7 @@ export class CreateUserWalletUsecase implements ICreateWalletUsecase{
             balance:0,
             transactions:[]
         }
-        return this._walletRepo.createWallet(newWallet)
+        const createdWallet = await this._walletRepo.createWallet(newWallet);
+         return mapToWalletDto(createdWallet);
     }
 }

@@ -30,16 +30,18 @@ export class CreateBookingSubscriptionUseCase
       throw new Error("This plan does not have a Stripe Price ID assigned.");
 
   
-    const booking = await this._subscriptionBookingRepo.create({
-      vendorId,
-      planId: plan._id,
-      planName: plan.name,
-      amount: plan.price,
-      date,
-      time,
-      currency: "usd",
-      status: "pending",
-    });
+const booking = await this._subscriptionBookingRepo.create({
+  vendorId,
+  planId: plan._id,
+  planName: plan.name,
+  amount: plan.price,
+  maxPackages: plan.maxPackages,  
+  duration: plan.duration,
+  date,
+  time,
+  currency: "inr",
+  status: "pending",
+});
 
 
     const session = await this._stripeService.createSubscriptionCheckoutSession(
@@ -52,7 +54,7 @@ export class CreateBookingSubscriptionUseCase
     const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
 
   
-    const adminId = process.env.ADMIN_ID || "68666f952c4ebbe1b6989dd9";
+    const adminId = process.env.ADMIN_ID || "";
     await this._walletRepository.updateBalance(
       adminId,
       Role.ADMIN,

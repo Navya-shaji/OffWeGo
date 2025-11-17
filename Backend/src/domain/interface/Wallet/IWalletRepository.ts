@@ -1,3 +1,4 @@
+import { Transaction } from "../../entities/TransactionEntity";
 import { IWallet } from "../../entities/WalletEntity";
 
 export interface IWalletRepository {
@@ -11,4 +12,5 @@ export interface IWalletRepository {
     description: string,
     refId?: string
   ): Promise<IWallet>;
+  addTransaction(ownerId: string, transaction:Transaction): Promise<IWallet>;
 }

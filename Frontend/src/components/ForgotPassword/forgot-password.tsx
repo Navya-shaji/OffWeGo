@@ -2,9 +2,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { sendOtpForReset } from "@/services/user/LoginService";
 import { Link } from "react-router-dom";
-import { X } from "lucide-react";
-import VerifyResetOtpModal from "./otp-verification ";
-
+import { X, Loader2 } from "lucide-react";
+import VerifyResetOtpModal from "./otp-verification "; 
 export default function ForgotPasswordModal({
   onClose,
 }: {
@@ -12,27 +11,31 @@ export default function ForgotPasswordModal({
 }) {
   const [email, setEmail] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!email) {
+    if (!email.trim()) {
       toast.error("Please enter your email");
       return;
     }
 
-    try {
-      console.log("djsjdsh");
-      const response = await sendOtpForReset(email);
-      console.log(response, "shh");
-      if (response?.success) {
-        toast.success("OTP sent to your Email");
-        setShowVerifyModal(true);
-      } else {
-        toast.error("Email not found in our records");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong");
-    }
+try {
+  setLoading(true);
+  const response = await sendOtpForReset(email);
+
+  if (response?.success) {
+    toast.success("OTP sent to your email");
+    setShowVerifyModal(true);
+  } else {
+    toast.error(response?.message || "Email not found");
+  }
+} catch (err: any) {
+  console.error("Error:", err.message);
+  toast.error(err.message || "Something went wrong");
+} finally {
+  setLoading(false);
+}
+
   };
 
   if (showVerifyModal) {
@@ -74,9 +77,17 @@ export default function ForgotPasswordModal({
 
         <button
           onClick={handleSubmit}
-          className="w-full bg-black text-white font-medium py-2 rounded-full mb-6 hover:bg-gray-800 transition duration-200"
+          disabled={loading}
+          className="w-full bg-black text-white font-medium py-2 rounded-full mb-6 hover:bg-gray-800 transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Send
+          {loading ? (
+            <div className="flex justify-center items-center">
+              <Loader2 className="animate-spin mr-2" size={18} />
+              Sending...
+            </div>
+          ) : (
+            "Send"
+          )}
         </button>
 
         <p className="text-xs text-gray-400 mb-2">Do you have an account?</p>

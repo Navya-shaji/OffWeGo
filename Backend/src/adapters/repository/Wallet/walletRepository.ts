@@ -5,6 +5,7 @@ import {
   WalletModel,
 } from "../../../framework/database/Models/walletModel";
 import { IWallet } from "../../../domain/entities/WalletEntity";
+import { Transaction } from "../../../domain/entities/TransactionEntity";
 
 export class WalletRepository
   extends BaseRepository<IWalletModel>
@@ -54,5 +55,17 @@ export class WalletRepository
     }
 
     return updatedWallet as unknown as IWallet;
+  }
+  async addTransaction(ownerId: string, transaction: Transaction): Promise<IWallet> {
+    const updated = await WalletModel.findOneAndUpdate(
+      { ownerId },
+      { $push: { transactions: transaction } },
+      { new: true }
+    )
+      .lean<IWallet>()
+      .exec();
+
+    if (!updated) throw new Error("Wallet not found");
+    return updated;
   }
 }

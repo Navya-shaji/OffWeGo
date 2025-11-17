@@ -1,7 +1,7 @@
 import { ActivityDto } from "../../domain/dto/package/ActivityDto";
 import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
 import { IcreateActivityUsecase } from "../../domain/interface/Vendor/IcreateactivityUsecase";
-import { mapToActivityDto } from "../../mappers/Activity/ActivityMapper";
+import { mapToActivityDto } from "../../mappers/Activity/activityMapper";
 
 export class createActivityUsecase implements IcreateActivityUsecase {
   constructor(private _activityRepo: IActivityRepository) {}

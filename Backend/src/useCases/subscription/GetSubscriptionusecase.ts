@@ -1,4 +1,4 @@
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
+import { SubscriptionPlanDto } from "../../domain/dto/Subscription/createsubscriptionDto";
 import { IGetSubscriptionUsecase } from "../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 

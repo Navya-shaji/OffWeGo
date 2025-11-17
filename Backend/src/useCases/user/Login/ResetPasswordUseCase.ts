@@ -13,7 +13,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
     newPassword: string
   ): Promise<{ success: boolean; message: string }> {
     const user = await this._userRepository.findByEmail(email);
-console.log(user,"jdjkh")
+
     if (!user) throw new Error("User not found");
 
     const hashPassword = await this._passwordService.hashPassword(newPassword);

@@ -22,7 +22,10 @@ import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInject
 import {
   bookingcontroller,
   
+  chatcontroller,
+  
   subscriptionpaymentcontroller,
+  walletcontroller,
 } from "../../Di/User/userInjections";
 import { Role } from "../../../domain/constants/Roles";
 
@@ -193,6 +196,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.ALL_FLIGHTS,
+      checkRoleBasedcontrol([Role.VENDOR,Role.USER]),
       (req: Request, res: Response) => flightcontroller.getAllFlight(req, res)
     );
     this.vendorRouter.put(
@@ -231,6 +235,25 @@ export class VendorRoute {
       VendorRoutes.BUDDY_PACKAGES,
       (req:Request,res:Response)=>{
         buddyTravelcontroller.getVendorBuddyPackages(req,res)
+      }
+    )
+    this.vendorRouter.get(
+      CommonRoutes.CHATS,
+      (req:Request,res:Response)=>{
+        chatcontroller.getChat(req,res)
+      }
+    )
+    this.vendorRouter.post(
+      VendorRoutes.VENDOR_WALLET,
+      (req:Request,res:Response)=>{
+        walletcontroller.createWallet(req,res)
+      }
+    )
+    this.vendorRouter.get(
+      VendorRoutes.GET_VENDOR_WALLET,
+      checkRoleBasedcontrol([Role.VENDOR,Role.ADMIN]),
+      (req:Request,res:Response)=>{
+        walletcontroller.GetWallet(req,res)
       }
     )
   }

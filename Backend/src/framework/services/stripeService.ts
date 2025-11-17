@@ -11,7 +11,7 @@ export class StripeService implements IStripeService {
   }
 
   async createPaymentIntent(amount: number): Promise<string> {
-    console.log("💰 Creating Payment Intent for amount:", amount);
+    console.log("Creating Payment Intent for amount:", amount);
 
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
@@ -20,10 +20,10 @@ export class StripeService implements IStripeService {
         automatic_payment_methods: { enabled: true },
       });
 
-      console.log("✅ PaymentIntent created:", paymentIntent.id);
+      console.log(" PaymentIntent created:", paymentIntent.id);
       return paymentIntent.client_secret!;
     } catch (error) {
-      console.error("❌ Error creating PaymentIntent:", error);
+      console.error(" Error creating PaymentIntent:", error);
       throw new Error("Failed to create payment intent");
     }
   }
@@ -33,7 +33,7 @@ export class StripeService implements IStripeService {
     domainUrl: string,
     bookingId?: string
   ): Promise<{ checkoutUrl: string }> {
-    console.log("🌀 Creating Stripe Checkout session for priceId:", priceId);
+    console.log(" Creating Stripe Checkout session for priceId:", priceId);
 
     try {
       const session = await this.stripe.checkout.sessions.create({
@@ -43,14 +43,14 @@ export class StripeService implements IStripeService {
         metadata: {
           bookingId: bookingId ?? "N/A",
         },
-        success_url: `${domainUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`, 
+        success_url: `${domainUrl}/vendor/payment-success`, 
         cancel_url: `${domainUrl}/payment/cancel`,
       });
 
-      console.log("✅ Checkout Session created:", session.url);
+      console.log(" Checkout Session created:", session.url);
       return { checkoutUrl: session.url! };
     } catch (error) {
-      console.error("❌ Error creating Checkout Session:", error);
+      console.error(" Error creating Checkout Session:", error);
       throw new Error("Failed to create Stripe Checkout session");
     }
   }
@@ -60,10 +60,10 @@ export class StripeService implements IStripeService {
     payment_status: string;
     customer_email?: string;
   }> {
-    console.log("🔍 Retrieving session:", sessionId);
+    console.log(" Retrieving session:", sessionId);
 
     const session = await this.stripe.checkout.sessions.retrieve(sessionId);
-    console.log("✅ Session retrieved:", session.id, session.payment_status);
+    console.log("Session retrieved:", session.id, session.payment_status);
 
     return {
       id: session.id,

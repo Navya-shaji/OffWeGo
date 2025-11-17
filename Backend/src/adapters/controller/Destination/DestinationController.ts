@@ -18,59 +18,108 @@ export class DestinationController {
   ) {}
 
   async addDestination(req: Request, res: Response) {
-    const result = await this._createDestination.execute(req.body);
-    res.status(HttpStatus.CREATED).json({ result });
+    try {
+      const result = await this._createDestination.execute(req.body);
+      res.status(HttpStatus.CREATED).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to create destination",
+        error: (error as Error).message,
+      });
+    }
   }
 
   async editDestinationHandler(req: Request, res: Response) {
-    const destinationId = req.params.id;
-    const destinationData = req.body;
-    const result = await this._editDestination.execute(
-      destinationId,
-      destinationData
-    );
-    return res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Destination updated successfully",
-      data: result,
-    });
+    try {
+      const destinationId = req.params.id;
+      const destinationData = req.body;
+      const result = await this._editDestination.execute(
+        destinationId,
+        destinationData
+      );
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Destination updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to update destination",
+        error: (error as Error).message,
+      });
+    }
   }
 
   async getAllDestination(req: Request, res: Response) {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-    const { destinations, totalDestinations } =
-      await this._getDestination.execute(page, limit);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      destinations,
-      totalDestinations,
-      currentPage: page,
-      totalPages: Math.ceil(totalDestinations / limit),
-    });
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const { destinations, totalDestinations } =
+        await this._getDestination.execute(page, limit);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        destinations,
+        totalDestinations,
+        currentPage: page,
+        totalPages: Math.ceil(totalDestinations / limit),
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch destinations",
+        error: (error as Error).message,
+      });
+    }
   }
 
   async getSingleDestinationController(req: Request, res: Response) {
-    const { id } = req.params;
-    const result = await this._destinationUsecase.execute(id);
-    res.status(HttpStatus.OK).json(result);
+    try {
+      const { id } = req.params;
+      const result = await this._destinationUsecase.execute(id);
+      res.status(HttpStatus.OK).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch destination",
+        error: (error as Error).message,
+      });
+    }
   }
 
   async deleteDestinationController(req: Request, res: Response) {
-    const { id } = req.params;
-    const result = await this._deleteDestinationusecase.execute(id);
-    return res.status(HttpStatus.OK).json(result);
+    try {
+      const { id } = req.params;
+      const result = await this._deleteDestinationusecase.execute(id);
+      res.status(HttpStatus.OK).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to delete destination",
+        error: (error as Error).message,
+      });
+    }
   }
 
   async searchDestination(req: Request, res: Response) {
-    const query = req.query.q;
-    if (typeof query !== "string" || !query.trim()) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        message: "The query will be string",
+    try {
+      const query = req.query.q;
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "The query must be a non-empty string",
+        });
+        return;
+      }
+      const destinations = await this._serachDestinationusecase.execute(query);
+      res.status(HttpStatus.OK).json({ success: true, data: destinations });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to search destinations",
+        error: (error as Error).message,
       });
-      return;
     }
-    const destinations = await this._serachDestinationusecase.execute(query);
-    res.json({ success: true, data: destinations });
   }
 }

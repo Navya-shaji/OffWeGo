@@ -14,23 +14,32 @@ const Banner: React.FC = () => {
   const [banners, setBanners] = useState<BannerInterface[]>([]);
   const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchBanner = async () => {
-      try {
-        const data = await getBanner();
-       
-        setBanners(data);
-      } catch (error) {
-        console.error("Error fetching banners:", error);
-      }
-    };
-    fetchBanner();
+useEffect(() => {
+  const fetchBanner = async () => {
+    try {
+      const response = await getBanner();
+      console.log(response, "response");
 
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+      // ✅ Ensure we extract the array correctly
+      const bannerList = Array.isArray(response?.data)
+        ? response.data
+        : [];
+
+      console.log(bannerList, "list");
+      setBanners(bannerList);
+    } catch (error) {
+      console.error("Error fetching banners:", error);
+      setBanners([]); // fallback to empty array
+    }
+  };
+
+  fetchBanner();
+
+  const timer = setTimeout(() => setIsVisible(true), 100);
+  return () => clearTimeout(timer);
+}, []);
+
+
 
   const sliderSettings = {
     dots: true,
@@ -47,6 +56,7 @@ const Banner: React.FC = () => {
   };
 
   const activeBanners = banners.filter((b) => b.action);
+  console.log(activeBanners,"jhj")
 
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-white  to-white overflow-hidden">

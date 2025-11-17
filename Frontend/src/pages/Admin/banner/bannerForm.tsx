@@ -20,10 +20,12 @@ export const BannerForm = () => {
 
   const fetchData = async () => {
     try {
-      const data = await getBanner();
-      setBanner(data);
+      const response = await getBanner();
+      const data = response?.data || response;
+      setBanner(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch banners", error);
+      setBanner([]);
     } finally {
       setLoading(false);
     }

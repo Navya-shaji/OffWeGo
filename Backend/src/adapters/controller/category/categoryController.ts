@@ -6,7 +6,7 @@ import { ISearchCategoryUsecase } from "../../../domain/interface/Category/Isear
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { Request, Response } from "express";
 
-export class CreateCatogoryController {
+export class CreateCategoryController {
   constructor(
     private _createcategory: ICreateCategoryUsecase,
     private _getcategory: IGetCategoryUsecase,
@@ -16,46 +16,64 @@ export class CreateCatogoryController {
   ) {}
 
   async createCategory(req: Request, res: Response) {
-    const result = await this._createcategory.execute(req.body);
-    res.status(HttpStatus.CREATED).json({ result });
+    try {
+      const result = await this._createcategory.execute(req.body);
+      res.status(HttpStatus.CREATED).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+    }
   }
 
   async getCategories(req: Request, res: Response) {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const result = await this._getcategory.execute(page, limit);
-    res.status(HttpStatus.OK).json(result);
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const result = await this._getcategory.execute(page, limit);
+      res.status(HttpStatus.OK).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+    }
   }
 
   async EditCategory(req: Request, res: Response) {
-    const categoryId = req.params.id;
-    const categoryData = req.body;
-    const result = await this._editCategory.execute(categoryId, categoryData);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Category updated successfully",
-      data: result,
-    });
+    try {
+      const categoryId = req.params.id;
+      const categoryData = req.body;
+      const result = await this._editCategory.execute(categoryId, categoryData);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Category updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+    }
   }
 
   async DeleteCategory(req: Request, res: Response) {
-    const { id } = req.params;
-    const result = await this._deleteCategory.execute(id);
-    return res.status(HttpStatus.OK).json(result);
+    try {
+      const { id } = req.params;
+      const result = await this._deleteCategory.execute(id);
+      res.status(HttpStatus.OK).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+    }
   }
 
   async SearchCategory(req: Request, res: Response) {
-    const query = req.query.q;
-    if (typeof query !== "string" || !query.trim()) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        message: "The query will be string",
-      });
-      return;
+    try {
+      const query = req.query.q;
+      if (typeof query !== "string" || !query.trim()) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "The query must be a non-empty string",
+        });
+        return;
+      }
+      const category = await this._searchcategory.execute(query);
+      res.status(HttpStatus.OK).json({ success: true, data: category });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
     }
-    const category = await this._searchcategory.execute(query);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: category,
-    });
   }
 }

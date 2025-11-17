@@ -16,58 +16,94 @@ export class HotelController {
   ) {}
 
   async createHotels(req: Request, res: Response) {
-    const destinationId = req.params.id;
-    const hotelData = req.body;
+    try {
+      const destinationId = req.params.id;
+      const hotelData = req.body;
+      const result = await this._createHotel.execute(hotelData, destinationId);
 
-    const result = await this._createHotel.execute(hotelData, destinationId);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: result,
-      message: "Hotel created successfully",
-    });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Hotel created successfully",
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
 
   async getHotels(req: Request, res: Response) {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-    const result = await this._getHotels.execute(page, limit);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: result,
-      message: "Hotels fetched",
-    });
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const result = await this._getHotels.execute(page, limit);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Hotels fetched successfully",
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
 
   async editHotel(req: Request, res: Response) {
-    const HotelId = req.params.id;
-    const hotelData = req.body;
-    const result = await this._editHotels.execute(HotelId, hotelData);
-    return res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Hotel updated successfully",
-      data: result,
-    });
+    try {
+      const hotelId = req.params.id;
+      const hotelData = req.body;
+      const result = await this._editHotels.execute(hotelId, hotelData);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Hotel updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
 
   async deleteHotel(req: Request, res: Response) {
-    const { id } = req.params;
-    const result = await this._deleteHotel.execute(id);
-    return res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Hotel deleted successfully",
-      data: result,
-    });
+    try {
+      const { id } = req.params;
+      const result = await this._deleteHotel.execute(id);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Hotel deleted successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
 
   async SearchHotel(req: Request, res: Response) {
-    const query = req.query.q;
-    if (typeof query !== "string" || !query.trim()) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        message: "The query will be string",
+    try {
+      const query = req.query.q as string;
+      const result = await this._searchHotel.execute(query);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
       });
-      return;
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-    const hotels = await this._searchHotel.execute(query);
-    res.json({ success: true, data: hotels });
   }
 }

@@ -6,13 +6,14 @@ export const createBooking = async (
    
  
 ) => {
+  
   const response = await axiosInstance.post("/api/create-bookings", {
     data,
     payment_id,
  
   });
-  console.log(data)
-console.log(response,"res")
+  
+console.log(response.data,"response")
   return response.data;
 };
 

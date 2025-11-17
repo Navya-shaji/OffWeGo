@@ -6,7 +6,7 @@ export const createReviews = async (data: IReview) => {
   try {
     const res = await axiosInstance.post("/api/create-reviews", data);
     console.log(res);
-    return res;
+    return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Failed to add reviews");

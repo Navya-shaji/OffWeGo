@@ -36,8 +36,9 @@ export default function SubscriptionList() {
   const fetchSubscriptions = async () => {
     try {
       dispatch(getSubscriptionsStart());
-      const data = await subscriptionService.getSubscriptions();
-      dispatch(getSubscriptionsSuccess(data));
+      const response = await subscriptionService.getSubscriptions();
+      const data = response?.data || response;
+      dispatch(getSubscriptionsSuccess(Array.isArray(data) ? data : []));
     } catch (err: unknown) {
       dispatch(getSubscriptionsFailure("Failed to fetch subscriptions"));
       toast.error("Failed to fetch subscriptions");

@@ -49,7 +49,7 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
       throw new Error(msg);
     }
 
-    throw new Error("An unexpected error occurred while adding buddy travel");
+    throw new Error("You free Limit is over Subscribe Now");
   }
 };
 

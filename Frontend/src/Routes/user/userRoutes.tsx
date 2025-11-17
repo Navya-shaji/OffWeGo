@@ -52,7 +52,7 @@ const UserRoute = () => {
       <Route path="/payment-checkout" element={<PaymentCheckout />} />
       <Route path="/booking-success" element={<BookingSuccess />} />
       <Route path="/bookings" element={<BookingDetailsPage />} />
-      <Route path="/create-review" element={<UserAddReview />} />
+      <Route path="/review" element={<UserAddReview />} />
       <Route path="/contact" element={<ExpandedContactUsPage />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/wallet" element={<WalletManagement />} />

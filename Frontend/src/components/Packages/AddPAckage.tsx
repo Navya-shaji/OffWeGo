@@ -340,71 +340,96 @@ const handleActivitySelection = (activityIds: string[]) => {
     validateField("itinerary", basicItinerary);
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowValidationErrors(true);
-console.log(packages,"package count")
+ // In your AddPackage component, update the handleSubmit function:
 
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setShowValidationErrors(true);
+  setPackageLimitError(false); // Reset error state
 
-const vendorPackageCount=packages.length
+  console.log(packages, "package count");
+  const vendorPackageCount = packages.length;
+  console.log(vendorPackageCount, "count");
 
+  // Note: This frontend check is a UX optimization
+  // The backend will perform the authoritative validation
+  if (vendorPackageCount >= 3) {
+    setPackageLimitError(true);
+    toast.error("Package limit reached! You can only create up to 3 packages on the free tier.", {
+      position: "top-center",
+      autoClose: 5000,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
 
-   console.log(vendorPackageCount,"count")
- if (vendorPackageCount >= 3) {
+  const simpleItinerary = formData.itinerary.flatMap((day) =>
+    day.activities.map((activity) => ({
+      day: day.day,
+      time: activity.time,
+      activity: activity.activity,
+    }))
+  );
 
-      setPackageLimitError(true);
-      toast.error("Package limit reached! You can only create up to 3 packages.", {
-        position: "top-center",
-        autoClose: 5000,
-      });
-     
+  const hasFlight = formData.flightOption === true;
+
+  const completePackage: Package = {
+    id: crypto.randomUUID(),
+    destinationId: formData.destinationId,
+    packageName: formData.packageName,
+    description: formData.description,
+    price: Number(formData.price || 0),
+    flightPrice: hasFlight ? Number(formData.flightPrice || 0) : undefined,
+    duration: formData.duration,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + formData.duration * 24 * 60 * 60 * 1000),
+    images: formData.images,
+    hotels: formData.selectedHotels,
+    activities: formData.selectedActivities,
+    checkOutTime: formData.checkOutTime,
+    checkInTime: formData.checkInTime,
+    itinerary: simpleItinerary,
+    inclusions: formData.inclusions,
+    amenities: formData.amenities,
+    flightOption: hasFlight,
+    flight: null,
+  };
+
+  try {
+    // Dispatch and wait for the result
+    const result = await dispatch(addPackage(completePackage));
+    
+    // Check if the action was rejected
+    if (addPackage.rejected.match(result)) {
+      // Handle the error from backend
+      const errorMessage = result.error.message || "Failed to create package";
+      
+      if (errorMessage.includes("limit")) {
+        setPackageLimitError(true);
+        toast.error(errorMessage, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      } else {
+        toast.error(errorMessage, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    const simpleItinerary = formData.itinerary.flatMap((day) =>
-      day.activities.map((activity) => ({
-        day: day.day,
-        time: activity.time,
-        activity: activity.activity,
-      }))
-    );
 
-
-    const hasFlight = formData.flightOption === true;
-
-    const completePackage: Package = {
-      id: crypto.randomUUID(),
-      destinationId: formData.destinationId,
-      packageName: formData.packageName,
-      description: formData.description,
-      price: Number(formData.price || 0),
-      flightPrice: hasFlight ? Number(formData.flightPrice || 0) : undefined,
-      duration: formData.duration,
-      startDate: new Date(),
-      endDate: new Date(Date.now() + formData.duration * 24 * 60 * 60 * 1000),
-      images: formData.images,
-      hotels: formData.selectedHotels,
-      activities: formData.selectedActivities,
-      checkOutTime: formData.checkOutTime,
-      checkInTime: formData.checkInTime,
-      itinerary: simpleItinerary,
-      inclusions: formData.inclusions,
-      amenities: formData.amenities,
-      flightOption: hasFlight, 
-      flight: null,
-    };
-
-    
-  
-    dispatch(addPackage(completePackage));
+    // Success case
     setIsSubmitted(true);
     setShowValidationErrors(false);
     resetValidation();
 
+    // Reset form
     setFormData({
       packageName: "",
       description: "",
-      price: 0, 
+      price: 0,
       duration: 1,
       selectedHotels: [],
       selectedActivities: [],
@@ -419,10 +444,20 @@ const vendorPackageCount=packages.length
       flightPrice: 0,
     });
 
+    toast.success("Package created successfully!", {
+      position: "top-center",
+      autoClose: 3000,
+    });
+
     setTimeout(() => setIsSubmitted(false), 3000);
-  };
-
-
+  } catch (error) {
+    console.error("Error creating package:", error);
+    toast.error("An unexpected error occurred. Please try again.", {
+      position: "top-center",
+      autoClose: 5000,
+    });
+  }
+};
   const selectedDestination = destinations.find(
     (dest) => dest.id === formData.destinationId
   );

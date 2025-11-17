@@ -103,32 +103,35 @@ console.log(packagesLoading,searchLoading,error)
     }
   }, [id]);
 
-  
-  const clearSearch = useCallback(() => {
-    setSearchResults(null);
-    setSearchQuery("");
-    setIsSearchMode(false);
-    setError("");
-  }, []);
-
+  // FIXED: Load destination data
   useEffect(() => {
     if (id) {
       getsingleDestination(id)
         .then((res) => {
           console.log("🏖️ Destination loaded:", res);
-          setDestination(res);
+          // Extract the actual destination data from nested response
+          const destinationData = res.data || res;
+          setDestination(destinationData);
         })
         .catch((err) => console.error("Failed to load destination", err))
         .finally(() => setLoading(false));
     }
   }, [id]);
 
+  // FIXED: Load packages and clear search (removed circular dependency)
   useEffect(() => {
     if (id) {
+      // Clear search state
+      setSearchResults(null);
+      setSearchQuery("");
+      setIsSearchMode(false);
+      setError("");
+      
+      // Fetch packages
       fetchDestinationPackages();
-      clearSearch();
     }
-  }, [id, fetchDestinationPackages, clearSearch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // Only depend on id
 
   if (loading) {
     return (
@@ -383,7 +386,7 @@ console.log(packagesLoading,searchLoading,error)
             </div>
           </div>
 
-          {/* Map Section */}
+          {/* Map Section - FIXED with null safety */}
           <div className="space-y-10">
             <div className="backdrop-blur-lg bg-white/80 rounded-3xl shadow-lg border border-white/40 hover:shadow-2xl transition-all duration-500 overflow-hidden">
               <div className="p-6 border-b border-gray-200">
@@ -394,35 +397,44 @@ console.log(packagesLoading,searchLoading,error)
               </div>
               <div className="p-6">
                 <div className="h-64 rounded-2xl overflow-hidden shadow-lg border border-white/60">
-                  <MapContainer
-                    center={[
-                      destination.coordinates.lat,
-                      destination.coordinates.lng,
-                    ]}
-                    zoom={10}
-                    scrollWheelZoom={true}
-                    className="h-full w-full"
-                  >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-                    />
-                    <Marker
-                      position={[
+                  {destination.coordinates?.lat && destination.coordinates?.lng ? (
+                    <MapContainer
+                      center={[
                         destination.coordinates.lat,
                         destination.coordinates.lng,
                       ]}
+                      zoom={10}
+                      scrollWheelZoom={true}
+                      className="h-full w-full"
                     >
-                      <Popup>
-                        <div className="text-center">
-                          <h4 className="font-bold">{destination.name}</h4>
-                          <p className="text-gray-600 text-sm">
-                            {destination.location}
-                          </p>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  </MapContainer>
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+                      />
+                      <Marker
+                        position={[
+                          destination.coordinates.lat,
+                          destination.coordinates.lng,
+                        ]}
+                      >
+                        <Popup>
+                          <div className="text-center">
+                            <h4 className="font-bold">{destination.name}</h4>
+                            <p className="text-gray-600 text-sm">
+                              {destination.location}
+                            </p>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-2xl">
+                      <div className="text-center">
+                        <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                        <p className="text-gray-500">Map coordinates not available</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -5,16 +5,16 @@ import EditProfileModal from "./EditProfile";
 import { useState } from "react";
 import ProfileSidebar from "@/components/profile/sidebar";
 import BookingDetailsSection from "../Bookings/UserBookings";
-import UserAddReview from "./AddReview";
 import ChangePasswordModal from "./changePassword"; 
 import WalletManagement from "../wallet/userWallet";
+import ChatPage from "@/components/chat/chats";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
  const [activeSection, setActiveSection] = useState<
-  "profile" | "bookings" | "create-review" | "wallet"
+  "profile" | "bookings" | "chat" | "wallet"
 >("profile");
 
 
@@ -136,7 +136,8 @@ const Profile = () => {
           )}
 
           {activeSection === "bookings" && <BookingDetailsSection />}
-          {activeSection === "create-review" && <UserAddReview />}
+          {activeSection === "chat" && <ChatPage />}
+
           {activeSection === "wallet" && <WalletManagement />}
 
         </div>

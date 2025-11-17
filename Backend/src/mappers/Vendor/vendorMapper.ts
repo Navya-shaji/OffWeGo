@@ -16,4 +16,18 @@ export const mapToVendor = (doc: IVendorModel): Vendor => ({
   lastLogin: doc.lastLogin,
   googleVerified: doc.googleVerified,
   isAdmin: doc.isAdmin,
+
+
+  subscription: doc.subscription
+    ? {
+        plan: doc.subscription.plan,
+        subscribedAt: doc.subscription.subscribedAt,
+        expiresAt: doc.subscription.expiresAt,
+        maxPackages: doc.subscription.maxPackages,
+      }
+    : undefined,
+
+
+  packageLimit: doc.packageLimit,
+  currentPackages: doc.currentPackages,
 });

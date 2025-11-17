@@ -270,20 +270,39 @@ const VendorApprovedPackages: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-red-100">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Oops! Something went wrong</h2>
-          <p className="text-gray-600 mb-8">{error}</p>
+  const roastMessages = [
+    "Bruh… your code tripped over itself. Try again. 😭",
+    "Looks like your API took a coffee break ☕ — come back later.",
+    "Well, that escalated quickly. 🚒 The server just rage quit.",
+    "Error 404: Developer’s patience not found 😅",
+    "Even your code needs therapy after this error 💀",
+    "Somewhere in the backend, a server just screamed ‘WHY ME?!’ 😭",
+  ];
+
+  const randomRoast = roastMessages[Math.floor(Math.random() * roastMessages.length)];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-rose-50 to-orange-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-red-200">
+        <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+          <svg className="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z" />
+          </svg>
         </div>
+        <h2 className="text-3xl font-bold text-red-600 mb-2">Uh oh! 💥</h2>
+        <p className="text-gray-700 font-semibold mb-4">{randomRoast}</p>
+        <p className="text-gray-500 text-sm break-words italic">Error details: {error}</p>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-6 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all"
+        >
+          Try Again 🔁
+        </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (!vendorId) {
     return (

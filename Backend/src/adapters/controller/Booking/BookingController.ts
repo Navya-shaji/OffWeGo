@@ -17,16 +17,12 @@ export class BookingController {
 
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
-      console.log(req.body, "body");
       const { data, payment_id, paymentStatus } = req.body;
-
       const result = await this._createBooking.execute({
         data,
         payment_id,
         paymentStatus,
       });
-
-      console.log("Booking created:", result);
       res.status(HttpStatus.CREATED).json({ success: true, booking: result });
     } catch (error) {
       console.error("Error creating booking:", error);
@@ -40,7 +36,7 @@ export class BookingController {
     try {
       const userId = req.params.userId;
       const bookings = await this._userbookings.execute(userId);
-      console.log(bookings);
+
       res.status(HttpStatus.OK).json({ success: true, bookings });
     } catch (error) {
       console.error("Error fetching user bookings:", error);
@@ -62,6 +58,7 @@ export class BookingController {
         .json({ success: false, error });
     }
   }
+
   async bookingDates(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.vendorId;
@@ -78,7 +75,7 @@ export class BookingController {
       });
     }
   }
-  
+
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
       const bookingId = req.params.id;

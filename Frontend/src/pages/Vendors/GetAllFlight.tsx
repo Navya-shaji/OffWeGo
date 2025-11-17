@@ -193,20 +193,7 @@ console.log(isSearchMode)
         header: "Business Price (₹)",
         cell: ({ row }) => row.original.price?.business ?? "-",
       },
-      {
-        header: "Created At",
-        cell: ({ row }) =>
-          row.original.createdAt
-            ? new Date(row.original.createdAt).toLocaleDateString()
-            : "-",
-      },
-      {
-        header: "Updated At",
-        cell: ({ row }) =>
-          row.original.updatedAt
-            ? new Date(row.original.updatedAt).toLocaleDateString()
-            : "-",
-      },
+  
       {
         header: "Actions",
         cell: ({ row }) => (

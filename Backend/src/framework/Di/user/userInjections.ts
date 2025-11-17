@@ -30,7 +30,6 @@ import { CreateReviewUseCase } from "../../../useCases/reviews/createReviewUseca
 import { GetReviewUsecase } from "../../../useCases/reviews/getAllReviewsUsecase";
 import { ChangePasswordUseCase } from "../../../useCases/user/profile/changePasswordUsecase";
 import { VerifyPaymentUseCase } from "../../../useCases/subscription/VerifyPaymentUsecase";
-import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
 import { StripeService } from "../../Services/stripeService";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { cancelBookingUsecase } from "../../../useCases/booking/CancelBookingUSecase";
@@ -39,6 +38,18 @@ import { WalletController } from "../../../adapters/controller/Wallet/Walletcont
 import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
 import { GetUserWalletUsecase } from "../../../useCases/wallet/getusewalletUsecase";
 import { ForgotPassUsecase } from "../../../useCases/user/Login/forgotPassUSecase";
+import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
+import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
+import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
+import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
+import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
+import { SendChatMessageUseCase } from "../../../useCases/chat/SendChatUSecase";
+import { ChatController } from "../../../adapters/controller/Chat/ChatController";
+import { ChatUseCase } from "../../../useCases/chat/GetChatUSecase";
+import { TransferAmountUseCase } from "../../../useCases/wallet/transferWalletUsecase";
+import { GetCompletedBookingsForTransfer } from "../../../useCases/wallet/getcompletedBookingUSecase";
+import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
+import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/SubscriptionPaymentController";
 
 
 // Setup Repos and Services
@@ -53,6 +64,10 @@ const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
 const subscriptionRepo=new SubscriptionPlanRepository()
 const walletRepo=new WalletRepository()
+const notificationRepo=new NotificationRepository()
+const notificationservice=new FirebaseNotificationService(notificationRepo)
+const subscriptionbookingRepo=new SubscriptionBookingRepository()
+const chatRepo=new ChatRepository()
 
 
 // Use Cases
@@ -72,11 +87,16 @@ const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
-const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo)
+const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo,subscriptionbookingRepo)
 const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
 const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
+const notificationUsecase=new SendNotificationUseCase(notificationservice)
+const sendchatusecase=new SendChatMessageUseCase(chatRepo)
+const getchatusecase=new ChatUseCase(chatRepo)
+const transferamountusecase=new TransferAmountUseCase(walletRepo)
+const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
 
 
 // Controllers
@@ -88,4 +108,6 @@ export const bookingcontroller=new BookingController(createbookingusecase,userbo
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
-export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase)
+export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings)
+export const notificationcontroller=new NotificationController(notificationUsecase)
+export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

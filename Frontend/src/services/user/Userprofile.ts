@@ -48,6 +48,6 @@ export const changePassword = async (data: {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Failed to change password.");
     }
-    throw new Error("An unexpected error occurred while changing the password.");
+    throw new Error("Enter correct password");
   }
 };

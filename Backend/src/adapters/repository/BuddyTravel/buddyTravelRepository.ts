@@ -93,7 +93,8 @@ async findByStatus(): Promise<IBuddyTravelModel[]> {
       { new: true }
     );
   }
-  async findAll(): Promise<IBuddyTravelModel[]> {
-  return this.model.find().lean();
+async findAll(): Promise<IBuddyTravelModel[]> {
+  return this.model.find().lean() as unknown as IBuddyTravelModel[];
 }
+
 }

@@ -28,11 +28,17 @@ import type { Package } from "@/interface/PackageInterface";
 import FlightSearchModal from "@/pages/Vendors/flightModal";
 import { PackageReviews } from "./PackageReviews";
 import type { Flight } from "@/interface/flightInterface";
+
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store"; 
+
+import { ChatButton } from "@/components/chat/chatbutton";
+import { ChatModal } from "../chat/chat";
 export const PackageTimeline = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
-
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -40,7 +46,7 @@ export const PackageTimeline = () => {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [showFlightModal, setShowFlightModal] = useState(false);
   const [expandedDays, setExpandedDays] = useState<Record<number, boolean>>({});
-
+const currentUser = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     if (selectedPackage) {
@@ -109,7 +115,7 @@ const proceedToBooking = (
   const basePackagePrice = selectedPackage.price;
   const flightPrice = selectedFlight ? selectedFlight.price : 0;
   // const totalPrice = basePackagePrice + flightPrice;
-
+console.log(selectedDate,"Date")
   navigate("/travaler-details", {
     state: {
       selectedPackage: {
@@ -658,6 +664,18 @@ const proceedToBooking = (
               </CardContent>
             </Card>
 
+
+<ChatButton onClick={() => setIsChatOpen(true)} />
+
+<ChatModal
+  isOpen={isChatOpen}
+  onClose={() => setIsChatOpen(false)}
+  currentUserId={currentUser?.id || ""}
+  currentUserRole="user"
+  vendorId={selectedPackage.vendorId || ""}
+  packageName={selectedPackage.packageName}
+/>
+
             <Card className="shadow-xl border-0 overflow-hidden bg-white/95 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6">
                 <CardTitle className="text-lg">Package Highlights</CardTitle>
@@ -708,10 +726,12 @@ const proceedToBooking = (
           </div>
         </div>
       </div>
+
       <FlightSearchModal
         show={showFlightModal}
         onClose={() => setShowFlightModal(false)}
         onProceed={proceedToBooking}
+        selectedDate={selectedDate} 
         selectedPackage={{
           price: selectedPackage.price,
           flightPrice: selectedPackage.flightPrice,
@@ -722,6 +742,7 @@ const proceedToBooking = (
           hotels: selectedPackage.hotels || [],
           activities: selectedPackage.activities || [],
           flightOption: selectedPackage.flightOption,
+          _id:selectedPackage._id
         }}
       />
     </div>

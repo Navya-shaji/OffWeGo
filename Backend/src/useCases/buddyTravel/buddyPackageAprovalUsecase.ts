@@ -1,4 +1,4 @@
-import { BuddyTravel } from "../../domain/entities/BuddyTripEntity";
+import { BuddyTravelDto } from "../../domain/dto/BuddyTravel/BuddyTravelDto";
 import { IAdminBuddyPackageApprovalUseCase } from "../../domain/interface/BuddyTravel/IBuddyPackageApprovalUsecase";
 import { IBuddyTravelRepository } from "../../domain/interface/BuddyTravel/IBuddyTravelRepository";
 
@@ -8,7 +8,7 @@ export class BuddyTravalAdminApprovalUsecase implements IAdminBuddyPackageApprov
   async execute(
     status?: "Pending" | "approve" | "reject",
     id?: string
-  ): Promise<BuddyTravel[] | BuddyTravel | null> {
+  ): Promise<BuddyTravelDto[] | BuddyTravelDto | null> {
     if (!status) {
       return await this._buddyTravelRepo.findAll();
     }

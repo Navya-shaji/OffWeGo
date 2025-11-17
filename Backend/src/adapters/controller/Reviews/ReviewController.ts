@@ -4,28 +4,44 @@ import { ICreateReviewUseCase } from "../../../domain/interface/Reviews/IcreateR
 import { IGetReviewUsecase } from "../../../domain/interface/Reviews/IgetReviewUsecase";
 
 export class ReviewController {
-  constructor(private _createReview: ICreateReviewUseCase,
-    private _allReviews:IGetReviewUsecase
+  constructor(
+    private _createReview: ICreateReviewUseCase,
+    private _allReviews: IGetReviewUsecase
   ) {}
 
   async createReview(req: Request, res: Response) {
-    const reviewData = req.body;
-    const result = await this._createReview.execute(reviewData);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: result,
-      message: "Review created successfully",
-    });
+    try {
+      const reviewData = req.body;
+      const result = await this._createReview.execute(reviewData);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Review created successfully",
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message || "Failed to create review",
+      });
+    }
   }
 
-  async getReviews(req:Request,res:Response){
-    const  packageId=req.params.packageId
-    const result=await this._allReviews.execute(packageId)
+  async getReviews(req: Request, res: Response) {
+    try {
+      const packageId = req.params.packageId;
+      const result = await this._allReviews.execute(packageId);
 
-    res.status(HttpStatus.OK).json({
-      success:true,
-      data:result,
-      message:"Reviews fetched successfully"
-    })
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Reviews fetched successfully",
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message || "Failed to fetch reviews",
+      });
+    }
   }
 }
