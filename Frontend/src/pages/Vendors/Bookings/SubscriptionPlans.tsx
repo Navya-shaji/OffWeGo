@@ -33,10 +33,17 @@ interface SubscriptionPlan {
   popular?: boolean;
 }
 
+interface VendorSubscription {
+  subscriptionId: {
+    packageLimit: number;
+  };
+  status: string;
+}
+
 export default function VendorSubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionPlan[]>([]);
   const [usedSlots, setUsedSlots] = useState(0);
-  const [totalFreeSlots] = useState(3);
+  const [totalAvailableSlots, setTotalAvailableSlots] = useState(3); // Default free slots
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,28 +58,47 @@ export default function VendorSubscriptionPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-  try {
-    setLoading(true);
-    setError(null);
+      try {
+        setLoading(true);
+        setError(null);
 
-    const [subData, packagesData] = await Promise.all([
-      getSubscriptions(),
-      fetchAllPackages(1, 100),
-    ]);
+        const [subData, packagesData] = await Promise.all([
+          getSubscriptions(),
+          fetchAllPackages(1, 100),
+        ]);
 
-    console.log("Subscription Data:", subData);
-    console.log("Packages Data:", packagesData);
+        console.log("Subscription Data:", subData);
+        console.log("Packages Data:", packagesData);
 
-    // ✅ FIX: Extract the array from the response object
-    setSubscriptions(subData.data || []);
-    setUsedSlots(packagesData.packages?.length || 0);
-  } catch (err) {
-    console.error("Error fetching data:", err);
-    setError(err instanceof Error ? err.message : "Failed to load data");
-  } finally {
-    setLoading(false);
-  }
-};
+        // Set all subscription plans
+        setSubscriptions(subData.data || []);
+        
+        // Set used slots from packages
+        setUsedSlots(packagesData.packages?.length || 0);
+
+        // Calculate total available slots
+        // Check if vendor has an active subscription
+        if (subData.vendorSubscription) {
+          const activeSubscription = subData.vendorSubscription as VendorSubscription;
+          if (activeSubscription.status === 'active' && activeSubscription.subscriptionId) {
+            // If active subscription exists, use its package limit + free slots
+            const subscriptionSlots = activeSubscription.subscriptionId.packageLimit || 0;
+            setTotalAvailableSlots(3 + subscriptionSlots); // 3 free + subscription slots
+          } else {
+            // Only free slots available
+            setTotalAvailableSlots(3);
+          }
+        } else {
+          // No subscription, only free slots
+          setTotalAvailableSlots(3);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchData();
 
@@ -84,14 +110,13 @@ export default function VendorSubscriptionPage() {
     setBookingTime(`${hours}:${minutes}`);
   }, []);
   
-  const remainingSlots = totalFreeSlots - usedSlots;
+  const remainingSlots = totalAvailableSlots - usedSlots;
   
   const handleBookPlan = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowBookingModal(true);
   };
   
-
   const handleProceedToPayment = async () => {
     if (!selectedPlan || !bookingDate || !bookingTime) {
       alert("Please fill in all booking details");
@@ -319,6 +344,17 @@ export default function VendorSubscriptionPage() {
                 </div>
               </div>
 
+              {/* Show total available slots info */}
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-100 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-600">Total Capacity:</span>
+                  <span className="text-lg font-black text-gray-900">{totalAvailableSlots} slots</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {totalAvailableSlots === 3 ? "Free tier (3 slots)" : `3 free slots + ${totalAvailableSlots - 3} subscription slots`}
+                </p>
+              </div>
+
               {remainingSlots <= 0 && (
                 <div className="relative overflow-hidden p-5 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-200 rounded-2xl shadow-md">
                   <div className="flex items-start gap-3">
@@ -328,7 +364,7 @@ export default function VendorSubscriptionPage() {
                         🚀 Upgrade Required
                       </p>
                       <p className="text-gray-600 text-sm font-medium">
-                        You've used all free slots. Upgrade now to continue growing your business!
+                        You've used all available slots. Upgrade now to continue growing your business!
                       </p>
                     </div>
                   </div>
@@ -337,7 +373,7 @@ export default function VendorSubscriptionPage() {
             </div>
 
             <div className="flex justify-center">
-              <CircularProgress value={usedSlots} total={totalFreeSlots} />
+              <CircularProgress value={usedSlots} total={totalAvailableSlots} />
             </div>
           </div>
         </div>
@@ -471,7 +507,6 @@ export default function VendorSubscriptionPage() {
               ))}
             </div>
 
-            {/* Load More / Show Less Button */}
             {subscriptions.length > 3 && (
               <div className="flex justify-center mt-10">
                 {!showingAll ? (

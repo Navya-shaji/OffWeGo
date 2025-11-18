@@ -15,8 +15,14 @@ export const mapToBuddyTravelDto = (obj: BuddyTravel): BuddyTravelDto => ({
   status: obj.status,
   vendorId: obj.vendorId,
   isApproved: obj.isApproved,
+
+  itinerary: obj.itinerary || [],
+
+  hotels: obj.hotels || [],
+
+  activities: obj.activities || []
 });
 
 export const mapToBuddyTravelDtoArray = (objs: BuddyTravel[]): BuddyTravelDto[] => {
-  return objs.map(obj => mapToBuddyTravelDto(obj));
+  return objs.map((obj) => mapToBuddyTravelDto(obj));
 };
