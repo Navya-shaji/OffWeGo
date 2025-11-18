@@ -10,7 +10,7 @@ import {
   Plus,
   Building2,
   Activity as ActivityIcon,
-  Calendar,
+
   BookOpen,
   Wallet,
 } from "lucide-react";
@@ -29,6 +29,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
 
   const menuItems = [
+    { icon: Package, label: "Dashboard" }, 
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
@@ -43,6 +44,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       </div>
 
       <nav className="mt-6">
+        
         {menuItems.map((item, index) => (
           <button
             key={index}

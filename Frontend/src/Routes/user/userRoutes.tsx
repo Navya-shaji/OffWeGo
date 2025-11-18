@@ -8,7 +8,7 @@ import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
 import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
-import  PackageTimeline from "@/pages/User/Destination/packageTimeline";
+import  {PackageTimeline} from "@/pages/User/Destination/packageTimeline";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";

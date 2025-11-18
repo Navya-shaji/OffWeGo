@@ -21,6 +21,7 @@ import {TravelCalendar} from "./Bookings/TravelCalendar";
 import AddBuddyTravelPage from "./BuddyTravel/Buddytravel-create";
 import VendorApprovedPackages from "./BuddyTravel/BuddyPackage-table";
 import VendorWalletManagement from "./Wallet/vendorWallet";
+import VendorDashboard from "./Dashboard/VendorDashboard";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -54,6 +55,7 @@ console.log(vendorId,"ve")
           {activeTab == "Create Flight" && <CreateFlight />}
           {activeTab == "All Flights" && <GetAllFlight />}
           {activeTab == "All Bookings" && <AllBookings />}
+          {activeTab == "Dashboard" && <VendorDashboard />}
           {activeTab == "VendorWalletManagement" && <VendorWalletManagement />}
           {activeTab == "Booking Slots" && <TravelCalendar vendorId={vendorId || ""} />}
         </div>
