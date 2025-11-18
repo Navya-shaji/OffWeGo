@@ -7,8 +7,7 @@ import {
   IndianRupee, 
   Users, 
   Tag, 
-  Eye,
-  Clock,
+ 
   CheckCircle,
   Search,
   ChevronLeft,
@@ -427,59 +426,51 @@ const VendorApprovedPackages: React.FC = () => {
                 return (
                   <div
                     key={pkg._id}
-                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-purple-200"
+                    className="bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-200"
                   >
-                    {/* Card Header */}
-                    <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-5 text-white relative overflow-hidden">
-                      <div className="absolute inset-0 bg-black opacity-10"></div>
-                      <div className="relative z-10">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="inline-flex items-center px-3 py-1 bg-white/30 backdrop-blur-md rounded-full text-xs font-bold">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            LIVE
-                          </div>
-                          <Clock className="w-4 h-4 opacity-75" />
+                    {/* Card Image/Illustration Area */}
+                    <div className="bg-gradient-to-br from-gray-100 via-gray-50 to-white p-8 relative overflow-hidden h-48">
+                      <div className="absolute inset-0 opacity-5">
+                        <svg viewBox="0 0 200 200" className="w-full h-full">
+                          <circle cx="100" cy="100" r="80" fill="currentColor" className="text-gray-900"/>
+                        </svg>
+                      </div>
+                      <div className="relative z-10 flex flex-col justify-center items-center h-full">
+                        <MapPin className="w-16 h-16 text-gray-800 mb-3" />
+                        <div className="inline-flex items-center px-3 py-1 bg-gray-900 rounded-full text-xs font-bold text-white">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          LIVE
                         </div>
-                        <h3 className="text-xl font-bold line-clamp-2 mb-1">{pkg.title}</h3>
-                        <p className="text-white/80 text-xs">{getTimeAgo(pkg.updatedAt)}</p>
                       </div>
                     </div>
 
                     {/* Card Body */}
-                    <div className="p-5">
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                    <div className="p-6">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2 line-clamp-2">{pkg.title}</h3>
+                      <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">
                         {pkg.description}
                       </p>
 
                       {/* Info Grid */}
-                      <div className="space-y-3 mb-4">
-                        <div className="flex items-center text-sm">
-                          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                            <MapPin className="w-4 h-4 text-purple-600" />
-                          </div>
+                      <div className="space-y-3 mb-5">
+                        <div className="flex items-start text-sm">
+                          <MapPin className="w-4 h-4 text-gray-900 mr-2 mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <p className="text-xs text-gray-500 font-semibold">Destination</p>
-                            <p className="text-gray-900 font-bold truncate">{pkg.destination}</p>
+                            <p className="text-gray-900 font-semibold">{pkg.destination}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center text-sm">
-                          <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
-                            <Tag className="w-4 h-4 text-pink-600" />
-                          </div>
+                        <div className="flex items-start text-sm">
+                          <Tag className="w-4 h-4 text-gray-900 mr-2 mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <p className="text-xs text-gray-500 font-semibold">Category</p>
-                            <p className="text-gray-900 font-bold">{pkg.category}</p>
+                            <p className="text-gray-900 font-semibold">{pkg.category}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center text-sm">
-                          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                            <Calendar className="w-4 h-4 text-blue-600" />
-                          </div>
+                        <div className="flex items-start text-sm">
+                          <Calendar className="w-4 h-4 text-gray-900 mr-2 mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <p className="text-xs text-gray-500 font-semibold">Duration</p>
-                            <p className="text-gray-900 font-bold text-xs">
+                            <p className="text-gray-600 text-xs">
                               {formatDate(pkg.startDate)} - {formatDate(pkg.endDate)}
                             </p>
                           </div>
@@ -487,32 +478,26 @@ const VendorApprovedPackages: React.FC = () => {
                       </div>
 
                       {/* Price & Capacity */}
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-3 border border-emerald-200">
-                          <p className="text-xs text-emerald-700 font-semibold mb-1">Price</p>
-                          <p className="text-xl font-bold text-emerald-900">₹{pkg.price.toLocaleString()}</p>
+                      <div className="grid grid-cols-2 gap-3 mb-5">
+                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                          <p className="text-xs text-gray-500 mb-1">Price</p>
+                          <p className="text-lg font-bold text-gray-900">₹{pkg.price.toLocaleString()}</p>
                         </div>
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-200">
-                          <p className="text-xs text-blue-700 font-semibold mb-1">Capacity</p>
-                          <p className="text-xl font-bold text-blue-900">{pkg.joinedUsers.length}/{pkg.maxPeople}</p>
+                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                          <p className="text-xs text-gray-500 mb-1">Capacity</p>
+                          <p className="text-lg font-bold text-gray-900">{pkg.joinedUsers.length}/{pkg.maxPeople}</p>
                         </div>
                       </div>
 
                       {/* Occupancy Bar */}
-                      <div className="mb-4">
+                      <div className="mb-5">
                         <div className="flex justify-between text-xs font-semibold mb-2">
                           <span className="text-gray-600">Occupancy</span>
-                          <span className={occupancyRate >= 80 ? 'text-green-600' : occupancyRate >= 50 ? 'text-yellow-600' : 'text-gray-600'}>
-                            {occupancyRate.toFixed(0)}%
-                          </span>
+                          <span className="text-gray-900">{occupancyRate.toFixed(0)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                           <div 
-                            className={`h-2 rounded-full transition-all ${
-                              occupancyRate >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
-                              occupancyRate >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 
-                              'bg-gradient-to-r from-gray-400 to-gray-500'
-                            }`}
+                            className="h-2 rounded-full transition-all bg-gray-900"
                             style={{ width: `${occupancyRate}%` }}
                           ></div>
                         </div>
@@ -524,10 +509,12 @@ const VendorApprovedPackages: React.FC = () => {
                           setSelectedPackage(pkg);
                           setShowModal(true);
                         }}
-                        className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition shadow-lg hover:shadow-xl"
+                        className="w-full flex items-center justify-center px-4 py-3 bg-gray-900 text-white font-semibold rounded-2xl hover:bg-gray-800 transition shadow-md hover:shadow-lg group"
                       >
-                        <Eye className="w-5 h-5 mr-2" />
-                        View Full Details
+                        <span>Let's Go!</span>
+                        <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
                       </button>
                     </div>
                   </div>

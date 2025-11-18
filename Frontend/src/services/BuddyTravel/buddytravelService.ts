@@ -18,17 +18,17 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
       description: data.description,
       category: data.category,
       destination: data.destination,
+
       startDate: new Date(data.startDate).toISOString(),
       endDate: new Date(data.endDate).toISOString(),
-      price:
-        typeof data.price === "number"
-          ? data.price
-          : parseFloat(String(data.price)),
-      maxPeople:
-        typeof data.maxPeople === "number"
-          ? data.maxPeople
-          : parseInt(String(data.maxPeople), 10),
+
+      price: Number(data.price),
+      maxPeople: Number(data.maxPeople),
       joinedUsers: data.joinedUsers || [],
+
+      itinerary: data.itinerary || [],
+      hotels: data.hotels || [],
+      activities: data.activities || [],
     };
 
     const res = await axiosInstance.post(
@@ -38,20 +38,17 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
 
     return res.data?.buddyTravel || res.data;
   } catch (error) {
-    console.error("Error adding buddy travel:", error);
-
     if (isAxiosError(error)) {
-      const msg =
+      throw new Error(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Failed to add buddy travel";
-      throw new Error(msg);
+        "Failed to add buddy travel"
+      );
     }
 
-    throw new Error("You free Limit is over Subscribe Now");
+    throw new Error("Subscription limit exceeded");
   }
 };
+
 
 export const updateBuddyPackageStatus = async (
   buddyId: string,
