@@ -3,7 +3,7 @@ import { IPasswordService } from "../../../domain/interface/ServiceInterface/Iha
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 import { IAdminRepository } from "../../../domain/interface/Admin/IAdminRepository";
-import { mapToAdmin } from "../../../mappers/Admin/AdminMapper";
+import { mapToAdmin } from "../../../mappers/Admin/AdminMapper"; 
 import { AdminResponseDto } from "../../../domain/dto/User/AdminResponseDto";
 
 export class AdminLoginuseCase implements IAdminLoginUseCase {

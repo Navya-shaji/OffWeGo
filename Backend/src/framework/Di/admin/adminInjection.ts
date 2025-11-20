@@ -17,14 +17,13 @@ import { DestinationRepository } from "../../../adapters/repository/Destination/
 import { EditDestination } from "../../../useCases/destination/editDestinationUsecase";
 import { UpdateVendorUsecase } from "../../../useCases/admin/vendor/updateVendorUsecase";
 import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
-import { CreateCatogoryController } from "../../../adapters/controller/Category/CategoryController";
 import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
 import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
 import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";
 import { BannerRepository } from "../../../adapters/repository/Banner/BannerRepository";
 import { GetAllBanners } from "../../../useCases/banner/getAllBannerUsecase";
 import { AdminUserController } from "../../../adapters/controller/Admin/AdminUserController";
-import { Bannercontroller } from "../../../adapters/controller/Banner/BannerController";
+import { BannerController } from "../../../adapters/controller/Banner/BannerController";
 import { DestinationController } from "../../../adapters/controller/Destination/DestinationController";
 import { GetDestination } from "../../../useCases/destination/getDestinationDetailUsecase";
 import { DeleteDestination } from "../../../useCases/destination/deleteDestinationUsecase"; 
@@ -32,7 +31,6 @@ import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
 import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
-import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/SubscriptionPlanController";
 import { createSubscriptionusecase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
@@ -43,6 +41,8 @@ import { SearchCategoryUsecase } from "../../../useCases/category/searchcategory
 import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecase";
 import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
 import { DeleteSubscriptionUsecase } from "../../../useCases/subscription/DeleteSubscriptionusecase";
+import { CreateCategoryController } from "../../../adapters/controller/Category/CategoryController";
+import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
 
 // Repositories
 const adminRepository = new AdminRepository();
@@ -102,7 +102,7 @@ export const destinationController = new DestinationController(
   deleteDestinationusecase,
   searchdestinationusecase
 )
-export const categoryController=new CreateCatogoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
-export const bannerController=new Bannercontroller(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
+export const categoryController=new CreateCategoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
+export const bannerController=new BannerController(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
 export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,subscriptioneditusecase,deletesubscriptionusecase)
 

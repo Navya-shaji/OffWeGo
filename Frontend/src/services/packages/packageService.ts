@@ -10,11 +10,11 @@ export const addPackage = async (data: Package) => {
     const state = store.getState();
     const vendorId = state.vendorAuth?.vendor?.id;
     console.log("Vendor ID:", vendorId);
-
     const payload = {
       ...data,
-      price: data.price,
       vendorId,
+      hotels: (data.hotels || []).map((h) => h.hotelId),
+      activities: (data.activities || []).map((a) => a.id),
       flightOption: data.flightOption,
     };
 
@@ -24,10 +24,10 @@ export const addPackage = async (data: Package) => {
 
     console.log("Server response:", res.data);
 
-    return res.data.package;
+    return res.data.packages;
   } catch (error) {
     console.error("Catch block error:", error);
-
+    console.log("error vanneeee");
     if (isAxiosError(error)) {
       const msg =
         error.response?.data?.message ||

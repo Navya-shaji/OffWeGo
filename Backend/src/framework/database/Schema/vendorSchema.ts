@@ -27,11 +27,18 @@ export const vendorSchema = new Schema(
       type: Boolean,
       default: false,
     },
-
-  
     isBlocked: {
       type: Boolean,
       default: false,
+    },
+
+    packageLimit: {
+      type: Number,
+      default: 0, 
+    },
+    currentPackages: {
+      type: Number,
+      default: 0, 
     },
   },
   {

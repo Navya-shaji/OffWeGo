@@ -16,65 +16,95 @@ export class ActivityController {
   ) {}
 
   async createActivities(req: Request, res: Response) {
-    const destinationId = req.params.id;
-    const ActivityData = req.body;
-    const result = await this._creatActivity.execute(ActivityData,destinationId);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: result,
-      message: "Activity created successfully",
-    });
-  }
-  async getAllActivities(req: Request, res: Response) {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-    const result = await this._getallActivities.execute(page, limit);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: result,
-      message: "Activities fetched successfully",
-    });
-  }
-  async editActivities(req: Request, res: Response) {
-    const activityId = req.params.id;
-    const activityData = req.body;
-
-    const result = await this._editActivity.execute(activityId, activityData);
-
-    return res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Activity updated successfully",
-      data: result,
-    });
-  }
-  async deleteActivity(req: Request, res: Response) {
-    const { id } = req.params;
-
-    const result = await this._deleteActivity.execute(id);
-
-    return res.status(HttpStatus.OK).json(result);
-  }
-  async SearchActivity(req: Request, res: Response) {
-    const query = req.query.q;
-
-    if (typeof query !== "string" || !query.trim()) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        message: "The query must be a string",
+    try {
+      const destinationId = req.params.id;
+      const activityData = req.body;
+      const result = await this._creatActivity.execute(activityData, destinationId);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Activity created successfully",
       });
-      return;
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
+  }
 
-    const result = await this._searchActivity.execute(query);
+  async getAllActivities(req: Request, res: Response) {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const result = await this._getallActivities.execute(page, limit);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Activities fetched successfully",
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      data: {
-        activities: result,
-        totalPages: 1,
-        totalActivities: result.length,
-        currentPage: 1,
-      },
-    });
+  async editActivities(req: Request, res: Response) {
+    try {
+      const activityId = req.params.id;
+      const activityData = req.body;
+      const result = await this._editActivity.execute(activityId, activityData);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Activity updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async deleteActivity(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const result = await this._deleteActivity.execute(id);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: "Activity deleted successfully",
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async SearchActivity(req: Request, res: Response) {
+    try {
+      const query = req.query.q as string;
+      const result = await this._searchActivity.execute(query);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: {
+          activities: result,
+          totalPages: 1,
+          totalActivities: result.length,
+          currentPage: 1,
+        },
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
 }

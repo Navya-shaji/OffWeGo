@@ -2,12 +2,14 @@ import { Role } from "../../domain/constants/Roles";
 import { WalletDto } from "../../domain/dto/Wallet/WalletDto";
 import { ICreateWalletUsecase } from "../../domain/interface/Wallet/ICreateUserWalletUsecase";
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
+import { mapToWalletDto } from "../../mappers/Wallet/mapToWallet";
 
 export class CreateAdminWalletUsecase implements ICreateWalletUsecase {
-  constructor(private _walleRepo: IWalletRepository) {}
+  constructor(private _walletRepo: IWalletRepository) {}
 
   async execute(ownerId: string, ownerType: string): Promise<WalletDto> {
-    const existing = await this._walleRepo.findByOwnerId(ownerId);
+
+    const existing = await this._walletRepo.findByOwnerId(ownerId);
     if (existing) return existing;
 
     const newWallet: WalletDto = {
@@ -16,6 +18,7 @@ export class CreateAdminWalletUsecase implements ICreateWalletUsecase {
       balance: 0,
       transactions: [],
     };
-    return this._walleRepo.createWallet(newWallet);
+    const createdWallet = await this._walletRepo.createWallet(newWallet);
+    return mapToWalletDto(createdWallet);
   }
 }

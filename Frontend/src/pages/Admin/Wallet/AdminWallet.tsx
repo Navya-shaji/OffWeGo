@@ -6,15 +6,19 @@ import {
   TrendingUp, 
   Users,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  ArrowRight
 } from 'lucide-react';
-import { getWallet } from '@/services/Wallet/AdminWalletService';
+import { getWallet, transferWalletAmount } from '@/services/Wallet/AdminWalletService';
+import { toast } from 'react-hot-toast';
 
 export default function AdminWalletManagement() {
   const Admin = useSelector((state: RootState) => state.adminAuth.admin);
+  console.log(Admin,"id")
   const [adminWallet, setAdminWallet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [transferring, setTransferring] = useState<string | null>(null);
 
   useEffect(() => {
     if (Admin?.id) {
@@ -35,7 +39,39 @@ export default function AdminWalletManagement() {
     }
   };
 
-  const formatCurrency = (amount) => {
+  const handleTransferToVendor = async (transaction: any) => {
+    if (!transaction.vendorId) {
+      toast.error('Vendor information not found');
+      return;
+    }
+
+    // Calculate 90% of the transaction amount
+    const transferAmount = Math.floor(transaction.amount * 0.9);
+
+    try {
+      setTransferring(transaction._id);
+      
+      const result = await transferWalletAmount(
+        Admin.id,
+        transaction.vendorId,
+        transferAmount,
+        transaction.bookingId,
+        transaction._id
+      );
+console.log(result,"res")
+      if (result.success) {
+        toast.success(`Successfully transferred ${formatCurrency(transferAmount)} to vendor`);
+        // Refresh wallet data
+        await fetchData();
+      }
+    } catch (err) {
+      toast.error(err.message || 'Failed to transfer amount');
+    } finally {
+      setTransferring(null);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -56,6 +92,15 @@ export default function AdminWalletManagement() {
     };
   };
 
+  const isPackageCompleted = (transaction: any) => {
+    // Check if transaction has endDate and if it's past current date
+    if (!transaction.endDate) return false;
+    
+    const endDate = new Date(transaction.endDate);
+    const today = new Date();
+    return today > endDate;
+  };
+
   const stats = calculateStats();
 
   if (loading) {
@@ -68,20 +113,17 @@ export default function AdminWalletManagement() {
       </div>
     );
   }
-console.log(adminWallet,"hjkh")
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
-     
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-800 flex items-center gap-3">
-          
             Admin Wallet Management
           </h1>
-          <p className="text-slate-600 mt-2">View wallet information</p>
+          <p className="text-slate-600 mt-2">View wallet information and transfer funds to vendors</p>
         </div>
 
- 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
             <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
@@ -94,7 +136,7 @@ console.log(adminWallet,"hjkh")
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-<div className="bg-gradient-to-br from-black via-gray-900 to-black rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-br from-black via-gray-900 to-black rounded-xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between mb-2">
               <span className="text-blue-100">Admin Balance</span>
               <Wallet size={24} />
@@ -125,14 +167,19 @@ console.log(adminWallet,"hjkh")
         {/* Transactions */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h3 className="text-xl font-semibold text-slate-800 mb-4">Recent Transactions</h3>
-          {adminWallet?.transactions?.length === 0 ? (
-            <p className="text-center text-slate-500 py-8">No transactions yet</p>
-          ) : (
-            <div className="space-y-2">
-              {adminWallet?.transactions?.slice(0, 10).map((tx, idx) => (
+          <div className="space-y-3">
+            {adminWallet?.transactions?.slice(0, 10).map((tx, idx) => {
+              const isCompleted = isPackageCompleted(tx);
+              const isUserPayment = tx.description?.toLowerCase().includes("user") || 
+                                   tx.description?.toLowerCase().includes("booking") ||
+                                   tx.description?.toLowerCase().includes("package");
+              const canTransfer = isCompleted && isUserPayment && tx.type === 'credit' && !tx.transferred;
+              const transferAmount = Math.floor(tx.amount * 0.9);
+
+              return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-4 bg-slate-50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -148,21 +195,66 @@ console.log(adminWallet,"hjkh")
                       <p className="font-medium text-slate-800">{tx.description}</p>
                       <p className="text-sm text-slate-500">
                         {new Date(tx.date).toLocaleDateString()}
+                        {tx.endDate && (
+                          <span className="ml-2">
+                            • End: {new Date(tx.endDate).toLocaleDateString()}
+                          </span>
+                        )}
                       </p>
+                      {canTransfer && (
+                        <p className="text-xs text-green-600 mt-1">
+                          90% ({formatCurrency(transferAmount)}) ready to transfer
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <p
-                    className={`font-bold text-lg ${
-                      tx.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {tx.type === 'credit' ? '+' : '-'}
-                    {formatCurrency(tx.amount)}
-                  </p>
+
+                  <div className="flex items-center gap-4">
+                    <p
+                      className={`font-bold text-lg ${
+                        tx.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                      }`}
+                    >
+                      {tx.type === 'credit' ? '+' : '-'}
+                      {formatCurrency(tx.amount)}
+                    </p>
+
+                    {canTransfer && (
+                      <button
+                        onClick={() => handleTransferToVendor(tx)}
+                        disabled={transferring === tx._id}
+                        className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {transferring === tx._id ? (
+                          <>
+                            <RefreshCw className="animate-spin" size={16} />
+                            Transferring...
+                          </>
+                        ) : (
+                          <>
+                            Transfer to Vendor
+                            <ArrowRight size={16} />
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    {tx.transferred && (
+                      <span className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+                        Transferred
+                      </span>
+                    )}
+
+                    {isUserPayment && !isCompleted && tx.type === 'credit' && (
+                      <span className="px-3 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded-full">
+                        Package Active
+                      </span>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

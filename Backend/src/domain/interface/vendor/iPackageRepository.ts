@@ -18,6 +18,7 @@ export interface IPackageRepository {
   delete(id: string): Promise<IPackageModel | null>;
 
   searchPackage(query: string): Promise<Package[]>;
+  countPackagesByVendor(vendorId: string): Promise<number>;
 
   countPackages(): Promise<number>;
 
@@ -26,4 +27,5 @@ export interface IPackageRepository {
     skip: number,
     limit: number
   ): Promise<{ packages: IPackageModel[]; totalPackages: number }>;
+  
 }

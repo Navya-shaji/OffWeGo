@@ -8,7 +8,6 @@ import { DestinationModel } from "../../../framework/database/Models/deestinatio
 import { IGetDestinationBasedPackage } from "../../../domain/interface/Vendor/IGetDestinationBasedPackage";
 import { IGetPackagesUsecase } from "../../../domain/interface/Vendor/IGetAllPackageUsecase";
 import { Role } from "../../../domain/constants/Roles";
-// import { Hotel } from "../../../domain/entities/HotelEntity";
 
 export class PackageController {
   constructor(
@@ -19,67 +18,83 @@ export class PackageController {
     private _searchPackage: ISearchPackageUsecase,
     private _getPackageByDestination: IGetDestinationBasedPackage
   ) {}
-async getAllPackage(req: Request, res: Response) {
-  const page = parseInt(req.body.params?.page) || 1;
-  const limit = parseInt(req.body.params?.limit) || 3;
-  const vendorId = req.body.vendorId;
 
-  if (!vendorId) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ success: false, message: "Vendor not authenticated" });
-  }
-
-  const result = await this._getPackage.execute({
-    vendorId,
-    limit,
-    page,
-    role: Role.VENDOR
-  });
-console.log(result)
-  res.status(HttpStatus.OK).json({
-    success: true,
-    packages: result.packages,
-    totalPackages: result.totalPackages,
-    
-  });
-}
-
-
-  async getPackagesForUser(req: Request, res: Response) {
-    const destinationId = req.params.id;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 3;
-    if (!destinationId) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Destination required" });
-    }
-    const skip = (page - 1) * limit;
-    const result = await this._getPackageByDestination.execute(
-      destinationId,
-      skip,
-      limit
-    );
-    res.status(HttpStatus.OK).json({
-      success: true,
-      packages: result.packages,
-      totalPackages: result.totalPackages,
-      currentPage: page,
-      totalPages: Math.ceil(result.totalPackages / limit),
-    });
-  }
-
-  async addPackage(req: Request, res: Response) {
+  async getAllPackage(req: Request, res: Response) {
     try {
+      const page = parseInt(req.body.params?.page) || 1;
+      const limit = parseInt(req.body.params?.limit) || 3;
       const vendorId = req.body.vendorId;
+
       if (!vendorId) {
         return res
           .status(HttpStatus.UNAUTHORIZED)
           .json({ success: false, message: "Vendor not authenticated" });
       }
 
+      const result = await this._getPackage.execute({
+        vendorId,
+        limit,
+        page,
+        role: Role.VENDOR,
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        packages: result.packages,
+        totalPackages: result.totalPackages,
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
+  }
+
+  async getPackagesForUser(req: Request, res: Response) {
+    try {
+      const destinationId = req.params.id;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 3;
+
+      if (!destinationId) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Destination required" });
+      }
+
+      const skip = (page - 1) * limit;
+      const result = await this._getPackageByDestination.execute(
+        destinationId,
+        skip,
+        limit
+      );
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        packages: result.packages,
+        totalPackages: result.totalPackages,
+        currentPage: page,
+        totalPages: Math.ceil(result.totalPackages / limit),
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
+  }
+
+  async addPackage(req: Request, res: Response) {
+    try {
+      const vendorId = req.body.vendorId;
       const packageData = req.body;
+
+      if (!vendorId) {
+        return res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: "Vendor not authenticated" });
+      }
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
@@ -92,12 +107,6 @@ console.log(result)
 
       packageData.destinationId = destination._id;
 
-      // packageData.hotels =
-      //   packageData.hotels?.map((hotel: Hotel) => hotel.hotelId) || [];
-      // packageData.activities =
-      //   packageData.activities?.map((act: any) => act.activityId || act?.id) ||
-      //   [];
-
       const createdPackage = await this._createPackage.execute(
         packageData,
         vendorId
@@ -109,43 +118,71 @@ console.log(result)
         totalPackages: 1,
       });
     } catch (err) {
-      console.error(" Error creating package:", err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to create package",
+        message: (err as Error).message || "Failed to create package",
       });
     }
   }
 
   async EditPackage(req: Request, res: Response) {
-    const packageId = req.params.id;
-    const packageData = req.body;
-    const result = await this._editpackage.execute(packageId, packageData);
-    res
-      .status(HttpStatus.OK)
-      .json({ success: true, packages: [result], totalPackages: 1 });
+    try {
+      const packageId = req.params.id;
+      const packageData = req.body;
+      const result = await this._editpackage.execute(packageId, packageData);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        packages: [result],
+        totalPackages: 1,
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
   }
 
   async deletePackage(req: Request, res: Response) {
-    const { id } = req.params;
-    const result = await this._deletepackage.execute(id);
-    res
-      .status(HttpStatus.OK)
-      .json({ success: true, packages: [result], totalPackages: 1 });
+    try {
+      const { id } = req.params;
+      const result = await this._deletepackage.execute(id);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        packages: [result],
+        totalPackages: 1,
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
   }
 
   async searchPackage(req: Request, res: Response) {
-    const query = req.query.q;
-    if (typeof query !== "string" || !query.trim()) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Query must be a string" });
+    try {
+      const query = req.query.q;
+      if (typeof query !== "string" || !query.trim()) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Query must be a string" });
+      }
+
+      const results = await this._searchPackage.execute(query);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        packages: results,
+        totalPackages: results.length,
+      });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
     }
-    const results = await this._searchPackage.execute(query);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      packages: results,
-      totalPackages: results.length,
-    });
   }
 }

@@ -91,17 +91,7 @@ const AdminLayout = () => {
             {activeTab === "All Subscriptions" && <SubscriptionList />}
             {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
 
-            {activeTab === "Buddy Packages" && (
-              <IncomingBuddyRequests/>
-            )}
-
-            {/* {activeTab === "Approved Buddy Packages" && (
-              <IncomingBuddyRequests filter="approved" />
-            )}
-
-            {activeTab === "Rejected Buddy Packages" && (
-              <IncomingBuddyRequests filter="rejected" />
-            )} */}
+            {activeTab === "Buddy Packages" && <IncomingBuddyRequests />}
           </div>
         </div>
       </div>

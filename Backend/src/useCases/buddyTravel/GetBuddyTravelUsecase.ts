@@ -10,7 +10,7 @@ export class GetBuddyTravelUsecase implements IBuddyPackageApprovalUsecase {
     buddyId?: string,
     status?: string
   ): Promise<BuddyTravelDto[] | BuddyTravelDto | null> {
-    console.log(status)
+    console.log(status);
     if (!action) {
       throw new Error("Action is required");
     }
@@ -22,11 +22,11 @@ export class GetBuddyTravelUsecase implements IBuddyPackageApprovalUsecase {
     }
 
     if (normalizedAction === "approved") {
-    return await this._buddyRepo.findByStatus("APPROVED");
+      return await this._buddyRepo.findByStatus("APPROVED");
     }
 
     if (normalizedAction === "reject") {
- return await this._buddyRepo.findByStatus("REJECTED");
+      return await this._buddyRepo.findByStatus("REJECTED");
     }
 
     throw new Error(`Invalid action type: ${action}`);

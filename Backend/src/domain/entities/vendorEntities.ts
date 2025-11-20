@@ -7,15 +7,21 @@ export interface Vendor {
   profileImage?: string;
   documentUrl: string;
   createdAt?: Date;
-  status?: "pending" | "approved" | "rejected";
+  status?: "pending" | "approved" | "rejected" | "active";
   role?: "Vendor";
   lastLogin?: Date;
   isAdmin?: boolean;
   googleVerified?: boolean;
   isBlocked?: boolean;
+
+
   subscription?: {
-    plan: string;
+    plan: string; 
     subscribedAt: Date;
     expiresAt: Date;
+    maxPackages: number;
   };
+
+  packageLimit?: number;     
+  currentPackages?: number;     
 }

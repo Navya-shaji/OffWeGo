@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Users, Building2, MapPin, CreditCard, TrendingUp, Activity, BarChart3, PieChart } from "lucide-react";
+import { Users, Building2, MapPin, CreditCard,  Activity, BarChart3, PieChart } from "lucide-react";
 import {  PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { getAllUsers } from "@/services/admin/adminUserService";
 import { getAllVendors } from "@/services/admin/adminVendorService";

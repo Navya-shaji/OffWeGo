@@ -8,6 +8,8 @@ import {
   paymentcontroller,
   reviewcontroller,
   walletcontroller,
+  notificationcontroller,
+  chatcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -16,7 +18,10 @@ import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/Toke
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
-import { buddyTravelcontroller, packagecontroller } from "../../Di/Vendor/VendorInjections";
+import {
+  buddyTravelcontroller,
+  packagecontroller,
+} from "../../Di/Vendor/VendorInjections";
 const TokenService = new JwtService();
 
 export class UserRoute {
@@ -103,6 +108,7 @@ export class UserRoute {
     );
     this.userRouter.patch(
       UserRoutes.EDIT_PROFILE,
+      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         userprofileController.editProfileHandler(req, res);
       }
@@ -143,35 +149,53 @@ export class UserRoute {
         bookingcontroller.cancelBooking(req, res);
       }
     );
-   
+
     this.userRouter.post(
       UserRoutes.USER_WALLET,
-      (req:Request,res:Response)=>{
-        walletcontroller.createWallet(req,res)
+      (req: Request, res: Response) => {
+        walletcontroller.createWallet(req, res);
       }
-    )
-        this.userRouter.get(
+    );
+    this.userRouter.get(
       UserRoutes.GET_USER_WALLET,
+      (req: Request, res: Response) => {
+        walletcontroller.GetWallet(req, res);
+      }
+    );
+    this.userRouter.get(
+      UserRoutes.BUDDY_PACKAGES,
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.getAllbuddyPackages(req, res);
+      }
+    );
+    this.userRouter.post(
+      UserRoutes.JOIN_TRAVEL,
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.JoinBuddyTravel(req, res);
+      }
+    );
+    this.userRouter.post(
+      UserRoutes.BOOKING_BUDDYTRAVEL,
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.createBuddyBooking(req, res);
+      }
+    );
+    this.userRouter.post(
+      CommonRoutes.NOTIFICATIONS,
+      (req: Request, res: Response) => {
+        notificationcontroller.sendNotification(req, res);
+      }
+    );
+    this.userRouter.post(
+      CommonRoutes.CHAT,
       (req:Request,res:Response)=>{
-        walletcontroller.GetWallet(req,res)
+        chatcontroller.sendChat(req,res)
       }
     )
     this.userRouter.get(
-      UserRoutes.BUDDY_PACKAGES,
+      CommonRoutes.CHATS,
       (req:Request,res:Response)=>{
-        buddyTravelcontroller.getAllbuddyPackages(req,res)
-      }
-    )
-    this.userRouter.post(
-      UserRoutes.JOIN_TRAVEL,
-      (req:Request,res:Response)=>{
-        buddyTravelcontroller.JoinBuddyTravel(req,res)
-      }
-    )
-    this.userRouter.post(
-      UserRoutes.BOOKING_BUDDYTRAVEL,
-      (req:Request,res:Response)=>{
-        buddyTravelcontroller.createBuddyBooking(req,res)
+        chatcontroller.getChat(req,res)
       }
     )
   }

@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
+import { SubscriptionPlanDto } from "../../domain/dto/Subscription/createsubscriptionDto";
 import { ICreateSubscriptionPlanUseCase } from "../../domain/interface/SubscriptionPlan/ICreateUsecase";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 import { mapModelToSubscriptionDto } from "../../mappers/Subscription/mapDtoToSubscriptionModel";

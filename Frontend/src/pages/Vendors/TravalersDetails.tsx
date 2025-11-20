@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TravelerForm from "./TravlerForm";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import type { Traveler } from "@/interface/Boooking";
-import { Users, Baby, Mail, Phone, MapPin, Home, Ticket, CreditCard } from "lucide-react";
+import { Users, Baby, Mail, Phone, MapPin, Home, Ticket, CreditCard, ArrowLeft } from "lucide-react";
 
 export default function TravelerDetails() {
   const { state } = useLocation();
@@ -20,9 +20,9 @@ export default function TravelerDetails() {
   const [adultTravelers, setAdultTravelers] = useState<Traveler[]>([]);
   const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
   
-  // Add validation states
   const [isAdultFormValid, setIsAdultFormValid] = useState(false);
   const [isChildFormValid, setIsChildFormValid] = useState(false);
+  const [isStateLoaded, setIsStateLoaded] = useState(false);
 
   const [contactInfo, setContactInfo] = useState({
     email: "",
@@ -31,30 +31,123 @@ export default function TravelerDetails() {
     address: "",
   });
 
-  const basePrice = Number(selectedPackage?.price) || 0;
+  const totalPriceFromModal = state?.totalPrice || Number(selectedPackage?.price) || 0;
 
-  const flightPriceObj = selectedPackage?.flightPrice;
-  const selectedClass = "economy"; 
-  const flightClassPrice = typeof flightPriceObj === "object" 
-    ? flightPriceObj[selectedClass] || 0
-    : Number(flightPriceObj) || 0;
-
-  const packagePrice = basePrice + flightClassPrice;
-
-  const adultPrice = packagePrice;
+  const adultPrice = totalPriceFromModal;
   const childPrice = adultPrice * 0.8;
   const totalAmount = adultCount * adultPrice + childCount * childPrice;
+
+  // Load persisted state on mount
+  useEffect(() => {
+    if (selectedPackage?._id) {
+      const loadState = async () => {
+        try {
+          const storageKey = `traveler-details:${selectedPackage._id}`;
+          const result = await window.storage.get(storageKey);
+          
+          if (result?.value) {
+            const savedState = JSON.parse(result.value);
+            
+            if (savedState.adultCount !== undefined) {
+              setAdultCount(savedState.adultCount);
+            }
+            if (savedState.childCount !== undefined) {
+              setChildCount(savedState.childCount);
+            }
+            if (savedState.contactInfo) {
+              setContactInfo(savedState.contactInfo);
+            }
+            if (savedState.adultTravelers) {
+              setAdultTravelers(savedState.adultTravelers);
+            }
+            if (savedState.childTravelers) {
+              setChildTravelers(savedState.childTravelers);
+            }
+            if (savedState.isAdultFormValid !== undefined) {
+              setIsAdultFormValid(savedState.isAdultFormValid);
+            }
+            if (savedState.isChildFormValid !== undefined) {
+              setIsChildFormValid(savedState.isChildFormValid);
+            }
+          }
+        } catch (error) {
+          console.log('No saved traveler details found');
+        } finally {
+          setIsStateLoaded(true);
+        }
+      };
+      
+      loadState();
+    } else {
+      setIsStateLoaded(true);
+    }
+  }, [selectedPackage?._id]);
+
+// Load persisted state
+useEffect(() => {
+  if (selectedPackage?._id) {
+    const storageKey = `traveler-details:${selectedPackage._id}`;
+    const savedState = localStorage.getItem(storageKey);
+
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        if (parsed.adultCount !== undefined) setAdultCount(parsed.adultCount);
+        if (parsed.childCount !== undefined) setChildCount(parsed.childCount);
+        if (parsed.contactInfo) setContactInfo(parsed.contactInfo);
+        if (parsed.adultTravelers) setAdultTravelers(parsed.adultTravelers);
+        if (parsed.childTravelers) setChildTravelers(parsed.childTravelers);
+        if (parsed.isAdultFormValid !== undefined)
+          setIsAdultFormValid(parsed.isAdultFormValid);
+        if (parsed.isChildFormValid !== undefined)
+          setIsChildFormValid(parsed.isChildFormValid);
+      } catch (err) {
+        console.error("Error parsing saved traveler details:", err);
+      }
+    }
+
+    setIsStateLoaded(true);
+  } else {
+    setIsStateLoaded(true);
+  }
+}, [selectedPackage?._id]);
+
+// Save state on every change
+useEffect(() => {
+  if (selectedPackage?._id && isStateLoaded) {
+    const storageKey = `traveler-details:${selectedPackage._id}`;
+    const toSave = {
+      adultCount,
+      childCount,
+      contactInfo,
+      adultTravelers,
+      childTravelers,
+      isAdultFormValid,
+      isChildFormValid,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(toSave));
+  }
+}, [
+  selectedPackage?._id,
+  adultCount,
+  childCount,
+  contactInfo,
+  adultTravelers,
+  childTravelers,
+  isAdultFormValid,
+  isChildFormValid,
+  isStateLoaded,
+]);
+
 
   const updateCount = (type: "adult" | "child", change: number) => {
     if (type === "adult") {
       const newCount = Math.max(0, adultCount + change);
       setAdultCount(newCount);
-      // Reset validation when count changes
       if (change < 0) setIsAdultFormValid(newCount === 0);
     } else {
       const newCount = Math.max(0, childCount + change);
       setChildCount(newCount);
-      // Reset validation when count changes
       if (change < 0) setIsChildFormValid(newCount === 0);
     }
   };
@@ -66,7 +159,6 @@ export default function TravelerDetails() {
     });
   };
 
-  // Validate contact information
   const validateContactInfo = () => {
     const { email, mobile, city, address } = contactInfo;
     
@@ -105,7 +197,6 @@ export default function TravelerDetails() {
     return true;
   };
 
-  // Validate traveler forms based on count
   const validateTravelerForms = () => {
     if (adultCount > 0 && !isAdultFormValid) {
       toast.error("Please fill all adult traveler details correctly");
@@ -137,12 +228,10 @@ export default function TravelerDetails() {
       return;
     }
 
-    // Validate contact information
     if (!validateContactInfo()) {
       return;
     }
 
-    // Validate traveler forms
     if (!validateTravelerForms()) {
       return;
     }
@@ -178,6 +267,10 @@ export default function TravelerDetails() {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   const inputFields = [
     { name: "email", icon: Mail, type: "email", placeholder: "your.email@example.com" },
     { name: "mobile", icon: Phone, type: "tel", placeholder: "9876543210" },
@@ -185,7 +278,6 @@ export default function TravelerDetails() {
     { name: "address", icon: Home, type: "text", placeholder: "Complete address" },
   ];
 
-  // Check if we can proceed to payment
   const canProceedToPayment = 
     (adultCount > 0 || childCount > 0) &&
     (adultCount === 0 || isAdultFormValid) &&
@@ -199,6 +291,17 @@ export default function TravelerDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 hover:text-purple-600 font-medium"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Package
+          </button>
+        </div>
+
         <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Complete Your Booking
@@ -318,7 +421,6 @@ export default function TravelerDetails() {
               </div>
             </div>
 
-           
             <div className="p-8 lg:p-10 bg-white">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-gray-800 text-2xl font-bold flex items-center gap-2">
@@ -353,7 +455,6 @@ export default function TravelerDetails() {
                 )}
               </div>
 
-          
               <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-medium">Booking Summary</span>
@@ -381,7 +482,6 @@ export default function TravelerDetails() {
                 </div>
               </div>
 
-    
               <button
                 onClick={handleNext}
                 disabled={!canProceedToPayment}
@@ -394,7 +494,6 @@ export default function TravelerDetails() {
                 {canProceedToPayment ? "Proceed to Payment" : "Please Complete All Details"}
               </button>
 
-         
               <div className="mt-4 space-y-2 text-sm">
                 {adultCount > 0 && !isAdultFormValid && (
                   <p className="text-red-500 flex items-center gap-2">

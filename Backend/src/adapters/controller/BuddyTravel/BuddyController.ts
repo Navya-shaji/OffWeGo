@@ -21,9 +21,8 @@ export class BuddyTravelController {
 
   async createBuddyTravel(req: Request, res: Response) {
     try {
-      console.log(req.body);
+      
       const result = await this._createBuddyTravel.execute(req.body);
-
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: "Buddy travel package created successfully",
@@ -42,34 +41,8 @@ export class BuddyTravelController {
     try {
       const buddyId = req.params.id?.trim();
       const { status } = req.body;
-      console.log(status);
-      if (!buddyId) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Buddy travel ID is required",
-        });
-        return;
-      }
-
-      if (!["approve", "reject"].includes(status)) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Invalid status. Must be 'approve' or 'reject'.",
-        });
-        return;
-      }
-
       const result = await this._updateTravelUsecase.execute(status, buddyId);
-
-      if (!result) {
-        res.status(HttpStatus.NOT_FOUND).json({
-          success: false,
-          message: "Buddy travel not found",
-        });
-        return;
-      }
-
-      res.status(HttpStatus.OK).json({
+     res.status(HttpStatus.OK).json({
         success: true,
         message:
           status === "approve"

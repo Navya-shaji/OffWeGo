@@ -1,7 +1,6 @@
 import { BuddyTravel } from "../../domain/entities/BuddyTripEntity";
 import { IBuddyTravelModel } from "../../framework/database/Models/BuddyTravelModel";
 
-
 export const mapToBuddyTravelDto = (doc: IBuddyTravelModel): BuddyTravel => ({
   id: doc._id.toString(),
   title: doc.title,
@@ -15,5 +14,6 @@ export const mapToBuddyTravelDto = (doc: IBuddyTravelModel): BuddyTravel => ({
   category: doc.category,
   status: doc.status,
   vendorId: doc.vendorId,
-  isApproved:doc.isApproved
+  isApproved: doc.isApproved,
+  itinerary: doc.itinerary || [],
 });

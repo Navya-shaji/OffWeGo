@@ -8,7 +8,7 @@ import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
 import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
-import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
+import  {PackageTimeline} from "@/pages/User/Destination/packageTimeline";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
@@ -52,7 +52,7 @@ const UserRoute = () => {
       <Route path="/payment-checkout" element={<PaymentCheckout />} />
       <Route path="/booking-success" element={<BookingSuccess />} />
       <Route path="/bookings" element={<BookingDetailsPage />} />
-      <Route path="/create-review" element={<UserAddReview />} />
+      <Route path="/review" element={<UserAddReview />} />
       <Route path="/contact" element={<ExpandedContactUsPage />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/wallet" element={<WalletManagement />} />

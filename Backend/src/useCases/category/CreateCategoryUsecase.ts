@@ -1,7 +1,7 @@
 import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
 import { CreateCategoryDto } from "../../domain/dto/Admin/CategoryDto";
 import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
-import { CategoryDto } from "../../domain/dto/category/CategoryDto";
+import { CategoryDto } from "../../domain/dto/category/categoryDto";
 
 export class CreateCategory {
   constructor(private _categoryRepo: ICategoryRepository) {}

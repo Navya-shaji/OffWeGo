@@ -74,6 +74,7 @@ const buddyRepo=new BuddyTravelRepository()
 const walletRepo=new WalletRepository()
 const stripeservice=new StripeService()
 const bookingRepo=new BookingRepository()
+const subscriptionBookingRepo=new SubscriptionBookingRepository()
 
 
 
@@ -83,7 +84,7 @@ const vendorVerifyOtpUseCase = new verifyOtpUsecase(otpService,);
 const vendorStatusUseCase = new VendorStatusCheckUseCase(vendorRepository);
 const vendorloginusecase=new VendorLoginUsecase(vendorRepository,hashPassword,jwtService);
 const vendorProfileusecase=new VendorProfileUsecase(vendorRepository);
-const createPackageUsecase=new CreatePackagesUseCase(packageRepo);
+const createPackageUsecase=new CreatePackagesUseCase(packageRepo,subscriptionBookingRepo);
 const editpackage=new EditPackage()
 const deletepackage=new DeletePackage(packageRepo)
 const editvendorProfile=new EditVendorProfile()
@@ -105,13 +106,13 @@ const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
 const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase(subscriptionRepo,subscriptionplanRepo,walletRepo,stripeservice)
-const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo)
+const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo,packageRepo)
 const adminPackageApprovalusecase=new BuddyTravalAdminApprovalUsecase(buddyRepo)
 const getTravelUsecase=new GetBuddyTravelUsecase(buddyRepo)
 const getvendorBuddypackagesusecase=new GetVendorBuddyPackageUsecase(buddyRepo)
 const getallbuddypackages=new GetAllBuddyTravelUsecase(buddyRepo)
 const joinBuddyTravelusecase=new JoinTravelUsecase(buddyRepo,walletRepo)
-const bookingBuddyTravelusecase=new CreateBuddyBookingUsecase(bookingRepo,walletRepo)
+const bookingBuddyTravelusecase=new CreateBuddyBookingUsecase(bookingRepo)
 
 
 //  Controllers

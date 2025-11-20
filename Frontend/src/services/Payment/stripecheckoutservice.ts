@@ -3,7 +3,6 @@ import axios from "axios";
 
 
 
-/** ------------------ Types ------------------ */
 export interface SubscriptionBookingPayload {
   vendorId: string;
   planId: string;

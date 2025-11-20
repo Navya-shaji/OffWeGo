@@ -1,4 +1,4 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import {
   adminController,
   AdminuserController,
@@ -18,6 +18,7 @@ import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInject
 import { Role } from "../../../domain/constants/Roles";
 import { walletcontroller } from "../../Di/User/userInjections";
 import { buddyTravelcontroller } from "../../Di/Vendor/VendorInjections";
+
 const TokenService = new JwtService();
 
 export class AdminRoute {
@@ -29,256 +30,209 @@ export class AdminRoute {
   }
 
   private setRoutes(): void {
-    this.adminRouter.post(AdminRoutes.LOGIN, (req: Request, res: Response) => {
-      adminController.login(req, res);
-    });
-    this.adminRouter.post(
-      CommonRoutes.REFRESH_TOKEN,
-      (req: Request, res: Response) => {
-        refreshTokenController.handle(req, res);
-      }
+    // -------------------- AUTH ROUTES --------------------
+
+    this.adminRouter.post(AdminRoutes.LOGIN, (req, res) =>
+      adminController.login(req, res)
     );
 
-    this.adminRouter.get(
-      AdminRoutes.GET_DESTINATIONS,
-      (req: Request, res: Response) => {
-        destinationController.getAllDestination(req, res);
-      }
+    this.adminRouter.post(CommonRoutes.REFRESH_TOKEN, (req, res) =>
+      refreshTokenController.handle(req, res)
     );
-    this.adminRouter.get(
-      AdminRoutes.GET_ALL_BANNERS,
-      (req: Request, res: Response) => {
-        bannerController.getBanners(req, res);
-      }
+
+    // -------------------- PUBLIC ROUTES --------------------
+
+    this.adminRouter.get(AdminRoutes.GET_DESTINATIONS, (req, res) =>
+      destinationController.getAllDestination(req, res)
     );
+
+    this.adminRouter.get(AdminRoutes.GET_ALL_BANNERS, (req, res) =>
+      bannerController.getBanners(req, res)
+    );
+
+    // -------------------- TOKEN MIDDLEWARE --------------------
+
     this.adminRouter.use(verifyTokenAndCheckBlackList(TokenService));
-    this.adminRouter.get(
-      AdminRoutes.SEARCH_VENDOR,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        adminVendorController.searchVendor(req, res);
-      }
+    const adminOnly = checkRoleBasedcontrol([Role.ADMIN]);
+
+    // -------------------- ADMIN-VENDOR MANAGEMENT --------------------
+
+    this.adminRouter.get(AdminRoutes.SEARCH_VENDOR, adminOnly, (req, res) =>
+      adminVendorController.searchVendor(req, res)
     );
 
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_EMAIL,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        adminVendorController.getVendorByEmail(req, res);
-      }
+      adminOnly,
+      (req, res) => adminVendorController.getVendorByEmail(req, res)
     );
 
     this.adminRouter.patch(
       AdminRoutes.ADMIN_VENDOR_APPROVAL,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        adminVendorController.updateVendorApprovalStatus(req, res);
-      }
+      adminOnly,
+      (req, res) => adminVendorController.updateVendorApprovalStatus(req, res)
     );
 
-    this.adminRouter.get(
-      AdminRoutes.GET_ALL_VENDORS,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        adminVendorController.getAllVendors(req, res);
-      }
+    this.adminRouter.get(AdminRoutes.GET_ALL_VENDORS, adminOnly, (req, res) =>
+      adminVendorController.getAllVendors(req, res)
     );
 
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_STATUS,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        adminVendorController.getVendorsByStatus(req, res);
-      }
+      adminOnly,
+      (req, res) => adminVendorController.getVendorsByStatus(req, res)
     );
 
-    this.adminRouter.get(
-      AdminRoutes.GET_ALL_USERS,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        AdminuserController.getAllUsers(req, res);
-      }
+    this.adminRouter.patch(
+      AdminRoutes.BLOCK_UNBLOCK_VENDOR,
+      adminOnly,
+      (req, res) => adminVendorController.blockOrUnblockVendor(req, res)
     );
 
-    this.adminRouter.get(
-      AdminRoutes.SEARCH_USER,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        AdminuserController.searchUser(req, res);
-      }
+    // -------------------- ADMIN-USER MANAGEMENT --------------------
+
+    this.adminRouter.get(AdminRoutes.GET_ALL_USERS, adminOnly, (req, res) =>
+      AdminuserController.getAllUsers(req, res)
+    );
+
+    this.adminRouter.get(AdminRoutes.SEARCH_USER, adminOnly, (req, res) =>
+      AdminuserController.searchUser(req, res)
     );
 
     this.adminRouter.patch(
       AdminRoutes.UPDATE_USER_STATUS,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        AdminuserController.updateStatus(req, res);
-      }
+      adminOnly,
+      (req, res) => AdminuserController.updateStatus(req, res)
     );
+
+    // -------------------- DESTINATION MANAGEMENT --------------------
 
     this.adminRouter.post(
       AdminRoutes.CREATE_DESTINATION,
-      (req: Request, res: Response) => {
-        destinationController.addDestination(req, res);
-      }
+      adminOnly,
+      (req, res) => destinationController.addDestination(req, res)
     );
 
     this.adminRouter.put(
       AdminRoutes.EDIT_DESTINATION,
       checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req: Request, res: Response) => {
-        destinationController.editDestinationHandler(req, res);
-      }
+      (req, res) => destinationController.editDestinationHandler(req, res)
     );
 
     this.adminRouter.get(
       AdminRoutes.SEARCH_DESTINATION,
-      (req: Request, res: Response) => {
-        destinationController.searchDestination(req, res);
-      }
-    );
-
-    this.adminRouter.patch(
-      AdminRoutes.BLOCK_UNBLOCK_VENDOR,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        adminVendorController.blockOrUnblockVendor(req, res);
-      }
-    );
-
-    this.adminRouter.post(
-      AdminRoutes.CREATE_CATEGORY,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        categoryController.createCategory(req, res);
-      }
-    );
-
-    this.adminRouter.get(
-      AdminRoutes.GET_ALL_CATEGORIES,
-      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR,Role.USER]),
-      (req: Request, res: Response) => {
-        categoryController.getCategories(req, res);
-      }
-    );
-
-    this.adminRouter.get(
-      AdminRoutes.SEARCH_CATEGORY,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        categoryController.SearchCategory(req, res);
-      }
-    );
-
-    this.adminRouter.post(
-      AdminRoutes.CREATE_BANNER,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        bannerController.createBanner(req, res);
-      }
+      adminOnly,
+      (req, res) => destinationController.searchDestination(req, res)
     );
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_DESTINATION,
-      verifyTokenAndCheckBlackList(TokenService),
       checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req: Request, res: Response) => {
-        destinationController.deleteDestinationController(req, res);
-      }
+      (req, res) => destinationController.deleteDestinationController(req, res)
     );
 
-    this.adminRouter.put(
-      AdminRoutes.EDIT_CATEGORY,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        categoryController.EditCategory(req, res);
-      }
+    // -------------------- CATEGORY MANAGEMENT --------------------
+
+    this.adminRouter.post(AdminRoutes.CREATE_CATEGORY, adminOnly, (req, res) =>
+      categoryController.createCategory(req, res)
+    );
+
+    this.adminRouter.get(
+      AdminRoutes.GET_ALL_CATEGORIES,
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR, Role.USER]),
+      (req, res) => categoryController.getCategories(req, res)
+    );
+
+    this.adminRouter.get(AdminRoutes.SEARCH_CATEGORY, adminOnly, (req, res) =>
+      categoryController.SearchCategory(req, res)
+    );
+
+    this.adminRouter.put(AdminRoutes.EDIT_CATEGORY, adminOnly, (req, res) =>
+      categoryController.EditCategory(req, res)
     );
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_CATEGORY,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        categoryController.DeleteCategory(req, res);
-      }
+      adminOnly,
+      (req, res) => categoryController.DeleteCategory(req, res)
     );
 
-    this.adminRouter.put(
-      AdminRoutes.EDIT_BANNER,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        bannerController.editBanner(req, res);
-      }
+    // -------------------- BANNER MANAGEMENT --------------------
+
+    this.adminRouter.post(AdminRoutes.CREATE_BANNER, adminOnly, (req, res) =>
+      bannerController.createBanner(req, res)
     );
 
-    this.adminRouter.delete(
-      AdminRoutes.DELETE_BANNER,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        bannerController.bannerDelete(req, res);
-      }
+    this.adminRouter.put(AdminRoutes.EDIT_BANNER, adminOnly, (req, res) =>
+      bannerController.editBanner(req, res)
     );
 
-    this.adminRouter.patch(
-      AdminRoutes.BANNER_ACTIONS,
-      (req: Request, res: Response) => {
-        bannerController.bannerAction(req, res);
-      }
+    this.adminRouter.delete(AdminRoutes.DELETE_BANNER, adminOnly, (req, res) =>
+      bannerController.bannerDelete(req, res)
     );
+
+    this.adminRouter.patch(AdminRoutes.BANNER_ACTIONS, adminOnly, (req, res) =>
+      bannerController.bannerAction(req, res)
+    );
+
+    // -------------------- SUBSCRIPTION MANAGEMENT --------------------
+
     this.adminRouter.post(
       AdminRoutes.CREATE_SUBSCRIPTION,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        subscriptionController.createSubscription(req, res);
-      }
+      adminOnly,
+      (req, res) => subscriptionController.createSubscription(req, res)
     );
 
     this.adminRouter.get(
       AdminRoutes.GET_ALL_SUBSCRIPTIONS,
       checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req: Request, res: Response) => {
-        subscriptionController.getAllSubscriptions(req, res);
-      }
+      (req, res) => subscriptionController.getAllSubscriptions(req, res)
     );
-    this.adminRouter.put(
-      AdminRoutes.EDIT_SUBSCRIPTION,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        subscriptionController.updateSubscription(req, res);
-      }
+
+    this.adminRouter.put(AdminRoutes.EDIT_SUBSCRIPTION, adminOnly, (req, res) =>
+      subscriptionController.updateSubscription(req, res)
     );
+
     this.adminRouter.delete(
       AdminRoutes.DELETE_SUBSCRIPTION,
-      checkRoleBasedcontrol([Role.ADMIN]),
-      (req: Request, res: Response) => {
-        subscriptionController.deleteDestinationController(req, res);
-      }
+      adminOnly,
+      (req, res) => subscriptionController.deleteSubscription(req, res)
     );
-    this.adminRouter.post(
-      AdminRoutes.ADMIN_WALLET,
-      (req: Request, res: Response) => {
-        walletcontroller.createWallet(req, res);
-      }
+
+    // -------------------- WALLET MANAGEMENT --------------------
+
+    this.adminRouter.post(AdminRoutes.ADMIN_WALLET, adminOnly, (req, res) =>
+      walletcontroller.createWallet(req, res)
     );
+
     this.adminRouter.get(
       AdminRoutes.GET_ADMIN_WALLET,
-      (req: Request, res: Response) => {
-        walletcontroller.GetWallet(req, res);
-      }
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR, Role.USER]),
+      (req, res) => walletcontroller.GetWallet(req, res)
     );
+
+    this.adminRouter.post(AdminRoutes.TRANSFER_AMOUNT, adminOnly, (req, res) =>
+      walletcontroller.TransferWalletAmount(req, res)
+    );
+
+    this.adminRouter.get(
+      AdminRoutes.COMPLETED_BOOKINGS,
+      adminOnly,
+      (req, res) => walletcontroller.getCompletedBookingsForTransfer(req, res)
+    );
+
+    // -------------------- BUDDY TRAVEL PACKAGE MANAGEMENT --------------------
+
     this.adminRouter.patch(
       AdminRoutes.UPDATE_PACKAGE_STATUS,
-        checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
-      (req: Request, res: Response) => {
-        buddyTravelcontroller.updateBuddyPackageStatus(req, res);
-      }
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
+      (req, res) => buddyTravelcontroller.updateBuddyPackageStatus(req, res)
     );
+
     this.adminRouter.get(
       AdminRoutes.GET_BUDDY_PACKAGES,
-        checkRoleBasedcontrol([Role.ADMIN,Role.VENDOR]),
-      (req: Request, res: Response) => {
-        buddyTravelcontroller.getBuddyTravelPackages(req, res);
-      }
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
+      (req, res) => buddyTravelcontroller.getBuddyTravelPackages(req, res)
     );
   }
 }

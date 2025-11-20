@@ -1,6 +1,7 @@
 import { BuddyTravelDto } from "../../domain/dto/BuddyTravel/BuddyTravelDto";
 import { IBuddyTravelRepository } from "../../domain/interface/BuddyTravel/IBuddyTravelRepository";
 import { IGetVendorBuddyPackageUasecase } from "../../domain/interface/BuddyTravel/IGetVendorBuddyPackageusecase";
+import { mapToBuddyTravelDtoArray } from "../../mappers/BuddyTravel/mapToAllBuddypackages";
 
 export class GetVendorBuddyPackageUsecase
   implements IGetVendorBuddyPackageUasecase
@@ -13,6 +14,6 @@ export class GetVendorBuddyPackageUsecase
       (trip) => trip.status === "APPROVED"
     );
 
-    return approvedPackages;
+    return mapToBuddyTravelDtoArray(approvedPackages)
   }
 }

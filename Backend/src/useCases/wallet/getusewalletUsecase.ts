@@ -8,9 +8,7 @@ export class GetUserWalletUsecase implements IGetWalletUSecase {
 
   async execute(id: string): Promise<WalletDto | null> {
     const wallet = await this._walletRepo.findByOwnerId(id);
-
     if (!wallet) return null; 
-
     return mapToWalletDto(wallet);
   }
 }

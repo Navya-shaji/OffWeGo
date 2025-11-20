@@ -13,10 +13,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { fetchAllFlights } from "@/services/Flight/FlightService";
 import type { Flight } from "@/interface/flightInterface";
 import type { Package } from "@/interface/PackageInterface";
+import { useNavigate } from "react-router-dom";
 
 interface FlightSearchModalProps {
   show: boolean;
   onClose: () => void;
+  selectedDate: Date | null; 
   onProceed: (
     flightOption: "with-flight" | "without-flight",
     selectedFlight?: Flight,  
@@ -28,6 +30,7 @@ const FlightSearchModal = ({
   show,
   onClose,
   onProceed,
+   selectedDate,
   selectedPackage,
 }: FlightSearchModalProps) => {
   const [flights, setFlights] = useState<Flight[]>([]);
@@ -37,7 +40,7 @@ const FlightSearchModal = ({
   const [selectedClass, setSelectedClass] = useState<string>("economy");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+const navigate=useNavigate()
   useEffect(() => {
     if (show) {
       loadFlights();
@@ -77,14 +80,31 @@ const FlightSearchModal = ({
   const handleClassSelect = (cls: string) => {
     setSelectedClass(cls);
   };
+const getSelectedPrice = () => {
+  if (!selectedFlight) return 0;
+  const { price } = selectedFlight;
+  return price[selectedClass as keyof typeof price] ?? price.economy ?? 0;
+};
 
-  const handleProceedWithFlight = () => {
-    if (selectedFlight) {
-      onProceed("with-flight", selectedFlight, selectedClass);
-      onClose();
-    }
-  };
+const totalPrice = selectedPackage.price + getSelectedPrice();
 
+const handleProceedWithFlight = () => {
+  if (!selectedFlight) return;
+
+  navigate("/travaler-details", {
+    state: {
+      selectedPackage,
+      flightOption: "with-flight",
+      selectedFlight,
+      selectedClass,
+      totalPrice,
+       selectedDate: selectedDate,
+    },
+  });
+  onClose();
+};
+
+console.log(selectedDate,"selected")
   const handleProceedWithoutFlight = () => {
     onProceed("without-flight");
     onClose();
@@ -97,15 +117,7 @@ const FlightSearchModal = ({
       maximumFractionDigits: 0,
     }).format(amount);
 
-  const getSelectedPrice = () => {
-    if (!selectedFlight) return 0;
-    const { price } = selectedFlight;
-    return (
-      price[selectedClass as keyof typeof price] ??
-      price.economy ??
-      0
-    );
-  };
+
 
   if (!show) return null;
 
