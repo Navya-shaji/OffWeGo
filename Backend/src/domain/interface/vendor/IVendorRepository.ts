@@ -31,4 +31,6 @@ export interface IVendorRepository {
   getProfileByEmail(email: string): Promise<RegistervendorDto | null>;
   countVendors(filter?: Record<string, unknown>): Promise<number>;
   searchVendor(query:string):Promise<Vendor[]>
+updateFcmToken(id: string, token: string): Promise<IVendorModel | null>;
+
 }

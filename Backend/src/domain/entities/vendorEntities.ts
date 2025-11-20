@@ -13,15 +13,15 @@ export interface Vendor {
   isAdmin?: boolean;
   googleVerified?: boolean;
   isBlocked?: boolean;
-
+  fcmToken: string;
 
   subscription?: {
-    plan: string; 
+    plan: string;
     subscribedAt: Date;
     expiresAt: Date;
     maxPackages: number;
   };
 
-  packageLimit?: number;     
-  currentPackages?: number;     
+  packageLimit?: number;
+  currentPackages?: number;
 }

@@ -120,4 +120,14 @@ export class VendorRepository
       _id: v._id.toString(),
     }));
   }
+async updateFcmToken(id: string, token: string): Promise<IVendorModel | null> {
+  return this.model.findByIdAndUpdate(
+    id,
+    { fcmToken: token },
+    { new: true } 
+  );
+}
+
+
+
 }

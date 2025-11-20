@@ -11,7 +11,6 @@ import { GoogleSignupController } from "../../../adapters/controller/User/AuthCo
 import { GoogleSignupUseCase } from "../../../useCases/user/Signup/signupWithGoogle"; 
 import { ResetPasswordUseCase } from "../../../useCases/user/Login/ResetPasswordUseCase";
 import { UserProfileUsecase } from "../../../useCases/user/profile/createProfileUsecase"; 
-import { UserProfileController } from "../../../adapters/controller/User/UserProfileController"; 
 import { JwtService } from "../../Services/jwtService";
 import { ResendOtpUsecase } from "../../../useCases/user/Signup/resendOtpUsecase";
 import { EditUserProfile } from "../../../useCases/user/profile/EditProfileUsecase";
@@ -44,12 +43,13 @@ import { NotificationController } from "../../../adapters/controller/Notificatio
 import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
 import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
 import { SendChatMessageUseCase } from "../../../useCases/chat/SendChatUSecase";
-import { ChatController } from "../../../adapters/controller/Chat/ChatController";
 import { ChatUseCase } from "../../../useCases/chat/GetChatUSecase";
 import { TransferAmountUseCase } from "../../../useCases/wallet/transferWalletUsecase";
 import { GetCompletedBookingsForTransfer } from "../../../useCases/wallet/getcompletedBookingUSecase";
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
-import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/SubscriptionPaymentController";
+import { UserProfileController } from "../../../adapters/controller/User/userProfileController";
+import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
+import { ChatController } from "../../../adapters/controller/chat/ChatController";
 
 
 // Setup Repos and Services

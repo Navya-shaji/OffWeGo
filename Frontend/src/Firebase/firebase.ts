@@ -20,21 +20,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging: Messaging = getMessaging(app);
 
-export const requestForToken = async (): Promise<void> => {
+export const getFcmToken = async (): Promise<string | null> => {
   try {
-    const currentToken = await getToken(messaging, {
-      vapidKey: "BMdRY7kU2uSCfpQXaXeNKq-di7QF_cJtk6hAquJvBEzo7IPNigurnO36a7qV5114LzjmOWs_rzQoJ7uE9Lxi_XA", 
+    const token = await getToken(messaging, {
+      vapidKey: "BMdRY7kU2uSCfpQXaXeNKq-di7QF_cJtk6hAquJvBEzo7IPNigurnO36a7qV5114LzjmOWs_rzQoJ7uE9Lxi_XA"
     });
 
-    if (currentToken) {
-      console.log("FCM Token:", currentToken);
+    if (token) {
+      console.log("FCM Token:", token);
+      return token;
     } else {
-      console.log("No registration token available. Request permission first.");
+      console.log("No registration token available.");
+      return null;
     }
+
   } catch (err) {
-    console.error("An error occurred while retrieving token.", err);
+    console.error("Error retrieving FCM token:", err);
+    return null;
   }
 };
+
 
 export const onMessageListener = (): Promise<MessagePayload> =>
   new Promise((resolve, reject) => {

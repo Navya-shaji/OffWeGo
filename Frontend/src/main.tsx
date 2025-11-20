@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import store, { persistor } from "./store/store";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
-import { onMessageListener, requestForToken } from "./Firebase/firebase";
+import { onMessageListener, getFcmToken } from "./Firebase/firebase";
 
 
 const CLIENT_ID =
@@ -16,7 +16,6 @@ const CLIENT_ID =
 // eslint-disable-next-line react-refresh/only-export-components
 function Root() {
   useEffect(() => {
-    // ✅ Register service worker
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
@@ -26,10 +25,9 @@ function Root() {
         .catch((err) => console.error("Service Worker registration failed:", err));
     }
 
-    // ✅ Request FCM token
-    requestForToken();
 
-    // ✅ Listen for foreground messages
+    getFcmToken();
+
     onMessageListener()
       .then((payload) => {
         console.log("Foreground notification received:", payload);

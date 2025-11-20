@@ -6,12 +6,12 @@ import UserRoute from "./Routes/user/userRoutes";
 import AdminRoute from "./Routes/Admin/adminRoutes";
 import VendorRoute from "./Routes/Vendor/vendorRoutes";
 import { useEffect } from "react";
-import { onMessageListener, requestForToken } from "./Firebase/firebase";
+import { getFcmToken, onMessageListener } from "./Firebase/firebase";
 
 function App() {
 
     useEffect(() => {
-    requestForToken();
+    getFcmToken();
 
     onMessageListener()
       .then((payload) => {

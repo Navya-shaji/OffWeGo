@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, Users, Calendar, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import type { RootState } from '@/store/store';
 import { getAllBuddyPackages, joinBuddyTravel } from '@/services/BuddyTravel/buddytravelService';
-import axiosInstance from '@/axios/instance';
 
 interface BuddyPackage {
   _id: string;
@@ -21,17 +20,11 @@ interface BuddyPackage {
   endDate: string;
 }
 
-// interface Category {
-//   _id: string;
-//   name: string;
-// }
-
 const Travalbuddies = () => {
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   const navigate = useNavigate();
 
   const [packages, setPackages] = useState<BuddyPackage[]>([]);
-  // const [categories, setCategories] = useState<Category[]>([]);
   const [destinations, setDestinations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -47,7 +40,6 @@ const Travalbuddies = () => {
     fetchData();
   }, []);
 
-  
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => setSuccessMessage(''), 5000);
@@ -70,11 +62,6 @@ const Travalbuddies = () => {
       }
 
       setPackages(packagesData);
-
-      // const categoriesRes = await axiosInstance.get('/api/admin/categories', {
-      //   params: { page: 1, limit: 100 }
-      // });
-      // setCategories(categoriesRes.data.categories || []);
 
       if (packagesData.length > 0) {
         const uniqueDestinations = [...new Set(packagesData.map((pkg: BuddyPackage) => pkg.destination))].filter(Boolean);
@@ -108,6 +95,24 @@ const Travalbuddies = () => {
     try {
       setJoiningPackageId(pkg._id);
       setError('');
+      setSuccessMessage('');
+console.log(pkg,"jdk")
+     
+      const response = await joinBuddyTravel(userId, pkg.id);
+      
+      console.log('Join response:', response);
+
+      setPackages(prevPackages => 
+        prevPackages.map(p => 
+          p._id === pkg._id 
+            ? { ...p, joinedUsers: [...(p.joinedUsers || []), userId] }
+            : p
+        )
+      );
+
+    
+      setSuccessMessage(`Successfully joined "${pkg.title}"! Redirecting to payment...`);
+
 
       const bookingData = {
         packageId: pkg._id,
@@ -120,19 +125,19 @@ const Travalbuddies = () => {
         endDate: pkg.endDate,
       };
 
-   
-navigate('/payment-buddycheckout', {
-  state: {
-    buddyTravelData: bookingData,
-    amount: pkg.price,
-  },
-});
-
-
+  
+      setTimeout(() => {
+        navigate('/payment-buddycheckout', {
+          state: {
+            buddyTravelData: bookingData,
+            amount: pkg.price,
+          },
+        });
+      }, 1500);
 
     } catch (err: any) {
-      console.error('Error preparing checkout:', err);
-      setError(err.message || 'Failed to proceed to checkout. Please try again.');
+      console.error('Error joining package:', err);
+      setError(err.message || 'Failed to join package. Please try again.');
       setJoiningPackageId(null);
     }
   };
@@ -161,7 +166,7 @@ navigate('/payment-buddycheckout', {
   };
 
   const isFull = (pkg: BuddyPackage) => {
-    return pkg.joinedUsers?.length >= pkg.maxPeople;
+  console.log(pkg)
   };
 
   if (loading) {
@@ -229,19 +234,6 @@ navigate('/payment-buddycheckout', {
             </button>
 
             <div className="hidden md:flex gap-4">
-              {/* <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[150px]"
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select> */}
-
               <select
                 value={selectedDestination}
                 onChange={(e) => setSelectedDestination(e.target.value)}
@@ -266,46 +258,6 @@ navigate('/payment-buddycheckout', {
               )}
             </div>
           </div>
-
-          {/* {showFilters && (
-            <div className="md:hidden mt-4 pt-4 border-t space-y-3">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedDestination}
-                onChange={(e) => setSelectedDestination(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                <option value="">All Destinations</option>
-                {destinations.map((dest) => (
-                  <option key={dest} value={dest}>
-                    {dest}
-                  </option>
-                ))}
-              </select>
-
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg flex items-center justify-center gap-2"
-                >
-                  <X className="w-4 h-4" />
-                  Clear All Filters
-                </button>
-              )}
-            </div>
-          )} */}
         </div>
 
         {hasActiveFilters && (
@@ -430,7 +382,7 @@ navigate('/payment-buddycheckout', {
                       {joiningPackageId === pkg._id ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Processing...
+                          Joining...
                         </>
                       ) : isUserJoined(pkg) ? (
                         <>

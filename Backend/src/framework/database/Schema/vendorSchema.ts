@@ -34,12 +34,13 @@ export const vendorSchema = new Schema(
 
     packageLimit: {
       type: Number,
-      default: 0, 
+      default: 0,
     },
     currentPackages: {
       type: Number,
-      default: 0, 
+      default: 0,
     },
+    fcmToken: { type: String, default: "" },
   },
   {
     timestamps: true,

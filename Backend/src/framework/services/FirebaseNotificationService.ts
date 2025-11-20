@@ -4,7 +4,7 @@ import { firebaseAdmin } from "./firebase";
 import { INotificationRepository } from "../../domain/interface/Notification/INotificationRepo";
 
 export class FirebaseNotificationService implements INotificationService {
-  constructor(private notificationRepo: INotificationRepository) {}
+  constructor(private _notificationRepo: INotificationRepository) {}
 
   async send(notification: Notification): Promise<void> {
     try {
@@ -24,7 +24,7 @@ export class FirebaseNotificationService implements INotificationService {
             if (!resp.success) {
               console.warn(` Token ${validTokens[idx]} failed:`, resp.error);
               if (resp.error?.code === "messaging/registration-token-not-registered") {
-                await this.notificationRepo.removeToken(validTokens[idx]);
+                await this._notificationRepo.removeToken(validTokens[idx]);
               }
             }
           });
@@ -41,10 +41,22 @@ export class FirebaseNotificationService implements INotificationService {
       }
 
     
-      await this.notificationRepo.save(notification);
+      await this._notificationRepo.save(notification);
     } catch (error) {
       console.error(" Error sending notifications:", error);
       throw new Error("Failed to send notification");
+    }
+  }
+
+    async getByRecipient(
+    recipientId: string,
+    recipientType: "vendor" | "user"
+  ): Promise<Notification[]> {
+    try {
+      return this._notificationRepo.findByRecipient(recipientId, recipientType);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      throw new Error("Failed to fetch notifications");
     }
   }
 }

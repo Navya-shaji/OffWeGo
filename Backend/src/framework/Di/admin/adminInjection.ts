@@ -41,8 +41,10 @@ import { SearchCategoryUsecase } from "../../../useCases/category/searchcategory
 import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecase";
 import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
 import { DeleteSubscriptionUsecase } from "../../../useCases/subscription/DeleteSubscriptionusecase";
-import { CreateCategoryController } from "../../../adapters/controller/Category/CategoryController";
 import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
+import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
+import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
+import { CreateCategoryController } from "../../../adapters/controller/Category/categoryController";
 
 // Repositories
 const adminRepository = new AdminRepository();
@@ -52,11 +54,14 @@ const destinationRepository=new DestinationRepository()
 const catogoryRepo=new CategoryRepository()
 const bannerRepo=new BannerRepository()
 const subscriptionrepo=new SubscriptionPlanRepository()
+const vendorRepo=new VendorRepository()
+const notificationRepo=new NotificationRepository()
 
 
 // Services
 const hashPassword = new HashPassword();
 const jwtService = new JwtService();
+const notificationService=new FirebaseNotificationService(notificationRepo)
 
 
 // Use Cases
@@ -70,7 +75,7 @@ const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const editDestination=new EditDestination()
 const vendorblockUnblockUsecase=new UpdateVendorUsecase(vendorRepository)
-const createcategoryUsecase=new CreateCategory(catogoryRepo)
+const createcategoryUsecase=new CreateCategory(catogoryRepo,notificationService,vendorRepo)
 const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
 const createbannerUsecase=new CreateBanner(bannerRepo)
 const getbannerUsecase=new GetAllBanners(bannerRepo)

@@ -19,6 +19,7 @@ import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
+import { Elements } from "@stripe/react-stripe-js";
 // import BuddyTravelCheckoutForm from "@/components/home/Travalbuddies/buddyTravelCheckout";
 // import { Elements } from "@stripe/react-stripe-js";
 // import { loadStripe } from "@stripe/stripe-js";
@@ -59,8 +60,8 @@ const UserRoute = () => {
       <Route path="/buddy-packages" element={<Travalbuddies />} />
         <Route path="/payment-success" element={<BookingSuccess />} />
       
-{/* 
-      <Route
+
+      {/* <Route
         path="/payment-buddycheckout"
         element={
           <Elements stripe={stripePromise}>

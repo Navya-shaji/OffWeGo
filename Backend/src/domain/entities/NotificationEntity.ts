@@ -1,7 +1,9 @@
+import { Role } from "../constants/Roles";
+
 export interface Notification {
   title: string;
   body: string;
-  recipientType: "admin" | "vendor" | "user";
+  recipientType:Role
   tokens?: string[]; 
   topic?: string; 
   createdAt?: Date;

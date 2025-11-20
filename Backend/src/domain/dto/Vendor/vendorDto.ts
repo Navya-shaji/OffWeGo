@@ -1,5 +1,5 @@
 export interface VendorDto {
-  id?: string; 
+  id?: string;
   name: string;
   email: string;
   phone: string;
@@ -13,15 +13,15 @@ export interface VendorDto {
   isAdmin?: boolean;
   googleVerified?: boolean;
   isBlocked?: boolean;
-
+  fcmToken: string;
 
   subscription?: {
     plan: string;
     subscribedAt: Date;
     expiresAt: Date;
-    maxPackages: number; 
+    maxPackages: number;
   };
 
-  packageLimit?: number;       
-  currentPackages?: number;     
+  packageLimit?: number;
+  currentPackages?: number;
 }

@@ -159,7 +159,7 @@ export const joinBuddyTravel = async (
       `/api/join-travel/${travelId}/${userId}`,
       {},
     );
-console.log(response,"djh")
+
     return response.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
