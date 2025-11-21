@@ -4,7 +4,7 @@ import {
   LogOut,
   ChevronRight,
   Wallet,
-  // MessageCircle,
+  MessageCircle,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -33,9 +33,9 @@ const ProfileSidebar = ({
       case "Wallet":
         setActiveSection("wallet");
         break;
-      // case "Chat":
-      //   setActiveSection("chat");
-      //   break;
+      case "Chat":
+        setActiveSection("chat");
+        break;
       case "Logout":
         localStorage.removeItem("user");
         navigate("/login");
@@ -49,7 +49,7 @@ const ProfileSidebar = ({
     { icon: User, label: "My Profile", section: "profile" },
     { icon: Calendar, label: "Booking", section: "bookings" },
     { icon: Wallet, label: "Wallet", section: "wallet" },
-    // { icon: MessageCircle, label: "Chat", section: "chat" },
+    { icon: MessageCircle, label: "Chat", section: "chat" },
     { icon: LogOut, label: "Logout", section: "logout" },
   ];
 

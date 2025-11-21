@@ -50,6 +50,7 @@ import { SubscriptionBookingRepository } from "../../../adapters/repository/Book
 import { UserProfileController } from "../../../adapters/controller/User/userProfileController";
 import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
 import { ChatController } from "../../../adapters/controller/chat/ChatController";
+import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
 
 // Setup Repos and Services
@@ -97,7 +98,7 @@ const sendchatusecase=new SendChatMessageUseCase(chatRepo)
 const getchatusecase=new ChatUseCase(chatRepo)
 const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
-
+const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
@@ -109,5 +110,5 @@ export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
 export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings)
-export const notificationcontroller=new NotificationController(notificationUsecase)
+export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
 export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

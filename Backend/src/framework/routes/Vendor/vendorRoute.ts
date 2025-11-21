@@ -24,6 +24,8 @@ import {
   
   chatcontroller,
   
+  notificationcontroller,
+  
   subscriptionpaymentcontroller,
   walletcontroller,
 } from "../../Di/User/userInjections";
@@ -254,6 +256,12 @@ export class VendorRoute {
       checkRoleBasedcontrol([Role.VENDOR,Role.ADMIN]),
       (req:Request,res:Response)=>{
         walletcontroller.GetWallet(req,res)
+      }
+    )
+      this.vendorRouter.get(
+      CommonRoutes.GET_NOTIFICATIONS,
+      (req:Request,res:Response)=>{
+        notificationcontroller.getNotifications(req,res)
       }
     )
   }

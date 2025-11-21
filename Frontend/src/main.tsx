@@ -7,6 +7,7 @@ import store, { persistor } from "./store/store";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
 import { onMessageListener, getFcmToken } from "./Firebase/firebase";
+import { toast } from "react-toastify";
 
 
 const CLIENT_ID =
@@ -28,14 +29,26 @@ function Root() {
 
     getFcmToken();
 
-    onMessageListener()
+ onMessageListener()
       .then((payload) => {
         console.log("Foreground notification received:", payload);
-        alert(`${payload.notification?.title} - ${payload.notification?.body}`);
+        toast.info(
+          <div>
+            <strong>{payload.notification?.title}</strong>
+            <div>{payload.notification?.body}</div>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 5000, 
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
       })
       .catch((err) => console.error("FCM listener failed:", err));
   }, []);
-
   return <App />;
 }
 

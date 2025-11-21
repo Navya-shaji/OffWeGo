@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Bell, CreditCard, User, ChevronDown, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
 import { logout } from "@/store/slice/vendor/authSlice";
 import NotificationPanel from "../Notification/NotificationModal";
 import { onMessageListener } from "@/Firebase/firebase";
+import { addNotification } from "@/store/slice/Notifications/notificationSlice";
 
 const VendorNavbar: React.FC = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const [panelOpen, setPanelOpen] = React.useState(false);
 
-
-  const [notifications, setNotifications] = useState<
-    { title: string; body: string }[]
-  >([]);
-
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
+  const notifications = useAppSelector(
+  (state) => state.notifications.notifications
+);
+
+
+  // Logout
   const handleLogout = () => {
     dispatch(logout());
     navigate("/vendor/login");
@@ -28,24 +30,25 @@ const VendorNavbar: React.FC = () => {
     navigate("/vendor/subscriptionplans");
   };
 
-  useEffect(() => {
-    onMessageListener().then((payload) => {
-      setNotifications((prev) => [
-        {
-          title: payload.notification?.title || "New Notification",
-          body: payload.notification?.body || "",
-        },
-        ...prev,
-      ]);
-    });
-    
-  }, []);
+useEffect(() => {
+  onMessageListener().then((payload) => {
+
+    console.log("Message Received:", payload);  
+
+    dispatch(
+      addNotification({
+        title: payload.notification?.title || "New Notification",
+        body: payload.notification?.body || "",
+      })
+    );
+  });
+}, []);
+
 
   return (
     <>
       <header className="bg-white border-b border-gray-200 text-gray-900 shadow-sm sticky top-0 z-50">
         <div className="flex items-center justify-between max-w-7xl mx-auto px-6 py-4">
-
           <h1 className="text-2xl font-semibold tracking-tight"></h1>
 
           <div className="flex items-center gap-6 relative">
@@ -58,7 +61,7 @@ const VendorNavbar: React.FC = () => {
               Explore Plans
             </button>
 
-            {/* Bell Icon */}
+            {/* 🔔 Bell Button */}
             <div
               className="relative cursor-pointer"
               onClick={() => setPanelOpen(true)}

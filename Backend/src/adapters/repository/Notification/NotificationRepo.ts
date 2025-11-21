@@ -12,17 +12,11 @@ export class NotificationRepository implements INotificationRepository {
     ) as NotificationEntity;
   }
   async findByRecipient(
-    recipientId: string,
+ 
     recipientType: string
   ): Promise<NotificationEntity[]> {
-    const notifications = await NotificationModel.find({
-      recipientId,
-      recipientType,
-    })
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
-
+    const notifications = await NotificationModel.find({ recipientType: recipientType })
+console.log(notifications)
     return notifications;
   }
   async removeToken(token: string): Promise<void> {

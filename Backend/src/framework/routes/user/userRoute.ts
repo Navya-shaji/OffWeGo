@@ -198,5 +198,6 @@ export class UserRoute {
         chatcontroller.getChat(req,res)
       }
     )
+  
   }
 }

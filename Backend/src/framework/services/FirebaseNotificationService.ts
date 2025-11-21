@@ -2,6 +2,7 @@ import { INotificationService } from "../../domain/interface/Notification/INotif
 import { Notification } from "../../domain/entities/NotificationEntity";
 import { firebaseAdmin } from "./firebase";
 import { INotificationRepository } from "../../domain/interface/Notification/INotificationRepo";
+import { Role } from "../../domain/constants/Roles";
 
 export class FirebaseNotificationService implements INotificationService {
   constructor(private _notificationRepo: INotificationRepository) {}
@@ -49,11 +50,11 @@ export class FirebaseNotificationService implements INotificationService {
   }
 
     async getByRecipient(
-    recipientId: string,
-    recipientType: "vendor" | "user"
+   
+    recipientType:Role
   ): Promise<Notification[]> {
     try {
-      return this._notificationRepo.findByRecipient(recipientId, recipientType);
+      return this._notificationRepo.findByRecipient( recipientType);
     } catch (error) {
       console.error("Error fetching notifications:", error);
       throw new Error("Failed to fetch notifications");

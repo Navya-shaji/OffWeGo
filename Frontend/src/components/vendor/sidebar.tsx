@@ -10,9 +10,9 @@ import {
   Plus,
   Building2,
   Activity as ActivityIcon,
-
   BookOpen,
   Wallet,
+  MessageCircle, // ✅ Added Chat Icon
 } from "lucide-react";
 
 interface SidebarProps {
@@ -28,11 +28,13 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const [showBookingDropdown, setShowBookingDropdown] = useState(false);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
 
+  // ✅ Chat added inside menu
   const menuItems = [
-    { icon: Package, label: "Dashboard" }, 
+    { icon: Package, label: "Dashboard" },
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
+    { icon: MessageCircle, label: "Chat" },
   ];
 
   const handleSubTabClick = (label: string) => setActiveTab(label);
@@ -44,7 +46,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       </div>
 
       <nav className="mt-6">
-        
+        {/* Top Menu Items */}
         {menuItems.map((item, index) => (
           <button
             key={index}
