@@ -1,8 +1,11 @@
+
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { sendMessage } from "@/services/chat/chatService";
+import ChatComponent from "@/utilities/socket";
+
 
 interface ChatMessage {
   _id?: string;
@@ -11,7 +14,7 @@ interface ChatMessage {
   senderRole: string;
   receiverRole: string;
   message: string;
-  createdAt: Date;
+  createdAt: string | Date;
 }
 
 interface ChatModalProps {
@@ -46,59 +49,93 @@ export const ChatModal = ({
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchMessages();
-    }
-  }, [isOpen]);
+  if (isOpen && currentUserId && vendorId) {
+    fetchMessages();
+
+    const chatRoom = `${currentUserId}-${vendorId}`; // unique room
+    ChatComponent.emit("joinChat", chatRoom);
+
+    const handleReceiveMessage = (msg: ChatMessage) => {
+      const isRelevant =
+        (msg.senderId === vendorId && msg.receiverId === currentUserId) ||
+        (msg.senderId === currentUserId && msg.receiverId === vendorId);
+
+      if (isRelevant) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    };
+
+    ChatComponent.on("receiveMessage", handleReceiveMessage);
+
+    return () => {
+      ChatComponent.off("receiveMessage", handleReceiveMessage);
+    };
+  }
+}, [isOpen, currentUserId, vendorId]);
+// re-run when modal opens or user changes
+
+  // const handleReceiveMessage = (msg: ChatMessage) => {
+  //   // only append if message is part of this conversation
+  //   // (either sent to this user from current chat vendor OR vice versa)
+  //   const isRelevant =
+  //     (msg.senderId === vendorId && msg.receiverId === currentUserId) ||
+  //     (msg.senderId === currentUserId && msg.receiverId === vendorId);
+
+  //   if (isRelevant) {
+  //     setMessages((prev) => [...prev, msg]);
+  //   }
+  // };
 
   const fetchMessages = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/chat/messages?userId=${currentUserId}&vendorId=${vendorId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        `/api/chat/messages?userId=${currentUserId}&vendorId=${vendorId}`
       );
-
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.data || []);
+      if (!response.ok) {
+        console.error("Failed to fetch messages", response.statusText);
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
+      const data = await response.json();
+      setMessages(data.data || []);
+    } catch (err) {
+      console.error("Error fetching messages:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSendMessage = async () => {
+ const handleSendMessage = async () => {
   if (!newMessage.trim() || isSending) return;
 
-  setIsSending(true);
-  const messageToSend = newMessage.trim();
+  const text = newMessage.trim();
   setNewMessage("");
+  setIsSending(true);
 
   try {
-    // ✅ Send message to backend using axios service
-    const savedMessage = await sendMessage({
+    const saved: ChatMessage = await sendMessage({
       senderId: currentUserId,
       receiverId: vendorId,
       senderRole: currentUserRole,
       receiverRole: "vendor",
-      message: messageToSend,
+      message: text,
     });
 
-    // ✅ Update UI immediately
-    setMessages((prev) => [...prev, savedMessage]);
-    scrollToBottom();
+    if (saved) {
+      setMessages((prev) => [...prev, saved]);
+      scrollToBottom();
+
+      // Emit to the correct room
+      const chatRoom = `${currentUserId}-${vendorId}`;
+      ChatComponent.emit("sendMessage", { ...saved, chatId: chatRoom });
+    } else {
+      throw new Error("Message not saved");
+    }
   } catch (error) {
     console.error("Error sending message:", error);
     alert("Failed to send message. Please try again.");
-    setNewMessage(messageToSend);
+    setNewMessage(text);
   } finally {
     setIsSending(false);
   }
@@ -159,12 +196,11 @@ export const ChatModal = ({
             <div className="space-y-4">
               {messages.map((msg, idx) => {
                 const isCurrentUser = msg.senderId === currentUserId;
+                const time = new Date(msg.createdAt);
                 return (
                   <div
                     key={msg._id || idx}
-                    className={`flex ${
-                      isCurrentUser ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex ${isCurrentUser ? "justify-end" : "justify-start"}`}
                   >
                     <div
                       className={`max-w-[75%] rounded-2xl px-4 py-3 ${
@@ -173,18 +209,9 @@ export const ChatModal = ({
                           : "bg-white border border-slate-200 text-slate-900"
                       }`}
                     >
-                      <p className="text-sm leading-relaxed break-words">
-                        {msg.message}
-                      </p>
-                      <p
-                        className={`text-xs mt-2 ${
-                          isCurrentUser ? "text-white/70" : "text-slate-500"
-                        }`}
-                      >
-                        {new Date(msg.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                      <p className="text-sm leading-relaxed break-words">{msg.message}</p>
+                      <p className={`text-xs mt-2 ${isCurrentUser ? "text-white/70" : "text-slate-500"}`}>
+                        {time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                   </div>

@@ -16,9 +16,9 @@ import { CreateDestination } from "../../../useCases/destination/createDestinati
 import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
 import { EditDestination } from "../../../useCases/destination/editDestinationUsecase";
 import { UpdateVendorUsecase } from "../../../useCases/admin/vendor/updateVendorUsecase";
-import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
-import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
-import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
+// import { CreateCategory } from "../../../useCases/category/CreateCategoryUsecase";
+// import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
+// import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
 import { CreateBanner } from "../../../useCases/banner/createBannerUsecase";
 import { BannerRepository } from "../../../adapters/repository/Banner/BannerRepository";
 import { GetAllBanners } from "../../../useCases/banner/getAllBannerUsecase";
@@ -27,8 +27,8 @@ import { BannerController } from "../../../adapters/controller/Banner/BannerCont
 import { DestinationController } from "../../../adapters/controller/Destination/DestinationController";
 import { GetDestination } from "../../../useCases/destination/getDestinationDetailUsecase";
 import { DeleteDestination } from "../../../useCases/destination/deleteDestinationUsecase"; 
-import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
-import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
+// import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
+// import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
 import { createSubscriptionusecase } from "../../../useCases/subscription/createSubscriptionusecase";
@@ -37,31 +37,31 @@ import { GetAllSubscription } from "../../../useCases/subscription/GetSubscripti
 import { SearchUserUseCase } from "../../../useCases/admin/user/SearchUserUSecase"; 
 import { SearchVendorUsecase } from "../../../useCases/admin/vendor/SearchVendorUsecase";
 import { SearchDestination } from "../../../useCases/destination/searchDestinationUsecase"; 
-import { SearchCategoryUsecase } from "../../../useCases/category/searchcategoryUSecase"; 
+// import { SearchCategoryUsecase } from "../../../useCases/category/searchcategoryUSecase"; 
 import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecase";
 import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
 import { DeleteSubscriptionUsecase } from "../../../useCases/subscription/DeleteSubscriptionusecase";
 import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
-import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
-import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
-import { CreateCategoryController } from "../../../adapters/controller/Category/categoryController";
+// import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
+// import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
+// import { CreateCategoryController } from "../../../adapters/controller/Category/categoryController";
 
 // Repositories
 const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
 const userRepository=new UserRepository()
 const destinationRepository=new DestinationRepository()
-const catogoryRepo=new CategoryRepository()
+// const catogoryRepo=new CategoryRepository()
 const bannerRepo=new BannerRepository()
 const subscriptionrepo=new SubscriptionPlanRepository()
-const vendorRepo=new VendorRepository()
-const notificationRepo=new NotificationRepository()
+// const vendorRepo=new VendorRepository()
+// const notificationRepo=new NotificationRepository()
 
 
 // Services
 const hashPassword = new HashPassword();
 const jwtService = new JwtService();
-const notificationService=new FirebaseNotificationService(notificationRepo)
+// const notificationService=new FirebaseNotificationService(notificationRepo)
 
 
 // Use Cases
@@ -75,14 +75,14 @@ const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const editDestination=new EditDestination()
 const vendorblockUnblockUsecase=new UpdateVendorUsecase(vendorRepository)
-const createcategoryUsecase=new CreateCategory(catogoryRepo,notificationService,vendorRepo)
-const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
+// const createcategoryUsecase=new CreateCategory(catogoryRepo,notificationService,vendorRepo)
+// const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
 const createbannerUsecase=new CreateBanner(bannerRepo)
 const getbannerUsecase=new GetAllBanners(bannerRepo)
 const getDestinationsingleUsecase = new GetDestination(destinationRepository);
 const deleteDestinationusecase=new DeleteDestination()
-const editCategory=new EditCategory(catogoryRepo)
-const deleteCategory=new DeleteCategory()
+// const editCategory=new EditCategory(catogoryRepo)
+// const deleteCategory=new DeleteCategory()
 const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
 const subscriptionusecase=new createSubscriptionusecase(subscriptionrepo)
@@ -90,7 +90,7 @@ const getallsubscriptions=new GetAllSubscription(subscriptionrepo)
 const searchuserusecase=new SearchUserUseCase(userRepository)
 const searchvendorusecase=new SearchVendorUsecase(vendorRepository)
 const searchdestinationusecase=new SearchDestination(destinationRepository)
-const searchcategory=new SearchCategoryUsecase(catogoryRepo)
+// const searchcategory=new SearchCategoryUsecase(catogoryRepo)
 const Banneractionusecase=new BannerActionUsecase(bannerRepo)
 const subscriptioneditusecase=new EditSubscriptionUseCase(subscriptionrepo)
 const deletesubscriptionusecase=new DeleteSubscriptionUsecase(subscriptionrepo)
@@ -107,7 +107,7 @@ export const destinationController = new DestinationController(
   deleteDestinationusecase,
   searchdestinationusecase
 )
-export const categoryController=new CreateCategoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
+// export const categoryController=new CreateCategoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
 export const bannerController=new BannerController(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
 export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,subscriptioneditusecase,deletesubscriptionusecase)
 

@@ -4,7 +4,7 @@ import {
   AdminuserController,
   adminVendorController,
   bannerController,
-  categoryController,
+  // categoryController,
   destinationController,
   subscriptionController,
 } from "../../Di/Admin/adminInjection";
@@ -120,8 +120,7 @@ export class AdminRoute {
     );
 
     this.adminRouter.get(
-      AdminRoutes.SEARCH_DESTINATION,
-      adminOnly,
+      AdminRoutes.SEARCH_DESTINATION, 
       (req, res) => destinationController.searchDestination(req, res)
     );
 
@@ -133,29 +132,29 @@ export class AdminRoute {
 
     // -------------------- CATEGORY MANAGEMENT --------------------
 
-    this.adminRouter.post(AdminRoutes.CREATE_CATEGORY, adminOnly, (req, res) =>
-      categoryController.createCategory(req, res)
-    );
+    // this.adminRouter.post(AdminRoutes.CREATE_CATEGORY, adminOnly, (req, res) =>
+    //   categoryController.createCategory(req, res)
+    // );
 
-    this.adminRouter.get(
-      AdminRoutes.GET_ALL_CATEGORIES,
-      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR, Role.USER]),
-      (req, res) => categoryController.getCategories(req, res)
-    );
+    // this.adminRouter.get(
+    //   AdminRoutes.GET_ALL_CATEGORIES,
+    //   checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR, Role.USER]),
+    //   (req, res) => categoryController.getCategories(req, res)
+    // );
 
-    this.adminRouter.get(AdminRoutes.SEARCH_CATEGORY, adminOnly, (req, res) =>
-      categoryController.SearchCategory(req, res)
-    );
+    // this.adminRouter.get(AdminRoutes.SEARCH_CATEGORY, adminOnly, (req, res) =>
+    //   categoryController.SearchCategory(req, res)
+    // );
 
-    this.adminRouter.put(AdminRoutes.EDIT_CATEGORY, adminOnly, (req, res) =>
-      categoryController.EditCategory(req, res)
-    );
+    // this.adminRouter.put(AdminRoutes.EDIT_CATEGORY, adminOnly, (req, res) =>
+    //   categoryController.EditCategory(req, res)
+    // );
 
-    this.adminRouter.delete(
-      AdminRoutes.DELETE_CATEGORY,
-      adminOnly,
-      (req, res) => categoryController.DeleteCategory(req, res)
-    );
+    // this.adminRouter.delete(
+    //   AdminRoutes.DELETE_CATEGORY,
+    //   adminOnly,
+    //   (req, res) => categoryController.DeleteCategory(req, res)
+    // );
 
     // -------------------- BANNER MANAGEMENT --------------------
 

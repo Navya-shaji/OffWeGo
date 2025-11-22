@@ -37,20 +37,18 @@ import { WalletController } from "../../../adapters/controller/Wallet/Walletcont
 import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
 import { GetUserWalletUsecase } from "../../../useCases/wallet/getusewalletUsecase";
 import { ForgotPassUsecase } from "../../../useCases/user/Login/forgotPassUSecase";
-import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
-import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
-import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
-import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
-import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
-import { SendChatMessageUseCase } from "../../../useCases/chat/SendChatUSecase";
-import { ChatUseCase } from "../../../useCases/chat/GetChatUSecase";
+// import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
+// import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
+// import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
+// import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
+// import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
 import { TransferAmountUseCase } from "../../../useCases/wallet/transferWalletUsecase";
 import { GetCompletedBookingsForTransfer } from "../../../useCases/wallet/getcompletedBookingUSecase";
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
 import { UserProfileController } from "../../../adapters/controller/User/userProfileController";
 import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
-import { ChatController } from "../../../adapters/controller/chat/ChatController";
-import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
+// import { ChatController } from "../../../adapters/controller/chat/ChatController";
+// import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
 
 // Setup Repos and Services
@@ -65,10 +63,10 @@ const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
 const subscriptionRepo=new SubscriptionPlanRepository()
 const walletRepo=new WalletRepository()
-const notificationRepo=new NotificationRepository()
-const notificationservice=new FirebaseNotificationService(notificationRepo)
+// const notificationRepo=new NotificationRepository()
+// const notificationservice=new FirebaseNotificationService(notificationRepo)
 const subscriptionbookingRepo=new SubscriptionBookingRepository()
-const chatRepo=new ChatRepository()
+// const chatRepo=new ChatRepository()
 
 
 // Use Cases
@@ -93,12 +91,12 @@ const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
 const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
-const notificationUsecase=new SendNotificationUseCase(notificationservice)
-const sendchatusecase=new SendChatMessageUseCase(chatRepo)
-const getchatusecase=new ChatUseCase(chatRepo)
+// const notificationUsecase=new SendNotificationUseCase(notificationservice)
+// const sendchatusecase=new SendChatMessageUseCase(chatRepo)
+// const getchatusecase=new ChatUseCase(chatRepo)
 const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
-const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
+// const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
@@ -110,5 +108,5 @@ export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
 export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings)
-export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
-export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)
+// export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
+// export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

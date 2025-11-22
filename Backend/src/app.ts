@@ -3,21 +3,23 @@ import dotenv from "dotenv";
 import http from "http";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { Server as SocketIOServer } from "socket.io"; 
+import { Server as SocketIOServer } from "socket.io";
 
 import { ConnectDB } from "./framework/database/ConnectDB/connectDB";
 import { UserRoute } from "./framework/routes/User/userRoute";
 import { AdminRoute } from "./framework/routes/Admin/adminRoute";
 import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 import { CommonRoute } from "./framework/routes/Auth/AuthRoutes";
+
 import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
+import { ChatRoutes } from "./framework/routes/Chat/ChatRoutes";
 
 export class App {
   private app: Express;
   private database: ConnectDB;
   private server!: http.Server;
-  private io!: SocketIOServer; 
+  private io!: SocketIOServer;
 
   constructor() {
     dotenv.config();
@@ -37,10 +39,7 @@ export class App {
     );
 
     this.setMiddlewares();
-    this.setUserRoutes();
-    this.setAdminRoutes();
-    this.setVendorRoutes();
-    this.setCommonRoutes();
+    this.setRoutes();
     this.app.use(errorMiddleware);
   }
 
@@ -50,20 +49,12 @@ export class App {
     this.app.use(morganFileLogger);
   }
 
-  private setUserRoutes(): void {
+  private setRoutes(): void {
     this.app.use("/api", new UserRoute().userRouter);
-  }
-
-  private setAdminRoutes(): void {
     this.app.use("/api/admin", new AdminRoute().adminRouter);
-  }
-
-  private setVendorRoutes(): void {
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
-  }
-
-  private setCommonRoutes(): void {
     this.app.use("/api", new CommonRoute().commonRouter);
+    this.app.use("/api/chat", new ChatRoutes().router);
   }
 
   public async listen(): Promise<void> {
@@ -72,46 +63,53 @@ export class App {
     try {
       await this.database.connect();
 
-      // Create HTTP server
       this.server = http.createServer(this.app);
 
-      // Initialize Socket.IO
       this.io = new SocketIOServer(this.server, {
         cors: {
           origin: [
             "http://localhost:5173",
             "http://localhost:4173",
+            "http://localhost:1212",
             "https://jvm9v112-5173.inc1.devtunnels.ms",
           ],
           credentials: true,
         },
       });
 
-      // Handle Socket.IO connections
+      // -------------------------------------------
+      //          🔥 CLEAN SOCKET.IO LOGIC
+      // -------------------------------------------
       this.io.on("connection", (socket) => {
-        console.log("✅ User connected:", socket.id);
+        console.log("🟢 Socket connected:", socket.id);
 
+        // Join a chat room
+        socket.on("joinChat", (chatId: string) => {
+          socket.join(chatId);
+        });
+
+        // Send + Broadcast message to room
         socket.on("sendMessage", (data) => {
-          console.log("💬 Message received:", data);
-          // Broadcast to all users
-          this.io.emit("receiveMessage", data);
+          if (!data.chatId) return;
+          this.io.to(data.chatId).emit("receiveMessage", data);
         });
 
         socket.on("disconnect", () => {
-          console.log("❌ User disconnected:", socket.id);
+          console.log("🔴 Socket disconnected:", socket.id);
         });
       });
 
-    
+      // -------------------------------------------
+
       this.server.listen(port, () => {
-        console.log(`🚀 Server is running on port ${port}`);
+        console.log(`🚀 Server running on port ${port}`);
       });
     } catch (error) {
-      console.error("❌ Failed to connect to DB:", error);
+      console.error("❌ Database connection failed:", error);
       process.exit(1);
     }
   }
 }
 
-const app = new App();
-app.listen();
+const appInstance = new App();
+appInstance.listen();

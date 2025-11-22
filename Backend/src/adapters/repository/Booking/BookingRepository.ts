@@ -157,6 +157,18 @@ async findCompletedBookingsForTransfer(): Promise<Booking[]> {
   return formattedTrips as unknown as Booking[];
 }
 
+async checkBookingExistsBetweenUserAndOwner(
+  userId: string,
+  ownerId: string
+): Promise<Booking | null> {
+  return BookingModel.findOne({
+    userId,
+    vendorId: ownerId,
+    bookingStatus: { $in: ["upcoming", "confirmed", "ongoing"] }
+  })
+    .lean<Booking>()
+    .exec();
+}
 
 
 }

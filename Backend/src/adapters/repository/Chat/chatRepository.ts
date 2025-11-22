@@ -1,38 +1,55 @@
-
-import { ChatMessage } from "../../../domain/entities/chatEntity";
+import { IChat, IChatPopulated } from "../../../domain/entities/chatEntity";
+import { IMessage } from "../../../domain/entities/MessageEntity";
 import { IChatRepository } from "../../../domain/interface/Chat/IchatRepo";
-import { ChatMessageModel } from "../../../framework/database/Models/chatModel";
-
+import { chatModel } from "../../../framework/database/Models/chatModel";
 
 
 export class ChatRepository implements IChatRepository {
-  async save(message: ChatMessage): Promise<ChatMessage> {
-    const newMessage = new ChatMessageModel(message);
-    const saved = await newMessage.save();
-    const obj = typeof (saved as any).toObject === "function" ? (saved as any).toObject() : (saved as any);
-    return {
-      ...obj,
-      _id: obj._id ? obj._id.toString() : undefined,
-    } as ChatMessage;
+  async createChat(chat: IChat): Promise<IChatPopulated> {
+    const createdChat = await chatModel.create(chat);
+    return await chatModel.findById(createdChat._id)
+      .populate('senderId', 'name profile_image')
+      .populate('receiverId', 'name profile_image') as any as IChatPopulated;
   }
 
-  async getMessagesForUser(userId: string): Promise<ChatMessage[]> {
-  const docs = await ChatMessageModel.find({
-    $or: [
-      { senderId: userId },
-      { receiverId: userId }
-    ]
-  })
-  .sort({ createdAt: 1 }) 
-  .exec();
+  async getchatOfUser(userId: string,ownerId:string): Promise<IChatPopulated|null> {
+    const chat = await chatModel.findOne({
+      $or: [
+        { senderId: userId,receiverId:ownerId },
+        { receiverId: userId,senderId:ownerId }
+      ]
+    })
+    .sort({ lastMessageAt: -1 })
+    .populate('senderId', 'name profile_image')
+    .populate('receiverId', 'name profile_image');
+    
+    return chat as any as IChatPopulated
+  }
 
-  return docs.map((doc) => {
-    const obj = typeof doc.toObject === "function" ? doc.toObject() : doc;
-    return {
-      ...obj,
-      _id: obj._id.toString(),
-    } as ChatMessage;
-  });
-}
+  async findChatsOfUser(userId:string): Promise<{chats:IChatPopulated[]|null}> {
+    const result = await chatModel.find({
+      $or: [
+        { senderId:userId, },
+        {receiverId: userId }
+      ]
+    })
+    .sort({ lastMessageAt: -1 })
+    .populate('senderId', 'name profile_image')
+    .populate('receiverId', 'name profile_image');
+    
+    const chats = result as any as IChatPopulated[];
+    return { chats }
+  }
 
+  async updateLastMessage(message: IMessage): Promise<IChat | null> {
+    console.log(message)
+    return await chatModel.findByIdAndUpdate(
+      message.chatId,
+      {
+        lastMessage: message.messageContent,
+        lastMessageAt: message.sendedTime
+      },
+      { new: true }
+    );
+  }
 }

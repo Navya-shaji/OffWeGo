@@ -1,3 +1,3 @@
 export interface IForgotpassUsecase{
-    execute(email:string):Promise<void>
+    execute(email:string):Promise<{ message: string }>
 }

@@ -1,33 +1,62 @@
-import { ChatDto, Roles } from "../../domain/dto/Chat/chatDto";
+import { IChatOut, ICreateChatDto } from "../../domain/dto/Chat/chatDto";
+import { IChat } from "../../domain/entities/chatEntity";
 import { IChatRepository } from "../../domain/interface/Chat/IchatRepo";
-import { ISendChatMessageUseCase } from "../../domain/interface/Chat/IsendChatUsecase";
-import {
-  mapDtoToChatMessage,
-  mapChatMessageToDto,
-} from "../../mappers/Chat/mapTochat";
+import { IInitiateChatUsecase } from "../../domain/interface/Chat/IsendChatUsecase";
 
-export class SendChatMessageUseCase implements ISendChatMessageUseCase {
-  constructor(private _chatRepository: IChatRepository) {}
+export class InitiateChatUsecase implements IInitiateChatUsecase {
+    private chatRepository: IChatRepository;
 
-  async execute(messageDto: ChatDto): Promise<ChatDto> {
-    const { senderId, receiverId, senderRole, receiverRole, message } =
-      messageDto;
-
-    if (!senderId || !receiverId || !senderRole || !receiverRole || !message) {
-      throw new Error(
-        "All fields (senderId, receiverId, senderRole, receiverRole, message) are required"
-      );
-    }
-    const allowedRoles = ["user", "vendor"] as const;
-    if (!allowedRoles.includes(senderRole as Roles)) {
-      throw new Error("Invalid senderRole. Must be 'user' or 'vendor'");
-    }
-    if (!allowedRoles.includes(receiverRole as Roles)) {
-      throw new Error("Invalid receiverRole. Must be 'user' or 'vendor'");
+    constructor(chatRepository: IChatRepository) {
+        this.chatRepository = chatRepository;
     }
 
-    const chatMessage = mapDtoToChatMessage(messageDto);
-    const savedMessage = await this._chatRepository.save(chatMessage);
-    return mapChatMessageToDto(savedMessage);
-  }
+    async initiateChat(input: ICreateChatDto): Promise<IChatOut> {
+        const { userId, ownerId } = input;
+
+        const existingChat = await this.chatRepository.getchatOfUser(userId, ownerId);
+
+        if (existingChat) {
+            const otherUser =
+                existingChat.senderId._id.toString() === userId
+                    ? existingChat.receiverId
+                    : existingChat.senderId;
+
+            return {
+                _id: existingChat._id,
+                name: otherUser.name,
+                profile_image: otherUser.profile_image || "",
+                isOnline: true,  
+                lastMessage: existingChat.lastMessage,
+                lastMessageAt: existingChat.lastMessageAt,
+            };
+        }
+
+
+        const newChat: IChat = {
+            senderId: userId,
+            receiverId: ownerId,
+            senderType: "user",
+            receiverType: "vendor",
+            lastMessage: "",
+            lastMessageAt: new Date(),
+        };
+
+        const createdChat = await this.chatRepository.createChat(newChat);
+
+        if (!createdChat) throw new Error("Error while creating new chat");
+
+        const otherUser =
+            createdChat.senderId._id.toString() === userId
+                ? createdChat.receiverId
+                : createdChat.senderId;
+
+        return {
+            _id: createdChat._id,
+            name: otherUser.name,
+            profile_image: otherUser.profile_image || "",
+            isOnline: true,
+            lastMessage: createdChat.lastMessage,
+            lastMessageAt: createdChat.lastMessageAt,
+        };
+    }
 }

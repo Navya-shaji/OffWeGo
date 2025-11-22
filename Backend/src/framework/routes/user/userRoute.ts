@@ -8,8 +8,8 @@ import {
   paymentcontroller,
   reviewcontroller,
   walletcontroller,
-  notificationcontroller,
-  chatcontroller,
+  // notificationcontroller,
+  // chatcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -180,24 +180,24 @@ export class UserRoute {
         buddyTravelcontroller.createBuddyBooking(req, res);
       }
     );
-    this.userRouter.post(
-      CommonRoutes.NOTIFICATIONS,
-      (req: Request, res: Response) => {
-        notificationcontroller.sendNotification(req, res);
-      }
-    );
-    this.userRouter.post(
-      CommonRoutes.CHAT,
-      (req:Request,res:Response)=>{
-        chatcontroller.sendChat(req,res)
-      }
-    )
-    this.userRouter.get(
-      CommonRoutes.CHATS,
-      (req:Request,res:Response)=>{
-        chatcontroller.getChat(req,res)
-      }
-    )
+    // this.userRouter.post(
+    //   CommonRoutes.NOTIFICATIONS,
+    //   (req: Request, res: Response) => {
+    //     notificationcontroller.sendNotification(req, res);
+    //   }
+    // );
+    // this.userRouter.post(
+    //   CommonRoutes.CHAT,
+    //   (req:Request,res:Response)=>{
+    //     chatcontroller.sendChat(req,res)
+    //   }
+    // )
+    // this.userRouter.get(
+    //   CommonRoutes.CHATS,
+    //   (req:Request,res:Response)=>{
+    //     chatcontroller.getChat(req,res)
+    //   }
+    // )
   
   }
 }

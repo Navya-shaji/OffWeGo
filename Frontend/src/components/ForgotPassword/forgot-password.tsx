@@ -3,39 +3,36 @@ import toast from "react-hot-toast";
 import { sendOtpForReset } from "@/services/user/LoginService";
 import { Link } from "react-router-dom";
 import { X, Loader2 } from "lucide-react";
-import VerifyResetOtpModal from "./otp-verification "; 
-export default function ForgotPasswordModal({
-  onClose,
-}: {
-  onClose: () => void;
-}) {
+import VerifyResetOtpModal from "./otp-verification ";
+
+export default function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       toast.error("Please enter your email");
       return;
     }
 
-try {
-  setLoading(true);
-  const response = await sendOtpForReset(email);
+    try {
+      setLoading(true);
+      const response = await sendOtpForReset(trimmedEmail);
 
-  if (response?.success) {
-    toast.success("OTP sent to your email");
-    setShowVerifyModal(true);
-  } else {
-    toast.error(response?.message || "Email not found");
-  }
-} catch (err: any) {
-  console.error("Error:", err.message);
-  toast.error(err.message || "Something went wrong");
-} finally {
-  setLoading(false);
-}
-
+      if (response?.success) {
+        toast.success(response.message || "OTP sent to your email");
+        setShowVerifyModal(true);
+      } else {
+        toast.error(response?.message || "Email not found");
+      }
+    } catch (err: any) {
+      console.error("Error:", err.message);
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (showVerifyModal) {

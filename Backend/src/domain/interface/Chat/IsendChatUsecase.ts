@@ -1,6 +1,5 @@
+import { ICreateChatDto, IChatOut } from "../../dto/Chat/chatDto";
 
-import { ChatDto } from "../../dto/Chat/chatDto";
-
-export interface ISendChatMessageUseCase {
-  execute(messageDto: ChatDto): Promise<ChatDto>;
+export interface IInitiateChatUsecase {
+    initiateChat(input: ICreateChatDto): Promise<IChatOut>;
 }

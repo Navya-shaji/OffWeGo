@@ -1,63 +1,47 @@
-import { INotificationService } from "../../domain/interface/Notification/INotificationService";
-import { Notification } from "../../domain/entities/NotificationEntity";
-import { firebaseAdmin } from "./firebase";
-import { INotificationRepository } from "../../domain/interface/Notification/INotificationRepo";
-import { Role } from "../../domain/constants/Roles";
-
-export class FirebaseNotificationService implements INotificationService {
-  constructor(private _notificationRepo: INotificationRepository) {}
-
-  async send(notification: Notification): Promise<void> {
-    try {
-    
-      if (notification.tokens && notification.tokens.length > 0) {
-        const validTokens = notification.tokens.filter(t => t && t.length > 0);
-
-        if (validTokens.length > 0) {
-          const response = await firebaseAdmin.messaging().sendEachForMulticast({
-            notification: { title: notification.title, body: notification.body },
-            tokens: validTokens,
-          });
-
-          console.log(`Notifications sent: ${response.successCount}`);
-          
-          response.responses.forEach(async (resp, idx) => {
-            if (!resp.success) {
-              console.warn(` Token ${validTokens[idx]} failed:`, resp.error);
-              if (resp.error?.code === "messaging/registration-token-not-registered") {
-                await this._notificationRepo.removeToken(validTokens[idx]);
-              }
-            }
-          });
-        }
-      }
+// import { INotificationService } from "../../domain/interface/Notification/INotificationService";
+// import { NotificationDto } from "../../domain/dto/Notification/NotificationDto";
+// import { INotification } from "../../domain/entities/NotificationEntity";
+// import { INotificationRepository } from "../../domain/interface/Notification/INotificationRepo";
 
 
-      if (notification.topic) {
-        await firebaseAdmin.messaging().send({
-          notification: { title: notification.title, body: notification.body },
-          topic: notification.topic,
-        });
-        console.log(` Notification sent to topic: ${notification.topic}`);
-      }
+// export class NotificationService implements INotificationService {
 
-    
-      await this._notificationRepo.save(notification);
-    } catch (error) {
-      console.error(" Error sending notifications:", error);
-      throw new Error("Failed to send notification");
-    }
-  }
+//   constructor(
+//     private _notificationRepo: INotificationRepository,
+//     private _notificationManager: INotificationManagerAdapter
+//   ) {}
 
-    async getByRecipient(
-   
-    recipientType:Role
-  ): Promise<Notification[]> {
-    try {
-      return this._notificationRepo.findByRecipient( recipientType);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      throw new Error("Failed to fetch notifications");
-    }
-  }
-}
+//   async send(notification: NotificationDto): Promise<INotification[]> {
+//     // Save in DB
+//     const saved = await this._notificationRepo.create({
+//       from: notification.from,
+//       to: notification.to,
+//       message: notification.message,
+//       read: notification.read,
+//       senderModel: notification.senderModel,
+//       receiverModel: notification.receiverModel,
+//       type: notification.type
+//     });
+
+//     // Prepare live notification structure
+//     const live: LiveNotificationDto = {
+//       _id: saved._id?.toString() || "",
+//       from: saved.from.toString(),
+//       to: saved.to.toString(),
+//       message: saved.message,
+//       type: saved.type
+//     };
+
+//     // Emit it (Socket.IO or WS)
+//     this._notificationManager.sendLiveNotification(live);
+
+//     return [saved]; // as Promise<INotification[]>
+//   }
+
+//   async getByRecipient(
+//     recipientId: string,
+//     recipientType: "vendor" | "user"
+//   ): Promise<INotification[]> {
+//     return this._notificationRepo.findByRecipient(recipientId, recipientType);
+//   }
+// }

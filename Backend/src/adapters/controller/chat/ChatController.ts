@@ -1,51 +1,94 @@
 import { Request, Response } from "express";
+import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUsecase";
+import { IGetChatsOfUserUsecase } from "../../../domain/interface/Chat/IGetChatUSecase";
+import { IEnableChatUsecase } from "../../../domain/interface/Chat/IEnableChatUSecase";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { ISendChatMessageUseCase } from "../../../domain/interface/Chat/IsendChatUsecase";
-import { IChatUseCase } from "../../../domain/interface/Chat/IGetChatUSecase";
-import { ChatDto } from "../../../domain/dto/Chat/chatDto";
+
 
 export class ChatController {
-  constructor(
-    private _sendChat: ISendChatMessageUseCase,
-    private _getChat: IChatUseCase
-  ) {}
+    
+    constructor(
+        private _CreateChatUsecase: IInitiateChatUsecase,
+        private _getChatUsecase: IGetChatsOfUserUsecase,
+        private _enableChatUsecase: IEnableChatUsecase
+    ) {}
 
-  async sendChat(req: Request, res: Response): Promise<void> {
-    try {
-      const chatDto: ChatDto = req.body;
+ 
+    async findOrCreateChat(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId, ownerId } = req.body;
 
-      const savedMessage = await this._sendChat.execute(chatDto);
+            if (!userId || !ownerId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    message: "Missing required fields"
+                });
+                return;
+            }
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Message sent successfully",
-        data: savedMessage,
-      });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Failed to send message",
-        error: (error as Error).message,
-      });
+            const chat = await this._CreateChatUsecase.initiateChat({ userId, ownerId });
+
+            res.status(HttpStatus.OK).json({
+                success: true,
+                data: chat
+            });
+
+        } catch (error) {
+            console.error("Error finding/creating chat:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "Failed to find or create chat"
+            });
+        }
     }
-  }
 
-  async getChat(req: Request, res: Response): Promise<void> {
-    try {
-      const { senderId } = req.params;
-      const chatMessages = await this._getChat.execute(senderId);
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Chat messages retrieved successfully",
-        data: chatMessages,
-      });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Failed to retrieve chat messages",
-        error: (error as Error).message,
-      });
+    async getChatsOfUser(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId } = req.params;
+
+            const result = await this._getChatUsecase.getChats(userId);
+
+            res.status(HttpStatus.OK).json({
+                success: true,
+                data: result
+            });
+
+        } catch (error) {
+            console.error("Error getting user chats:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "Failed to get chats"
+            });
+        }
     }
-  }
+
+
+    async enableChat(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId, ownerId } = req.body;
+
+            if (!userId || !ownerId) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    message: "Missing required fields: userId and ownerId"
+                });
+                return;
+            }
+
+            const result = await this._enableChatUsecase.IsBookingExists(userId, ownerId);
+
+            res.status(HttpStatus.OK).json({
+                success: true,
+                data: result
+            });
+
+        } catch (error) {
+            console.error("Error checking chat eligibility:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "Failed to check chat eligibility"
+            });
+        }
+    }
 }

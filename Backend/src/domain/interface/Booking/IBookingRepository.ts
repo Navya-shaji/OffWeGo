@@ -16,4 +16,9 @@ export interface IBookingRepository {
     selectedDate: Date
   ): Promise<Booking | null>;
   findCompletedBookingsForTransfer(): Promise<Booking[]>;
+    checkBookingExistsBetweenUserAndOwner(
+    userId: string,
+    ownerId: string
+  ): Promise<Booking | null>;
 }
+

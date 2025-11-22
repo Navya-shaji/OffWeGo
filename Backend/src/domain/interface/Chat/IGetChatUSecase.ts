@@ -1,5 +1,5 @@
-import { ChatMessage } from "../../entities/chatEntity";
+import { IChatOut } from "../../dto/Chat/chatDto";
 
-export interface IChatUseCase {
-  execute(userId: string): Promise<ChatMessage[]>;
+export interface IGetChatsOfUserUsecase {
+    getChats(userId: string): Promise<IChatOut[]>;
 }

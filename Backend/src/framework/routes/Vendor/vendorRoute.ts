@@ -22,9 +22,9 @@ import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInject
 import {
   bookingcontroller,
   
-  chatcontroller,
+  // chatcontroller,
   
-  notificationcontroller,
+  // notificationcontroller,
   
   subscriptionpaymentcontroller,
   walletcontroller,
@@ -239,12 +239,12 @@ export class VendorRoute {
         buddyTravelcontroller.getVendorBuddyPackages(req,res)
       }
     )
-    this.vendorRouter.get(
-      CommonRoutes.CHATS,
-      (req:Request,res:Response)=>{
-        chatcontroller.getChat(req,res)
-      }
-    )
+    // this.vendorRouter.get(
+    //   CommonRoutes.CHATS,
+    //   (req:Request,res:Response)=>{
+    //     chatcontroller.getChat(req,res)
+    //   }
+    // )
     this.vendorRouter.post(
       VendorRoutes.VENDOR_WALLET,
       (req:Request,res:Response)=>{
@@ -258,11 +258,11 @@ export class VendorRoute {
         walletcontroller.GetWallet(req,res)
       }
     )
-      this.vendorRouter.get(
-      CommonRoutes.GET_NOTIFICATIONS,
-      (req:Request,res:Response)=>{
-        notificationcontroller.getNotifications(req,res)
-      }
-    )
+    //   this.vendorRouter.get(
+    //   CommonRoutes.GET_NOTIFICATIONS,
+    //   (req:Request,res:Response)=>{
+    //     notificationcontroller.getNotifications(req,res)
+    //   }
+    // )
   }
 }
