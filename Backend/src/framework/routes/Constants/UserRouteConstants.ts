@@ -24,5 +24,7 @@ export const UserRoutes = {
   BUDDY_PACKAGES:'/buddy-packages',
   JOIN_TRAVEL:'/join-travel/:travelId/:userId',
   BOOKING_BUDDYTRAVEL:'/booking/travel',
-  BOOKING_RESHEDULE:'/booking/:id/reschedule'
+  BOOKING_RESHEDULE:'/booking/:id/reschedule',
+  WALLET_PAYMENT:'/wallet/payment'
+
 };

@@ -18,9 +18,9 @@ console.log(response.data,"response")
 };
 
 
-export const getUserBookings = async (userId: string) => {
-  const response = await axiosInstance.get(`/api/bookings/${userId}`);
-  console.log(response.data.bookings)
+export const getUserBookings = async () => {
+  const response = await axiosInstance.get(`/api/bookings`);
+  console.log(response.data.bookings,"bookings")
   return response.data.bookings;
 };
 

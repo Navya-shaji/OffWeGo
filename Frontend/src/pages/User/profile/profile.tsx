@@ -37,11 +37,11 @@ const Profile = () => {
         {activeSection === "profile" && (
   <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     
-
+    {/* Top Section */}
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-8 border-b border-gray-200">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         
-      
+        {/* User Info */}
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
             {user?.imageUrl ? (

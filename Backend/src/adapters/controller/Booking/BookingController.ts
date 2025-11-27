@@ -36,9 +36,9 @@ export class BookingController {
 
   async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId;
+      const userId =req.user?.userId
       const bookings = await this._userbookings.execute(userId);
-
+console.log(bookings)
       res.status(HttpStatus.OK).json({ success: true, bookings });
     } catch (error) {
       console.error("Error fetching user bookings:", error);

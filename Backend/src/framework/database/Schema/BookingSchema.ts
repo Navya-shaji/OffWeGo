@@ -34,4 +34,5 @@ export const BookingSchema = new Schema({
   paymentStatus: { type: String, default: "pending" },
   paymentIntentId: { type: String },
   bookingStatus:{type:String,default:"upcoming"}
+  
 });

@@ -20,5 +20,13 @@ export interface IBookingRepository {
     userId: string,
     ownerId: string
   ): Promise<Booking | null>;
+    updatePaymentStatus(
+    bookingId: string,
+    paymentData: {
+      paymentMethod: string; 
+      amountPaid: number;
+      status: "paid" | "pending" | "failed";
+    }
+  ): Promise<Booking>;
 }
 

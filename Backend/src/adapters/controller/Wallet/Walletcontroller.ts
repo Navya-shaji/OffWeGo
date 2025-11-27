@@ -4,14 +4,15 @@ import { IGetWalletUSecase } from "../../../domain/interface/Wallet/IGetWalletUs
 import { ICreateWalletUsecase } from "../../../domain/interface/Wallet/ICreateUserWalletUsecase";
 import { ITransferAmountUseCase } from "../../../domain/interface/Wallet/ITransferWalletAmountUsecase";
 import { IGetCompletedBookingsUseCase } from "../../../domain/interface/Wallet/ICompletedBookings";
-
+import { IWalletPaymentUseCase } from "../../../domain/interface/Wallet/IWalletPayment";
 
 export class WalletController {
   constructor(
     private _createWallet: ICreateWalletUsecase,
     private _getWallet: IGetWalletUSecase,
     private _transferWallet: ITransferAmountUseCase,
-    private _getCompletedBookings: IGetCompletedBookingsUseCase
+    private _getCompletedBookings: IGetCompletedBookingsUseCase,
+    private _walletPaymentUseCase: IWalletPaymentUseCase 
   ) {}
 
   async createWallet(req: Request, res: Response): Promise<void> {
@@ -57,7 +58,6 @@ export class WalletController {
     }
   }
 
-
   async getCompletedBookingsForTransfer(req: Request, res: Response): Promise<void> {
     try {
       const completedBookings = await this._getCompletedBookings.execute();
@@ -72,6 +72,39 @@ export class WalletController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch completed bookings",
+      });
+    }
+  }
+
+  // ⭐⭐⭐ NEW METHOD — USER WALLET PAYMENT / DEBIT ⭐⭐⭐
+  async walletPayment(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId, amount, description } = req.body;
+
+      if (!userId || !amount) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "userId and amount are required",
+        });
+        return;
+      }
+
+      const result = await this._walletPaymentUseCase.execute(
+        userId,
+        amount,
+        description || "Wallet Payment"
+      );
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Amount debited successfully",
+        balance: result.newBalance,
+      });
+    } catch (error) {
+      console.error("Error debiting wallet amount:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message || "Failed to debit wallet",
       });
     }
   }

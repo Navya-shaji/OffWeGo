@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Wallet, CreditCard, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import StripeCheckout from "./stripeCheckout";
-import { getUserWallet } from "@/services/Wallet/UserWalletService";
+import { getUserWallet, walletPayment } from "@/services/Wallet/UserWalletService";
 import axiosInstance from "@/axios/instance";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -23,7 +23,7 @@ export default function PaymentCheckout() {
   const subtotal = totalAmount;
 
   const UserId = useSelector((state: RootState) => state.auth.user?.id);
-  // Fetch wallet balance on component mount
+
   useEffect(() => {
     const fetchWallet = async () => {
       try {
@@ -47,42 +47,41 @@ export default function PaymentCheckout() {
   }, []);
 
   const handleWalletPayment = async () => {
-    if (walletBalance < subtotal) {
-      setError(`Insufficient wallet balance. You need ₹${subtotal - walletBalance} more.`);
-      return;
-    }
+  if (walletBalance < subtotal) {
+    setError(`Insufficient wallet balance. You need ₹${subtotal - walletBalance} more.`);
+    return;
+  }
 
-    setPaymentLoading(true);
-    setError("");
+  setPaymentLoading(true);
+  setError("");
 
-    try {
-      const response = await axiosInstance.post("/api/wallet/deduct", {
-        userId,
-        amount: subtotal,
-        bookingId: state?.bookingId, 
-        description: "Booking payment"
+  try {
+    const response = await walletPayment(
+      userId,
+      subtotal,
+      "Booking payment"
+    );
+console.log(response,"resoponse")
+    if (response.success) {
+      setWalletBalance(prev => prev - subtotal);
+
+      alert("Payment successful! Your booking is confirmed.");
+
+      navigate("/booking-success", {
+        state: {
+          paymentMethod: "wallet",
+          amount: subtotal,
+          bookingId: state?.bookingId,
+        },
       });
-
-      if (response.data.success) {
-        setWalletBalance(prev => prev - subtotal);
-        
-        alert("Payment successful! Your booking is confirmed.");
-        
-        // Navigate to success page or booking details
-        navigate("/booking-success", { 
-          state: { 
-            paymentMethod: "wallet",
-            amount: subtotal 
-          } 
-        });
-      }
-    } catch (err) {
-      console.error("Wallet payment failed:", err);
-      setError("Payment failed. Please try again or use another payment method.");
-    } finally {
-      setPaymentLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Wallet payment failed:", error);
+    setError("Payment failed. Please try again or use another payment method.");
+  } finally {
+    setPaymentLoading(false);
+  }
+};
 
   const handlePayment = () => {
     if (selectedPayment === "stripe") {

@@ -167,5 +167,27 @@ async checkBookingExistsBetweenUserAndOwner(
     .exec();
 }
 
+async updatePaymentStatus(
+  bookingId: string,
+  paymentData: { paymentMethod: string; amountPaid: number; status: string }
+): Promise<Booking> {
+  const updatedBooking = await BookingModel.findOneAndUpdate(
+    { bookingId },
+    { 
+      paymentStatus: paymentData.status,
+      paymentMethod: paymentData.paymentMethod,
+      amountPaid: paymentData.amountPaid
+    },
+    { new: true }
+  )
+    .lean<Booking>()
+    .exec();
+
+  if (!updatedBooking) {
+    throw new Error("Booking not found");
+  }
+
+  return updatedBooking;
+}
 
 }

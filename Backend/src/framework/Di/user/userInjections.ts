@@ -52,6 +52,7 @@ import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository
 import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
 import { ChatController } from "../../../adapters/controller/chat/ChatController";
 import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
+import { WalletPaymentUseCase } from "../../../useCases/wallet/walletPayment";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -103,6 +104,7 @@ const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo)
+const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
@@ -113,6 +115,6 @@ export const bookingcontroller=new BookingController(createbookingusecase,userbo
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
-export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings)
+export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings,walletpaymentusecase)
 // export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
 export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

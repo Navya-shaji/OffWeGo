@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import {
   cancelBooking,
   getUserBookings,
+  
 } from "@/services/Booking/bookingService";
 import { findOrCreateChat } from "@/services/chat/chatService";
 
@@ -46,7 +47,8 @@ const BookingDetailsSection = () => {
     const fetchBookings = async () => {
       if (user?.id) {
         try {
-          const data = await getUserBookings(user.id);
+          const data = await getUserBookings();
+          console.log(data)
           const sortedData = data.sort(
             (a: any, b: any) =>
               new Date(b.selectedDate).getTime() -
@@ -73,7 +75,7 @@ const BookingDetailsSection = () => {
       setLoading(true);
       const response = await cancelBooking(bookingId);
       alert(response.message || "Booking cancelled and refund added to wallet.");
-      const updatedBookings = await getUserBookings(user?.id);
+      const updatedBookings = await getUserBookings();
       setBookings(updatedBookings);
       setIsModalOpen(false);
     } catch (error) {
@@ -105,17 +107,14 @@ const startChatWithVendor = async (booking: any) => {
   }
 
   try {
-    // FIXED: findOrCreateChat already returns unwrapped data
     const chatData = await findOrCreateChat(user.id, ownerId);
     console.log("Chat data received:", chatData);
     
-    // FIXED: Check for _id directly on chatData
     if (!chatData._id) {
       console.error("No chat ID found in response:", chatData);
       throw new Error("Chat ID not found in response");
     }
 
-    // Navigate to chat page with correct format
     navigate(`/chat/${user.id}_${ownerId}`);
   } catch (error) {
     console.error("Error starting chat:", error);

@@ -127,6 +127,7 @@ export class UserRoute {
     );
     this.userRouter.get(
       UserRoutes.USER_BOOKINGS,
+      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         bookingcontroller.getUserBookings(req, res);
       }
@@ -140,10 +141,13 @@ export class UserRoute {
         reviewcontroller.getReviews(req, res);
       }
     );
-    this.userRouter.put(UserRoutes.PASSWORD, verifyTokenAndCheckBlackList(TokenService), (req: Request, res: Response) => {
-      
-      userprofileController.changePasswordHandler(req, res);
-    });
+    this.userRouter.put(
+      UserRoutes.PASSWORD,
+      verifyTokenAndCheckBlackList(TokenService),
+      (req: Request, res: Response) => {
+        userprofileController.changePasswordHandler(req, res);
+      }
+    );
     this.userRouter.patch(
       UserRoutes.CANCEL_BOOKING,
       (req: Request, res: Response) => {
@@ -183,28 +187,21 @@ export class UserRoute {
     );
     this.userRouter.post(
       UserRoutes.BOOKING_RESHEDULE,
-      (req:Request,res:Response)=>{
-        bookingcontroller.rescheduleBooking(req,res)
+      (req: Request, res: Response) => {
+        bookingcontroller.rescheduleBooking(req, res);
       }
-    )
+    );
+    this.userRouter.post(UserRoutes.WALLET_PAYMENT, (req: Request, res: Response) => {
+     walletcontroller.walletPayment(req,res)
+    });
     // this.userRouter.post(
     //   CommonRoutes.NOTIFICATIONS,
     //   (req: Request, res: Response) => {
     //     notificationcontroller.sendNotification(req, res);
     //   }
     // );
-    this.userRouter.post(
-      CommonRoutes.CHAT,
-      (req:Request,res:Response)=>{
-        chatcontroller.findOrCreateChat(req,res)
-      }
-    )
-    this.userRouter.get(
-      CommonRoutes.CHATS,
-      (req:Request,res:Response)=>{
-        chatcontroller.getChatsOfUser(req,res)
-      }
-    )
-  
+    this.userRouter.post(CommonRoutes.CHAT, (req: Request, res: Response) => {
+      chatcontroller.findOrCreateChat(req, res);
+    });
   }
 }
