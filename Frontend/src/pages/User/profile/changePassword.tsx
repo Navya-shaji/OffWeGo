@@ -72,23 +72,22 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         newPassword: newPassword,
       });
 
-      // Clear form on success
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       
       toast.success("✓ Password changed successfully!");
       
-      // Close modal after a short delay to let user see success message
+    
       setTimeout(() => {
         onClose();
       }, 1000);
       
     } catch (err: any) {
-      // Parse backend error message
       const errorMsg = err.response?.data?.message || err.message || "";
 
-      // Check for specific error types
+
       if (
         errorMsg.toLowerCase().includes("incorrect") ||
         errorMsg.toLowerCase().includes("invalid") ||
@@ -122,7 +121,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-sm">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">

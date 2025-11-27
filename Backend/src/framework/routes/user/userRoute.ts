@@ -185,7 +185,7 @@ export class UserRoute {
         buddyTravelcontroller.createBuddyBooking(req, res);
       }
     );
-    this.userRouter.post(
+    this.userRouter.patch(
       UserRoutes.BOOKING_RESHEDULE,
       (req: Request, res: Response) => {
         bookingcontroller.rescheduleBooking(req, res);

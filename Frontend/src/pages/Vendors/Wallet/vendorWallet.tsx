@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { Wallet, TrendingUp, RefreshCw, AlertCircle, ArrowDownCircle, CheckCircle, Home } from "lucide-react";
+import {
+  Wallet,
+  TrendingUp,
+  RefreshCw,
+  AlertCircle,
+  ArrowDownCircle,
+  CheckCircle,
+  Home,
+} from "lucide-react";
 import { getVendorWallet } from "@/services/Wallet/VendorWalletService";
 
 export default function VendorWalletManagement() {
@@ -36,10 +44,10 @@ export default function VendorWalletManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <RefreshCw className="animate-spin text-white mx-auto mb-3" size={40} />
-          <p className="text-gray-400 text-lg font-light tracking-wide">Loading wallet details...</p>
+          <RefreshCw className="animate-spin text-gray-500 mx-auto mb-3" size={40} />
+          <p className="text-gray-600 text-lg">Loading wallet details...</p>
         </div>
       </div>
     );
@@ -47,16 +55,14 @@ export default function VendorWalletManagement() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="bg-gray-900 p-6 border border-gray-700 text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-6 rounded-lg shadow max-w-md border border-gray-200 text-center">
           <AlertCircle className="text-red-500 mx-auto mb-3" size={32} />
-          <h2 className="text-xl font-light text-white">
-            <span className="font-bold">Error</span>
-          </h2>
-          <p className="text-red-400 mt-2">{error}</p>
+          <h2 className="text-xl font-semibold text-gray-800">Error</h2>
+          <p className="text-red-500 mt-2">{error}</p>
           <button
             onClick={fetchWallet}
-            className="mt-4 px-6 py-2 bg-white text-black font-semibold tracking-wide uppercase text-sm hover:bg-gray-200 transition"
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Retry
           </button>
@@ -77,32 +83,32 @@ export default function VendorWalletManagement() {
   const debitTransactions = wallet?.transactions?.filter((t) => t.type === "debit") || [];
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8 bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
+        <div className="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => (window.location.href = "/")}
-                className="flex items-center gap-2 px-6 py-3 bg-white text-black font-semibold tracking-wide uppercase text-sm hover:bg-gray-200 transition-all"
-              >
-                <Home className="w-4 h-4" />
-                <span>Home</span>
-              </button>
-              <div>
-                <h1 className="text-4xl font-light text-white tracking-tight flex items-center gap-3">
-                  <Wallet className="text-white" /> Vendor <span className="font-bold">Wallet</span>
-                </h1>
-                <p className="text-gray-400 mt-2 font-light">
-                  Manage and view your wallet balance and transactions
-                </p>
-              </div>
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              <Home className="w-4 h-4" />
+              Home
+            </button>
+
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                <Wallet className="text-blue-600" /> Vendor Wallet
+              </h1>
+              <p className="text-gray-500 text-sm mt-1">
+                Manage and view wallet balance and transactions
+              </p>
             </div>
+
             <button
               onClick={fetchWallet}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-black font-semibold tracking-wide uppercase text-sm hover:bg-gray-200 transition disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               <RefreshCw className={loading ? "animate-spin" : ""} size={18} />
               Refresh
@@ -112,71 +118,72 @@ export default function VendorWalletManagement() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-700 p-6 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm opacity-90 tracking-wide uppercase font-semibold text-gray-400">Wallet Balance</span>
-              <Wallet size={24} />
+          {/* Wallet Balance */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-gray-500 font-medium">Wallet Balance</span>
+              <Wallet size={22} className="text-blue-600" />
             </div>
-            <p className="text-3xl font-bold">{formatCurrency(wallet?.balance)}</p>
-            <p className="text-gray-400 text-sm mt-1 font-light">Available to withdraw</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {formatCurrency(wallet?.balance)}
+            </p>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm tracking-wide uppercase font-semibold">Total Earnings</span>
-              <TrendingUp size={24} className="text-white" />
+          {/* Earnings */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-gray-500 font-medium">Total Earnings</span>
+              <TrendingUp size={22} className="text-green-600" />
             </div>
-            <p className="text-3xl font-bold text-white">
+            <p className="text-3xl font-bold text-gray-900">
               {formatCurrency(totalEarnings || 0)}
             </p>
-            <p className="text-gray-400 text-sm mt-1 font-light">From completed trips (90%)</p>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm tracking-wide uppercase font-semibold">Total Withdrawals</span>
-              <ArrowDownCircle size={24} className="text-white" />
+          {/* Withdrawals */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-gray-500 font-medium">Total Withdrawals</span>
+              <ArrowDownCircle size={22} className="text-red-600" />
             </div>
-            <p className="text-3xl font-bold text-white">
+            <p className="text-3xl font-bold text-gray-900">
               {formatCurrency(totalWithdrawals || 0)}
             </p>
-            <p className="text-gray-400 text-sm mt-1 font-light">Amount withdrawn</p>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm tracking-wide uppercase font-semibold">Transactions</span>
-              <CheckCircle size={24} className="text-white" />
+          {/* Transaction Count */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-gray-500 font-medium">Transactions</span>
+              <CheckCircle size={22} className="text-purple-600" />
             </div>
-            <p className="text-3xl font-bold text-white">
+            <p className="text-3xl font-bold text-gray-900">
               {wallet?.transactions?.length || 0}
             </p>
-            <p className="text-gray-400 text-sm mt-1 font-light">Total count</p>
           </div>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-gray-900 border border-gray-700 p-4 mb-6">
+        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="text-white flex-shrink-0 mt-0.5" size={20} />
-            <div className="text-sm text-gray-300">
-              <p className="font-medium mb-1 tracking-wide uppercase text-xs text-white">How earnings work:</p>
-              <p className="font-light">When a customer completes a trip booking, 90% of the booking amount is automatically transferred to your wallet. The remaining 10% is the platform fee.</p>
-            </div>
+            <AlertCircle className="text-blue-700 mt-1" size={20} />
+            <p className="text-sm text-blue-700">
+              <strong>How earnings work:</strong> Vendors receive <b>90%</b> of each
+              completed trip. The remaining <b>10%</b> is the platform fee.
+            </p>
           </div>
         </div>
 
-        {/* Transactions List */}
-        <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-light text-white">
-              Recent <span className="font-bold">Transactions</span>
-            </h3>
+        {/* Transactions */}
+        <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-900">Recent Transactions</h3>
+
             <div className="flex gap-2">
-              <span className="px-3 py-1 bg-white text-black font-medium tracking-wide uppercase text-xs">
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
                 {creditTransactions.length} Credits
               </span>
-              <span className="px-3 py-1 bg-gray-700 text-white font-medium tracking-wide uppercase text-xs">
+              <span className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
                 {debitTransactions.length} Debits
               </span>
             </div>
@@ -187,34 +194,30 @@ export default function VendorWalletManagement() {
               {wallet.transactions.slice(0, 15).map((tx, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-4 bg-gray-800/30 border border-gray-800 hover:bg-gray-800/50 transition"
+                  className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition"
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <div
-                      className={`w-10 h-10 flex items-center justify-center font-bold ${
+                      className={`w-10 h-10 flex items-center justify-center rounded font-bold text-lg ${
                         tx.type === "credit"
-                          ? "bg-white text-black"
-                          : "bg-gray-700 text-white"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                       }`}
                     >
                       {tx.type === "credit" ? "+" : "-"}
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-white">{tx.description}</p>
-                      <p className="text-sm text-gray-400 font-light">
-                        {new Date(tx.date).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+
+                    <div>
+                      <p className="font-semibold text-gray-800">{tx.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(tx.date).toLocaleString("en-IN")}
                       </p>
                     </div>
                   </div>
+
                   <p
-                    className={`font-bold text-lg whitespace-nowrap ml-4 ${
-                      tx.type === "credit" ? "text-white" : "text-gray-500"
+                    className={`font-bold text-lg ${
+                      tx.type === "credit" ? "text-green-700" : "text-red-600"
                     }`}
                   >
                     {tx.type === "credit" ? "+" : "-"} {formatCurrency(tx.amount)}
@@ -223,12 +226,9 @@ export default function VendorWalletManagement() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <Wallet className="mx-auto text-gray-700 mb-3" size={48} />
-              <p className="text-gray-400 text-lg font-light">No transactions yet</p>
-              <p className="text-gray-500 text-sm mt-1 font-light">
-                Earnings from completed trips will appear here
-              </p>
+            <div className="text-center py-12 text-gray-500">
+              <Wallet className="mx-auto mb-3 text-gray-400" size={48} />
+              No transactions available yet.
             </div>
           )}
         </div>

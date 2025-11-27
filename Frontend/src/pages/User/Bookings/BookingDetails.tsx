@@ -70,7 +70,6 @@ console.log("detals",packageData)
             </div>
           </section>
 
-          {/* Destination Details */}
           {destinationData && (
             <section className="border-2 border-gray-900 p-4">
               <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-gray-900">

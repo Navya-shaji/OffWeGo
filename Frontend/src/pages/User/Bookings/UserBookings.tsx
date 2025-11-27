@@ -3,21 +3,21 @@ import {
   Calendar,
   Package,
   Home,
-  ArrowUpDown,
+
   Star,
   X,
   Eye,
   MapPin,
   Users,
   Clock,
-    CreditCard,
+  CreditCard,
   Phone,
   Mail,
-  User,
   CheckCircle,
   XCircle,
   AlertCircle,
   MessageCircle,
+  RefreshCw,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -25,209 +25,230 @@ import { useNavigate } from "react-router-dom";
 import {
   cancelBooking,
   getUserBookings,
-  
+  rescheduleBooking,
 } from "@/services/Booking/bookingService";
 import { findOrCreateChat } from "@/services/chat/chatService";
+import { ConfirmModal } from "@/components/Modular/ConfirmModal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+
+const RescheduleModal = ({
+  open,
+  onClose,
+  bookingId,
+  onSuccess,
+}: {
+  open: boolean;
+  onClose: () => void;
+  bookingId: string;
+  onSuccess?: () => void;
+}) => {
+  const [newDate, setNewDate] = useState("");
+  const [loading, setLoading] = useState(false);
+  console.log(bookingId,"iiiiiii")
+const handleSubmit = async () => {
+  if (!newDate) {
+    toast.error("Please select a new date");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    await rescheduleBooking(bookingId, newDate);
+
+    toast.success("Booking rescheduled successfully!");
+    onSuccess?.();
+    onClose();
+  } catch (error: any) {
+    console.error("Reschedule error:", error);
+    toast.error(error?.message || "Failed to reschedule. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md p-6 rounded-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+            <RefreshCw className="w-7 h-7 text-emerald-600" />
+            Reschedule Booking
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="mt-6 space-y-5">
+          <div>
+            <label className="text-sm font-semibold text-gray-700">Choose New Travel Date</label>
+            <input
+              type="date"
+              className="w-full mt-2 p-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-lg"
+              value={newDate}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setNewDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-end gap-4">
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || !newDate}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+          >
+            {loading ? "Rescheduling..." : "Confirm Reschedule"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 
 const BookingDetailsSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
+
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortConfig, setSortConfig] = useState({
-    key: "selectedDate",
-    direction: "desc",
-  });
+
+  // Cancel Modal
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+
+  // Reschedule Modal
+  const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+  const [bookingToReschedule, setBookingToReschedule] = useState<string | null>(null);
+
   const [filterStatus, setFilterStatus] = useState("all");
-  const navigate = useNavigate();
-  const userId=user?.id
-  console.log("Owner ID:", userId);
+
   useEffect(() => {
     const fetchBookings = async () => {
-      if (user?.id) {
-        try {
-          const data = await getUserBookings();
-          console.log(data)
-          const sortedData = data.sort(
-            (a: any, b: any) =>
-              new Date(b.selectedDate).getTime() -
-              new Date(a.selectedDate).getTime()
-          );
-          setBookings(sortedData || []);
-        } catch (error) {
-          console.error("Error fetching bookings:", error);
-          setBookings([]);
-        } finally {
-          setLoading(false);
-        }
-      } else {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const data = await getUserBookings();
+        const sorted = (data || []).sort(
+          (a: any, b: any) =>
+            new Date(b.selectedDate).getTime() - new Date(a.selectedDate).getTime()
+        );
+        setBookings(sorted);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        setBookings([]);
+      } finally {
         setLoading(false);
       }
     };
     fetchBookings();
   }, [user?.id]);
 
-  const handleCancelBooking = async (bookingId: string) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-
-    try {
-      setLoading(true);
-      const response = await cancelBooking(bookingId);
-      alert(response.message || "Booking cancelled and refund added to wallet.");
-      const updatedBookings = await getUserBookings();
-      setBookings(updatedBookings);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
-      alert("Something went wrong while cancelling the booking.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleWriteReview = () => {
-    navigate("/review"); 
-  };
-  
-
-const startChatWithVendor = async (booking: any) => {
-  if (!user?.id) {
-    alert("User not logged in.");
-    return;
-  }
-
-  const ownerId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
-  
-  console.log("Booking data:", booking);
-  
-  if (!ownerId) {
-    alert("Vendor ID not available.");
-    return;
-  }
-
-  try {
-    const chatData = await findOrCreateChat(user.id, ownerId);
-    console.log("Chat data received:", chatData);
-    
-    if (!chatData._id) {
-      console.error("No chat ID found in response:", chatData);
-      throw new Error("Chat ID not found in response");
-    }
-
-    navigate(`/chat/${user.id}_${ownerId}`);
-  } catch (error) {
-    console.error("Error starting chat:", error);
-    alert("Unable to start chat. Please try again later.");
-  }
-};
-
-const shouldShowChatButton = (booking: any) => {
-  const status = getBookingStatus(booking);
-  const validStatuses = ['upcoming', 'ongoing'];
-  const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
-  return vendorId && user?.id && validStatuses.includes(status);
-};
-
   const getBookingStatus = (booking: any) => {
-    const bookingDate = new Date(booking.selectedDate);
+    if (booking.bookingStatus?.toLowerCase() === "cancelled") return "cancelled";
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    bookingDate.setHours(0, 0, 0, 0);
+    const startDate = new Date(booking.selectedDate);
+    startDate.setHours(0, 0, 0, 0);
 
-    const duration = booking.selectedPackage?.duration || 0;
-    const endDate = new Date(bookingDate);
-    endDate.setDate(endDate.getDate() + duration);
+    const duration = booking.selectedPackage?.duration || 1;
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + duration - 1);
     endDate.setHours(23, 59, 59, 999);
 
-    if (booking.bookingStatus?.toLowerCase() === "cancelled") return "cancelled";
     if (endDate < today) return "completed";
-    if (bookingDate > today) return "upcoming";
+    if (startDate > today) return "upcoming";
     return "ongoing";
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      upcoming: {
-        bg: "bg-blue-100",
-        text: "text-blue-700",
-        icon: <Clock className="w-4 h-4" />,
-        label: "Upcoming",
-      },
-      ongoing: {
-        bg: "bg-green-100",
-        text: "text-green-700",
-        icon: <AlertCircle className="w-4 h-4" />,
-        label: "Ongoing",
-      },
-      completed: {
-        bg: "bg-gray-100",
-        text: "text-gray-700",
-        icon: <CheckCircle className="w-4 h-4" />,
-        label: "Completed",
-      },
-      cancelled: {
-        bg: "bg-red-100",
-        text: "text-red-700",
-        icon: <XCircle className="w-4 h-4" />,
-        label: "Cancelled",
-      },
+    const config: any = {
+      upcoming: { bg: "bg-blue-100", text: "text-blue-800", icon: <Clock className="w-4 h-4" />, label: "Upcoming" },
+      ongoing: { bg: "bg-green-100", text: "text-green-800", icon: <AlertCircle className="w-4 h-4" />, label: "Ongoing" },
+      completed: { bg: "bg-gray-100", text: "text-gray-800", icon: <CheckCircle className="w-4 h-4" />, label: "Completed" },
+      cancelled: { bg: "bg-red-100", text: "text-red-800", icon: <XCircle className="w-4 h-4" />, label: "Cancelled" },
     };
-
-    const config = statusConfig[status] || statusConfig.upcoming;
-
+    const c = config[status] || config.upcoming;
     return (
-      <span
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${config.bg} ${config.text} font-semibold`}
-      >
-        {config.icon}
-        {config.label}
+      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${c.bg} ${c.text} font-bold text-sm`}>
+        {c.icon} {c.label}
       </span>
     );
   };
 
-  const sortBookings = (bookingsToSort: any[]) => {
-    const sorted = [...bookingsToSort].sort((a, b) => {
-      let aValue, bValue;
-      switch (sortConfig.key) {
-        case "selectedDate":
-          aValue = new Date(a.selectedDate).getTime();
-          bValue = new Date(b.selectedDate).getTime();
-          break;
-        case "totalAmount":
-          aValue = a.totalAmount || 0;
-          bValue = b.totalAmount || 0;
-          break;
-        case "packageName":
-          aValue = (a.selectedPackage?.packageName || "").toLowerCase();
-          bValue = (b.selectedPackage?.packageName || "").toLowerCase();
-          break;
-        default:
-          return 0;
-      }
+  const filteredBookings = filterStatus === "all"
+    ? bookings
+    : bookings.filter(b => getBookingStatus(b) === filterStatus);
+  const bookingIds = filteredBookings.map((booking) => booking._id);
 
-      if (sortConfig.direction === "asc") {
-        return aValue > bValue ? 1 : -1;
-      }
-      return aValue < bValue ? 1 : -1;
-    });
-
-    return sorted;
+  const startChatWithVendor = async (booking: any) => {
+    if (!user?.id) return alert("Please log in.");
+    const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
+    if (!vendorId) return alert("Vendor not found.");
+    try {
+      await findOrCreateChat(user.id, vendorId);
+      navigate(`/chat/${user.id}_${vendorId}`);
+    } catch (err) {
+      alert("Failed to start chat.");
+    }
   };
 
-  const handleSort = (key: string) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }));
+  const shouldShowChatButton = (booking: any) => {
+    const status = getBookingStatus(booking);
+    const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
+    return vendorId && ["upcoming", "ongoing"].includes(status);
   };
 
-  const filteredBookings =
-    filterStatus === "all"
-      ? bookings
-      : bookings.filter((b) => getBookingStatus(b) === filterStatus);
+  // Cancel
+  const openCancelModal = (id: string) => {
+    setBookingToCancel(id);
+    setIsConfirmOpen(true);
+  };
 
-  const sortedBookings = sortBookings(filteredBookings);
+  const confirmCancel = async () => {
+    if (!bookingToCancel) return;
+    try {
+      setLoading(true);
+      const res = await cancelBooking(bookingToCancel);
+      alert(res.message || "Booking cancelled successfully.");
+      const updated = await getUserBookings();
+      setBookings(updated || []);
+      if (selectedBooking?._id === bookingToCancel) {
+        setIsModalOpen(false);
+        setSelectedBooking(null);
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to cancel booking.");
+    } finally {
+      setLoading(false);
+      setIsConfirmOpen(false);
+      setBookingToCancel(null);
+    }
+  };
+
+  
+  const openRescheduleModal = (bookingId: string) => {
+    setBookingToReschedule(bookingId);
+    setIsRescheduleOpen(true);
+  };
+
+  const handleRescheduleSuccess = async () => {
+    const updated = await getUserBookings();
+    setBookings(updated || []);
+    setIsRescheduleOpen(false);
+    setBookingToReschedule(null);
+  };
 
   const handleViewDetails = (booking: any) => {
     setSelectedBooking(booking);
@@ -239,7 +260,7 @@ const shouldShowChatButton = (booking: any) => {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading your bookings...</p>
+          <p className="text-gray-600 font-medium text-xl">Loading your bookings...</p>
         </div>
       </div>
     );
@@ -249,58 +270,47 @@ const shouldShowChatButton = (booking: any) => {
     <>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
+          {/* Header */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex items-center gap-6">
                 <button
-                  onClick={() => (window.location.href = "/")}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+                  onClick={() => navigate("/")}
+                  className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg font-semibold"
                 >
-                  <Home className="w-5 h-5" />
-                  <span className="font-medium">Home</span>
+                  <Home className="w-6 h-6" /> Home
                 </button>
-                <div className="flex items-center gap-3">
-                  <Package className="w-8 h-8 text-purple-600" />
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                <div className="flex items-center gap-4">
+                  <Package className="w-10 h-10 text-purple-600" />
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                     My Bookings
                   </h1>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 font-medium">
-                  Filter:
-                </span>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-4 py-2 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                >
-                  <option value="all">All Trips</option>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-6 py-3 border-2 border-purple-300 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-purple-200 text-lg font-medium"
+              >
+                <option value="all">All Bookings</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            {sortedBookings.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full mb-6">
-                  <Calendar className="w-12 h-12 text-purple-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                  No Bookings Found
-                </h2>
-                <p className="text-gray-600 text-lg mb-6">
-                  Start planning your next adventure!
-                </p>
+          {/* Bookings Table */}
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            {filteredBookings.length === 0 ? (
+              <div className="text-center py-32">
+                <Calendar className="w-24 h-24 text-purple-300 mx-auto mb-6" />
+                <h2 className="text-3xl font-bold text-gray-800 mb-4">No Bookings Yet</h2>
+                <p className="text-xl text-gray-600 mb-8">Start your next adventure!</p>
                 <button
-                  onClick={() => (window.location.href = "/")}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg font-medium"
+                  onClick={() => navigate("/")}
+                  className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xl font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-xl"
                 >
                   Explore Packages
                 </button>
@@ -309,123 +319,102 @@ const shouldShowChatButton = (booking: any) => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                      <th className="px-6 py-4 text-left">
-                        <button
-                          onClick={() => handleSort("packageName")}
-                          className="flex items-center gap-2 hover:text-purple-200 transition-colors font-semibold"
-                        >
-                          Package
-                          <ArrowUpDown className="w-4 h-4" />
-                        </button>
-                      </th>
-                      <th className="px-6 py-4 text-left">
-                        <button
-                          onClick={() => handleSort("selectedDate")}
-                          className="flex items-center gap-2 hover:text-purple-200 transition-colors font-semibold"
-                        >
-                          Date
-                          <ArrowUpDown className="w-4 h-4" />
-                        </button>
-                      </th>
-                      <th className="px-6 py-4 text-left font-semibold">
-                        Guests
-                      </th>
-                      <th className="px-6 py-4 text-left">
-                        <button
-                          onClick={() => handleSort("totalAmount")}
-                          className="flex items-center gap-2 hover:text-purple-200 transition-colors font-semibold"
-                        >
-                          Amount
-                          <ArrowUpDown className="w-4 h-4" />
-                        </button>
-                      </th>
-                      <th className="px-6 py-4 text-center font-semibold">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-center font-semibold">
-                        Actions
-                      </th>
+                    <tr className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white">
+                      <th className="px-8 py-6 text-left text-lg font-bold">Package</th>
+                      <th className="px-8 py-6 text-left text-lg font-bold">Date</th>
+                      <th className="px-8 py-6 text-left text-lg font-bold">Guests</th>
+                      <th className="px-8 py-6 text-left text-lg font-bold">Amount</th>
+                      <th className="px-8 py-6 text-center text-lg font-bold">Status</th>
+                      <th className="px-8 py-6 text-center text-lg font-bold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedBookings.map((booking, index) => (
-                      <tr
-                        key={booking._id}
-                        className={`${
-                          index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                        } hover:bg-purple-50 transition-colors border-b border-gray-200`}
-                      >
-                        <td className="px-6 py-4 font-semibold text-gray-900">
-                          {booking.selectedPackage?.packageName || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 text-gray-700">
-                          {new Date(booking.selectedDate).toLocaleDateString(
-                            "en-US",
-                            { year: "numeric", month: "short", day: "numeric" }
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium">
-                              {booking.adults?.length || 0}A
-                            </span>
-                            <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium">
-                              {booking.children?.length || 0}C
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-lg font-bold text-gray-900">
-                          ₹{(booking.totalAmount || 0).toLocaleString("en-IN")}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          {getStatusBadge(getBookingStatus(booking))}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleViewDetails(booking)}
-                              className="p-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
-                              title="View Details"
-                            >
-                              <Eye className="w-5 h-5" />
-                            </button>
-
-                            {shouldShowChatButton(booking) && (
+                    {filteredBookings.map((booking, index) => {
+                      const status = getBookingStatus(booking);
+                      return (
+                        <tr
+                          key={booking._id}
+                          className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-purple-50 transition-all duration-200 border-b-2 border-gray-100`}
+                        >
+                          <td className="px-8 py-6 font-bold text-gray-900 text-lg">
+                            {booking.selectedPackage?.packageName || "N/A"}
+                          </td>
+                          <td className="px-8 py-6 text-gray-700 font-semibold">
+                            {new Date(booking.selectedDate).toLocaleDateString("en-US", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex gap-3">
+                              <span className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-bold">
+                                {(booking.adults?.length || 0)} Adults
+                              </span>
+                              <span className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full font-bold">
+                                {(booking.children?.length || 0)} Children
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-2xl font-bold text-gray-900">
+                            ₹{(booking.totalAmount || 0).toLocaleString("en-IN")}
+                          </td>
+                          <td className="px-8 py-6 text-center">
+                            {getStatusBadge(status)}
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex items-center justify-center gap-4">
                               <button
-                                onClick={() => startChatWithVendor(booking)}
-                                className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all shadow-sm hover:shadow-md"
-                                title="Chat with Vendor"
+                                onClick={() => handleViewDetails(booking)}
+                                className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all"
+                                title="View Details"
                               >
-                                <MessageCircle className="w-5 h-5" />
+                                <Eye className="w-6 h-6" />
                               </button>
-                            )}
 
-                            {getBookingStatus(booking) === "upcoming" && (
-                              <button
-                                onClick={() =>
-                                  handleCancelBooking(booking.bookingId)
-                                }
-                                className="p-2 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg hover:from-red-600 hover:to-rose-600 transition-all shadow-sm hover:shadow-md"
-                                title="Cancel Booking"
-                              >
-                                <X className="w-5 h-5" />
-                              </button>
-                            )}
+                              {shouldShowChatButton(booking) && (
+                                <button
+                                  onClick={() => startChatWithVendor(booking)}
+                                  className="p-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-xl transition-all"
+                                  title="Chat with Vendor"
+                                >
+                                  <MessageCircle className="w-6 h-6" />
+                                </button>
+                              )}
 
-                            {getBookingStatus(booking) === "completed" && (
-                              <button
-                                onClick={handleWriteReview}
-                                className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-sm hover:shadow-md"
-                                title="Write Review"
-                              >
-                                <Star className="w-5 h-5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                              {status === "upcoming" && (
+                                <button
+                                  onClick={() => openCancelModal(booking._id)}
+                                  className="px-5 py-3 bg-red-100 text-red-700 rounded-xl font-bold hover:bg-red-200 transition-all"
+                                >
+                                  Cancel
+                                </button>
+                              )}
+
+                              {status === "upcoming" && (
+                                <>
+                                  <button
+                                    onClick={() => navigate("/review")}
+                                    className="p-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl hover:shadow-xl transition-all"
+                                    title="Write Review"
+                                  >
+                                    <Star className="w-6 h-6" />
+                                  </button>
+
+                                  <button
+                                    onClick={() => openRescheduleModal(booking.bookingId)}
+                                    className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-xl transition-all"
+                                    title="Reschedule Trip"
+                                  >
+                                    <RefreshCw className="w-6 h-6" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -434,221 +423,181 @@ const shouldShowChatButton = (booking: any) => {
         </div>
       </div>
 
-      {/* Booking Details Modal */}
+      {/* FULL DETAILS MODAL */}
       {isModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-t-2xl flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Package className="w-8 h-8" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-6">
+          <div className="bg-white rounded-3xl shadow-3xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-purple-800 to-indigo-800 text-white p-8 rounded-t-3xl flex justify-between items-center">
+              <div className="flex items-center gap-6">
+                <Package className="w-12 h-12" />
                 <div>
-                  <h2 className="text-2xl font-bold">Booking Details</h2>
-                  <p className="text-purple-100 text-sm">
-                    Booking ID: {selectedBooking.bookingId}
-                  </p>
+                  <h2 className="text-4xl font-bold">Booking Details</h2>
+                  <p className="text-xl opacity-90">ID: {selectedBooking.bookingId}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                className="p-4 hover:bg-white/20 rounded-2xl transition-all"
               >
-                <X className="w-6 h-6" />
+                <X className="w-8 h-8" />
               </button>
             </div>
 
-            {/* Modal Content */}
-            <div className="p-6 space-y-6">
-              {/* Status Badge */}
-              <div className="flex items-center justify-between">
+            <div className="p-10 space-y-10">
+              <div className="flex justify-between items-center">
                 {getStatusBadge(getBookingStatus(selectedBooking))}
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Booked on</p>
-                  <p className="font-semibold text-gray-900">
-                    {new Date(selectedBooking.createdAt || selectedBooking.selectedDate).toLocaleDateString(
-                      "en-US",
-                      { year: "numeric", month: "long", day: "numeric" }
-                    )}
+                  <p className="text-gray-600 font-semibold">Booked On</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {new Date(selectedBooking.createdAt || selectedBooking.selectedDate).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </p>
                 </div>
               </div>
 
-              {/* Package Information */}
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Package className="w-6 h-6 text-purple-600" />
-                  Package Information
+              {/* Package Details */}
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl p-8 border-2 border-purple-200">
+                <h3 className="text-3xl font-bold mb-8 flex items-center gap-4">
+                  <Package className="w-10 h-10 text-purple-700" /> Package Information
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Package Name</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {selectedBooking.selectedPackage?.packageName || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Duration</p>
-                    <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-purple-600" />
-                      {selectedBooking.selectedPackage?.duration || 0} Days
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Destination</p>
-                    <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-purple-600" />
-                      {selectedBooking.selectedPackage?.destination || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Travel Date</p>
-                    <p className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-purple-600" />
-                      {new Date(selectedBooking.selectedDate).toLocaleDateString(
-                        "en-US",
-                        { year: "numeric", month: "long", day: "numeric" }
-                      )}
-                    </p>
-                  </div>
+                <div className="grid md:grid-cols-2 gap-8 text-xl">
+                  <div><p className="text-gray-600">Package Name</p><p className="font-bold text-2xl">{selectedBooking.selectedPackage?.packageName}</p></div>
+                  <div><p className="text-gray-600">Destination</p><p className="font-bold text-2xl flex items-center gap-3"><MapPin className="w-7 h-7 text-purple-600" /> {selectedBooking.selectedPackage?.destination}</p></div>
+                  <div><p className="text-gray-600">Duration</p><p className="font-bold text-2xl flex items-center gap-3"><Clock className="w-7 h-7 text-purple-600" /> {selectedBooking.selectedPackage?.duration} Days</p></div>
+                  <div><p className="text-gray-600">Travel Date</p><p className="font-bold text-2xl flex items-center gap-3"><Calendar className="w-7 h-7 text-purple-600" /> {new Date(selectedBooking.selectedDate).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}</p></div>
                 </div>
               </div>
 
-              {/* Guest Information */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Users className="w-6 h-6 text-purple-600" />
-                  Guest Information
-                </h3>
-                
-                {/* Adults */}
-                {selectedBooking.adults && selectedBooking.adults.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <User className="w-5 h-5 text-indigo-600" />
-                      Adults ({selectedBooking.adults.length})
-                    </h4>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      {selectedBooking.adults.map((adult: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-lg p-4 border border-gray-200">
-                          <p className="font-semibold text-gray-900 mb-2">
-                            {adult.name || `Adult ${idx + 1}`}
-                          </p>
-                          <div className="space-y-1 text-sm">
-                            <p className="text-gray-600 flex items-center gap-2">
-                              <Phone className="w-4 h-4" />
-                              {adult.phone || "N/A"}
-                            </p>
-                            <p className="text-gray-600 flex items-center gap-2">
-                              <Mail className="w-4 h-4" />
-                              {adult.email || "N/A"}
-                            </p>
-                          </div>
+              {/* Guest Info */}
+              <div className="bg-gray-50 rounded-3xl p-8">
+                <h3 className="text-3xl font-bold mb-8 flex items-center gap-4"><Users className="w-10 h-10 text-indigo-700" /> Guest Details</h3>
+                {selectedBooking.adults?.length > 0 && (
+                  <div className="mb-8">
+                    <h4 className="text-2xl font-bold text-gray-800 mb-5">Adults ({selectedBooking.adults.length})</h4>
+                    <div className="grid md:grid-cols-3 gap-6">
+                      {selectedBooking.adults.map((a: any, i: number) => (
+                        <div key={i} className="bg-white p-6 rounded-2xl shadow-lg border"><p className="text-xl font-bold">{a.name || `Adult ${i + 1}`}</p></div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {selectedBooking.children?.length > 0 && (
+                  <div className="mb-8">
+                    <h4 className="text-2xl font-bold text-gray-800 mb-5">Children ({selectedBooking.children.length})</h4>
+                    <div className="grid md:grid-cols-3 gap-6">
+                      {selectedBooking.children.map((c: any, i: number) => (
+                        <div key={i} className="bg-white p-6 rounded-2xl shadow-lg border">
+                          <p className="text-xl font-bold">{c.name || `Child ${i + 1}`}</p>
+                          <p className="text-gray-600 mt-2">Age: {c.age || "N/A"}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* Children */}
-                {selectedBooking.children && selectedBooking.children.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                      <User className="w-5 h-5 text-purple-600" />
-                      Children ({selectedBooking.children.length})
-                    </h4>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      {selectedBooking.children.map((child: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-lg p-4 border border-gray-200">
-                          <p className="font-semibold text-gray-900 mb-1">
-                            {child.name || `Child ${idx + 1}`}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Age: {child.age || "N/A"}
-                          </p>
-                        </div>
-                      ))}
+                {selectedBooking.contactInfo && (
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-8 rounded-3xl">
+                    <h4 className="text-2xl font-bold mb-5">Contact Information</h4>
+                    <div className="space-y-4 text-xl">
+                      <p className="flex items-center gap-4"><Phone className="w-8 h-8 text-blue-700" /> {selectedBooking.contactInfo.mobile || "N/A"}</p>
+                      <p className="flex items-center gap-4"><Mail className="w-8 h-8 text-blue-700" /> {selectedBooking.contactInfo.email || "N/A"}</p>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Payment Information */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CreditCard className="w-6 h-6 text-green-600" />
-                  Payment Information
-                </h3>
-                <div className="grid md:grid-cols-2 gap-4">
+              {/* Payment */}
+              <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-3xl p-8 border-2 border-emerald-300">
+                <h3 className="text-3xl font-bold mb-8 flex items-center gap-4"><CreditCard className="w-10 h-10 text-emerald-700" /> Payment Details</h3>
+                <div className="grid md:grid-cols-2 gap-10 text-xl">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Total Amount</p>
-                    <p className="text-2xl font-bold text-green-700">
+                    <p className="text-gray-600 text-2xl">Total Amount Paid</p>
+                    <p className="text-5xl font-bold text-emerald-700 mt-3">
                       ₹{(selectedBooking.totalAmount || 0).toLocaleString("en-IN")}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Payment ID</p>
-                    <p className="text-sm font-mono bg-white px-3 py-2 rounded-lg border border-gray-200">
-                      {selectedBooking.payment_id || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Payment Status</p>
-                    <p className="font-semibold text-gray-900">
-                      {selectedBooking.paymentStatus || "Completed"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Payment Method</p>
-                    <p className="font-semibold text-gray-900">
-                      {selectedBooking.paymentMethod || "Online"}
-                    </p>
+                  <div className="space-y-6">
+                    <div><p className="text-gray-600">Payment ID</p><p className="font-mono bg-white px-6 py-3 rounded-xl border text-lg">{selectedBooking.payment_id || "N/A"}</p></div>
+                    <div><p className="text-gray-600">Status</p><p className="font-bold text-emerald-700 text-2xl">{selectedBooking.paymentStatus || "Paid"}</p></div>
+                    <div><p className="text-gray-600">Method</p><p className="font-bold text-xl">{selectedBooking.paymentMethod || "Online"}</p></div>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap justify-end gap-6 pt-8 border-t-4 border-gray-200">
                 {shouldShowChatButton(selectedBooking) && (
                   <button
                     onClick={() => startChatWithVendor(selectedBooking)}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                    className="px-10 py-5 bg-gradient-to-r from-cyan-600 to-blue-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
                   >
-                    <MessageCircle className="w-5 h-5" />
-                    Chat with Vendor
+                    <MessageCircle className="w-8 h-8" /> Chat with Vendor
                   </button>
                 )}
-                
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                >
-                  Close
-                </button>
 
                 {getBookingStatus(selectedBooking) === "upcoming" && (
                   <button
-                    onClick={() => handleCancelBooking(selectedBooking.bookingId)}
-                    className="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-xl hover:from-red-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                    onClick={() => { setIsModalOpen(false); openCancelModal(selectedBooking._id); }}
+                    className="px-10 py-5 bg-gradient-to-r from-red-600 to-rose-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
                   >
-                    <X className="w-5 h-5" />
-                    Cancel Booking
+                    <X className="w-8 h-8" /> Cancel Booking
                   </button>
                 )}
 
                 {getBookingStatus(selectedBooking) === "completed" && (
-                  <button
-                    onClick={handleWriteReview}
-                    className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
-                  >
-                    <Star className="w-5 h-5" />
-                    Write Review
-                  </button>
+                  <>
+                    <button
+                      onClick={() => navigate("/review")}
+                      className="px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
+                    >
+                      <Star className="w-8 h-8" /> Write Review
+                    </button>
+                    <button
+                      onClick={() => { setIsModalOpen(false); openRescheduleModal(selectedBooking._id); }}
+                      className="px-10 py-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
+                    >
+                      <RefreshCw className="w-8 h-8" /> Reschedule Trip
+                    </button>
+                  </>
                 )}
+
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-10 py-5 bg-gray-200 text-gray-800 text-xl font-bold rounded-2xl hover:bg-gray-300 transition-all"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking? This cannot be undone."
+        confirmText="Yes, Cancel"
+        cancelText="No, Keep It"
+        onConfirm={confirmCancel}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setBookingToCancel(null);
+        }}
+      />
+
+      {/* Reschedule Modal */}
+      <RescheduleModal
+        open={isRescheduleOpen}
+        onClose={() => {
+          setIsRescheduleOpen(false);
+          setBookingToReschedule(null);
+        }}
+        bookingId={bookingToReschedule || ""}
+        onSuccess={handleRescheduleSuccess}
+      />
     </>
   );
 };

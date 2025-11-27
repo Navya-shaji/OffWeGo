@@ -8,7 +8,8 @@ export class GetUserBookingUsecase  implements IGetUserBookingUsecase{
 
     async execute(userId:string):Promise<BookingDataDto[]>{
         const User_bookings=await this._bookingRepo.findByUserId(userId)
-        // console.log(User_bookings,"user")
+        console.log(userId,"id")
+        console.log(User_bookings,"user")
         return mapBookingToCreateBookingDto(User_bookings)
     }
 }

@@ -44,7 +44,7 @@ export const cancelBooking = async (bookingId: string) => {
 
 export const rescheduleBooking = async (bookingId: string, newDate: string) => {
   try {
-    const response = await axiosInstance.put(`/api/booking/${bookingId}/reschedule`, {
+    const response = await axiosInstance.patch(`/api/booking/${bookingId}/reschedule`, {
       newDate,
     });
     console.log(response.data, "reschedule response");

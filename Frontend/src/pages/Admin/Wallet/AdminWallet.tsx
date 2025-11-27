@@ -1,363 +1,251 @@
-// import React, { useState, useEffect } from 'react';
-// import { Wallet, TrendingDown, TrendingUp, RefreshCw, CheckCircle, Clock } from 'lucide-react';
-// import { getFinishedTrips, getWallet } from '@/services/Wallet/AdminWalletService';
-// import { useSelector } from 'react-redux';
-// import type { RootState } from '@/store/store';
+import React, { useEffect, useState } from "react";
+import {
+  Wallet,
+  TrendingDown,
+  TrendingUp,
+  RefreshCw,
+  CheckCircle,
+  Clock,
+} from "lucide-react";
 
-//  const AdminWalletManagement = () => {
-//   const [wallet, setWallet] = useState(null);
-//   const [completedBookings, setCompletedBookings] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [processing, setProcessing] = useState(false);
-//   const [processedBookings, setProcessedBookings] = useState(new Set());
-//   const [error, setError] = useState(null);
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
-//   const adminId =useSelector((state: RootState) => state.adminAuth.admin.id);
-//   console.log(adminId,"id of admin")
-//   useEffect(() => {
-//     fetchWalletData();
-//     fetchCompletedBookings();
-//   }, []);
+import {
+  getWallet,
+  getFinishedTrips,
+  transferWalletAmount,
+} from "@/services/Wallet/AdminWalletService";
 
-//   const fetchWalletData = async () => {
-//     try {
-//       setError(null);
-//       const data = await getWallet(adminId);
-//       console.log(data, "datas")
-//       setWallet(data);
-//     } catch (error) {
-//       console.error("Error fetching wallet:", error);
-//       // setError("Failed to load wallet data");
-//     }
-//   };
+import type { IWallet } from "@/interface/wallet";
+import type { Booking } from "@/interface/Boooking";
 
-//   console.log(wallet,"whole wallet")
+const AdminWalletManagement = () => {
+  const adminId = useSelector(
+    (state: RootState) => state.adminAuth.admin.id
+  );
 
-//   const fetchCompletedBookings = async () => {
-//     try {
-//       setLoading(true);
-//       setError(null);
-//       const data = await getFinishedTrips();
-//       console.log(data,"data comlted")
-//       setCompletedBookings(data);
-//     } catch (error) {
-//       console.error("Error fetching bookings:", error);
-//       setError("Failed to load completed bookings");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-// const res=completedBookings.data
-// const processAllBookings = async () => {
-//   try {
-//     setProcessing(true);
+  const [wallet, setWallet] = useState<IWallet | null>(null);
+  const [completedBookings, setCompletedBookings] = useState<Booking[]>([]);
+  const [processedBookings, setProcessedBookings] = useState<Set<string>>(
+    new Set()
+  );
 
-//     for (const booking of res) {
-//       console.log(booking,"boo")
-//       const id = booking.bookingId;  // <-- Correct ID
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
-//       if (!processedBookings.has(id)) {
-//         await new Promise(resolve => setTimeout(resolve, 500));
+  // ---------------------------
+  // FETCH WALLET + BOOKINGS
+  // ---------------------------
+  useEffect(() => {
+    loadWallet();
+    loadBookings();
+  }, []);
 
-//         const vendorShare = booking.totalAmount * 0.9;
-//         const adminCommission = booking.totalAmount * 0.1;
+  const loadWallet = async () => {
+    try {
+      const data = await getWallet(adminId);
+      setWallet(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-//         setWallet(prev => ({
-//           ...prev,
-//           balance: prev.balance - vendorShare,
-//           transactions: [
-//             {
-//               _id: `txn_${Date.now()}`,
-//               type: "debit",
-//               amount: vendorShare,
-//               description: `Transfer to Vendor - Booking #${id}`,
-//               date: new Date().toISOString(),
-//             },
-//             ...prev.transactions,
-//           ],
-//         }));
+  const loadBookings = async () => {
+    try {
+      const data = await getFinishedTrips();
+      setCompletedBookings(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//         setProcessedBookings(prev => new Set([...prev, id]));
-//       }
-//     }
+  // ---------------------------
+  // PROCESS A SINGLE BOOKING
+  // ---------------------------
+  const processSingleBooking = async (booking: Booking) => {
+    try {
+      const vendorId = booking.selectedPackage?.vendorId;
+      if (!vendorId) return;
 
-//     alert("All bookings processed successfully!");
-//   } catch (err) {
-//     console.error("Error processing bookings:", err);
-//     alert("Failed to process bookings");
-//   } finally {
-//     setProcessing(false);
-//   }
-// };
+      const vendorShare = booking.totalAmount * 0.9;
 
+      await transferWalletAmount(adminId, vendorId, vendorShare);
 
-//   console.log(processAllBookings,"processallBooking")
-//   const processSingleBooking = async (booking) => {
-//     try {
-//       const vendorShare = booking.totalAmount * 0.9;
-//       const adminCommission = booking.totalAmount * 0.1;
-      
-//       // Replace with: await transferWalletAmount(adminId, booking.selectedPackage.vendorId, vendorShare);
-      
-//       setWallet(prev => ({
-//         ...prev,
-//         balance: prev.balance - vendorShare,
-//         transactions: [
-//           {
-//             _id: `txn_${Date.now()}`,
-//             type: "debit",
-//             amount: vendorShare,
-//             description: `Transfer to Vendor - Booking #${booking._id}`,
-//             date: new Date().toISOString(),
-//           },
-//           ...prev.transactions,
-//         ],
-//       }));
-      
-//       setProcessedBookings(prev => new Set([...prev, booking._id]));
-//       alert(`Booking #${booking._id} processed successfully!`);
-//     } catch (error) {
-//       console.error("Error processing booking:", error);
-//       alert("Failed to process booking");
-//     }
-//   };
-//   console.log(processSingleBooking,"processallBooking")
-// console.log(processedBookings,"processedBooking")
-//   const formatCurrency = (amount) => {
-//     return new Intl.NumberFormat('en-IN', {
-//       style: 'currency',
-//       currency: 'INR',
-//       maximumFractionDigits: 0,
-//     }).format(amount);
-//   };
+      setProcessedBookings((prev) => new Set([...prev, booking._id]));
 
-//   const formatDate = (dateString) => {
-//     return new Date(dateString).toLocaleDateString('en-IN', {
-//       year: 'numeric',
-//       month: 'short',
-//       day: 'numeric',
-//       hour: '2-digit',
-//       minute: '2-digit',
-//     });
-//   };
+      alert(`Booking #${booking._id} processed successfully!`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to process booking");
+    }
+  };
 
-//   if (loading) {
-//     return (
-//       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-//         <div className="text-center">
-//           <RefreshCw className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
-//           <p className="text-gray-600">Loading wallet data...</p>
-//         </div>
-//       </div>
-//     );
-//   }
+  // ---------------------------
+  // PROCESS ALL BOOKINGS
+  // ---------------------------
+  const processAllBookings = async () => {
+    try {
+      setProcessing(true);
 
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-//       <div className="max-w-7xl mx-auto">
-//         {/* Header */}
-//         <div className="mb-8">
-//           <h1 className="text-4xl font-bold text-gray-800 mb-2">Admin Wallet</h1>
-//           <p className="text-gray-600">Manage bookings and vendor payments</p>
-//         </div>
+      for (const booking of completedBookings) {
+        if (processedBookings.has(booking._id)) continue;
 
-//         {/* Wallet Balance Card */}
-//         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
-//           <div className="flex items-center justify-between mb-4">
-//             <div className="flex items-center">
-//               <Wallet className="w-12 h-12 mr-4" />
-//               <div>
-//                 <p className="text-indigo-200 text-sm">Available Balance</p>
-//                 <h2 className="text-5xl font-bold">{formatCurrency(wallet?.balance || 0)}</h2>
-//               </div>
-//             </div>
-//             <button
-//               onClick={fetchWalletData}
-//               className="bg-white/20 hover:bg-white/30 p-3 rounded-full transition"
-//             >
-//               <RefreshCw className="w-6 h-6" />
-//             </button>
-//           </div>
-          
-//           <div className="grid grid-cols-2 gap-4 mt-6">
-//             <div className="bg-white/10 rounded-lg p-4">
-//               <p className="text-indigo-200 text-sm mb-1">Pending Bookings</p>
-//               <p className="text-2xl font-semibold">
-//                 {/* {completedBookings.filter(b => !processedBookings.has(b.id)).length} */}
-//               </p>
-//             </div>
-//             <div className="bg-white/10 rounded-lg p-4">
-//               <p className="text-indigo-200 text-sm mb-1">Processed Today</p>
-//               <p className="text-2xl font-semibold">{processedBookings.size}</p>
-//             </div>
-//           </div>
-//         </div>
+        await processSingleBooking(booking);
+      }
 
-//         {/* Completed Bookings Section */}
-//         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-//           <div className="flex items-center justify-between mb-6">
-//             <h3 className="text-2xl font-bold text-gray-800">Completed Bookings</h3>
-//             <button
-//               onClick={processAllBookings}
-//               // disabled={processing || completedBookings.every(b => processedBookings.has(b._id))}
-//               className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center"
-//             >
-//               {processing ? (
-//                 <>
-//                   <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-//                   Processing...
-//                 </>
-//               ) : (
-//                 <>
-//                   <CheckCircle className="w-5 h-5 mr-2" />
-//                   Process All
-//                 </>
-//               )}
-//             </button>
-//           </div>
+      alert("All bookings processed!");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProcessing(false);
+    }
+  };
 
-//           <div className="space-y-4">
-//             {completedBookings.map((booking) => {
-//               const vendorShare = booking.totalAmount * 0.9;
-//               const adminCommission = booking.totalAmount * 0.1;
-//               const isProcessed = processedBookings.has(booking._id);
+  // ---------------------------
+  // HELPERS
+  // ---------------------------
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount);
 
-//               return (
-//                 <div
-//                   key={booking._id}
-//                   className={`border rounded-xl p-6 transition ${
-//                     isProcessed
-//                       ? 'bg-green-50 border-green-200'
-//                       : 'bg-gray-50 border-gray-200 hover:shadow-md'
-//                   }`}
-//                 >
-//                   <div className="flex items-start justify-between">
-//                     <div className="flex-1">
-//                       <div className="flex items-center mb-2">
-//                         <span className="text-lg font-bold text-gray-800 mr-3">
-//                           #{booking._id}
-//                         </span>
-//                         {isProcessed ? (
-//                           <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
-//                             <CheckCircle className="w-4 h-4 mr-1" />
-//                             Processed
-//                           </span>
-//                         ) : (
-//                           <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-semibold flex items-center">
-//                             <Clock className="w-4 h-4 mr-1" />
-//                             Pending
-//                           </span>
-//                         )}
-//                       </div>
-                      
-//                       <p className="text-gray-600 mb-1">
-//                         <span className="font-semibold">Customer:</span> {booking.customerName}
-//                       </p>
-//                       <p className="text-gray-600 mb-1">
-//                         <span className="font-semibold">Package:</span> {booking.selectedPackage?.name}
-//                       </p>
-//                       <p className="text-gray-500 text-sm">
-//                         Completed: {formatDate(booking.completedDate)}
-//                       </p>
-//                     </div>
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
 
-//                     <div className="text-right ml-6">
-//                       <div className="mb-4">
-//                         <p className="text-gray-600 text-sm mb-1">Total Amount</p>
-//                         <p className="text-2xl font-bold text-gray-800">
-//                           {formatCurrency(booking.totalAmount)}
-//                         </p>
-//                       </div>
-                      
-//                       <div className="bg-white rounded-lg p-3 mb-3 border border-gray-200">
-//                         <div className="flex justify-between items-center mb-2">
-//                           <span className="text-gray-600 text-sm flex items-center">
-//                             <TrendingDown className="w-4 h-4 mr-1 text-red-500" />
-//                             Vendor (90%)
-//                           </span>
-//                           <span className="font-semibold text-red-600">
-//                             -{formatCurrency(vendorShare)}
-//                           </span>
-//                         </div>
-//                         <div className="flex justify-between items-center">
-//                           <span className="text-gray-600 text-sm flex items-center">
-//                             <TrendingUp className="w-4 h-4 mr-1 text-green-500" />
-//                             Commission (10%)
-//                           </span>
-//                           <span className="font-semibold text-green-600">
-//                             +{formatCurrency(adminCommission)}
-//                           </span>
-//                         </div>
-//                       </div>
+  // ---------------------------
+  // UI
+  // ---------------------------
 
-//                       {!isProcessed && (
-//                         <button
-//                           onClick={() => processSingleBooking(booking)}
-//                           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition w-full"
-//                         >
-//                           Process Payment
-//                         </button>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               );
-//             })}
-//           </div>
-//         </div>
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <RefreshCw className="w-10 h-10 animate-spin text-indigo-600" />
+      </div>
+    );
 
-//         {/* Recent Transactions */}
-//         <div className="bg-white rounded-2xl shadow-xl p-8">
-//           <h3 className="text-2xl font-bold text-gray-800 mb-6">Recent Transactions</h3>
-//           <div className="space-y-3">
-//             {wallet?.transactions?.slice(0, 10).map((transaction) => (
-//               <div
-//                 key={transaction._id}
-//                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
-//               >
-//                 <div className="flex items-center">
-//                   {transaction.type === 'credit' ? (
-//                     <div className="bg-green-100 p-2 rounded-full mr-4">
-//                       <TrendingUp className="w-5 h-5 text-green-600" />
-//                     </div>
-//                   ) : (
-//                     <div className="bg-red-100 p-2 rounded-full mr-4">
-//                       <TrendingDown className="w-5 h-5 text-red-600" />
-//                     </div>
-//                   )}
-//                   <div>
-//                     <p className="font-semibold text-gray-800">{transaction.description}</p>
-//                     <p className="text-sm text-gray-500">{formatDate(transaction.date)}</p>
-//                   </div>
-//                 </div>
-//                 <span
-//                   className={`text-lg font-bold ${
-//                     transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
-//                   }`}
-//                 >
-//                   {transaction.type === 'credit' ? '+' : '-'}
-//                   {formatCurrency(transaction.amount)}
-//                 </span>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AdminWalletManagement
-
-
-import React from 'react'
-
-function AdminWalletManagement() {
   return (
-    <div>
-      <h1>Ha</h1>
-    </div>
-  )
-}
+    <div className="min-h-screen p-6 bg-gray-100">
+      <div className="max-w-6xl mx-auto">
+        {/* HEADER */}
+        <h1 className="text-3xl font-bold mb-6">Admin Wallet</h1>
 
-export default AdminWalletManagement
+        {/* WALLET */}
+        <div className="bg-white shadow p-6 rounded-xl mb-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <Wallet className="w-12 h-12 text-indigo-600 mr-4" />
+              <div>
+                <p className="text-gray-600">Available Balance</p>
+                <h1 className="text-4xl font-bold">
+                  {wallet ? formatCurrency(wallet.balance) : "₹0"}
+                </h1>
+              </div>
+            </div>
+
+            <button
+              onClick={loadWallet}
+              className="p-3 bg-indigo-600 text-white rounded-full"
+            >
+              <RefreshCw className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* COMPLETED BOOKINGS */}
+        <div className="bg-white shadow p-6 rounded-xl mb-6">
+          <div className="flex justify-between mb-4">
+            <h2 className="text-xl font-bold">Completed Bookings</h2>
+
+            <button
+              onClick={processAllBookings}
+              disabled={processing}
+              className="px-5 py-2 bg-indigo-600 text-white rounded-lg flex items-center"
+            >
+              {processing ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin mr-2" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Process All
+                </>
+              )}
+            </button>
+          </div>
+
+          {completedBookings.map((booking) => {
+            const vendorShare = booking.totalAmount * 0.9;
+            const commission = booking.totalAmount * 0.1;
+
+            const done = processedBookings.has(booking._id);
+
+            return (
+              <div
+                key={booking._id}
+                className={`p-5 border rounded-xl mb-3 ${
+                  done ? "bg-green-50" : "bg-gray-50"
+                }`}
+              >
+                <div className="flex justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold">#{booking._id}</h3>
+                    <p className="text-gray-600">
+                      Customer: {booking.customerName}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      Completed: {formatDate(booking.completedDate)}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-2xl font-bold mb-2">
+                      {formatCurrency(booking.totalAmount)}
+                    </p>
+
+                    <div className="bg-white border rounded p-2 mb-2">
+                      <div className="flex justify-between text-red-600">
+                        <span className="flex items-center">
+                          <TrendingDown className="w-4 h-4 mr-1" /> Vendor (90%)
+                        </span>
+                        -{formatCurrency(vendorShare)}
+                      </div>
+
+                      <div className="flex justify-between text-green-600">
+                        <span className="flex items-center">
+                          <TrendingUp className="w-4 h-4 mr-1" /> Admin (10%)
+                        </span>
+                        +{formatCurrency(commission)}
+                      </div>
+                    </div>
+
+                    {!done && (
+                      <button
+                        onClick={() => processSingleBooking(booking)}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm"
+                      >
+                        Process Payment
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminWalletManagement;

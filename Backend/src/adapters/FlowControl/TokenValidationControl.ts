@@ -26,7 +26,7 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
         email?: string;
         role: string;
       };
-    console.log(req.user,"user")
+      console.log(req.user,"jfd")
       next();
     } catch (err) {
       return res
