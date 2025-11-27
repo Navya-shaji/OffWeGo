@@ -10,15 +10,14 @@ import {
   MapPin,
   Users,
   Clock,
-  DollarSign,
-  CreditCard,
+    CreditCard,
   Phone,
   Mail,
   User,
   CheckCircle,
   XCircle,
   AlertCircle,
-  Edit,
+  MessageCircle,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -27,6 +26,7 @@ import {
   cancelBooking,
   getUserBookings,
 } from "@/services/Booking/bookingService";
+import { findOrCreateChat } from "@/services/chat/chatService";
 
 const BookingDetailsSection = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -40,7 +40,8 @@ const BookingDetailsSection = () => {
   });
   const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
-
+  const userId=user?.id
+  console.log("Owner ID:", userId);
   useEffect(() => {
     const fetchBookings = async () => {
       if (user?.id) {
@@ -72,7 +73,7 @@ const BookingDetailsSection = () => {
       setLoading(true);
       const response = await cancelBooking(bookingId);
       alert(response.message || "Booking cancelled and refund added to wallet.");
-      const updatedBookings = await getUserBookings(user.id);
+      const updatedBookings = await getUserBookings(user?.id);
       setBookings(updatedBookings);
       setIsModalOpen(false);
     } catch (error) {
@@ -86,6 +87,48 @@ const BookingDetailsSection = () => {
   const handleWriteReview = () => {
     navigate("/review"); 
   };
+  
+
+const startChatWithVendor = async (booking: any) => {
+  if (!user?.id) {
+    alert("User not logged in.");
+    return;
+  }
+
+  const ownerId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
+  
+  console.log("Booking data:", booking);
+  
+  if (!ownerId) {
+    alert("Vendor ID not available.");
+    return;
+  }
+
+  try {
+    // FIXED: findOrCreateChat already returns unwrapped data
+    const chatData = await findOrCreateChat(user.id, ownerId);
+    console.log("Chat data received:", chatData);
+    
+    // FIXED: Check for _id directly on chatData
+    if (!chatData._id) {
+      console.error("No chat ID found in response:", chatData);
+      throw new Error("Chat ID not found in response");
+    }
+
+    // Navigate to chat page with correct format
+    navigate(`/chat/${user.id}_${ownerId}`);
+  } catch (error) {
+    console.error("Error starting chat:", error);
+    alert("Unable to start chat. Please try again later.");
+  }
+};
+
+const shouldShowChatButton = (booking: any) => {
+  const status = getBookingStatus(booking);
+  const validStatuses = ['upcoming', 'ongoing'];
+  const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
+  return vendorId && user?.id && validStatuses.includes(status);
+};
 
   const getBookingStatus = (booking: any) => {
     const bookingDate = new Date(booking.selectedDate);
@@ -349,6 +392,16 @@ const BookingDetailsSection = () => {
                               <Eye className="w-5 h-5" />
                             </button>
 
+                            {shouldShowChatButton(booking) && (
+                              <button
+                                onClick={() => startChatWithVendor(booking)}
+                                className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all shadow-sm hover:shadow-md"
+                                title="Chat with Vendor"
+                              >
+                                <MessageCircle className="w-5 h-5" />
+                              </button>
+                            )}
+
                             {getBookingStatus(booking) === "upcoming" && (
                               <button
                                 onClick={() =>
@@ -555,13 +608,24 @@ const BookingDetailsSection = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                {shouldShowChatButton(selectedBooking) && (
+                  <button
+                    onClick={() => startChatWithVendor(selectedBooking)}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Chat with Vendor
+                  </button>
+                )}
+                
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
                 >
                   Close
                 </button>
+
                 {getBookingStatus(selectedBooking) === "upcoming" && (
                   <button
                     onClick={() => handleCancelBooking(selectedBooking.bookingId)}
@@ -571,6 +635,7 @@ const BookingDetailsSection = () => {
                     Cancel Booking
                   </button>
                 )}
+
                 {getBookingStatus(selectedBooking) === "completed" && (
                   <button
                     onClick={handleWriteReview}

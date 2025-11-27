@@ -1,14 +1,19 @@
 import { Server, Socket } from "socket.io";
 import { Server as httpServer } from "http";
+import { ChatEventHandler } from "./framework/socketEventHandlers/chatEventHandler";
+// import { ChatSocketIOAdapter } from "./adapters/socket/chatHandler";
+// import { ChatSocketIOAdapter } from "./adapters/socket/ChatSocketIOAdapter";
 
 export class SocketIoServer {
   private io: Server;
   public userSockets = new Map<string, Socket>();
   public ChatOnline = new Map<string, string>();
+  // private chatHandler : ChatSocketIOAdapter
 
   constructor(server: Server) {
     this.io = server;
     this.setupSocket();
+    // this.chatHandler = chatHandler;
   }
 
   public getIO(): Server {
@@ -19,17 +24,7 @@ export class SocketIoServer {
     this.io.on("connection", (socket: Socket) => {
       console.log(socket.id, "socket connected");
 
-      socket.emit("connected", socket.id);
-
-
-      socket.on("user-online", (userId: string) => {
-        this.userSockets.set(userId, socket);
-        socket.broadcast.emit("user-status-changed", {
-          userId,
-          isOnline: true,
-        });
-      });
-
+      new ChatEventHandler(socket, this.io);
 
       socket.on("disconnect", () => {
         this.userSockets.forEach((userSocket, userId) => {

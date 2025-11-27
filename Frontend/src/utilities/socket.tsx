@@ -1,35 +1,41 @@
-import React, { useEffect, useRef } from "react";
-import { io, Socket } from "socket.io-client";
+import React, { useEffect, createContext } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
+import socket from "@/hooks/connectSocketIo";
+import type { Socket } from "socket.io-client";
 
-interface ChatMessage {
-  chatId: string;
-  sender: string;
-  text: string;
-}
+const context = {
+  socket: socket,
+};
+export const socketContext = createContext<{ socket: Socket }>(context);
 
-const ChatComponent: React.FC = () => {
-  const socketRef = useRef<Socket | null>(null);
+const SocketManager: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:1212", {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+    if (!user) return;
 
-    socketRef.current.on("connect", () => {
-      console.log("✅ Connected:", socketRef.current?.id);
-    });
+    socket.connect();
 
-    socketRef.current.on("receiveMessage", (data: ChatMessage) => {
-      console.log("💬 Message received:", data);
-    });
+    const handleConnect = () => {
+      console.log("Socket connected:", socket.id);
+      // socket.emit("user-online", user._id);
+      socket.emit("register_user", { userId: user.id });
+    };
+
+    socket.on("connect", handleConnect);
 
     return () => {
-      socketRef.current?.disconnect();
+      socket.off("connect", handleConnect);
+      socket.disconnect();
     };
-  }, []);
+  }, [user]);
 
-  return <div>Chat UI</div>; // ✅ Now works in .tsx
+  return (
+    <socketContext.Provider value={{ socket }}>
+      {children}
+    </socketContext.Provider>
+  );
 };
 
-export default ChatComponent;
+export default SocketManager;

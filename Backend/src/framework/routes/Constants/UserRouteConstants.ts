@@ -11,17 +11,18 @@ export const UserRoutes = {
   GET_SINGLE_DESTINATION: "/destination/:id",
   RESEND_OTP: "/resend-otp",
   GET_ALL_PACKAGES: "/package/:id",
-  EDIT_PROFILE: "/profile/:id",
+  EDIT_PROFILE: "/profile",
   CREATE_BOOKING: "/create-bookings",
   CREATE_PAYMENT: "/create-payment",
-  USER_BOOKINGS: "/bookings/:userId",
+  USER_BOOKINGS: "/bookings",
   REVIEWS: "/create-reviews",
   All_REVIEWS: "/reviews/:id",
-  PASSWORD: "/password/:id",
+  PASSWORD: "/password",
   CANCEL_BOOKING: "/bookings/:id",
   USER_WALLET:'/wallet',
   GET_USER_WALLET:'/wallet/:id',
   BUDDY_PACKAGES:'/buddy-packages',
   JOIN_TRAVEL:'/join-travel/:travelId/:userId',
-  BOOKING_BUDDYTRAVEL:'/booking/travel'
+  BOOKING_BUDDYTRAVEL:'/booking/travel',
+  BOOKING_RESHEDULE:'/booking/:id/reschedule'
 };

@@ -15,6 +15,8 @@ import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
 import { ChatRoutes } from "./framework/routes/Chat/ChatRoutes";
 
+import { SocketIoServer as IoHandler } from "./Io";
+
 export class App {
   private app: Express;
   private database: ConnectDB;
@@ -77,30 +79,7 @@ export class App {
         },
       });
 
-      // -------------------------------------------
-      //          🔥 CLEAN SOCKET.IO LOGIC
-      // -------------------------------------------
-      this.io.on("connection", (socket) => {
-        console.log("🟢 Socket connected:", socket.id);
-
-        // Join a chat room
-        socket.on("joinChat", (chatId: string) => {
-          socket.join(chatId);
-        });
-
-        // Send + Broadcast message to room
-        socket.on("sendMessage", (data) => {
-          if (!data.chatId) return;
-          this.io.to(data.chatId).emit("receiveMessage", data);
-        });
-
-        socket.on("disconnect", () => {
-          console.log("🔴 Socket disconnected:", socket.id);
-        });
-      });
-
-      // -------------------------------------------
-
+      new IoHandler(this.io)
       this.server.listen(port, () => {
         console.log(`🚀 Server running on port ${port}`);
       });

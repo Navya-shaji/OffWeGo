@@ -1,17 +1,14 @@
 import { NotificationDto } from "../../domain/dto/Notification/NotificationDto";
-import { INotification } from "../../domain/entities/NotificationEntity";
+import { INotificationEntity } from "../../domain/entities/NotificationEntity";
 
 export const notificationMapperDto = (
-  notifications: INotification[]
+  notifications: INotificationEntity[]
 ): NotificationDto[] => {
   return notifications.map(n => ({
-    _id: n._id?.toString(),
-    from: n.from,
-    to: n.to,
+    recipientId: n.recipientId,
+    recipientType: n.recipientType,
+    title: n.title,
     message: n.message,
-    read: n.read,
-    senderModel: n.senderModel,
-    receiverModel: n.receiverModel,
-    type: n.type
+    createdAt: n.createdAt,
   }));
 };

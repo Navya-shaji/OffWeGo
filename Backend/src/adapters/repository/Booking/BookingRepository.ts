@@ -115,27 +115,23 @@ export class BookingRepository implements IBookingRepository {
 async findCompletedBookingsForTransfer(): Promise<Booking[]> {
   const today = new Date();
 
-  // Step 1: Get all bookings that are linked to a package
   const bookings = await BookingModel.find({
     selectedPackage: { $exists: true, $ne: null },
+    bookingStatus: "completed"  // ✅ Only completed bookings
   })
-    .populate("selectedPackage") // fetch full package details
+    .populate("selectedPackage")
     .lean();
 
-  // Step 2: Filter bookings whose trip has ended
   const finishedTrips = bookings.filter((booking: any) => {
     const selectedPackage = booking.selectedPackage;
     if (!selectedPackage?.duration || !booking.selectedDate) return false;
 
-    // Calculate trip end date: start date + duration
     const endDate = new Date(booking.selectedDate);
     endDate.setDate(endDate.getDate() + selectedPackage.duration);
 
-    // Return only if trip is finished
     return endDate < today;
   });
 
-  // Step 3: Map the final structure if needed
   const formattedTrips = finishedTrips.map((booking: any) => ({
     bookingId: booking.bookingId,
     userId: booking.userId,
@@ -156,6 +152,7 @@ async findCompletedBookingsForTransfer(): Promise<Booking[]> {
   console.log(formattedTrips, "Finished trip details");
   return formattedTrips as unknown as Booking[];
 }
+
 
 async checkBookingExistsBetweenUserAndOwner(
   userId: string,

@@ -32,5 +32,6 @@ export interface IVendorRepository {
   countVendors(filter?: Record<string, unknown>): Promise<number>;
   searchVendor(query:string):Promise<Vendor[]>
 updateFcmToken(id: string, token: string): Promise<IVendorModel | null>;
+getFcmTokenById(vendorId: string): Promise<string | null>;
 
 }

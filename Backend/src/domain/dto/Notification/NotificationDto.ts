@@ -1,14 +1,7 @@
-import { ObjectId } from "mongoose";
-import { Role } from "../../constants/Roles";
-
-export interface NotificationDto{
-   _id?: string;
-    from: ObjectId | string ;             
-    to: ObjectId | string;              
-    message: string;           
-    read: boolean;           
-    senderModel: Role
-    receiverModel: Role
-    type: 'warning' | 'info' | 'success' | 'error'
+export interface NotificationDto {
+  recipientId: string;
+  recipientType: "user" | "vendor" ;
+  title: string;
+  message: string;
+  createdAt?: Date;
 }
-

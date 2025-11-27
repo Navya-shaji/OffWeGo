@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { Wallet, TrendingUp, RefreshCw, AlertCircle, ArrowDownCircle, CheckCircle } from "lucide-react";
+import { Wallet, TrendingUp, RefreshCw, AlertCircle, ArrowDownCircle, CheckCircle, Home } from "lucide-react";
 import { getVendorWallet } from "@/services/Wallet/VendorWalletService";
 
 export default function VendorWalletManagement() {
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
-  const [wallet, setWallet] = useState<any>(null);
+  const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (vendor?.id) fetchWallet();
@@ -21,14 +20,14 @@ export default function VendorWalletManagement() {
       setError(null);
       const response = await getVendorWallet(vendor.id);
       setWallet(response);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || "Failed to fetch vendor wallet");
     } finally {
       setLoading(false);
     }
   };
 
-  const formatCurrency = (amount: number) =>
+  const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -37,10 +36,10 @@ export default function VendorWalletManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
-          <RefreshCw className="animate-spin text-blue-600 mx-auto mb-3" size={40} />
-          <p className="text-slate-600 text-lg">Loading wallet details...</p>
+          <RefreshCw className="animate-spin text-white mx-auto mb-3" size={40} />
+          <p className="text-gray-400 text-lg font-light tracking-wide">Loading wallet details...</p>
         </div>
       </div>
     );
@@ -48,14 +47,16 @@ export default function VendorWalletManagement() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-red-50">
-        <div className="bg-white p-6 rounded-xl shadow-md text-center border border-red-300 max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="bg-gray-900 p-6 border border-gray-700 text-center max-w-md">
           <AlertCircle className="text-red-500 mx-auto mb-3" size={32} />
-          <h2 className="text-xl font-semibold text-red-700">Error</h2>
-          <p className="text-red-600 mt-2">{error}</p>
+          <h2 className="text-xl font-light text-white">
+            <span className="font-bold">Error</span>
+          </h2>
+          <p className="text-red-400 mt-2">{error}</p>
           <button
             onClick={fetchWallet}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="mt-4 px-6 py-2 bg-white text-black font-semibold tracking-wide uppercase text-sm hover:bg-gray-200 transition"
           >
             Retry
           </button>
@@ -65,107 +66,117 @@ export default function VendorWalletManagement() {
   }
 
   const totalEarnings = wallet?.transactions
-    ?.filter((t: any) => t.type === "credit")
-    .reduce((sum: number, t: any) => sum + t.amount, 0);
+    ?.filter((t) => t.type === "credit")
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const totalWithdrawals = wallet?.transactions
-    ?.filter((t: any) => t.type === "debit")
-    .reduce((sum: number, t: any) => sum + t.amount, 0);
+    ?.filter((t) => t.type === "debit")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-
-  const creditTransactions = wallet?.transactions?.filter((t: any) => t.type === "credit") || [];
-  const debitTransactions = wallet?.transactions?.filter((t: any) => t.type === "debit") || [];
+  const creditTransactions = wallet?.transactions?.filter((t) => t.type === "credit") || [];
+  const debitTransactions = wallet?.transactions?.filter((t) => t.type === "debit") || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div className="min-h-screen bg-black p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-800 flex items-center gap-3">
-              <Wallet className="text-blue-600" /> Vendor Wallet
-            </h1>
-            <p className="text-slate-600 mt-2">
-              Manage and view your wallet balance and transactions.
-            </p>
+        <div className="mb-8 bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => (window.location.href = "/")}
+                className="flex items-center gap-2 px-6 py-3 bg-white text-black font-semibold tracking-wide uppercase text-sm hover:bg-gray-200 transition-all"
+              >
+                <Home className="w-4 h-4" />
+                <span>Home</span>
+              </button>
+              <div>
+                <h1 className="text-4xl font-light text-white tracking-tight flex items-center gap-3">
+                  <Wallet className="text-white" /> Vendor <span className="font-bold">Wallet</span>
+                </h1>
+                <p className="text-gray-400 mt-2 font-light">
+                  Manage and view your wallet balance and transactions
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={fetchWallet}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black font-semibold tracking-wide uppercase text-sm hover:bg-gray-200 transition disabled:opacity-50"
+            >
+              <RefreshCw className={loading ? "animate-spin" : ""} size={18} />
+              Refresh
+            </button>
           </div>
-          <button
-            onClick={fetchWallet}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            <RefreshCw className={loading ? "animate-spin" : ""} size={18} />
-            Refresh
-          </button>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-700 p-6 text-white">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm opacity-90">Wallet Balance</span>
+              <span className="text-sm opacity-90 tracking-wide uppercase font-semibold text-gray-400">Wallet Balance</span>
               <Wallet size={24} />
             </div>
             <p className="text-3xl font-bold">{formatCurrency(wallet?.balance)}</p>
-            <p className="text-blue-200 text-sm mt-1">Available to withdraw</p>
+            <p className="text-gray-400 text-sm mt-1 font-light">Available to withdraw</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-600 text-sm">Total Earnings</span>
-              <TrendingUp size={24} className="text-green-500" />
+              <span className="text-gray-400 text-sm tracking-wide uppercase font-semibold">Total Earnings</span>
+              <TrendingUp size={24} className="text-white" />
             </div>
-            <p className="text-3xl font-bold text-slate-800">
+            <p className="text-3xl font-bold text-white">
               {formatCurrency(totalEarnings || 0)}
             </p>
-            <p className="text-slate-500 text-sm mt-1">From completed trips (90%)</p>
+            <p className="text-gray-400 text-sm mt-1 font-light">From completed trips (90%)</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-600 text-sm">Total Withdrawals</span>
-              <ArrowDownCircle size={24} className="text-red-500" />
+              <span className="text-gray-400 text-sm tracking-wide uppercase font-semibold">Total Withdrawals</span>
+              <ArrowDownCircle size={24} className="text-white" />
             </div>
-            <p className="text-3xl font-bold text-slate-800">
+            <p className="text-3xl font-bold text-white">
               {formatCurrency(totalWithdrawals || 0)}
             </p>
-            <p className="text-slate-500 text-sm mt-1">Amount withdrawn</p>
+            <p className="text-gray-400 text-sm mt-1 font-light">Amount withdrawn</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-600 text-sm">Transactions</span>
-              <CheckCircle size={24} className="text-purple-500" />
+              <span className="text-gray-400 text-sm tracking-wide uppercase font-semibold">Transactions</span>
+              <CheckCircle size={24} className="text-white" />
             </div>
-            <p className="text-3xl font-bold text-slate-800">
+            <p className="text-3xl font-bold text-white">
               {wallet?.transactions?.length || 0}
             </p>
-            <p className="text-slate-500 text-sm mt-1">Total count</p>
+            <p className="text-gray-400 text-sm mt-1 font-light">Total count</p>
           </div>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-gray-900 border border-gray-700 p-4 mb-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
-            <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">How earnings work:</p>
-              <p>When a customer completes a trip booking, 90% of the booking amount is automatically transferred to your wallet. The remaining 10% is the platform fee.</p>
+            <AlertCircle className="text-white flex-shrink-0 mt-0.5" size={20} />
+            <div className="text-sm text-gray-300">
+              <p className="font-medium mb-1 tracking-wide uppercase text-xs text-white">How earnings work:</p>
+              <p className="font-light">When a customer completes a trip booking, 90% of the booking amount is automatically transferred to your wallet. The remaining 10% is the platform fee.</p>
             </div>
           </div>
         </div>
 
         {/* Transactions List */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+        <div className="bg-gradient-to-b from-gray-900 to-black border border-gray-800 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-slate-800">
-              Recent Transactions
+            <h3 className="text-xl font-light text-white">
+              Recent <span className="font-bold">Transactions</span>
             </h3>
             <div className="flex gap-2">
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-white text-black font-medium tracking-wide uppercase text-xs">
                 {creditTransactions.length} Credits
               </span>
-              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-gray-700 text-white font-medium tracking-wide uppercase text-xs">
                 {debitTransactions.length} Debits
               </span>
             </div>
@@ -173,24 +184,24 @@ export default function VendorWalletManagement() {
 
           {wallet?.transactions?.length > 0 ? (
             <div className="space-y-3">
-              {wallet.transactions.slice(0, 15).map((tx: any, idx: number) => (
+              {wallet.transactions.slice(0, 15).map((tx, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                  className="flex items-center justify-between p-4 bg-gray-800/30 border border-gray-800 hover:bg-gray-800/50 transition"
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <div
-                      className={`w-10 h-10 flex items-center justify-center rounded-full font-bold ${
+                      className={`w-10 h-10 flex items-center justify-center font-bold ${
                         tx.type === "credit"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
+                          ? "bg-white text-black"
+                          : "bg-gray-700 text-white"
                       }`}
                     >
                       {tx.type === "credit" ? "+" : "-"}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-slate-800">{tx.description}</p>
-                      <p className="text-sm text-slate-500">
+                      <p className="font-medium text-white">{tx.description}</p>
+                      <p className="text-sm text-gray-400 font-light">
                         {new Date(tx.date).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
@@ -203,7 +214,7 @@ export default function VendorWalletManagement() {
                   </div>
                   <p
                     className={`font-bold text-lg whitespace-nowrap ml-4 ${
-                      tx.type === "credit" ? "text-green-600" : "text-red-600"
+                      tx.type === "credit" ? "text-white" : "text-gray-500"
                     }`}
                   >
                     {tx.type === "credit" ? "+" : "-"} {formatCurrency(tx.amount)}
@@ -213,9 +224,9 @@ export default function VendorWalletManagement() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <Wallet className="mx-auto text-slate-300 mb-3" size={48} />
-              <p className="text-slate-500 text-lg">No transactions yet</p>
-              <p className="text-slate-400 text-sm mt-1">
+              <Wallet className="mx-auto text-gray-700 mb-3" size={48} />
+              <p className="text-gray-400 text-lg font-light">No transactions yet</p>
+              <p className="text-gray-500 text-sm mt-1 font-light">
                 Earnings from completed trips will appear here
               </p>
             </div>

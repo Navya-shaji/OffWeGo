@@ -29,7 +29,7 @@ export function GoogleSignup() {
             try {
               const res = await registerGoogleUser(token);
               const { user, accessToken } = res.data;
-
+console.log(user,"google user")
               if (user && accessToken) {
                 dispatch(
                   login({

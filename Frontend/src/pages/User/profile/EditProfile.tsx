@@ -19,7 +19,6 @@ import { editProfile } from "@/services/user/Userprofile";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { toast } from "react-toastify";
 
-// Import validation schemas
 import { usernameSchema, phoneSchema } from '@/Types/User/Profile/profileZodeSchema'
 import z from "zod/v3";
 
@@ -46,14 +45,14 @@ export default function EditProfileModal({
   const [errorPhone, setErrorPhone] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      setUsername(user.username || "");
-      setEmail(user.email || "");
-      setPhone(user.phone || "");
-      setImagePreviewUrl(user.imageUrl || null);
-    }
-  }, [user]);
+useEffect(() => {
+  if (user) {
+    setUsername(user.username || "");
+    setEmail(user.email || "");
+    setPhone(user.phone || "");
+    setImagePreviewUrl(user.imageUrl || null);
+  }
+}, [user]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -92,13 +91,12 @@ export default function EditProfileModal({
 
     try {
     
-
       let newImageUrl = user.imageUrl;
       if (selectedFile) {
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      const updated = await editProfile(user.id, {
+      const updated = await editProfile( {
         name: username,
         phone: phone,
         imageUrl: newImageUrl,

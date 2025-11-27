@@ -4,59 +4,51 @@ import { IChatRepository } from "../../domain/interface/Chat/IchatRepo";
 import { IInitiateChatUsecase } from "../../domain/interface/Chat/IsendChatUsecase";
 
 export class InitiateChatUsecase implements IInitiateChatUsecase {
-    private chatRepository: IChatRepository;
+  private chatRepository: IChatRepository;
 
-    constructor(chatRepository: IChatRepository) {
-        this.chatRepository = chatRepository;
+  constructor(chatRepository: IChatRepository) {
+    this.chatRepository = chatRepository;
+  }
+
+  async initiateChat(input: ICreateChatDto): Promise<IChatOut> {
+    const { userId, ownerId } = input;
+
+    if (!userId || !ownerId) {
+      throw new Error(
+        "Both userId and ownerId are required to initiate a chat."
+      );
     }
 
-    async initiateChat(input: ICreateChatDto): Promise<IChatOut> {
-        const { userId, ownerId } = input;
+    let chat = await this.chatRepository.getchatOfUser(userId, ownerId);
 
-        const existingChat = await this.chatRepository.getchatOfUser(userId, ownerId);
+    if (!chat) {
+      const newChat: IChat = {
+        userId: userId,
+        vendorId: ownerId,
+        lastMessage: "",
+        lastMessageAt: new Date(),
+      };
 
-        if (existingChat) {
-            const otherUser =
-                existingChat.senderId._id.toString() === userId
-                    ? existingChat.receiverId
-                    : existingChat.senderId;
-
-            return {
-                _id: existingChat._id,
-                name: otherUser.name,
-                profile_image: otherUser.profile_image || "",
-                isOnline: true,  
-                lastMessage: existingChat.lastMessage,
-                lastMessageAt: existingChat.lastMessageAt,
-            };
-        }
-
-
-        const newChat: IChat = {
-            senderId: userId,
-            receiverId: ownerId,
-            senderType: "user",
-            receiverType: "vendor",
-            lastMessage: "",
-            lastMessageAt: new Date(),
-        };
-
-        const createdChat = await this.chatRepository.createChat(newChat);
-
-        if (!createdChat) throw new Error("Error while creating new chat");
-
-        const otherUser =
-            createdChat.senderId._id.toString() === userId
-                ? createdChat.receiverId
-                : createdChat.senderId;
-
-        return {
-            _id: createdChat._id,
-            name: otherUser.name,
-            profile_image: otherUser.profile_image || "",
-            isOnline: true,
-            lastMessage: createdChat.lastMessage,
-            lastMessageAt: createdChat.lastMessageAt,
-        };
+      chat = await this.chatRepository.createChat(newChat);
+      if (!chat) throw new Error("Error while creating new chat");
     }
+
+    const otherUser =
+      chat.userId && chat.vendorId._id.toString() === userId
+        ? chat.vendorId
+        : chat.userId;
+
+    if (!otherUser) {
+      throw new Error("Other user data is missing in the chat.");
+    }
+
+    return {
+      _id: chat._id,
+      name: otherUser.name || "Unknown",
+      profile_image: otherUser.imageUrl || otherUser.profileImage || "",
+      isOnline: true,
+      lastMessage: chat.lastMessage || "",
+      lastMessageAt: chat.lastMessageAt || new Date(),
+    };
+  }
 }

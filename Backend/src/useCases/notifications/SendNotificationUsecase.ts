@@ -1,6 +1,6 @@
-import { INotificationService } from "../../domain/interface/Notification/INotificationService";
-import { ISendNotificationUseCase } from "../../domain/interface/Notification/ISendNotification";
 import { NotificationDto } from "../../domain/dto/Notification/NotificationDto";
+import { ISendNotificationUseCase } from "../../domain/interface/Notification/INotificationService";
+import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { notificationMapperDto } from "../../mappers/Notification/notificationMapper";
 
 export class SendNotificationUseCase implements ISendNotificationUseCase {

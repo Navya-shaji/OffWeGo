@@ -8,3 +8,7 @@ export interface IChatModel extends Omit<IChat,'_id'>,Document{
 }
 
 export const chatModel = model<IChat>('chat',chatSchema)
+
+
+
+

@@ -6,5 +6,5 @@ export interface IMessage {
     messageContent: string,
     sendedTime: Date
     senderId: string
-    senderModel: 'user' | 'vendor'
+    senderType: 'user' | 'vendor'
 }

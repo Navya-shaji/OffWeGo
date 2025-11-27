@@ -15,11 +15,11 @@ export class UserProfileController {
     try {
       const { email } = req.query;
       if (typeof email !== "string") {
-         res.status(HttpStatus.BAD_REQUEST).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: "Email is required and must be a string",
         });
-        return
+        return;
       }
 
       const result = await this._userProfileUsecase.execute({ email });
@@ -48,12 +48,12 @@ export class UserProfileController {
 
   async editProfileHandler(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = req.user?.userId 
+      console.log(userId,"djjk")
       const userData = req.body;
-
+console.log(userData)
       const result = await this._editUserProfile.execute(userId, userData);
-
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: "User profile updated successfully",
         data: {
@@ -66,7 +66,8 @@ export class UserProfileController {
       });
     } catch (error) {
       console.error("Error updating profile:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update profile",
         error: (error as Error).message,
@@ -76,15 +77,8 @@ export class UserProfileController {
 
   async changePasswordHandler(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = req.user?.userId;
       const { oldPassword, newPassword } = req.body;
-
-      if (!oldPassword || !newPassword) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Both current and new passwords are required",
-        });
-      }
 
       const result = await this._changePasswordUsecase.execute({
         userId,
@@ -92,14 +86,14 @@ export class UserProfileController {
         newPassword,
       });
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: result,
-        userId,
       });
     } catch (error) {
       console.error("Error changing password:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Internal server error",
         error: (error as Error).message,

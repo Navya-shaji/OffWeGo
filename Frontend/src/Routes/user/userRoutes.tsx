@@ -19,13 +19,10 @@ import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
-import { Elements } from "@stripe/react-stripe-js";
-// import BuddyTravelCheckoutForm from "@/components/home/Travalbuddies/buddyTravelCheckout";
-// import { Elements } from "@stripe/react-stripe-js";
-// import { loadStripe } from "@stripe/stripe-js";
-
-
-// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
+import ChatPage from "@/pages/User/chat/chat";
+import MessageTemplate from "@/pages/User/chat/Template";
+import MessageContainer from "@/pages/User/chat/container";
+import NotFound from "@/components/Modular/NotFound";
 
 const UserRoute = () => {
   return (
@@ -58,28 +55,16 @@ const UserRoute = () => {
       <Route path="/about" element={<AboutUs />} />
       <Route path="/wallet" element={<WalletManagement />} />
       <Route path="/buddy-packages" element={<Travalbuddies />} />
-        <Route path="/payment-success" element={<BookingSuccess />} />
-      
+      <Route path="/payment-success" element={<BookingSuccess />} />
 
-      {/* <Route
-        path="/payment-buddycheckout"
-        element={
-          <Elements stripe={stripePromise}>
-            <BuddyTravelCheckoutForm amount={0} clientSecret="" />
-          </Elements>
-        }
-      /> */}
-
-      {/* <Route path="/payment-buddycheckout" element={<BuddyTravelPaymentPage />} /> */}
-
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
+     
+      <Route path='/chat' element={<ChatPage />}>
+        <Route index element={<MessageTemplate />} />
+        <Route path=':chatId' element={<MessageContainer />} />
+      </Route>
+      <Route>
+        <Route path="*" element={<NotFound/>}></Route>
+      </Route>
     </Routes>
   );
 };

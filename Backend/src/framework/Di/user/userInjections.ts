@@ -47,6 +47,11 @@ import { GetCompletedBookingsForTransfer } from "../../../useCases/wallet/getcom
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
 import { UserProfileController } from "../../../adapters/controller/User/userProfileController";
 import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/subscriptionPaymentController";
+import { BookingRescheduleUseCase } from "../../../useCases/booking/BookingResheduleUsecase";
+import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
+import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
+import { ChatController } from "../../../adapters/controller/chat/ChatController";
+import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -66,7 +71,7 @@ const walletRepo=new WalletRepository()
 // const notificationRepo=new NotificationRepository()
 // const notificationservice=new FirebaseNotificationService(notificationRepo)
 const subscriptionbookingRepo=new SubscriptionBookingRepository()
-// const chatRepo=new ChatRepository()
+const chatRepo=new ChatRepository()
 
 
 // Use Cases
@@ -92,21 +97,22 @@ const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
 // const notificationUsecase=new SendNotificationUseCase(notificationservice)
-// const sendchatusecase=new SendChatMessageUseCase(chatRepo)
-// const getchatusecase=new ChatUseCase(chatRepo)
+const sendchatusecase=new InitiateChatUsecase(chatRepo)
+const getchatusecase=new GetChatsOfUserUsecase(chatRepo)
 const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
+const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo)
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase,forgotPassUsecase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile,changepasswordusecase);
-export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase,cancelbookingusecase)
+export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase,cancelbookingusecase,reshedulebookingusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
 export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings)
 // export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
-// export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)
+export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

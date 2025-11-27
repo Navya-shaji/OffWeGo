@@ -4,4 +4,5 @@ export const CommonRoutes = {
   CHAT:'/chat/send',
   CHATS:'/chat/:senderId',
   GET_NOTIFICATIONS:'/notifications'
+  
 };

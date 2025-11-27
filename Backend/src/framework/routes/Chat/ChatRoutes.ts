@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { chatcontroller } from "../../Di/Chat/ChatInjection";
+import { chatcontroller, msgcontroller } from "../../Di/Chat/ChatInjection";
 
 export class ChatRoutes {
   public router: Router;
@@ -19,13 +19,13 @@ export class ChatRoutes {
       chatcontroller.getChatsOfUser(req, res);
     });
 
-    this.router.post("/enable-chat", (req: Request, res: Response) => {
-      chatcontroller.enableChat(req, res);
-    });
-
-    // If you later add messageController, you can enable this:
-    // this.router.get("/messages/:chatId", (req: Request, res: Response) => {
-    //   messageController.getMessagesByChatId(req, res);
+    // this.router.post("/enable-chat", (req: Request, res: Response) => {
+    //   chatcontroller.enableChat(req, res);
     // });
+
+
+    this.router.get("/messages/:chatId", (req: Request, res: Response) => {
+      msgcontroller.getMessagesByChatId(req, res);
+    });
   }
 }

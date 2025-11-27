@@ -8,24 +8,16 @@ export const chatSchema = new Schema<IChat>({
     lastMessageAt: {
         type: Date
     },
-    receiverId: {
-        type: String,
-        ref: 'User'
+    userId: {
+        type: Schema.Types.ObjectId,
+        refPath: 'receiverType'
     },
-    senderId: {
-        type: String,
-        ref: 'User'
+    vendorId: {
+        type: Schema.Types.ObjectId,
+        refPath: 'senderType'
     },
-    receiverType: {
-        type: String,
-        required: true,
-        enum: ['user', 'vendor']
-    },
-    senderType: {
-        type: String,
-        required: true,
-        enum: ['user', 'vendor']
-    }
+
+
 }, {
     timestamps: true
 })

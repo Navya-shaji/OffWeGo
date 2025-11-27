@@ -1,9 +1,10 @@
 import { LoginDTo } from "../../dto/User/LoginDto";
 
 export interface IUserLoginUseCase {
-  execute(credentials: LoginDTo): Promise<{
+  execute(data: LoginDTo, fcmToken: string): Promise<{
     accessToken: string;
     refreshToken: string;
+    fcmToken:string
     user: {
       id: string;
       email: string;

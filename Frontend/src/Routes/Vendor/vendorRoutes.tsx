@@ -7,6 +7,7 @@ import VendorSubscriptionPage from "@/pages/Vendors/Bookings/SubscriptionPlans";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
 
 import PaymentFailureModal from "@/pages/Vendors/Bookings/BookingFailed";
+import NotFound from "@/components/Modular/NotFound";
 // import ChatPageVendor from "@/pages/Vendors/chat/ChatVendor";
 
 const VendorRoutes = () => {
@@ -14,11 +15,11 @@ const VendorRoutes = () => {
     <Routes>
       <Route path="/signup" element={<VendorSignup />} />
       <Route path="/login" element={<VendorLogin />} />
-      <Route path="/subscriptionplans" element={<VendorSubscriptionPage/>}/>
+      <Route path="/subscriptionplans" element={<VendorSubscriptionPage />} />
       <Route path="/payment-success" element={<BookingSuccess />} />
       {/* <Route path="/chat" element={<ChatPageVendor />} /> */}
       <Route path="/payment-failed" element={<PaymentFailureModal />} />
-      
+
       <Route
         path="/profile"
         element={
@@ -27,6 +28,9 @@ const VendorRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route>
+        <Route path="*" element={<NotFound />}></Route>
+      </Route>
     </Routes>
   );
 };

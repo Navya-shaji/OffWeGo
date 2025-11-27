@@ -13,4 +13,5 @@ export interface User {
   updatedAt?: Date;
   lastLogin?: Date;
   isAdmin?: boolean;
+  fcmToken: string;
 }

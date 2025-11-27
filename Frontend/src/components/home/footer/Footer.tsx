@@ -6,14 +6,14 @@ import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'luc
 const Footer: React.FC = () => {
   return (
     <footer className="bg-black text-white">
-      <div className="container mx-auto px-6 py-20 max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-16">
+<div className="container mx-auto px-6 py-10 max-w-6xl">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-10">
           {/* Company Info */}
           <div className="lg:col-span-2">
-            <h4 className="text-4xl font-light mb-6 tracking-tight">
+<h4 className="text-3xl font-light mb-4 tracking-tight">
               Off<span className="font-bold">WeGo</span>
             </h4>
-            <p className="text-white/60 mb-12 leading-relaxed font-light max-w-md">
+<p className="text-white/60 mb-6">
               Your gateway to extraordinary travel experiences. Discover, explore, 
               and create memories that last a lifetime.
             </p>
@@ -26,9 +26,9 @@ const Footer: React.FC = () => {
               <div className="flex gap-0">
                 <Input
                   placeholder="Enter your email"
-                  className="flex-1 px-6 py-6 bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors duration-300 rounded-none border-r-0"
+                  className="flex-1 px-4 py-4 bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors duration-300 rounded-none border-r-0"
                 />
-                <Button className="px-8 py-6 bg-white text-black font-semibold hover:bg-white/90 transition-colors duration-300 rounded-none">
+                <Button className="px-6 py-4 bg-white text-black font-semibold hover:bg-white/90 transition-colors duration-300 rounded-none">
                   Subscribe
                 </Button>
               </div>
@@ -122,7 +122,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-white/40 text-sm">
+        <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-white/40 text-sm">
           <p>&copy; 2024 OffWeGo. All rights reserved.</p>
           <p className="font-light">Crafted for travelers worldwide</p>
         </div>

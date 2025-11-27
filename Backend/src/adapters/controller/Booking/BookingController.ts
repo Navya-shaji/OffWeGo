@@ -5,6 +5,7 @@ import { IGetUserBookingUsecase } from "../../../domain/interface/Booking/IGetUs
 import { IGetVendorSideBookingUsecase } from "../../../domain/interface/Booking/IGetVendorSideBookingUsecase";
 import { IBookingDatesUsecase } from "../../../domain/interface/Booking/IBookingDatesUsecase";
 import { ICancelBookingUsecase } from "../../../domain/interface/Booking/ICancelBookingUSecase";
+import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingResheduleusecase";
 
 export class BookingController {
   constructor(
@@ -12,7 +13,8 @@ export class BookingController {
     private _userbookings: IGetUserBookingUsecase,
     private _vendorsidebookings: IGetVendorSideBookingUsecase,
     private _bookingDates: IBookingDatesUsecase,
-    private _cancelBooking: ICancelBookingUsecase
+    private _cancelBooking: ICancelBookingUsecase,
+    private _rescheduleBooking: IBookingRescheduleUseCase 
   ) {}
 
   async createBooking(req: Request, res: Response): Promise<void> {
@@ -89,6 +91,31 @@ export class BookingController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error,
+      });
+    }
+  }
+
+  // ------------------- New Method -------------------
+  async rescheduleBooking(req: Request, res: Response): Promise<void> {
+    try {
+      const bookingId = req.params.id;
+      const { newDate } = req.body;
+
+      const updatedBooking = await this._rescheduleBooking.execute({
+        bookingId,
+        newDate: new Date(newDate),
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Booking rescheduled successfully",
+        booking: updatedBooking,
+      });
+    } catch (error) {
+      console.error("Error rescheduling booking:", error);
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message:  "Failed to reschedule booking",
       });
     }
   }

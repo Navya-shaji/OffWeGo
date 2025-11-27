@@ -128,6 +128,10 @@ async updateFcmToken(id: string, token: string): Promise<IVendorModel | null> {
   );
 }
 
+async getFcmTokenById(vendorId: string): Promise<string | null> {
+  const vendor = await this.model.findById(vendorId).select("fcmToken");
+  return vendor?.fcmToken || null;
+}
 
 
 }

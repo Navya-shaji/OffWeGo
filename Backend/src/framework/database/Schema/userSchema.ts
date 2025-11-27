@@ -26,7 +26,8 @@ status: {
   googleVerified: {
     type: Boolean,
     default: false
-  }
+  },
+  fcmToken: { type: String, default: "" },
 }, {
   timestamps: true
 });

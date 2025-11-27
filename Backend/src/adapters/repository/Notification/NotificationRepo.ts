@@ -1,81 +1,86 @@
-// import { INotification } from "../../../domain/entities/NotificationEntity";
-// import { INotificationRepository } from "../../../domain/interface/Notification/INotificationRepo";
-// import { NotificationModel } from "../../../framework/database/Models/NotificationModel";
+import { INotificationEntity } from "../../../domain/entities/NotificationEntity";
+import { INotificationRepository } from "../../../domain/interface/Notification/INotificationRepo";
+import { NotificationModel } from "../../../framework/database/Models/NotificationModel";
 
+export class NotificationRepository implements INotificationRepository {
+  async create(data: INotificationEntity): Promise<INotificationEntity> {
+    const doc = await NotificationModel.create(data);
+    return doc.toObject() as unknown as INotificationEntity;
+  }
 
-// export class NotificationRepository implements INotificationRepository {
+  async findAll(): Promise<INotificationEntity[]> {
+    return await NotificationModel.find();
+  }
 
-//   async create(data: INotification): Promise<INotification> {
-//     return await NotificationModel.create(data);
-//   }
+  async findById(id: string): Promise<INotificationEntity | null> {
+    return await NotificationModel.findById(id);
+  }
 
-//   async findAll(): Promise<INotification[]> {
-//     return await NotificationModel.find();
-//   }
+  async update(
+    id: string,
+    data: Partial<INotificationEntity>
+  ): Promise<INotificationEntity | null> {
+    return await NotificationModel.findByIdAndUpdate(id, data, { new: true });
+  }
 
-//   async findById(id: string): Promise<INotification | null> {
-//     return await NotificationModel.findById(id);
-//   }
+  async delete(id: string): Promise<INotificationEntity | null> {
+    return await NotificationModel.findByIdAndDelete(id);
+  }
 
-//   async update(id: string, data: Partial<INotification>): Promise<INotification | null> {
-//     return await NotificationModel.findByIdAndUpdate(id, data, { new: true });
-//   }
+  async findOne(
+    filter: Partial<INotificationEntity>
+  ): Promise<INotificationEntity | null> {
+    return await NotificationModel.findOne(filter);
+  }
+  async getByRecipient(
+    recipientId: string,
+    recipientType: "user" | "vendor"
+  ): Promise<INotificationEntity[]> {
+    const docs = await NotificationModel.find({ recipientId, recipientType })
+      .sort({ createdAt: -1 })
+      .lean();
 
-//   async delete(id: string): Promise<INotification | null> {
-//     return await NotificationModel.findByIdAndDelete(id);
-//   }
+    return docs as unknown as INotificationEntity[];
+  }
 
-//   async findOne(filter: Partial<INotification>): Promise<INotification | null> {
-//     return await NotificationModel.findOne(filter);
-//   }
+  async markAsRead(id: string): Promise<INotificationEntity | null> {
+    return await NotificationModel.findByIdAndUpdate(
+      id,
+      { read: true },
+      { new: true }
+    );
+  }
 
-//   // -----------------------------
-//   // ⭐ EXTRA NOTIFICATION METHODS
-//   // -----------------------------
+  async markAllAsRead(recipientId: string, recipientType: "user" | "vendor") {
+    const result = await NotificationModel.updateMany(
+      { recipientId, recipientType, read: false },
+      { read: true }
+    );
 
-//   async findByUserId(userId: string): Promise<INotification[]> {
-//     return await NotificationModel
-//       .find({ to: userId })
-//       .sort({ createdAt: -1 });
-//   }
+    return { modifiedCount: result.modifiedCount };
+  }
 
-//   async markAsRead(id: string): Promise<INotification | null> {
-//     return await NotificationModel.findByIdAndUpdate(
-//       id,
-//       { read: true },
-//       { new: true }
-//     );
-//   }
+  async getUnreadCount(recipientId: string, recipientType: "user" | "vendor") {
+    return await NotificationModel.countDocuments({
+      recipientId,
+      recipientType,
+      read: false,
+    });
+  }
 
-//   async markAllAsRead(
-//     userId: string
-//   ): Promise<{ modifiedCount: number }> {
-//     const result = await NotificationModel.updateMany(
-//       { to: userId, read: false },
-//       { $set: { read: true } }
-//     );
+  async deleteNotification(id: string) {
+    const result = await NotificationModel.deleteOne({ _id: id });
+    return { deletedCount: result.deletedCount };
+  }
 
-//     return { modifiedCount: result.modifiedCount };
-//   }
-
-//   async getUnreadCount(userId: string): Promise<number> {
-//     return await NotificationModel.countDocuments({
-//       to: userId,
-//       read: false,
-//     });
-//   }
-
-//   async deleteNotification(
-//     id: string
-//   ): Promise<{ deletedCount: number }> {
-//     const result = await NotificationModel.deleteOne({ _id: id });
-//     return { deletedCount: result.deletedCount };
-//   }
-
-//   async deleteAllNotifications(
-//     userId: string
-//   ): Promise<{ deletedCount: number }> {
-//     const result = await NotificationModel.deleteMany({ to: userId });
-//     return { deletedCount: result.deletedCount };
-//   }
-// }
+  async deleteAllNotifications(
+    recipientId: string,
+    recipientType: "user" | "vendor"
+  ) {
+    const result = await NotificationModel.deleteMany({
+      recipientId,
+      recipientType,
+    });
+    return { deletedCount: result.deletedCount };
+  }
+}

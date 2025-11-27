@@ -256,54 +256,52 @@ const Destinations = ({ id }: DestinationsProps) => {
     </div>
   );
 };
-
 const DestinationCard = React.memo(
   ({ destination }: { destination: DestinationInterface }) => {
     return (
-      <div className="flex-shrink-0 w-96">
-        <Link
-          to={`/destination/${destination.id}`}
-          className="group cursor-pointer block"
-        >
-          <div className="relative h-[500px] overflow-hidden mb-6 bg-black">
+      <Link
+        to={`/destination/${destination.id}`}
+        className="flex-shrink-0 w-[385px] h-[500px]group cursor-pointer"
+      >
+        <div className="bg-white h-full flex flex-col transition-all duration-300 hover:shadow-xl" style={{ borderRadius: '20px', boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)' }}>
+          {/* Image Container */}
+          <div className="relative h-[240px] overflow-hidden" style={{ borderRadius: '20px 20px 0 0' }}>
             {destination.imageUrls?.length > 0 ? (
               <img
                 src={destination.imageUrls[0]}
-                alt={`${destination.name}, ${destination.location}`}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                loading="lazy"
+                alt={destination.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-                <div className="text-center text-white/60">
-                  <MapPin className="w-20 h-20 mx-auto mb-4" />
-                  <span className="text-lg font-light">No Image Available</span>
-                </div>
+              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <p className="text-gray-500 text-sm">No Image Available</p>
               </div>
             )}
-
-            {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-black/40">
-              <MapPin className="w-4 h-4" />
-              <span className="font-medium">{destination.location}</span>
+          {/* Content Container */}
+          <div className="flex-1 p-6 flex flex-col">
+            {/* Location */}
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <span className="text-gray-500 text-sm font-medium">
+                {destination.location}
+              </span>
             </div>
-            <h3 className="text-3xl font-light group-hover:translate-x-2 transition-transform duration-300">
+
+            {/* Title */}
+            <h3 className="text-gray-900 text-xl font-bold mb-3 leading-tight">
               {destination.name}
             </h3>
-            <p className="text-black/60 leading-relaxed font-light line-clamp-3">
+
+            {/* Description */}
+            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 flex-1">
               {destination.description ||
                 "Discover this amazing destination and create unforgettable memories."}
             </p>
-            <button className="mt-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-black pb-1 hover:border-black/40 transition-colors duration-300">
-              Discover More
-            </button>
           </div>
-        </Link>
-      </div>
+        </div>
+      </Link>
     );
   }
 );

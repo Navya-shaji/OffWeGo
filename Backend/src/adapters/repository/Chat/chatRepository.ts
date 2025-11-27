@@ -8,36 +8,39 @@ export class ChatRepository implements IChatRepository {
   async createChat(chat: IChat): Promise<IChatPopulated> {
     const createdChat = await chatModel.create(chat);
     return await chatModel.findById(createdChat._id)
-      .populate('senderId', 'name profile_image')
-      .populate('receiverId', 'name profile_image') as any as IChatPopulated;
+      .populate({
+        path: 'userId',
+        select: 'name profile_image'
+      })
+      .populate({
+        path: 'vendorId',
+        select: 'name profile_image'
+      }) as unknown as IChatPopulated;
   }
 
-  async getchatOfUser(userId: string,ownerId:string): Promise<IChatPopulated|null> {
+async getchatOfUser(userId: string, ownerId: string): Promise<IChatPopulated | null> {
     const chat = await chatModel.findOne({
-      $or: [
-        { senderId: userId,receiverId:ownerId },
-        { receiverId: userId,senderId:ownerId }
-      ]
+        $or: [
+            {  userId, vendorId: ownerId },
+            { userId: ownerId, vendorId: userId }
+        ]
     })
-    .sort({ lastMessageAt: -1 })
-    .populate('senderId', 'name profile_image')
-    .populate('receiverId', 'name profile_image');
-    
-    return chat as any as IChatPopulated
-  }
+    .populate("userId")
+    .populate("vendorId");
+
+    return chat as unknown as IChatPopulated;
+}
+
 
   async findChatsOfUser(userId:string): Promise<{chats:IChatPopulated[]|null}> {
-    const result = await chatModel.find({
-      $or: [
-        { senderId:userId, },
-        {receiverId: userId }
-      ]
+    const result = await chatModel.findOne({
+    userId
     })
     .sort({ lastMessageAt: -1 })
-    .populate('senderId', 'name profile_image')
-    .populate('receiverId', 'name profile_image');
+    .populate('userId', 'name profile_image')
+    .populate('vendorId', 'name profile_image');
     
-    const chats = result as any as IChatPopulated[];
+    const chats = result as unknown as IChatPopulated[];
     return { chats }
   }
 

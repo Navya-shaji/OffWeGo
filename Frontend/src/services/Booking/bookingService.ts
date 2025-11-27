@@ -41,3 +41,16 @@ export const cancelBooking = async (bookingId: string) => {
   console.log(response)
   return response.data
 };
+
+export const rescheduleBooking = async (bookingId: string, newDate: string) => {
+  try {
+    const response = await axiosInstance.put(`/api/booking/${bookingId}/reschedule`, {
+      newDate,
+    });
+    console.log(response.data, "reschedule response");
+    return response.data;
+  } catch (error) {
+    console.error("Error rescheduling booking:");
+    throw error;
+  }
+};

@@ -1,28 +1,29 @@
+import { Types } from "mongoose"
 
 export interface IChat {
     _id?: string,
     lastMessage: string,
     lastMessageAt: Date,
-    senderId: string,
-    receiverId: string
-    senderType: 'user' | 'vendor'
-    receiverType: 'user' | 'vendor'
+    userId: string | Types.ObjectId,
+    vendorId: string | Types.ObjectId
+
 }
 
 export interface IChatPopulated {
     _id?: string,
     lastMessage: string,
     lastMessageAt: Date,
-    senderId: {
+    userId: {
         _id: string,
         name: string,
-        profile_image?: string
+        imageUrl?: string
+        profileImage?:string
     },
-    receiverId: {
+    vendorId: {
         _id: string,
         name: string,
-        profile_image?: string
+         imageUrl?: string
+        profileImage?:string
     }
-    senderType: 'user' | 'vendor'
-    receiverType: 'user' | 'vendor'
+
 }

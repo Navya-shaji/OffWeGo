@@ -8,8 +8,8 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
 import { onMessageListener, getFcmToken } from "./Firebase/firebase";
 import { toast } from "react-toastify";
-
-
+import SocketManager from "./utilities/socket";
+import { ChatProvider } from '@/context/chatContext';
 const CLIENT_ID =
   "486377046092-u6cngi8odi8ae7b5tc6jms049v9a70mo.apps.googleusercontent.com";
 
@@ -23,13 +23,14 @@ function Root() {
         .then((registration) => {
           console.log("Service Worker registered:", registration.scope);
         })
-        .catch((err) => console.error("Service Worker registration failed:", err));
+        .catch((err) =>
+          console.error("Service Worker registration failed:", err)
+        );
     }
-
 
     getFcmToken();
 
- onMessageListener()
+    onMessageListener()
       .then((payload) => {
         console.log("Foreground notification received:", payload);
         toast.info(
@@ -39,7 +40,7 @@ function Root() {
           </div>,
           {
             position: "top-right",
-            autoClose: 5000, 
+            autoClose: 5000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -56,9 +57,12 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <Provider store={store}>
+       <ChatProvider>
         <PersistGate persistor={persistor}>
+          <SocketManager />
           <Root />
         </PersistGate>
+        </ChatProvider>
       </Provider>
     </GoogleOAuthProvider>
   </StrictMode>

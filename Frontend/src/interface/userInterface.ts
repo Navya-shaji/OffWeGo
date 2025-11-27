@@ -4,6 +4,7 @@ export interface User {
   email: string;
   phone?: string;
   role: string;
-  status: "active" | "blocked"; 
+  status: "active" | "blocked";
   createdAt: string;
+  fcmToken: string;
 }

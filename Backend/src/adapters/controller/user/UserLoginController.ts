@@ -5,6 +5,7 @@ import { ITokenService } from "../../../domain/interface/ServiceInterface/Itoken
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
 import { IForgotpassUsecase } from "../../../domain/interface/UserLogin/IForgotPassUSecase";
+import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 
 export class UserLoginController {
   constructor(
@@ -17,7 +18,8 @@ export class UserLoginController {
 
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password } = req.body;
+      const { email, password, fcmToken } = req.body;
+
       if (!email || !password) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -25,8 +27,11 @@ export class UserLoginController {
         });
         return;
       }
-
-      const result = await this._loginUserUseCase.execute({ email, password });
+      const loginPayload: LoginDTo = { email, password };
+      const result = await this._loginUserUseCase.execute(
+        loginPayload,
+        fcmToken
+      );
       const user = result.user;
 
       if (user.role?.toLowerCase() === "admin") {
@@ -62,12 +67,13 @@ export class UserLoginController {
         message: "Login successful",
         accessToken,
         user,
+        fcmToken,
       });
     } catch (error) {
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: "Invalid credentials",
-        error
+        error,
       });
     }
   }
@@ -96,7 +102,7 @@ export class UserLoginController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to send OTP. Please try again later.",
-        error
+        error,
       });
     }
   }
@@ -129,7 +135,7 @@ export class UserLoginController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "OTP verification failed. Please try again.",
-        error
+        error,
       });
     }
   }
@@ -154,7 +160,7 @@ export class UserLoginController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Password reset failed. Please try again later.",
-        error
+        error,
       });
     }
   }

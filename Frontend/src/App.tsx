@@ -22,12 +22,14 @@ function App() {
   }, []);
   return (
     <BrowserRouter>
+   
       <Routes>
         <Route path="/*" element={<UserRoute />} />
         <Route path="/admin/*" element={<AdminRoute />} />
         <Route path="/vendor/*" element={<VendorRoute />} />
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
+  
     </BrowserRouter>
   );
 }

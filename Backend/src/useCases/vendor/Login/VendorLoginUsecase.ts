@@ -30,7 +30,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
     };
   } | null> {
 
-    const { email, password } = data; // only extract email & password
+    const { email, password } = data;
     console.log(fcmToken, "login");
 
     const vendor = await this._vendorRepository.findByEmail(
@@ -45,7 +45,6 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
     );
     if (!isPasswordValid) return null;
 
-    // Save FCM token if provided
     let savedFcmToken = "";
     if (fcmToken) {
       const updatedVendor = await this._vendorRepository.updateFcmToken(

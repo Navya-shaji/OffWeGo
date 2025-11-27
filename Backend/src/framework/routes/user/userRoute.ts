@@ -9,7 +9,7 @@ import {
   reviewcontroller,
   walletcontroller,
   // notificationcontroller,
-  // chatcontroller,
+  chatcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -140,7 +140,8 @@ export class UserRoute {
         reviewcontroller.getReviews(req, res);
       }
     );
-    this.userRouter.put(UserRoutes.PASSWORD, (req: Request, res: Response) => {
+    this.userRouter.put(UserRoutes.PASSWORD, verifyTokenAndCheckBlackList(TokenService), (req: Request, res: Response) => {
+      
       userprofileController.changePasswordHandler(req, res);
     });
     this.userRouter.patch(
@@ -180,24 +181,30 @@ export class UserRoute {
         buddyTravelcontroller.createBuddyBooking(req, res);
       }
     );
+    this.userRouter.post(
+      UserRoutes.BOOKING_RESHEDULE,
+      (req:Request,res:Response)=>{
+        bookingcontroller.rescheduleBooking(req,res)
+      }
+    )
     // this.userRouter.post(
     //   CommonRoutes.NOTIFICATIONS,
     //   (req: Request, res: Response) => {
     //     notificationcontroller.sendNotification(req, res);
     //   }
     // );
-    // this.userRouter.post(
-    //   CommonRoutes.CHAT,
-    //   (req:Request,res:Response)=>{
-    //     chatcontroller.sendChat(req,res)
-    //   }
-    // )
-    // this.userRouter.get(
-    //   CommonRoutes.CHATS,
-    //   (req:Request,res:Response)=>{
-    //     chatcontroller.getChat(req,res)
-    //   }
-    // )
+    this.userRouter.post(
+      CommonRoutes.CHAT,
+      (req:Request,res:Response)=>{
+        chatcontroller.findOrCreateChat(req,res)
+      }
+    )
+    this.userRouter.get(
+      CommonRoutes.CHATS,
+      (req:Request,res:Response)=>{
+        chatcontroller.getChatsOfUser(req,res)
+      }
+    )
   
   }
 }

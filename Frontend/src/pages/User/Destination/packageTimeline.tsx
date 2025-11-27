@@ -33,7 +33,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store"; 
 
 import { ChatButton } from "@/components/chat/chatbutton";
-import { ChatModal } from "../chat/chat";
+// import { ChatModal } from "../chat/chat";
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
@@ -641,14 +641,14 @@ export const PackageTimeline = () => {
 
             <ChatButton onClick={() => setIsChatOpen(true)} />
 
-            <ChatModal
+            {/* <ChatModal
               isOpen={isChatOpen}
               onClose={() => setIsChatOpen(false)}
               currentUserId={currentUser?.id || ""}
               currentUserRole="user"
               vendorId={selectedPackage.vendorId || ""}
               packageName={selectedPackage.packageName}
-            />
+            /> */}
 
             <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-lg">
               <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-5">

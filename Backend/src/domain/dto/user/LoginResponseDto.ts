@@ -1,13 +1,13 @@
 export interface LoginResponseDto {
   accessToken: string;
   refreshToken: string;
+  fcmToken: string; 
   user: {
     id: string;
     email: string;
     username: string;
-    status: string;
     role: "user" | "vendor" | "admin";
-    phone: string;
+    status: string;
     imageUrl: string;
   };
 }

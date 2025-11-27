@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUsecase";
 import { IGetChatsOfUserUsecase } from "../../../domain/interface/Chat/IGetChatUSecase";
-import { IEnableChatUsecase } from "../../../domain/interface/Chat/IEnableChatUSecase";
+// import { IEnableChatUsecase } from "../../../domain/interface/Chat/IEnableChatUSecase";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 
 
@@ -10,13 +10,13 @@ export class ChatController {
     constructor(
         private _CreateChatUsecase: IInitiateChatUsecase,
         private _getChatUsecase: IGetChatsOfUserUsecase,
-        private _enableChatUsecase: IEnableChatUsecase
+        // private _enableChatUsecase: IEnableChatUsecase
     ) {}
 
  
     async findOrCreateChat(req: Request, res: Response): Promise<void> {
         try {
-            const { userId, ownerId } = req.body;
+            const { userId, ownerId} = req.body;
 
             if (!userId || !ownerId) {
                 res.status(HttpStatus.BAD_REQUEST).json({
@@ -26,7 +26,7 @@ export class ChatController {
                 return;
             }
 
-            const chat = await this._CreateChatUsecase.initiateChat({ userId, ownerId });
+            const chat = await this._CreateChatUsecase.initiateChat({ userId, ownerId});
 
             res.status(HttpStatus.OK).json({
                 success: true,
@@ -64,31 +64,31 @@ export class ChatController {
     }
 
 
-    async enableChat(req: Request, res: Response): Promise<void> {
-        try {
-            const { userId, ownerId } = req.body;
+    // async enableChat(req: Request, res: Response): Promise<void> {
+    //     try {
+    //         const { userId, ownerId } = req.body;
 
-            if (!userId || !ownerId) {
-                res.status(HttpStatus.BAD_REQUEST).json({
-                    success: false,
-                    message: "Missing required fields: userId and ownerId"
-                });
-                return;
-            }
+    //         if (!userId || !ownerId) {
+    //             res.status(HttpStatus.BAD_REQUEST).json({
+    //                 success: false,
+    //                 message: "Missing required fields: userId and ownerId"
+    //             });
+    //             return;
+    //         }
 
-            const result = await this._enableChatUsecase.IsBookingExists(userId, ownerId);
+    //         const result = await this._enableChatUsecase.IsBookingExists(userId, ownerId);
 
-            res.status(HttpStatus.OK).json({
-                success: true,
-                data: result
-            });
+    //         res.status(HttpStatus.OK).json({
+    //             success: true,
+    //             data: result
+    //         });
 
-        } catch (error) {
-            console.error("Error checking chat eligibility:", error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: "Failed to check chat eligibility"
-            });
-        }
-    }
+    //     } catch (error) {
+    //         console.error("Error checking chat eligibility:", error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    //             success: false,
+    //             message: "Failed to check chat eligibility"
+    //         });
+    //     }
+    // }
 }
