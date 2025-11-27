@@ -6,6 +6,8 @@ import { IGetVendorSideBookingUsecase } from "../../../domain/interface/Booking/
 import { IBookingDatesUsecase } from "../../../domain/interface/Booking/IBookingDatesUsecase";
 import { ICancelBookingUsecase } from "../../../domain/interface/Booking/ICancelBookingUSecase";
 import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingResheduleusecase";
+import { IWalletPaymentUseCase } from "../../../domain/interface/Wallet/IWalletPayment";
+import { Traveler } from "../../../domain/entities/BookingEntity";
 
 export class BookingController {
   constructor(
@@ -14,7 +16,8 @@ export class BookingController {
     private _vendorsidebookings: IGetVendorSideBookingUsecase,
     private _bookingDates: IBookingDatesUsecase,
     private _cancelBooking: ICancelBookingUsecase,
-    private _rescheduleBooking: IBookingRescheduleUseCase 
+    private _rescheduleBooking: IBookingRescheduleUseCase,
+    private _walletPaymentUseCase: IWalletPaymentUseCase
   ) {}
 
   async createBooking(req: Request, res: Response): Promise<void> {
@@ -36,9 +39,9 @@ export class BookingController {
 
   async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
-      const userId =req.user?.userId
+      const userId = req.user?.userId;
       const bookings = await this._userbookings.execute(userId);
-console.log(bookings)
+      console.log(bookings);
       res.status(HttpStatus.OK).json({ success: true, bookings });
     } catch (error) {
       console.error("Error fetching user bookings:", error);
@@ -115,7 +118,52 @@ console.log(bookings)
       console.error("Error rescheduling booking:", error);
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message:  "Failed to reschedule booking",
+        message: "Failed to reschedule booking",
+      });
+    }
+  }
+  async createBookingWithWallet(req: Request, res: Response): Promise<void> {
+    try {
+      const { data: bookingData, payment_id, description } = req.body;
+
+      const adults =
+        bookingData.adults?.filter(
+          (a: Traveler) => a.name && a.name.trim() !== ""
+        ) || [];
+      const children =
+        bookingData.children?.filter(
+          (c: Traveler) => c.name && c.name.trim() !== ""
+        ) || [];
+
+      const bookingPayload = {
+        data: {
+          ...bookingData,
+          adults,
+          children,
+          paymentMethod: "wallet",
+          paymentDetails: {
+            type: "debit",
+            description: description || "Booking Payment",
+            date: new Date(),
+          },
+        },
+        payment_id: payment_id || "",
+        paymentStatus: "succeeded" as "succeeded",
+      };
+
+      const booking = await this._createBooking.execute(bookingPayload);
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: "Booking created successfully with wallet payment",
+        booking,
+      });
+    } catch (error) {
+      console.error("Error creating booking with wallet:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to create booking",
+        error: (error as Error).message,
       });
     }
   }

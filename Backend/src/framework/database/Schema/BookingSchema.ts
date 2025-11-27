@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 
 export const TravelerSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String },
   age: { type: Number },
   gender: { type: String },
 });

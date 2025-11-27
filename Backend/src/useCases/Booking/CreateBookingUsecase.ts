@@ -18,6 +18,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
   data,
   payment_id,
 }: CreateBookingDto): Promise<CreateBookingDto | BuddyBookingDto> {
+  console.log(data)
   const completionDate = new Date(data.selectedDate);
 
   if (data.selectedPackage.duration) {

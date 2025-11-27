@@ -55,3 +55,41 @@ export const walletPayment = async (
     throw new Error("An unexpected error occurred while processing payment");
   }
 };
+
+export const createBookingWithWallet = async (
+  userId: string,
+  amount: number,
+  bookingData: any,
+  description?: string
+) => {
+  try {
+    const walletRes = await axiosInstance.post("/api/wallet/payment", {
+      userId,
+      amount,
+      description: description || "Booking Payment",
+    });
+
+    if (!walletRes.data.success) {
+      throw new Error("Wallet payment failed");
+    }
+
+    const bookingRes = await axiosInstance.post("/api/wallet/booking", {
+      data: bookingData,
+      payment_id: walletRes.data.transactionId,
+      paymentStatus: "success",
+    });
+
+    return bookingRes.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to create booking with wallet"
+      );
+    }
+
+    throw new Error("Unexpected error while creating wallet booking");
+  }
+};
+

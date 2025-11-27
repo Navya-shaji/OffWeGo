@@ -105,13 +105,14 @@ const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo)
 const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
+// const walletpaymentusecase=new walletpaymentusecase()
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase,verifyOtpUsecase,resendotpusecase,jwtService);
 export const userLoginController =new UserLoginController(loginUserUseCase,jwtService,otpService,resetPasswordUseCase,forgotPassUsecase);
 export const googleSignupController=new GoogleSignupController(googleSignupUseCase,jwtService);
 export const userprofileController=new UserProfileController(userprofile,edituserProfile,changepasswordusecase);
-export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase,cancelbookingusecase,reshedulebookingusecase)
+export const bookingcontroller=new BookingController(createbookingusecase,userbookings,vendorsidebookings,bookingdateusecase,cancelbookingusecase,reshedulebookingusecase,walletpaymentusecase)
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)

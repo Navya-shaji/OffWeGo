@@ -191,15 +191,21 @@ export class UserRoute {
         bookingcontroller.rescheduleBooking(req, res);
       }
     );
-    this.userRouter.post(UserRoutes.WALLET_PAYMENT, (req: Request, res: Response) => {
-     walletcontroller.walletPayment(req,res)
-    });
     // this.userRouter.post(
     //   CommonRoutes.NOTIFICATIONS,
     //   (req: Request, res: Response) => {
     //     notificationcontroller.sendNotification(req, res);
     //   }
     // );
+    this.userRouter.post(
+      UserRoutes.WALLET_BOOKING,
+      (req: Request, res: Response) => {
+        bookingcontroller.createBookingWithWallet(req, res);
+      }
+    );
+        this.userRouter.post(UserRoutes.WALLET_PAYMENT, (req: Request, res: Response) => {
+       walletcontroller.walletPayment(req,res)
+        });
     this.userRouter.post(CommonRoutes.CHAT, (req: Request, res: Response) => {
       chatcontroller.findOrCreateChat(req, res);
     });

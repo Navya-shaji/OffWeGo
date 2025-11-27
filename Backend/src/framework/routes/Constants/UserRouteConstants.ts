@@ -25,6 +25,6 @@ export const UserRoutes = {
   JOIN_TRAVEL:'/join-travel/:travelId/:userId',
   BOOKING_BUDDYTRAVEL:'/booking/travel',
   BOOKING_RESHEDULE:'/booking/:id/reschedule',
-  WALLET_PAYMENT:'/wallet/payment'
-
+  WALLET_PAYMENT:'/wallet/payment',
+  WALLET_BOOKING:'/wallet/booking'
 };
