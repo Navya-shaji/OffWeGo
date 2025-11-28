@@ -1,251 +1,170 @@
-import React, { useEffect, useState } from "react";
-import {
-  Wallet,
-  TrendingDown,
-  TrendingUp,
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store/store';
+import { 
+  Wallet, 
+  TrendingUp, 
+  Users,
   RefreshCw,
-  CheckCircle,
-  Clock,
-} from "lucide-react";
+  AlertCircle
+} from 'lucide-react';
+import { getWallet } from '@/services/Wallet/AdminWalletService';
 
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store";
-
-import {
-  getWallet,
-  getFinishedTrips,
-  transferWalletAmount,
-} from "@/services/Wallet/AdminWalletService";
-
-import type { IWallet } from "@/interface/wallet";
-import type { Booking } from "@/interface/Boooking";
-
-const AdminWalletManagement = () => {
-  const adminId = useSelector(
-    (state: RootState) => state.adminAuth.admin.id
-  );
-
-  const [wallet, setWallet] = useState<IWallet | null>(null);
-  const [completedBookings, setCompletedBookings] = useState<Booking[]>([]);
-  const [processedBookings, setProcessedBookings] = useState<Set<string>>(
-    new Set()
-  );
-
+export default function AdminWalletManagement() {
+  const Admin = useSelector((state: RootState) => state.adminAuth.admin);
+  const [adminWallet, setAdminWallet] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState(null);
 
-  // ---------------------------
-  // FETCH WALLET + BOOKINGS
-  // ---------------------------
   useEffect(() => {
-    loadWallet();
-    loadBookings();
-  }, []);
-
-  const loadWallet = async () => {
-    try {
-      const data = await getWallet(adminId);
-      setWallet(data);
-    } catch (err) {
-      console.error(err);
+    if (Admin?.id) {
+      fetchData();
     }
-  };
+  }, [Admin]);
 
-  const loadBookings = async () => {
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const data = await getFinishedTrips();
-      setCompletedBookings(data);
+      const wallet = await getWallet(Admin.id);
+      setAdminWallet(wallet);
     } catch (err) {
-      console.error(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------------------
-  // PROCESS A SINGLE BOOKING
-  // ---------------------------
-  const processSingleBooking = async (booking: Booking) => {
-    try {
-      const vendorId = booking.selectedPackage?.vendorId;
-      if (!vendorId) return;
-
-      const vendorShare = booking.totalAmount * 0.9;
-
-      await transferWalletAmount(adminId, vendorId, vendorShare);
-
-      setProcessedBookings((prev) => new Set([...prev, booking._id]));
-
-      alert(`Booking #${booking._id} processed successfully!`);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to process booking");
-    }
-  };
-
-  // ---------------------------
-  // PROCESS ALL BOOKINGS
-  // ---------------------------
-  const processAllBookings = async () => {
-    try {
-      setProcessing(true);
-
-      for (const booking of completedBookings) {
-        if (processedBookings.has(booking._id)) continue;
-
-        await processSingleBooking(booking);
-      }
-
-      alert("All bookings processed!");
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  // ---------------------------
-  // HELPERS
-  // ---------------------------
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0
     }).format(amount);
+  };
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const calculateStats = () => {
+    if (!adminWallet) return { totalRevenue: 0, totalTransactions: 0 };
+    
+    const totalRevenue = adminWallet.transactions
+      .filter(t => t.type === 'credit')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    return {
+      totalRevenue,
+      totalTransactions: adminWallet.transactions.length
+    };
+  };
 
-  // ---------------------------
-  // UI
-  // ---------------------------
+  const stats = calculateStats();
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <RefreshCw className="w-10 h-10 animate-spin text-indigo-600" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
+          <p className="text-slate-600 text-lg">Loading admin wallet...</p>
+        </div>
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
-      <div className="max-w-6xl mx-auto">
-        {/* HEADER */}
-        <h1 className="text-3xl font-bold mb-6">Admin Wallet</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-slate-800 flex items-center gap-3">
+            <Wallet className="text-blue-600" size={40} />
+            Admin Wallet Management
+          </h1>
+          <p className="text-slate-600 mt-2">View wallet information</p>
+        </div>
 
-        {/* WALLET */}
-        <div className="bg-white shadow p-6 rounded-xl mb-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Wallet className="w-12 h-12 text-indigo-600 mr-4" />
-              <div>
-                <p className="text-gray-600">Available Balance</p>
-                <h1 className="text-4xl font-bold">
-                  {wallet ? formatCurrency(wallet.balance) : "₹0"}
-                </h1>
-              </div>
+        {/* Alerts */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+            <div>
+              <h3 className="font-semibold text-red-800">Error</h3>
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
+          </div>
+        )}
 
-            <button
-              onClick={loadWallet}
-              className="p-3 bg-indigo-600 text-white rounded-full"
-            >
-              <RefreshCw className="w-6 h-6" />
-            </button>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-blue-100">Admin Balance</span>
+              <Wallet size={24} />
+            </div>
+            <p className="text-3xl font-bold">{formatCurrency(adminWallet?.balance || 0)}</p>
+            <p className="text-blue-100 text-sm mt-1">Available funds</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-slate-600">Total Revenue</span>
+              <TrendingUp size={24} className="text-green-500" />
+            </div>
+            <p className="text-3xl font-bold text-slate-800">{formatCurrency(stats.totalRevenue)}</p>
+            <p className="text-slate-500 text-sm mt-1">All-time earnings</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-slate-600">Total Transactions</span>
+              <Users size={24} className="text-purple-500" />
+            </div>
+            <p className="text-3xl font-bold text-slate-800">{stats.totalTransactions}</p>
+            <p className="text-slate-500 text-sm mt-1">All transactions</p>
           </div>
         </div>
 
-        {/* COMPLETED BOOKINGS */}
-        <div className="bg-white shadow p-6 rounded-xl mb-6">
-          <div className="flex justify-between mb-4">
-            <h2 className="text-xl font-bold">Completed Bookings</h2>
-
-            <button
-              onClick={processAllBookings}
-              disabled={processing}
-              className="px-5 py-2 bg-indigo-600 text-white rounded-lg flex items-center"
-            >
-              {processing ? (
-                <>
-                  <RefreshCw className="w-5 h-5 animate-spin mr-2" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Process All
-                </>
-              )}
-            </button>
-          </div>
-
-          {completedBookings.map((booking) => {
-            const vendorShare = booking.totalAmount * 0.9;
-            const commission = booking.totalAmount * 0.1;
-
-            const done = processedBookings.has(booking._id);
-
-            return (
-              <div
-                key={booking._id}
-                className={`p-5 border rounded-xl mb-3 ${
-                  done ? "bg-green-50" : "bg-gray-50"
-                }`}
-              >
-                <div className="flex justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold">#{booking._id}</h3>
-                    <p className="text-gray-600">
-                      Customer: {booking.customerName}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      Completed: {formatDate(booking.completedDate)}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-2xl font-bold mb-2">
-                      {formatCurrency(booking.totalAmount)}
-                    </p>
-
-                    <div className="bg-white border rounded p-2 mb-2">
-                      <div className="flex justify-between text-red-600">
-                        <span className="flex items-center">
-                          <TrendingDown className="w-4 h-4 mr-1" /> Vendor (90%)
-                        </span>
-                        -{formatCurrency(vendorShare)}
-                      </div>
-
-                      <div className="flex justify-between text-green-600">
-                        <span className="flex items-center">
-                          <TrendingUp className="w-4 h-4 mr-1" /> Admin (10%)
-                        </span>
-                        +{formatCurrency(commission)}
-                      </div>
+        {/* Transactions */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h3 className="text-xl font-semibold text-slate-800 mb-4">Recent Transactions</h3>
+          {adminWallet?.transactions?.length === 0 ? (
+            <p className="text-center text-slate-500 py-8">No transactions yet</p>
+          ) : (
+            <div className="space-y-2">
+              {adminWallet?.transactions?.slice(0, 10).map((tx, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-4 bg-slate-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        tx.type === 'credit'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
+                      }`}
+                    >
+                      {tx.type === 'credit' ? '+' : '-'}
                     </div>
-
-                    {!done && (
-                      <button
-                        onClick={() => processSingleBooking(booking)}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm"
-                      >
-                        Process Payment
-                      </button>
-                    )}
+                    <div>
+                      <p className="font-medium text-slate-800">{tx.description}</p>
+                      <p className="text-sm text-slate-500">
+                        {new Date(tx.date).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
+                  <p
+                    className={`font-bold text-lg ${
+                      tx.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
+                    {tx.type === 'credit' ? '+' : '-'}
+                    {formatCurrency(tx.amount)}
+                  </p>
                 </div>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-};
-
-export default AdminWalletManagement;
+}

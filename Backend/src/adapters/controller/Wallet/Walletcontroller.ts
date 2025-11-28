@@ -76,7 +76,7 @@ export class WalletController {
     }
   }
 
-  // ⭐⭐⭐ NEW METHOD — USER WALLET PAYMENT / DEBIT ⭐⭐⭐
+
   async walletPayment(req: Request, res: Response): Promise<void> {
     try {
       const { userId, amount, description } = req.body;

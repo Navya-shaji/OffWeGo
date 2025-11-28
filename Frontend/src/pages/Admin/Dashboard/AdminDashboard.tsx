@@ -14,8 +14,8 @@ import { BannerForm } from "../banner/bannerForm";
 import AddSubscription from "@/pages/Admin/Subscription/CreateSubscription";
 import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
 import AdminDashboard from "./Dashboard";
-import AdminWalletManagement from "../Wallet/AdminWallet";
 import IncomingBuddyRequests from "../buddyTravel/buddyTravelConfirmation";
+import AdminWalletManagement from "../Wallet/AdminWallet";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState<string>(() => {
