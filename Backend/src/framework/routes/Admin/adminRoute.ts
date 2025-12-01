@@ -49,6 +49,7 @@ export class AdminRoute {
     this.adminRouter.get(AdminRoutes.GET_ALL_BANNERS, (req, res) =>
       bannerController.getBanners(req, res)
     );
+   
 
     // -------------------- TOKEN MIDDLEWARE --------------------
 
@@ -123,6 +124,10 @@ export class AdminRoute {
       AdminRoutes.SEARCH_DESTINATION, 
       (req, res) => destinationController.searchDestination(req, res)
     );
+     this.adminRouter.post(AdminRoutes.NEARBY_LOCATIONS,(req,res)=>{
+           
+      destinationController.getNearByDestination(req,res)
+    })
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_DESTINATION,

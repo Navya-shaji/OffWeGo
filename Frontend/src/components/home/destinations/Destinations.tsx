@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   fetchAllDestinations,
+  getNearbyDestinations,
   searchDestination,
 } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
@@ -19,6 +20,7 @@ const Destinations = ({ id }: DestinationsProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [isNearbyMode, setIsNearbyMode] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -40,6 +42,72 @@ const Destinations = ({ id }: DestinationsProps) => {
     }
   }, []);
 
+  const fetchNearby = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setIsNearbyMode(true);
+      setIsSearchMode(false);
+      setSearchQuery("");
+
+      if (!navigator.geolocation) {
+        setError("Geolocation is not supported by your browser.");
+        setLoading(false);
+        setIsNearbyMode(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const radiusInKm = 50;
+
+          try {
+            const response = await getNearbyDestinations(lat, lng, radiusInKm);
+            console.log("Nearby API Response:", response);
+            
+            // Handle different response structures
+            // API returns: {success: true, data: [...]}
+            // Axios wraps it as: {data: {success: true, data: [...]}}
+            let destinationsData = [];
+            
+            if (response?.data?.data && Array.isArray(response.data.data)) {
+              // Axios response with nested data
+              destinationsData = response.data.data;
+            } else if (response?.data && Array.isArray(response.data)) {
+              // Direct data array or {data: [...]}
+              destinationsData = response.data;
+            } else if (Array.isArray(response)) {
+              // Response is array directly
+              destinationsData = response;
+            }
+            
+            console.log("Setting destinations:", destinationsData);
+            setDestinations(destinationsData);
+          } catch (err) {
+            console.error("Nearby fetch error:", err);
+            setError("Failed to load nearby destinations.");
+            setIsNearbyMode(false);
+          } finally {
+            setLoading(false);
+          }
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          setError("Unable to get your location. Please enable location access.");
+          setLoading(false);
+          setIsNearbyMode(false);
+        }
+      );
+    } catch (err) {
+      console.error("Nearby fetch error:", err);
+      setError("Failed to load nearby destinations.");
+      setLoading(false);
+      setIsNearbyMode(false);
+    }
+  };
+
   useEffect(() => {
     fetchDestinations();
     return () => {
@@ -52,6 +120,7 @@ const Destinations = ({ id }: DestinationsProps) => {
   const handleSearch = useCallback(
     (query: string) => {
       setSearchQuery(query);
+      setIsNearbyMode(false);
 
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
@@ -112,6 +181,13 @@ const Destinations = ({ id }: DestinationsProps) => {
             </p>
           </div>
 
+          <button
+            onClick={fetchNearby}
+            className="bg-white text-black px-8 py-4 font-semibold hover:bg-white/90 transition-all duration-300"
+          >
+            Find Nearby Destinations
+          </button>
+
           {/* Search Bar */}
           <div className="max-w-2xl mt-12">
             <div className="relative">
@@ -156,7 +232,11 @@ const Destinations = ({ id }: DestinationsProps) => {
             <div className="flex items-center gap-3 mb-3">
               <MapPin className="w-5 h-5 text-black/40" />
               <span className="text-sm font-semibold tracking-wider text-black/60 uppercase">
-                {isSearchMode ? `Search Results` : `${destinations.length} Destinations`}
+                {isNearbyMode 
+                  ? 'Nearby Destinations' 
+                  : isSearchMode 
+                  ? `Search Results` 
+                  : `${destinations.length} Destinations`}
               </span>
             </div>
             {isSearchMode && (
@@ -164,18 +244,24 @@ const Destinations = ({ id }: DestinationsProps) => {
                 Showing results for <span className="font-semibold text-black">"{searchQuery}"</span>
               </p>
             )}
+            {isNearbyMode && (
+              <p className="text-lg text-black/60 font-light">
+                Showing destinations within <span className="font-semibold text-black">50km</span> of your location
+              </p>
+            )}
           </div>
 
-          {isSearchMode && (
+          {(isSearchMode || isNearbyMode) && (
             <button
               onClick={() => {
                 setSearchQuery("");
                 setIsSearchMode(false);
+                setIsNearbyMode(false);
                 setDestinations(originalDestinations);
               }}
               className="bg-black hover:bg-black/80 text-white px-8 py-3 font-semibold transition-all duration-300"
             >
-              Clear Search
+              View All Destinations
             </button>
           )}
         </div>
@@ -196,15 +282,18 @@ const Destinations = ({ id }: DestinationsProps) => {
               No destinations found
             </h3>
             <p className="text-lg text-black/60 mb-10 max-w-md mx-auto font-light">
-              {isSearchMode
+              {isNearbyMode
+                ? "No destinations found near your location. Try increasing the search radius or view all destinations."
+                : isSearchMode
                 ? `We couldn't find any destinations matching "${searchQuery}". Try a different search term.`
                 : "No destinations are available at the moment. Please check back later."}
             </p>
-            {isSearchMode && (
+            {(isSearchMode || isNearbyMode) && (
               <button
                 onClick={() => {
                   setSearchQuery("");
                   setIsSearchMode(false);
+                  setIsNearbyMode(false);
                   setDestinations(originalDestinations);
                 }}
                 className="bg-black hover:bg-black/80 text-white px-10 py-4 font-semibold text-lg transition-colors duration-300"
@@ -256,12 +345,13 @@ const Destinations = ({ id }: DestinationsProps) => {
     </div>
   );
 };
+
 const DestinationCard = React.memo(
   ({ destination }: { destination: DestinationInterface }) => {
     return (
       <Link
         to={`/destination/${destination.id}`}
-        className="flex-shrink-0 w-[385px] h-[500px]group cursor-pointer"
+        className="flex-shrink-0 w-[385px] h-[500px] group cursor-pointer"
       >
         <div className="bg-white h-full flex flex-col transition-all duration-300 hover:shadow-xl" style={{ borderRadius: '20px', boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)' }}>
           {/* Image Container */}

@@ -10,4 +10,9 @@ export interface IDestinationRepository {
   delete(id: string): Promise<IDestinationModel | null>;
   getDestination(id: string): Promise<IDestinationModel | null>;
   searchDestination(query: string): Promise<Destination[]>;
+  getNearbyDestinations(
+    lat: number,
+    lng: number,
+    radiusInKm: number
+  ): Promise<Destination[]>;
 }

@@ -32,7 +32,6 @@ export const fetchAllDestinations = async (
   currentPage: number;
 }> => {
   try {
-    
     const res = await axiosInstance.get("/api/admin/destinations", {
       params: { page, limit },
     });
@@ -81,10 +80,8 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-
-
     const res = await axiosInstance.get(`/api/destination/${id}`);
-   
+
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -95,7 +92,6 @@ export const getsingleDestination = async (id: string) => {
     throw new Error("An unexpected error occurred while fetching destination");
   }
 };
-
 
 export const getPackagesByDestination = async (
   destinationId: string
@@ -137,14 +133,12 @@ export const deleteDestination = async (id: string): Promise<void> => {
   }
 };
 
-
 export const searchDestination = async (query: string) => {
   try {
-    
     const response = await axiosInstance.get("/api/admin/destination/search", {
       params: { q: query },
     });
-    
+
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -155,3 +149,30 @@ export const searchDestination = async (query: string) => {
     throw new Error("An unexpected error occured while searching destination");
   }
 };
+
+export const getNearbyDestinations = async (
+  lat: number,
+  lng: number,
+  radiusInKm: number
+) => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/admin/destination/nearby",
+      {
+        lat,
+        lng,
+        radiusInKm,
+      }
+    );
+console.log(response,"ressssss")
+    return response.data.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error || "Failed to fetch nearby destinations"
+      );
+    }
+    throw new Error("An unexpected error occurred while fetching destinations");
+  }
+};
+

@@ -5,6 +5,7 @@ import {
 } from "../../../framework/database/Models/deestinationModel";
 import { CreateDestinationDTO } from "../../../domain/dto/Admin/DestinationDTO";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
+
 export class DestinationRepository
   extends BaseRepository<IDestinationModel>
   implements IDestinationRepository
@@ -49,10 +50,27 @@ export class DestinationRepository
   async searchDestination(query: string): Promise<IDestinationModel[]> {
     const regex = new RegExp(query, "i");
     return this.model
-      // .find({ name: { $regex: regex } ,location:{$regex:regex}})
-      .find({ $or: [ { name: { $regex:regex } }, { location:{$regex:regex} } ] })
+
+      .find({
+        $or: [{ name: { $regex: regex } }, { location: { $regex: regex } }],
+      })
       .select("name location description actions imageUrls")
       .limit(10)
       .exec();
+  }
+  async getNearbyDestinations(
+    lat: number,
+    lng: number,
+    radiusInKm: number
+  ): Promise<IDestinationModel[]> {
+    const latDelta = radiusInKm / 111;
+    const lngDelta = radiusInKm / (111 * Math.cos((lat * Math.PI) / 180));
+
+    const nearby = await this.model.find({
+      "coordinates.lat": { $gte: lat - latDelta, $lte: lat + latDelta },
+      "coordinates.lng": { $gte: lng - lngDelta, $lte: lng + lngDelta },
+    });
+
+    return nearby;
   }
 }

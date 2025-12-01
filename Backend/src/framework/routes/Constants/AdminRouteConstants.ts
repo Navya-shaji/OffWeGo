@@ -33,5 +33,6 @@ export const AdminRoutes={
     UPDATE_PACKAGE_STATUS:'/buddy-travel/:id',
     GET_BUDDY_PACKAGES:'/buddy-packages/:status',
     TRANSFER_AMOUNT:'/transfer-amount',
-    COMPLETED_BOOKINGS:'/completed-bookings'
+    COMPLETED_BOOKINGS:'/completed-bookings',
+    NEARBY_LOCATIONS:'/destination/nearby'
 }

@@ -42,10 +42,10 @@ import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecas
 import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
 import { DeleteSubscriptionUsecase } from "../../../useCases/subscription/DeleteSubscriptionusecase";
 import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
-
+import { GetNearByDestinationUSecase } from "../../../useCases/destination/GetNearByDestinationusecase";
 import { CreateCategoryController } from "../../../adapters/controller/Category/categoryController";
 import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
-import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
+// import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
 import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
 // import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
 // import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
@@ -69,7 +69,7 @@ const notificationRepo=new FirebaseNotificationService(notitifiactionRepo,userRe
 // Services
 const hashPassword = new HashPassword();
 const jwtService = new JwtService();
-const sendnotification=new SendNotificationUseCase(notificationRepo)
+// const sendnotification=new SendNotificationUseCase(notificationRepo)
 
 
 // Use Cases
@@ -102,6 +102,7 @@ const searchcategory=new SearchCategoryUsecase(catogoryRepo)
 const Banneractionusecase=new BannerActionUsecase(bannerRepo)
 const subscriptioneditusecase=new EditSubscriptionUseCase(subscriptionrepo)
 const deletesubscriptionusecase=new DeleteSubscriptionUsecase(subscriptionrepo)
+const getnearbydestinationusecase=new GetNearByDestinationUSecase(destinationRepository)
 // const sendnotificationusecase=new SendNotificationUseCase(notificationService)
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 
@@ -115,7 +116,8 @@ export const destinationController = new DestinationController(
   getallDestinations,        
   getDestinationsingleUsecase ,
   deleteDestinationusecase,
-  searchdestinationusecase
+  searchdestinationusecase,
+  getnearbydestinationusecase
 )
 export const categoryController=new CreateCategoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
 export const bannerController=new BannerController(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);

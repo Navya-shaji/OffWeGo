@@ -6,6 +6,7 @@ import { IGetAllDestinations } from "../../../domain/interface/Destination/IGetA
 import { IgetDestinationUSecase } from "../../../domain/interface/Destination/IGetDestinationUsecase";
 import { IDeleteDestinationUseCase } from "../../../domain/interface/Destination/IDeleteDestinationUsecase";
 import { IsearchDestination } from "../../../domain/interface/Destination/IsearchDestinationusecase";
+import { IGetNearbyDestinationUsecase } from "../../../domain/interface/Destination/IGetNearByDestinationUSecase";
 
 export class DestinationController {
   constructor(
@@ -14,7 +15,8 @@ export class DestinationController {
     private _getDestination: IGetAllDestinations,
     private _destinationUsecase: IgetDestinationUSecase,
     private _deleteDestinationusecase: IDeleteDestinationUseCase,
-    private _serachDestinationusecase: IsearchDestination
+    private _serachDestinationusecase: IsearchDestination,
+    private _getNearByDestinationusecase: IGetNearbyDestinationUsecase
   ) {}
 
   async addDestination(req: Request, res: Response) {
@@ -118,6 +120,24 @@ export class DestinationController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to search destinations",
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  async getNearByDestination(req: Request, res: Response) {
+    try {
+      const { lat, lng, radiusInKm } = req.body;
+      const result = await this._getNearByDestinationusecase.execute(
+        lat,
+        lng,
+        radiusInKm
+      );
+      res.status(HttpStatus.OK).json({ success: true, data: result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to get nearby destinations",
         error: (error as Error).message,
       });
     }
