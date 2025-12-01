@@ -16,11 +16,10 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
-import { getAllUserBookings } from "@/services/Booking/bookingService"; 
+import { getAllUserBookings } from "@/services/Booking/bookingService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
-
 
 interface Traveler {
   name: string;
@@ -73,9 +72,10 @@ export default function AllBookings() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  const vendorId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
+  const vendorId = useSelector(
+    (state: RootState) => state.vendorAuth.vendor?.id
+  );
 
-  
   useEffect(() => {
     if (vendorId) {
       loadBookings();
@@ -88,11 +88,11 @@ export default function AllBookings() {
 
   const loadBookings = async () => {
     if (!vendorId) return;
-    
+
     setIsLoading(true);
     try {
       const data = await getAllUserBookings(vendorId);
-      console.log(data,"data")
+      console.log(data, "data");
       setBookings(data);
       setFilteredBookings(data);
     } catch (error) {
@@ -119,19 +119,29 @@ export default function AllBookings() {
 
     setFilteredBookings(filtered);
   };
-
+  console.log(filteredBookings, "filtered");
   const getStatusBadge = (status: string) => {
     const badges = {
       pending: { bg: "bg-yellow-100", text: "text-yellow-700", icon: Clock },
-      confirmed: { bg: "bg-green-100", text: "text-green-700", icon: CheckCircle },
+      confirmed: {
+        bg: "bg-green-100",
+        text: "text-green-700",
+        icon: CheckCircle,
+      },
       cancelled: { bg: "bg-red-100", text: "text-red-700", icon: XCircle },
-      completed: { bg: "bg-blue-100", text: "text-blue-700", icon: CheckCircle },
+      completed: {
+        bg: "bg-blue-100",
+        text: "text-blue-700",
+        icon: CheckCircle,
+      },
     };
     const badge = badges[status as keyof typeof badges] || badges.pending;
     const Icon = badge.icon;
-    
+
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}
+      >
         <Icon className="w-3 h-3" />
         {status}
       </span>
@@ -145,10 +155,13 @@ export default function AllBookings() {
       failed: { bg: "bg-red-100", text: "text-red-700" },
       refunded: { bg: "bg-purple-100", text: "text-purple-700" },
     };
-    const badge = badges[paymentStatus as keyof typeof badges] || badges.pending;
-    
+    const badge =
+      badges[paymentStatus as keyof typeof badges] || badges.pending;
+
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}
+      >
         <CreditCard className="w-3 h-3" />
         {paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
       </span>
@@ -175,13 +188,11 @@ export default function AllBookings() {
     setSelectedBooking(booking);
     setShowDetailsModal(true);
   };
-console.log(bookings,"book")
+  console.log(bookings, "book");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-    
-
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -189,25 +200,30 @@ console.log(bookings,"book")
                 <Package className="w-8 h-8 text-purple-600" />
                 All Bookings
               </h1>
-              <p className="text-gray-600 mt-1">Manage and track all customer bookings</p>
+              <p className="text-gray-600 mt-1">
+                Manage and track all customer bookings
+              </p>
             </div>
             <button
               onClick={loadBookings}
               disabled={isLoading}
               className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+              />
               Refresh
             </button>
           </div>
 
-    
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-purple-500">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Bookings</p>
-                  <p className="text-2xl font-bold text-gray-900">{bookings.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {bookings.length}
+                  </p>
                 </div>
                 <Package className="w-8 h-8 text-purple-500" />
               </div>
@@ -217,7 +233,10 @@ console.log(bookings,"book")
                 <div>
                   <p className="text-sm text-gray-600">Confirmed</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {bookings.filter((b) => b.paymentStatus === "succeeded").length}
+                    {
+                      bookings.filter((b) => b.paymentStatus === "succeeded")
+                        .length
+                    }
                   </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-500" />
@@ -228,7 +247,10 @@ console.log(bookings,"book")
                 <div>
                   <p className="text-sm text-gray-600">Pending</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {bookings.filter((b) => b.paymentStatus === "pending").length}
+                    {
+                      bookings.filter((b) => b.paymentStatus === "pending")
+                        .length
+                    }
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-500" />
@@ -239,7 +261,9 @@ console.log(bookings,"book")
                 <div>
                   <p className="text-sm text-gray-600">Total Revenue</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0))}
+                    {formatCurrency(
+                      bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+                    )}
                   </p>
                 </div>
                 <CreditCard className="w-8 h-8 text-emerald-500" />
@@ -247,10 +271,8 @@ console.log(bookings,"book")
             </div>
           </div>
 
-      
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -265,7 +287,6 @@ console.log(bookings,"book")
           </div>
         </div>
 
-   
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
@@ -276,7 +297,9 @@ console.log(bookings,"book")
             <div className="text-center py-20">
               <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 text-lg">No bookings found</p>
-              <p className="text-gray-400 text-sm mt-2">Try adjusting your filters</p>
+              <p className="text-gray-400 text-sm mt-2">
+                Try adjusting your filters
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -301,7 +324,7 @@ console.log(bookings,"book")
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Amount
                     </th>
-                    
+
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Payment
                     </th>
@@ -312,7 +335,10 @@ console.log(bookings,"book")
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredBookings.map((booking) => (
-                    <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={booking._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-mono text-gray-900">
                           {booking._id}
@@ -325,17 +351,17 @@ console.log(bookings,"book")
                           </div>
                           <div>
                             <div className="text-sm font-semibold text-gray-900">
-                              {booking.userId?.name || "N/A"}
+                              {booking.adults?.[0]?.name || "N/A"}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {booking.userId?.email || "N/A"}
+                              {booking.contactInfo?.email || "N/A"}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {booking.packageId?.packageName || "N/A"}
+                          {booking.selectedPackage?.packageName || "N/A"}
                         </div>
                         {booking.packageId?.destination && (
                           <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
@@ -371,7 +397,7 @@ console.log(bookings,"book")
                           {formatCurrency(booking.totalAmount)}
                         </div>
                       </td>
-                     
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getPaymentBadge(booking.paymentStatus)}
                       </td>
@@ -423,23 +449,33 @@ console.log(bookings,"book")
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600">Name:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.userId?.name}</p>
+                      <p className="font-medium text-gray-900">
+                        {selectedBooking.userId?.name}
+                      </p>
                     </div>
                     <div>
                       <span className="text-gray-600">Email:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.userId?.email}</p>
+                      <p className="font-medium text-gray-900">
+                        {selectedBooking.userId?.email}
+                      </p>
                     </div>
                     <div>
                       <span className="text-gray-600">Mobile:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.contactInfo?.mobile}</p>
+                      <p className="font-medium text-gray-900">
+                        {selectedBooking.contactInfo?.mobile}
+                      </p>
                     </div>
                     <div>
                       <span className="text-gray-600">City:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.contactInfo?.city}</p>
+                      <p className="font-medium text-gray-900">
+                        {selectedBooking.contactInfo?.city}
+                      </p>
                     </div>
                     <div className="col-span-2">
                       <span className="text-gray-600">Address:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.contactInfo?.address}</p>
+                      <p className="font-medium text-gray-900">
+                        {selectedBooking.contactInfo?.address}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -453,11 +489,15 @@ console.log(bookings,"book")
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600">Package Name:</span>
-                      <p className="font-medium text-gray-900">{selectedBooking.packageId?.packageName}</p>
+                      <p className="font-medium text-gray-900">
+                        {selectedBooking.packageId?.packageName}
+                      </p>
                     </div>
                     <div>
                       <span className="text-gray-600">Travel Date:</span>
-                      <p className="font-medium text-gray-900">{formatDate(selectedBooking.selectedDate)}</p>
+                      <p className="font-medium text-gray-900">
+                        {formatDate(selectedBooking.selectedDate)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -468,36 +508,56 @@ console.log(bookings,"book")
                     <Users className="w-5 h-5 text-purple-600" />
                     Travelers
                   </h3>
-                  
-                  {selectedBooking.adults && selectedBooking.adults.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Adults</h4>
-                      <div className="space-y-2">
-                        {selectedBooking.adults.map((adult, idx) => (
-                          <div key={idx} className="flex items-center gap-4 text-sm bg-white p-2 rounded">
-                            <span className="font-medium">{adult.name}</span>
-                            <span className="text-gray-600">Age: {adult.age}</span>
-                            <span className="text-gray-600 capitalize">{adult.gender}</span>
-                          </div>
-                        ))}
+
+                  {selectedBooking.adults &&
+                    selectedBooking.adults.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          Adults
+                        </h4>
+                        <div className="space-y-2">
+                          {selectedBooking.adults.map((adult, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-4 text-sm bg-white p-2 rounded"
+                            >
+                              <span className="font-medium">{adult.name}</span>
+                              <span className="text-gray-600">
+                                Age: {adult.age}
+                              </span>
+                              <span className="text-gray-600 capitalize">
+                                {adult.gender}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  
-                  {selectedBooking.children && selectedBooking.children.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Children</h4>
-                      <div className="space-y-2">
-                        {selectedBooking.children.map((child, idx) => (
-                          <div key={idx} className="flex items-center gap-4 text-sm bg-white p-2 rounded">
-                            <span className="font-medium">{child.name}</span>
-                            <span className="text-gray-600">Age: {child.age}</span>
-                            <span className="text-gray-600 capitalize">{child.gender}</span>
-                          </div>
-                        ))}
+                    )}
+
+                  {selectedBooking.children &&
+                    selectedBooking.children.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          Children
+                        </h4>
+                        <div className="space-y-2">
+                          {selectedBooking.children.map((child, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-4 text-sm bg-white p-2 rounded"
+                            >
+                              <span className="font-medium">{child.name}</span>
+                              <span className="text-gray-600">
+                                Age: {child.age}
+                              </span>
+                              <span className="text-gray-600 capitalize">
+                                {child.gender}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
 
                 {/* Flight Details */}
@@ -510,15 +570,21 @@ console.log(bookings,"book")
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Airline:</span>
-                        <p className="font-medium text-gray-900">{selectedBooking.flightDetails.airline}</p>
+                        <p className="font-medium text-gray-900">
+                          {selectedBooking.flightDetails.airline}
+                        </p>
                       </div>
                       <div>
                         <span className="text-gray-600">Class:</span>
-                        <p className="font-medium text-gray-900 capitalize">{selectedBooking.flightDetails.class}</p>
+                        <p className="font-medium text-gray-900 capitalize">
+                          {selectedBooking.flightDetails.class}
+                        </p>
                       </div>
                       <div>
                         <span className="text-gray-600">Price:</span>
-                        <p className="font-medium text-gray-900">{formatCurrency(selectedBooking.flightDetails.price)}</p>
+                        <p className="font-medium text-gray-900">
+                          {formatCurrency(selectedBooking.flightDetails.price)}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -542,7 +608,9 @@ console.log(bookings,"book")
                   </div>
                   <div className="border-t border-purple-200 pt-3 mt-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold text-gray-900">Total Amount:</span>
+                      <span className="text-lg font-semibold text-gray-900">
+                        Total Amount:
+                      </span>
                       <span className="text-2xl font-bold text-purple-600">
                         {formatCurrency(selectedBooking.totalAmount)}
                       </span>

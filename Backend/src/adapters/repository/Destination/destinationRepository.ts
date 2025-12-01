@@ -49,7 +49,8 @@ export class DestinationRepository
   async searchDestination(query: string): Promise<IDestinationModel[]> {
     const regex = new RegExp(query, "i");
     return this.model
-      .find({ name: { $regex: regex } })
+      // .find({ name: { $regex: regex } ,location:{$regex:regex}})
+      .find({ $or: [ { name: { $regex:regex } }, { location:{$regex:regex} } ] })
       .select("name location description actions imageUrls")
       .limit(10)
       .exec();

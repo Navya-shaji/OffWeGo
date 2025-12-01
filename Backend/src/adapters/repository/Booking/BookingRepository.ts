@@ -40,7 +40,7 @@ export class BookingRepository implements IBookingRepository {
   async findByVendorId(vendorId: string): Promise<Booking[]> {
     return BookingModel.find({ vendorId })
       .populate("selectedPackage")
-      .populate("userId")
+      // .populate("userId")
       .lean<Booking[]>()
       .exec();
   }
@@ -117,7 +117,7 @@ async findCompletedBookingsForTransfer(): Promise<Booking[]> {
 
   const bookings = await BookingModel.find({
     selectedPackage: { $exists: true, $ne: null },
-    bookingStatus: "completed"  // ✅ Only completed bookings
+    bookingStatus: "completed"  
   })
     .populate("selectedPackage")
     .lean();
