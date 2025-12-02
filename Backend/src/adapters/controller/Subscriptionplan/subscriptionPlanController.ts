@@ -16,7 +16,7 @@ export class SubscriptionController {
 
   async createSubscription(req: Request, res: Response) {
     try {
-      const { name, price, maxPackages, duration, stripePriceId } = req.body;
+      const { name, price, maxPackages, duration, stripePriceId} = req.body;
       const result = await this._createSubscriptionPlan.execute({
         name,
         price,

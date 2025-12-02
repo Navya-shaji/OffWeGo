@@ -23,7 +23,7 @@ const PaymentSuccess = () => {
           vendorId,
           planId,
         });
-
+console.log(response,"response")
         if (response.success) {
           navigate("/vendor/dashboard"); // or a success page
         } else {

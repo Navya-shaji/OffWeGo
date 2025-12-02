@@ -23,26 +23,23 @@ export class CreateBookingSubscriptionUseCase
   ): Promise<ICreateBookingSubscriptionResponse> {
     const { vendorId, planId, date, time, domainUrl } = data;
 
- 
     const plan = await this._subscriptionPlanRepo.findById(planId);
     if (!plan) throw new Error("Subscription plan not found");
     if (!plan.stripePriceId)
       throw new Error("This plan does not have a Stripe Price ID assigned.");
 
-  
-const booking = await this._subscriptionBookingRepo.create({
-  vendorId,
-  planId: plan._id,
-  planName: plan.name,
-  amount: plan.price,
-  maxPackages: plan.maxPackages,  
-  duration: plan.duration,
-  date,
-  time,
-  currency: "inr",
-  status: "pending",
-});
-
+    const booking = await this._subscriptionBookingRepo.create({
+      vendorId,
+      planId: plan._id,
+      planName: plan.name,
+      amount: plan.price,
+      maxPackages: plan.maxPackages,
+      duration: plan.duration,
+      date,
+      time,
+      currency: "inr",
+      status: "pending",
+    });
 
     const session = await this._stripeService.createSubscriptionCheckoutSession(
       plan.stripePriceId,
@@ -50,10 +47,8 @@ const booking = await this._subscriptionBookingRepo.create({
       booking._id.toString()
     );
 
-
     const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
 
-  
     const adminId = process.env.ADMIN_ID || "";
     await this._walletRepository.updateBalance(
       adminId,

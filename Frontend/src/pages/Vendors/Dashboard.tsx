@@ -21,7 +21,7 @@ import AddBuddyTravelPage from "./BuddyTravel/Buddytravel-create";
 import VendorApprovedPackages from "./BuddyTravel/BuddyPackage-table";
 import VendorWalletManagement from "./Wallet/vendorWallet";
 import VendorDashboard from "./Dashboard/VendorDashboard";
-import ChatPage from "../User/chat/chat";
+import VendorMessageContainer from "./chat/ChatVendor";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
@@ -58,7 +58,7 @@ function Dashboard() {
           {activeTab === "Dashboard" && <VendorDashboard />}
           {activeTab === "VendorWalletManagement" && <VendorWalletManagement />}
           {activeTab === "Booking Slots" && <TravelCalendar vendorId={vendorId || ""} />}
-          {activeTab === "Chat" && <ChatPage />}
+          {activeTab === "Chat" && <VendorMessageContainer />}
 
         </div>
       </div>

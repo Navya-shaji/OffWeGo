@@ -8,7 +8,8 @@ export default function BookingSuccess() {
   const [bookingDetails, setBookingDetails] = useState<Booking>();
   const location = useLocation();
 
-  const data = location.state.booking;
+  const data = location.state?.booking;
+  console.log(data,"fhfhfhfhfh")
   useEffect(() => {
     if (data) {
       setBookingDetails({

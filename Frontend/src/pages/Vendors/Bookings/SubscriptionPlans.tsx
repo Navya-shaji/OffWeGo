@@ -148,7 +148,7 @@ export default function VendorSubscriptionPage() {
         date: bookingDate,
         time: bookingTime,
       });
-
+console.log(response,"responsebdjhjhdg")
       console.log("Redirecting to Stripe:", response.data.checkoutUrl);
       if (response.success && response.data.checkoutUrl) {
         window.location.href = response.data.checkoutUrl;

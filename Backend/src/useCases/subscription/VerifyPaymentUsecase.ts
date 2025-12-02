@@ -1,10 +1,9 @@
 import { VerifyPaymentDTO } from "../../domain/dto/Payment/VerifyPaymentDto";
 import { IStripeService } from "../../domain/interface/Payment/IStripeservice";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
-import { ISubscriptionBookingRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo"; 
+import { ISubscriptionBookingRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
 import { IVerifyPaymentUseCase } from "../../domain/interface/SubscriptionPlan/IVerifyPaymentUsecase";
 import { mapSubscriptionBookingToDto } from "../../mappers/Booking/mapToSubscriptionDto";
-
 export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
   constructor(
     private stripeService: IStripeService,
@@ -16,8 +15,30 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
     const { sessionId, vendorId, planId } = data;
 
     try {
-      // 1. Verify Stripe session
       const session = await this.stripeService.retrieveSession(sessionId);
+      console.log(session)
+
+      if (!session || session.payment_status !== "paid") {
+        return {
+          success: false,
+          message: "Payment not verified",
+        };
+      }
+
+      const plan = await this.planRepository.findById(planId);
+      console.log(plan,"plan")
+      if (!plan) throw new Error("Plan not found");
+
+
+      const existingBooking = await this.bookingRepository.findPendingBooking(
+        vendorId,
+        planId
+      );
+      
+
+      if (!existingBooking) {
+        throw new Error("Pending booking not found");
+      }
 
       if (!session || session.payment_status !== "paid") {
         return {
@@ -26,39 +47,23 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         };
       }
 
-      // 2. Validate plan
-      const plan = await this.planRepository.findById(planId);
+      const updatedBooking = await this.bookingRepository.updateStatus(
+        existingBooking._id.toString(),
+        "active"
+      );
+      console.log(updatedBooking,"updatedbooking")
 
-      if (!plan) {
-        throw new Error("Subscription plan not found");
+      if (!updatedBooking) {
+        throw new Error("Booking not found or could not be updated");
       }
-
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + (plan.duration || 30));
-
-      const booking = await this.bookingRepository.create({
-        vendorId,
-        planId: plan._id.toString(),
-        planName: plan.name,
-        amount: plan.price,
-        currency: "inr",
-        status: "active",
-        stripeSessionId: sessionId,
-        startDate,
-        endDate,
-        usedPackages: 0,
-        maxPackages: plan.maxPackages ?? 3,
-        duration: plan.duration,
-      });
 
       return {
         success: true,
         message: "Payment verified and subscription activated successfully",
-        booking: mapSubscriptionBookingToDto(booking),
+        booking: mapSubscriptionBookingToDto(updatedBooking),
       };
     } catch (error) {
-      console.error("Error in VerifyPaymentUseCase:", error);
+      console.error("VerifyPayment error:", error);
       throw new Error(
         error instanceof Error ? error.message : "Failed to verify payment"
       );

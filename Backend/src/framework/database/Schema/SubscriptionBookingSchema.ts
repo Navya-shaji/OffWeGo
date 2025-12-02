@@ -10,7 +10,7 @@ export const SubscriptionBookingSchema = new Schema(
     time: { type: String, required: true },
 
     amount: { type: Number, required: true },
-    currency: { type: String, default: "usd" },
+    currency: { type: String, default: "inr" },
 
     status: {
       type: String,

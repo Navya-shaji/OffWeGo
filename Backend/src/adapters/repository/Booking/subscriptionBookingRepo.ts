@@ -46,4 +46,16 @@ export class SubscriptionBookingRepository
       { new: true }
     );
   }
+  async findPendingBooking(vendorId: string, planId: string) {
+  return this.model.findOne({
+    vendorId,
+    planId,
+    status: "pending"
+  });
+}
+
+async updateBooking(id: string, data: Partial<ISubscriptionBookingModel>) {
+  return this.model.findByIdAndUpdate(id, data, { new: true });
+}
+
 }

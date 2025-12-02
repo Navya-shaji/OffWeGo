@@ -133,7 +133,6 @@ const MessageContainer = () => {
     };
   }, [roomId, userId, ownerId, socket]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
