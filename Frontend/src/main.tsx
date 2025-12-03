@@ -6,8 +6,7 @@ import { Provider } from "react-redux";
 import store, { persistor } from "./store/store";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
-import { onMessageListener, getFcmToken } from "./Firebase/firebase";
-import { toast } from "react-toastify";
+
 import SocketManager from "./utilities/socket";
 import { ChatProvider } from '@/context/chatContext';
 const CLIENT_ID =
@@ -16,52 +15,30 @@ const CLIENT_ID =
 // Optional wrapper component to handle Firebase setup
 // eslint-disable-next-line react-refresh/only-export-components
 function Root() {
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
-        .then((registration) => {
-          console.log("Service Worker registered:", registration.scope);
-        })
-        .catch((err) =>
-          console.error("Service Worker registration failed:", err)
-        );
-    }
-
-    getFcmToken();
-
-    onMessageListener()
-      .then((payload) => {
-        console.log("Foreground notification received:", payload);
-        toast.info(
-          <div>
-            <strong>{payload.notification?.title}</strong>
-            <div>{payload.notification?.body}</div>
-          </div>,
-          {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          }
-        );
-      })
-      .catch((err) => console.error("FCM listener failed:", err));
-  }, []);
   return <App />;
+}
+
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/firebase-messaging-sw.js")
+    .then((registration) => {
+      console.log("Service Worker registered:", registration.scope);
+    })
+    .catch((err) =>
+      console.error("Service Worker registration failed:", err)
+    );
 }
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <Provider store={store}>
-       <ChatProvider>
-        <PersistGate persistor={persistor}>
-          <SocketManager />
-          <Root />
-        </PersistGate>
+        <ChatProvider>
+          <PersistGate persistor={persistor}>
+            <SocketManager />
+            <Root />
+          </PersistGate>
         </ChatProvider>
       </Provider>
     </GoogleOAuthProvider>

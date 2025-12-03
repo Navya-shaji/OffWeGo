@@ -53,6 +53,13 @@ import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
 import { ChatController } from "../../../adapters/controller/chat/ChatController";
 import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
 import { WalletPaymentUseCase } from "../../../useCases/wallet/walletPayment";
+import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
+import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
+import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
+import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
+import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
+import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
+import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -60,6 +67,7 @@ import { WalletPaymentUseCase } from "../../../useCases/wallet/walletPayment";
 // Setup Repos and Services
 const userRepository = new UserRepository();
 const authRepository=new AuthRepository()
+const vendorRepo=new VendorRepository()
 const otpService = new OtpService();
 const hashPassword=new HashPassword();
 const jwtService=new JwtService
@@ -69,8 +77,9 @@ const reviewRepo=new ReviewRepository()
 const paymentRepo=new PaymentRepository(stripeService)
 const subscriptionRepo=new SubscriptionPlanRepository()
 const walletRepo=new WalletRepository()
-// const notificationRepo=new NotificationRepository()
-// const notificationservice=new FirebaseNotificationService(notificationRepo)
+const notificationRepo=new NotificationRepository()
+const packageRepo=new PackageRepository()
+const notificationservice=new FirebaseNotificationService(notificationRepo,userRepository,vendorRepo,)
 const subscriptionbookingRepo=new SubscriptionBookingRepository()
 const chatRepo=new ChatRepository()
 
@@ -97,13 +106,13 @@ const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
 const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
-// const notificationUsecase=new SendNotificationUseCase(notificationservice)
+const notificationUsecase=new SendNotificationUseCase(notificationservice)
 const sendchatusecase=new InitiateChatUsecase(chatRepo)
 const getchatusecase=new GetChatsOfUserUsecase(chatRepo)
 const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
-// const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
-const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo)
+const getNotificationusecase=new GetNotificationUseCase(notificationservice)
+const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo,packageRepo,notificationservice)
 const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
 
@@ -117,5 +126,5 @@ export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
 export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings,walletpaymentusecase)
-// export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
+export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
 export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

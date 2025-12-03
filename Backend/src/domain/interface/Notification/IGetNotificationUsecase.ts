@@ -1,5 +1,5 @@
-import { Notification as NotificationEntity } from "../../../domain/entities/NotificationEntity";
+import { NotificationDto } from "../../dto/Notification/NotificationDto";
 
 export interface IGetNotification {
-  execute(recipientType: string): Promise<NotificationEntity[]>;
+  execute(recipientId: string,recipientType: "vendor" | "user"): Promise<NotificationDto[]>;
 }

@@ -9,13 +9,13 @@ import { ConnectDB } from "./framework/database/ConnectDB/connectDB";
 import { UserRoute } from "./framework/routes/User/userRoute";
 import { AdminRoute } from "./framework/routes/Admin/adminRoute";
 import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
-import { CommonRoute } from "./framework/routes/Auth/AuthRoutes";
 
 import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
 import { ChatRoutes } from "./framework/routes/Chat/ChatRoutes";
 
 import { SocketIoServer as IoHandler } from "./Io";
+import { NotificationRoutes } from "./framework/routes/Chat/NotificationRoute";
 
 export class App {
   private app: Express;
@@ -55,7 +55,7 @@ export class App {
     this.app.use("/api", new UserRoute().userRouter);
     this.app.use("/api/admin", new AdminRoute().adminRouter);
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
-    this.app.use("/api", new CommonRoute().commonRouter);
+    this.app.use("/api/notification", new NotificationRoutes().router);
     this.app.use("/api/chat", new ChatRoutes().router);
   }
 
@@ -81,10 +81,10 @@ export class App {
 
       new IoHandler(this.io)
       this.server.listen(port, () => {
-        console.log(`🚀 Server running on port ${port}`);
+        console.log(` Server running on port ${port}`);
       });
     } catch (error) {
-      console.error("❌ Database connection failed:", error);
+      console.error(" Database connection failed:", error);
       process.exit(1);
     }
   }

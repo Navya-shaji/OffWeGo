@@ -1,13 +1,13 @@
 import { NotificationDto } from "../../domain/dto/Notification/NotificationDto";
 import { IGetNotification } from "../../domain/interface/Notification/IGetNotificationUsecase";
-import { INotificationRepository } from "../../domain/interface/Notification/INotificationRepo";
+import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { notificationMapperDto } from "../../mappers/Notification/notificationMapper";
 
 export class GetNotificationUseCase implements IGetNotification {
-  constructor(private notificationRepo: INotificationRepository) {}
+  constructor(private notificatioService: INotificationService) {}
 
-  async execute( recipientType: string): Promise<NotificationDto[]> {
-    const notifications = await this.notificationRepo.findByRecipient(recipientType);
+  async execute(recipientId: string, recipientType: "vendor" | "user"): Promise<NotificationDto[]> {
+    const notifications = await this.notificatioService.getByRecipient(recipientId, recipientType);
     console.log(notifications,"fff")
     return notificationMapperDto(notifications)
   }

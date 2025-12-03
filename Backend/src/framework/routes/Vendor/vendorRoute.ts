@@ -22,6 +22,8 @@ import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInject
 import {
   bookingcontroller,
   
+
+  
   // chatcontroller,
   
   // notificationcontroller,
@@ -258,11 +260,6 @@ export class VendorRoute {
         walletcontroller.GetWallet(req,res)
       }
     )
-    //   this.vendorRouter.get(
-    //   CommonRoutes.GET_NOTIFICATIONS,
-    //   (req:Request,res:Response)=>{
-    //     notificationcontroller.getNotifications(req,res)
-    //   }
-    // )
+  
   }
 }

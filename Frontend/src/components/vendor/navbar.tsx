@@ -3,7 +3,7 @@ import { Bell, CreditCard, User, ChevronDown, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { logout } from "@/store/slice/vendor/authSlice";
-import NotificationPanel from "../Notification/NotificationModal";
+import {NotificationPanel} from "../Notification/NotificationModal";
 import { onMessageListener } from "@/Firebase/firebase";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
 

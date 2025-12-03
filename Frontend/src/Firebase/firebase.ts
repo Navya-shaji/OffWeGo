@@ -1,3 +1,4 @@
+import axios from "axios";
 import { initializeApp } from "firebase/app";
 import {
   getMessaging,
@@ -51,5 +52,26 @@ export const onMessageListener = (): Promise<MessagePayload> =>
       reject(error);
     }
   });
+
+
+  
+export const subscribeToTopic = async (token: string, topic: string) => {
+  try {
+    const response = await axios.post(
+      `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
+      {},
+      {
+        headers: {
+          Authorization: "key=BMdRY7kU2uSCfpQXaXeNKq-di7QF_cJtk6hAquJvBEzo7IPNigurnO36a7qV5114LzjmOWs_rzQoJ7uE9Lxi_XA",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(`Subscribed to topic: ${topic}`, response.data);
+  } catch (error) {
+    console.error("Topic subscription failed:", error);
+  }
+};
 
 export default app;

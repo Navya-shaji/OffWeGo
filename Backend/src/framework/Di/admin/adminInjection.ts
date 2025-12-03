@@ -42,7 +42,7 @@ import { BannerActionUsecase } from "../../../useCases/banner/BannerActionusecas
 import { EditSubscriptionUseCase } from "../../../useCases/subscription/EditSubscriptionusecase";
 import { DeleteSubscriptionUsecase } from "../../../useCases/subscription/DeleteSubscriptionusecase";
 import { SubscriptionController } from "../../../adapters/controller/Subscriptionplan/subscriptionPlanController";
-import { GetNearByDestinationUSecase } from "../../../useCases/destination/GetNearByDestinationusecase";
+import { GetNearByDestinationUSecase } from "../../../useCases/destination/GetNearByDestinationUsecase";
 import { CreateCategoryController } from "../../../adapters/controller/Category/categoryController";
 import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
 // import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
@@ -83,7 +83,7 @@ const createdestinationusecase=new CreateDestination(destinationRepository)
 const getallDestinations=new GetAllDestinations(destinationRepository)
 const editDestination=new EditDestination()
 const vendorblockUnblockUsecase=new UpdateVendorUsecase(vendorRepository,notificationRepo)
-const createcategoryUsecase=new CreateCategory(catogoryRepo)
+const createcategoryUsecase=new CreateCategory(catogoryRepo,vendorRepo,notificationRepo)
 const getAllcategoryUsecase=new GetAllCategories(catogoryRepo)
 const createbannerUsecase=new CreateBanner(bannerRepo)
 const getbannerUsecase=new GetAllBanners(bannerRepo)
