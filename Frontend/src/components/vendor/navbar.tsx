@@ -19,7 +19,7 @@ const VendorNavbar: React.FC = () => {
 );
 
 
-  // Logout
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/vendor/login");

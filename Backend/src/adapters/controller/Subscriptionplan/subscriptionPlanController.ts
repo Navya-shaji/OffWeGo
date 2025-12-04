@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { createSubscriptionusecase } from "../../../useCases/subscription/createSubscriptionusecase";
+import { CreateSubscriptionUseCase } from "../../../useCases/subscription/createSubscriptionusecase"; 
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { IEditSubscriptionusecase } from "../../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
 import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/createsubscriptionDto";
@@ -8,7 +8,7 @@ import { IDeleteSubscriptionUsecase } from "../../../domain/interface/Subscripti
 
 export class SubscriptionController {
   constructor(
-    private _createSubscriptionPlan: createSubscriptionusecase,
+    private _createSubscriptionPlan: CreateSubscriptionUseCase,
     private _getsubscriptions: IGetSubscriptionUsecase,
     private _editSubscription: IEditSubscriptionusecase,
     private _deletesubscription: IDeleteSubscriptionUsecase

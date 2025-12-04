@@ -3,6 +3,7 @@ export const CommonRoutes = {
   NOTIFICATIONS:'/notifications',
   CHAT:'/chat/send',
   CHATS:'/chat/:senderId',
+  READ_NOTIFY:'/read/:id',
   GET_NOTIFICATIONS:'/notify'
   
 };

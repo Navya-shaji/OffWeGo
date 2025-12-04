@@ -61,7 +61,7 @@ export class UserLoginController {
         sameSite: "strict",
         maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
       });
-
+console.log(user,"userrr")
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Login successful",

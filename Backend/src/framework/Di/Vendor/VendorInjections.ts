@@ -9,7 +9,7 @@ import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUseca
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
 import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/vendorStatusCheckController";
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
-import { VendorLoginController } from "../../../adapters/controller/Vendor/VendorLoginController";
+import { VendorLoginController } from "../../../adapters/controller/Vendor/vendorLoginController"; 
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 import { JwtService } from "../../Services/jwtService";

@@ -1,6 +1,5 @@
 import axiosInstance from "@/axios/instance";
 import { getFcmToken } from "@/Firebase/firebase";
-import type { LoginFormData } from "@/Types/User/auth/loginZodSchema";
 import type { SignupSchema } from "@/Types/User/auth/Tsignup";
 import { isAxiosError } from "axios";
 
@@ -51,7 +50,8 @@ export const userLogin = async (email:string,password:string,) => {
 
 export const registerGoogleUser=async (token: string)=>{
   try{
-    const res=await axiosInstance.post("/api/google-signup",{ token })
+     const fcmToken = await getFcmToken();
+    const res=await axiosInstance.post("/api/google-signup",{ token ,fcmToken: fcmToken || null })
     console.log(res,"res")
     return res
   }catch(error){

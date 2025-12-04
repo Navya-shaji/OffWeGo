@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { markAllAsRead, markAsRead } from "@/store/slice/Notifications/notificationSlice";
-
 import { Bell, X, Loader2 } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { fetchNotifications } from "@/services/Notification/Notification";
+import { fetchNotifications, ReadNotification, type Notification as ServiceNotification } from "@/services/Notification/Notification";
 
 interface NotificationPanelProps {
   open: boolean;
@@ -12,11 +11,10 @@ interface NotificationPanelProps {
 
 export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<ServiceNotification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch notifications when panel opens
   useEffect(() => {
     if (open) {
       loadNotifications();
@@ -28,7 +26,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     setError(null);
     try {
       const data = await fetchNotifications();
-      console.log(data,"data")
+      console.log(data, "data");
       setNotifications(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load notifications");
@@ -39,30 +37,31 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      // Update local state optimistically
       setNotifications(prev =>
-        prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
+        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
-      // Dispatch to Redux store if needed
+      console.log(notificationId,"idd")
+      await ReadNotification(notificationId);
+      
       dispatch(markAsRead(notificationId));
     } catch (err) {
       console.error("Failed to mark as read:", err);
-      // Revert on error
       await loadNotifications();
     }
   };
 
   const handleMarkAllAsRead = async () => {
     try {
-      // Update local state optimistically
+   
       setNotifications(prev =>
         prev.map(n => ({ ...n, read: true }))
       );
-      // Dispatch to Redux store if needed
+      
+   
       dispatch(markAllAsRead());
+
     } catch (err) {
       console.error("Failed to mark all as read:", err);
-      // Revert on error
       await loadNotifications();
     }
   };
@@ -74,7 +73,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       {/* Backdrop */}
       {open && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-40"
+          className="fixed inset-0bg-opacity-30 z-40"
           onClick={onClose}
         />
       )}
@@ -142,7 +141,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
             <div className="p-4 space-y-3">
               {notifications.map((n) => (
                 <div
-                  key={n._id}
+                  key={n.id}
                   className={`p-4 rounded-lg shadow-sm border transition-all hover:shadow-md ${
                     n.read
                       ? "bg-white border-gray-200"
@@ -171,7 +170,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
                     {!n.read && (
                       <button
                         className="text-xs text-blue-600 font-medium hover:underline"
-                        onClick={() => handleMarkAsRead(n._id)}
+                        onClick={() => handleMarkAsRead(n.id)}
                       >
                         Mark as read
                       </button>

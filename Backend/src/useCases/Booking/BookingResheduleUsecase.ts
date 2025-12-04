@@ -58,6 +58,7 @@ export class BookingRescheduleUseCase implements IBookingRescheduleUseCase {
       title: "Booking Rescheduled",
       message: `Your booking for package "${packageData.packageName}" has been rescheduled to ${formattedDate}.`,
       createdAt: new Date(),
+      read:false
     });
 
     await this._notificationService.send({
@@ -66,6 +67,7 @@ export class BookingRescheduleUseCase implements IBookingRescheduleUseCase {
       title: "Booking Rescheduled",
       message: `Booking ${booking.bookingId} for package "${packageData.packageName}" has been rescheduled to ${formattedDate}.`,
       createdAt: new Date(),
+      read:false
     });
 
     return updatedBooking as BookingDataDto;

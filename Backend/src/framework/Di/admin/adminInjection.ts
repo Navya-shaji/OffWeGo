@@ -31,7 +31,7 @@ import { EditCategory } from "../../../useCases/category/editCategoryUsecase";
 import { DeleteCategory } from "../../../useCases/category/DeleteCategoryusecase";
 import { EditBanner } from "../../../useCases/banner/EditBannerUsecase";
 import { DeleteBanner } from "../../../useCases/banner/DeleteBannerUSecase";
-import { createSubscriptionusecase } from "../../../useCases/subscription/createSubscriptionusecase";
+import { CreateSubscriptionUseCase } from "../../../useCases/subscription/createSubscriptionusecase"; 
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
 import { GetAllSubscription } from "../../../useCases/subscription/GetSubscriptionusecase";
 import { SearchUserUseCase } from "../../../useCases/admin/user/SearchUserUSecase"; 
@@ -93,7 +93,7 @@ const editCategory=new EditCategory(catogoryRepo)
 const deleteCategory=new DeleteCategory()
 const editbanner=new EditBanner()
 const deleteBanner=new DeleteBanner()
-const subscriptionusecase=new createSubscriptionusecase(subscriptionrepo)
+const subscriptionusecase=new CreateSubscriptionUseCase(subscriptionrepo,vendorRepo,notificationRepo)
 const getallsubscriptions=new GetAllSubscription(subscriptionrepo)
 const searchuserusecase=new SearchUserUseCase(userRepository)
 const searchvendorusecase=new SearchVendorUsecase(vendorRepository)

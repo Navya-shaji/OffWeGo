@@ -1,7 +1,7 @@
 import { User } from "../../domain/entities/userEntity";
 
 export const mapToGoogleUser = (user: User) => ({
-  id: user._id,          
+  id: user._id?.toString() ?? "",
   name: user.name,
   email: user.email,
   password: user.password,

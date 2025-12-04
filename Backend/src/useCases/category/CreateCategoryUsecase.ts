@@ -30,6 +30,7 @@ async execute(data: CreateCategoryDto): Promise<CategoryDto> {
       recipientType: "vendor",
       title: "New Category Added",
       message: `A new category "${data.name}" has been added.`,
+      read:false
     });
   }
 

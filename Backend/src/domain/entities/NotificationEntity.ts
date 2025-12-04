@@ -5,4 +5,5 @@ export interface INotificationEntity {
   title: string;
   message: string;
   createdAt: Date;
+  read:boolean;
 }

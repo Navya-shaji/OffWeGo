@@ -12,4 +12,5 @@ export const NotificationSchema = new Schema({
   tokens: [{ type: String }],
   topic: { type: String },
   createdAt: { type: Date, default: Date.now },
+  read: { type: Boolean },
 });

@@ -3,11 +3,13 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 
 import { IGetNotification } from "../../../domain/interface/Notification/IGetNotificationUsecase";
 import { ISendNotificationUseCase } from "../../../domain/interface/Notification/INotificationService";
+import { IReadNotificationusecase } from "../../../domain/interface/Notification/IReadNotificationusecase";
 
 export class NotificationController {
   constructor(
     private _sendNotificationUseCase: ISendNotificationUseCase,
-    private _getNotificationUseCase: IGetNotification
+    private _getNotificationUseCase: IGetNotification,
+    private _readNotifictaionUsecase:IReadNotificationusecase
   ) {}
 
   async sendNotification(req: Request, res: Response): Promise<void> {
@@ -46,6 +48,22 @@ export class NotificationController {
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+  async readNotifications(req:Request,res:Response):Promise<void>{
+    try {
+      const Id=req.params.id
+      console.log(Id,"yeee")
+      const result=await this._readNotifictaionUsecase.execute(Id)
+       res.status(HttpStatus.OK).json({
+        success:true,
+        data:result
+      })
+    } catch (error) {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
       });

@@ -24,6 +24,7 @@ export class UpdateVendorUsecase {
         ? "Your vendor account has been blocked by the admin. Please contact support for assistance."
         : "Your vendor account has been unblocked. You can now access the full platform functionality.",
       createdAt: new Date(),
+      read:false
     };
 
 

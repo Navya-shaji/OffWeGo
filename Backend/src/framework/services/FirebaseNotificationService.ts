@@ -45,6 +45,7 @@ export class FirebaseNotificationService implements INotificationService {
       title,
       message,
       createdAt: new Date(),
+      read:false
     });
 
     return this.notificationRepo.getByRecipient(recipientId, recipientType);

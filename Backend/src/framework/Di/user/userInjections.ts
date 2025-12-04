@@ -60,6 +60,7 @@ import { SendNotificationUseCase } from "../../../useCases/notifications/SendNot
 import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
+import { ReadNotificationusecase } from "../../../useCases/notifications/ReadNotificationusecase";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -93,16 +94,16 @@ const resetPasswordUseCase=new ResetPasswordUseCase(userRepository,hashPassword)
 const userprofile=new UserProfileUsecase(userRepository);
 const resendotpusecase=new ResendOtpUsecase(otpService);
 const edituserProfile=new EditUserProfile()
-const createbookingusecase=new CreateBookingUseCase(bookingRepo,walletRepo)
+const createbookingusecase=new CreateBookingUseCase(bookingRepo,walletRepo,packageRepo,notificationservice)
 const createpaymentusecase=new CreatePaymentUsecase(paymentRepo)
 const userbookings=new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings=new GetVendorSideBookingUsecase(bookingRepo)
 const bookingdateusecase=new BookingDateUsecase(bookingRepo)
-const createReviewusecase=new CreateReviewUseCase(reviewRepo)
+const createReviewusecase=new CreateReviewUseCase(reviewRepo,packageRepo,notificationservice)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
 const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo,subscriptionbookingRepo)
-const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo)
+const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo,packageRepo,notificationservice)
 const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
@@ -114,6 +115,7 @@ const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
 const getNotificationusecase=new GetNotificationUseCase(notificationservice)
 const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo,packageRepo,notificationservice)
 const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
+const readnotificationusecase=new ReadNotificationusecase(notificationRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
 
 // Controllers
@@ -126,5 +128,5 @@ export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
 export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings,walletpaymentusecase)
-export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase)
+export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase,readnotificationusecase)
 export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

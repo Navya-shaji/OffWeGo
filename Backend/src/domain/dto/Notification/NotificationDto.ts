@@ -4,4 +4,5 @@ export interface NotificationDto {
   title: string;
   message: string;
   createdAt?: Date;
+  read:boolean
 }

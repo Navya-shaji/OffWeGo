@@ -1,4 +1,3 @@
-
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import store from "@/store/store";
@@ -10,13 +9,13 @@ export interface Notification {
   recipientType: "vendor" | "user";
   recipientId: string;
   createdAt: string;
-  read?: boolean;
+  read  : boolean;
 }
 
 export const fetchNotifications = async (): Promise<Notification[]> => {
   try {
     const state = store.getState();
-    console.log(state,"state")
+    console.log(state, "state");
 
     let recipientType: "vendor" | "user" | null = null;
     let recipientId: string | null = null;
@@ -30,17 +29,14 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     }
 
     if (!recipientType || !recipientId) {
-      return []; 
+      return [];
     }
 
-    const res = await axiosInstance.post(
-      `/api/notification/notify`,
-      {
-        recipientType,
-        recipientId,
-      }
-    );
-console.log(res,"data")
+    const res = await axiosInstance.post(`/api/notification/notify`, {
+      recipientType,
+      recipientId,
+    });
+   
     return res.data.data || [];
   } catch (error) {
     if (isAxiosError(error)) {
@@ -48,6 +44,27 @@ console.log(res,"data")
         error.response?.data?.error || "Failed to fetch notifications"
       );
     }
-    throw new Error("An unexpected error occurred while fetching notifications");
+    throw new Error(
+      "An unexpected error occurred while fetching notifications"
+    );
+  }
+
+ 
+};
+
+export const ReadNotification = async (
+id:string
+): Promise<Notification> => {
+  try {
+    const res = await axiosInstance.patch(`/api/notification/read/${id}`);
+
+    return res.data.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error || "Failed to mark notification as read"
+      );
+    }
+    throw new Error("An unexpected error occurred while marking notification as read");
   }
 };
