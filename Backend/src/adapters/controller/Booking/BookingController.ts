@@ -87,6 +87,7 @@ export class BookingController {
     try {
       const bookingId = req.params.id;
       const bookings = await this._cancelBooking.execute(bookingId);
+      console.log(bookings,"booking")
       res.status(HttpStatus.OK).json({
         success: true,
         bookings: bookings,

@@ -38,7 +38,7 @@ export const bookingdates=async(vendorId:string)=>{
 }
 export const cancelBooking = async (bookingId: string) => {
   const response = await axiosInstance.patch(`/api/bookings/${bookingId}`);
-  console.log(response)
+  console.log(response.data.data,"res")
   return response.data
 };
 

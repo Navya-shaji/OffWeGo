@@ -46,16 +46,16 @@ const RescheduleModal = ({
 }) => {
   const [newDate, setNewDate] = useState("");
   const [loading, setLoading] = useState(false);
-  console.log(bookingId,"iiiiiii")
-const handleSubmit = async () => {
-  if (!newDate) {
-    toast.error("Please select a new date");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    await rescheduleBooking(bookingId, newDate);
+  const handleSubmit = async () => {
+    if (!newDate) {
+      toast.error("Please select a new date");
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      await rescheduleBooking(bookingId, newDate);
+      console.log(bookingId,"iiiiiii")
 
     toast.success("Booking rescheduled successfully!");
     onSuccess?.();
@@ -171,7 +171,7 @@ const BookingDetailsSection = () => {
     if (startDate > today) return "upcoming";
     return "ongoing";
   };
-
+console.log(bookings,"Book")
   const getStatusBadge = (status: string) => {
     const config: any = {
       upcoming: { bg: "bg-blue-100", text: "text-blue-800", icon: <Clock className="w-4 h-4" />, label: "Upcoming" },
@@ -190,7 +190,7 @@ const BookingDetailsSection = () => {
   const filteredBookings = filterStatus === "all"
     ? bookings
     : bookings.filter(b => getBookingStatus(b) === filterStatus);
-  const bookingIds = filteredBookings.map((booking) => booking._id);
+  const bookingIds = filteredBookings.map((booking) => booking.bookingId);
 
   const startChatWithVendor = async (booking: any) => {
     if (!user?.id) return alert("Please log in.");
@@ -210,18 +210,18 @@ const BookingDetailsSection = () => {
     return vendorId && ["upcoming", "ongoing"].includes(status);
   };
 
-  // Cancel
+
   const openCancelModal = (id: string) => {
     setBookingToCancel(id);
     setIsConfirmOpen(true);
   };
-
+console.log(bookingToCancel,"cancel")
   const confirmCancel = async () => {
-    if (!bookingToCancel) return;
+    if (!bookingIds[0]) return;
     try {
       setLoading(true);
-      const res = await cancelBooking(bookingToCancel);
-      alert(res.message || "Booking cancelled successfully.");
+      const res = await cancelBooking(bookingIds[0]);
+console.log(res,"res")
       const updated = await getUserBookings();
       setBookings(updated || []);
       if (selectedBooking?._id === bookingToCancel) {
