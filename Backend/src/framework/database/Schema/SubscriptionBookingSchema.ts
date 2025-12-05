@@ -36,7 +36,7 @@ export const SubscriptionBookingSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["pending", "active", "canceled"],
+      enum: ["pending", "active", "expired"],
       default: "pending",
     },
 

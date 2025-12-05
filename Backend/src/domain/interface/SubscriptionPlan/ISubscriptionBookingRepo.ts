@@ -32,4 +32,5 @@ export interface ISubscriptionBookingRepository {
     id: string,
     data: Partial<ISubscriptionBookingModel>
   ): Promise<ISubscriptionBookingModel | null>;
+   expireOldSubscriptions(vendorId: string): Promise<void>;
 }

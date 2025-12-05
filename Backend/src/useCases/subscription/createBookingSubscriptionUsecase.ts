@@ -23,31 +23,60 @@ export class CreateBookingSubscriptionUseCase
   ): Promise<ICreateBookingSubscriptionResponse> {
     const { vendorId, planId, domainUrl } = data;
 
+    await this._subscriptionBookingRepo.expireOldSubscriptions(vendorId);
+
+    const activeSub =
+      await this._subscriptionBookingRepo.getLatestSubscriptionByVendor(
+        vendorId
+      );
+
+    if (activeSub) {
+      throw new Error(
+        `You already have an active subscription until ${activeSub.endDate}. You cannot purchase a new plan until it expires.`
+      );
+    }
+
     const plan = await this._subscriptionPlanRepo.findById(planId);
     if (!plan) throw new Error("Subscription plan not found");
 
-    if (!plan.stripePriceId)
-      throw new Error("This plan does not have an associated Stripe Price ID.");
+    if (!plan.stripePriceId) {
+      throw new Error("This plan does not have a valid Stripe Price ID.");
+    }
 
-    const booking = await this._subscriptionBookingRepo.create({
+    let booking = await this._subscriptionBookingRepo.findPendingBooking(
       vendorId,
-      planId: plan._id,
-      planName: plan.name,
-      features: plan.features,
-      amount: plan.price,
-      duration: plan.duration,
-      currency: "inr",
-      status: "pending",
-    });
+      planId
+    );
+
+    if (!booking) {
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + plan.duration);
+
+      booking = await this._subscriptionBookingRepo.create({
+        vendorId,
+        planId: plan._id,
+        planName: plan.name,
+        features: plan.features,
+        amount: plan.price,
+        duration: plan.duration,
+        currency: "inr",
+        status: "pending",
+        startDate,
+        endDate,
+      });
+    }
 
     const session = await this._stripeService.createSubscriptionCheckoutSession(
       plan.stripePriceId,
       domainUrl,
       booking._id.toString()
     );
+
     await this._subscriptionBookingRepo.updateBooking(booking._id.toString(), {
       stripeSessionId: session.sessionId,
     });
+
     const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
 
     const adminId = process.env.ADMIN_ID || "";

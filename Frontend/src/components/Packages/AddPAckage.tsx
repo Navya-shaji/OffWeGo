@@ -396,36 +396,59 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
 
   try {
-    // Dispatch and wait for the result
+
     const result = await dispatch(addPackage(completePackage));
     
-    // Check if the action was rejected
-    if (addPackage.rejected.match(result)) {
-      // Handle the error from backend
-      const errorMessage = result.error.message || "Failed to create package";
-      
-      if (errorMessage.includes("limit")) {
-        setPackageLimitError(true);
-        toast.error(errorMessage, {
-          position: "top-center",
-          autoClose: 5000,
-        });
-      } else {
-        toast.error(errorMessage, {
-          position: "top-center",
-          autoClose: 5000,
-        });
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
+   if (addPackage.rejected.match(result)) {
 
-    // Success case
+  const errorMessage =
+
+    "You do not have an active subscription";
+
+  console.log("Backend error:", errorMessage);
+
+
+  if (errorMessage.includes("You do not have an active subscription")) {
+    toast.error(
+      "You do not have an active subscription. Purchase a plan to add packages.",
+      {
+        position: "top-center",
+        autoClose: 5000,
+      }
+    );
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+
+  if (errorMessage.includes("limit")) {
+    setPackageLimitError(true);
+    toast.error(errorMessage, {
+      position: "top-center",
+      autoClose: 5000,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  
+  toast.error(errorMessage, {
+    position: "top-center",
+    autoClose: 5000,
+  });
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  return;
+}
+
+
+
+
     setIsSubmitted(true);
     setShowValidationErrors(false);
     resetValidation();
 
-    // Reset form
+
     setFormData({
       packageName: "",
       description: "",

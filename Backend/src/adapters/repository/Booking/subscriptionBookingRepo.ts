@@ -23,39 +23,58 @@ export class SubscriptionBookingRepository
   }
 
   async findActiveBookings(vendorId: string) {
-    return this.model.find({ vendorId, status: "active" }).populate("planId");
+    return this.model.find({
+      vendorId,
+      status: "active",
+      endDate: { $gte: new Date() }
+    }).populate("planId");
+  }
+
+
+  async expireOldSubscriptions(vendorId: string): Promise<void> {
+    const now = new Date();
+
+    await this.model.updateMany(
+      {
+        vendorId,
+        status: "active",
+        endDate: { $lt: now }
+      },
+      { status: "expired" }
+    );
   }
 
   async getLatestSubscriptionByVendor(vendorId: string) {
-    return this.model
-      .findOne({ vendorId })
-      .sort({ createdAt: -1 })
-      .populate("planId");
+    const now = new Date();
+
+    return this.model.findOne({
+      vendorId,
+      status: "active",
+      endDate: { $gte: now }
+    }).sort({ createdAt: -1 });
   }
 
   async updateStatus(id: string, status: string) {
     return this.model.findByIdAndUpdate(id, { status }, { new: true });
   }
-     async updateUsedPackages(
-    id: string,
-    usedPackages: number
-  ): Promise<ISubscriptionBookingModel | null> {
+
+  async updateUsedPackages(id: string, usedPackages: number) {
     return this.model.findByIdAndUpdate(
       id,
       { usedPackages },
       { new: true }
     );
   }
+
   async findPendingBooking(vendorId: string, planId: string) {
-  return this.model.findOne({
-    vendorId,
-    planId,
-    status: "pending"
-  });
-}
+    return this.model.findOne({
+      vendorId,
+      planId,
+      status: "pending"
+    });
+  }
 
-async updateBooking(id: string, data: Partial<ISubscriptionBookingModel>) {
-  return this.model.findByIdAndUpdate(id, data, { new: true });
-}
-
+  async updateBooking(id: string, data: Partial<ISubscriptionBookingModel>) {
+    return this.model.findByIdAndUpdate(id, data, { new: true });
+  }
 }

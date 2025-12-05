@@ -16,7 +16,7 @@ export const SubscriptionPlanSchema = new Schema(
     },
 
     duration: {
-      type: Number, // number of days or months (your choice)
+      type: Number, 
       required: true,
       min: 1,
     },
