@@ -21,22 +21,21 @@ export class CreateBookingSubscriptionUseCase
   async execute(
     data: ICreateBookingSubscriptionRequest
   ): Promise<ICreateBookingSubscriptionResponse> {
-    const { vendorId, planId, date, time, domainUrl } = data;
+    const { vendorId, planId, domainUrl } = data;
 
     const plan = await this._subscriptionPlanRepo.findById(planId);
     if (!plan) throw new Error("Subscription plan not found");
+
     if (!plan.stripePriceId)
-      throw new Error("This plan does not have a Stripe Price ID assigned.");
+      throw new Error("This plan does not have an associated Stripe Price ID.");
 
     const booking = await this._subscriptionBookingRepo.create({
       vendorId,
       planId: plan._id,
       planName: plan.name,
+      features: plan.features,
       amount: plan.price,
-      maxPackages: plan.maxPackages,
       duration: plan.duration,
-      date,
-      time,
       currency: "inr",
       status: "pending",
     });
@@ -46,7 +45,9 @@ export class CreateBookingSubscriptionUseCase
       domainUrl,
       booking._id.toString()
     );
-
+    await this._subscriptionBookingRepo.updateBooking(booking._id.toString(), {
+      stripeSessionId: session.sessionId,
+    });
     const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
 
     const adminId = process.env.ADMIN_ID || "";

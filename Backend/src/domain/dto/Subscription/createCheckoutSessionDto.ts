@@ -3,7 +3,7 @@ export interface CreateCheckoutSessionDTO {
   planId: string;
   planName: string;
   amount: number;
-  date: string;
-  time: string;
-  domainUrl: string;
+  duration: number;          
+  features?: string[];       
+  domainUrl: string;          
 }

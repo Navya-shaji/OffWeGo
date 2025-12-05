@@ -16,22 +16,27 @@ export const SubscriptionPlanSchema = new Schema(
     },
 
     duration: {
-      type: Number,
+      type: Number, // number of days or months (your choice)
       required: true,
       min: 1,
     },
 
-    maxPackages: {
-      type: Number,
-      required: true,
-      min: 1,
+    features: {
+      type: [String],      
+      default: [],
+      required: false,
     },
 
     stripePriceId: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
       trim: true,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {

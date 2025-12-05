@@ -16,12 +16,13 @@ export class SubscriptionController {
 
   async createSubscription(req: Request, res: Response) {
     try {
-      const { name, price, maxPackages, duration, stripePriceId} = req.body;
+      const { name, price, duration, features, stripePriceId } = req.body;
+
       const result = await this._createSubscriptionPlan.execute({
         name,
         price,
-        maxPackages,
         duration,
+        features,
         stripePriceId,
       });
 
@@ -38,6 +39,7 @@ export class SubscriptionController {
       });
     }
   }
+
 
   async getAllSubscriptions(req: Request, res: Response) {
     try {
@@ -82,6 +84,7 @@ export class SubscriptionController {
       });
     }
   }
+
 
   async deleteSubscription(req: Request, res: Response) {
     try {

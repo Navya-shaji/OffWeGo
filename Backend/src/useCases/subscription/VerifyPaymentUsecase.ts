@@ -13,10 +13,10 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
 
   async execute(data: VerifyPaymentDTO) {
     const { sessionId, vendorId, planId } = data;
-
+console.log( sessionId, vendorId, planId,"datatatata")
     try {
       const session = await this.stripeService.retrieveSession(sessionId);
-      console.log(session)
+      console.log(session);
 
       if (!session || session.payment_status !== "paid") {
         return {
@@ -26,15 +26,13 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       }
 
       const plan = await this.planRepository.findById(planId);
-      console.log(plan,"plan")
+      console.log(plan, "plan");
       if (!plan) throw new Error("Plan not found");
-
 
       const existingBooking = await this.bookingRepository.findPendingBooking(
         vendorId,
         planId
       );
-      
 
       if (!existingBooking) {
         throw new Error("Pending booking not found");
@@ -47,11 +45,15 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         };
       }
 
-      const updatedBooking = await this.bookingRepository.updateStatus(
+      const updatedBooking = await this.bookingRepository.updateBooking(
         existingBooking._id.toString(),
-        "active"
+        {
+          status: "active",
+          stripeSessionId: sessionId,
+        }
       );
-      console.log(updatedBooking,"updatedbooking")
+
+      console.log(updatedBooking, "updatedbooking");
 
       if (!updatedBooking) {
         throw new Error("Booking not found or could not be updated");

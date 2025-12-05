@@ -13,47 +13,31 @@ export class CreatePackagesUseCase implements ICreatePackage {
 
   async execute(data: Package, vendorId: string): Promise<PackageDTO> {
     const packageData: Package = { ...data, vendorId };
-    console.log(vendorId,"id")
+
+ 
     packageData.hotels = (packageData.hotels || []).filter(Boolean);
     packageData.activities = (packageData.activities || []).filter(Boolean);
 
-  const subscription = await this._subscriptionRepo.getLatestSubscriptionByVendor(vendorId);
-  console.log(subscription,"sub")
-  const maxPackagess = subscription?.maxPackages
-if (subscription && subscription.planId) {
-  console.log(maxPackagess, "sh");
-}
+ 
+    const subscription = await this._subscriptionRepo.getLatestSubscriptionByVendor(vendorId);
 
-  console.log(subscription,"sub")
-let totalPackagesAllowed = 3;
-
-if (subscription) {
-  totalPackagesAllowed += subscription.maxPackages || 3;
-}
-console.log(totalPackagesAllowed,"total")
-const existingPackages = await this._packageRepo.countPackagesByVendor(vendorId);
-
-if (existingPackages >= totalPackagesAllowed) {
-  throw new Error(`You have reached your limit of ${totalPackagesAllowed} packages. Upgrade your plan to add more.`);
-}
-
-
-    if (subscription) {
-      const totalPackagesAllowed = subscription.maxPackages || 3;
-      if (existingPackages >= totalPackagesAllowed) {
-        throw new Error(`You have reached your subscription limit of ${totalPackagesAllowed} packages. Upgrade your plan to add more.`);
-      }
+    if (!subscription) {
+      throw new Error("You do not have an active subscription. Purchase a plan to add packages.");
     }
+
+    if (subscription.status !== "active") {
+      throw new Error("Your subscription is not active. Please renew your plan.");
+    }
+
+
+    const now = new Date();
+    if (subscription.endDate && new Date(subscription.endDate) < now) {
+      throw new Error("Your subscription has expired. Renew your plan to continue adding packages.");
+    }
+
 
     const createdDoc = await this._packageRepo.createPackage(packageData);
-    console.log(createdDoc, "created package");
-
-    if (subscription && subscription.status === "active") {
-      await this._subscriptionRepo.updateUsedPackages(
-        subscription.id,
-        (subscription.usedPackages || 0) + 1
-      );
-    }
+    console.log(createdDoc, "Created package");
 
     return mapToPackageDTO(createdDoc);
   }

@@ -10,7 +10,7 @@ const PaymentSuccess = () => {
     const verifyPayment = async () => {
       const sessionId = searchParams.get("session_id");
       const vendorId = localStorage.getItem("vendorId");
-      const planId = localStorage.getItem("selectedPlanId"); // optional if you stored it before redirect
+      const planId = localStorage.getItem("selectedPlanId"); 
 
       if (!sessionId || !vendorId || !planId) {
         alert("Missing payment details");
@@ -25,7 +25,7 @@ const PaymentSuccess = () => {
         });
 console.log(response,"response")
         if (response.success) {
-          navigate("/vendor/dashboard"); // or a success page
+          navigate("/vendor/dashboard"); 
         } else {
           alert("Payment verification failed");
         }

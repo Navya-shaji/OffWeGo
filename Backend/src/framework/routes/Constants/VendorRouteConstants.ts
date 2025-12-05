@@ -33,7 +33,7 @@ export const VendorRoutes = {
   USER_BOOKINGS: "/bookings/:id",
   BOOKING_DATES: "/bookings/date/:id",
   SUBSCRIPTION_BOOKING: "/subscription-booking",
-  VERIFY_PAYMENT: "/payment-success",
+  VERIFY_PAYMENT: "/subscription/verify-payment",
   CREATE_BUDDY_TRAVEL:'/create-buddy-travel',
   BUDDY_PACKAGES:'/buddy-packages/:id',
   VENDOR_WALLET:'/wallet',

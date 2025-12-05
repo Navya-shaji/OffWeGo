@@ -7,7 +7,8 @@ export const mapModelToSubscriptionDto = (
   _id: model._id.toString(),
   name: model.name,
   price: model.price,
-  maxPackages: model.maxPackages,
   duration: model.duration,
+  features: model.features ?? [],
   stripePriceId: model.stripePriceId,
+  isActive: model.isActive,
 });

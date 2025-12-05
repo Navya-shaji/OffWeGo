@@ -1,15 +1,20 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { VerifyPaymentUseCase } from "../../../useCases/subscription/VerifyPaymentUsecase";
+import { IVerifyPaymentUseCase } from "../../../domain/interface/SubscriptionPlan/IVerifyPaymentUsecase";
 
 export class SubscriptionPaymentController {
-  constructor(private verifyPaymentUseCase: VerifyPaymentUseCase) {}
+  constructor(private _verifyPaymentUseCase: IVerifyPaymentUseCase) {}
 
   async verifyPayment(req: Request, res: Response): Promise<void> {
     try {
-      const { sessionId } = req.body;
-
-      const result = await this.verifyPaymentUseCase.execute(sessionId);
+      const { sessionId, vendorId, planId } = req.body;
+      console.log(sessionId, req.body, "iddd");
+      const result = await this._verifyPaymentUseCase.execute({
+        sessionId,
+        vendorId,
+        planId,
+      });
+      console.log(result, "Result ");
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Payment verified successfully",

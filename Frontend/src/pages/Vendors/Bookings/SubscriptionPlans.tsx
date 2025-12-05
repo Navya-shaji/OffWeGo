@@ -118,49 +118,54 @@ export default function VendorSubscriptionPage() {
   };
   
   const handleProceedToPayment = async () => {
-    if (!selectedPlan || !bookingDate || !bookingTime) {
-      alert("Please fill in all booking details");
-      return;
-    }
+  if (!selectedPlan || !bookingDate || !bookingTime) {
+    alert("Please fill in all booking details");
+    return;
+  }
 
-    if (!vendorId) {
-      alert("Vendor ID not found. Please login again.");
-      return;
-    }
+  if (!vendorId) {
+    alert("Vendor ID not found. Please login again.");
+    return;
+  }
 
-    try {
-      setBookingLoading(true);
+  try {
+    setBookingLoading(true);
 
-      sessionStorage.setItem(
-        "bookingDetails",
-        JSON.stringify({
-          vendorId,
-          planId: selectedPlan._id,
-          date: bookingDate,
-          time: bookingTime,
-        })
-      );
-      const response = await createSubscriptionBooking({
+    // Save data needed AFTER payment
+    sessionStorage.setItem(
+      "bookingDetails",
+      JSON.stringify({
         vendorId,
         planId: selectedPlan._id,
-        planName: selectedPlan.name,
-        amount: selectedPlan.price,
         date: bookingDate,
         time: bookingTime,
-      });
-console.log(response,"responsebdjhjhdg")
-      console.log("Redirecting to Stripe:", response.data.checkoutUrl);
-      if (response.success && response.data.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl;
-      } else {
-        throw new Error("Failed to create payment session");
-      }
-    } catch (err) {
-      console.error("Payment error:", err);
-      alert(err instanceof Error ? err.message : "Failed to initiate payment");
-      setBookingLoading(false);
+      })
+    );
+
+    // IMPORTANT: Save these for PaymentSuccess page
+    localStorage.setItem("vendorId", vendorId);
+    localStorage.setItem("selectedPlanId", selectedPlan._id);
+
+    const response = await createSubscriptionBooking({
+      vendorId,
+      planId: selectedPlan._id,
+      planName: selectedPlan.name,
+      amount: selectedPlan.price,
+      date: bookingDate,
+      time: bookingTime,
+    });
+
+    if (response.success && response.data.checkoutUrl) {
+      window.location.href = response.data.checkoutUrl;
+    } else {
+      throw new Error("Failed to create payment session");
     }
-  };
+  } catch (err) {
+    console.error("Payment error:", err);
+    alert(err instanceof Error ? err.message : "Failed to initiate payment");
+    setBookingLoading(false);
+  }
+};
 
   const handleLoadMore = () => {
     setDisplayCount(prev => prev + 3);

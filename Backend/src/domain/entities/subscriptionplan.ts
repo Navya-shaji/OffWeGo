@@ -4,9 +4,8 @@ export interface ISubscriptionPlan {
   _id: ObjectId;
   name: string;
   price: number;
-  maxPackages: number;
-  duration: number;
+  duration: number;          
+  features: string[];         
   stripePriceId: string;
   isActive: boolean;
-  usedPackages:number;
 }
