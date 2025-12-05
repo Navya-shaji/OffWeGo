@@ -6,7 +6,6 @@ import { ITransferAmountUseCase } from "../../../domain/interface/Wallet/ITransf
 import { IGetCompletedBookingsUseCase } from "../../../domain/interface/Wallet/ICompletedBookings";
 import { IWalletPaymentUseCase } from "../../../domain/interface/Wallet/IWalletPayment";
 import { ICompleteTripUseCase } from "../../../domain/interface/Wallet/ICompletedTripUsecase";
-import { morganConsoleLogger } from "../../../framework/Logger/logger";
 
 export class WalletController {
   constructor(

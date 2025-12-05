@@ -36,4 +36,5 @@ export const AdminRoutes = {
   COMPLETED_BOOKINGS: "/completed-bookings",
   NEARBY_LOCATIONS: "/destination/nearby",
   COMPLETED_TRIP: "/complete-trip",
+  BOOKED_SUBSCRIPTION:'/booked-subscription'
 };

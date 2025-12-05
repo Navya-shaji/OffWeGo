@@ -31,7 +31,7 @@ export interface IWalletRepository {
   ): Promise<IWallet>;
 
   getTransactionByRef(
-    ownerId: string,
-    refId: string
+    refId: string,
+    ownerId:string
   ): Promise<Transaction | null>;
 }

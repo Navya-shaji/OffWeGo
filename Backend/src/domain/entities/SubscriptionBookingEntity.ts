@@ -12,7 +12,7 @@ export interface ISubscriptionBooking {
   amount: number;
   currency: string;
 
-  status: "pending" | "active" | "canceled";
+  status: "pending" | "active" | "expired";
 
   stripeSubscriptionId?: string;
   stripeCustomerId?: string;

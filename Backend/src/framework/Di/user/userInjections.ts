@@ -103,7 +103,11 @@ const bookingdateusecase=new BookingDateUsecase(bookingRepo)
 const createReviewusecase=new CreateReviewUseCase(reviewRepo,packageRepo,notificationservice)
 const getReviewsUsecase=new GetReviewUsecase(reviewRepo)
 const changepasswordusecase=new ChangePasswordUseCase(userRepository)
-const verifypaymentusecase=new VerifyPaymentUseCase(stripeService,subscriptionRepo,subscriptionbookingRepo)
+const verifypaymentusecase = new VerifyPaymentUseCase(
+  stripeService,
+  subscriptionRepo,
+  subscriptionbookingRepo
+);
 const cancelbookingusecase=new cancelBookingUsecase(bookingRepo,walletRepo,packageRepo,notificationservice)
 const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)

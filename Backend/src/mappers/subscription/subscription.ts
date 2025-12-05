@@ -1,10 +1,20 @@
-// import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
-// import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
+import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/createCheckoutSessionDto";
+import { ISubscriptionBooking } from "../../domain/entities/SubscriptionBookingEntity";
 
-// export const mapToSubscriptionPlanModel = (
-//   plan: Partial<SubscriptionPlanDto>
-// ): Partial<ISubscriptionPlanModel> => ({
-//   name: plan.name,
-//   price: plan.price,
- 
-// });
+
+export function mapBookingToCheckoutDTO(
+  booking: ISubscriptionBooking
+): CreateCheckoutSessionDTO {
+
+
+
+  return {
+    vendorId: booking.vendorId,
+    planId: booking.planId.toString(),
+    planName: booking.planName,
+    amount: booking.amount,
+    duration: booking.duration,
+    features: booking.features,
+    domainUrl: "" 
+  };
+}

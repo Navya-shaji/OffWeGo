@@ -77,4 +77,7 @@ export class SubscriptionBookingRepository
   async updateBooking(id: string, data: Partial<ISubscriptionBookingModel>) {
     return this.model.findByIdAndUpdate(id, data, { new: true });
   }
+   async getAllSubscriptions() {
+    return this.model.find().sort({ createdAt: -1 });
+  }
 }

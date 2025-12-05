@@ -52,3 +52,19 @@ export const deleteSubscription = async (id: string) => {
     throw new Error("Unexpected error deleting subscription");
   }
 };
+
+export const getAllSubscriptionBookings = async () => {
+  try {
+    const res = await axiosInstance.get("/api/admin/booked-subscription");
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 
+        error.response?.data?.error || 
+        "Failed to fetch subscription bookings"
+      );
+    }
+    throw new Error("Unexpected error fetching subscription bookings");
+  }
+};

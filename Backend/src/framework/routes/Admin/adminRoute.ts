@@ -202,6 +202,11 @@ export class AdminRoute {
       adminOnly,
       (req, res) => subscriptionController.deleteSubscription(req, res)
     );
+    this.adminRouter.get(
+      AdminRoutes.BOOKED_SUBSCRIPTION,
+      adminOnly,
+      (req, res) => subscriptionController.getAllSubscriptionBookings(req, res)
+    );
 
     // -------------------- WALLET MANAGEMENT --------------------
 

@@ -116,22 +116,23 @@ async updateBalance(
     return updated as unknown as IWallet;
   }
 
-  async getTransactionByRef(
-    ownerId: string,
-    refId: string
-  ): Promise<Transaction | null> {
-    const wallet = await this.model.findOne(
-      {
-        ownerId,
-        "transactions.refId": refId,
-      },
-      {
-        transactions: { $elemMatch: { refId } },
-      }
-    );
+async getTransactionByRef(
+  refId: string
+): Promise<Transaction | null> {
+  const wallet = await this.model.findOne(
+    {
+  
+      "transactions.refId": refId,
+    },
+    {
+      transactions: { $elemMatch: { refId } },
+    }
+  );
 
-    if (!wallet || !wallet.transactions?.length) return null;
+  if (!wallet || wallet.transactions.length === 0) return null;
 
-    return wallet.transactions[0] as unknown as Transaction;
-  }
+  return wallet.transactions[0] as Transaction;
+}
+
+
 }

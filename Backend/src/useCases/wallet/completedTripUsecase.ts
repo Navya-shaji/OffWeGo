@@ -12,10 +12,10 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
     adminId: string,
     totalAmount: number
   ): Promise<void> {
-console.log(adminId,bookingId)
+
     const existingTransaction =
-      await this.walletRepository.getTransactionByRef(adminId, bookingId);
-console.log(existingTransaction,"Ex")
+      await this.walletRepository.getTransactionByRef(adminId,bookingId);
+console.log(existingTransaction,"ex")
     if (!existingTransaction) {
       throw new Error("Trip transaction not found in admin wallet");
     }
@@ -24,13 +24,24 @@ console.log(existingTransaction,"Ex")
       throw new Error("Trip already settled");
     }
 
-    const VendorAmount = totalAmount * 0.9;      
-    const adminCommission = totalAmount * 0.1;    
+    const vendorAmount = totalAmount * 0.9;       
+    const adminCommission = totalAmount * 0.1;   
+
+    
+    await this.walletRepository.updateBalance(
+      adminId,
+      "admin",
+      vendorAmount,
+      "debit",
+      `Settlement paid to vendor ${vendorId}`,
+      bookingId
+    );
+
 
     await this.walletRepository.updateBalance(
       vendorId,
       "vendor",
-      VendorAmount,
+      vendorAmount,
       "credit",
       "Trip completed earning",
       bookingId
@@ -42,6 +53,7 @@ console.log(existingTransaction,"Ex")
       "completed"
     );
 
+ 
     await this.walletRepository.updateBalance(
       adminId,
       "admin",
