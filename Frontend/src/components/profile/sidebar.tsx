@@ -1,4 +1,3 @@
-// ProfileSidebar.tsx
 import {
   User,
   Calendar,
@@ -33,43 +32,37 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
   };
 
   return (
-    <aside className="w-full lg:w-80">
+    <aside className="w-full">
+
       {/* User Card */}
-      <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 text-white shadow-lg mb-4">
+      <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 text-white shadow-lg mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-white/10 backdrop-blur-sm border-2 border-white/20 flex-shrink-0">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-white/10 border border-white/20">
             {user?.imageUrl ? (
-              <img
-                src={user.imageUrl}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              <img src={user.imageUrl} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-2xl font-bold">
-                  {user?.username?.[0]?.toUpperCase() || "U"}
-                </span>
+              <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
+                {user?.username?.[0]?.toUpperCase()}
               </div>
             )}
           </div>
-          <div className="flex-1 min-w-0">
+
+          <div className="min-w-0">
             <h3 className="text-lg font-semibold truncate">{user?.username}</h3>
             <p className="text-sm text-gray-300 truncate">{user?.email}</p>
           </div>
         </div>
-        <div className="pt-4 border-t border-white/10">
-          <p className="text-xs text-gray-400 uppercase tracking-wider">Member Since</p>
-          <p className="text-sm font-medium mt-1">January 2024</p>
+
+        <div className="pt-3 border-t border-white/20">
+          <p className="text-xs text-gray-400 uppercase">Member Since</p>
+          <p className="text-sm font-medium">January 2024</p>
         </div>
       </div>
 
-      {/* Navigation Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-5 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Navigation</h2>
-        </div>
+      {/* Navigation List */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         
-        <nav className="p-3">
+        <nav className="space-y-2">
           {sidebarItems.map((item) => {
             const isActive = activeSection === item.section;
             const Icon = item.icon;
@@ -78,35 +71,35 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
               <button
                 key={item.section}
                 onClick={() => setActiveSection(item.section)}
-                className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-lg transition-all group mb-1.5
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition 
                   ${
-                    isActive
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-50"
+                    isActive 
+                      ? "bg-black text-white shadow" 
+                      : "text-gray-700 hover:bg-gray-100"
                   }
                 `}
               >
-                <Icon className="w-5 h-5 flex-shrink-0" />
-                <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-semibold truncate">{item.label}</p>
-                  <p className={`text-xs truncate ${isActive ? "text-gray-300" : "text-gray-500"}`}>{item.desc}</p>
+                <Icon className="w-5 h-5" />
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold">{item.label}</p>
+                  <p className={`text-xs ${isActive ? "text-gray-300" : "text-gray-500"}`}>
+                    {item.desc}
+                  </p>
                 </div>
-                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <ChevronRight className="w-4 h-4" />
               </button>
             );
           })}
         </nav>
 
         {/* Logout */}
-        <div className="p-3 border-t border-gray-100">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-all"
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            <span className="text-sm font-semibold">Sign Out</span>
-          </button>
-        </div>
+        <button
+          onClick={handleLogout}
+          className="mt-4 flex items-center gap-3 w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="text-sm font-semibold">Sign Out</span>
+        </button>
       </div>
     </aside>
   );

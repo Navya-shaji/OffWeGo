@@ -61,6 +61,7 @@ import { FirebaseNotificationService } from "../../Services/FirebaseNotification
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
 import { ReadNotificationusecase } from "../../../useCases/notifications/ReadNotificationusecase";
+import { CompleteTripUseCase } from "../../../useCases/wallet/completedTripUsecase";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -116,6 +117,7 @@ const getNotificationusecase=new GetNotificationUseCase(notificationservice)
 const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo,packageRepo,notificationservice)
 const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
 const readnotificationusecase=new ReadNotificationusecase(notificationRepo)
+const completedTripusecase=new CompleteTripUseCase(walletRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
 
 // Controllers
@@ -127,6 +129,6 @@ export const bookingcontroller=new BookingController(createbookingusecase,userbo
 export const paymentcontroller=new PaymentController(createpaymentusecase)
 export const reviewcontroller=new ReviewController(createReviewusecase,getReviewsUsecase)
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
-export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings,walletpaymentusecase)
+export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings,walletpaymentusecase,completedTripusecase)
 export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase,readnotificationusecase)
 export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)

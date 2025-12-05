@@ -1,4 +1,5 @@
 export interface User {
+  imageUrl: any;
   _id: string;
   username: string;
   email: string;

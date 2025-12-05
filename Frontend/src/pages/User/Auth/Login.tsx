@@ -41,7 +41,7 @@ export default function UserLogin() {
         })
       );
       dispatch(setToken(response.accessToken));
-      toast.success("✅ Login successful!");
+      toast.success("Login successful!");
       navigate("/", { replace: true });
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string; error?: string }>;

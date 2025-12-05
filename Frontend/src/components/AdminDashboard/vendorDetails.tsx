@@ -21,29 +21,31 @@ export const VendorList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedVendor, setSelectedVendor] = useState<{ id: string; isBlocked: boolean; name: string } | null>(null);
+  const [selectedVendor, setSelectedVendor] = useState<{
+    id: string;
+    isBlocked: boolean;
+    name: string;
+  } | null>(null);
 
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  
   const fetchVendors = useCallback(async (pageNum: number = 1) => {
     if (isLoadingRef.current) return;
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
       setError("");
-      
+
       const response = await getAllVendors(pageNum, 10);
-      
+
       setVendors(response.vendors);
       setOriginalVendors(response.vendors);
       setTotalPages(Math.ceil(response.totalvendors / 10));
       setTotalVendors(response.totalvendors);
       setPage(pageNum);
-      
     } catch (error) {
       console.error("Error fetching vendors:", error);
       setError("Failed to fetch vendors.");
@@ -54,50 +56,53 @@ export const VendorList = () => {
     }
   }, []);
 
-
-  const handleSearch = useCallback(async (query: string) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    setSearchQuery(query);
-
-    searchTimeoutRef.current = setTimeout(async () => {
-      if (!query.trim()) {
-        setIsSearchMode(false);
-        setVendors(originalVendors);
-        setTotalPages(Math.ceil(totalVendors / 10));
-        setPage(1);
-        return;
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
 
-      setIsSearchMode(true);
-      try {
-        const response = await searchVendor(query);
-        const searchResults = Array.isArray(response) ? response : [];
-        
-        setVendors(searchResults);
-        setTotalPages(Math.ceil(searchResults.length / 10));
-        setPage(1);
-        
-      } catch (error) {
-        console.error("Error during search:", error);
-        setVendors([]);
-        setTotalPages(1);
+      setSearchQuery(query);
+
+      searchTimeoutRef.current = setTimeout(async () => {
+        if (!query.trim()) {
+          setIsSearchMode(false);
+          setVendors(originalVendors);
+          setTotalPages(Math.ceil(totalVendors / 10));
+          setPage(1);
+          return;
+        }
+
+        setIsSearchMode(true);
+        try {
+          const response = await searchVendor(query);
+          const searchResults = Array.isArray(response) ? response : [];
+
+          setVendors(searchResults);
+          setTotalPages(Math.ceil(searchResults.length / 10));
+          setPage(1);
+        } catch (error) {
+          console.error("Error during search:", error);
+          setVendors([]);
+          setTotalPages(1);
+        }
+      }, 300);
+    },
+    [originalVendors, totalVendors]
+  );
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      if (newPage === page) return;
+
+      setPage(newPage);
+
+      if (!isSearchMode) {
+        fetchVendors(newPage);
       }
-    }, 300);
-  }, [originalVendors, totalVendors]);
-
-
-  const handlePageChange = useCallback((newPage: number) => {
-    if (newPage === page) return; 
-    
-    setPage(newPage);
-    
-    if (!isSearchMode) {
-      fetchVendors(newPage);
-    }
-  }, [page, isSearchMode, fetchVendors]);
+    },
+    [page, isSearchMode, fetchVendors]
+  );
 
   const handleConfirmBlock = async () => {
     if (!selectedVendor) return;
@@ -118,7 +123,9 @@ export const VendorList = () => {
 
       const updateVendor = (vendorList: Vendor[]) =>
         vendorList.map((vendor) =>
-          vendor._id === vendorId ? { ...vendor, isBlocked: !currentStatus } : vendor
+          vendor._id === vendorId
+            ? { ...vendor, isBlocked: !currentStatus }
+            : vendor
         );
 
       setVendors(updateVendor);
@@ -139,7 +146,11 @@ export const VendorList = () => {
     [vendors, originalVendors, isSearchMode]
   );
 
-  const openBlockModal = (vendorId: string, isBlocked: boolean, vendorName: string) => {
+  const openBlockModal = (
+    vendorId: string,
+    isBlocked: boolean,
+    vendorName: string
+  ) => {
     setSelectedVendor({ id: vendorId, isBlocked, name: vendorName });
     setModalOpen(true);
   };
@@ -155,11 +166,11 @@ export const VendorList = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []); 
+  }, []);
 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
-      return vendors; 
+      return vendors;
     } else {
       const startIndex = (page - 1) * 10;
       const endIndex = startIndex + 10;
@@ -176,6 +187,46 @@ export const VendorList = () => {
         return baseIndex + row.index + 1;
       },
     },
+    {
+      id: "image",
+      header: () => (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6 text-gray-600"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" />
+        </svg>
+      ),
+      cell: ({ row }) => {
+        const imageUrl = row.original.profileImage;
+        return imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={row.original.name}
+            className="w-10 h-10 rounded-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/placeholder-user.png";
+            }}
+          />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-10 h-10 text-gray-400 rounded-full bg-gray-100 p-1"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" />
+          </svg>
+        );
+      },
+    },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
     { accessorKey: "phone", header: "Phone" },
@@ -190,9 +241,11 @@ export const VendorList = () => {
             : status === "rejected"
             ? "bg-red-100 text-red-800"
             : "bg-yellow-100 text-yellow-800";
-        
+
         return (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colorClass}`}>
+          <span
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colorClass}`}
+          >
             {status}
           </span>
         );
@@ -203,9 +256,13 @@ export const VendorList = () => {
       cell: ({ row }) => {
         const blocked = row.original.isBlocked;
         return (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-            blocked ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-          }`}>
+          <span
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+              blocked
+                ? "bg-red-100 text-red-800"
+                : "bg-green-100 text-green-800"
+            }`}
+          >
             {blocked ? "Blocked" : "Unblocked"}
           </span>
         );
@@ -247,7 +304,13 @@ export const VendorList = () => {
           <input
             type="checkbox"
             checked={!row.original.isBlocked}
-            onChange={() => openBlockModal(row.original._id, row.original.isBlocked, row.original.name)}
+            onChange={() =>
+              openBlockModal(
+                row.original._id,
+                row.original.isBlocked,
+                row.original.name
+              )
+            }
             className="sr-only peer"
           />
           <div className="w-14 h-8 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-all duration-300 peer-focus:ring-2 peer-focus:ring-green-300" />
@@ -274,19 +337,25 @@ export const VendorList = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 transform transition-all scale-100 animate-in">
             <div className="flex items-start mb-4">
-              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                selectedVendor?.isBlocked ? 'bg-green-100' : 'bg-red-100'
-              }`}>
+              <div
+                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+                  selectedVendor?.isBlocked ? "bg-green-100" : "bg-red-100"
+                }`}
+              >
                 <span className="text-2xl">
-                  {selectedVendor?.isBlocked ? '✓' : '⚠'}
+                  {selectedVendor?.isBlocked ? "✓" : "⚠"}
                 </span>
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {selectedVendor?.isBlocked ? 'Unblock Vendor' : 'Block Vendor'}
+                  {selectedVendor?.isBlocked
+                    ? "Unblock Vendor"
+                    : "Block Vendor"}
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
-                  Are you sure you want to {selectedVendor?.isBlocked ? 'unblock' : 'block'} <span className="font-medium">{selectedVendor?.name}</span>?
+                  Are you sure you want to{" "}
+                  {selectedVendor?.isBlocked ? "unblock" : "block"}{" "}
+                  <span className="font-medium">{selectedVendor?.name}</span>?
                 </p>
                 {!selectedVendor?.isBlocked && (
                   <p className="mt-2 text-sm text-gray-500">
@@ -295,7 +364,7 @@ export const VendorList = () => {
                 )}
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={handleCancelBlock}
@@ -307,11 +376,11 @@ export const VendorList = () => {
                 onClick={handleConfirmBlock}
                 className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
                   selectedVendor?.isBlocked
-                    ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
-                    : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                    ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                    : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
                 }`}
               >
-                {selectedVendor?.isBlocked ? 'Unblock' : 'Block'}
+                {selectedVendor?.isBlocked ? "Unblock" : "Block"}
               </button>
             </div>
           </div>
@@ -323,18 +392,16 @@ export const VendorList = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">All Vendors</h1>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
-              ? `Found ${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} for "${searchQuery}"`
-              : `${totalVendors} total vendors`
-            }
+            {isSearchMode
+              ? `Found ${vendors.length} vendor${
+                  vendors.length !== 1 ? "s" : ""
+                } for "${searchQuery}"`
+              : `${totalVendors} total vendors`}
           </p>
         </div>
-        
+
         <div className="w-60">
-          <SearchBar 
-            placeholder="Search Vendors..." 
-            onSearch={handleSearch}
-          />
+          <SearchBar placeholder="Search Vendors..." onSearch={handleSearch} />
         </div>
       </div>
 
@@ -363,28 +430,27 @@ export const VendorList = () => {
             No vendors found
           </h3>
           <p className="text-gray-500">
-            {searchQuery 
+            {searchQuery
               ? `No vendors match your search for "${searchQuery}"`
-              : "No vendors are available at the moment"
-            }
+              : "No vendors are available at the moment"}
           </p>
         </div>
       ) : (
         <>
           {/* Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <ReusableTable<Vendor> 
-              data={getCurrentPageData()} 
-              columns={columns} 
+            <ReusableTable<Vendor>
+              data={getCurrentPageData()}
+              columns={columns}
             />
           </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center">
-              <Pagination 
-                total={totalPages} 
-                current={page} 
+              <Pagination
+                total={totalPages}
+                current={page}
                 setPage={handlePageChange}
               />
             </div>
@@ -392,10 +458,17 @@ export const VendorList = () => {
 
           {/* Results Info */}
           <div className="text-center text-sm text-gray-500">
-            {isSearchMode 
-              ? `Showing ${Math.min((page - 1) * 10 + 1, vendors.length)}-${Math.min(page * 10, vendors.length)} of ${vendors.length} search results`
-              : `Showing ${((page - 1) * 10) + 1}-${Math.min(page * 10, totalVendors)} of ${totalVendors} vendors`
-            }
+            {isSearchMode
+              ? `Showing ${Math.min(
+                  (page - 1) * 10 + 1,
+                  vendors.length
+                )}-${Math.min(page * 10, vendors.length)} of ${
+                  vendors.length
+                } search results`
+              : `Showing ${(page - 1) * 10 + 1}-${Math.min(
+                  page * 10,
+                  totalVendors
+                )} of ${totalVendors} vendors`}
           </div>
         </>
       )}

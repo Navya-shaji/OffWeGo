@@ -225,6 +225,10 @@ export class AdminRoute {
       (req, res) => walletcontroller.getCompletedBookingsForTransfer(req, res)
     );
 
+    this.adminRouter.post(
+      AdminRoutes. COMPLETED_TRIP,(req,res)=>walletcontroller.completeTripAndDistribute(req,res)
+    )
+
     // -------------------- BUDDY TRAVEL PACKAGE MANAGEMENT --------------------
 
     this.adminRouter.patch(

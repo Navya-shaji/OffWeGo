@@ -47,117 +47,115 @@ const Profile = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className=" max-w-full mx-auto px-10 py-18">
-        <div className="flex flex-col lg:flex-row gap-6">
-          
-    
-          <ProfileSidebar
-            activeSection={activeSection}
-            setActiveSection={(section: string) =>
-              setActiveSection(section as "profile" | "bookings" | "chat" | "wallet")
-            }
-          />
+      {/* Main Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-    
-          <div  >
-     
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-              <div className="p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4 min-w-0 flex-1">
-                  {/* Profile Picture */}
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-gray-900 to-black border-2 border-gray-200 flex-shrink-0 shadow-lg">
-                    {user?.imageUrl ? (
-                      <img
-                        src={user.imageUrl}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-2xl text-white font-bold">
-                          {user?.username?.[0]?.toUpperCase() || "U"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-         
-                  <div className="min-w-0 flex-1">
-                    <h1 className="text-2xl font-bold text-gray-900 truncate">{getSectionTitle()}</h1>
-                    <p className="text-sm text-gray-600 truncate mt-0.5">{getSectionDescription()}</p>
-                  </div>
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <ProfileSidebar
+              activeSection={activeSection}
+              setActiveSection={(section: string) =>
+                setActiveSection(section as "profile" | "bookings" | "chat" | "wallet")
+              }
+            />
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-6">
+            
+            {/* Header Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-5">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-900 text-white border shadow">
+                  {user?.imageUrl ? (
+                    <img src={user.imageUrl} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
+                      {user?.username?.[0]?.toUpperCase() || "U"}
+                    </div>
+                  )}
                 </div>
-       
-                {activeSection === "profile" && (
-                  <button
-                    onClick={() => setEditOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex-shrink-0"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Edit Profile</span>
-                    <span className="sm:hidden">Edit</span>
-                  </button>
-                )}
+
+                <div className="min-w-0">
+                  <h1 className="text-xl font-bold text-gray-900 truncate">{getSectionTitle()}</h1>
+                  <p className="text-sm text-gray-600 truncate">{getSectionDescription()}</p>
+                </div>
               </div>
+
+              {activeSection === "profile" && (
+                <button
+                  onClick={() => setEditOpen(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit Profile
+                </button>
+              )}
             </div>
 
-      
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              
-           
+            {/* MAIN DATA CARD */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+
+              {/* Profile Section */}
               {activeSection === "profile" && (
-                <div className="p-6">
-           
-                  <div className="mb-8">
+                <div className="space-y-10">
+
+                  {/* Personal Info */}
+                  <div>
                     <div className="flex items-center gap-2 mb-5">
                       <Mail className="w-5 h-5 text-gray-700" />
                       <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
                     </div>
-                    
+
                     <div className="space-y-4">
                       {/* Email */}
                       <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-xl border border-gray-200">
-                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow-sm border border-gray-200 flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow border">
                           <Mail className="w-5 h-5 text-gray-600" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Email Address</p>
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-gray-500 uppercase">Email Address</p>
                           <p className="text-sm font-semibold text-gray-900 truncate">{user.email}</p>
                         </div>
                       </div>
 
                       {/* Phone */}
                       <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-xl border border-gray-200">
-                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow-sm border border-gray-200 flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow border">
                           <Phone className="w-5 h-5 text-gray-600" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Phone Number</p>
-                          <p className="text-sm font-semibold text-gray-900 truncate">{user.phone || "Not provided"}</p>
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-gray-500 uppercase">Phone Number</p>
+                          <p className="text-sm font-semibold text-gray-900 truncate">
+                            {user.phone || "Not provided"}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Security Section */}
+                  {/* Password */}
                   <div>
                     <div className="flex items-center gap-2 mb-5">
                       <Lock className="w-5 h-5 text-gray-700" />
                       <h3 className="text-lg font-semibold text-gray-900">Security & Privacy</h3>
                     </div>
-                    
-                    <div className="flex items-center justify-between gap-4 p-5 bg-gray-50 rounded-xl border border-gray-200">
-                      <div className="flex items-center gap-4 min-w-0 flex-1">
-                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow-sm border border-gray-200 flex-shrink-0">
+
+                    <div className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow border">
                           <Lock className="w-5 h-5 text-gray-600" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Password</p>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500 uppercase">Password</p>
                           <p className="text-sm font-semibold text-gray-900">••••••••</p>
                         </div>
                       </div>
+
                       <button
                         onClick={() => setPasswordModalOpen(true)}
-                        className="px-5 py-2 text-sm font-semibold text-gray-900 hover:text-white hover:bg-gray-900 rounded-lg transition-colors border border-gray-300 flex-shrink-0"
+                        className="px-5 py-2 text-sm font-semibold text-gray-900 hover:text-white hover:bg-gray-900 rounded-lg border transition"
                       >
                         Change
                       </button>
@@ -166,25 +164,9 @@ const Profile = () => {
                 </div>
               )}
 
-       
-              {activeSection === "bookings" && (
-                <div className="p-6">
-                  <BookingDetailsSection />
-                </div>
-              )}
-
-       
-              {activeSection === "chat" && (
-                <div className="p-6">
-                  <ChatPage />
-                </div>
-              )}
-
-              {activeSection === "wallet" && (
-                <div className="p-6">
-                  <WalletManagement />
-                </div>
-              )}
+              {activeSection === "bookings" && <BookingDetailsSection />}
+              {activeSection === "wallet" && <WalletManagement />}
+              {activeSection === "chat" && <ChatPage />}
             </div>
           </div>
         </div>
@@ -192,10 +174,7 @@ const Profile = () => {
 
       {/* MODALS */}
       <EditProfileModal isOpen={isEditOpen} onClose={() => setEditOpen(false)} />
-      <ChangePasswordModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => setPasswordModalOpen(false)}
-      />
+      <ChangePasswordModal isOpen={isPasswordModalOpen} onClose={() => setPasswordModalOpen(false)} />
     </div>
   );
 };

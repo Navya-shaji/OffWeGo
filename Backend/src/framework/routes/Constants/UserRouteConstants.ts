@@ -26,5 +26,6 @@ export const UserRoutes = {
   BOOKING_BUDDYTRAVEL:'/booking/travel',
   BOOKING_RESHEDULE:'/booking/:id/reschedule',
   WALLET_PAYMENT:'/wallet/payment',
-  WALLET_BOOKING:'/wallet/booking'
+  WALLET_BOOKING:'/wallet/booking',
+
 };

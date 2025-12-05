@@ -13,8 +13,6 @@ import { socketContext } from "@/utilities/socket";
 
 const MessageContainer = () => {
   const { chatId } = useParams();
-
-  // Extract user IDs from chat ID (format: userId_ownerId)
   const [userId, ownerId] = chatId?.split("_") || [];
 
   const [message, setMessage] = useState("");
@@ -34,12 +32,12 @@ const MessageContainer = () => {
   const [isUserOnline, setIsUserOnline] = useState(false);
   const { triggerSidebarRefetch } = useChatContext();
 
-  // Create consistent room ID by sorting user IDs
+
   const sortedIds = [userId, ownerId].sort();
   const roomId = chatId;
   const { socket } = useContext(socketContext);
 
-  // FIXED: Single useEffect for initial data fetch
+
   useEffect(() => {
     const fetchMessages = async () => {
       if (!userId || !ownerId) {
