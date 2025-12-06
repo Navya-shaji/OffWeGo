@@ -14,10 +14,12 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): CreateBooking
         selectedDate: b.selectedDate,
         totalAmount: b.totalAmount,
         paymentIntentId: b.paymentIntentId,
-        paymentStatus: b.paymentStatus,
+     
       },
+      settlementDone:b.settlementDone,
       payment_id: b.paymentIntentId || "",
-      bookingStatus:b.bookingStatus
+      bookingStatus:b.bookingStatus,
+      paymentStatus: b.paymentStatus,
     };
   });
 };

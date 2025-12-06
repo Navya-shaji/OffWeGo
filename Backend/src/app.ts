@@ -16,6 +16,7 @@ import { ChatRoutes } from "./framework/routes/Chat/ChatRoutes";
 
 import { SocketIoServer as IoHandler } from "./Io";
 import { NotificationRoutes } from "./framework/routes/Chat/NotificationRoute";
+import { autoSettleTrips } from "./framework/Services/cronjob";
 
 export class App {
   private app: Express;
@@ -64,6 +65,8 @@ export class App {
 
     try {
       await this.database.connect();
+      autoSettleTrips.start();
+      console.log("⏱️ Auto Settlement Cron Started");
 
       this.server = http.createServer(this.app);
 
@@ -79,7 +82,7 @@ export class App {
         },
       });
 
-      new IoHandler(this.io)
+      new IoHandler(this.io);
       this.server.listen(port, () => {
         console.log(` Server running on port ${port}`);
       });

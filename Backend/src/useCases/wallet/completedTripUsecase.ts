@@ -15,7 +15,6 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
     adminId: string,
     totalAmount: number
   ): Promise<void> {
-
     console.log(bookingRefId, adminId, "booking refId in usecase");
 
     const bookings = await this._bookingRepository.findByRefId(bookingRefId);
@@ -25,7 +24,6 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
     }
 
     for (const booking of bookings) {
-
       const startDate = new Date(booking.startDate);
 
       const packageData = await this._packageRepository.getById(
@@ -42,27 +40,19 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
       const now = new Date();
 
       if (now < endDate) continue;
-console.log("🔎 Searching transaction with refId =", booking.bookingId);
-console.log("🔎 Admin ID =", adminId);
 
-     
-const existingTransaction =
-  await this._walletRepository.getTransactionByRef(
-    bookingRefId,    
-    adminId
-  );
+      const existingTransaction =
+        await this._walletRepository.getTransactionByRef(bookingRefId, adminId);
 
-console.log(existingTransaction, "existing tx");
-
+      console.log(existingTransaction, "existing tx");
 
       if (!existingTransaction) continue;
 
       if (existingTransaction.status === "completed") continue;
 
       const vendorAmount = booking.totalAmount * 0.9;
-      const adminCommission = booking.totalAmount * 0.1;
+      // const adminCommission = booking.totalAmount * 0.1;
 
-   
       await this._walletRepository.updateBalance(
         adminId,
         "admin",
@@ -73,7 +63,7 @@ console.log(existingTransaction, "existing tx");
       );
 
       await this._walletRepository.updateBalance(
-       vendorId,
+        vendorId,
         "vendor",
         vendorAmount,
         "credit",
@@ -81,22 +71,20 @@ console.log(existingTransaction, "existing tx");
         booking.bookingId
       );
 
-   
-      await this._walletRepository.updateTransactionStatus(
-        adminId,
-        booking.bookingId,
-        "completed"
-      );
+      // await this._walletRepository.updateTransactionStatus(
+      //   adminId,
+      //   booking.bookingId,
+      //   "completed"
+      // );
 
-  
-      await this._walletRepository.updateBalance(
-        adminId,
-        "admin",
-        adminCommission,
-        "credit",
-        "Admin commission for trip",
-        booking.bookingId
-      );
+      // await this._walletRepository.updateBalance(
+      //   adminId,
+      //   "admin",
+      //   adminCommission,
+      //   "credit",
+      //   "Admin commission for trip",
+      //   booking.bookingId
+      // );
     }
   }
 }

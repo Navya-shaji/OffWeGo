@@ -192,6 +192,14 @@ async updatePaymentStatus(
 async findByRefId(refId: string): Promise<Booking[]> {
   return BookingModel.find({ bookingId: refId });
 }
+async findCompletedTrips(): Promise<Booking[]> {
+  
+  return BookingModel.find({
+    bookingStatus: "upcoming",
+    settlementDone: false,
+    paymentStatus: "succeeded"
+  });
+}
 
 
 }

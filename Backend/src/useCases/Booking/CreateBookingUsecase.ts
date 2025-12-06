@@ -56,7 +56,8 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       paymentIntentId: payment_id,
       startDate: "",
       packageId: packageData?.id,
-      vendorId: undefined
+      vendorId: undefined,
+    
     };
 
     const result = await this._bookingRepository.createBooking(bookingData);

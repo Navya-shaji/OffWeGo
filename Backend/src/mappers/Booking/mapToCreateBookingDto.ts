@@ -14,6 +14,7 @@ export const mapBookingDto = (b: Booking): CreateBookingDto => ({
     paymentIntentId: b.paymentIntentId,
     paymentStatus: b.paymentStatus,
     bookingStatus: b.bookingStatus,
+    settlementDone:b.settlementDone
   },
   payment_id: b.paymentIntentId || "",
   paymentStatus: b.paymentStatus,
