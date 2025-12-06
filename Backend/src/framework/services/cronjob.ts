@@ -14,43 +14,43 @@ const completeTrip = new CompleteTripUseCase(
   packageRepo
 );
 
-// RUN EVERY 1 MINUTE
-export const autoSettleTrips = cron.schedule("*/1 * * * *", async () => {
-  console.log("⏳ Checking for completed trips...");
 
-  // STEP 1: Get all pending bookings
+export const autoSettleTrips = cron.schedule("*/1 * * * *", async () => {
+  console.log("Checking for completed trips...");
+
+ 
   const bookings = await bookingRepo.findCompletedTrips();
-  console.log("🟦 Pending bookings:", bookings.length);
+  console.log("Pending bookings:", bookings.length);
 
   for (const booking of bookings) {
     try {
-      // STEP 2: Load the package using selectedPackage ID
+     
       const pkg = await packageRepo.getById(booking.selectedPackage as any);
       if (!pkg) {
-        console.log("❌ Package not found:", booking.selectedPackage);
+        console.log("Package not found:", booking.selectedPackage);
         continue;
       }
 
-      const duration = pkg.duration; // <--- Correct duration field
+      const duration = pkg.duration;
 
-      // STEP 3: Compute end date
+    
       const startDate = new Date(booking.selectedDate);
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + duration);
 
       const now = new Date();
 
-      console.log(`📅 Trip end date: ${endDate}`);
+      console.log(` Trip end date: ${endDate}`);
 
-      // STEP 4: If trip not finished → skip
+   
       if (now < endDate) {
-        console.log("⏸️ Trip not finished yet, skipping...");
+        console.log(" Trip not finished yet, skipping...");
         continue;
       }
 
-      console.log("✅ Trip completed — settling:", booking.bookingId);
+      console.log(" Trip completed — settling:", booking.bookingId);
 
-      // STEP 5: Run settlement
+    
       await completeTrip.execute(
         booking.bookingId,
         booking.vendorId!,
@@ -58,15 +58,15 @@ export const autoSettleTrips = cron.schedule("*/1 * * * *", async () => {
         booking.totalAmount
       );
 
-      // STEP 6: Update booking status
+
       await bookingRepo.update(booking._id as string, {
         settlementDone: true,
         bookingStatus: "completed"
       });
 
-      console.log("💰 Settlement completed for:", booking.bookingId);
+      console.log(" Settlement completed for:", booking.bookingId);
     } catch (err) {
-      console.error("❌ Error settling booking:", err);
+      console.error(" Error settling booking:", err);
     }
   }
 });

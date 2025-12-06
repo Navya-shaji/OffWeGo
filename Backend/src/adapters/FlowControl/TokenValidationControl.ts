@@ -18,17 +18,15 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
         .json({ message: "Unauthorized" });
     }
     const token = authHeader.split(" ")[1];
-    console.log(token,"token")
+
     try {
       const decoded = await tokenService.verifyToken(token, "access");
-      console.log(decoded,"decoded")
       if (!decoded) throw new Error("Invalid or expired token");
       req.user = decoded as JwtPayload & {
         id: string;
         email?: string;
         role: string;
       };
-      console.log(req.user,"jfd")
       next();
     } catch (err) {
       return res
