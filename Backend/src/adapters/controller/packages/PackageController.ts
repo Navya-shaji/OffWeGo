@@ -11,12 +11,12 @@ import { Role } from "../../../domain/constants/Roles";
 
 export class PackageController {
   constructor(
-    private _getPackage: IGetPackagesUsecase,
-    private _createPackage: ICreatePackage,
-    private _editpackage: IEditPackageUsecase,
-    private _deletepackage: IDeletePackagenUseCase,
-    private _searchPackage: ISearchPackageUsecase,
-    private _getPackageByDestination: IGetDestinationBasedPackage
+    private _getPackagesUsecase: IGetPackagesUsecase,
+    private _createPackageUsecase: ICreatePackage,
+    private _editPackageUsecase: IEditPackageUsecase,
+    private _deletePackageUsecase: IDeletePackagenUseCase,
+    private _searchPackageUsecase: ISearchPackageUsecase,
+    private _getPackageByDestinationUsecase: IGetDestinationBasedPackage
   ) {}
 
   async getAllPackage(req: Request, res: Response) {
@@ -25,13 +25,7 @@ export class PackageController {
       const limit = parseInt(req.body.params?.limit) || 3;
       const vendorId = req.body.vendorId;
 
-      if (!vendorId) {
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ success: false, message: "Vendor not authenticated" });
-      }
-
-      const result = await this._getPackage.execute({
+      const result = await this._getPackagesUsecase.execute({
         vendorId,
         limit,
         page,
@@ -64,7 +58,8 @@ export class PackageController {
       }
 
       const skip = (page - 1) * limit;
-      const result = await this._getPackageByDestination.execute(
+
+      const result = await this._getPackageByDestinationUsecase.execute(
         destinationId,
         skip,
         limit
@@ -90,12 +85,6 @@ export class PackageController {
       const vendorId = req.body.vendorId;
       const packageData = req.body;
 
-      if (!vendorId) {
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ success: false, message: "Vendor not authenticated" });
-      }
-
       const destination = await DestinationModel.findById(
         packageData.destinationId
       );
@@ -107,7 +96,7 @@ export class PackageController {
 
       packageData.destinationId = destination._id;
 
-      const createdPackage = await this._createPackage.execute(
+      const createdPackage = await this._createPackageUsecase.execute(
         packageData,
         vendorId
       );
@@ -129,7 +118,11 @@ export class PackageController {
     try {
       const packageId = req.params.id;
       const packageData = req.body;
-      const result = await this._editpackage.execute(packageId, packageData);
+
+      const result = await this._editPackageUsecase.execute(
+        packageId,
+        packageData
+      );
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -147,7 +140,8 @@ export class PackageController {
   async deletePackage(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this._deletepackage.execute(id);
+
+      const result = await this._deletePackageUsecase.execute(id);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -165,13 +159,14 @@ export class PackageController {
   async searchPackage(req: Request, res: Response) {
     try {
       const query = req.query.q;
+
       if (typeof query !== "string" || !query.trim()) {
         return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Query must be a string" });
       }
 
-      const results = await this._searchPackage.execute(query);
+      const results = await this._searchPackageUsecase.execute(query);
 
       res.status(HttpStatus.OK).json({
         success: true,

@@ -8,16 +8,16 @@ import { Request, Response } from "express";
 
 export class BannerController {
   constructor(
-    private _createBanner: IBannerCreateUsecase,
+    private _createBannerUsecase: IBannerCreateUsecase,
     private _getbannerUsecase: IGetBannerUsecase,
-    private _editBanner: IEditBannerUsecase,
-    private _deleteBanner: IDeleteBannerUsecase,
-    private _updateAction: IBannerActionUsecase
+    private _editBannerUsecase: IEditBannerUsecase,
+    private _deleteBannerUsecase: IDeleteBannerUsecase,
+    private _updateActionUsecase: IBannerActionUsecase
   ) {}
 
   async createBanner(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._createBanner.execute(req.body);
+      const result = await this._createBannerUsecase.execute(req.body);
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -45,7 +45,7 @@ export class BannerController {
     try {
       const BannerId = req.params.id;
       const BannerData = req.body;
-      const result = await this._editBanner.execute(BannerId, BannerData);
+      const result = await this._editBannerUsecase.execute(BannerId, BannerData);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Banner updated successfully",
@@ -63,7 +63,7 @@ export class BannerController {
   async bannerDelete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const result = await this._deleteBanner.execute(id);
+      const result = await this._deleteBannerUsecase.execute(id);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Banner deleted successfully",
@@ -82,22 +82,8 @@ export class BannerController {
     try {
       const { id } = req.params;
       const { action } = req.body;
-      if (typeof action !== "boolean") {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Action must be a boolean",
-        });
-        return;
-      }
 
-      const updatedBanner = await this._updateAction.execute(id, action);
-      if (!updatedBanner) {
-        res.status(HttpStatus.NOT_FOUND).json({
-          success: false,
-          message: "Banner not found",
-        });
-        return;
-      }
+      const updatedBanner = await this._updateActionUsecase.execute(id, action);
 
       res.status(HttpStatus.OK).json({
         success: true,

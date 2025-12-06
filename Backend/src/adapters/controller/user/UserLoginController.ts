@@ -20,27 +20,10 @@ export class UserLoginController {
     try {
       const { email, password, fcmToken } = req.body;
 
-      if (!email || !password) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Email and password are required",
-        });
-        return;
-      }
       const loginPayload: LoginDTo = { email, password };
-      const result = await this._loginUserUseCase.execute(
-        loginPayload,
-        fcmToken
-      );
-      const user = result.user;
+      const result = await this._loginUserUseCase.execute(loginPayload, fcmToken);
 
-      if (user.role?.toLowerCase() === "admin") {
-        res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: "Admins cannot log in from the user portal",
-        });
-        return;
-      }
+      const user = result.user;
 
       if (user.status?.toLowerCase().includes("block")) {
         res.status(HttpStatus.FORBIDDEN).json({
@@ -61,7 +44,7 @@ export class UserLoginController {
         sameSite: "strict",
         maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
       });
-console.log(user,"userrr")
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Login successful",
@@ -81,15 +64,8 @@ console.log(user,"userrr")
   async forgotPassword(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.body;
-      if (!email) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Email is required",
-        });
-        return;
-      }
-
       await this._forgotPassUsecase.execute(email);
+
       const otp = this._otpService.generateOtp();
       await this._otpService.storeOtp(email, otp);
       await this._otpService.sendOtpEmail(email, otp);
@@ -110,6 +86,7 @@ console.log(user,"userrr")
   async verifyResetOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp } = req.body;
+
       if (!email || !otp) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -143,15 +120,9 @@ console.log(user,"userrr")
   async resetPassword(req: Request, res: Response): Promise<void> {
     try {
       const { email, newPassword } = req.body;
-      if (!email || !newPassword) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Email and new password are required",
-        });
-        return;
-      }
 
       await this._resetPasswordUseCase.execute(email, newPassword);
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Password reset successful",

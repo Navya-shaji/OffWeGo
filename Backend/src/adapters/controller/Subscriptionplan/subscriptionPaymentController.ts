@@ -8,13 +8,13 @@ export class SubscriptionPaymentController {
   async verifyPayment(req: Request, res: Response): Promise<void> {
     try {
       const { sessionId, vendorId, planId } = req.body;
-      console.log(sessionId, req.body, "iddd");
+
       const result = await this._verifyPaymentUseCase.execute({
         sessionId,
         vendorId,
         planId,
       });
-      console.log(result, "Result ");
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Payment verified successfully",

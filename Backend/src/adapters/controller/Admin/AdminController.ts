@@ -3,17 +3,13 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IAdminLoginUseCase } from "../../../domain/interface/Admin/IAdminUsecase";
 import { AppError } from "../../../domain/errors/AppError";
 
-
 export class AdminController {
   constructor(private _adminLoginuseCase: IAdminLoginUseCase) {}
 
   async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-
-
-     const result = await this._adminLoginuseCase.execute({ email, password });
-
+      const result = await this._adminLoginuseCase.execute({ email, password });
 
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,

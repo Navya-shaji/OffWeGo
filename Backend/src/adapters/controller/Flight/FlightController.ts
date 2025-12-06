@@ -7,36 +7,77 @@ import { Request, Response } from "express";
 
 export class FlightController {
   constructor(
-    private _createFlight: ICreateFlightUsecase,
-    private _getFlight: IGetAllFlightUsecase,
-    private _editFlight: IEditFlightUsecase,
-    private _deleteFlight: IDeleteFlightUsecase
+    private _createFlightUsecase: ICreateFlightUsecase,
+    private _getAllFlightUsecase: IGetAllFlightUsecase,
+    private _editFlightUsecase: IEditFlightUsecase,
+    private _deleteFlightUsecase: IDeleteFlightUsecase
   ) {}
 
   async addFlightDetails(req: Request, res: Response) {
-    const result = await this._createFlight.execute(req.body);
-    res.status(HttpStatus.CREATED).json({ result });
+    try {
+      const result = await this._createFlightUsecase.execute(req.body);
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to add flight",
+        error: (error as Error).message,
+      });
+    }
   }
+
   async getAllFlight(req: Request, res: Response) {
-    const result = await this._getFlight.execute();
-    res.status(HttpStatus.OK).json({
-      success: true,
-      messege: result,
-    });
+    try {
+      const result = await this._getAllFlightUsecase.execute();
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch flights",
+        error: (error as Error).message,
+      });
+    }
   }
+
   async EditFlight(req: Request, res: Response) {
-    const flightId = req.params.id;
-    const flightData = req.body;
-    const result = await this._editFlight.execute(flightId, flightData);
-    res.status(HttpStatus.OK).json({
-      success: true,
-      messege: "Flight Details Updated",
-      data: result,
-    });
+    try {
+      const flightId = req.params.id;
+      const flightData = req.body;
+      const result = await this._editFlightUsecase.execute(flightId, flightData);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Flight details updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to update flight",
+        error: (error as Error).message,
+      });
+    }
   }
+
   async DeleteFlight(req: Request, res: Response) {
-    const { id } = req.params;
-    const result = await this._deleteFlight.execute(id);
-    return res.status(HttpStatus.OK).json({ result });
+    try {
+      const { id } = req.params;
+      const result = await this._deleteFlightUsecase.execute(id);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to delete flight",
+        error: (error as Error).message,
+      });
+    }
   }
 }

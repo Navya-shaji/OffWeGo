@@ -7,7 +7,7 @@ import { IChangePasswordUseCase } from "../../../domain/dto/User/changePassDto";
 export class UserProfileController {
   constructor(
     private _userProfileUsecase: IUserProfileUsecase,
-    private _editUserProfile: IUserProfileEditUsecase,
+    private _editUserProfileUsecase: IUserProfileEditUsecase,
     private _changePasswordUsecase: IChangePasswordUseCase
   ) {}
 
@@ -48,11 +48,14 @@ export class UserProfileController {
 
   async editProfileHandler(req: Request, res: Response) {
     try {
-      const userId = req.user?.userId 
-      console.log(userId,"djjk")
+      const userId = req.user?.userId;
+
       const userData = req.body;
-console.log(userData)
-      const result = await this._editUserProfile.execute(userId, userData);
+
+      const result = await this._editUserProfileUsecase.execute(
+        userId,
+        userData
+      );
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "User profile updated successfully",

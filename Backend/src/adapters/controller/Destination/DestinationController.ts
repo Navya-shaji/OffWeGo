@@ -10,18 +10,18 @@ import { IGetNearbyDestinationUsecase } from "../../../domain/interface/Destinat
 
 export class DestinationController {
   constructor(
-    private _createDestination: ICreateDestinationUsecase,
-    private _editDestination: IEditDestinationUseCase,
-    private _getDestination: IGetAllDestinations,
-    private _destinationUsecase: IgetDestinationUSecase,
-    private _deleteDestinationusecase: IDeleteDestinationUseCase,
-    private _serachDestinationusecase: IsearchDestination,
-    private _getNearByDestinationusecase: IGetNearbyDestinationUsecase
+    private _createDestinationUsecase: ICreateDestinationUsecase,
+    private _editDestinationUsecase: IEditDestinationUseCase,
+    private _getAllDestinationsUsecase: IGetAllDestinations,
+    private _getSingleDestinationUsecase: IgetDestinationUSecase,
+    private _deleteDestinationUsecase: IDeleteDestinationUseCase,
+    private _searchDestinationUsecase: IsearchDestination,
+    private _getNearbyDestinationUsecase: IGetNearbyDestinationUsecase
   ) {}
 
   async addDestination(req: Request, res: Response) {
     try {
-      const result = await this._createDestination.execute(req.body);
+      const result = await this._createDestinationUsecase.execute(req.body);
       res.status(HttpStatus.CREATED).json({ success: true, data: result });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -36,10 +36,12 @@ export class DestinationController {
     try {
       const destinationId = req.params.id;
       const destinationData = req.body;
-      const result = await this._editDestination.execute(
+
+      const result = await this._editDestinationUsecase.execute(
         destinationId,
         destinationData
       );
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Destination updated successfully",
@@ -58,8 +60,10 @@ export class DestinationController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
+
       const { destinations, totalDestinations } =
-        await this._getDestination.execute(page, limit);
+        await this._getAllDestinationsUsecase.execute(page, limit);
+
       res.status(HttpStatus.OK).json({
         success: true,
         destinations,
@@ -79,7 +83,8 @@ export class DestinationController {
   async getSingleDestinationController(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this._destinationUsecase.execute(id);
+      const result = await this._getSingleDestinationUsecase.execute(id);
+
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -93,7 +98,8 @@ export class DestinationController {
   async deleteDestinationController(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this._deleteDestinationusecase.execute(id);
+      const result = await this._deleteDestinationUsecase.execute(id);
+
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -107,6 +113,7 @@ export class DestinationController {
   async searchDestination(req: Request, res: Response) {
     try {
       const query = req.query.q;
+
       if (typeof query !== "string" || !query.trim()) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -114,7 +121,9 @@ export class DestinationController {
         });
         return;
       }
-      const destinations = await this._serachDestinationusecase.execute(query);
+
+      const destinations = await this._searchDestinationUsecase.execute(query);
+
       res.status(HttpStatus.OK).json({ success: true, data: destinations });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -128,11 +137,13 @@ export class DestinationController {
   async getNearByDestination(req: Request, res: Response) {
     try {
       const { lat, lng, radiusInKm } = req.body;
-      const result = await this._getNearByDestinationusecase.execute(
+
+      const result = await this._getNearbyDestinationUsecase.execute(
         lat,
         lng,
         radiusInKm
       );
+
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

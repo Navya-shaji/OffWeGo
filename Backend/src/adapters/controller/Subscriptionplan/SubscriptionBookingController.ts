@@ -2,11 +2,9 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { ICreateBookingSubscriptionUseCase } from "../../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionUsecase";
 
-
 export class SubscriptionBookingController {
   constructor(
-    private _createBookingSubscription: ICreateBookingSubscriptionUseCase,
-   
+    private _createBookingSubscriptionUsecase: ICreateBookingSubscriptionUseCase
   ) {}
 
   async createSubscriptionBooking(req: Request, res: Response): Promise<void> {
@@ -14,7 +12,7 @@ export class SubscriptionBookingController {
       const { vendorId, planId, date, time } = req.body;
       const domainUrl = process.env.DOMAIN_URL || "https://yourdomain.com";
 
-      const result = await this._createBookingSubscription.execute({
+      const result = await this._createBookingSubscriptionUsecase.execute({
         vendorId,
         planId,
         date,

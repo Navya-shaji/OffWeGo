@@ -8,14 +8,6 @@ export class RefreshTokenController {
   async handle(req: Request, res: Response): Promise<void> {
     try {
       const { refreshToken } = req.cookies;
-      if (!refreshToken) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Refresh token is required",
-        });
-        return;
-      }
-
       const tokens = await this._refreshTokenUseCase.execute(refreshToken);
 
       res.status(HttpStatus.OK).json({

@@ -6,29 +6,28 @@ import { IGetVendorSideBookingUsecase } from "../../../domain/interface/Booking/
 import { IBookingDatesUsecase } from "../../../domain/interface/Booking/IBookingDatesUsecase";
 import { ICancelBookingUsecase } from "../../../domain/interface/Booking/ICancelBookingUSecase";
 import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingResheduleusecase";
-import { IWalletPaymentUseCase } from "../../../domain/interface/Wallet/IWalletPayment";
 import { Traveler } from "../../../domain/entities/BookingEntity";
 
 export class BookingController {
   constructor(
-    private _createBooking: ICreateBookingUseCase,
-    private _userbookings: IGetUserBookingUsecase,
-    private _vendorsidebookings: IGetVendorSideBookingUsecase,
-    private _bookingDates: IBookingDatesUsecase,
-    private _cancelBooking: ICancelBookingUsecase,
-    private _rescheduleBooking: IBookingRescheduleUseCase,
-    private _walletPaymentUseCase: IWalletPaymentUseCase
+    private _createBookingUsecase: ICreateBookingUseCase,
+    private _userbookingsUsecase: IGetUserBookingUsecase,
+    private _vendorsidebookingUsecase: IGetVendorSideBookingUsecase,
+    private _bookingDatesUsecase: IBookingDatesUsecase,
+    private _cancelBookingUsecase: ICancelBookingUsecase,
+    private _rescheduleBookingUsecase: IBookingRescheduleUseCase,
+   
   ) {}
 
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
       const { data, payment_id, paymentStatus } = req.body;
-      const result = await this._createBooking.execute({
+      const result = await this._createBookingUsecase.execute({
         data,
         payment_id,
         paymentStatus,
       });
-      console.log(result, "res");
+
       res.status(HttpStatus.CREATED).json({ success: true, booking: result });
     } catch (error) {
       console.error("Error creating booking:", error);
@@ -41,8 +40,7 @@ export class BookingController {
   async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId;
-
-      const bookings = await this._userbookings.execute(userId);
+      const bookings = await this._userbookingsUsecase.execute(userId);
 
       res.status(HttpStatus.OK).json({ success: true, bookings });
     } catch (error) {
@@ -56,7 +54,7 @@ export class BookingController {
   async getVendorsideBookings(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.vendorId;
-      const bookings = await this._vendorsidebookings.execute(vendorId);
+      const bookings = await this._vendorsidebookingUsecase.execute(vendorId);
       res.status(HttpStatus.OK).json({ success: true, bookings });
     } catch (error) {
       console.error("Error fetching user bookings:", error);
@@ -69,7 +67,7 @@ export class BookingController {
   async bookingDates(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.vendorId;
-      const booking_dates = await this._bookingDates.execute(vendorId);
+      const booking_dates = await this._bookingDatesUsecase.execute(vendorId);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -86,8 +84,8 @@ export class BookingController {
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
       const bookingId = req.params.id;
-      const bookings = await this._cancelBooking.execute(bookingId);
-      console.log(bookings,"booking")
+      const bookings = await this._cancelBookingUsecase.execute(bookingId);
+
       res.status(HttpStatus.OK).json({
         success: true,
         bookings: bookings,
@@ -106,7 +104,7 @@ export class BookingController {
       const bookingId = req.params.id;
       const { newDate } = req.body;
 
-      const updatedBooking = await this._rescheduleBooking.execute({
+      const updatedBooking = await this._rescheduleBookingUsecase.execute({
         bookingId,
         newDate: new Date(newDate),
       });
@@ -150,10 +148,10 @@ export class BookingController {
           },
         },
         payment_id: payment_id || "",
-        paymentStatus: "succeeded" as "succeeded",
+        paymentStatus: "succeeded" as const,
       };
 
-      const booking = await this._createBooking.execute(bookingPayload);
+      const booking = await this._createBookingUsecase.execute(bookingPayload);
 
       res.status(HttpStatus.CREATED).json({
         success: true,
