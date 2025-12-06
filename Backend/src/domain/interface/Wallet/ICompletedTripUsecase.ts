@@ -1,7 +1,7 @@
 export interface ICompleteTripUseCase {
   execute(
     bookingId: string,
-    driverId: string,
+    vendorId: string,
     adminId: string,
     totalAmount: number
   ): Promise<void>;

@@ -41,15 +41,26 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       throw new Error("This package is already booked for the selected date.");
     }
 
+    const packageData = await this._packageRepository.findOne({
+      _id: data.selectedPackage._id,
+    });
+
+    if (!packageData) throw new Error("Package not found");
+
+    const bookingId = generateBookingId();
+
     const bookingData: Booking = {
       ...data,
-      bookingId: generateBookingId(),
+      bookingId,
       paymentStatus: "succeeded",
       paymentIntentId: payment_id,
+      startDate: "",
+      packageId: packageData?.id,
+      vendorId: undefined
     };
 
     const result = await this._bookingRepository.createBooking(bookingData);
-
+  console.log(result.bookingId)
  
     if (result.paymentStatus === "succeeded") {
       const adminId = process.env.ADMIN_ID || "";
@@ -63,12 +74,6 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         result.bookingId   
       );
     }
-
-    const packageData = await this._packageRepository.findOne({
-      _id: data.selectedPackage._id,
-    });
-
-    if (!packageData) throw new Error("Package not found");
     const vendorId = packageData.vendorId;
     if (!vendorId) throw new Error("Vendor not found");
 

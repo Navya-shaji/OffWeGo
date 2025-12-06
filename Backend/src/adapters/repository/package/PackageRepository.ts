@@ -34,7 +34,11 @@ export class PackageRepository
     return { packages, totalPackages };
   }
 
-  async getPackagesByDestination(destinationId: string, skip: number, limit: number) {
+  async getPackagesByDestination(
+    destinationId: string,
+    skip: number,
+    limit: number
+  ) {
     const [packages, totalPackages] = await Promise.all([
       packageModel
         .find({ destinationId })
@@ -91,9 +95,13 @@ export class PackageRepository
 
     return { packages, totalPackages };
   }
-  async findOne(filter: FilterQuery<IPackageModel>): Promise<IPackageModel | null> {
+  async findOne(
+    filter: FilterQuery<IPackageModel>
+  ): Promise<IPackageModel | null> {
     const pkg = await packageModel.findOne(filter).lean();
     return pkg ? (pkg as unknown as IPackageModel) : null;
   }
-
+  async getById(id: string): Promise<IPackageModel | null> {
+    return packageModel.findById(id);
+  }
 }

@@ -121,7 +121,7 @@ const getNotificationusecase=new GetNotificationUseCase(notificationservice)
 const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo,packageRepo,notificationservice)
 const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
 const readnotificationusecase=new ReadNotificationusecase(notificationRepo)
-const completedTripusecase=new CompleteTripUseCase(walletRepo)
+const completedTripusecase=new CompleteTripUseCase(walletRepo,bookingRepo,packageRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
 
 // Controllers

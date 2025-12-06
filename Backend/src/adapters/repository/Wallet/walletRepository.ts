@@ -31,7 +31,7 @@ async updateBalance(
   amount: number,
   type: "credit" | "debit",
   description: string,
-  refId?: string 
+  refId?: string
 ): Promise<IWallet> {
   const updatedWallet = await this.model.findOneAndUpdate(
     { ownerId, ownerType },
@@ -42,8 +42,8 @@ async updateBalance(
           amount,
           description,
           date: new Date(),
-          status: "completed",
-          ...(refId && { refId }), 
+          status: "pending",
+          ...(refId && { refId }),
         },
       },
       $inc: { balance: type === "credit" ? amount : -amount },
@@ -57,6 +57,7 @@ async updateBalance(
 
   return updatedWallet as unknown as IWallet;
 }
+
 
 
   async addTransaction(ownerId: string, transaction: Transaction): Promise<IWallet> {
@@ -117,15 +118,17 @@ async updateBalance(
   }
 
 async getTransactionByRef(
-  refId: string
+  refId: string,
+  adminId: string
 ): Promise<Transaction | null> {
   const wallet = await this.model.findOne(
     {
-  
+      ownerId: adminId,
+      ownerType: "admin",
       "transactions.refId": refId,
     },
     {
-      transactions: { $elemMatch: { refId } },
+      transactions: { $elemMatch: { refId, type: "credit" } },
     }
   );
 

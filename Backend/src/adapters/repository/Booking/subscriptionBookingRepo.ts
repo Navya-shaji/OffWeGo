@@ -80,4 +80,5 @@ export class SubscriptionBookingRepository
    async getAllSubscriptions() {
     return this.model.find().sort({ createdAt: -1 });
   }
+  
 }

@@ -189,5 +189,9 @@ async updatePaymentStatus(
 
   return updatedBooking;
 }
+async findByRefId(refId: string): Promise<Booking[]> {
+  return BookingModel.find({ bookingId: refId });
+}
+
 
 }

@@ -28,5 +28,8 @@ export interface IBookingRepository {
       status: "paid" | "pending" | "failed";
     }
   ): Promise<Booking>;
+  findByRefId(refId: string): Promise<Booking[] >;
+
+
 }
 
