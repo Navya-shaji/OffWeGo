@@ -14,6 +14,9 @@ export class ChatRoutes {
     this.router.post("/find-or-create", (req: Request, res: Response) => {
       chatcontroller.findOrCreateChat(req, res);
     });
+    this.router.get("/messages/:chatId", (req: Request, res: Response) => {
+      msgcontroller.getMessagesByChatId(req, res);
+    });
 
     this.router.get("/:userId", (req: Request, res: Response) => {
       chatcontroller.getChatsOfUser(req, res);
@@ -24,8 +27,5 @@ export class ChatRoutes {
     // });
 
 
-    this.router.get("/messages/:chatId", (req: Request, res: Response) => {
-      msgcontroller.getMessagesByChatId(req, res);
-    });
   }
 }

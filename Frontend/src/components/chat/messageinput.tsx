@@ -30,7 +30,7 @@ const MessageInput = ({
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onSend(e as any); // Changed from onSend
+      onSend(e as any); 
     }
   };
 

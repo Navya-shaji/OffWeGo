@@ -7,11 +7,15 @@ export class GetChatsOfUserUsecase implements IGetChatsOfUserUsecase {
     constructor(private chatRepository: IChatRepository) {}
 
     async getChats(userId: string): Promise<IChatOut[]> {
-        const result = await this.chatRepository.findChatsOfUser(userId);
 
-        if (!result || !result.chats) return [];
+   
+        const chats = await this.chatRepository.findChatsOfUser(userId);
 
-        const chats = result.chats;
+    
+        if (!Array.isArray(chats)) {
+            console.error("findChatsOfUser did not return an array:", chats);
+            return [];
+        }
 
         const formattedChats = chats.map(chat => {
             const otherUser =
@@ -21,8 +25,11 @@ export class GetChatsOfUserUsecase implements IGetChatsOfUserUsecase {
 
             return {
                 _id: chat._id,
-                name: otherUser.name,
-                profile_image: otherUser.imageUrl || otherUser.profileImage || "",
+                name: otherUser?.name || "Unknown",
+                profile_image:
+                    otherUser?.imageUrl ||
+                    otherUser?.profileImage ||
+                    "",
                 isOnline: true, 
                 lastMessage: chat.lastMessage,
                 lastMessageAt: chat.lastMessageAt,

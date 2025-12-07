@@ -22,12 +22,16 @@ import VendorApprovedPackages from "./BuddyTravel/BuddyPackage-table";
 import VendorWalletManagement from "./Wallet/vendorWallet";
 import VendorDashboard from "./Dashboard/VendorDashboard";
 import VendorMessageContainer from "./chat/ChatVendor";
+import { useNavigate } from "react-router-dom";
+
+import { MessageCircle } from "lucide-react";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Profile");
   const dispatch = useDispatch<AppDispatch>();
   const { packages } = useSelector((state: RootState) => state.package);
   const vendorId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
+const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchPackages());
@@ -58,7 +62,17 @@ function Dashboard() {
           {activeTab === "Dashboard" && <VendorDashboard />}
           {activeTab === "VendorWalletManagement" && <VendorWalletManagement />}
           {activeTab === "Booking Slots" && <TravelCalendar vendorId={vendorId || ""} />}
-          {activeTab === "Chat" && <VendorMessageContainer />}
+          {/* {activeTab === "Chat" && <VendorMessageContainer />} */}
+          <button
+  onClick={() => {
+    navigate("/vendor/chat");
+  }}
+  className="w-full flex items-center px-6 py-3 hover:bg-gray-100"
+>
+  <MessageCircle className="w-5 h-5 mr-3 text-gray-600" />
+  Chat
+</button>
+
 
         </div>
       </div>

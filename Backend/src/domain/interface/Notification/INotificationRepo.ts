@@ -35,9 +35,7 @@ export interface INotificationRepository {
     recipientType: "user" | "vendor"
   ): Promise<number>;
 
-  deleteNotification(
-    id: string
-  ): Promise<{ deletedCount: number }>;
+  deleteNotification(id: string): Promise<{ deletedCount: number }>;
 
   deleteAllNotifications(
     recipientId: string,

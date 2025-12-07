@@ -3,116 +3,136 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useContext } from "react";
 import ChatHeader from "@/components/chat/header";
 import MessageInput from "@/components/chat/messageinput";
-import { findOrCreateChat, getMessages } from "@/services/chat/chatService";
 import toast from "react-hot-toast";
+import { findOrCreateChat } from "@/services/chat/chatService";
 import LoadingSpinner from "@/components/chat/spinner";
-import { useChatContext } from "@/context/chatContext";
 import type { Imessage } from "@/interface/MessageInterface";
-import type { IChat } from "@/interface/ChatInterface";
 import { socketContext } from "@/utilities/socket";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 const VendorMessageContainer = () => {
   const { chatId } = useParams();
-
-  // vendorId_userId format
-  const [vendorId, userId] = chatId?.split("_") || [];
-
+const ownerId=useSelector((state:RootState)=>state.vendorAuth.vendor?.id)
+  // chatId format: userId_vendorId
+  const [userId, vendorId] = chatId?.split("_") || [];
+ const [isVendorOnline, setIsVendorOnline] = useState(false);
   const [message, setMessage] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Imessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [user, setUser] = useState<IChat>({
-    _id: "",
-    lastMessage: "",
-    lastMessageAt: new Date(),
-    name: "",
-    profile_image: "",
-    isOnline: false,
-  });
+  const [chatData, setChatData] = useState<any>(null);
 
-  const [isUserOnline, setIsUserOnline] = useState(false);
-  const { triggerSidebarRefetch } = useChatContext();
-  const roomId = chatId;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { socket } = useContext(socketContext);
+  const roomId = chatId;
 
+  // Fetch existing chat messages
   useEffect(() => {
-    const fetchMessages = async () => {
+    const loadChat = async () => {
+      if (!userId || !ownerId) {
+        console.error("Missing userId or ownerId:", { userId, ownerId });
+        setIsLoading(false);
+        toast.error("Invalid chat parameters");
+        return;
+      }
+
       try {
         setIsLoading(true);
 
-        const chatData = await findOrCreateChat(vendorId, userId, "vendor");
-        setUser(chatData);
+        setChatData({ _id: chatId });
 
-        const chats = await getMessages(chatData._id);
-        setMessages(chats.data?.messages || chats.messages || []);
+        const response = await findOrCreateChat(userId, ownerId);
+        setMessages(response.data?.messages || []);
 
         setIsLoading(false);
-      } catch (error: any) {
+      } catch (err) {
+        console.error(err);
         toast.error("Failed to load chat");
         setIsLoading(false);
       }
     };
 
-    fetchMessages();
-  }, [chatId]);
+    loadChat();
+  }, [chatId, userId, ownerId]);
 
+  // SOCKET LISTENERS
   useEffect(() => {
-    if (socket && !socket.connected) {
+     if (socket && !socket?.connected) {
       socket.connect();
     }
 
-    socket.emit("join_room", { roomId, vendorId });
+    const handleConnected = (id: string) => {
+      console.log("socket connected", id);
+    };
 
-    socket.on("recive-message", (data: any) => {
+    const handleReceiveMessage = (data: any) => {
       setMessages((prev) => [...prev, data]);
       triggerSidebarRefetch();
-    });
-
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop-typing", () => setIsTyping(false));
-
-    socket.on("user-status-changed", ({ userId: changedUserId, isOnline }) => {
-      if (changedUserId === userId) setIsUserOnline(isOnline);
-    });
-
-    return () => {
-      socket.emit("leave-room", { roomId, vendorId });
-      socket.off("recive-message");
-      socket.off("typing");
-      socket.off("stop-typing");
-      socket.off("user-status-changed");
     };
-  }, [roomId, vendorId, userId]);
+
+    const handleTyping = () => {
+      setIsTyping(true);
+    };
+
+    const handleStopTyping = () => {
+      setIsTyping(false);
+    };
+
+    const handleUserStatusChange = ({
+      userId: changedUserId,
+      isOnline,
+    }: {
+      userId: string;
+      isOnline: boolean;
+    }) => {
+      if (changedUserId === ownerId) {
+        setIsVendorOnline(isOnline);
+      }
+    };
+
+    socket.on("recive-message", handleReceiveMessage);
+    socket.on("typing", handleTyping);
+    socket.on("stop-typing", handleStopTyping);
+    socket.on("user-status-changed", handleUserStatusChange);
+
+    socket.emit("join_room", { roomId, userId });
+    return () => {
+      socket.off("connected", handleConnected);
+      socket.off("recive-message", handleReceiveMessage);
+      socket.off("typing", handleTyping);
+      socket.off("stop-typing", handleStopTyping);
+      socket.off("user-status-changed", handleUserStatusChange);
+      socket.emit("leave-room", { roomId, userId });
+    };
+  }, [roomId, userId, ownerId, socket]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
+  // SEND MESSAGE
+  const handleSendMessage = (e?: any) => {
+    if (e) e.preventDefault();
     if (!message.trim()) return;
 
-    const newMessage: Imessage = {
+    const newMsg: Imessage = {
       _id: "",
-      chatId: user._id!,
+      chatId: vendorId,
       messageContent: message,
       senderId: vendorId,
-      senderType: "vendor", // <<<<<< CHANGE MADE HERE
+      senderType: "vendor",
+      receiverId: userId,
       seen: false,
       sendedTime: new Date(),
       messageType: "text",
     };
 
-    socket.emit(
-      "send_message",
-      { ...newMessage, receiverId: userId },
-      (id: string) => {
-        setMessages((prev) => [...prev, { ...newMessage, _id: id }]);
-      }
-    );
+    socket.emit("send_message", newMsg, (id: string) => {
+      setMessages((prev) => [...prev, { ...newMsg, _id: id }]);
+    });
 
     setMessage("");
   };
@@ -121,72 +141,72 @@ const VendorMessageContainer = () => {
 
   return (
     <div className="flex flex-col h-full bg-white">
+
+      {/* Chat Header */}
       <ChatHeader
         user={{
-          _id: user._id || "",
-          name: user.name,
-          avatar: user.profile_image,
-          isOnline: isUserOnline,
-          lastSeen: isUserOnline ? "Online" : "Offline",
+          _id: userId,
+          name: "User",
+          avatar: "",
+          isOnline: true,
+          lastSeen: "Online",
         }}
         onBackClick={() => window.history.back()}
         showBackButton={true}
       />
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gradient-to-b from-gray-50 to-white chat-scrollbar">
         <AnimatePresence>
-          {messages.map((message, index) => {
-            const isVendor = message.senderId === vendorId;
+          {messages.map((msg, index) => {
+            const messageDate = new Date(msg.sendedTime);
 
             return (
               <motion.div
-                key={message._id || index}
+                key={msg._id || index}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`flex ${isVendor ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[280px] px-4 py-3 rounded-3xl shadow-md ${
-                    isVendor
-                      ? "bg-blue-600 text-white rounded-br-lg"
-                      : "bg-white text-gray-800 border rounded-bl-lg"
+                  className={`flex ${
+                    msg.senderId === vendorId ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {message.messageContent}
+                  <div
+                    className={`max-w-[280px] lg:max-w-md px-4 py-3 rounded-3xl shadow-md ${
+                      msg.senderId === vendorId
+                        ? "bg-purple-600 text-white rounded-br-lg"
+                        : "bg-white border border-gray-200 rounded-bl-lg"
+                    }`}
+                  >
+                    <p className="break-words">{msg.messageContent}</p>
+                    <div className="text-xs text-right mt-1 opacity-70">
+                      {messageDate.toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             );
           })}
         </AnimatePresence>
 
+        {/* Typing indicator */}
         {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 px-4 py-3 rounded-2xl shadow">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.1s" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-              </div>
-            </div>
-          </div>
+          <div className="text-gray-500 px-4 italic">typing...</div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Message Input */}
       <MessageInput
         message={message}
         setMessage={setMessage}
         onSend={handleSendMessage}
         inputRef={inputRef}
-        disabled={isLoading}
         roomId={roomId}
       />
     </div>
@@ -194,3 +214,7 @@ const VendorMessageContainer = () => {
 };
 
 export default VendorMessageContainer;
+function triggerSidebarRefetch() {
+  throw new Error("Function not implemented.");
+}
+

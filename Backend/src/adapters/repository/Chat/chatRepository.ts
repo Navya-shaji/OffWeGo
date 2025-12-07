@@ -32,17 +32,19 @@ async getchatOfUser(userId: string, ownerId: string): Promise<IChatPopulated | n
 }
 
 
-  async findChatsOfUser(userId:string): Promise<{chats:IChatPopulated[]|null}> {
-    const result = await chatModel.findOne({
-    userId
-    })
-    .sort({ lastMessageAt: -1 })
-    .populate('userId', 'name profile_image')
-    .populate('vendorId', 'name profile_image');
-    
-    const chats = result as unknown as IChatPopulated[];
-    return { chats }
-  }
+async findChatsOfUser(userId: string): Promise<{ chats: IChatPopulated[] | null; }> {
+  const chats = await chatModel.find({
+    $or: [
+      { userId },
+      { vendorId: userId }
+    ]
+  })
+  .sort({ lastMessageAt: -1 })
+  .populate('userId', 'name profile_image')
+  .populate('vendorId', 'name profile_image');
+
+  return { chats: chats as unknown as IChatPopulated[] };
+}
 
   async updateLastMessage(message: IMessage): Promise<IChat | null> {
     console.log(message)

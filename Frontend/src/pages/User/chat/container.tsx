@@ -135,32 +135,29 @@ const MessageContainer = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+ const handleSendMessage = (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!message.trim()) return;
 
-    const newMessage: Imessage = {
-      _id: "",
-      chatId: user._id!,
-      messageContent: message,
-      senderId: userId,
-      senderType: "user",
-      seen: false,
-      sendedTime: new Date(),
-      messageType: "text",
-    };
-
-    socket.emit(
-      "send_message",
-      { ...newMessage, receiverId: ownerId },
-      (id: string) => {
-        setMessages((prev) => ([...prev, {...newMessage, _id: id}]));
-      }
-    );
-    // setMessages((prev) => [...prev, newMessage]);
-    // setMessage("");
-    // triggerSidebarRefetch();
+  const newMessage: Imessage = {
+    _id: "",
+    chatId: user._id!,
+    messageContent: message,
+    senderId: userId,
+    senderType: "user" as const,
+    receiverId: ownerId,
+    seen: false,
+    sendedTime: new Date(),
+    messageType: "text",
   };
+
+  socket.emit("send_message", newMessage, (id: string) => {
+    setMessages((prev) => [...prev, { ...newMessage, _id: id }]);
+  });
+
+  setMessage("");
+};
+
 
   if (isLoading) {
     return <LoadingSpinner />;
