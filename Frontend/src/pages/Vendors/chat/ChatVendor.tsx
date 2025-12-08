@@ -4,92 +4,96 @@ import { useEffect, useState, useRef, useContext } from "react";
 import ChatHeader from "@/components/chat/header";
 import MessageInput from "@/components/chat/messageinput";
 import toast from "react-hot-toast";
-import { findOrCreateChat } from "@/services/chat/chatService";
+import { findOrCreateChat, getMessages } from "@/services/chat/chatService";
 import LoadingSpinner from "@/components/chat/spinner";
 import type { Imessage } from "@/interface/MessageInterface";
 import { socketContext } from "@/utilities/socket";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
+import { useChatContext } from "@/context/chatContext";
 
 const VendorMessageContainer = () => {
   const { chatId } = useParams();
-const ownerId=useSelector((state:RootState)=>state.vendorAuth.vendor?.id)
-  // chatId format: userId_vendorId
-  const [userId, vendorId] = chatId?.split("_") || [];
- const [isVendorOnline, setIsVendorOnline] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<Imessage[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [chatData, setChatData] = useState<any>(null);
 
+  const ownerId = useSelector(
+    (state: RootState) => state.vendorAuth.vendor?.id
+  );
+
+  const [userId, vendorId] = chatId?.split("_") || [];
+
+  const { triggerSidebarRefetch } = useChatContext();
+
+  const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { socket } = useContext(socketContext);
-  const roomId = chatId;
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<Imessage[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
-  // Fetch existing chat messages
+  const [chatInfo, setChatInfo] = useState({
+    chatId: "",     // ✔ REAL chat ID
+    userName: "",
+    userAvatar: "",
+    isOnline: false,
+  });
+
+  const roomId = chatId;
+  const { socket } = useContext(socketContext);
+
   useEffect(() => {
-    const loadChat = async () => {
+    const fetchVendorChat = async () => {
       if (!userId || !ownerId) {
-        console.error("Missing userId or ownerId:", { userId, ownerId });
-        setIsLoading(false);
         toast.error("Invalid chat parameters");
+        setIsLoading(false);
         return;
       }
 
       try {
         setIsLoading(true);
 
-        setChatData({ _id: chatId });
+        // ✔ Get chat document from backend
+        const chatData = await findOrCreateChat(userId, ownerId);
 
-        const response = await findOrCreateChat(userId, ownerId);
-        setMessages(response.data?.messages || []);
+        if (!chatData?._id) throw new Error("Invalid chat data");
+
+        // ✔ Store actual chatId
+        setChatInfo({
+          chatId: chatData._id,
+          userName: chatData.name,
+          userAvatar: chatData.profile_image,
+          isOnline: chatData.isOnline,
+        });
+
+        // ✔ Load messages
+        const response = await getMessages(chatData._id);
+        setMessages(response.data?.messages || response.messages || []);
 
         setIsLoading(false);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load chat");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to load chat");
         setIsLoading(false);
       }
     };
 
-    loadChat();
+    fetchVendorChat();
   }, [chatId, userId, ownerId]);
 
-  // SOCKET LISTENERS
+  // Socket listeners
   useEffect(() => {
-     if (socket && !socket?.connected) {
-      socket.connect();
-    }
+    if (socket && !socket.connected) socket.connect();
 
-    const handleConnected = (id: string) => {
-      console.log("socket connected", id);
-    };
-
-    const handleReceiveMessage = (data: any) => {
-      setMessages((prev) => [...prev, data]);
+    const handleReceiveMessage = (msg: Imessage) => {
+      setMessages((prev) => [...prev, msg]);
       triggerSidebarRefetch();
     };
 
-    const handleTyping = () => {
-      setIsTyping(true);
-    };
+    const handleTyping = () => setIsTyping(true);
+    const handleStopTyping = () => setIsTyping(false);
 
-    const handleStopTyping = () => {
-      setIsTyping(false);
-    };
-
-    const handleUserStatusChange = ({
-      userId: changedUserId,
-      isOnline,
-    }: {
-      userId: string;
-      isOnline: boolean;
-    }) => {
-      if (changedUserId === ownerId) {
-        setIsVendorOnline(isOnline);
+    const handleUserStatusChange = ({ userId: changed, isOnline }) => {
+      if (changed === userId) {
+        setChatInfo((p) => ({ ...p, isOnline }));
       }
     };
 
@@ -98,33 +102,37 @@ const ownerId=useSelector((state:RootState)=>state.vendorAuth.vendor?.id)
     socket.on("stop-typing", handleStopTyping);
     socket.on("user-status-changed", handleUserStatusChange);
 
-    socket.emit("join_room", { roomId, userId });
+    socket.emit("join_room", { roomId, userId: ownerId });
+
     return () => {
-      socket.off("connected", handleConnected);
       socket.off("recive-message", handleReceiveMessage);
       socket.off("typing", handleTyping);
       socket.off("stop-typing", handleStopTyping);
       socket.off("user-status-changed", handleUserStatusChange);
-      socket.emit("leave-room", { roomId, userId });
+      socket.emit("leave-room", { roomId, userId: ownerId });
     };
-  }, [roomId, userId, ownerId, socket]);
+  }, [socket, userId, ownerId, roomId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // SEND MESSAGE
-  const handleSendMessage = (e?: any) => {
-    if (e) e.preventDefault();
+  const handleSendMessage = (e: any) => {
+    e.preventDefault();
     if (!message.trim()) return;
+
+    if (!chatInfo.chatId) {
+      return toast.error("Chat not fully loaded");
+    }
 
     const newMsg: Imessage = {
       _id: "",
-      chatId: vendorId,
+      chatId: chatInfo.chatId,   // ✔ FIXED — REAL CHAT ID
       messageContent: message,
-      senderId: vendorId,
+      senderId: ownerId!,
       senderType: "vendor",
-      receiverId: userId,
+      receiverId: userId!,
       seen: false,
       sendedTime: new Date(),
       messageType: "text",
@@ -141,80 +149,112 @@ const ownerId=useSelector((state:RootState)=>state.vendorAuth.vendor?.id)
 
   return (
     <div className="flex flex-col h-full bg-white">
-
-      {/* Chat Header */}
+      {/* Header */}
       <ChatHeader
         user={{
-          _id: userId,
-          name: "User",
-          avatar: "",
-          isOnline: true,
-          lastSeen: "Online",
+          _id: chatInfo.chatId,
+          name: chatInfo.userName,
+          avatar: chatInfo.userAvatar,
+          isOnline: chatInfo.isOnline,
+          lastSeen: chatInfo.isOnline ? "Online" : "Offline",
         }}
         onBackClick={() => window.history.back()}
         showBackButton={true}
       />
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gradient-to-b from-gray-50 to-white chat-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gradient-to-b from-gray-50 to-white chat-scrollbar relative">
         <AnimatePresence>
           {messages.map((msg, index) => {
-            const messageDate = new Date(msg.sendedTime);
+            const date = new Date(msg.sendedTime);
+
+            const prev =
+              index > 0 ? new Date(messages[index - 1].sendedTime) : null;
+            const showSeparator =
+              !prev || date.toDateString() !== prev.toDateString();
 
             return (
-              <motion.div
-                key={msg._id || index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <div
+              <div key={msg._id || index}>
+                {showSeparator && (
+                  <div className="flex justify-center my-6">
+                    <span className="bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-full font-medium">
+                      {date.toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
                   className={`flex ${
-                    msg.senderId === vendorId ? "justify-end" : "justify-start"
-                  }`}
+                    msg.senderId === ownerId ? "justify-end" : "justify-start"
+                  } mb-2`}
                 >
                   <div
                     className={`max-w-[280px] lg:max-w-md px-4 py-3 rounded-3xl shadow-md ${
-                      msg.senderId === vendorId
-                        ? "bg-purple-600 text-white rounded-br-lg"
+                      msg.senderId === ownerId
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-br-lg"
                         : "bg-white border border-gray-200 rounded-bl-lg"
                     }`}
                   >
-                    <p className="break-words">{msg.messageContent}</p>
-                    <div className="text-xs text-right mt-1 opacity-70">
-                      {messageDate.toLocaleTimeString("en-US", {
+                    <p className="text-base break-words">
+                      {msg.messageContent}
+                    </p>
+
+                    <div
+                      className={`text-xs mt-1 text-right ${
+                        msg.senderId === ownerId
+                          ? "text-purple-100"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {date.toLocaleTimeString("en-US", {
                         hour: "numeric",
                         minute: "2-digit",
                       })}
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
             );
           })}
         </AnimatePresence>
 
-        {/* Typing indicator */}
         {isTyping && (
-          <div className="text-gray-500 px-4 italic">typing...</div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-start"
+          >
+            <div className="bg-white border px-6 py-5 rounded-3xl rounded-bl-lg shadow-md">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input */}
+      {/* Input */}
       <MessageInput
         message={message}
         setMessage={setMessage}
         onSend={handleSendMessage}
         inputRef={inputRef}
         roomId={roomId}
+        disabled={isLoading}
       />
     </div>
   );
 };
 
 export default VendorMessageContainer;
-function triggerSidebarRefetch() {
-  throw new Error("Function not implemented.");
-}
-

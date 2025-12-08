@@ -8,7 +8,8 @@ import PaymentFailureModal from "@/pages/Vendors/Bookings/BookingFailed";
 import NotFound from "@/components/Modular/NotFound";
 import PaymentSuccess from "@/pages/Vendors/Bookings/subscriptionSuccesspage";
 import VendorMessageContainer from "@/pages/Vendors/chat/ChatVendor";
-import VendorChatList from "@/pages/Vendors/chat/vendorChatList";
+// import VendorChatList from "@/pages/Vendors/chat/vendorChatList";
+import ChatPage from "@/pages/User/chat/chat";
 
 
 const VendorRoutes = () => {
@@ -22,7 +23,7 @@ const VendorRoutes = () => {
 
    
       <Route
-        path="/chat/:chatId"
+        path=":chatId"
         element={
           <ProtectedRoute>
             <VendorMessageContainer />
@@ -33,7 +34,7 @@ const VendorRoutes = () => {
   path="/chat"
   element={
     <ProtectedRoute>
-      <VendorChatList />
+      <ChatPage />
     </ProtectedRoute>
   }
 />

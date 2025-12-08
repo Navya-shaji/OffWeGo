@@ -15,7 +15,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
     adminId: string,
     totalAmount: number
   ): Promise<void> {
-    console.log(bookingRefId, adminId, "booking refId in usecase");
+    console.log(bookingRefId, adminId,totalAmount, "booking refId in usecase");
 
     const bookings = await this._bookingRepository.findByRefId(bookingRefId);
 
@@ -29,7 +29,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
       const packageData = await this._packageRepository.getById(
         booking.selectedPackage._id
       );
-
+console.log(packageData,"packageData")
       if (!packageData) continue;
 
       const durationInDays = packageData.duration;
@@ -51,19 +51,19 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
       if (existingTransaction.status === "completed") continue;
 
       const vendorAmount = booking.totalAmount * 0.9;
-      // const adminCommission = booking.totalAmount * 0.1;
+ 
 
       await this._walletRepository.updateBalance(
         adminId,
         "admin",
         vendorAmount,
         "debit",
-        `Settlement paid to vendor ${booking.vendorId}`,
+        `Settlement paid to vendor ${packageData.vendorId}`,
         booking.bookingId
       );
 
       await this._walletRepository.updateBalance(
-        vendorId,
+        packageData.vendorId,
         "vendor",
         vendorAmount,
         "credit",
@@ -71,20 +71,13 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
         booking.bookingId
       );
 
-      // await this._walletRepository.updateTransactionStatus(
-      //   adminId,
-      //   booking.bookingId,
-      //   "completed"
-      // );
+      await this._walletRepository.updateTransactionStatus(
+        adminId,
+        booking.bookingId,
+        "completed"
+      );
 
-      // await this._walletRepository.updateBalance(
-      //   adminId,
-      //   "admin",
-      //   adminCommission,
-      //   "credit",
-      //   "Admin commission for trip",
-      //   booking.bookingId
-      // );
+
     }
   }
 }

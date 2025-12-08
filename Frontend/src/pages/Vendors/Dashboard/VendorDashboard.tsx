@@ -19,9 +19,10 @@ import { getAllHotel } from "@/services/Hotel/HotelService";
 import { getActivities } from "@/services/Activity/ActivityService";
 import { fetchAllFlights } from "@/services/Flight/FlightService";
 import { getAllUserBookings } from "@/services/Booking/bookingService";
+import type { RootState } from "@/store/store";
 
 export default function VendorDashboard() {
-  const vendor = useSelector((state: any) => state.vendorAuth.vendor);
+  const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
   const vendorId = vendor?.id;
 
   const [stats, setStats] = useState({

@@ -31,7 +31,7 @@ function Dashboard() {
   const dispatch = useDispatch<AppDispatch>();
   const { packages } = useSelector((state: RootState) => state.package);
   const vendorId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchPackages());
@@ -39,8 +39,21 @@ const navigate = useNavigate();
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar */}
       <VendorSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
+      {/* Chat Button - Correct Position */}
+      <div className="absolute left-0 bottom-4 w-64 px-4">
+        <button
+          onClick={() => navigate("/vendor/chat")}
+          className="w-full flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+        >
+          <MessageCircle className="w-5 h-5 mr-3 text-gray-600" />
+          Chat
+        </button>
+      </div>
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <Navbar />
         <div className="flex-1 p-6 overflow-y-auto">
@@ -49,7 +62,9 @@ const navigate = useNavigate();
           {activeTab === "Add Package" && <AddPackage />}
           {activeTab === "Add Buddy Travel" && <AddBuddyTravelPage />}
           {activeTab === "All Packages" && <PackageTable packages={packages} />}
-          {activeTab === "Buddy Packages" && <VendorApprovedPackages vendorId={vendorId || ""} />}
+          {activeTab === "Buddy Packages" && (
+            <VendorApprovedPackages vendorId={vendorId || ""} />
+          )}
           {activeTab === "All Destinations" && <DestinationTable />}
           {activeTab === "Add Destination" && <CreateDestination />}
           {activeTab === "Create Hotel" && <CreateHotel />}
@@ -60,19 +75,13 @@ const navigate = useNavigate();
           {activeTab === "All Flights" && <GetAllFlight />}
           {activeTab === "All Bookings" && <AllBookings />}
           {activeTab === "Dashboard" && <VendorDashboard />}
-          {activeTab === "VendorWalletManagement" && <VendorWalletManagement />}
-          {activeTab === "Booking Slots" && <TravelCalendar vendorId={vendorId || ""} />}
-          {/* {activeTab === "Chat" && <VendorMessageContainer />} */}
-          <button
-  onClick={() => {
-    navigate("/vendor/chat");
-  }}
-  className="w-full flex items-center px-6 py-3 hover:bg-gray-100"
->
-  <MessageCircle className="w-5 h-5 mr-3 text-gray-600" />
-  Chat
-</button>
-
+          {activeTab === "VendorWalletManagement" && (
+            <VendorWalletManagement />
+          )}
+          {activeTab === "Booking Slots" && (
+            <TravelCalendar vendorId={vendorId || ""} />
+          )}
+          {activeTab === "Chat" && <VendorMessageContainer />}
 
         </div>
       </div>
