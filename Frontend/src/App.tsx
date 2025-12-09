@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserRoute from "./Routes/user/userRoutes";
@@ -35,10 +35,6 @@ function App() {
       await subscribeToTopic(token, `${role}_${userId}`);
 
       onMessageListener()
-        .then((payload) => {
-          toast.info(`${payload.notification?.title} - ${payload.notification?.body}`);
-        })
-        .catch((err) => console.error("FCM listener failed: ", err));
     };
 
     registerNotifications();

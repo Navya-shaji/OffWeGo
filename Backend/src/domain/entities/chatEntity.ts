@@ -16,14 +16,12 @@ export interface IChatPopulated {
     userId: {
         _id: string,
         name: string,
-        imageUrl?: string
-        profileImage?:string
+        imageUrl?: string;
     },
     vendorId: {
         _id: string,
         name: string,
-         imageUrl?: string
-        profileImage?:string
+        profileImage?: string;
     }
 
 }

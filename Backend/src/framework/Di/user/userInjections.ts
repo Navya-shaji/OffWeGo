@@ -62,6 +62,7 @@ import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepo
 import { PackageRepository } from "../../../adapters/repository/Package/PackageRepository";
 import { ReadNotificationusecase } from "../../../useCases/notifications/ReadNotificationusecase";
 import { CompleteTripUseCase } from "../../../useCases/wallet/completedTripUsecase";
+import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -84,6 +85,7 @@ const packageRepo=new PackageRepository()
 const notificationservice=new FirebaseNotificationService(notificationRepo,userRepository,vendorRepo,)
 const subscriptionbookingRepo=new SubscriptionBookingRepository()
 const chatRepo=new ChatRepository()
+// const msgRepo=new MessageRepository()
 
 
 // Use Cases
@@ -113,8 +115,8 @@ const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
 const notificationUsecase=new SendNotificationUseCase(notificationservice)
-const sendchatusecase=new InitiateChatUsecase(chatRepo)
-const getchatusecase=new GetChatsOfUserUsecase(chatRepo)
+const sendchatusecase = new InitiateChatUsecase(chatRepo, bookingRepo)
+const getchatusecase = new GetChatsOfUserUsecase(chatRepo)
 const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
 const getNotificationusecase=new GetNotificationUseCase(notificationservice)

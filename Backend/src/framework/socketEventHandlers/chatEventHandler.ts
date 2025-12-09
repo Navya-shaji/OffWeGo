@@ -13,15 +13,25 @@ export class ChatEventHandler {
         isOnline: true,
       });
     });
-    
+
     this._socket.on("join_room", ({ roomId }) => {
-      console.log("room joined");
+      console.log('🚪 User joining room:', roomId, 'Socket ID:', this._socket.id);
       this._socket?.join(roomId);
     });
 
     this._socket.on("send_message", async (data, ack) => {
+      console.log('📤 send_message event received:', {
+        chatId: data.chatId,
+        senderId: data.senderId,
+        messageContent: data.messageContent?.substring(0, 50)
+      });
+
       const id = await chatHandler.handleSendMessage(data);
       ack(id);
+
+      console.log('📡 Broadcasting to room:', data.chatId, 'with message ID:', id);
+      this._io.to(data.chatId).emit("receive-message", { ...data, _id: id });
+      console.log('✅ Message broadcasted to room:', data.chatId);
     });
   }
 }

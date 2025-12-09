@@ -1,15 +1,17 @@
 
 
-export interface IChatOut{
-    _id?:string,
+export interface IChatOut {
+    _id?: string,
     lastMessage: string;
     lastMessageAt: Date;
     name: string;
     profile_image: string;
     isOnline: boolean;
+    userId?: any;
+    vendorId?: any;
 }
 
-export  interface IMessageOut{
+export interface IMessageOut {
     chatId: string;
     senderId: string;
     messageContent: string;
@@ -22,5 +24,5 @@ export interface ICreateChatDto {
 
 
 export interface IEnableChatOutputDto {
-     canChat: boolean; message: string 
+    canChat: boolean; message: string
 }

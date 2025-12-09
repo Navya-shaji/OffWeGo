@@ -5,8 +5,8 @@ import socket from "@/hooks/connectSocketIo";
 interface MessageInputProps {
   message: string;
   setMessage: (message: string) => void;
-  onSend: (e: React.FormEvent) => void; // Changed from onSend
-  inputRef: React.RefObject<HTMLInputElement>;
+  onSend: (e: React.FormEvent) => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   disabled?: boolean;
   roomId: string;
 }
@@ -35,7 +35,7 @@ const MessageInput = ({
   };
 
   return (
-    <div className="bg-[#1c1c1e] border-t border-[#2f2f2f] px-4 py-3">
+    <div className="bg-white border-t border-gray-200 px-4 py-3">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -46,7 +46,7 @@ const MessageInput = ({
         {/* Attachment Button */}
         <button
           type="button"
-          className="p-2 text-[#8E8E93] hover:text-white transition-colors rounded-full hover:bg-[#2f2f2f]"
+          className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
           disabled={disabled}
         >
           <Paperclip size={22} />
@@ -64,7 +64,7 @@ const MessageInput = ({
             onBlur={handleStopTyping}
             placeholder="Message..."
             disabled={disabled}
-            className="w-full bg-[#2f2f2f] text-white placeholder-[#8E8E93] rounded-full px-4 py-2.5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#007AFF] transition-all"
+            className="w-full bg-gray-100 text-gray-900 placeholder-gray-500 rounded-full px-4 py-2.5 pr-12 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all border border-gray-200"
           />
         </div>
 
@@ -74,8 +74,8 @@ const MessageInput = ({
           disabled={disabled || !message.trim()}
           className={`p-2 rounded-full transition-all ${
             message.trim()
-              ? "bg-[#007AFF] text-white hover:bg-[#0066CC]"
-              : "bg-[#2f2f2f] text-[#8E8E93] cursor-not-allowed"
+              ? "bg-green-500 text-white hover:bg-green-600"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
           }`}
         >
           <Send size={20} />

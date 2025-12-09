@@ -22,7 +22,7 @@ export const SelectedPackageSchema = new Schema({
 });
 
 export const BookingSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
   bookingId: { type: String, required: true, unique: true },
   contactInfo: { type: ContactInfoSchema, required: true },
   adults: { type: [TravelerSchema], default: [] },

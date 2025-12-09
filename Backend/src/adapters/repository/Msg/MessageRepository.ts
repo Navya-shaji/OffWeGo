@@ -8,12 +8,21 @@ import {
 export class MessageRepository implements IMessageRepository {
 
   async createMessage(message: IMessage): Promise<IMessage> {
+    console.log('💾 MessageRepository.createMessage called with:', {
+      chatId: message.chatId,
+      senderId: message.senderId,
+      senderType: message.senderType,
+      messageContent: message.messageContent?.substring(0, 50)
+    });
+
     const newMessage = new messageModel({
       ...message,
       seen: message.seen ?? false,
       sendedTime: message.sendedTime ?? new Date(),
     });
     const saved = await newMessage.save();
+
+    console.log('✅ Message saved to DB with ID:', saved._id);
     return saved.toObject() as IMessage;
   }
 
@@ -27,8 +36,19 @@ export class MessageRepository implements IMessageRepository {
   }
 
   async getMessagesOfAChat(chatId: string): Promise<{ messages: IMessage[] }> {
+    console.log('📥 getMessagesOfAChat called for chatId:', chatId);
+
     const messages = await messageModel.find({ chatId }).lean();
-    return { messages: messages.map((m) => ({ ...m, _id: m._id.toString() })) };
+
+    console.log('📦 Found', messages.length, 'messages for chat:', chatId);
+
+    return {
+      messages: messages.map((m: any) => ({
+        ...m,
+        _id: m._id ? m._id.toString() : undefined,
+        sendedTime: m.sendedTime || new Date() // Ensure sendedTime exists
+      })) as IMessage[]
+    };
   }
 
   async markMessageAsSeen(messageId: string): Promise<IMessage | null> {

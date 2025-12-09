@@ -10,11 +10,13 @@ export const chatSchema = new Schema<IChat>({
     },
     userId: {
         type: Schema.Types.ObjectId,
-        refPath: 'receiverType'
+        ref: 'user',
+        required: true
     },
     vendorId: {
         type: Schema.Types.ObjectId,
-        refPath: 'senderType'
+        ref: 'vendor',
+        required: true
     },
 
 

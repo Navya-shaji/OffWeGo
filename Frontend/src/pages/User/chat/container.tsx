@@ -1,185 +1,93 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatHeader from "@/components/chat/header";
 import MessageInput from "@/components/chat/messageinput";
-import { findOrCreateChat, getMessages } from "@/services/chat/chatService";
-import toast from "react-hot-toast";
 import LoadingSpinner from "@/components/chat/spinner";
 import { useChatContext } from "@/context/chatContext";
-import type { Imessage } from "@/interface/MessageInterface";
-import type { IChat } from "@/interface/ChatInterface";
-import { socketContext } from "@/utilities/socket";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 const MessageContainer = () => {
   const { chatId } = useParams();
-  const [userId, ownerId] = chatId?.split("_") || [];
+  const [urlUserId, urlVendorId] = chatId?.split("_") || [];
 
-  const [message, setMessage] = useState("");
+  const user = useSelector((state: RootState) => state.auth.user);
+  const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
+  const currentUserId = user?.id || vendor?.id;
+
+  const {
+    messages,
+    currentChat,
+    loading,
+    selectChat,
+    sendMessage,
+    isTyping
+  } = useChatContext();
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<Imessage[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [user, setUser] = useState<IChat>({
-    _id: "",
-    lastMessage: "",
-    lastMessageAt: new Date(),
-    name: "",
-    profile_image: "",
-    isOnline: false,
-  });
-  const [isUserOnline, setIsUserOnline] = useState(false);
-  const { triggerSidebarRefetch } = useChatContext();
+  const [messageContent, setMessageContent] = useState("");
 
-
-  const sortedIds = [userId, ownerId].sort();
-  const roomId = chatId;
-  const { socket } = useContext(socketContext);
-
-
+  // Initialize chat when URL changes
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!userId || !ownerId) {
-        console.error("Missing userId or ownerId:", { userId, ownerId });
-        setIsLoading(false);
-        toast.error("Invalid chat parameters");
-        return;
+    if (urlUserId && urlVendorId && currentUserId) {
+      if (urlUserId.toString() === currentUserId.toString()) {
+        // I am the user, so the other ID is the vendor
+        selectChat(currentUserId, urlVendorId);
+      } else if (urlVendorId.toString() === currentUserId.toString()) {
+        // I am the vendor, so the other ID is the user
+        // selectChat expects (myId, otherId) which translates to (actualUserId, actualVendorId) inside checking isVendor
+        // Wait, selectChat's args are (myId, otherId).
+        // If I am vendor: myId = VendorID, otherId = UserID.
+        selectChat(currentUserId, urlUserId);
+      } else {
+        console.warn("URL IDs do not match Current User ID", {
+          urlUserId, urlVendorId, currentUserId
+        });
       }
-
-      try {
-        setIsLoading(true);
-
-        console.log("Fetching chat for:", { userId, ownerId });
-
-        // FIXED: findOrCreateChat already returns the unwrapped data
-        const chatData = await findOrCreateChat(userId, ownerId);
-        console.log("Chat data received:", chatData);
-
-        if (!chatData || !chatData._id) {
-          throw new Error("Invalid chat data received");
-        }
-
-        setUser(chatData);
-
-        const chats = await getMessages(chatData._id);
-        setMessages(chats.data?.messages || chats.messages || []);
-
-        setIsLoading(false);
-      } catch (error: any) {
-        const errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to load chat";
-        console.error("Error fetching messages:", error);
-        setIsLoading(false);
-        toast.error(errorMessage);
-      }
-    };
-
-    fetchMessages();
-  }, [chatId, userId, ownerId]);
-
-  // Socket connection and event handlers
-  useEffect(() => {
-    if (socket && !socket?.connected) {
-      socket.connect();
     }
+  }, [chatId, urlUserId, urlVendorId, currentUserId, selectChat]);
 
-    const handleConnected = (id: string) => {
-      console.log("socket connected", id);
-    };
-
-    const handleReceiveMessage = (data: any) => {
-      setMessages((prev) => [...prev, data]);
-      triggerSidebarRefetch();
-    };
-
-    const handleTyping = () => {
-      setIsTyping(true);
-    };
-
-    const handleStopTyping = () => {
-      setIsTyping(false);
-    };
-
-    const handleUserStatusChange = ({
-      userId: changedUserId,
-      isOnline,
-    }: {
-      userId: string;
-      isOnline: boolean;
-    }) => {
-      if (changedUserId === ownerId) {
-        setIsUserOnline(isOnline);
-      }
-    };
-
-    socket.on("recive-message", handleReceiveMessage);
-    socket.on("typing", handleTyping);
-    socket.on("stop-typing", handleStopTyping);
-    socket.on("user-status-changed", handleUserStatusChange);
-
-    socket.emit("join_room", { roomId, userId });
-    return () => {
-      socket.off("connected", handleConnected);
-      socket.off("recive-message", handleReceiveMessage);
-      socket.off("typing", handleTyping);
-      socket.off("stop-typing", handleStopTyping);
-      socket.off("user-status-changed", handleUserStatusChange);
-      socket.emit("leave-room", { roomId, userId });
-    };
-  }, [roomId, userId, ownerId, socket]);
-
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
- const handleSendMessage = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!message.trim()) return;
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageContent.trim()) return;
 
-  const newMessage: Imessage = {
-    _id: "",
-    chatId: user._id!,
-    messageContent: message,
-    senderId: userId,
-    senderType: "user" as const,
-    receiverId: ownerId,
-    seen: false,
-    sendedTime: new Date(),
-    messageType: "text",
+    await sendMessage(messageContent);
+    setMessageContent("");
   };
 
-  socket.emit("send_message", newMessage, (id: string) => {
-    setMessages((prev) => [...prev, { ...newMessage, _id: id }]);
-  });
-
-  setMessage("");
-};
-
-
-  if (isLoading) {
+  if (loading && !currentChat) {
     return <LoadingSpinner />;
   }
 
+  // If no chat selected yet (or loading), show spinner or empty
+  if (!currentChat) {
+    return <div className="flex-1 bg-[#e9edef]" />;
+  }
+
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-[#e9edef]">
       {/* Chat Header */}
       <ChatHeader
         user={{
-          _id: user._id || "",
-          name: user.name,
-          avatar: user.profile_image,
-          isOnline: isUserOnline,
-          lastSeen: isUserOnline ? "Online" : "Offline",
+          _id: currentChat._id || "",
+          name: currentChat.name,
+          avatar: currentChat.profile_image,
+          isOnline: currentChat.isOnline,
+          lastSeen: currentChat.isOnline ? "Online" : "Offline",
         }}
         onBackClick={() => window.history.back()}
         showBackButton={true}
       />
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gradient-to-b from-gray-50 to-white relative min-h-0 chat-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#e9edef] relative min-h-0 chat-scrollbar">
         <AnimatePresence>
           {messages.map((message, index) => {
             const messageDate = new Date(message.sendedTime);
@@ -191,6 +99,8 @@ const MessageContainer = () => {
             const showDateSeparator =
               !prevMessage ||
               messageDate.toDateString() !== prevMessageDate?.toDateString();
+
+            const isMyMessage = message.senderId === currentUserId;
 
             return (
               <div key={message._id || index}>
@@ -212,28 +122,23 @@ const MessageContainer = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className={`flex ${
-                    message.senderId === userId
-                      ? "justify-end"
-                      : "justify-start"
-                  } mb-2`}
+                  className={`flex ${isMyMessage ? "justify-end" : "justify-start"
+                    } mb-2`}
                 >
                   <div
-                    className={`max-w-[280px] lg:max-w-md px-4 py-3 rounded-3xl shadow-md ${
-                      message.senderId === userId
-                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-br-lg"
-                        : "bg-white text-gray-800 border border-gray-200 rounded-bl-lg"
-                    }`}
+                    className={`max-w-[300px] lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${isMyMessage
+                      ? "bg-[#d9fdd3] text-gray-900 rounded-br-lg"
+                      : "bg-white text-gray-800 border border-gray-200 rounded-bl-lg"
+                      }`}
                   >
                     <p className="text-base leading-relaxed break-words">
                       {message.messageContent}
                     </p>
                     <div
-                      className={`flex items-center justify-end mt-2 space-x-1 text-xs ${
-                        message.senderId === userId
-                          ? "text-purple-100"
-                          : "text-gray-500"
-                      }`}
+                      className={`flex items-center justify-end mt-2 space-x-1 text-xs ${isMyMessage
+                        ? "text-gray-600"
+                        : "text-gray-500"
+                        }`}
                     >
                       <span>
                         {messageDate.toLocaleTimeString("en-US", {
@@ -259,7 +164,7 @@ const MessageContainer = () => {
               exit={{ opacity: 0, y: -10 }}
               className="flex justify-start"
             >
-              <div className="bg-white border border-gray-200 px-6 py-5 rounded-3xl rounded-bl-lg max-w-xs shadow-md">
+              <div className="bg-white border border-gray-200 px-6 py-4 rounded-2xl rounded-bl-lg max-w-xs shadow-sm">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div
@@ -280,12 +185,12 @@ const MessageContainer = () => {
 
       {/* Message Input */}
       <MessageInput
-        message={message}
-        setMessage={setMessage}
+        message={messageContent}
+        setMessage={setMessageContent}
         onSend={handleSendMessage}
         inputRef={inputRef}
-        disabled={isLoading}
-        roomId={roomId}
+        disabled={loading}
+        roomId={currentChat._id || ""}
       />
     </div>
   );

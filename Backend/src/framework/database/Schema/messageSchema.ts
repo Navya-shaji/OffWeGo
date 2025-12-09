@@ -27,8 +27,17 @@ export const messageSchema = new Schema<IMessage>({
     },
     senderType: {
         type: String,
-        enum: ['user', 'vendor'],
-        required: true
+        enum: ['User', 'user', 'vendor'],
+        required: true,
+        set: (value: string) => {
+            // Normalize 'user' to 'User' on save
+            return value === 'user' ? 'User' : value;
+        }
+    },
+    receiverId: {
+        type: String,
+        refPath: 'Role',
+        required: false
     }
 
 }, {

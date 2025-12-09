@@ -3,7 +3,8 @@ export type Imessage = {
     chatId: string;
     messageContent: string;
     senderId: string;
-    senderType: 'user' | 'vendor';
+    senderType: 'User' | 'vendor';
+    receiverId?: string;
     seen: boolean;
     sendedTime: Date;
     messageType: 'text' | 'image' | 'file';
