@@ -18,7 +18,7 @@ export const getProfile = async () => {
 
 export const editProfile = async (updatedData: {
   name: string;
-  phone: string;
+  phone?: string;
   imageUrl?: string;
 }) => {
   try {

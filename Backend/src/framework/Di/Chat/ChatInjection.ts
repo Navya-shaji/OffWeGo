@@ -1,33 +1,31 @@
-// import { ChatSocketIOAdapter } from "../../../adapters/socket/ChatSocketIOAdapter";
 import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
 import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
-// import { EnableChatUsecase } from "../../../useCases/chat/IsbookingExistUsecas";
 import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
-// import { UpdateLastMessageUseCase } from "../../../useCases/chat/UpdateLastMEssageUsecase";
 import { ChatController } from "../../../adapters/controller/chat/ChatController";
-import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
-import { MessageController } from "../../../adapters/controller/chat/MessageController";
 import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
 import { CreateMessageUseCase } from "../../../useCases/msg/createMessageUsecase";
-import { GetMessagesUsecase } from "../../../useCases/msg/getMessageUsecase";
-import { LoadPreviousChatUseCase } from "../../../useCases/msg/loadPreviousmessageusecase";
 import { ChatHandler } from "../../../adapters/socket/chatHandler";
+import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
+import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
+import { UserRepository } from "../../../adapters/repository/User/UserRepository";
+import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
+import { GetMessagesUseCase } from "../../../useCases/msg/getMessageUsecase";
+import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessageusecase";
 
+const chatRepo = new ChatRepository();
+const messegeRepo = new MessageRepository();
+const notificationRepo = new NotificationRepository();
+const userRepo = new UserRepository();
+const vendorRepo = new VendorRepository();
 
-const chatRepo = new ChatRepository()
-const bookingRepo = new BookingRepository()
-const messegeRepo = new MessageRepository()
+const getchatusecase = new GetChatsOfUserUsecase(chatRepo);
+const createchat = new InitiateChatUsecase(chatRepo);
+const createmsg = new CreateMessageUseCase(messegeRepo);
+const getmsg = new GetMessagesUseCase(messegeRepo);
+const markMessagesSeenUseCase = new MarkMessagesSeenUseCase(messegeRepo);
 
+const notificationService = new FirebaseNotificationService(notificationRepo, userRepo, vendorRepo);
 
-const getchatusecase = new GetChatsOfUserUsecase(chatRepo)
-const createchat = new InitiateChatUsecase(chatRepo, bookingRepo)
-// const enableChat=new EnableChatUsecase(bookingRepo)
-const createmsg = new CreateMessageUseCase(messegeRepo)
-const getmsg = new GetMessagesUsecase(messegeRepo)
-const loadchats = new LoadPreviousChatUseCase(messegeRepo)
-// const updatemessage=new UpdateLastMessageUseCase(chatRepo)
+export const chatHandler = new ChatHandler(createmsg, chatRepo, notificationService);
+export const chatcontroller = new ChatController(createchat, getchatusecase, getmsg, markMessagesSeenUseCase);
 
-
-export const chatHandler = new ChatHandler(createmsg)
-export const chatcontroller = new ChatController(createchat, getchatusecase,)
-export const msgcontroller = new MessageController(messegeRepo, getmsg, loadchats)

@@ -11,7 +11,9 @@ export const mapToLoginUserDto = (user: User) => {
     username: user.name,
     status: user.status ?? "active",
     role,
-    phone: user.phone.toString(),
+    phone: user.phone ? user.phone.toString() : "",
     imageUrl: user.imageUrl ?? "",
+    isGoogleUser: user.isGoogleUser,
+    location: user.location,
   };
 };

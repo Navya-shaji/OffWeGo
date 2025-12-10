@@ -1,10 +1,19 @@
-import { IChat, IChatPopulated } from "../../entities/chatEntity"
-import { IMessage } from "../../entities/MessageEntity"
+import { IChat } from "../../entities/chatEntity";
 
 export interface IChatRepository {
-    createChat(chat: IChat): Promise<IChatPopulated>
-    getchatOfUser(userId: string, ownerId: string): Promise<IChatPopulated | null>
-    findChatsOfUser(userId: string): Promise<{ chats: IChatPopulated[] | null }>
-    updateLastMessage(message: IMessage): Promise<IChat | null>
-    deleteChat(chatId: string): Promise<void>
+    findChat(members: string[]): Promise<IChat | null>;
+
+    createChat(data: IChat): Promise<any>;
+
+    findChatById(chatId: string): Promise<IChat | null>;
+
+    findChatByUserId(userId: string): Promise<IChat[]>;
+
+    findChatsOfUser(userId: string): Promise<{ chats: any[] }>;
+
+    getchatOfUser(userId: string, ownerId: string): Promise<any>;
+
+    updateLastMessage(chatId: string, message: string, time: Date): Promise<any>;
+
+    incrementUnreadCount(chatId: string, recipientType: "user" | "vendor"): Promise<void>;
 }

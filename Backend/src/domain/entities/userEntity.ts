@@ -14,4 +14,7 @@ export interface User {
   lastLogin?: Date;
   isAdmin?: boolean;
   fcmToken: string;
+  isGoogleUser?: boolean;
+  location?: string;
+  // phone?: number | string;
 }

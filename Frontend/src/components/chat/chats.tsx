@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Send, Loader2, MessageCircle, ArrowLeft } from "lucide-react";
 import { getMessages, findOrCreateChat, getChatsOfUser } from "@/services/chat/chatService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { io, Socket } from "socket.io-client";
+import { socketContext } from "@/utilities/socket";
+import { toast } from "react-toastify";
 
 interface Contact {
     _id: string; // Chat ID
@@ -40,10 +42,14 @@ const ChatPage = () => {
     const [showContacts, setShowContacts] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const { chatId } = useParams<{ chatId?: string }>();
     const socketRef = useRef<Socket | null>(null);
 
-    const senderId = useSelector((state: RootState) => state.auth.user?.id);
-    const senderRole = useSelector((state: RootState) => state.auth.user?.role) || "user";
+    const user = useSelector((state: RootState) => state.auth.user);
+    const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
+
+    const senderId = user?.id || vendor?.id;
+    const senderRole = user ? (user.role || "user") : (vendor ? "vendor" : "user");
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,18 +59,44 @@ const ChatPage = () => {
         scrollToBottom();
     }, [messages]);
 
-    // Socket Connection
+    // Socket Connection - Use the socket from SocketProvider
+    const socketContextValue = useContext(socketContext);
+    const globalSocket = socketContextValue?.socket;
+
     useEffect(() => {
         if (!senderId) return;
 
-        const socketUrl = import.meta.env.VITE_SOCKET_URL?.replace(/\/$/, '') || "http://localhost:3000";
-        socketRef.current = io(socketUrl);
+        // Use global socket if available, otherwise create a new one
+        const socketUrl = import.meta.env.VITE_SOCKET_URL?.replace(/\/$/, '') || "http://localhost:1212";
+        
+        if (!globalSocket) {
+            socketRef.current = io(socketUrl, {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+            });
+            socketRef.current.emit("register_user", { userId: senderId });
+            console.log("Created new socket connection");
+        } else {
+            socketRef.current = globalSocket;
+            console.log("Using global socket connection");
+        }
 
-        socketRef.current.emit("register_user", { userId: senderId });
+        const socket = socketRef.current;
 
-        socketRef.current.on("receive-message", (newMessage: ChatMessage) => {
+        const handleReceiveMessage = (newMessage: ChatMessage) => {
+            console.log("Received message via socket:", newMessage);
             if (newMessage.chatId === selectedContact?._id) {
-                setMessages((prev) => [...prev, newMessage]);
+                setMessages((prev) => {
+                    // Avoid duplicates
+                    const exists = prev.some(msg => msg._id === newMessage._id);
+                    if (exists) {
+                        console.log("Message already exists, skipping");
+                        return prev;
+                    }
+                    console.log("Adding new message to chat");
+                    return [...prev, newMessage];
+                });
             }
 
             // Update contact list with last message
@@ -74,12 +106,32 @@ const ChatPage = () => {
                     : contact
             ).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
 
+        };
+
+        socket.on("receive-message", handleReceiveMessage);
+        
+        // Debug socket events
+        socket.on("connect", () => {
+            console.log("Socket connected:", socket.id);
+        });
+        
+        socket.on("disconnect", () => {
+            console.log("Socket disconnected");
+        });
+        
+        socket.on("error", (error) => {
+            console.error("Socket error:", error);
         });
 
         return () => {
-            socketRef.current?.disconnect();
+            socket.off("receive-message", handleReceiveMessage);
+            // Only disconnect if we created our own socket
+            if (!globalSocket && socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current = null;
+            }
         };
-    }, [senderId, selectedContact]);
+    }, [senderId, selectedContact, globalSocket]);
 
 
     // Fetch contacts (chats)
@@ -95,34 +147,107 @@ const ChatPage = () => {
                 const responseY = await getChatsOfUser(senderId);
 
                 let chats: any[] = [];
-                if (responseY && responseY.data && Array.isArray(responseY.data.chats)) {
-                    chats = responseY.data.chats;
+                // Handle different response structures
+                if (responseY && responseY.data) {
+                    if (Array.isArray(responseY.data)) {
+                        chats = responseY.data;
+                    } else if (Array.isArray(responseY.data.chats)) {
+                        chats = responseY.data.chats;
+                    }
                 } else if (responseY && Array.isArray(responseY)) {
                     chats = responseY;
                 }
+                
+                // Debug: Log first chat to verify structure (remove in production)
+                if (chats.length > 0) {
+                    console.log("Chat data sample:", chats[0]);
+                    console.log("Full chat data structure:", JSON.stringify(chats[0], null, 2));
+                }
 
-                // Format contacts
+                // Format contacts - Backend already formats with name and profile_image
                 const formattedContacts: Contact[] = chats.map((chat: any) => {
                     const isUser = senderRole === 'user';
-                    const otherParticipant = isUser ? chat.vendorId : chat.userId;
-
-                    // Check if otherParticipant is populated or an ID
-                    const name = otherParticipant?.name || "Unknown";
-                    const avatar = isUser ? otherParticipant?.profileImage : otherParticipant?.imageUrl;
+                    
+                    // Backend returns formatted chats with name and profile_image
+                    // These are the primary sources
+                    let name = chat.name || "Unknown Vendor";
+                    let avatar = chat.profile_image || "";
+                    
+                    // If name is empty or "Unknown", try to extract from populated objects
+                    if ((!name || name === "Unknown" || name === "Unknown Vendor") && chat.vendorId) {
+                        if (typeof chat.vendorId === 'object' && chat.vendorId !== null && isUser) {
+                            name = chat.vendorId.name || chat.vendorId.businessName || chat.vendorId.username || name;
+                            avatar = chat.vendorId.profileImage || chat.vendorId.imageUrl || avatar;
+                        }
+                    }
+                    
+                    if ((!name || name === "Unknown" || name === "Unknown Vendor") && chat.userId) {
+                        if (typeof chat.userId === 'object' && chat.userId !== null && !isUser) {
+                            name = chat.userId.name || chat.userId.username || name;
+                            avatar = chat.userId.imageUrl || chat.userId.profileImage || avatar;
+                        }
+                    }
+                    
+                    // Extract IDs for reference - Backend should now include userId and vendorId as strings
+                    let vendorIdValue: string | null = null;
+                    let userIdValue: string | null = null;
+                    
+                    // First, check if backend already provided them as strings
+                    if (chat.vendorId && typeof chat.vendorId === 'string') {
+                        vendorIdValue = chat.vendorId;
+                    } else if (chat.vendorId) {
+                        // If it's an object, extract the ID
+                        vendorIdValue = typeof chat.vendorId === 'object' 
+                            ? (chat.vendorId._id?.toString() || chat.vendorId.id?.toString() || String(chat.vendorId))
+                            : String(chat.vendorId);
+                    }
+                    
+                    if (chat.userId && typeof chat.userId === 'string') {
+                        userIdValue = chat.userId;
+                    } else if (chat.userId) {
+                        // If it's an object, extract the ID
+                        userIdValue = typeof chat.userId === 'object'
+                            ? (chat.userId._id?.toString() || chat.userId.id?.toString() || String(chat.userId))
+                            : String(chat.userId);
+                    }
+                    
+                    console.log(`Chat ${chat._id} - userId: ${userIdValue}, vendorId: ${vendorIdValue}`);
 
                     return {
                         _id: chat._id,
                         name: name,
                         role: isUser ? 'vendor' : 'user',
                         avatar: avatar || "",
-                        lastMessage: chat.lastMessage,
-                        lastMessageTime: chat.lastMessageAt,
-                        vendorId: chat.vendorId,
-                        userId: chat.userId
+                        lastMessage: chat.lastMessage || "",
+                        lastMessageTime: chat.lastMessageAt || new Date(),
+                        vendorId: vendorIdValue,
+                        userId: userIdValue
                     };
                 });
 
                 setContacts(formattedContacts);
+
+                // If chatId is in URL, select that chat
+                if (chatId) {
+                    const chatToSelect = formattedContacts.find(c => c._id === chatId);
+                    if (chatToSelect) {
+                        setSelectedContact(chatToSelect);
+                        setShowContacts(false);
+                    } else {
+                        // Chat not found in list, might be a new chat
+                        // Try to get vendor info from the chat data structure
+                        // For now, set a placeholder and it will be updated when messages are loaded
+                        // or when the chat is found in a refresh
+                        const placeholderContact: Contact = {
+                            _id: chatId,
+                            name: "Vendor",
+                            role: "vendor",
+                            avatar: "",
+                        };
+                        setSelectedContact(placeholderContact);
+                        setShowContacts(false);
+                    }
+                }
 
             } catch (err) {
                 console.error("Failed to load contacts", err);
@@ -133,7 +258,17 @@ const ChatPage = () => {
         };
 
         fetchContacts();
-    }, [senderId, navigate, senderRole]);
+    }, [senderId, navigate, senderRole, chatId]);
+
+    // Update selected contact if it's a placeholder and we now have the real contact
+    useEffect(() => {
+        if (selectedContact && selectedContact.name === "Vendor" && contacts.length > 0) {
+            const realContact = contacts.find(c => c._id === selectedContact._id);
+            if (realContact && realContact.name !== "Vendor") {
+                setSelectedContact(realContact);
+            }
+        }
+    }, [contacts, selectedContact]);
 
     // Fetch messages when contact is selected
     useEffect(() => {
@@ -142,12 +277,30 @@ const ChatPage = () => {
         const fetchMessages = async () => {
             try {
                 const res = await getMessages(selectedContact._id);
-                if (res && res.messages) {
-                    setMessages(res.messages);
+                console.log("Messages response:", res);
+                
+                // Backend returns: { success: true, data: [...] }
+                let messagesArray: ChatMessage[] = [];
+                if (res && res.data) {
+                    if (Array.isArray(res.data)) {
+                        messagesArray = res.data;
+                    } else if (res.data.messages && Array.isArray(res.data.messages)) {
+                        messagesArray = res.data.messages;
+                    }
+                } else if (res && Array.isArray(res)) {
+                    messagesArray = res;
+                } else if (res && res.messages && Array.isArray(res.messages)) {
+                    messagesArray = res.messages;
                 }
+                
+                setMessages(messagesArray);
+                console.log("Loaded messages:", messagesArray.length);
 
                 // Join chat room
-                socketRef.current?.emit("join_room", { roomId: selectedContact._id });
+                if (socketRef.current) {
+                    socketRef.current.emit("join_room", { roomId: selectedContact._id });
+                    console.log("Joined room:", selectedContact._id);
+                }
 
             } catch (error) {
                 console.error("Error fetching messages:", error);
@@ -170,24 +323,88 @@ const ChatPage = () => {
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedContact || !senderId) return;
 
+        console.log("Selected contact:", selectedContact);
+        console.log("Sender ID:", senderId);
+        console.log("Sender role:", senderRole);
+
+        // Get receiver ID (vendor or user)
+        // If sender is user, receiver is vendor, and vice versa
+        let receiverId: string | null = null;
+        
+        if (senderRole === 'user') {
+            // User is sending, receiver is vendor
+            if (selectedContact.vendorId) {
+                receiverId = typeof selectedContact.vendorId === 'object' 
+                    ? (selectedContact.vendorId._id || selectedContact.vendorId.id || String(selectedContact.vendorId))
+                    : String(selectedContact.vendorId);
+            }
+        } else {
+            // Vendor is sending, receiver is user
+            if (selectedContact.userId) {
+                receiverId = typeof selectedContact.userId === 'object'
+                    ? (selectedContact.userId._id || selectedContact.userId.id || String(selectedContact.userId))
+                    : String(selectedContact.userId);
+            }
+        }
+
+        if (!receiverId) {
+            console.error("Could not determine receiver ID. Contact data:", selectedContact);
+            toast.error("Unable to determine recipient. Please refresh the page.");
+            return;
+        }
+
+        // Normalize senderType: 'user' -> 'User', 'vendor' -> 'vendor'
+        const normalizedSenderType = senderRole === 'user' ? 'User' : 'vendor';
+
         const messageData = {
             chatId: selectedContact._id,
             senderId,
-            senderType: senderRole,
+            senderType: normalizedSenderType,
+            receiverId: receiverId,
             messageContent: newMessage.trim(),
+            messageType: 'text',
             sendedTime: new Date(),
-            seen: false
+            seen: false,
+            senderName: user?.name || user?.username || vendor?.name || "User"
         };
+
+        console.log("Message data being sent:", messageData);
+
+        const messageText = newMessage.trim();
 
         try {
             setSending(true);
 
-            // Optimistic updatet
-            //   setMessages((prev) => [...prev, messageData as ChatMessage]);
+            if (!socketRef.current) {
+                console.error("Socket not initialized");
+                toast.error("Connection error. Please refresh the page.");
+                setSending(false);
+                return;
+            }
 
-            socketRef.current?.emit("send_message", messageData, (ackId: string) => {
+            if (!socketRef.current.connected) {
+                console.error("Socket not connected, attempting to reconnect...");
+                socketRef.current.connect();
+                // Wait a bit for connection
+                await new Promise(resolve => setTimeout(resolve, 500));
+                if (!socketRef.current.connected) {
+                    toast.error("Connection error. Please refresh the page.");
+                    setSending(false);
+                    return;
+                }
+            }
+
+            console.log("Sending message:", messageData);
+
+            socketRef.current.emit("send_message", messageData, (ackId: string) => {
                 // Acknowledge received
-                console.log("Message sent, ID:", ackId);
+                console.log("Message sent successfully, ID:", ackId);
+                if (ackId) {
+                    // Message was successfully sent and saved
+                    // The receive-message event will update the UI
+                } else {
+                    console.warn("Message sent but no ID returned");
+                }
             });
 
             setNewMessage("");
@@ -195,12 +412,13 @@ const ChatPage = () => {
             // Update local contact list sort order immediately
             setContacts(prev => prev.map(c =>
                 c._id === selectedContact._id
-                    ? { ...c, lastMessage: newMessage.trim(), lastMessageTime: new Date() }
+                    ? { ...c, lastMessage: messageText, lastMessageTime: new Date() }
                     : c
             ).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
 
         } catch (err) {
             console.error("Error sending message:", err);
+            toast.error("Failed to send message. Please try again.");
         } finally {
             setSending(false);
         }
@@ -291,29 +509,30 @@ const ChatPage = () => {
                                     }`}
                             >
                                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
-                                    {contact.avatar ? (
+                                    {contact.avatar && contact.avatar.trim() !== "" ? (
                                         <img
                                             src={contact.avatar}
                                             alt={contact.name}
                                             className="w-full h-full object-cover"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                            onError={(e) => { 
+                                                // Hide image and show initials on error
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                const parent = (e.target as HTMLImageElement).parentElement;
+                                                if (parent) {
+                                                    parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-sm">${getInitials(contact.name)}</div>`;
+                                                }
+                                            }}
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-sm">
                                             {getInitials(contact.name)}
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="ml-3 flex-1 text-left overflow-hidden">
-                                    <div className="flex justify-between items-baseline">
-                                        <h3 className="font-semibold text-gray-900 truncate">{contact.name}</h3>
-                                        <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-                                            {formatLastMessageTime(contact.lastMessageTime || "")}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-gray-500 capitalize">{contact.role}</p>
-                                    <p className="text-sm text-gray-600 truncate mt-1">{contact.lastMessage || "No messages yet"}</p>
+                                    <h3 className="font-semibold text-gray-900 truncate text-base">{contact.name}</h3>
+                                    <p className="text-xs text-gray-500 capitalize mt-0.5">{contact.role}</p>
                                 </div>
                             </button>
                         ))
@@ -340,15 +559,22 @@ const ChatPage = () => {
                                 </button>
 
                                 <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
-                                    {selectedContact.avatar ? (
+                                    {selectedContact.avatar && selectedContact.avatar.trim() !== "" ? (
                                         <img
                                             src={selectedContact.avatar}
                                             alt={selectedContact.name}
                                             className="w-full h-full object-cover"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                            onError={(e) => { 
+                                                // Hide image and show initials on error
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                const parent = (e.target as HTMLImageElement).parentElement;
+                                                if (parent) {
+                                                    parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-xs">${getInitials(selectedContact.name)}</div>`;
+                                                }
+                                            }}
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold text-xs">
                                             {getInitials(selectedContact.name)}
                                         </div>
                                     )}

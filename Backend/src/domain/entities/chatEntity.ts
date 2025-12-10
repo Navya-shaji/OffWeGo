@@ -1,27 +1,13 @@
-import { Types } from "mongoose"
+import { ObjectId } from "mongoose";
 
 export interface IChat {
-    _id?: string,
-    lastMessage: string,
-    lastMessageAt: Date,
-    userId: string | Types.ObjectId,
-    vendorId: string | Types.ObjectId
-
-}
-
-export interface IChatPopulated {
-    _id?: string,
-    lastMessage: string,
-    lastMessageAt: Date,
-    userId: {
-        _id: string,
-        name: string,
-        imageUrl?: string;
-    },
-    vendorId: {
-        _id: string,
-        name: string,
-        profileImage?: string;
-    }
-
+    _id?: ObjectId;
+    userId: ObjectId | string;
+    vendorId: ObjectId | string;
+    lastMessage?: string;
+    lastMessageAt?: Date;
+    unreadCountUser?: number;
+    unreadCountVendor?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

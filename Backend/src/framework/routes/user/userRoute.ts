@@ -203,11 +203,33 @@ export class UserRoute {
         bookingcontroller.createBookingWithWallet(req, res);
       }
     );
-        this.userRouter.post(UserRoutes.WALLET_PAYMENT, (req: Request, res: Response) => {
-       walletcontroller.walletPayment(req,res)
-        });
+    this.userRouter.post(
+      UserRoutes.WALLET_PAYMENT,
+      (req: Request, res: Response) => {
+        walletcontroller.walletPayment(req, res);
+      }
+    );
     this.userRouter.post(CommonRoutes.CHAT, (req: Request, res: Response) => {
       chatcontroller.findOrCreateChat(req, res);
     });
+
+    this.userRouter.get(
+      CommonRoutes.GET_MESSAGES,
+      (req: Request, res: Response) => {
+        chatcontroller.getMessages(req, res);
+      }
+    );
+    this.userRouter.get(
+      CommonRoutes.GET_CHATS,
+      (req: Request, res: Response) => {
+        chatcontroller.getChats(req, res);
+      }
+    );
+    this.userRouter.post(
+      CommonRoutes.MSG_SEEN,
+      (req: Request, res: Response) => {
+        chatcontroller.markMessagesSeen(req, res);
+      }
+    );
   }
 }

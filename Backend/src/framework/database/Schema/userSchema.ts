@@ -8,11 +8,11 @@ export const userSchema = new Schema({
   password: { type: String },
   imageUrl: { type: String },
   createdAt: { type: Date },
-status: {
-  type: String,
-  enum: ["active", "blocked"], 
-  default: "active",
-},
+  status: {
+    type: String,
+    enum: ["active", "blocked"],
+    default: "active",
+  },
   role: {
     type: String,
     enum: ["user", "vendor", "admin"],
@@ -22,12 +22,13 @@ status: {
     type: Date,
     default: Date.now
   },
- 
+
   googleVerified: {
     type: Boolean,
     default: false
   },
   fcmToken: { type: String, default: "" },
+  isGoogleUser: { type: Boolean, default: false },
 }, {
   timestamps: true
 });

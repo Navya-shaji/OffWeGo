@@ -54,7 +54,7 @@ export const onMessageListener = (): Promise<MessagePayload> =>
   });
 
 
-  
+
 export const subscribeToTopic = async (token: string, topic: string) => {
   try {
     const response = await axios.post(

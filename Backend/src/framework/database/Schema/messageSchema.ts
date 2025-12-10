@@ -1,8 +1,6 @@
 import { Schema } from "mongoose";
-import { IMessage } from "../../../domain/entities/MessageEntity";
 
-
-export const messageSchema = new Schema<IMessage>({
+export const messageSchema = new Schema({
     chatId: {
         type: String,
         ref: 'chat',
@@ -23,13 +21,12 @@ export const messageSchema = new Schema<IMessage>({
     senderId: {
         type: String,
         refPath: 'Role'
-
     },
     senderType: {
         type: String,
         enum: ['User', 'user', 'vendor'],
         required: true,
-        set: (value: string) => {
+        set: function (value: string) {
             // Normalize 'user' to 'User' on save
             return value === 'user' ? 'User' : value;
         }
@@ -39,7 +36,6 @@ export const messageSchema = new Schema<IMessage>({
         refPath: 'Role',
         required: false
     }
-
 }, {
     timestamps: true
-})
+});

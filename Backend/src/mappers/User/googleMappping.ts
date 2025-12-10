@@ -8,5 +8,7 @@ export const mapToGoogleUser = (user: User) => ({
   phone: user.phone,
   imageUrl: user.imageUrl,
   role: user.role,
-  fcmToken: user.fcmToken
+  fcmToken: user.fcmToken,
+  isGoogleUser: user.isGoogleUser,
+  location: user.location
 });

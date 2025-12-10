@@ -1,127 +1,98 @@
-import { IChat, IChatPopulated } from "../../../domain/entities/chatEntity";
-import { IMessage } from "../../../domain/entities/MessageEntity";
-import { IChatRepository } from "../../../domain/interface/Chat/IchatRepo";
 import { chatModel } from "../../../framework/database/Models/chatModel";
-
-import mongoose from "mongoose";
+import { IChat } from "../../../domain/entities/chatEntity";
+import { IChatRepository } from "../../../domain/interface/Chat/IchatRepo";
 
 export class ChatRepository implements IChatRepository {
-  async createChat(chat: IChat): Promise<IChatPopulated> {
-    console.log('💾 Creating chat with data:', chat);
 
-    // Validate that we have both userId and vendorId
-    if (!chat.userId || !chat.vendorId) {
-      console.error('❌ Cannot create chat: missing userId or vendorId', chat);
-      throw new Error('Both userId and vendorId are required to create a chat');
+    async findChat(members: string[]): Promise<IChat | null> {
+        if (members.length !== 2) return null;
+        return await this.getchatOfUser(members[0], members[1]);
     }
 
-    const createdChat = await chatModel.create(chat);
-    console.log('✅ Chat created with ID:', createdChat._id);
-    console.log('📝 Raw chat document:', {
-      _id: createdChat._id,
-      userId: createdChat.userId,
-      vendorId: createdChat.vendorId
-    });
+    async createChat(data: IChat): Promise<any> {
+        console.log("💾 Creating chat with data:", data);
 
-    const populatedChat = await chatModel.findById(createdChat._id)
-      .populate({
-        path: 'userId',
-        select: 'name imageUrl'
-      })
-      .populate({
-        path: 'vendorId',
-        select: 'name profileImage'
-      }) as unknown as IChatPopulated;
+        if (!data.userId || !data.vendorId) {
+            console.error("❌ Cannot create chat: missing userId or vendorId", data);
+            throw new Error("Both userId and vendorId are required to create a chat");
+        }
 
-    console.log('📦 Returning populated chat:', {
-      _id: populatedChat._id,
-      userId: populatedChat.userId,
-      vendorId: populatedChat.vendorId
-    });
+        const createdChat = await chatModel.create(data);
+        console.log("✅ Chat created with ID:", createdChat._id);
 
-    return populatedChat;
-  }
+        const populatedChat = await chatModel
+            .findById(createdChat._id)
+            .populate({ path: "userId", select: "name imageUrl" })
+            .populate({ path: "vendorId", select: "name profileImage" });
 
-  async getchatOfUser(userId: string, ownerId: string): Promise<IChatPopulated | null> {
-    const uId = userId.toString();
-    const oId = ownerId.toString();
-
-    console.log('🔍 getchatOfUser called with (stringified):', { uId, oId });
-
-    // Validate IDs before casting to avoid crashes
-    if (!mongoose.Types.ObjectId.isValid(uId) || !mongoose.Types.ObjectId.isValid(oId)) {
-      console.warn("⚠️ Invalid ObjectId format detected:", { uId, oId });
-      return null;
+        return populatedChat;
     }
 
-    const userObjectId = new mongoose.Types.ObjectId(uId);
-    const ownerObjectId = new mongoose.Types.ObjectId(oId);
+    async findChatById(chatId: string): Promise<IChat | null> {
+        return await chatModel.findById(chatId);
+    }
 
-    const chat = await chatModel.findOne({
-      $and: [
-        {
-          $or: [
-            { userId: userObjectId, vendorId: ownerObjectId },
-            { userId: ownerObjectId, vendorId: userObjectId },
-            // Fallback for potential string-stored IDs or casting weirdness
-            { userId: uId, vendorId: oId },
-            { userId: oId, vendorId: uId }
-          ]
-        },
-        // Exclude chats with null userId or vendorId
-        { userId: { $ne: null } },
-        { vendorId: { $ne: null } }
-      ]
-    })
-      .populate({
-        path: 'userId',
-        select: 'name imageUrl'
-      })
-      .populate({
-        path: 'vendorId',
-        select: 'name profileImage'
-      });
+    async findChatByUserId(userId: string): Promise<IChat[]> {
+        return await chatModel
+            .find({
+                $or: [{ userId: userId }, { vendorId: userId }],
+            })
+            .sort({ updatedAt: -1 });
+    }
 
-    console.log('📦 Chat found:', chat ? chat._id : 'null');
-    return chat as unknown as IChatPopulated;
-  }
+    async findChatsOfUser(userId: string): Promise<{ chats: any[] }> {
+        const chats = await chatModel
+            .find({
+                $and: [
+                    { $or: [{ userId: userId }, { vendorId: userId }] },
+                    { userId: { $ne: null } },
+                    { vendorId: { $ne: null } },
+                ],
+            })
+            .sort({ lastMessageAt: -1 })
+            .populate("userId", "name imageUrl")
+            .populate("vendorId", "name profileImage")
+            .lean();
 
+        return { chats };
+    }
 
-  async findChatsOfUser(userId: string): Promise<{ chats: IChatPopulated[] | null; }> {
-    const chats = await chatModel.find({
-      $and: [
-        {
-          $or: [
-            { userId },
-            { vendorId: userId }
-          ]
-        },
-        // Exclude corrupted chats
-        { userId: { $ne: null } },
-        { vendorId: { $ne: null } }
-      ]
-    })
-      .sort({ lastMessageAt: -1 })
-      .populate('userId', 'name imageUrl')
-      .populate('vendorId', 'name profileImage');
+    async getchatOfUser(userId: string, ownerId: string): Promise<any> {
+        const chat = await chatModel
+            .findOne({
+                $and: [
+                    {
+                        $or: [
+                            { userId: userId, vendorId: ownerId },
+                            { userId: ownerId, vendorId: userId },
+                        ],
+                    },
+                    { userId: { $ne: null } },
+                    { vendorId: { $ne: null } },
+                ],
+            })
+            .populate({ path: "userId", select: "name imageUrl" })
+            .populate({ path: "vendorId", select: "name profileImage" });
 
-    return { chats: chats as unknown as IChatPopulated[] };
-  }
+        return chat;
+    }
 
-  async updateLastMessage(message: IMessage): Promise<IChat | null> {
-    console.log(message)
-    return await chatModel.findByIdAndUpdate(
-      message.chatId,
-      {
-        lastMessage: message.messageContent,
-        lastMessageAt: message.sendedTime
-      },
-      { new: true }
-    );
-  }
+    async updateLastMessage(chatId: string, message: string, time: Date) {
+        return await chatModel.findByIdAndUpdate(chatId, {
+            lastMessage: message,
+            lastMessageAt: time,
+        });
+    }
 
-  async deleteChat(chatId: string): Promise<void> {
-    await chatModel.findByIdAndDelete(chatId);
-    console.log('✅ Deleted chat:', chatId);
-  }
+    async incrementUnreadCount(
+        chatId: string,
+        recipientType: "user" | "vendor"
+    ): Promise<void> {
+        const updateField =
+            recipientType === "user" ? "unreadCountUser" : "unreadCountVendor";
+
+        await chatModel.findByIdAndUpdate(chatId, {
+            $inc: { [updateField]: 1 },
+        });
+    }
 }

@@ -1,97 +1,93 @@
 import { Request, Response } from "express";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUsecase";
 import { IGetChatsOfUserUsecase } from "../../../domain/interface/Chat/IGetChatUSecase";
-// import { IEnableChatUsecase } from "../../../domain/interface/Chat/IEnableChatUSecase";
-import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-
+import { IGetMessagesUsecase } from "../../../domain/interface/Msg/IGetMsgUsecase";
+import { IMarkMessagesSeenUseCase } from "../../../domain/interface/Chat/IMarkMesgusecase";
 
 export class ChatController {
+  constructor(
+    private _initiateChatUsecase: IInitiateChatUsecase,
+    private _getChatsUsecase: IGetChatsOfUserUsecase,
+    private _getMessagesUsecase: IGetMessagesUsecase,
+    private _markMessagesSeenUseCase: IMarkMessagesSeenUseCase
+  ) {}
 
-    constructor(
-        private _CreateChatUsecase: IInitiateChatUsecase,
-        private _getChatUsecase: IGetChatsOfUserUsecase,
-        // private _enableChatUsecase: IEnableChatUsecase
-    ) { }
+  async findOrCreateChat(req: Request, res: Response) {
+    try {
+      const { userId, ownerId } = req.body;
+      if (!userId || !ownerId) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "User ID and Owner ID are required",
+        });
+      }
 
-
-    async findOrCreateChat(req: Request, res: Response): Promise<void> {
-        try {
-            const { userId, ownerId } = req.body;
-            console.log("ChatController: findOrCreateChat called with:", { userId, ownerId });
-
-            if (!userId || !ownerId) {
-                console.error("ChatController: Missing required fields");
-                res.status(HttpStatus.BAD_REQUEST).json({
-                    success: false,
-                    message: "Missing required fields"
-                });
-                return;
-            }
-
-            const chat = await this._CreateChatUsecase.initiateChat({ userId, ownerId });
-            console.log("ChatController: Chat created/found:", chat);
-
-            res.status(HttpStatus.OK).json({
-                success: true,
-                data: chat
-            });
-
-        } catch (error) {
-            console.error("Error finding/creating chat:", error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: "Failed to find or create chat"
-            });
-        }
+      const chat = await this._initiateChatUsecase.initiateChat({
+        userId,
+        ownerId,
+      });
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        data: chat,
+      });
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal Server Error",
+      });
     }
+  }
 
-
-    async getChatsOfUser(req: Request, res: Response): Promise<void> {
-        try {
-            const { userId } = req.params;
-
-            const result = await this._getChatUsecase.getChats(userId);
-
-            res.status(HttpStatus.OK).json({
-                success: true,
-                data: result
-            });
-
-        } catch (error) {
-            console.error("Error getting user chats:", error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: "Failed to get chats"
-            });
-        }
+  async getChats(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      const chats = await this._getChatsUsecase.getChats(userId);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        data: chats,
+      });
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal Server Error",
+      });
     }
+  }
 
+  async getMessages(req: Request, res: Response) {
+    try {
+      const { chatId } = req.params;
+      const messages = await this._getMessagesUsecase.execute(chatId);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        data: messages,
+      });
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
 
-    // async enableChat(req: Request, res: Response): Promise<void> {
-    //     try {
-    //         const { userId, ownerId } = req.body;
-
-    //         if (!userId || !ownerId) {
-    //             res.status(HttpStatus.BAD_REQUEST).json({
-    //                 success: false,
-    //                 message: "Missing required fields: userId and ownerId"
-    //             });
-    //             return;
-    //         }
-
-    //         const result = await this._enableChatUsecase.IsBookingExists(userId, ownerId);
-
-    //         res.status(HttpStatus.OK).json({
-    //             success: true,
-    //             data: result
-    //         });
-
-    //     } catch (error) {
-    //         console.error("Error checking chat eligibility:", error);
-    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-    //             success: false,
-    //             message: "Failed to check chat eligibility"
-    //         });
-    //     }
-    // }
+  async markMessagesSeen(req: Request, res: Response) {
+    try {
+      const { chatId, userId } = req.body;
+      await this._markMessagesSeenUseCase.execute(chatId, userId);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Messages marked as seen",
+      });
+    } catch (error) {
+      console.error("Error marking messages as seen:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
 }

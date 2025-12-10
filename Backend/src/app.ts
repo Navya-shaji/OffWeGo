@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, { Express } from "express"; 
 import dotenv from "dotenv";
 import http from "http";
 import cors from "cors";
@@ -12,17 +12,16 @@ import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 
 import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
-import { ChatRoutes } from "./framework/routes/Chat/ChatRoutes";
 
-import { SocketIoServer as IoHandler } from "./Io";
-import { NotificationRoutes } from "./framework/routes/Chat/NotificationRoute";
 import { autoSettleTrips } from "./framework/Services/cronjob";
+import { SocketIoServer } from "./Io";
 
 export class App {
   private app: Express;
   private database: ConnectDB;
   private server!: http.Server;
   private io!: SocketIOServer;
+
 
   constructor() {
     dotenv.config();
@@ -56,8 +55,7 @@ export class App {
     this.app.use("/api", new UserRoute().userRouter);
     this.app.use("/api/admin", new AdminRoute().adminRouter);
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
-    this.app.use("/api/notification", new NotificationRoutes().router);
-    this.app.use("/api/chat", new ChatRoutes().router);
+
   }
 
   public async listen(): Promise<void> {
@@ -70,6 +68,7 @@ export class App {
 
       this.server = http.createServer(this.app);
 
+      // Initialize Socket.IO server
       this.io = new SocketIOServer(this.server, {
         cors: {
           origin: [
@@ -82,7 +81,9 @@ export class App {
         },
       });
 
-      new IoHandler(this.io);
+      // Setup socket event handlers
+      new SocketIoServer(this.io);
+
       this.server.listen(port, () => {
         console.log(` Server running on port ${port}`);
       });

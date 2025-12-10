@@ -7,4 +7,6 @@ export const mapToChatOut = (chat: IChatOut): IChatOut => ({
   name: chat.name ?? "",
   profile_image: chat.profile_image ?? "",
   isOnline: chat.isOnline ?? false,
+  userId: chat.userId,
+  vendorId: chat.vendorId,
 });

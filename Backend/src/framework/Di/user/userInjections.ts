@@ -51,7 +51,6 @@ import { BookingRescheduleUseCase } from "../../../useCases/booking/BookingReshe
 import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
 import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
 import { ChatController } from "../../../adapters/controller/chat/ChatController";
-import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
 import { WalletPaymentUseCase } from "../../../useCases/wallet/walletPayment";
 import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
 import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
@@ -63,6 +62,10 @@ import { PackageRepository } from "../../../adapters/repository/Package/PackageR
 import { ReadNotificationusecase } from "../../../useCases/notifications/ReadNotificationusecase";
 import { CompleteTripUseCase } from "../../../useCases/wallet/completedTripUsecase";
 import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
+// import { GetMessagesUsecase } from "../../../useCases/msg/getMessageUsecase";
+import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessageusecase";
+import { GetMessagesUseCase } from "../../../useCases/msg/getMessageUsecase";
+import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
@@ -85,7 +88,7 @@ const packageRepo=new PackageRepository()
 const notificationservice=new FirebaseNotificationService(notificationRepo,userRepository,vendorRepo,)
 const subscriptionbookingRepo=new SubscriptionBookingRepository()
 const chatRepo=new ChatRepository()
-// const msgRepo=new MessageRepository()
+const msgRepo=new MessageRepository()
 
 
 // Use Cases
@@ -115,7 +118,7 @@ const createwalletusecase=new CreateUserWalletUsecase(walletRepo)
 const getUserWalletusecase=new GetUserWalletUsecase(walletRepo)
 const forgotPassUsecase=new ForgotPassUsecase(userRepository)
 const notificationUsecase=new SendNotificationUseCase(notificationservice)
-const sendchatusecase = new InitiateChatUsecase(chatRepo, bookingRepo)
+const sendchatusecase = new InitiateChatUsecase(chatRepo)
 const getchatusecase = new GetChatsOfUserUsecase(chatRepo)
 const transferamountusecase=new TransferAmountUseCase(walletRepo)
 const completedbookings=new GetCompletedBookingsForTransfer(bookingRepo)
@@ -124,6 +127,8 @@ const reshedulebookingusecase=new BookingRescheduleUseCase(bookingRepo,packageRe
 const walletpaymentusecase=new WalletPaymentUseCase(walletRepo)
 const readnotificationusecase=new ReadNotificationusecase(notificationRepo)
 const completedTripusecase=new CompleteTripUseCase(walletRepo,bookingRepo,packageRepo)
+const getmessagesusecase = new GetMessagesUseCase(msgRepo)
+const markmessagesseenusecase = new MarkMessagesSeenUseCase(msgRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
 
 // Controllers
@@ -137,4 +142,4 @@ export const reviewcontroller=new ReviewController(createReviewusecase,getReview
 export const subscriptionpaymentcontroller=new SubscriptionPaymentController(verifypaymentusecase)
 export const walletcontroller=new WalletController(createwalletusecase,getUserWalletusecase,transferamountusecase,completedbookings,walletpaymentusecase,completedTripusecase)
 export const notificationcontroller=new NotificationController(notificationUsecase,getNotificationusecase,readnotificationusecase)
-export const chatcontroller=new ChatController(sendchatusecase,getchatusecase)
+export const chatcontroller=new ChatController(sendchatusecase, getchatusecase, getmessagesusecase, markmessagesseenusecase)

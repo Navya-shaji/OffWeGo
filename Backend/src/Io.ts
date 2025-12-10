@@ -1,66 +1,62 @@
-import { Server, Socket } from "socket.io";
-import { Server as httpServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import http from "http";
 import { ChatEventHandler } from "./framework/socketEventHandlers/chatEventHandler";
-// import { ChatSocketIOAdapter } from "./adapters/socket/chatHandler";
-// import { ChatSocketIOAdapter } from "./adapters/socket/ChatSocketIOAdapter";
 
 export class SocketIoServer {
-  private io: Server;
-  public userSockets = new Map<string, Socket>();
-  public ChatOnline = new Map<string, string>();
-  // private chatHandler : ChatSocketIOAdapter
+    private userSockets: Map<string, any> = new Map();
+    private ChatOnline: Map<string, boolean> = new Map();
+    private io: SocketIOServer;
 
-  constructor(server: Server) {
-    this.io = server;
-    this.setupSocket();
-    // this.chatHandler = chatHandler;
-  }
+    constructor(server: SocketIOServer) {
+        this.io = server;
+        this.setupSocket();
+    }
 
-  public getIO(): Server {
-    return this.io;
-  }
+    getIO(): SocketIOServer {
+        return this.io;
+    }
 
-  private setupSocket() {
-    this.io.on("connection", (socket: Socket) => {
-      console.log(socket.id, "socket connected");
-
-      new ChatEventHandler(socket, this.io);
-
-      socket.on("disconnect", () => {
-        this.userSockets.forEach((userSocket, userId) => {
-          if (userSocket.id === socket.id) {
-            this.userSockets.delete(userId);
-
-            socket.broadcast.emit("user-status-changed", {
-              userId,
-              isOnline: false,
+    private setupSocket(): void {
+        this.io.on("connection", (socket) => {
+            console.log(socket.id, "socket connected");
+            new ChatEventHandler(socket, this.io);
+            socket.on("disconnect", () => {
+                this.userSockets.forEach((userSocket, userId) => {
+                    if (userSocket.id === socket.id) {
+                        this.userSockets.delete(userId);
+                        socket.broadcast.emit("user-status-changed", {
+                            userId: userId,
+                            isOnline: false,
+                        });
+                    }
+                });
             });
-          }
         });
-      });
-    });
-  }
+    }
 }
 
-let socketIOServer: SocketIoServer;
+let socketIOServer: SocketIoServer | null = null;
 
-// Create Socket.IO server instance
-export const createSocketIOServer = (server: httpServer) => {
-  const io = new Server(server, {
-    cors: {
-      origin: process.env.ORIGIN,
-      credentials: true,
-    },
-  });
-
-  socketIOServer = new SocketIoServer(io);
-  return socketIOServer;
+export const createSocketIOServer = (server: http.Server): SocketIoServer => {
+    const io = new SocketIOServer(server, {
+        cors: {
+            origin: process.env.ORIGIN?.split(',') || [
+                "http://localhost:5173",
+                "http://localhost:4173",
+                "http://localhost:1212",
+            ],
+            credentials: true,
+        },
+    });
+    socketIOServer = new SocketIoServer(io);
+    return socketIOServer;
 };
 
-// Get the same Socket.IO instance everywhere
-export const getSocketIoServer = () => {
-  if (!socketIOServer) {
-    throw new Error("IO not found");
-  }
-  return socketIOServer;
+
+export const getSocketIoServer = (): SocketIoServer => {
+    if (!socketIOServer) {
+        throw new Error("IO not found");
+    }
+    return socketIOServer;
 };
+

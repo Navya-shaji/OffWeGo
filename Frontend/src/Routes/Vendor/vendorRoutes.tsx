@@ -7,9 +7,8 @@ import VendorSubscriptionPage from "@/pages/Vendors/Bookings/SubscriptionPlans";
 import PaymentFailureModal from "@/pages/Vendors/Bookings/BookingFailed";
 import NotFound from "@/components/Modular/NotFound";
 import PaymentSuccess from "@/pages/Vendors/Bookings/subscriptionSuccesspage";
-import MessageContainer from "@/pages/User/chat/container";
 import ChatPage from "@/pages/User/chat/chat";
-import MessageTemplate from "@/pages/User/chat/Template";
+
 
 
 const VendorRoutes = () => {
@@ -21,14 +20,11 @@ const VendorRoutes = () => {
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-failed" element={<PaymentFailureModal />} />
 
-      <Route path="/chat" element={
+      <Route path="/chat/:chatId?" element={
         <ProtectedRoute>
           <ChatPage />
         </ProtectedRoute>
-      }>
-        <Route index element={<MessageTemplate />} />
-        <Route path=":chatId" element={<MessageContainer />} />
-      </Route>
+      } />
 
       <Route
         path="/profile"

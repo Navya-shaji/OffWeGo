@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Calendar,
   Package,
   Home,
-
   Star,
   X,
   Eye,
@@ -18,6 +18,7 @@ import {
   AlertCircle,
   MessageCircle,
   RefreshCw,
+  MoreVertical,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -51,24 +52,24 @@ const RescheduleModal = ({
       toast.error("Please select a new date");
       return;
     }
-    
+
     try {
       setLoading(true);
       await rescheduleBooking(bookingId, newDate);
-      console.log(bookingId,"iiiiiii")
+      console.log(bookingId, "iiiiiii")
 
-    toast.success("Booking rescheduled successfully!");
-    onSuccess?.();
-    onClose();
-  } catch (error: any) {
-    console.error("Reschedule error:", error);
-    toast.error(error?.message || "Failed to reschedule. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+      toast.success("Booking rescheduled successfully!");
+      onSuccess?.();
+      onClose();
+    } catch (error: any) {
+      console.error("Reschedule error:", error);
+      toast.error(error?.message || "Failed to reschedule. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  
+
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -129,6 +130,9 @@ const BookingDetailsSection = () => {
   const [bookingToReschedule, setBookingToReschedule] = useState<string | null>(null);
 
   const [filterStatus, setFilterStatus] = useState("all");
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -171,7 +175,7 @@ const BookingDetailsSection = () => {
     if (startDate > today) return "upcoming";
     return "ongoing";
   };
-console.log(bookings,"Book")
+  console.log(bookings, "Book")
   const getStatusBadge = (status: string) => {
     const config: any = {
       upcoming: { bg: "bg-blue-100", text: "text-blue-800", icon: <Clock className="w-4 h-4" />, label: "Upcoming" },
@@ -193,14 +197,31 @@ console.log(bookings,"Book")
   const bookingIds = filteredBookings.map((booking) => booking.bookingId);
 
   const startChatWithVendor = async (booking: any) => {
-    if (!user?.id) return alert("Please log in.");
+    if (!user?.id) {
+      toast.error("Please log in to start a chat.");
+      return;
+    }
     const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
-    if (!vendorId) return alert("Vendor not found.");
+    if (!vendorId) {
+      toast.error("Vendor not found.");
+      return;
+    }
     try {
-      await findOrCreateChat(user.id, vendorId);
-      navigate(`/chat/${user.id}_${vendorId}`);
-    } catch (err) {
-      alert("Failed to start chat.");
+      const chatResponse = await findOrCreateChat(user.id, vendorId);
+      // The response structure is: { success: true, data: { _id: "...", name: "...", ... } }
+      const chat = chatResponse?.data || chatResponse;
+      const chatId = chat?._id || chat?.id;
+      
+      if (chatId) {
+        // Navigate to chat - the chat component will load vendor info
+        navigate(`/chat/${chatId}`);
+      } else {
+        console.error("Chat created but no ID returned:", chatResponse);
+        toast.error("Chat created but failed to open. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Chat error:", err);
+      toast.error(err?.message || "Failed to start chat. Please try again.");
     }
   };
 
@@ -215,13 +236,13 @@ console.log(bookings,"Book")
     setBookingToCancel(id);
     setIsConfirmOpen(true);
   };
-console.log(bookingToCancel,"cancel")
+  console.log(bookingToCancel, "cancel")
   const confirmCancel = async () => {
     if (!bookingIds[0]) return;
     try {
       setLoading(true);
       const res = await cancelBooking(bookingIds[0]);
-console.log(res,"res")
+      console.log(res, "res")
       const updated = await getUserBookings();
       setBookings(updated || []);
       if (selectedBooking?._id === bookingToCancel) {
@@ -237,7 +258,7 @@ console.log(res,"res")
     }
   };
 
-  
+
   const openRescheduleModal = (bookingId: string) => {
     setBookingToReschedule(bookingId);
     setIsRescheduleOpen(true);
@@ -257,9 +278,9 @@ console.log(res,"res")
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-gray-800 mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium text-xl">Loading your bookings...</p>
         </div>
       </div>
@@ -268,7 +289,7 @@ console.log(res,"res")
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
@@ -276,13 +297,13 @@ console.log(res,"res")
               <div className="flex items-center gap-6">
                 <button
                   onClick={() => navigate("/")}
-                  className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg font-semibold"
+                  className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-900 hover:to-gray-950 transition-all shadow-lg font-semibold"
                 >
                   <Home className="w-6 h-6" /> Home
                 </button>
                 <div className="flex items-center gap-4">
-                  <Package className="w-10 h-10 text-purple-600" />
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  <Package className="w-10 h-10 text-gray-800" />
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-900 bg-clip-text text-transparent">
                     My Bookings
                   </h1>
                 </div>
@@ -290,7 +311,7 @@ console.log(res,"res")
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-6 py-3 border-2 border-purple-300 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-purple-200 text-lg font-medium"
+                className="px-6 py-3 border-2 border-gray-400 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-gray-200 text-lg font-medium"
               >
                 <option value="all">All Bookings</option>
                 <option value="upcoming">Upcoming</option>
@@ -302,24 +323,41 @@ console.log(res,"res")
           </div>
 
           {/* Bookings Table */}
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl" style={{ overflow: 'visible' }}>
             {filteredBookings.length === 0 ? (
               <div className="text-center py-32">
-                <Calendar className="w-24 h-24 text-purple-300 mx-auto mb-6" />
+                <Calendar className="w-24 h-24 text-gray-400 mx-auto mb-6" />
                 <h2 className="text-3xl font-bold text-gray-800 mb-4">No Bookings Yet</h2>
                 <p className="text-xl text-gray-600 mb-8">Start your next adventure!</p>
                 <button
                   onClick={() => navigate("/")}
-                  className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xl font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-xl"
+                  className="px-10 py-5 bg-gradient-to-r from-gray-800 to-gray-900 text-white text-xl font-bold rounded-xl hover:from-gray-900 hover:to-gray-950 transition-all shadow-xl"
                 >
                   Explore Packages
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div 
+                className="overflow-x-auto" 
+                style={{ 
+                  overflowY: 'visible',
+                  maxHeight: 'none'
+                }}
+              >
+                <style>{`
+                  div.overflow-x-auto::-webkit-scrollbar {
+                    display: none;
+                    width: 0;
+                    height: 0;
+                  }
+                  div.overflow-x-auto {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                  }
+                `}</style>
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white">
+                    <tr className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
                       <th className="px-8 py-6 text-left text-lg font-bold">Package</th>
                       <th className="px-8 py-6 text-left text-lg font-bold">Date</th>
                       <th className="px-8 py-6 text-left text-lg font-bold">Guests</th>
@@ -334,7 +372,7 @@ console.log(res,"res")
                       return (
                         <tr
                           key={booking._id}
-                          className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-purple-50 transition-all duration-200 border-b-2 border-gray-100`}
+                          className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100 transition-all duration-200 border-b-2 border-gray-100`}
                         >
                           <td className="px-8 py-6 font-bold text-gray-900 text-lg">
                             {booking.selectedPackage?.packageName || "N/A"}
@@ -348,7 +386,7 @@ console.log(res,"res")
                           </td>
                           <td className="px-8 py-6">
                             <div className="flex gap-3">
-                              <span className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-bold">
+                              <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-bold">
                                 {(booking.adults?.length || 0)} Adults
                               </span>
                               <span className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full font-bold">
@@ -363,53 +401,28 @@ console.log(res,"res")
                             {getStatusBadge(status)}
                           </td>
                           <td className="px-8 py-6">
-                            <div className="flex items-center justify-center gap-4">
+                            <div className="flex items-center justify-center">
                               <button
-                                onClick={() => handleViewDetails(booking)}
-                                className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all"
-                                title="View Details"
+                                ref={(el) => {
+                                  if (el) buttonRefs.current[booking._id] = el;
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const button = buttonRefs.current[booking._id];
+                                  if (button) {
+                                    const rect = button.getBoundingClientRect();
+                                    setMenuPosition({
+                                      top: rect.bottom + window.scrollY + 8,
+                                      left: rect.right + window.scrollX - 224, // 224 = w-56 (14rem)
+                                    });
+                                  }
+                                  setOpenMenuId(openMenuId === booking._id ? null : booking._id);
+                                }}
+                                className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
+                                title="Actions"
                               >
-                                <Eye className="w-6 h-6" />
+                                <MoreVertical className="w-6 h-6 text-gray-700" />
                               </button>
-
-                              {shouldShowChatButton(booking) && (
-                                <button
-                                  onClick={() => startChatWithVendor(booking)}
-                                  className="p-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-xl transition-all"
-                                  title="Chat with Vendor"
-                                >
-                                  <MessageCircle className="w-6 h-6" />
-                                </button>
-                              )}
-
-                              {status === "upcoming" && (
-                                <button
-                                  onClick={() => openCancelModal(booking._id)}
-                                  className="px-5 py-3 bg-red-100 text-red-700 rounded-xl font-bold hover:bg-red-200 transition-all"
-                                >
-                                  Cancel
-                                </button>
-                              )}
-
-                              {status === "upcoming" && (
-                                <>
-                                  <button
-                                    onClick={() => navigate("/review")}
-                                    className="p-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl hover:shadow-xl transition-all"
-                                    title="Write Review"
-                                  >
-                                    <Star className="w-6 h-6" />
-                                  </button>
-
-                                  <button
-                                    onClick={() => openRescheduleModal(booking.bookingId)}
-                                    className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:shadow-xl transition-all"
-                                    title="Reschedule Trip"
-                                  >
-                                    <RefreshCw className="w-6 h-6" />
-                                  </button>
-                                </>
-                              )}
                             </div>
                           </td>
                         </tr>
@@ -423,11 +436,115 @@ console.log(res,"res")
         </div>
       </div>
 
+      {/* Dropdown Menu Portal */}
+      {openMenuId && menuPosition && filteredBookings.find((b) => b._id === openMenuId) && createPortal(
+        <>
+          <div
+            className="fixed inset-0 z-[999]"
+            onClick={() => {
+              setOpenMenuId(null);
+              setMenuPosition(null);
+            }}
+          />
+          <div 
+            className="fixed w-56 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-[1000]"
+            style={{ 
+              top: `${menuPosition.top}px`,
+              left: `${menuPosition.left}px`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(() => {
+              const booking = filteredBookings.find((b) => b._id === openMenuId);
+              if (!booking) return null;
+              const status = getBookingStatus(booking);
+              return (
+                <div className="py-2">
+                  {/* View Details - Always shown */}
+                  <button
+                    onClick={() => {
+                      handleViewDetails(booking);
+                      setOpenMenuId(null);
+                      setMenuPosition(null);
+                    }}
+                    className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                  >
+                    <Eye className="w-5 h-5 text-gray-800" />
+                    <span className="font-medium text-gray-700">View Details</span>
+                  </button>
+
+                  {/* Chat - Only for upcoming trips */}
+                  {status === "upcoming" && shouldShowChatButton(booking) && (
+                    <button
+                      onClick={() => {
+                        startChatWithVendor(booking);
+                        setOpenMenuId(null);
+                        setMenuPosition(null);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                    >
+                      <MessageCircle className="w-5 h-5 text-cyan-600" />
+                      <span className="font-medium text-gray-700">Chat with Vendor</span>
+                    </button>
+                  )}
+
+                  {/* Cancel - Only for upcoming trips */}
+                  {status === "upcoming" && (
+                    <button
+                      onClick={() => {
+                        openCancelModal(booking._id);
+                        setOpenMenuId(null);
+                        setMenuPosition(null);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                    >
+                      <X className="w-5 h-5 text-red-600" />
+                      <span className="font-medium text-gray-700">Cancel</span>
+                    </button>
+                  )}
+
+                  {/* Reschedule - Only for upcoming trips */}
+                  {status === "upcoming" && (
+                    <button
+                      onClick={() => {
+                        openRescheduleModal(booking.bookingId);
+                        setOpenMenuId(null);
+                        setMenuPosition(null);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                    >
+                      <RefreshCw className="w-5 h-5 text-emerald-600" />
+                      <span className="font-medium text-gray-700">Reschedule</span>
+                    </button>
+                  )}
+
+                  {/* Rating - Only for completed trips */}
+                  {status === "completed" && (
+                    <button
+                      onClick={() => {
+                        navigate("/review");
+                        setOpenMenuId(null);
+                        setMenuPosition(null);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                    >
+                      <Star className="w-5 h-5 text-amber-600" />
+                      <span className="font-medium text-gray-700">Write Review</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        </>,
+        document.body
+      )}
+
       {/* FULL DETAILS MODAL */}
       {isModalOpen && selectedBooking && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-6">
           <div className="bg-white rounded-3xl shadow-3xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gradient-to-r from-purple-800 to-indigo-800 text-white p-8 rounded-t-3xl flex justify-between items-center">
+            <div className="sticky top-0 bg-gradient-to-r from-gray-900 to-gray-950 text-white p-8 rounded-t-3xl flex justify-between items-center">
               <div className="flex items-center gap-6">
                 <Package className="w-12 h-12" />
                 <div>
@@ -459,15 +576,15 @@ console.log(res,"res")
               </div>
 
               {/* Package Details */}
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl p-8 border-2 border-purple-200">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 border-2 border-gray-200">
                 <h3 className="text-3xl font-bold mb-8 flex items-center gap-4">
-                  <Package className="w-10 h-10 text-purple-700" /> Package Information
+                  <Package className="w-10 h-10 text-gray-800" /> Package Information
                 </h3>
                 <div className="grid md:grid-cols-2 gap-8 text-xl">
                   <div><p className="text-gray-600">Package Name</p><p className="font-bold text-2xl">{selectedBooking.selectedPackage?.packageName}</p></div>
-                  <div><p className="text-gray-600">Destination</p><p className="font-bold text-2xl flex items-center gap-3"><MapPin className="w-7 h-7 text-purple-600" /> {selectedBooking.selectedPackage?.destination}</p></div>
-                  <div><p className="text-gray-600">Duration</p><p className="font-bold text-2xl flex items-center gap-3"><Clock className="w-7 h-7 text-purple-600" /> {selectedBooking.selectedPackage?.duration} Days</p></div>
-                  <div><p className="text-gray-600">Travel Date</p><p className="font-bold text-2xl flex items-center gap-3"><Calendar className="w-7 h-7 text-purple-600" /> {new Date(selectedBooking.selectedDate).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}</p></div>
+                  <div><p className="text-gray-600">Destination</p><p className="font-bold text-2xl flex items-center gap-3"><MapPin className="w-7 h-7 text-gray-800" /> {selectedBooking.selectedPackage?.destination}</p></div>
+                  <div><p className="text-gray-600">Duration</p><p className="font-bold text-2xl flex items-center gap-3"><Clock className="w-7 h-7 text-gray-800" /> {selectedBooking.selectedPackage?.duration} Days</p></div>
+                  <div><p className="text-gray-600">Travel Date</p><p className="font-bold text-2xl flex items-center gap-3"><Calendar className="w-7 h-7 text-gray-800" /> {new Date(selectedBooking.selectedDate).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}</p></div>
                 </div>
               </div>
 
@@ -580,7 +697,6 @@ console.log(res,"res")
         title="Cancel Booking"
         message="Are you sure you want to cancel this booking? This cannot be undone."
         confirmText="Yes, Cancel"
-        cancelText="No, Keep It"
         onConfirm={confirmCancel}
         onCancel={() => {
           setIsConfirmOpen(false);

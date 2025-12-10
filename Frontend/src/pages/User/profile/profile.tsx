@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { useState } from "react";
-import {  Edit2 } from "lucide-react";
+import { Edit2 } from "lucide-react";
 
 import Navbar from "@/components/profile/navbar";
 import ProfileSidebar from "@/components/profile/sidebar";
@@ -9,7 +9,6 @@ import EditProfileModal from "./EditProfile";
 import ChangePasswordModal from "./changePassword";
 import BookingDetailsSection from "../Bookings/UserBookings";
 import WalletManagement from "../wallet/userWallet";
-import ChatPage from "../chat/chat";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -18,7 +17,7 @@ const Profile = () => {
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
 
   const [activeSection, setActiveSection] = useState<
-    "profile" | "bookings" | "chat" | "wallet"
+    "profile" | "bookings" | "wallet"
   >("profile");
 
   if (!user) return null;
@@ -28,7 +27,6 @@ const Profile = () => {
       case "profile": return "My Account";
       case "bookings": return "My Bookings";
       case "wallet": return "Wallet Management";
-      case "chat": return "Messages & Support";
       default: return "My Account";
     }
   };
@@ -38,36 +36,33 @@ const Profile = () => {
       <Navbar />
 
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-<div className="flex gap-6 items-start">
-  
+      <div className="flex gap-0 items-start">
+        {/* Sidebar at left edge */}
+        <div className="w-80 flex-shrink-0 sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto py-8 pl-8 pr-6">
+          <ProfileSidebar
+            activeSection={activeSection}
+            setActiveSection={(section: string) =>
+              setActiveSection(section as "profile" | "bookings" | "wallet")
+            }
+          />
+        </div>
 
-  <div className="w-1/3 mt-15">
-    <ProfileSidebar
-      activeSection={activeSection}
-      setActiveSection={(section: string) =>
-        setActiveSection(section as "profile" | "bookings" | "chat" | "wallet")
-      }
-    />
-  </div>
+        {/* Main content area */}
+        <div className="flex-1 min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
 
-     
-          <div className="flex-1 min-w-0">
-            
-         
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gray-900">{getSectionTitle()}</h1>
             </div>
 
-          
+
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
-           
+
               {activeSection === "profile" && (
                 <div className="space-y-8">
 
-              
+
                   <div className="flex items-center justify-between pb-6 border-b border-gray-200">
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-900 text-white shadow-lg">
@@ -94,9 +89,9 @@ const Profile = () => {
                     </button>
                   </div>
 
-  
+
                   <div className="space-y-6">
-            
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Name
@@ -158,32 +153,32 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  {/* Security Section */}
-                  <div className="pt-6 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">Password</h3>
-                        <p className="text-sm text-gray-500">Change your account password</p>
+                  {/* Security Section - Hide for Google Users */}
+                  {!user.isGoogleUser && (
+                    <div className="pt-6 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">Password</h3>
+                          <p className="text-sm text-gray-500">Change your account password</p>
+                        </div>
+                        <button
+                          onClick={() => setPasswordModalOpen(true)}
+                          className="px-6 py-2.5 border border-gray-300 text-gray-900 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                        >
+                          Change Password
+                        </button>
                       </div>
-                      <button
-                        onClick={() => setPasswordModalOpen(true)}
-                        className="px-6 py-2.5 border border-gray-300 text-gray-900 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                      >
-                        Change Password
-                      </button>
                     </div>
-                  </div>
+                  )}
 
                 </div>
               )}
 
               {activeSection === "bookings" && <BookingDetailsSection />}
               {activeSection === "wallet" && <WalletManagement />}
-              {activeSection === "chat" && <ChatPage />}
             </div>
           </div>
         </div>
-      </div>
 
       {/* MODALS */}
       <EditProfileModal isOpen={isEditOpen} onClose={() => setEditOpen(false)} />

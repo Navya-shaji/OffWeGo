@@ -7,11 +7,11 @@ import {
   updateActivity,
   searchActivity,
 } from "@/services/Activity/ActivityService";
-import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; 
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { toast, ToastContainer } from "react-toastify";
 import { Edit, Trash, X, Upload } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import Pagination from "@/components/pagination/pagination";
+
 import { SearchBar } from "@/components/Modular/searchbar";
 import type { Activity } from "@/interface/PackageInterface";
 
@@ -43,22 +43,22 @@ const ActivitiesTable: React.FC = () => {
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
-  const normalizeActivity = useCallback((activity:Activity): Activity => ({
+  const normalizeActivity = useCallback((activity: Activity): Activity => ({
     ...activity,
-    id:  activity.id || activity.activityId,
+    id: activity.id || activity.activityId,
     imageUrl: activity.imageUrl || "",
   }), []);
 
-  const loadActivities = useCallback(async (pageNum: number = 1) => {
+  const loadActivities = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     if (isLoadingRef.current) return;
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
       setError("");
-      
+
       const response = await getActivities(pageNum, limit);
-      
+
       if (!response || typeof response !== 'object') {
         throw new Error('Invalid response from server');
       }
@@ -66,18 +66,28 @@ const ActivitiesTable: React.FC = () => {
       const activitiesList = Array.isArray(response.activities) ? response.activities : [];
       const normalized = activitiesList.map(normalizeActivity);
 
-      setActivities(normalized);
-      setOriginalActivities(normalized);
+      if (append) {
+        // Append new activities to existing list
+        setActivities((prev) => [...prev, ...normalized]);
+        setOriginalActivities((prev) => [...prev, ...normalized]);
+      } else {
+        // Replace activities (for initial load or search)
+        setActivities(normalized);
+        setOriginalActivities(normalized);
+      }
+
       setTotalPages(Math.max(response.totalPages || 1, 1));
       setTotalActivities(response.totalActivities || normalized.length);
       setPage(pageNum);
-      
+
     } catch (err) {
       console.error("Error loading activities:", err);
-      const  errorMessage = "Failed to load activities";
+      const errorMessage = "Failed to load activities";
       setError(errorMessage);
-      setActivities([]);
-      setOriginalActivities([]);
+      if (!append) {
+        setActivities([]);
+        setOriginalActivities([]);
+      }
       toast.error(errorMessage);
     } finally {
       isLoadingRef.current = false;
@@ -105,21 +115,21 @@ const ActivitiesTable: React.FC = () => {
       try {
         setLoading(true);
         const response = await searchActivity(query);
-        
+
         if (!response || typeof response !== 'object') {
           throw new Error('Invalid search response');
         }
 
         const searchResults = Array.isArray(response.activities) ? response.activities : [];
         const normalized = searchResults.map(normalizeActivity);
-        
+
         setActivities(normalized);
         setTotalPages(Math.max(Math.ceil(normalized.length / limit), 1));
         setPage(1);
-        
+
       } catch (err) {
-       if (err instanceof Error)
-        console.error("Search error:", err);
+        if (err instanceof Error)
+          console.error("Search error:", err);
         const errorMessage = "Search failed";
         setError(errorMessage);
         setActivities([]);
@@ -134,12 +144,18 @@ const ActivitiesTable: React.FC = () => {
 
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage === page || newPage < 1 || newPage > totalPages) return;
-    
+
     setPage(newPage);
-    
+
     if (!isSearchMode) {
       loadActivities(newPage);
     }
+  }, [page, totalPages, isSearchMode, loadActivities]);
+
+  const handleLoadMore = useCallback(() => {
+    if (page >= totalPages || isSearchMode) return;
+    const nextPage = page + 1;
+    loadActivities(nextPage, true); // true = append mode
   }, [page, totalPages, isSearchMode, loadActivities]);
 
   useEffect(() => {
@@ -178,14 +194,14 @@ const ActivitiesTable: React.FC = () => {
     }
 
     const normalizedActivity = normalizeActivity(activity);
-    
+
     setSelectedActivity(normalizedActivity);
     setFormData({
       title: normalizedActivity.title || "",
       description: normalizedActivity.description || "",
       imageUrl: normalizedActivity.imageUrl || "",
     });
-    
+
     const imageUrl = getUrlFromImgTag(normalizedActivity.imageUrl || "");
     setImagePreview(imageUrl);
     setNewImageFile(null);
@@ -219,7 +235,7 @@ const ActivitiesTable: React.FC = () => {
 
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedActivity?.id) {
       toast.error("Invalid activity ID");
       return;
@@ -233,11 +249,11 @@ const ActivitiesTable: React.FC = () => {
     setIsUpdating(true);
     try {
       let finalImageUrl = formData.imageUrl;
-      
+
       if (newImageFile) {
         try {
           finalImageUrl = await uploadToCloudinary(newImageFile);
-        } catch  {
+        } catch {
           toast.error("Failed to upload image. Please try again.");
           setIsUpdating(false);
           return;
@@ -251,9 +267,9 @@ const ActivitiesTable: React.FC = () => {
       };
 
       const response = await updateActivity(selectedActivity.id, updateData);
-      
+
       const updatedActivity = response?.data ? normalizeActivity(response.data) : { ...selectedActivity, ...updateData };
-      
+
       toast.success("Activity updated successfully");
 
       const updateActivityInList = (list: Activity[]) =>
@@ -271,12 +287,12 @@ const ActivitiesTable: React.FC = () => {
       setNewImageFile(null);
       setImagePreview("");
       setFormData({ title: "", description: "", imageUrl: "" });
-      
+
     } catch (err) {
       if (err instanceof Error)
-      console.error("Update error:", err);
-      
-      const  errorMessage = "Failed to update activity";
+        console.error("Update error:", err);
+
+      const errorMessage = "Failed to update activity";
       setError(errorMessage);
       toast.error(errorMessage);
       setTimeout(() => setError(""), 3000);
@@ -317,24 +333,24 @@ const ActivitiesTable: React.FC = () => {
         setOriginalActivities(updatedOriginalActivities);
         setTotalActivities(prev => Math.max(prev - 1, 0));
         setTotalPages(Math.max(Math.ceil((totalActivities - 1) / limit), 1));
-        
+
         if (updatedActivities.length === 0 && page > 1) {
           setPage(page - 1);
           loadActivities(page - 1);
         }
       } else {
         setTotalPages(Math.max(Math.ceil(updatedActivities.length / limit), 1));
-        
+
         if (updatedActivities.length > 0 && Math.ceil(updatedActivities.length / limit) < page) {
           setPage(Math.ceil(updatedActivities.length / limit));
         }
       }
-      
+
     } catch (err) {
       if (err instanceof Error)
-      console.error("Delete error:", err);
-      
-      const  errorMessage = "Failed to delete activity";  
+        console.error("Delete error:", err);
+
+      const errorMessage = "Failed to delete activity";
       setError(errorMessage);
       toast.error(errorMessage);
       setTimeout(() => setError(""), 3000);
@@ -346,15 +362,15 @@ const ActivitiesTable: React.FC = () => {
 
   const columns: ColumnDef<Activity>[] = useMemo(
     () => [
-      { 
-        header: "#", 
+      {
+        header: "#",
         cell: ({ row }) => {
           const baseIndex = (page - 1) * limit;
           return baseIndex + row.index + 1;
         }
       },
-      { 
-        accessorKey: "title", 
+      {
+        accessorKey: "title",
         header: "Title",
         cell: ({ row }) => (
           <div className="font-medium text-gray-900" title={row.original.title}>
@@ -362,8 +378,8 @@ const ActivitiesTable: React.FC = () => {
           </div>
         )
       },
-      { 
-        accessorKey: "description", 
+      {
+        accessorKey: "description",
         header: "Description",
         cell: ({ row }) => (
           <div className="max-w-xs truncate text-gray-600" title={row.original.description}>
@@ -435,7 +451,7 @@ const ActivitiesTable: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold text-gray-900">Activities List</h2>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
+            {isSearchMode
               ? `Found ${activities.length} activit${activities.length !== 1 ? 'ies' : 'y'} for "${searchQuery}"`
               : `${totalActivities} total activities`
             }
@@ -446,7 +462,7 @@ const ActivitiesTable: React.FC = () => {
           <SearchBar
             placeholder="Search Activities..."
             onSearch={handleSearch}
-            // value={searchQuery}
+          // value={searchQuery}
           />
         </div>
       </div>
@@ -473,20 +489,34 @@ const ActivitiesTable: React.FC = () => {
             <ReusableTable data={getCurrentPageData} columns={columns} />
           </div>
 
-       
-          {totalPages > 1 && (
-            <div className="flex justify-center">
-              <Pagination 
-                total={totalPages} 
-                current={page} 
-                setPage={handlePageChange}
-              />
+
+          {!isSearchMode && page < totalPages && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                disabled={loading}
+                className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More
+                    <span className="text-sm text-gray-300">
+                      ({activities.length} of {totalActivities})
+                    </span>
+                  </>
+                )}
+              </button>
             </div>
           )}
 
- 
+
           <div className="text-center text-sm text-gray-500">
-            {isSearchMode 
+            {isSearchMode
               ? `Showing ${Math.min((page - 1) * limit + 1, activities.length)}-${Math.min(page * limit, activities.length)} of ${activities.length} search results`
               : `Showing ${Math.min((page - 1) * limit + 1, totalActivities)}-${Math.min(page * limit, totalActivities)} of ${totalActivities} activities`
             }
@@ -501,7 +531,7 @@ const ActivitiesTable: React.FC = () => {
             No Activities Found
           </h3>
           <p className="text-gray-600">
-            {searchQuery 
+            {searchQuery
               ? `No activities match your search for "${searchQuery}"`
               : "No activities are available at the moment"
             }
@@ -578,7 +608,7 @@ const ActivitiesTable: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Image
                 </label>
-                
+
                 {/* Current/Preview Image */}
                 {imagePreview && (
                   <div className="mb-3">
@@ -602,9 +632,8 @@ const ActivitiesTable: React.FC = () => {
                   />
                   <label
                     htmlFor="image-upload"
-                    className={`flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${
-                      isUpdating ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
                     <Upload size={16} />
                     Choose New Image
@@ -669,11 +698,11 @@ const ActivitiesTable: React.FC = () => {
               <h3 className="text-xl font-bold mb-2 text-gray-800">
                 Confirm Delete
               </h3>
-              
+
               <p className="text-gray-600 mb-4">
                 Are you sure you want to delete this activity?
               </p>
-              
+
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
                 <p className="font-semibold text-red-800 text-lg">
                   {activityToDelete.title}

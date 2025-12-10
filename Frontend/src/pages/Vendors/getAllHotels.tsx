@@ -12,7 +12,6 @@ import {
 } from "@/services/Hotel/HotelService";
 
 import { SearchBar } from "@/components/Modular/searchbar";
-import Pagination from "@/components/pagination/pagination";
 import ReusableTable from "@/components/Modular/Table";
 
 interface Hotel {
@@ -42,41 +41,51 @@ const HotelsTable: React.FC = () => {
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-const [destinationId, setDestinationId] = useState<string>("");
+  const [destinationId, setDestinationId] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-console.log(setDestinationId)
-  const loadHotels = useCallback(async (pageNum: number = 1) => {
-  if (isLoadingRef.current) return;
+  console.log(setDestinationId)
+  const loadHotels = useCallback(async (pageNum: number = 1, append: boolean = false) => {
+    if (isLoadingRef.current) return;
 
-  try {
-    isLoadingRef.current = true;
-    setLoading(true);
-    setError("");
+    try {
+      isLoadingRef.current = true;
+      setLoading(true);
+      setError("");
 
-    const response = await getAllHotel(pageNum, 5);
+      const response = await getAllHotel(pageNum, 5);
 
-    const hotelsWithId = response.hotels.map((hotel) => ({
-      ...hotel,
-      _id: hotel.hotelId || "",
-    }));
+      const hotelsWithId = response.hotels.map((hotel) => ({
+        ...hotel,
+        _id: hotel.hotelId || "",
+      }));
 
-    setHotels(hotelsWithId);
-    setOriginalHotels(hotelsWithId); // ✅ Preserve original data
-    setTotalPages(response.totalPages || 1);
-    setTotalHotels(response.totalHotels || hotelsWithId.length);
-    setPage(pageNum);
-  } catch (err) {
-    console.error("Error loading hotels:", err);
-    setError("Failed to load hotels. Please try again.");
-    setHotels([]);
-    toast.error("Failed to load hotels");
-  } finally {
-    isLoadingRef.current = false;
-    setLoading(false);
-  }
-}, []);
+      if (append) {
+        // Append new hotels to existing list
+        setHotels((prev) => [...prev, ...hotelsWithId]);
+        setOriginalHotels((prev) => [...prev, ...hotelsWithId]);
+      } else {
+        // Replace hotels (for initial load or search)
+        setHotels(hotelsWithId);
+        setOriginalHotels(hotelsWithId);
+      }
+
+      setTotalPages(response.totalPages || 1);
+      setTotalHotels(response.totalHotels || hotelsWithId.length);
+      setPage(pageNum);
+    } catch (err) {
+      console.error("Error loading hotels:", err);
+      setError("Failed to load hotels. Please try again.");
+      if (!append) {
+        setHotels([]);
+      }
+      toast.error("Failed to load hotels");
+    } finally {
+      isLoadingRef.current = false;
+      setLoading(false);
+    }
+  }, []);
 
 
   const handleSearch = useCallback(async (query: string) => {
@@ -101,40 +110,46 @@ console.log(setDestinationId)
       try {
         const response = await searchHotel(query);
         const searchResults = Array.isArray(response) ? response : [];
-        
+
         const hotelsWithId = searchResults.map((hotel) => ({
           ...hotel,
           _id: hotel.hotelId || hotel._id,
         }));
-        
+
         setHotels(hotelsWithId);
         setTotalPages(Math.ceil(hotelsWithId.length / 5));
         setPage(1);
-        
+
       } catch (err) {
         console.error("Search error:", err);
         setError("Search failed. Please try again.");
         setHotels([]);
         setTotalPages(1);
         toast.error("Failed to search hotels");
-       
+
         setTimeout(() => setError(""), 3000);
       }
     }, 400);
   }, [originalHotels, totalHotels]);
 
-  // Handle page change
-  const handlePageChange = useCallback((newPage: number) => {
-    if (newPage === page) return; // Prevent unnecessary calls
-    
-    setPage(newPage);
-    
-    if (!isSearchMode) {
-      // Only fetch from server in normal mode
-      loadHotels(newPage);
-    }
-    // In search mode, we handle pagination with data slicing below
-  }, [page, isSearchMode, loadHotels]);
+  // // Handle page change
+  // const handlePageChange = useCallback((newPage: number) => {
+  //   if (newPage === page) return; // Prevent unnecessary calls
+
+  //   setPage(newPage);
+
+  //   if (!isSearchMode) {
+  //     // Only fetch from server in normal mode
+  //     loadHotels(newPage);
+  //   }
+  //   // In search mode, we handle pagination with data slicing below
+  // }, [page, isSearchMode, loadHotels]);
+
+  const handleLoadMore = useCallback(() => {
+    if (page >= totalPages || isSearchMode) return;
+    const nextPage = page + 1;
+    loadHotels(nextPage, true); // true = append mode
+  }, [page, totalPages, isSearchMode, loadHotels]);
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -147,7 +162,7 @@ console.log(setDestinationId)
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []); 
+  }, []);
 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
@@ -175,23 +190,23 @@ console.log(setDestinationId)
     if (!selectedHotel?._id) return;
 
     try {
-     await updateHotel(selectedHotel._id, {
-  destinationId, 
-  name: formData.name,
-  address: formData.address,
-  rating: Math.min(5, formData.rating),
-});
+      await updateHotel(selectedHotel._id, {
+        destinationId,
+        name: formData.name,
+        address: formData.address,
+        rating: Math.min(5, formData.rating),
+      });
       toast.success("Hotel updated successfully!");
 
       const updateHotelInList = (list: Hotel[]) =>
         list.map((h) =>
           h._id === selectedHotel._id
             ? {
-                ...h,
-                name: formData.name,
-                address: formData.address,
-                rating: Math.min(5, formData.rating),
-              }
+              ...h,
+              name: formData.name,
+              address: formData.address,
+              rating: Math.min(5, formData.rating),
+            }
             : h
         );
 
@@ -202,12 +217,12 @@ console.log(setDestinationId)
 
       setIsEditModalOpen(false);
       setSelectedHotel(null);
-      
+
     } catch (err) {
       console.error("Error while editing hotel", err);
       setError("Failed to update hotel. Please try again.");
-      toast.error( "Failed to update hotel");
-      
+      toast.error("Failed to update hotel");
+
       // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     }
@@ -215,7 +230,7 @@ console.log(setDestinationId)
 
   const confirmDelete = useCallback(async () => {
     if (!selectedHotel?._id) return;
-    
+
     try {
       await deleteHotel(selectedHotel._id);
       toast.success("Hotel deleted successfully!");
@@ -232,23 +247,23 @@ console.log(setDestinationId)
       } else {
         setTotalPages(Math.ceil(updatedHotels.length / 5));
       }
-      
+
     } catch (err) {
       console.error("Delete error:", err);
       setError("Failed to delete hotel. Please try again.");
       toast.error("Failed to delete hotel");
-      
+
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleteModalOpen(false);
       setSelectedHotel(null);
     }
   }, [selectedHotel, hotels, originalHotels, isSearchMode, totalHotels]);
-console.log(hotels,"hotels")
+  console.log(hotels, "hotels")
   const columns = useMemo<ColumnDef<Hotel>[]>(
     () => [
-      { 
-        header: "#", 
+      {
+        header: "#",
         cell: ({ row }) => {
           const baseIndex = (page - 1) * 5;
           return baseIndex + row.index + 1;
@@ -318,7 +333,7 @@ console.log(hotels,"hotels")
             <MapPin className="w-5 h-5" /> Hotels List
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
+            {isSearchMode
               ? `Found ${hotels.length} hotel${hotels.length !== 1 ? 's' : ''} for "${searchQuery}"`
               : `${totalHotels} total hotels`
             }
@@ -327,10 +342,10 @@ console.log(hotels,"hotels")
 
         <div className="flex items-center gap-4">
           <div className="w-60">
-            <SearchBar 
-              placeholder="Search hotels..." 
+            <SearchBar
+              placeholder="Search hotels..."
               onSearch={handleSearch}
-              // value={searchQuery}
+            // value={searchQuery}
             />
           </div>
           <span className="bg-slate-800 text-white px-3 py-1 rounded-full text-sm">
@@ -353,27 +368,42 @@ console.log(hotels,"hotels")
         </div>
       )}
 
-  
+
       {hotels.length > 0 ? (
         <>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable data={getCurrentPageData()} columns={columns} />
           </div>
 
-        
-          {totalPages > 1 && (
-            <div className="flex justify-center">
-              <Pagination 
-                total={totalPages} 
-                current={page} 
-                setPage={handlePageChange}
-              />
+
+
+          {!isSearchMode && page < totalPages && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                disabled={loading}
+                className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More
+                    <span className="text-sm text-gray-300">
+                      ({hotels.length} of {totalHotels})
+                    </span>
+                  </>
+                )}
+              </button>
             </div>
           )}
 
-       
+
           <div className="text-center text-sm text-gray-500">
-            {isSearchMode 
+            {isSearchMode
               ? `Showing ${Math.min((page - 1) * 5 + 1, hotels.length)}-${Math.min(page * 5, hotels.length)} of ${hotels.length} search results`
               : `Showing ${((page - 1) * 5) + 1}-${Math.min(page * 5, totalHotels)} of ${totalHotels} hotels`
             }
@@ -386,7 +416,7 @@ console.log(hotels,"hotels")
             No Hotels Found
           </h3>
           <p className="text-gray-600">
-            {searchQuery 
+            {searchQuery
               ? `No hotels match your search for "${searchQuery}"`
               : "No hotels are available at the moment"
             }
@@ -501,11 +531,11 @@ console.log(hotels,"hotels")
               <h3 className="text-xl font-bold mb-2 text-gray-800">
                 Confirm Delete
               </h3>
-              
+
               <p className="text-gray-600 mb-2">
                 Are you sure you want to delete this hotel?
               </p>
-              
+
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
                 <p className="font-semibold text-red-800 text-lg">
                   {selectedHotel.name}

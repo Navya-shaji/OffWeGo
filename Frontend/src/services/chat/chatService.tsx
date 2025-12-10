@@ -1,96 +1,48 @@
 import axiosInstance from "@/axios/instance";
+import { isAxiosError } from "axios";
 
-// FIXED: Properly unwrap the response data
-export const findOrCreateChat = async (userId: string, ownerId: string) => {
+export const getMessages = async (chatId: string) => {
   try {
-    console.log('Calling findOrCreateChat with:', { userId, ownerId });
-    
-    const response = await axiosInstance.post('/api/chat/find-or-create', {
+    const res = await axiosInstance.get(`/api/chat/messages/${chatId}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Failed to fetch messages");
+    }
+    throw new Error("Unexpected error while fetching messages");
+  }
+};
+
+export const findOrCreateChat = async (userId: string, otherId: string) => {
+  try {
+    const res = await axiosInstance.post("/api/chat/send", {
       userId,
-      ownerId
+      ownerId: otherId,
     });
-    
-    console.log('Raw API response:', response);
-    console.log('Response data:', response?.data);
-    
-    if (!response?.data) {
-      throw new Error('No response data from server');
+    // Return the full response structure: { success: true, data: { _id: "...", ... } }
+    return res.data;
+  } catch (error) {
+    console.error("Error finding or creating chat:", error);
+    if (isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || "Failed to find or create chat";
+      console.error("Chat error details:", error.response?.data);
+      throw new Error(errorMessage);
     }
-    
-    // Handle nested response structure: { success: true, data: chat }
-    if (response.data?.success && response.data?.data) {
-      console.log('Returning chat data from response.data.data');
-      return response.data.data; // Returns the actual chat object
-    }
-    
-    // If data is already at the top level (has _id field)
-    if (response.data?._id) {
-      console.log('Returning chat data from response.data');
-      return response.data;
-    }
-    
-    console.error('Unexpected response format:', response.data);
-    throw new Error(`Invalid response format: ${JSON.stringify(response.data)}`);
-  } catch (error: any) {
-    console.error('Full error object:', error);
-    console.error('Error response:', error?.response);
-    console.error('Error message:', error?.message);
-    console.error('Error code:', error?.code);
-    
-    // Network error (no response from server)
-    if (!error?.response) {
-      const message = error?.message || 'Network error - server not responding';
-      console.error('Network error details:', message);
-      throw new Error(message);
-    }
-    
-    // Server responded with an error
-    if (error?.response?.data?.message) {
-      throw new Error(error.response.data.message);
-    }
-    
-    // Generic error
-    throw new Error(error?.message || 'Failed to start chat');
+    throw new Error("Unexpected error while finding or creating chat");
   }
 };
 
 export const getChatsOfUser = async (userId: string) => {
   try {
-    console.log('Calling getChatsOfUser with:', { userId });
-    
-    const response = await axiosInstance.get(`/api/chat/${userId}`);
-    console.log('Raw API response:', response);
-    console.log('Response data:', response?.data);
-    
-    if (!response || !response.data) {
-      throw new Error('No response from server');
+    const res = await axiosInstance.get(`/api/chat/${userId}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching user chats:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Failed to fetch chats");
     }
-    
-    return response.data;
-  } catch (error) {
-    console.log('Error while getting chat:', error);
-    throw error;
+    throw new Error("Unexpected error while fetching chats");
   }
 };
 
-// Message APIs
-export const getMessages = async (chatId: string) => {
-  console.log('Fetching messages for chatId:', chatId);
-  try {
-    const response = await axiosInstance.get(`/api/chat/messages/${chatId}`);
-    return response.data;
-  } catch (error) {
-    console.log('Error while getting messages:', error);
-    throw error;
-  }
-};
-
-export const enableChat = async (userId: string, ownerId: string) => {
-  try {
-    const response = await axiosInstance.post(`/api/chat/enable-chat`, { userId, ownerId });
-    return response.data;
-  } catch (error) {
-    console.log('Error while enabling chat:', error);
-    throw error;
-  }
-};

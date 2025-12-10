@@ -8,7 +8,7 @@ import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
 import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
-import  {PackageTimeline} from "@/pages/User/Destination/packageTimeline";
+import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
@@ -20,8 +20,7 @@ import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
 import ChatPage from "@/pages/User/chat/chat";
-import MessageTemplate from "@/pages/User/chat/Template";
-import MessageContainer from "@/pages/User/chat/container";
+
 import NotFound from "@/components/Modular/NotFound";
 
 const UserRoute = () => {
@@ -57,13 +56,10 @@ const UserRoute = () => {
       <Route path="/buddy-packages" element={<Travalbuddies />} />
       <Route path="/payment-success" element={<BookingSuccess />} />
 
-     
-      <Route path='/chat' element={<ChatPage />}>
-        <Route index element={<MessageTemplate />} />
-        <Route path=':chatId' element={<MessageContainer />} />
-      </Route>
+
+      <Route path='/chat/:chatId?' element={<ChatPage />} />
       <Route>
-        <Route path="*" element={<NotFound/>}></Route>
+        <Route path="*" element={<NotFound />}></Route>
       </Route>
     </Routes>
   );

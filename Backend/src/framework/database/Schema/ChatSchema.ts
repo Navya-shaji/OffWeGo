@@ -1,7 +1,6 @@
 import { Schema } from "mongoose";
-import { IChat } from "../../../domain/entities/chatEntity";
 
-export const chatSchema = new Schema<IChat>({
+export const chatSchema = new Schema({
     lastMessage: {
         type: String
     },
@@ -18,8 +17,14 @@ export const chatSchema = new Schema<IChat>({
         ref: 'vendor',
         required: true
     },
-
-
+    unreadCountUser: {
+        type: Number,
+        default: 0
+    },
+    unreadCountVendor: {
+        type: Number,
+        default: 0
+    }
 }, {
     timestamps: true
-})
+});

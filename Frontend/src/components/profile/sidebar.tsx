@@ -3,7 +3,6 @@ import {
   Calendar,
   LogOut,
   Wallet,
-  MessageCircle,
   ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +22,6 @@ const ProfileSidebar = ({ activeSection, setActiveSection }: ProfileSidebarProps
     { icon: User, label: "Profile Settings", section: "profile", desc: "Manage your account" },
     { icon: Calendar, label: "My Bookings", section: "bookings", desc: "View booking history" },
     { icon: Wallet, label: "Wallet", section: "wallet", desc: "Manage your balance" },
-    { icon: MessageCircle, label: "Messages", section: "chat", desc: "Chat with support" },
   ];
 
   const handleLogout = () => {
