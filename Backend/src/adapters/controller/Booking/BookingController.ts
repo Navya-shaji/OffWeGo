@@ -84,17 +84,22 @@ export class BookingController {
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
       const bookingId = req.params.id;
-      const bookings = await this._cancelBookingUsecase.execute(bookingId);
+      const reason = req.body?.reason;
+      console.log("Cancelling booking:", bookingId, "Reason:", reason);
+      const booking = await this._cancelBookingUsecase.execute(bookingId);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        bookings: bookings,
+        message: "Booking cancelled successfully",
+        data: booking,
       });
-    } catch (error) {
-      console.log(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    } catch (error: any) {
+      console.error("Cancel booking error:", error);
+      const errorMessage = error?.message || "Failed to cancel booking";
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        error,
+        message: errorMessage,
+        error: errorMessage,
       });
     }
   }

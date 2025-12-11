@@ -21,16 +21,11 @@ import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import {
   bookingcontroller,
-  
-
-  
-  // chatcontroller,
-  
-  // notificationcontroller,
-  
+  notificationcontroller,
   subscriptionpaymentcontroller,
   walletcontroller,
 } from "../../Di/User/userInjections";
+import { chatcontroller } from "../../Di/Chat/ChatInjection";
 import { Role } from "../../../domain/constants/Roles";
 
 const TokenService = new JwtService();
@@ -225,6 +220,13 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         subscriptionBookingController.createSubscriptionBooking(req, res)
     );
+    this.vendorRouter.get(
+      VendorRoutes.GET_VENDOR_SUBSCRIPTION,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) =>
+        subscriptionBookingController.getVendorSubscription(req, res)
+    );
     this.vendorRouter.post(
       VendorRoutes.VERIFY_PAYMENT,
       (req: Request, res: Response) =>
@@ -241,12 +243,21 @@ export class VendorRoute {
         buddyTravelcontroller.getVendorBuddyPackages(req,res)
       }
     )
-    // this.vendorRouter.get(
-    //   CommonRoutes.CHATS,
-    //   (req:Request,res:Response)=>{
-    //     chatcontroller.getChat(req,res)
-    //   }
-    // )
+    // Chat routes for vendors
+    this.vendorRouter.post("/chat/send", (req: Request, res: Response) => {
+      chatcontroller.findOrCreateChat(req, res);
+    });
+    this.vendorRouter.get("/chat/messages/:chatId", (req: Request, res: Response) => {
+      chatcontroller.getMessages(req, res);
+    });
+    this.vendorRouter.get("/chat/:vendorId", (req: Request, res: Response) => {
+      // Add userType=vendor query parameter
+      req.query.userType = 'vendor';
+      chatcontroller.getChats(req, res);
+    });
+    this.vendorRouter.post("/chat/messages/mark-seen", (req: Request, res: Response) => {
+      chatcontroller.markMessagesSeen(req, res);
+    });
     this.vendorRouter.post(
       VendorRoutes.VENDOR_WALLET,
       (req:Request,res:Response)=>{
@@ -260,6 +271,22 @@ export class VendorRoute {
         walletcontroller.GetWallet(req,res)
       }
     )
+    
+    // Notification routes (verifyTokenAndCheckBlackList is already applied globally above)
+    this.vendorRouter.post(
+      "/notification/notify",
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) => {
+        notificationcontroller.getNotifications(req, res);
+      }
+    );
+    this.vendorRouter.patch(
+      "/notification/read/:id",
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) => {
+        notificationcontroller.readNotifications(req, res);
+      }
+    );
   
   }
 }

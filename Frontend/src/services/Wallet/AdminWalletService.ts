@@ -74,33 +74,33 @@ export const getFinishedTrips = async (): Promise<Booking[]> => {
   }
 };
 
-export const processFinishedTrips = async (
-  adminId: string
-): Promise<void> => {
-  try {
+// export const processFinishedTrips = async (
+//   adminId: string
+// ): Promise<void> => {
+//   try {
    
-    const completedTrips = await getFinishedTrips();
-    console.log(completedTrips, "Completed Trips");
+//     const completedTrips = await getFinishedTrips();
+//     console.log(completedTrips, "Completed Trips");
 
-    for (const trip of completedTrips) {
-      if (!trip.selectedPackage?.vendorId) continue;
+//     for (const trip of completedTrips) {
+//       if (!trip.selectedPackage?.vendorId) continue;
 
-      const vendorId = trip.selectedPackage.vendorId;
-      const bookingAmount = trip.totalAmount;
-      const vendorShare = bookingAmount * 0.9; 
+//       const vendorId = trip.selectedPackage.vendorId;
+//       const bookingAmount = trip.totalAmount;
+//       const vendorShare = bookingAmount * 0.9; 
 
-      console.log(
-        `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
-      );
+//       console.log(
+//         `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
+//       );
 
    
-      await transferWalletAmount(adminId, vendorId, vendorShare);
-    }
-  } catch (error) {
-    console.error("Error processing finished trips:", error);
-    throw new Error("Failed to process finished trips");
-  }
-};
+//       await transferWalletAmount(adminId, vendorId, vendorShare);
+//     }
+//   } catch (error) {
+//     console.error("Error processing finished trips:", error);
+//     throw new Error("Failed to process finished trips");
+//   }
+// };
 
 export const completeTripAndDistribute = async (payload) => {
   try {

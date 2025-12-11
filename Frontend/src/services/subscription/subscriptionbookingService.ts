@@ -31,7 +31,7 @@ export const createSubscriptionBooking = async (data: SubscriptionBookingPayload
   }
 };
 
-export const verifyPayment = async (paymentData) => {
+export const verifyPayment = async (paymentData:unknown) => {
   try {
     const res = await axiosInstance.post("api/vendor/payment-success", paymentData);
     return res.data;

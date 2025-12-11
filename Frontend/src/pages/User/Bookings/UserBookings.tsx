@@ -29,7 +29,8 @@ import {
   rescheduleBooking,
 } from "@/services/Booking/bookingService";
 import { findOrCreateChat } from "@/services/chat/chatService";
-import { ConfirmModal } from "@/components/Modular/ConfirmModal";
+import { CancelBookingModal } from "@/components/Modular/CancelBookingModal";
+import { ReviewModal } from "@/components/Modular/ReviewModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
@@ -38,41 +39,71 @@ const RescheduleModal = ({
   open,
   onClose,
   bookingId,
+  currentDate,
   onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
   bookingId: string;
+  currentDate?: string;
   onSuccess?: () => void;
 }) => {
   const [newDate, setNewDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+
   const handleSubmit = async () => {
+    setError("");
+
     if (!newDate) {
-      toast.error("Please select a new date");
+      setError("Please select a new date");
       return;
+    }
+
+    const selectedDate = new Date(newDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate <= today) {
+      setError("New date must be in the future");
+      return;
+    }
+
+    if (currentDate) {
+      const current = new Date(currentDate);
+      current.setHours(0, 0, 0, 0);
+      if (selectedDate <= current) {
+        setError("New date must be after the current booking date");
+        return;
+      }
     }
 
     try {
       setLoading(true);
       await rescheduleBooking(bookingId, newDate);
-      console.log(bookingId, "iiiiiii")
-
-      toast.success("Booking rescheduled successfully!");
+      toast.success("Booking rescheduled successfully! 🎉");
+      setNewDate("");
       onSuccess?.();
       onClose();
     } catch (error: any) {
       console.error("Reschedule error:", error);
-      toast.error(error?.message || "Failed to reschedule. Please try again.");
+      setError(error?.response?.data?.message || error?.message || "Failed to reschedule. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleClose = () => {
+    setNewDate("");
+    setError("");
+    onClose();
+  };
+
 
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md p-6 rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-3">
@@ -82,26 +113,62 @@ const RescheduleModal = ({
         </DialogHeader>
 
         <div className="mt-6 space-y-5">
+          {currentDate && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+              <p className="text-sm text-blue-800 font-medium">
+                Current booking date: {new Date(currentDate).toLocaleDateString("en-US", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric"
+                })}
+              </p>
+            </div>
+          )}
+          
           <div>
-            <label className="text-sm font-semibold text-gray-700">Choose New Travel Date</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Choose New Travel Date <span className="text-red-500">*</span>
+            </label>
             <input
               type="date"
-              className="w-full mt-2 p-4 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-lg"
+              className={`w-full p-4 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all text-lg ${
+                error
+                  ? "border-red-300 focus:ring-red-200 focus:border-red-500"
+                  : "border-gray-200 focus:ring-emerald-100 focus:border-emerald-500"
+              }`}
               value={newDate}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setNewDate(e.target.value)}
+              min={currentDate 
+                ? (() => {
+                    const min = new Date(currentDate);
+                    min.setDate(min.getDate() + 1);
+                    return min.toISOString().split("T")[0];
+                  })()
+                : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
+              onChange={(e) => {
+                setNewDate(e.target.value);
+                setError("");
+              }}
             />
+            {error && (
+              <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              New date must be after {currentDate ? new Date(currentDate).toLocaleDateString() : "today"}
+            </p>
           </div>
         </div>
 
         <div className="mt-8 flex justify-end gap-4">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="outline" onClick={handleClose} disabled={loading} className="px-6">
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={loading || !newDate}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Rescheduling..." : "Confirm Reschedule"}
           </Button>
@@ -122,12 +189,21 @@ const BookingDetailsSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Cancel Modal
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
 
   // Reschedule Modal
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
   const [bookingToReschedule, setBookingToReschedule] = useState<string | null>(null);
+  const [rescheduleCurrentDate, setRescheduleCurrentDate] = useState<string | undefined>(undefined);
+
+  // Review Modal
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewPackage, setReviewPackage] = useState<{
+    packageId: string;
+    packageName: string;
+    destination: string;
+  } | null>(null);
 
   const [filterStatus, setFilterStatus] = useState("all");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -194,7 +270,6 @@ const BookingDetailsSection = () => {
   const filteredBookings = filterStatus === "all"
     ? bookings
     : bookings.filter(b => getBookingStatus(b) === filterStatus);
-  const bookingIds = filteredBookings.map((booking) => booking.bookingId);
 
   const startChatWithVendor = async (booking: any) => {
     if (!user?.id) {
@@ -234,34 +309,54 @@ const BookingDetailsSection = () => {
 
   const openCancelModal = (id: string) => {
     setBookingToCancel(id);
-    setIsConfirmOpen(true);
+    setIsCancelModalOpen(true);
   };
-  console.log(bookingToCancel, "cancel")
-  const confirmCancel = async () => {
-    if (!bookingIds[0]) return;
+
+  const handleCancelBooking = async (reason: string) => {
+    if (!bookingToCancel) return;
     try {
       setLoading(true);
-      const res = await cancelBooking(bookingIds[0]);
-      console.log(res, "res")
-      const updated = await getUserBookings();
-      setBookings(updated || []);
-      if (selectedBooking?._id === bookingToCancel) {
-        setIsModalOpen(false);
-        setSelectedBooking(null);
+      const res = await cancelBooking(bookingToCancel, reason);
+      console.log(res, "res");
+      if (res?.success) {
+        toast.success("Booking cancelled successfully");
+        const updated = await getUserBookings();
+        setBookings(updated || []);
+        if (selectedBooking?._id === bookingToCancel) {
+          setIsModalOpen(false);
+          setSelectedBooking(null);
+        }
+      } else {
+        throw new Error(res?.message || "Failed to cancel booking");
       }
     } catch (err: any) {
-      alert(err.message || "Failed to cancel booking.");
+      console.error("Cancel booking error:", err);
+      const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Failed to cancel booking.";
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
-      setIsConfirmOpen(false);
-      setBookingToCancel(null);
     }
   };
 
 
-  const openRescheduleModal = (bookingId: string) => {
+  const openRescheduleModal = (bookingId: string, currentDate?: string) => {
     setBookingToReschedule(bookingId);
+    setRescheduleCurrentDate(currentDate);
     setIsRescheduleOpen(true);
+  };
+
+  const openReviewModal = (booking: any) => {
+    const pkg = booking.selectedPackage;
+    if (pkg && pkg._id && pkg.packageName) {
+      setReviewPackage({
+        packageId: pkg._id,
+        packageName: pkg.packageName,
+        destination: pkg.destination || pkg.destinationId || "Unknown Destination",
+      });
+      setIsReviewModalOpen(true);
+    } else {
+      toast.error("Package information not available");
+    }
   };
 
   const handleRescheduleSuccess = async () => {
@@ -507,7 +602,7 @@ const BookingDetailsSection = () => {
                   {status === "upcoming" && (
                     <button
                       onClick={() => {
-                        openRescheduleModal(booking.bookingId);
+                        openRescheduleModal(booking.bookingId, booking.selectedDate);
                         setOpenMenuId(null);
                         setMenuPosition(null);
                       }}
@@ -522,7 +617,7 @@ const BookingDetailsSection = () => {
                   {status === "completed" && (
                     <button
                       onClick={() => {
-                        navigate("/review");
+                        openReviewModal(booking);
                         setOpenMenuId(null);
                         setMenuPosition(null);
                       }}
@@ -655,29 +750,38 @@ const BookingDetailsSection = () => {
                 )}
 
                 {getBookingStatus(selectedBooking) === "upcoming" && (
-                  <button
-                    onClick={() => { setIsModalOpen(false); openCancelModal(selectedBooking._id); }}
-                    className="px-10 py-5 bg-gradient-to-r from-red-600 to-rose-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
-                  >
-                    <X className="w-8 h-8" /> Cancel Booking
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        openRescheduleModal(selectedBooking.bookingId, selectedBooking.selectedDate);
+                      }}
+                      className="px-10 py-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
+                    >
+                      <RefreshCw className="w-8 h-8" /> Reschedule
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        openCancelModal(selectedBooking._id);
+                      }}
+                      className="px-10 py-5 bg-gradient-to-r from-red-600 to-rose-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
+                    >
+                      <X className="w-8 h-8" /> Cancel Booking
+                    </button>
+                  </>
                 )}
 
                 {getBookingStatus(selectedBooking) === "completed" && (
-                  <>
-                    <button
-                      onClick={() => navigate("/review")}
-                      className="px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
-                    >
-                      <Star className="w-8 h-8" /> Write Review
-                    </button>
-                    <button
-                      onClick={() => { setIsModalOpen(false); openRescheduleModal(selectedBooking._id); }}
-                      className="px-10 py-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
-                    >
-                      <RefreshCw className="w-8 h-8" /> Reschedule Trip
-                    </button>
-                  </>
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      openReviewModal(selectedBooking);
+                    }}
+                    className="px-10 py-5 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xl font-bold rounded-2xl hover:shadow-2xl transition-all flex items-center gap-4"
+                  >
+                    <Star className="w-8 h-8" /> Write Review
+                  </button>
                 )}
 
                 <button
@@ -692,28 +796,47 @@ const BookingDetailsSection = () => {
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={isConfirmOpen}
-        title="Cancel Booking"
-        message="Are you sure you want to cancel this booking? This cannot be undone."
-        confirmText="Yes, Cancel"
-        onConfirm={confirmCancel}
-        onCancel={() => {
-          setIsConfirmOpen(false);
-          setBookingToCancel(null);
-        }}
-      />
-
       {/* Reschedule Modal */}
       <RescheduleModal
         open={isRescheduleOpen}
         onClose={() => {
           setIsRescheduleOpen(false);
           setBookingToReschedule(null);
+          setRescheduleCurrentDate(undefined);
         }}
         bookingId={bookingToReschedule || ""}
+        currentDate={rescheduleCurrentDate}
         onSuccess={handleRescheduleSuccess}
       />
+
+      {/* Cancel Booking Modal */}
+      <CancelBookingModal
+        open={isCancelModalOpen}
+        onClose={() => {
+          setIsCancelModalOpen(false);
+          setBookingToCancel(null);
+        }}
+        bookingId={bookingToCancel || ""}
+        onConfirm={handleCancelBooking}
+      />
+
+      {/* Review Modal */}
+      {reviewPackage && (
+        <ReviewModal
+          open={isReviewModalOpen}
+          onClose={() => {
+            setIsReviewModalOpen(false);
+            setReviewPackage(null);
+          }}
+          packageId={reviewPackage.packageId}
+          packageName={reviewPackage.packageName}
+          destination={reviewPackage.destination}
+          onSuccess={async () => {
+            const updated = await getUserBookings();
+            setBookings(updated || []);
+          }}
+        />
+      )}
     </>
   );
 };

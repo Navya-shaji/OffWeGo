@@ -4,5 +4,5 @@ export interface IReviewRepository {
   create(review: IReview): Promise<IReview>;
   findByPackage(packageName: string): Promise<IReview[]>;
   findByUser(userId: string): Promise<IReview[]>;
-  
+  findByPackageAndUser(packageName: string, userId: string): Promise<IReview | null>;
 }

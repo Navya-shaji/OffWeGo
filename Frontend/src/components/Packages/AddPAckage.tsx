@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addPackage } from "@/store/slice/packages/packageSlice";
 import type { AppDispatch, RootState } from "@/store/store";
@@ -24,7 +24,7 @@ import { usePackageValidation } from "@/Types/vendor/Package/package";
 import type { Package } from "@/interface/PackageInterface";
 import { toast } from "react-toastify";
 import { SubscriptionRequiredModal } from "@/components/Modular/SubscriptionRequiredModal";
-import { getSubscriptions } from "@/services/subscription/subscriptionservice";
+import { getSubscriptions, getVendorActiveSubscription } from "@/services/subscription/subscriptionservice";
 
 
 interface ItineraryActivity {
@@ -76,8 +76,15 @@ interface EnhancedPackageFormData {
 const AddPackage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   
-  
+  // Get vendor ID from Redux state
+  const vendor = useSelector((state: RootState) => state.vendorAuth?.vendor);
+  const vendorId = vendor?.id;
   const packages = useSelector((state: RootState) => state.package.packages);
+  
+  // Debug: Log vendor ID when it changes
+  useEffect(() => {
+    console.log("👤 Vendor ID from Redux:", vendorId, "Vendor object:", vendor);
+  }, [vendorId, vendor]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -86,6 +93,7 @@ const AddPackage: React.FC = () => {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null);
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
     const { loading, error } = useSelector((state: RootState) => state.package);
     console.log(packageLimitError)
 
@@ -138,47 +146,117 @@ const AddPackage: React.FC = () => {
     loadingDestinations,
   } = usePackageData();
 
-  // Check subscription status on component mount
-  useEffect(() => {
-    const checkSubscription = async () => {
-      try {
-        const subData = await getSubscriptions();
-        setSubscriptionData(subData); // Store subscription data for message generation
+  // Function to check subscription status
+  const checkSubscription = useCallback(async () => {
+    try {
+      setIsCheckingSubscription(true);
+      
+      if (!vendorId) {
+        console.warn("⚠️ No vendor ID found, cannot check subscription");
+        setHasActiveSubscription(false);
+        setShowSubscriptionModal(true);
+        setIsCheckingSubscription(false);
+        return;
+      }
+
+      console.log("🔍 Checking subscription for vendor ID:", vendorId);
+      
+      // Use the new function that specifically gets active subscriptions
+      const result = await getVendorActiveSubscription(vendorId);
+      
+      console.log("📋 Subscription check result:", result);
+      
+      if (result.hasActiveSubscription && result.vendorSubscription) {
+        const subscription = result.vendorSubscription;
         
-        if (subData.vendorSubscription) {
-          const activeSubscription = subData.vendorSubscription as any;
-          
-          // Check if subscription is expired
-          const isExpired = activeSubscription.endDate && 
-            new Date(activeSubscription.endDate) <= new Date();
-          
-          // Check if subscription is active and not expired
-          const isActive = 
-            activeSubscription.status === "active" &&
-            !isExpired &&
-            activeSubscription.endDate &&
-            new Date(activeSubscription.endDate) > new Date();
-          
-          setHasActiveSubscription(isActive);
-          
-          // Show modal immediately if subscription is expired or not active
-          if (isExpired || !isActive || activeSubscription.status === "expired") {
-            setShowSubscriptionModal(true);
-          }
+        // Double-check: verify subscription is truly active and not expired
+        const endDate = subscription.endDate ? new Date(subscription.endDate) : null;
+        const currentDate = new Date();
+        const isExpired = endDate ? endDate < currentDate : true;
+        const isActive = subscription.status === "active" && !isExpired && endDate && endDate >= currentDate;
+        
+        console.log("✅ Subscription validation:", {
+          status: subscription.status,
+          endDate: endDate?.toISOString(),
+          currentDate: currentDate.toISOString(),
+          isExpired,
+          isActive,
+          vendorId: vendorId
+        });
+        
+        if (isActive) {
+          // Active subscription found - don't show modal
+          console.log("✅ Active subscription found - closing modal");
+          setHasActiveSubscription(true);
+          setShowSubscriptionModal(false);
+          setSubscriptionData({ vendorSubscription: subscription });
         } else {
+          // Subscription exists but is expired or inactive - show modal
+          console.log("❌ Subscription expired or inactive - showing modal");
           setHasActiveSubscription(false);
-          // Show modal immediately if no subscription
           setShowSubscriptionModal(true);
+          setSubscriptionData({ vendorSubscription: subscription });
         }
-      } catch (error) {
-        console.error("Error checking subscription:", error);
-        // Don't block if check fails, let backend handle it
-        setHasActiveSubscription(null);
+      } else {
+        // No active subscription found - show modal
+        console.log("❌ No active subscription found - showing modal");
+        setHasActiveSubscription(false);
+        setShowSubscriptionModal(true);
+        setSubscriptionData(null);
+      }
+    } catch (error) {
+      console.error("❌ Error checking subscription:", error);
+      // On error, don't block - let backend handle validation
+      // But show modal to be safe
+      setHasActiveSubscription(false);
+      setShowSubscriptionModal(true);
+    } finally {
+      setIsCheckingSubscription(false);
+    }
+  }, [vendorId]);
+
+  // Check subscription status on component mount and when vendorId changes
+  useEffect(() => {
+    if (vendorId) {
+      checkSubscription();
+    } else {
+      // If no vendor ID, wait a bit and try again (vendor might be loading)
+      const timer = setTimeout(() => {
+        if (vendorId) {
+          checkSubscription();
+        } else {
+          console.warn("⚠️ Still no vendor ID after delay");
+          setHasActiveSubscription(false);
+          setShowSubscriptionModal(true);
+          setIsCheckingSubscription(false);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [checkSubscription, vendorId]);
+
+  // Refresh subscription status when window regains focus (user returns from subscription page)
+  useEffect(() => {
+    const handleFocus = () => {
+      // Refresh subscription status when user returns to the page
+      checkSubscription();
+    };
+
+    const handleVisibilityChange = () => {
+      // Refresh subscription status when tab becomes visible
+      if (document.visibilityState === 'visible') {
+        checkSubscription();
       }
     };
 
-    checkSubscription();
-  }, []);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [checkSubscription]);
 
   const [formData, setFormData] = useState<EnhancedPackageFormData>({
     packageName: "",
@@ -425,10 +503,17 @@ const handleSubmit = async (e: React.FormEvent) => {
   setPackageLimitError(false); // Reset error state
 
   // Check subscription before submitting
+  // Only block if we're certain there's no active subscription
+  // Don't block if subscription check is still loading (null) or if it's active (true)
   if (hasActiveSubscription === false) {
     setShowSubscriptionModal(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
+  }
+  
+  // If subscription is active, ensure modal is closed
+  if (hasActiveSubscription === true) {
+    setShowSubscriptionModal(false);
   }
 
   console.log(packages, "package count");
@@ -463,7 +548,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     packageName: formData.packageName,
     description: formData.description,
     price: Number(formData.price || 0),
-    flightPrice: hasFlight ? Number(formData.flightPrice || 0) : undefined,
+    flightPrice: undefined, // Flight price removed - only option checkbox
     duration: formData.duration,
     startDate: new Date(),
     endDate: new Date(Date.now() + formData.duration * 24 * 60 * 60 * 1000),
@@ -480,10 +565,41 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
 
   try {
-
     const result = await dispatch(addPackage(completePackage));
     
-   if (addPackage.rejected.match(result)) {
+    // Check if the package was successfully added
+    if (addPackage.fulfilled.match(result)) {
+      // Show success toast
+      toast.success("Package created successfully! 🎉", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+
+      setIsSubmitted(true);
+      setShowValidationErrors(false);
+      resetValidation();
+
+      setFormData({
+        packageName: "",
+        description: "",
+        price: 0,
+        duration: 1,
+        selectedHotels: [],
+        selectedActivities: [],
+        images: [],
+        destinationId: "",
+        checkInTime: "",
+        checkOutTime: "",
+        itinerary: [],
+        inclusions: [],
+        amenities: [],
+        flightOption: false,
+        flightPrice: 0,
+      });
+      return;
+    }
+    
+    if (addPackage.rejected.match(result)) {
       const errorPayload = result.payload as string | undefined;
       const errorMessage = errorPayload || "An error occurred";
 
@@ -537,39 +653,6 @@ const handleSubmit = async (e: React.FormEvent) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
   return;
 }
-
-
-
-
-    setIsSubmitted(true);
-    setShowValidationErrors(false);
-    resetValidation();
-
-
-    setFormData({
-      packageName: "",
-      description: "",
-      price: 0,
-      duration: 1,
-      selectedHotels: [],
-      selectedActivities: [],
-      images: [],
-      destinationId: "",
-      checkInTime: "",
-      checkOutTime: "",
-      itinerary: [],
-      inclusions: [],
-      amenities: [],
-      flightOption: false,
-      flightPrice: 0,
-    });
-
-    toast.success("Package created successfully!", {
-      position: "top-center",
-      autoClose: 3000,
-    });
-
-    setTimeout(() => setIsSubmitted(false), 3000);
   } catch (error) {
     console.error("Error creating package:", error);
     toast.error("An unexpected error occurred. Please try again.", {
@@ -953,6 +1036,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         </div>
                       </div>
 
+
                     </CardContent>
                   </Card>
                 </div>
@@ -983,13 +1067,19 @@ const handleSubmit = async (e: React.FormEvent) => {
         </Card>
       </div>
 
-      {/* Subscription Required Modal */}
-      <SubscriptionRequiredModal
-        isOpen={showSubscriptionModal}
-        onClose={() => setShowSubscriptionModal(false)}
-        message={getSubscriptionMessage()}
-        isExpired={isSubscriptionExpired()}
-      />
+   
+      {!isCheckingSubscription && !hasActiveSubscription && (
+        <SubscriptionRequiredModal
+          isOpen={showSubscriptionModal}
+          onClose={() => {
+            setShowSubscriptionModal(false);
+            
+            checkSubscription();
+          }}
+          message={getSubscriptionMessage()}
+          isExpired={isSubscriptionExpired()}
+        />
+      )}
     </div>
   );
 };

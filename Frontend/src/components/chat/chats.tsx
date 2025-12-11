@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft } from "lucide-react";
-import { getMessages, findOrCreateChat, getChatsOfUser } from "@/services/chat/chatService";
+import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck } from "lucide-react";
+import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -15,9 +15,10 @@ interface Contact {
     avatar?: string;
     lastMessage?: string;
     lastMessageTime?: Date | string;
-    vendorId?: { _id: string; name: string; profileImage: string } | string;
-    userId?: { _id: string; name: string; imageUrl: string } | string;
+    vendorId?: { _id: string; name: string; profileImage: string } | string | null;
+    userId?: { _id: string; name: string; imageUrl: string } | string | null;
     isOnline?: boolean;
+    unreadCount?: number;
 }
 
 interface ChatMessage {
@@ -44,6 +45,7 @@ const ChatPage = () => {
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId?: string }>();
     const socketRef = useRef<Socket | null>(null);
+    const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
     const user = useSelector((state: RootState) => state.auth.user);
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
@@ -75,10 +77,21 @@ const ChatPage = () => {
                 reconnection: true,
                 reconnectionDelay: 1000,
             });
-            socketRef.current.emit("register_user", { userId: senderId });
+            // Register based on role
+            if (senderRole === 'vendor') {
+                socketRef.current.emit("register_vendor", { vendorId: senderId });
+            } else {
+                socketRef.current.emit("register_user", { userId: senderId });
+            }
             console.log("Created new socket connection");
         } else {
             socketRef.current = globalSocket;
+            // Register based on role if not already registered
+            if (senderRole === 'vendor') {
+                socketRef.current.emit("register_vendor", { vendorId: senderId });
+            } else {
+                socketRef.current.emit("register_user", { userId: senderId });
+            }
             console.log("Using global socket connection");
         }
 
@@ -99,16 +112,54 @@ const ChatPage = () => {
                 });
             }
 
-            // Update contact list with last message
-            setContacts(prev => prev.map(contact =>
-                contact._id === newMessage.chatId
-                    ? { ...contact, lastMessage: newMessage.messageContent, lastMessageTime: newMessage.sendedTime }
-                    : contact
-            ).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
+            // Update contact list with last message and increment unread count if not from current user
+            setContacts(prev => prev.map(contact => {
+                if (contact._id === newMessage.chatId) {
+                    const isFromCurrentUser = newMessage.senderId === senderId;
+                    return {
+                        ...contact,
+                        lastMessage: newMessage.messageContent,
+                        lastMessageTime: newMessage.sendedTime,
+                        // Increment unread count if message is not from current user and chat is not currently selected
+                        unreadCount: (contact._id !== selectedContact?._id && !isFromCurrentUser)
+                            ? (contact.unreadCount || 0) + 1
+                            : contact.unreadCount || 0
+                    };
+                }
+                return contact;
+            }).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
 
         };
 
         socket.on("receive-message", handleReceiveMessage);
+        
+        // Listen for online status changes
+        const handleUserStatusChange = (data: { userId: string; isOnline: boolean }) => {
+            setOnlineUsers(prev => {
+                const updated = new Set(prev);
+                if (data.isOnline) {
+                    updated.add(data.userId);
+                } else {
+                    updated.delete(data.userId);
+                }
+                return updated;
+            });
+        };
+
+        const handleVendorStatusChange = (data: { vendorId: string; isOnline: boolean }) => {
+            setOnlineUsers(prev => {
+                const updated = new Set(prev);
+                if (data.isOnline) {
+                    updated.add(data.vendorId);
+                } else {
+                    updated.delete(data.vendorId);
+                }
+                return updated;
+            });
+        };
+
+        socket.on("user-status-changed", handleUserStatusChange);
+        socket.on("vendor-status-changed", handleVendorStatusChange);
         
         // Debug socket events
         socket.on("connect", () => {
@@ -125,6 +176,8 @@ const ChatPage = () => {
 
         return () => {
             socket.off("receive-message", handleReceiveMessage);
+            socket.off("user-status-changed", handleUserStatusChange);
+            socket.off("vendor-status-changed", handleVendorStatusChange);
             // Only disconnect if we created our own socket
             if (!globalSocket && socketRef.current) {
                 socketRef.current.disconnect();
@@ -144,7 +197,11 @@ const ChatPage = () => {
         const fetchContacts = async () => {
             try {
                 setLoading(true);
-                const responseY = await getChatsOfUser(senderId);
+                // Determine user type: 'user' or 'vendor'
+                const userType = user ? 'user' : 'vendor';
+                console.log('🔍 Fetching chats:', { senderId, userType, isUser: !!user, isVendor: !!vendor });
+                const responseY = await getChatsOfUser(senderId, userType);
+                console.log('📦 Chat response:', responseY);
 
                 let chats: any[] = [];
                 // Handle different response structures
@@ -152,12 +209,12 @@ const ChatPage = () => {
                     if (Array.isArray(responseY.data)) {
                         chats = responseY.data;
                     } else if (Array.isArray(responseY.data.chats)) {
-                        chats = responseY.data.chats;
+                    chats = responseY.data.chats;
                     }
                 } else if (responseY && Array.isArray(responseY)) {
                     chats = responseY;
                 }
-                
+
                 // Debug: Log first chat to verify structure (remove in production)
                 if (chats.length > 0) {
                     console.log("Chat data sample:", chats[0]);
@@ -168,12 +225,33 @@ const ChatPage = () => {
                 const formattedContacts: Contact[] = chats.map((chat: any) => {
                     const isUser = senderRole === 'user';
                     
-                    // Backend returns formatted chats with name and profile_image
-                    // These are the primary sources
-                    let name = chat.name || "Unknown Vendor";
+                    // For vendors: show user profile, for users: show vendor profile
+                    let name = chat.name || "Unknown";
                     let avatar = chat.profile_image || "";
                     
-                    // If name is empty or "Unknown", try to extract from populated objects
+                    // If current user is vendor, show the user's profile (other participant)
+                    if (!isUser) {
+                        // Vendor viewing - show user profile
+                        if (chat.userId) {
+                            if (typeof chat.userId === 'object' && chat.userId !== null) {
+                                name = chat.userId.name || chat.userId.username || name;
+                                avatar = chat.userId.imageUrl || chat.userId.profileImage || avatar;
+                            } else if (typeof chat.userId === 'string') {
+                                // If userId is a string, we might need to fetch user details
+                                // For now, use the name from backend
+                            }
+                        }
+                    } else {
+                        // User viewing - show vendor profile
+                        if (chat.vendorId) {
+                            if (typeof chat.vendorId === 'object' && chat.vendorId !== null) {
+                                name = chat.vendorId.name || chat.vendorId.businessName || chat.vendorId.username || name;
+                                avatar = chat.vendorId.profileImage || chat.vendorId.imageUrl || avatar;
+                            }
+                        }
+                    }
+                    
+                    // Fallback: if name is still unknown, try to extract from populated objects
                     if ((!name || name === "Unknown" || name === "Unknown Vendor") && chat.vendorId) {
                         if (typeof chat.vendorId === 'object' && chat.vendorId !== null && isUser) {
                             name = chat.vendorId.name || chat.vendorId.businessName || chat.vendorId.username || name;
@@ -213,6 +291,10 @@ const ChatPage = () => {
                     
                     console.log(`Chat ${chat._id} - userId: ${userIdValue}, vendorId: ${vendorIdValue}`);
 
+                    // Determine if the other participant is online
+                    const otherParticipantId = isUser ? vendorIdValue : userIdValue;
+                    const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
+
                     return {
                         _id: chat._id,
                         name: name,
@@ -221,7 +303,9 @@ const ChatPage = () => {
                         lastMessage: chat.lastMessage || "",
                         lastMessageTime: chat.lastMessageAt || new Date(),
                         vendorId: vendorIdValue,
-                        userId: userIdValue
+                        userId: userIdValue,
+                        unreadCount: chat.unreadCount || 0,
+                        isOnline: isOtherOnline
                     };
                 });
 
@@ -249,9 +333,14 @@ const ChatPage = () => {
                     }
                 }
 
-            } catch (err) {
-                console.error("Failed to load contacts", err);
-                setError("Failed to load conversations");
+            } catch (err: any) {
+                console.error("❌ Failed to load contacts", err);
+                console.error("Error details:", {
+                    message: err?.message,
+                    response: err?.response?.data,
+                    status: err?.response?.status
+                });
+                setError(err?.message || "Failed to load conversations");
             } finally {
                 setLoading(false);
             }
@@ -272,11 +361,12 @@ const ChatPage = () => {
 
     // Fetch messages when contact is selected
     useEffect(() => {
-        if (!selectedContact) return;
+        if (!selectedContact || !senderId) return;
 
         const fetchMessages = async () => {
             try {
-                const res = await getMessages(selectedContact._id);
+                const userType = user ? 'user' : 'vendor';
+                const res = await getMessages(selectedContact._id, userType);
                 console.log("Messages response:", res);
                 
                 // Backend returns: { success: true, data: [...] }
@@ -302,13 +392,28 @@ const ChatPage = () => {
                     console.log("Joined room:", selectedContact._id);
                 }
 
+                // Mark messages as seen and reset unread count
+                try {
+                    const userType = user ? 'user' : 'vendor';
+                    await markMessagesAsSeen(selectedContact._id, senderId, userType);
+                    console.log("✅ Messages marked as seen");
+                    // Reset unread count for this contact
+                    setContacts(prev => prev.map(c =>
+                        c._id === selectedContact._id
+                            ? { ...c, unreadCount: 0 }
+                            : c
+                    ));
+                } catch (error) {
+                    console.error("Error marking messages as seen:", error);
+                }
+
             } catch (error) {
                 console.error("Error fetching messages:", error);
             }
         }
 
         fetchMessages();
-    }, [selectedContact]);
+    }, [selectedContact, senderId, user]);
 
 
     const handleContactSelect = (contact: Contact) => {
@@ -335,14 +440,14 @@ const ChatPage = () => {
             // User is sending, receiver is vendor
             if (selectedContact.vendorId) {
                 receiverId = typeof selectedContact.vendorId === 'object' 
-                    ? (selectedContact.vendorId._id || selectedContact.vendorId.id || String(selectedContact.vendorId))
+                    ? (selectedContact.vendorId._id || String(selectedContact.vendorId))
                     : String(selectedContact.vendorId);
             }
         } else {
             // Vendor is sending, receiver is user
             if (selectedContact.userId) {
                 receiverId = typeof selectedContact.userId === 'object'
-                    ? (selectedContact.userId._id || selectedContact.userId.id || String(selectedContact.userId))
+                    ? (selectedContact.userId._id || String(selectedContact.userId))
                     : String(selectedContact.userId);
             }
         }
@@ -365,7 +470,7 @@ const ChatPage = () => {
             messageType: 'text',
             sendedTime: new Date(),
             seen: false,
-            senderName: user?.name || user?.username || vendor?.name || "User"
+            senderName: (user as any)?.name || user?.username || vendor?.name || "User"
         };
 
         console.log("Message data being sent:", messageData);
@@ -447,25 +552,6 @@ const ChatPage = () => {
             .slice(0, 2);
     }
 
-    const formatLastMessageTime = (date: Date | string) => {
-        if (!date) return "";
-        const dateObj = typeof date === "string" ? new Date(date) : date;
-        if (isNaN(dateObj.getTime())) return "";
-
-        const now = new Date();
-        const diff = now.getTime() - dateObj.getTime();
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-        if (days === 0) {
-            return formatTime(dateObj);
-        } else if (days === 1) {
-            return "Yesterday";
-        } else if (days < 7) {
-            return `${days}d ago`;
-        } else {
-            return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        }
-    };
 
     if (loading) {
         return (
@@ -476,15 +562,26 @@ const ChatPage = () => {
     }
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex flex-col h-screen bg-gray-50">
+            {/* Page Header */}
+            <div className="bg-white border-b shadow-sm px-6 py-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+                        <p className="text-sm text-gray-500 mt-1">Chat with {user ? 'vendors' : 'users'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex flex-1 overflow-hidden">
             {/* Contacts Sidebar */}
             <div
                 className={`${showContacts ? "block" : "hidden"
                     } md:block w-full md:w-80 bg-white border-r flex flex-col`}
             >
                 <div className="px-6 py-4 border-b">
-                    <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
-                    <p className="text-sm text-gray-500 mt-1">{contacts.length} conversations</p>
+                    <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+                    <p className="text-sm text-gray-500 mt-1">{contacts.length} {contacts.length === 1 ? 'conversation' : 'conversations'}</p>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
@@ -508,7 +605,7 @@ const ChatPage = () => {
                                 className={`w-full px-4 py-3 flex items-start hover:bg-gray-50 transition-colors border-b ${selectedContact?._id === contact._id ? "bg-blue-50" : ""
                                     }`}
                             >
-                                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
+                                <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
                                     {contact.avatar && contact.avatar.trim() !== "" ? (
                                         <img
                                             src={contact.avatar}
@@ -528,10 +625,21 @@ const ChatPage = () => {
                                             {getInitials(contact.name)}
                                         </div>
                                     )}
+                                    {/* Online Status Indicator */}
+                                    {contact.isOnline && (
+                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+                                    )}
                                 </div>
 
                                 <div className="ml-3 flex-1 text-left overflow-hidden">
-                                    <h3 className="font-semibold text-gray-900 truncate text-base">{contact.name}</h3>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <h3 className="font-semibold text-gray-900 truncate text-base flex-1">{contact.name}</h3>
+                                        {((contact.unreadCount ?? 0) > 0) && (
+                                            <span className="ml-2 min-w-[20px] h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1.5 flex-shrink-0">
+                                                {(contact.unreadCount ?? 0) > 99 ? '99+' : contact.unreadCount}
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-xs text-gray-500 capitalize mt-0.5">{contact.role}</p>
                                 </div>
                             </button>
@@ -558,7 +666,7 @@ const ChatPage = () => {
                                     <ArrowLeft className="w-5 h-5" />
                                 </button>
 
-                                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
+                                <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
                                     {selectedContact.avatar && selectedContact.avatar.trim() !== "" ? (
                                         <img
                                             src={selectedContact.avatar}
@@ -578,10 +686,19 @@ const ChatPage = () => {
                                             {getInitials(selectedContact.name)}
                                         </div>
                                     )}
+                                    {/* Online Status Indicator */}
+                                    {selectedContact.isOnline && (
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                                    )}
                                 </div>
 
-                                <div className="ml-3">
-                                    <h2 className="font-semibold text-gray-900">{selectedContact.name}</h2>
+                                <div className="ml-3 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="font-semibold text-gray-900">{selectedContact.name}</h2>
+                                        {selectedContact.isOnline && (
+                                            <span className="text-xs text-green-600 font-medium">Online</span>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-gray-500 capitalize">{selectedContact.role}</p>
                                 </div>
                             </div>
@@ -606,9 +723,18 @@ const ChatPage = () => {
                                                     }`}
                                             >
                                                 <p className="break-words text-sm md:text-base">{msg.messageContent}</p>
-                                                <p className={`text-[10px] sm:text-xs mt-1 block text-right ${isOwnMessage ? "text-blue-100" : "text-gray-400"}`}>
-                                                    {formatTime(msg.sendedTime)}
-                                                </p>
+                                                <div className={`text-[10px] sm:text-xs mt-1 flex items-center justify-end gap-1 ${isOwnMessage ? "text-blue-100" : "text-gray-400"}`}>
+                                                    <span>{formatTime(msg.sendedTime)}</span>
+                                                    {isOwnMessage && (
+                                                        <span className="flex items-center">
+                                                            {msg.seen ? (
+                                                                <CheckCheck className="w-3.5 h-3.5 text-blue-200" />
+                                                            ) : (
+                                                                <Check className="w-3.5 h-3.5 text-blue-200" />
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     );
@@ -649,6 +775,7 @@ const ChatPage = () => {
                         </div>
                     </div>
                 )}
+            </div>
             </div>
         </div>
     );

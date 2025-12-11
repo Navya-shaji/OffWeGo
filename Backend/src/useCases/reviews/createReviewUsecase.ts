@@ -17,7 +17,8 @@ export class CreateReviewUseCase implements ICreateReviewUseCase {
       throw new Error("Rating must be between 1 and 5");
     }
 
-    const existingReview = await this._reviewRepo.findByPackage(review.packageName);
+    // Check if this user has already reviewed this package
+    const existingReview = await this._reviewRepo.findByPackageAndUser(review.packageName, review.userId);
     if (existingReview) {
       throw new Error("You have already submitted a review for this package");
     }

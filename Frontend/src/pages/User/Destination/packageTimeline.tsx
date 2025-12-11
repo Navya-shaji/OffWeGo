@@ -19,6 +19,7 @@ import {
   ChevronDown,
   Timer,
   Navigation,
+  Plane,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,28 +136,33 @@ export const PackageTimeline = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-teal-50/40">
       <Navbar />
 
-      <header className="relative overflow-hidden h-[450px] rounded-b-[3rem]">
-        {selectedPackage.images?.[0] && (
+      <header className="relative overflow-hidden h-[500px] rounded-b-[4rem] shadow-2xl">
+        {selectedPackage.images && selectedPackage.images.length > 0 && selectedPackage.images[0] ? (
           <>
             <div className="absolute inset-0">
               <img
                 src={selectedPackage.images[0]}
                 alt="Package hero"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover scale-105 transition-transform duration-700 hover:scale-100"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-900/20 via-transparent to-cyan-900/20"></div>
             </div>
           </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500">
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/10"></div>
+          </div>
         )}
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 h-full flex flex-col">
-          <div className="flex items-start justify-between gap-4 pt-6 mb-auto">
+          <div className="flex items-start justify-between gap-4 pt-8 mb-auto">
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => navigate(-1)}
-                className="bg-white/95 backdrop-blur-md border-0 text-gray-700 hover:bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="bg-white/95 backdrop-blur-md border-0 text-gray-700 hover:bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
@@ -165,23 +171,23 @@ export const PackageTimeline = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsLiked(!isLiked)}
-                className="bg-white/95 backdrop-blur-md border-0 text-gray-700 hover:bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                className="bg-white/95 backdrop-blur-md border-0 text-gray-700 hover:bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 <Heart
-                  className={`h-4 w-4 ${
-                    isLiked ? "fill-rose-500 text-rose-500" : "text-gray-700"
+                  className={`h-4 w-4 transition-all duration-300 ${
+                    isLiked ? "fill-rose-500 text-rose-500 scale-110" : "text-gray-700"
                   }`}
                 />
               </Button>
             </div>
           </div>
 
-          <div className="max-w-4xl pb-12">
+          <div className="max-w-4xl pb-16 animate-fade-in-up">
             <div>
-              <h1 className="text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
+              <h1 className="text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-2xl tracking-tight">
                 {selectedPackage.packageName}
               </h1>
-              <p className="text-xl text-white/95 leading-relaxed drop-shadow-md">
+              <p className="text-xl text-white/95 leading-relaxed drop-shadow-lg max-w-3xl">
                 {selectedPackage.description}
               </p>
             </div>
@@ -189,13 +195,16 @@ export const PackageTimeline = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 -mt-16 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white p-6">
-                <CardTitle className="flex items-center gap-3 text-lg font-semibold">
-                  <MapPin className="h-5 w-5" />
+      <div className="max-w-7xl mx-auto px-6 py-8 -mt-20 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-600 text-white p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <CardTitle className="flex items-center gap-3 text-lg font-semibold relative z-10">
+                  <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <MapPin className="h-5 w-5" />
+                  </div>
                   Package Overview
                 </CardTitle>
               </CardHeader>
@@ -229,20 +238,40 @@ export const PackageTimeline = () => {
                   ].map(({ icon, label, value, bg }, i) => (
                     <div
                       key={i}
-                      className={`${bg} rounded-2xl p-5 text-center transition-all hover:shadow-md hover:scale-105`}
+                      className={`${bg} rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-xl hover:scale-110 hover:-translate-y-1 border border-white/50`}
                     >
-                      <div className="h-10 w-10 mx-auto mb-3 flex items-center justify-center">
+                      <div className="h-12 w-12 mx-auto mb-4 flex items-center justify-center bg-white/60 rounded-xl backdrop-blur-sm">
                         {icon}
                       </div>
-                      <div className="font-bold text-base text-gray-800">
+                      <div className="font-bold text-lg text-gray-800 mb-1">
                         {value}
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">{label}</div>
+                      <div className="text-xs text-gray-600 font-medium">{label}</div>
                     </div>
                   ))}
+                  
+                  {/* Flight Option Badge */}
+                  {selectedPackage.flightOption && (
+                    <div className="col-span-2 md:col-span-4 mt-4">
+                      <div className="bg-gradient-to-r from-sky-50 to-blue-50 rounded-2xl p-6 border-2 border-sky-200 flex items-center gap-4">
+                        <div className="h-14 w-14 flex items-center justify-center bg-sky-100 rounded-xl">
+                          <Plane className="h-7 w-7 text-sky-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CheckCircle className="h-5 w-5 text-sky-600" />
+                            <h3 className="text-lg font-bold text-gray-800">Flight Included</h3>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            This package includes flight booking option. You can search and book flights when making your reservation.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {selectedPackage.images?.length > 0 && (
+                {selectedPackage.images && selectedPackage.images.length > 0 && (
                   <div className="space-y-5">
                     <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
                       <Camera className="h-5 w-5 text-teal-500" />
@@ -251,12 +280,12 @@ export const PackageTimeline = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="relative group overflow-hidden rounded-2xl">
                         <img
-                          src={selectedPackage.images[currentImageIndex]}
-                          alt={`Gallery image ${currentImageIndex + 1}`}
+                          src={selectedPackage.images[currentImageIndex] || selectedPackage.images[0]}
+                          alt={`Gallery image ${(currentImageIndex || 0) + 1}`}
                           className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                         <div className="absolute bottom-3 left-3 text-white bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-xl text-sm font-semibold">
-                          Image {currentImageIndex + 1} of {selectedPackage.images.length}
+                          Image {(currentImageIndex || 0) + 1} of {selectedPackage.images.length}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -280,10 +309,13 @@ export const PackageTimeline = () => {
             </Card>
 
             {selectedPackage.itinerary && selectedPackage.itinerary.length > 0 && (
-              <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-6">
-                  <CardTitle className="flex items-center gap-3 text-xl">
-                    <Navigation className="h-6 w-6" />
+              <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                  <CardTitle className="flex items-center gap-3 text-xl relative z-10">
+                    <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                      <Navigation className="h-6 w-6" />
+                    </div>
                     <div>
                       <span className="block text-xl font-bold">
                         Your Journey Awaits
@@ -348,15 +380,15 @@ export const PackageTimeline = () => {
                           return (
                             <Card
                               key={day}
-                              className="border-0 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all"
+                              className="border-0 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
                             >
                               <CardHeader 
-                                className="bg-gradient-to-r from-gray-50 to-blue-50 p-5 cursor-pointer hover:from-gray-100 hover:to-blue-100 transition-all"
+                                className="bg-gradient-to-r from-gray-50 via-blue-50 to-cyan-50 p-5 cursor-pointer hover:from-blue-100 hover:via-cyan-100 hover:to-teal-100 transition-all duration-300 border-b border-gray-100"
                                 onClick={() => toggleDay(dayNum)}
                               >
                                 <div className="flex items-center justify-between">
                                   <CardTitle className="flex items-center gap-3">
-                                    <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-teal-500 to-cyan-500 text-white rounded-xl font-bold shadow-md">
+                                    <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
                                       {day}
                                     </div>
                                     <div>
@@ -393,12 +425,12 @@ export const PackageTimeline = () => {
                                       .map((activity, idx) => (
                                         <div
                                           key={idx}
-                                          className="flex items-start gap-3 p-4 bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-xl border border-gray-100 relative hover:from-blue-50 hover:to-cyan-50 transition-all duration-200"
+                                          className="flex items-start gap-3 p-5 bg-gradient-to-br from-gray-50 via-blue-50/50 to-cyan-50/30 rounded-xl border border-gray-100 relative hover:from-blue-100 hover:via-cyan-100 hover:to-teal-100 transition-all duration-300 hover:shadow-md hover:scale-[1.02]"
                                         >
                                           {idx !== activities.length - 1 && (
                                             <div className="absolute left-[2.65rem] top-16 w-0.5 h-[calc(100%+0.75rem)] bg-gray-200"></div>
                                           )}
-                                          <div className="flex-shrink-0 flex items-center justify-center w-11 h-11 bg-gradient-to-br from-teal-500 to-cyan-500 text-white rounded-xl z-10 shadow-sm">
+                                          <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 text-white rounded-xl z-10 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110">
                                             <Clock className="w-5 h-5" />
                                           </div>
                                           <div className="flex-1 min-w-0">
@@ -553,11 +585,14 @@ export const PackageTimeline = () => {
             </div>
           </div>
 
-          <div className="space-y-5">
-            <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-lg sticky top-6">
-              <CardHeader className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white p-5">
-                <CardTitle className="flex items-center gap-3 text-base font-semibold">
-                  <CalendarDays className="h-5 w-5" />
+          <div className="space-y-6">
+            <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 sticky top-6">
+              <CardHeader className="bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-600 text-white p-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <CardTitle className="flex items-center gap-3 text-base font-semibold relative z-10">
+                  <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <CalendarDays className="h-5 w-5" />
+                  </div>
                   Select Travel Date
                 </CardTitle>
               </CardHeader>
@@ -566,15 +601,18 @@ export const PackageTimeline = () => {
                   type="date"
                   min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                  className="w-full p-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 text-sm"
+                  className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 text-sm font-medium bg-gradient-to-br from-gray-50 to-white hover:border-teal-300"
                 />
               </CardContent>
             </Card>
 
-            <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-5">
-                <CardTitle className="flex items-center gap-3 text-base font-semibold">
-                  <CreditCard className="h-5 w-5" />
+            <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <CardTitle className="flex items-center gap-3 text-base font-semibold relative z-10">
+                  <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <CreditCard className="h-5 w-5" />
+                  </div>
                   Price Summary
                 </CardTitle>
               </CardHeader>
@@ -612,7 +650,7 @@ export const PackageTimeline = () => {
                 </div>
 
                 <Button
-                  className="w-full h-12 text-base font-bold bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white transition-all duration-300 rounded-2xl shadow-lg hover:shadow-xl"
+                  className="w-full h-14 text-base font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-600 hover:from-teal-600 hover:via-cyan-600 hover:to-teal-700 text-white transition-all duration-300 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   disabled={!selectedDate || isBookingLoading}
                   onClick={handleBooking}
                 >

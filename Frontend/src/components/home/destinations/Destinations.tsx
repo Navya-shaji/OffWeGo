@@ -67,19 +67,15 @@ const Destinations = ({ id }: DestinationsProps) => {
             const response = await getNearbyDestinations(lat, lng, radiusInKm);
             console.log("Nearby API Response:", response);
             
-            // Handle different response structures
-            // API returns: {success: true, data: [...]}
-            // Axios wraps it as: {data: {success: true, data: [...]}}
+        
             let destinationsData = [];
             
             if (response?.data?.data && Array.isArray(response.data.data)) {
-              // Axios response with nested data
+            
               destinationsData = response.data.data;
             } else if (response?.data && Array.isArray(response.data)) {
-              // Direct data array or {data: [...]}
               destinationsData = response.data;
             } else if (Array.isArray(response)) {
-              // Response is array directly
               destinationsData = response;
             }
             
@@ -165,7 +161,7 @@ const Destinations = ({ id }: DestinationsProps) => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
+    
       <div className="relative bg-black text-white py-32 px-6">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-8">
@@ -209,9 +205,9 @@ const Destinations = ({ id }: DestinationsProps) => {
         </div>
       </div>
 
-      {/* Main Content */}
+ 
       <div className="container mx-auto px-6 py-24 max-w-7xl">
-        {/* Error Message */}
+
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-8 py-6 mb-12 max-w-4xl mx-auto">
             <div className="flex justify-between items-center">
@@ -266,7 +262,7 @@ const Destinations = ({ id }: DestinationsProps) => {
           )}
         </div>
 
-        {/* Loading State */}
+   
         {loading ? (
           <div className="flex justify-center items-center py-40">
             <div className="text-center">
@@ -275,7 +271,7 @@ const Destinations = ({ id }: DestinationsProps) => {
             </div>
           </div>
         ) : destinations.length === 0 ? (
-          /* No Results */
+      
           <div className="text-center py-32 border border-black/10 max-w-3xl mx-auto">
             <MapPin className="w-24 h-24 text-black/20 mx-auto mb-8" />
             <h3 className="text-4xl font-light text-black mb-4">
@@ -303,9 +299,9 @@ const Destinations = ({ id }: DestinationsProps) => {
             )}
           </div>
         ) : (
-          /* Destinations Grid */
+        
           <div className="relative">
-            {/* Scroll Buttons */}
+        
             <div className="flex justify-end gap-3 mb-8">
               <button
                 onClick={scrollLeft}

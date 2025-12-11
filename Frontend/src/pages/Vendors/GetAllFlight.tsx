@@ -43,12 +43,23 @@ console.log(isSearchMode)
       setLoading(true);
       setError("");
       const response = await fetchAllFlights();
-      setFlights(response || []);
-      setOriginalFlights(response || []);
+      console.log("Fetched flights:", response);
+      
+      // Ensure response is an array
+      const flightsArray = Array.isArray(response) ? response : [];
+      setFlights(flightsArray);
+      setOriginalFlights(flightsArray);
+      
+      if (flightsArray.length === 0) {
+        console.warn("No flights returned from API");
+      }
     } catch (err) {
-      console.error(err);
-      setError("Failed to load flights");
-      toast.error("Failed to load flights");
+      console.error("Error loading flights:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to load flights";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      setFlights([]);
+      setOriginalFlights([]);
     } finally {
       setLoading(false);
     }
@@ -112,7 +123,10 @@ console.log(isSearchMode)
           },
         };
 
-        const updatedFlight = await updateFlight(selectedFlight.id, updatedFlightData);
+        const updatedFlightResponse = await updateFlight(selectedFlight.id, updatedFlightData);
+        
+        // Handle different response structures
+        const updatedFlight = updatedFlightResponse?.data || updatedFlightResponse || updatedFlightData;
         
         // Update both the displayed flights and original flights
         const updateFlightsList = (list: Flight[]) =>
