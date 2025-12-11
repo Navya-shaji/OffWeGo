@@ -12,6 +12,7 @@ import { onMessage } from "firebase/messaging";
 const VendorNavbar: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const [panelOpen, setPanelOpen] = React.useState(false);
+  const [notificationUnreadCount, setNotificationUnreadCount] = React.useState(0);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -94,9 +95,9 @@ const VendorNavbar: React.FC = () => {
             >
               <Bell className="w-5 h-5 text-gray-700 hover:text-indigo-600 transition-all" />
 
-              {notifications.filter(n => !n.read).length > 0 && (
+              {notificationUnreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
-                  {notifications.filter(n => !n.read).length > 99 ? '99+' : notifications.filter(n => !n.read).length}
+                  {notificationUnreadCount > 99 ? '99+' : notificationUnreadCount}
                 </span>
               )}
             </div>
@@ -133,6 +134,7 @@ const VendorNavbar: React.FC = () => {
       <NotificationPanel
         open={panelOpen}
         onClose={() => setPanelOpen(false)}
+        onUnreadCountChange={setNotificationUnreadCount}
       />
     </>
   );

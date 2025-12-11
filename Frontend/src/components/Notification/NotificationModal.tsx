@@ -25,9 +25,11 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
 
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
   const user = useSelector((state: RootState) => state.auth.user);
+  const isVendorAuthenticated = useSelector((state: RootState) => state.vendorAuth.isAuthenticated);
+  const isUserAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   
-  // Determine if we're on vendor side
-  const isVendor = !!vendor?.id;
+  // Determine if we're on vendor side - prioritize vendor authentication
+  const isVendor = (isVendorAuthenticated && vendor?.id) ? true : (isUserAuthenticated && user?.id) ? false : !!vendor?.id;
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);

@@ -25,30 +25,29 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     let recipientType: "vendor" | "user" | null = null;
     let recipientId: string | null = null;
 
-    // Prioritize checking isAuthenticated flags first
-    // Check user first (more common case)
-    if (state.auth.isAuthenticated && state.auth.user?.id) {
-      recipientType = "user";
-      recipientId = state.auth.user.id;
-      console.log("✅ Identified as USER");
-    } 
-    // Then check vendor
-    else if (state.vendorAuth.isAuthenticated && state.vendorAuth.vendor?.id) {
+    // Prioritize vendor authentication first (to prevent conflicts when both exist)
+    if (state.vendorAuth.isAuthenticated && state.vendorAuth.vendor?.id) {
       recipientType = "vendor";
       recipientId = state.vendorAuth.vendor.id;
       console.log("✅ Identified as VENDOR");
-    }
-    // Fallback: check if user exists (even if not authenticated)
-    else if (state.auth.user?.id) {
+    } 
+    // Then check user authentication
+    else if (state.auth.isAuthenticated && state.auth.user?.id) {
       recipientType = "user";
       recipientId = state.auth.user.id;
-      console.log("⚠️ Using USER (fallback - not authenticated)");
+      console.log("✅ Identified as USER");
     }
     // Fallback: check if vendor exists (even if not authenticated)
     else if (state.vendorAuth.vendor?.id) {
       recipientType = "vendor";
       recipientId = state.vendorAuth.vendor.id;
       console.log("⚠️ Using VENDOR (fallback - not authenticated)");
+    }
+    // Fallback: check if user exists (even if not authenticated)
+    else if (state.auth.user?.id) {
+      recipientType = "user";
+      recipientId = state.auth.user.id;
+      console.log("⚠️ Using USER (fallback - not authenticated)");
     }
 
     if (!recipientType || !recipientId) {
@@ -68,7 +67,15 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
       recipientId,
     });
    
-    return res.data.data || [];
+    // Handle different response structures
+    if (res.data && res.data.data) {
+      return Array.isArray(res.data.data) ? res.data.data : [];
+    } else if (res.data && Array.isArray(res.data)) {
+      return res.data;
+    } else {
+      console.warn("Unexpected notification response structure:", res.data);
+      return [];
+    }
   } catch (error) {
     console.error("❌ Error fetching notifications:", error);
     if (isAxiosError(error)) {

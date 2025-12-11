@@ -78,4 +78,3 @@ export const markMessagesAsSeen = async (chatId: string, userId: string, userTyp
     throw new Error("Unexpected error while marking messages as seen");
   }
 };
-
