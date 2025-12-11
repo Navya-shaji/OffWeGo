@@ -3,34 +3,63 @@ import { UserModel } from "../../../framework/database/Models/userModel";
 import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository";
 import { User } from "../../../domain/entities/userEntity";
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// Initialize OAuth2Client - will be created with client ID when needed
+let client: OAuth2Client | null = null;
+
+const getOAuthClient = (): OAuth2Client => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    throw new Error("GOOGLE_CLIENT_ID environment variable is not set");
+  }
+  if (!client) {
+    client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  }
+  return client;
+};
 
 export class AuthRepository implements IAuthRepository {
   async signupWithGoogle(googleToken: string): Promise<User> {
-    const ticket = await client.verifyIdToken({
-      idToken: googleToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      throw new Error("Invalid Google token");
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      throw new Error("Google Client ID is not configured");
     }
-    const userDoc = await UserModel.findOneAndUpdate(
+    
+    try {
+      const oauthClient = getOAuthClient();
+      const ticket = await oauthClient.verifyIdToken({
+        idToken: googleToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        throw new Error("Invalid Google token - missing email");
+      }
+      
+      const userDoc = await UserModel.findOneAndUpdate(
       { email: payload.email },
       {
         $setOnInsert: {
-          name: payload.name,
+          name: payload.name || payload.email?.split('@')[0] || 'User',
           email: payload.email,
-          profileImage: payload.picture,
           isGoogleUser: true,
+          status: 'active',
+          role: 'user',
         },
+        $set: {
+          imageUrl: payload.picture || '',
+        }
       },
       { new: true, upsert: true }
     ).lean();
 
-    if (!userDoc) {
-      throw new Error("User creation or retrieval failed");
+      if (!userDoc) {
+        throw new Error("User creation or retrieval failed");
+      }
+      return userDoc;
+    } catch (error: any) {
+      console.error("Google authentication error:", error);
+      if (error.message) {
+        throw error;
+      }
+      throw new Error(`Google authentication failed: ${error?.message || 'Unknown error'}`);
     }
-    return userDoc;
   }
 }

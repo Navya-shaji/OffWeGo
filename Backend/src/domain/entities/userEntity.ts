@@ -17,4 +17,3 @@ export interface User {
   location?: string;
   phone?: number | string;
 }
-

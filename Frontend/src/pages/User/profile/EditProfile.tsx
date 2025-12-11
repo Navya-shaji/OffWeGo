@@ -19,7 +19,7 @@ import { editProfile } from "@/services/user/Userprofile";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { toast } from "react-toastify";
 
-import { usernameSchema, phoneSchema } from '@/Types/User/Profile/profileZodeSchema'
+import { usernameSchema, phoneSchema, profileEditSchema } from '@/Types/User/Profile/profileZodeSchema'
 import z from "zod/v3";
 
 const notify = () => toast("Profile updated!");
@@ -43,6 +43,7 @@ export default function EditProfileModal({
   const [isLoading, setIsLoading] = useState(false);
   const [errorUsername, setErrorUsername] = useState<string | null>(null);
   const [errorPhone, setErrorPhone] = useState<string | null>(null);
+  const [errorImage, setErrorImage] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,16 +52,51 @@ export default function EditProfileModal({
       setEmail(user.email || "");
       setPhone(user.phone || "");
       setImagePreviewUrl(user.imageUrl || null);
+      // Reset errors when user data is loaded
+      setErrorUsername(null);
+      setErrorPhone(null);
+      setErrorImage(null);
+      setGeneralError(null);
     }
-  }, [user]);
+  }, [user, isOpen]);
+
+  // Reset errors when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setErrorUsername(null);
+      setErrorPhone(null);
+      setErrorImage(null);
+      setGeneralError(null);
+      setSelectedFile(null);
+    }
+  }, [isOpen]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    setErrorImage(null);
+    
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrorImage("Image size must be less than 5MB");
+        event.target.value = ""; // Clear the input
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setErrorImage("File must be an image (JPG, PNG, GIF, or WebP)");
+        event.target.value = ""; // Clear the input
+        return;
+      }
+      
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreviewUrl(reader.result as string);
+      };
+      reader.onerror = () => {
+        setErrorImage("Failed to load image");
       };
       reader.readAsDataURL(file);
     }
@@ -68,20 +104,58 @@ export default function EditProfileModal({
 
   const handleUsernameChange = (value: string) => {
     setUsername(value);
-    const result = usernameSchema.safeParse(value);
-    setErrorUsername(result.success ? null : result.error.message);
+    // Validate in real-time - show error immediately if empty
+    const trimmed = value.trim();
+    
+    if (trimmed.length === 0) {
+      setErrorUsername("Name is required and cannot be empty");
+    } else if (trimmed.length < 2) {
+      setErrorUsername("Name must be at least 2 characters");
+    } else if (trimmed.length > 50) {
+      setErrorUsername("Name must not exceed 50 characters");
+    } else if (!/^[a-zA-Z\s'-]+$/.test(trimmed)) {
+      setErrorUsername("Name can only contain letters, spaces, hyphens, and apostrophes");
+    } else {
+      // Validate with schema for final check
+      const result = usernameSchema.safeParse(value);
+      if (!result.success) {
+        setErrorUsername(result.error.errors[0]?.message || "Invalid username");
+      } else {
+        setErrorUsername(null);
+      }
+    }
   };
 
   const handlePhoneChange = (value: string) => {
-    setPhone(value);
-    const result = phoneSchema.safeParse(value);
-    setErrorPhone(result.success ? null : result.error.message);
+    // Only allow digits
+    const digitsOnly = value.replace(/\D/g, '');
+    setPhone(digitsOnly);
+    
+    // Validate in real-time - phone is required
+    if (digitsOnly.length === 0) {
+      setErrorPhone("Phone number is required");
+    } else if (digitsOnly.length < 10) {
+      setErrorPhone("Phone number must be exactly 10 digits");
+    } else if (digitsOnly.length > 10) {
+      setErrorPhone("Phone number must be exactly 10 digits");
+    } else {
+      // Validate with schema for final check
+      const result = phoneSchema.safeParse(digitsOnly);
+      if (!result.success) {
+        setErrorPhone(result.error.errors[0]?.message || "Invalid phone number");
+      } else {
+        setErrorPhone(null);
+      }
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
     setGeneralError(null);
+    setErrorUsername(null);
+    setErrorPhone(null);
+    setErrorImage(null);
 
     if (!user?.id) {
       setGeneralError("User ID is missing");
@@ -89,16 +163,74 @@ export default function EditProfileModal({
       return;
     }
 
-    try {
+    // Validate image file if selected
+    if (selectedFile) {
+      try {
+        // Check file size (max 5MB)
+        if (selectedFile.size > 5 * 1024 * 1024) {
+          setErrorImage("Image size must be less than 5MB");
+          setIsLoading(false);
+          return;
+        }
+        // Check file type
+        if (!selectedFile.type.startsWith("image/")) {
+          setErrorImage("File must be an image (JPG, PNG, GIF, or WebP)");
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        setErrorImage("Invalid image file");
+        setIsLoading(false);
+        return;
+      }
+    }
 
+    // Validate username
+    const usernameValidation = usernameSchema.safeParse(username);
+    if (!usernameValidation.success) {
+      setErrorUsername(usernameValidation.error.errors[0]?.message || "Invalid username");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate phone (required, must be valid)
+    const phoneValidation = phoneSchema.safeParse(phone);
+    if (!phoneValidation.success) {
+      setErrorPhone(phoneValidation.error.errors[0]?.message || "Invalid phone number");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate entire form using the comprehensive schema
+    const formData = {
+      name: username.trim(),
+      phone: phone.trim() === "" ? undefined : phone.trim(),
+      imageUrl: user.imageUrl || "",
+    };
+    
+    const formValidation = profileEditSchema.safeParse(formData);
+    if (!formValidation.success) {
+      const firstError = formValidation.error.errors[0];
+      if (firstError.path.includes("name")) {
+        setErrorUsername(firstError.message);
+      } else if (firstError.path.includes("phone")) {
+        setErrorPhone(firstError.message);
+      } else {
+        setGeneralError(firstError.message);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    try {
       let newImageUrl = user.imageUrl;
       if (selectedFile) {
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
       const updated = await editProfile({
-        name: username,
-        phone: phone === "" ? undefined : phone, // Send undefined if empty
+        name: username.trim(),
+        phone: phone.trim(), // Phone is required, always send trimmed value
         imageUrl: newImageUrl,
       });
 
@@ -152,13 +284,18 @@ export default function EditProfileModal({
                 type="file"
                 onChange={handleFileChange}
                 accept="image/*"
+                disabled={isLoading}
               />
+              {errorImage && (
+                <p className="text-red-500 text-sm">{errorImage}</p>
+              )}
+              <p className="text-xs text-gray-500">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
             </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
-              Username
+              Username <span className="text-red-500">*</span>
             </Label>
             <div className="col-span-3 flex flex-col">
               <Input
@@ -188,7 +325,7 @@ export default function EditProfileModal({
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="phone" className="text-right">
-              Phone
+              Phone <span className="text-red-500">*</span>
             </Label>
             <div className="col-span-3 flex flex-col">
               <Input
@@ -197,6 +334,8 @@ export default function EditProfileModal({
                 value={phone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 disabled={isLoading}
+                maxLength={10}
+                placeholder="Enter 10-digit phone number"
               />
               {errorPhone && (
                 <p className="text-red-500 text-sm">{errorPhone}</p>
@@ -207,7 +346,10 @@ export default function EditProfileModal({
           {generalError && <p className="text-red-500 text-sm text-center">{generalError}</p>}
 
           <DialogFooter>
-            <Button type="submit" disabled={isLoading || errorUsername != null || errorPhone != null}>
+            <Button 
+              type="submit" 
+              disabled={isLoading || errorUsername != null || errorPhone != null || errorImage != null}
+            >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save changes
             </Button>

@@ -57,7 +57,9 @@ export const registerGoogleUser=async (token: string)=>{
   }catch(error){
      console.error("Error while Google signup", error);
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.error || "Google signup failed");
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || "Google signup failed";
+      console.error("Google signup error details:", error.response?.data);
+      throw new Error(errorMessage);
     }
     throw new Error("Unexpected error during Google signup");
   }
