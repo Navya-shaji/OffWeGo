@@ -29,8 +29,9 @@ export class ReviewController {
 
   async getReviews(req: Request, res: Response) {
     try {
-      const packageId = req.params.packageId;
-      const result = await this._getReviewUsecase.execute(packageId);
+      // Route uses :id but we treat it as packageName
+      const packageName = req.params.id || req.params.packageName || req.params.packageId;
+      const result = await this._getReviewUsecase.execute(packageName);
 
       res.status(HttpStatus.OK).json({
         success: true,

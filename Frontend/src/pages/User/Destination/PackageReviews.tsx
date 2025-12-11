@@ -5,11 +5,11 @@ import { allReviews } from "@/services/Reviews/reviewService";
 import type { IReview } from "@/interface/reviews";
 
 interface PackageReviewsProps {
-  packageId: string;
+  packageName: string;
 }
 
 export const PackageReviews: React.FC<PackageReviewsProps> = ({
-  packageId,
+  packageName,
 }) => {
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ export const PackageReviews: React.FC<PackageReviewsProps> = ({
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const data = await allReviews(packageId);
+        const data = await allReviews(packageName);
 
         // Ensure it's an array
         if (Array.isArray(data)) {
@@ -35,8 +35,8 @@ export const PackageReviews: React.FC<PackageReviewsProps> = ({
       }
     };
 
-    if (packageId) fetchReviews();
-  }, [packageId]);
+    if (packageName) fetchReviews();
+  }, [packageName]);
 
   const calculateAverageRating = () => {
     if (!Array.isArray(reviews) || reviews.length === 0) return 0;

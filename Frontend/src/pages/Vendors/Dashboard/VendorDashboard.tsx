@@ -24,6 +24,7 @@ import { getAllHotel } from "@/services/Hotel/HotelService";
 import { getActivities } from "@/services/Activity/ActivityService";
 import { fetchAllFlights } from "@/services/Flight/FlightService";
 import { getAllUserBookings } from "@/services/Booking/bookingService";
+import { getVendorWallet } from "@/services/Wallet/VendorWalletService";
 import type { RootState } from "@/store/store";
 
 interface MonthlyData {
@@ -54,13 +55,16 @@ export default function VendorDashboard() {
     async function fetchDashboardStats() {
       try {
         setLoading(true);
-        const [pkgRes, hotelRes, actRes, flightRes, bookingRes] =
+        if (!vendorId) return;
+        
+        const [pkgRes, hotelRes, actRes, flightRes, bookingRes, walletRes] =
           await Promise.all([
             fetchAllPackages(1, 1000),
             getAllHotel(1, 1000),
             getActivities(1, 1000),
             fetchAllFlights(),
             getAllUserBookings(vendorId),
+            getVendorWallet(vendorId).catch(() => null), // Fetch wallet, but don't fail if it doesn't exist
           ]);
 
         const packageCount = pkgRes?.totalPackages || pkgRes?.packages?.length || 0;
@@ -70,10 +74,9 @@ export default function VendorDashboard() {
         const bookings = Array.isArray(bookingRes) ? bookingRes : [];
         const bookingCount = bookings.length;
 
-        // Calculate total revenue from actual bookings
-        const totalRevenue = bookings.reduce((sum: number, booking: any) => {
-          return sum + (booking.totalAmount || 0);
-        }, 0);
+        // Calculate total revenue from wallet balance instead of bookings
+        // Wallet balance represents the actual earnings in the vendor's wallet
+        const totalRevenue = walletRes?.balance || 0;
 
         // Process monthly data from actual bookings
         const monthlyStats = processMonthlyData(bookings);
@@ -150,7 +153,6 @@ export default function VendorDashboard() {
 
   // Get max bookings for chart scaling
   const maxBookings = Math.max(...monthlyData.map(d => d.bookings), 1);
-  const maxRevenue = Math.max(...monthlyData.map(d => d.revenue), 1);
 
   // Calculate growth percentage (comparing current month to previous)
   const currentMonth = new Date().getMonth();
@@ -285,7 +287,7 @@ export default function VendorDashboard() {
                   </span>
                 </div>
                 <p className="text-gray-500 text-sm">
-                  From <span className="font-semibold text-gray-700">{stats.bookings}</span> total booking{stats.bookings !== 1 ? "s" : ""} this year
+                  Current wallet balance from all transactions
                 </p>
               </div>
 

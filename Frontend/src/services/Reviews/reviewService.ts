@@ -17,9 +17,10 @@ export const createReviews = async (data: IReview) => {
   }
 };
 
-export const allReviews = async (packageId: string) => {
+export const allReviews = async (packageName: string) => {
   try {
-    const res = await axiosInstance.get(`/api/reviews/${packageId}`);
+    // Use packageName instead of packageId
+    const res = await axiosInstance.get(`/api/reviews/${encodeURIComponent(packageName)}`);
     console.log(res.data.data)
     return res.data.data;
   } catch (error) {

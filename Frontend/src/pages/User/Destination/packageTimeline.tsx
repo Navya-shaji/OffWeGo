@@ -30,17 +30,15 @@ import FlightSearchModal from "@/pages/Vendors/flightModal";
 import { PackageReviews } from "./PackageReviews";
 import type { Flight } from "@/interface/flightInterface";
 
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store"; 
 
-import { ChatButton } from "@/components/chat/chatbutton";
-// import { ChatModal } from "../chat/chat";
+
+
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -48,7 +46,7 @@ export const PackageTimeline = () => {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [showFlightModal, setShowFlightModal] = useState(false);
   const [expandedDays, setExpandedDays] = useState<Record<number, boolean>>({});
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+
 
   useEffect(() => {
     if (selectedPackage) {
@@ -459,6 +457,31 @@ export const PackageTimeline = () => {
               </Card>
             )}
 
+            {/* Reviews Section */}
+            {selectedPackage?.packageName && (
+              <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                <CardHeader className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                  <CardTitle className="flex items-center gap-3 text-xl relative z-10">
+                    <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                      <Star className="h-6 w-6 fill-white" />
+                    </div>
+                    <div>
+                      <span className="block text-xl font-bold">
+                        Customer Reviews
+                      </span>
+                      <span className="block text-sm text-white/90 font-normal mt-0.5">
+                        See what travelers are saying about this package
+                      </span>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 md:p-8">
+                  <PackageReviews packageName={selectedPackage.packageName} />
+                </CardContent>
+              </Card>
+            )}
+
             <div className="grid md:grid-cols-2 gap-5">
               {selectedPackage.hotels && selectedPackage.hotels.length > 0 && (
                 <Card className="bg-white border-0 rounded-3xl overflow-hidden shadow-lg">
@@ -636,10 +659,6 @@ export const PackageTimeline = () => {
                   </div>
                 </div>
 
-                {selectedPackage?._id && (
-                  <PackageReviews packageId={selectedPackage._id} />
-                )}
-
                 <Separator className="my-4 border-gray-200" />
 
                 <div className="flex justify-between items-center p-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-2xl text-white shadow-md">
@@ -677,17 +696,7 @@ export const PackageTimeline = () => {
               </CardContent>
             </Card>
 
-            <ChatButton onClick={() => setIsChatOpen(true)} />
-
-            {/* <ChatModal
-              isOpen={isChatOpen}
-              onClose={() => setIsChatOpen(false)}
-              currentUserId={currentUser?.id || ""}
-              currentUserRole="user"
-              vendorId={selectedPackage.vendorId || ""}
-              packageName={selectedPackage.packageName}
-            /> */}
-
+         
             <Card className="border-0 overflow-hidden bg-white rounded-3xl shadow-lg">
               <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-5">
                 <CardTitle className="text-base font-semibold">Package Highlights</CardTitle>

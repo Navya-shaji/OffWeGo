@@ -36,15 +36,24 @@ interface ContactInfo {
 
 interface Booking {
   _id: string;
+  bookingId?: string;
   userId: {
     _id: string;
     name: string;
     email: string;
   };
-  packageId: {
+  packageId?: {
     _id: string;
     packageName: string;
     price: number;
+    destination?: string;
+    destinationId?: string;
+  };
+  selectedPackage?: {
+    _id: string;
+    packageName: string;
+    price: number;
+    duration?: number;
     destination?: string;
     destinationId?: string;
   };
@@ -53,8 +62,10 @@ interface Booking {
   children: Traveler[];
   contactInfo: ContactInfo;
   totalAmount: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  bookingStatus?: "pending" | "confirmed" | "cancelled" | "completed" | "upcoming" | "ongoing";
+  status?: "pending" | "confirmed" | "cancelled" | "completed";
   paymentStatus: "pending" | "succeeded" | "failed" | "refunded";
+  payment_id?: string;
   flightDetails?: {
     airline: string;
     class: string;
@@ -112,8 +123,10 @@ export default function AllBookings() {
         (booking) =>
           booking.userId?.name?.toLowerCase().includes(query) ||
           booking.userId?.email?.toLowerCase().includes(query) ||
+          booking.selectedPackage?.packageName?.toLowerCase().includes(query) ||
           booking.packageId?.packageName?.toLowerCase().includes(query) ||
-          booking._id.toLowerCase().includes(query)
+          booking._id.toLowerCase().includes(query) ||
+          booking.bookingId?.toLowerCase().includes(query)
       );
     }
 
@@ -322,9 +335,8 @@ export default function AllBookings() {
                       Travelers
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Amount
+                      Status
                     </th>
-
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Payment
                     </th>
@@ -393,11 +405,8 @@ export default function AllBookings() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-bold text-gray-900">
-                          {formatCurrency(booking.totalAmount)}
-                        </div>
+                        {getStatusBadge(booking.bookingStatus || booking.status || "upcoming")}
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getPaymentBadge(booking.paymentStatus)}
                       </td>
@@ -450,33 +459,37 @@ export default function AllBookings() {
                     <div>
                       <span className="text-gray-600">Name:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedBooking.userId?.name}
+                        {selectedBooking.userId?.name || selectedBooking.adults?.[0]?.name || "N/A"}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-600">Email:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedBooking.userId?.email}
+                        {selectedBooking.userId?.email || selectedBooking.contactInfo?.email || "N/A"}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-600">Mobile:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedBooking.contactInfo?.mobile}
+                        {selectedBooking.contactInfo?.mobile || "N/A"}
                       </p>
                     </div>
-                    <div>
-                      <span className="text-gray-600">City:</span>
-                      <p className="font-medium text-gray-900">
-                        {selectedBooking.contactInfo?.city}
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-600">Address:</span>
-                      <p className="font-medium text-gray-900">
-                        {selectedBooking.contactInfo?.address}
-                      </p>
-                    </div>
+                    {selectedBooking.contactInfo?.city && (
+                      <div>
+                        <span className="text-gray-600">City:</span>
+                        <p className="font-medium text-gray-900">
+                          {selectedBooking.contactInfo.city}
+                        </p>
+                      </div>
+                    )}
+                    {selectedBooking.contactInfo?.address && (
+                      <div className="col-span-2">
+                        <span className="text-gray-600">Address:</span>
+                        <p className="font-medium text-gray-900">
+                          {selectedBooking.contactInfo.address}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -490,7 +503,7 @@ export default function AllBookings() {
                     <div>
                       <span className="text-gray-600">Package Name:</span>
                       <p className="font-medium text-gray-900">
-                        {selectedBooking.packageId?.packageName}
+                        {selectedBooking.selectedPackage?.packageName || selectedBooking.packageId?.packageName || "N/A"}
                       </p>
                     </div>
                     <div>
@@ -499,6 +512,22 @@ export default function AllBookings() {
                         {formatDate(selectedBooking.selectedDate)}
                       </p>
                     </div>
+                    {selectedBooking.selectedPackage?.duration && (
+                      <div>
+                        <span className="text-gray-600">Duration:</span>
+                        <p className="font-medium text-gray-900">
+                          {selectedBooking.selectedPackage.duration} Days
+                        </p>
+                      </div>
+                    )}
+                    {selectedBooking.selectedPackage?.price && (
+                      <div>
+                        <span className="text-gray-600">Package Price:</span>
+                        <p className="font-medium text-gray-900">
+                          {formatCurrency(selectedBooking.selectedPackage.price)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -599,23 +628,59 @@ export default function AllBookings() {
                   <div className="space-y-2 text-sm mb-3">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Booking Status:</span>
-                      {getStatusBadge(selectedBooking.status)}
+                      {getStatusBadge(selectedBooking.bookingStatus || selectedBooking.status || "upcoming")}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Payment Status:</span>
-                      {getPaymentBadge(selectedBooking.paymentStatus)}
+                      {getPaymentBadge(selectedBooking.paymentStatus || (selectedBooking.payment_id ? "succeeded" : "pending"))}
                     </div>
+                    {selectedBooking.bookingId && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Booking ID:</span>
+                        <p className="font-medium text-gray-900 font-mono text-xs">
+                          #{selectedBooking.bookingId}
+                        </p>
+                      </div>
+                    )}
+                    {selectedBooking.payment_id && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Payment ID:</span>
+                        <p className="font-medium text-gray-900 font-mono text-xs break-all">
+                          {selectedBooking.payment_id}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div className="border-t border-purple-200 pt-3 mt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold text-gray-900">
-                        Total Amount:
-                      </span>
-                      <span className="text-2xl font-bold text-purple-600">
-                        {formatCurrency(selectedBooking.totalAmount)}
-                      </span>
-                    </div>
-                  </div>
+                  {/* Only show amount if booking is not cancelled */}
+                  {(() => {
+                    const isCancelled = selectedBooking.bookingStatus?.toLowerCase() === "cancelled" || 
+                                      selectedBooking.status?.toLowerCase() === "cancelled";
+                    
+                    if (isCancelled) {
+                      return (
+                        <div className="border-t border-red-200 pt-3 mt-3">
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p className="text-sm text-red-700 font-semibold">
+                              This booking has been cancelled. Amount information is not available.
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="border-t border-purple-200 pt-3 mt-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-semibold text-gray-900">
+                            Total Amount:
+                          </span>
+                          <span className="text-2xl font-bold text-purple-600">
+                            {formatCurrency(selectedBooking.totalAmount || 0)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Timestamps */}
