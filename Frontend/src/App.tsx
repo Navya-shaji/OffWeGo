@@ -14,7 +14,7 @@ function App() {
   const loggedUser = useSelector((state: RootState) => state.auth.user);
   const loggedVendor = useSelector((state: RootState) => state.vendorAuth.vendor);
 
-  useEffect(() => {
+ useEffect(() => {
     const registerNotifications = async () => {
       let userId: string | undefined;
       let role: "user" | "vendor" | undefined;
@@ -29,12 +29,34 @@ function App() {
 
       if (!userId || !role) return;
 
-      const token = await getFcmToken();
-      if (!token) return;
+      try {
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+          await Notification.requestPermission();
+        }
 
-      await subscribeToTopic(token, `${role}_${userId}`);
+        const token = await getFcmToken();
+        if (!token) {
+          console.warn("⚠️ FCM token not available");
+          return;
+        }
 
-      onMessageListener()
+        console.log(`✅ FCM token obtained for ${role}:`, token.substring(0, 20) + '...');
+
+        // Subscribe to topic for additional notification channels
+        await subscribeToTopic(token, `${role}_${userId}`);
+
+        // Set up message listener (foreground notifications)
+        onMessageListener()
+          .then((payload) => {
+            console.log("📬 FCM Message Received in App:", payload);
+          })
+          .catch((error) => {
+            console.error("❌ Error in FCM message listener:", error);
+          });
+      } catch (error) {
+        console.error("❌ Error registering FCM notifications:", error);
+      }
     };
 
     registerNotifications();

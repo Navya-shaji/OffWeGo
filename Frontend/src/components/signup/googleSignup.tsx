@@ -29,7 +29,7 @@ export function GoogleSignup() {
             try {
               const res = await registerGoogleUser(token);
               const { user, accessToken } = res.data;
-console.log(user,"google user")
+              console.log(user, "google user")
               if (user && accessToken) {
                 dispatch(
                   login({
@@ -40,6 +40,8 @@ console.log(user,"google user")
                       phone: user.phone,
                       status: user.status,
                       role: user.role,
+                      isGoogleUser: user.isGoogleUser,
+                      location: user.location
                     },
                     token: accessToken,
                     refreshToken: "",

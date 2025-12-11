@@ -9,4 +9,5 @@ export const mapToChatOut = (chat: IChatOut): IChatOut => ({
   isOnline: chat.isOnline ?? false,
   userId: chat.userId,
   vendorId: chat.vendorId,
+  unreadCount: chat.unreadCount ?? 0,
 });

@@ -1,15 +1,18 @@
 
 
 export interface IChatOut {
-    _id?: string,
-    lastMessage: string;
-    lastMessageAt: Date;
-    name: string;
-    profile_image: string;
-    isOnline: boolean;
-    userId?: any;
-    vendorId?: any;
+  _id: string;
+  lastMessage?: string;
+  lastMessageAt?: Date;
+  name?: string;
+  profile_image?: string;
+  isOnline?: boolean;
+  userId?: string;
+  vendorId?: string;
+  unreadCount?: number;
 }
+
+
 
 export interface IMessageOut {
     chatId: string;

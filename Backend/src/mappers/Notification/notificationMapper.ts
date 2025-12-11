@@ -5,12 +5,13 @@ export const notificationMapperDto = (
   notifications: INotificationEntity[]
 ): NotificationDto[] => {
   return notifications.map(n => ({
-    id:n._id,
+    id: n._id?.toString() || "",
+    _id: n._id?.toString() || "",
     recipientId: n.recipientId,
     recipientType: n.recipientType,
     title: n.title,
     message: n.message,
     createdAt: n.createdAt,
-    read:n.read
+    read: n.read
   }));
 };

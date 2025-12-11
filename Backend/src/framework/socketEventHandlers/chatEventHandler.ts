@@ -13,7 +13,7 @@ export class ChatEventHandler {
     }
 
     private _setHandler(): void {
-      
+        // User registration
         this._socket.on("register_user", ({ userId }: { userId: string }) => {
             chatHandler.handleConnect(userId);
             this._socket.join(`user_${userId}`); // Join user-specific room
@@ -23,7 +23,7 @@ export class ChatEventHandler {
             });
         });
 
-  
+        // Vendor registration
         this._socket.on("register_vendor", ({ vendorId }: { vendorId: string }) => {
             chatHandler.handleConnect(vendorId);
             this._socket.join(`vendor_${vendorId}`); // Join vendor-specific room
@@ -60,7 +60,10 @@ export class ChatEventHandler {
 
             // Emit notification event to recipient's personal room
             if (data.receiverId) {
-                const recipientRoom = data.senderType === 'vendor' 
+                // Normalize senderType for comparison (handle 'User', 'user', 'vendor')
+                const normalizedSenderType = (data.senderType || '').toLowerCase();
+                const isVendorSender = normalizedSenderType === 'vendor';
+                const recipientRoom = isVendorSender 
                     ? `user_${data.receiverId}` 
                     : `vendor_${data.receiverId}`;
                 

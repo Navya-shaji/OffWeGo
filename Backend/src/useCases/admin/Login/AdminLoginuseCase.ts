@@ -3,7 +3,7 @@ import { IPasswordService } from "../../../domain/interface/ServiceInterface/Iha
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
 import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 import { IAdminRepository } from "../../../domain/interface/Admin/IAdminRepository";
-import { mapToAdmin } from "../../../mappers/Admin/AdminMapper"; 
+import { mapToAdmin } from "../../../mappers/Admin/adminMapper";
 import { AdminResponseDto } from "../../../domain/dto/User/AdminResponseDto";
 
 export class AdminLoginuseCase implements IAdminLoginUseCase {
@@ -11,8 +11,8 @@ export class AdminLoginuseCase implements IAdminLoginUseCase {
     private _adminRepository: IAdminRepository,
     private _hashService: IPasswordService,
     private _tokenService: ITokenService
-    
-  ) {}
+
+  ) { }
 
   async execute(data: LoginDTo): Promise<AdminResponseDto> {
     const { email, password } = data;
@@ -20,6 +20,7 @@ export class AdminLoginuseCase implements IAdminLoginUseCase {
     const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new Error("Admin not found");
 
+    if (!admin.password) throw new Error("Invalid admin credentials");
     const isPasswordValid = await this._hashService.compare(
       password,
       admin.password

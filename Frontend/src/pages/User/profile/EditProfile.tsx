@@ -45,14 +45,14 @@ export default function EditProfileModal({
   const [errorPhone, setErrorPhone] = useState<string | null>(null);
   const [generalError, setGeneralError] = useState<string | null>(null);
 
-useEffect(() => {
-  if (user) {
-    setUsername(user.username || "");
-    setEmail(user.email || "");
-    setPhone(user.phone || "");
-    setImagePreviewUrl(user.imageUrl || null);
-  }
-}, [user]);
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setImagePreviewUrl(user.imageUrl || null);
+    }
+  }, [user]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -90,15 +90,15 @@ useEffect(() => {
     }
 
     try {
-    
+
       let newImageUrl = user.imageUrl;
       if (selectedFile) {
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      const updated = await editProfile( {
+      const updated = await editProfile({
         name: username,
-        phone: phone,
+        phone: phone === "" ? undefined : phone, // Send undefined if empty
         imageUrl: newImageUrl,
       });
 
@@ -107,7 +107,7 @@ useEffect(() => {
       onClose();
     } catch (err) {
       if (err instanceof z.ZodError) {
-        
+
         const firstError = err.errors[0];
         if (firstError.path.includes("name")) setErrorUsername(firstError.message);
         else if (firstError.path.includes("phone")) setErrorPhone(firstError.message);

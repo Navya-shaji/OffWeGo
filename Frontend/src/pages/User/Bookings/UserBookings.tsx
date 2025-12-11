@@ -420,9 +420,9 @@ const BookingDetailsSection = () => {
                                 }}
                                 className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
                                 title="Actions"
-                              >
+                                  >
                                 <MoreVertical className="w-6 h-6 text-gray-700" />
-                              </button>
+                                  </button>
                             </div>
                           </td>
                         </tr>

@@ -1,9 +1,9 @@
 
 export interface UserDto {
-  id?: string;           
+  id?: string;
   name: string;
   email: string;
-  phone: number;
+  phone?: number | string;
   role: "user" | "admin";
   status?: "active" | "block";
   imageUrl?: string;

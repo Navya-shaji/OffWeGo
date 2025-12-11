@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import type { RootState } from "@/store/store";
 import { logout } from "@/store/slice/user/authSlice";
+import { addNotification } from "@/store/slice/Notifications/notificationSlice";
+import { NotificationPanel } from "../Notification/NotificationModal";
+import { useChatContext } from "@/context/chatContext";
+import { messaging } from "@/Firebase/firebase";
+import { onMessage } from "firebase/messaging";
 import logo from "../../../public/images/logo.png";
-import { ChevronDown, Menu, X, MessageCircle } from "lucide-react";
+import { ChevronDown, Menu, X, MessageCircle, Bell } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
   const user = useSelector((state: RootState) => state.auth.user);
+  const { totalUnreadCount } = useChatContext();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -19,6 +27,30 @@ const Navbar = () => {
     setIsProfileDropdownOpen(false);
     navigate("/login");
   };
+
+  // FCM Message Listener - Continuous listening
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const unsubscribe = onMessage(messaging, (payload: any) => {
+      console.log("📬 User FCM Message Received:", payload);
+      
+      // Handle both notification and data payload
+      const title = payload.notification?.title || payload.data?.title || "New Notification";
+      const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
+
+      dispatch(
+        addNotification({
+          title,
+          body,
+        })
+      );
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.id, dispatch]);
 
   return (
     <nav className="bg-white-50 backdrop-blur-sm shadow-sm sticky top-4 z-50 w-full">
@@ -52,6 +84,32 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center space-x-3">
+                {/* Notification Bell */}
+                <div
+                  className="relative cursor-pointer"
+                  onClick={() => setPanelOpen(true)}
+                >
+                  <Bell className="w-5 h-5 text-gray-700 hover:text-gray-900 transition-colors" />
+                  {notificationUnreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
+                      {notificationUnreadCount > 99 ? '99+' : notificationUnreadCount}
+                    </span>
+                  )}
+                </div>
+                {user && (
+                  <button
+                    onClick={() => navigate("/chat")}
+                    className="relative p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                    title="Messages"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    {(totalUnreadCount ?? 0) > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
+                        {(totalUnreadCount ?? 0) > 99 ? '99+' : totalUnreadCount}
+                      </span>
+                    )}
+                  </button>
+                )}
                 <div className="relative">
                   <button
                     className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
@@ -82,15 +140,6 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-                {user && (
-                  <button
-                    onClick={() => navigate("/chat")}
-                    className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-                    title="Messages"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -188,6 +237,12 @@ const Navbar = () => {
           )}
         </div>
       )}
+
+      <NotificationPanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        onUnreadCountChange={setNotificationUnreadCount}
+      />
     </nav>
   );
 };

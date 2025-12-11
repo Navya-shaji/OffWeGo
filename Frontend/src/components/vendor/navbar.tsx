@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
-import { Bell, CreditCard, User, ChevronDown, LogOut } from "lucide-react";
+import { Bell, CreditCard, User, ChevronDown, LogOut, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { logout } from "@/store/slice/vendor/authSlice";
 import {NotificationPanel} from "../Notification/NotificationModal";
-import { onMessageListener } from "@/Firebase/firebase";
+import { useChatContext } from "@/context/chatContext";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
+import { messaging } from "@/Firebase/firebase";
+import { onMessage } from "firebase/messaging";
 
 const VendorNavbar: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
@@ -15,10 +17,10 @@ const VendorNavbar: React.FC = () => {
   const navigate = useNavigate();
 
   const notifications = useAppSelector(
-  (state) => state.notifications.notifications
-);
-
-
+    (state) => state.notifications.notifications
+  );
+  const vendor = useAppSelector((state) => state.vendorAuth.vendor);
+  const { totalUnreadCount } = useChatContext();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -30,19 +32,29 @@ const VendorNavbar: React.FC = () => {
     navigate("/vendor/subscriptionplans");
   };
 
-useEffect(() => {
-  onMessageListener().then((payload) => {
+  // FCM Message Listener - Continuous listening using Firebase onMessage
+  useEffect(() => {
+    if (!vendor?.id) return;
 
-    console.log("Message Received:", payload);  
+    const unsubscribe = onMessage(messaging, (payload: any) => {
+      console.log("📬 Vendor FCM Message Received:", payload);
+      
+      // Handle both notification and data payload
+      const title = payload.notification?.title || payload.data?.title || "New Notification";
+      const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
 
-    dispatch(
-      addNotification({
-        title: payload.notification?.title || "New Notification",
-        body: payload.notification?.body || "",
-      })
-    );
-  });
-}, []);
+      dispatch(
+        addNotification({
+          title,
+          body,
+        })
+      );
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [vendor?.id, dispatch]);
 
 
   return (
@@ -61,6 +73,20 @@ useEffect(() => {
               Explore Plans
             </button>
 
+            {/* Messages Button */}
+            <button
+              onClick={() => navigate("/vendor/chat")}
+              className="relative p-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-100 rounded-md transition-colors"
+              title="Messages"
+            >
+              <MessageCircle className="w-5 h-5" />
+              {(totalUnreadCount ?? 0) > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
+                  {(totalUnreadCount ?? 0) > 99 ? '99+' : totalUnreadCount}
+                </span>
+              )}
+            </button>
+
             {/* 🔔 Bell Button */}
             <div
               className="relative cursor-pointer"
@@ -68,8 +94,10 @@ useEffect(() => {
             >
               <Bell className="w-5 h-5 text-gray-700 hover:text-indigo-600 transition-all" />
 
-              {notifications.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              {notifications.filter(n => !n.read).length > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
+                  {notifications.filter(n => !n.read).length > 99 ? '99+' : notifications.filter(n => !n.read).length}
+                </span>
               )}
             </div>
 
@@ -105,7 +133,6 @@ useEffect(() => {
       <NotificationPanel
         open={panelOpen}
         onClose={() => setPanelOpen(false)}
-        notifications={notifications}
       />
     </>
   );

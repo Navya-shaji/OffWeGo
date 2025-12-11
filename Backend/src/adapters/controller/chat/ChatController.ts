@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUsecase";
-import { IGetChatsOfUserUsecase } from "../../../domain/interface/Chat/IGetChatUSecase";
 import { IGetMessagesUsecase } from "../../../domain/interface/Msg/IGetMsgUsecase";
 import { IMarkMessagesSeenUseCase } from "../../../domain/interface/Chat/IMarkMesgusecase";
+import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
 
 export class ChatController {
   constructor(
     private _initiateChatUsecase: IInitiateChatUsecase,
-    private _getChatsUsecase: IGetChatsOfUserUsecase,
+    private _getChatsUsecase: GetChatsOfUserUsecase,
     private _getMessagesUsecase: IGetMessagesUsecase,
     private _markMessagesSeenUseCase: IMarkMessagesSeenUseCase
   ) {}
@@ -42,21 +42,23 @@ export class ChatController {
 
   async getChats(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
-      const chats = await this._getChatsUsecase.getChats(userId);
+      const userId = req.params.userId || req.params.vendorId;
+
+      const userType = (req.query.userType as "user" | "vendor") || "user";
+
+      const chats = await this._getChatsUsecase.getChats(userId, userType);
       return res.status(HttpStatus.OK).json({
         success: true,
         data: chats,
       });
     } catch (error) {
-      console.error("Error fetching chats:", error);
+      console.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Internal Server Error",
       });
     }
   }
-
   async getMessages(req: Request, res: Response) {
     try {
       const { chatId } = req.params;

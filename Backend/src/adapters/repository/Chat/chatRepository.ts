@@ -95,4 +95,10 @@ export class ChatRepository implements IChatRepository {
             $inc: { [updateField]: 1 },
         });
     }
+       async resetUnreadCount(chatId: string, recipientType: 'user' | 'vendor'): Promise<void> {
+        const updateField = recipientType === 'user' ? 'unreadCountUser' : 'unreadCountVendor';
+        await chatModel.findByIdAndUpdate(chatId, {
+            $set: { [updateField]: 0 }
+        });
+    }
 }

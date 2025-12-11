@@ -15,12 +15,54 @@ export class FirebaseNotificationService implements INotificationService {
   private async sendNotification(
     token: string,
     title: string,
-    body: string
+    body: string,
+    data?: any
   ): Promise<void> {
-    await firebaseAdmin.messaging().send({
-      token,
-      notification: { title, body },
-    });
+    try {
+      const message = {
+        token,
+        notification: { 
+          title, 
+          body 
+        },
+        data: data || {},
+        android: {
+          priority: 'high' as const,
+          notification: {
+            sound: 'default',
+            channelId: 'default',
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+              badge: 1,
+            },
+          },
+        },
+        webpush: {
+          notification: {
+            title,
+            body,
+            icon: '/icon-192x192.png',
+            badge: '/badge-72x72.png',
+          },
+        },
+      };
+
+      const response = await firebaseAdmin.messaging().send(message);
+      console.log('✅ FCM notification sent successfully:', response);
+    } catch (error: any) {
+      console.error('❌ Error sending FCM notification:', error);
+      // If token is invalid, we should handle it but not throw
+      if (error.code === 'messaging/invalid-registration-token' || 
+          error.code === 'messaging/registration-token-not-registered') {
+        console.warn('⚠️ Invalid FCM token, should be removed from database');
+      } else {
+        throw error;
+      }
+    }
   }
 
   async send(notification: NotificationDto): Promise<INotificationEntity[]> {
@@ -34,8 +76,22 @@ export class FirebaseNotificationService implements INotificationService {
       token = await this.vendorRepo.getFcmTokenById(recipientId);
     }
 
-    if (token) {
-      await this.sendNotification(token, title, message);
+    if (token && token.trim() !== '') {
+      // Include additional data for foreground handling
+      // FCM requires all data values to be strings
+      const notificationData: Record<string, string> = {
+        type: 'chat_message',
+        recipientId: String(recipientId),
+        recipientType: String(recipientType),
+        timestamp: new Date().toISOString(),
+        title: String(title),
+        message: String(message),
+      };
+      
+      await this.sendNotification(token, title, message, notificationData);
+      console.log(`📱 FCM notification sent to ${recipientType} (${recipientId})`);
+    } else {
+      console.warn(`⚠️ No FCM token found for ${recipientType} (${recipientId})`);
     }
 
     await this.notificationRepo.create({

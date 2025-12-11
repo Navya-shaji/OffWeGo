@@ -28,6 +28,7 @@ interface IChat {
     isOnline: boolean;
     userId?: string;
     vendorId?: string;
+    unreadCount?: number;
 }
 
 interface ChatContextType {
@@ -38,6 +39,7 @@ interface ChatContextType {
     vendors: any[];
     error: string | null;
     isTyping: boolean;
+    totalUnreadCount: number;
     sendMessage: (content: string) => Promise<void>;
     selectChat: (myId: string, otherId: string) => Promise<void>;
     fetchChats: () => Promise<void>;
@@ -68,12 +70,16 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const fetchChatsData = async () => {
         if (!myId) return;
         try {
-            const res = await getChatsOfUser(myId);
-            setChats(res.data || []);
+            const res = await getChatsOfUser(myId, myType);
+            const chatsList = res.data || [];
+            setChats(chatsList);
         } catch (err) {
             console.error("Failed to fetch chats", err);
         }
     };
+
+    // Calculate total unread count
+    const totalUnreadCount = chats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
 
     useEffect(() => {
         fetchChatsData();
@@ -151,7 +157,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <ChatContext.Provider value={{
-            messages, currentChat, loading, chats, vendors, error, isTyping,
+            messages, currentChat, loading, chats, vendors, error, isTyping, totalUnreadCount,
             sendMessage, selectChat, fetchChats: fetchChatsData, triggerSidebarRefetch
         }}>
             {children}

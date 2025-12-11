@@ -1,3 +1,3 @@
 export interface IGetChatsOfUserUsecase {
-    getChats(userId: string): Promise<any[]>;
+    getChats(userId: string,userType:string): Promise<any[]>;
 }

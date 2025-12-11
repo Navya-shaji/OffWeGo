@@ -4,8 +4,7 @@ export interface User {
   _id?: ObjectId;
   name: string;
   email: string;
-  phone: number;
-  password: string;
+  password?: string;
   role: "user" | "admin";
   status?: "active" | "block";
   imageUrl?: string;
@@ -16,5 +15,6 @@ export interface User {
   fcmToken: string;
   isGoogleUser?: boolean;
   location?: string;
-  // phone?: number | string;
+  phone?: number | string;
 }
+

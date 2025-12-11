@@ -17,11 +17,18 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log("[firebase-messaging-sw.js] Received background message:", payload);
 
-  const notificationTitle = payload.notification?.title ?? "New Notification";
+  const notificationTitle = payload.notification?.title || payload.data?.title || "New Notification";
+  const notificationBody = payload.notification?.body || payload.data?.message || payload.data?.body || "";
+  
   const notificationOptions = {
-    body: payload.notification?.body,
-    icon: "/firebase-logo.png",
+    body: notificationBody,
+    icon: "/pwa-192x192.png",
+    badge: "/pwa-192x192.png",
+    tag: payload.data?.type || 'notification',
+    data: payload.data || {},
+    requireInteraction: false,
+    silent: false,
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
