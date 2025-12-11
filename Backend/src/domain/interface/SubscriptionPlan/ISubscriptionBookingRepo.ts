@@ -28,6 +28,10 @@ export interface ISubscriptionBookingRepository {
     planId: string
   ): Promise<ISubscriptionBookingModel | null>;
 
+  findBySessionId(
+    sessionId: string
+  ): Promise<ISubscriptionBookingModel | null>;
+
   updateBooking(
     id: string,
     data: Partial<ISubscriptionBookingModel>

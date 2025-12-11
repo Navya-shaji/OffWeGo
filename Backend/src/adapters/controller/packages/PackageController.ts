@@ -82,8 +82,24 @@ export class PackageController {
 
   async addPackage(req: Request, res: Response) {
     try {
-      const vendorId = req.body.vendorId;
+      // Extract vendorId from JWT token for security
+      const vendorId = req.user?.id;
+      
+      if (!vendorId) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "Vendor ID not found in token",
+        });
+      }
+
       const packageData = req.body;
+
+      if (!packageData.destinationId) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Destination ID is required",
+        });
+      }
 
       const destination = await DestinationModel.findById(
         packageData.destinationId
@@ -107,9 +123,23 @@ export class PackageController {
         totalPackages: 1,
       });
     } catch (err) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      const error = err as Error;
+      const errorMessage = error.message || "Failed to create package";
+      
+      // Check if error is related to subscription
+      const isSubscriptionError = 
+        errorMessage.includes("subscription") || 
+        errorMessage.includes("active subscription") ||
+        errorMessage.includes("expired") ||
+        errorMessage.includes("not active");
+
+      const statusCode = isSubscriptionError 
+        ? HttpStatus.FORBIDDEN 
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+
+      res.status(statusCode).json({
         success: false,
-        message: (err as Error).message || "Failed to create package",
+        message: errorMessage,
       });
     }
   }

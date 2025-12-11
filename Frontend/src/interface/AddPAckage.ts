@@ -1,30 +1,72 @@
- export interface Hotel {
-  hotelId: string; 
+import type { Flight } from "./flightInterface";
+
+export interface Hotel {
+  id?: string;
+  hotelId?: string;
   name: string;
   address: string;
   rating: number;
-  destinationId?: string;
+  destinationId: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
- export interface Activity {
-  id: string; 
+export interface Activity {
+  id?: string;
+  activityId?: string;
   title: string;
   description: string;
-  imageUrl: string;
   destinationId?: string;
+  imageUrl: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 
-export interface PackageData {
+
+export interface Itinerary {
+  day: number;
+  time: string;
+  activity: string;
+}
+
+export interface Package {
+  _id?: string;
   id?: string;
+  vendorId?: string;
   destinationId: string;
+
   packageName: string;
   description: string;
-  price: number;
-  duration: number;
+
+
+  price: number;         
+  flightPrice?: number;       
+
+
+  duration?: number;
   startDate?: string | Date;
   endDate?: string | Date;
+
+
   images: string[];
-  selectedHotels: Hotel[];       
-  selectedActivities: Activity[];  
+  hotels: Hotel[];
+  activities: Activity[];
+
+
+  checkInTime?: string;
+  checkOutTime?: string;
+  itinerary?: Itinerary[];
+
+
+  inclusions?: string[];
+  amenities?: string[];
+
+
+  flightOption: boolean;     
+  flight?: Flight | null;   
 }

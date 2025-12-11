@@ -19,29 +19,45 @@ export class CreatePackagesUseCase implements ICreatePackage {
     packageData.activities = (packageData.activities || []).filter(Boolean);
 
 
+  
     await this._subscriptionRepo.expireOldSubscriptions(vendorId);
 
-  
-    const subscription = await this._subscriptionRepo.getLatestSubscriptionByVendor(vendorId);
-    console.log(subscription, "Latest Active Subscription");
 
-   
+    const subscription = await this._subscriptionRepo.getLatestSubscriptionByVendor(vendorId);
+    console.log("🔍 Subscription check for vendor:", vendorId);
+    console.log("📋 Latest subscription:", subscription);
+
+
     if (!subscription) {
+      console.error("❌ No active subscription found for vendor:", vendorId);
       throw new Error(
-        "You do not have an active subscription. Purchase a plan to add packages."
+        "You do not have an active subscription. Please purchase a subscription plan to add packages."
       );
     }
+
 
     if (subscription.status !== "active") {
-      throw new Error("Your subscription is not active. Please renew your plan.");
-    }
-
-    const now = new Date();
-    if (subscription.endDate && new Date(subscription.endDate) < now) {
+      console.error("❌ Subscription status is not active:", subscription.status);
       throw new Error(
-        "Your subscription has expired. Renew your plan to continue adding packages."
+        `Your subscription is ${subscription.status}. Please activate or renew your subscription plan to add packages.`
       );
     }
+
+
+    const now = new Date();
+    if (subscription.endDate) {
+      const endDate = new Date(subscription.endDate);
+      if (endDate < now) {
+        console.error("❌ Subscription has expired. End date:", endDate, "Current date:", now);
+        throw new Error(
+          "Your subscription has expired. Please renew your subscription plan to continue adding packages."
+        );
+      }
+    } else {
+      console.warn("⚠️ Subscription has no endDate set");
+    }
+
+    console.log("✅ Subscription validation passed for vendor:", vendorId);
 
   
     const createdDoc = await this._packageRepo.createPackage(packageData);

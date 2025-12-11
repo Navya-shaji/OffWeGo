@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Trash2, MapPin } from "lucide-react";
+import { Edit, Trash2, MapPin, Loader2 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,7 +12,9 @@ import {
 } from "@/services/Hotel/HotelService";
 
 import { SearchBar } from "@/components/Modular/searchbar";
+import Pagination from "@/components/pagination/pagination";
 import ReusableTable from "@/components/Modular/Table";
+import { getCoordinatesFromPlace } from "@/services/Location/locationService";
 
 interface Hotel {
   _id: string;
@@ -21,6 +23,10 @@ interface Hotel {
   rating: number;
   hotelId?: string;
   destinationId?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 const HotelsTable: React.FC = () => {
@@ -35,57 +41,52 @@ const HotelsTable: React.FC = () => {
     name: "",
     address: "",
     rating: 0,
+    coordinates: {
+      lat: undefined as number | undefined,
+      lng: undefined as number | undefined,
+    },
   });
+  const [isGettingCoordinates, setIsGettingCoordinates] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-  const [destinationId, setDestinationId] = useState<string>("");
+const [destinationId, setDestinationId] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-  console.log(setDestinationId)
-  const loadHotels = useCallback(async (pageNum: number = 1, append: boolean = false) => {
-    if (isLoadingRef.current) return;
+console.log(setDestinationId)
+  const loadHotels = useCallback(async (pageNum: number = 1) => {
+  if (isLoadingRef.current) return;
 
-    try {
-      isLoadingRef.current = true;
-      setLoading(true);
-      setError("");
+  try {
+    isLoadingRef.current = true;
+    setLoading(true);
+    setError("");
 
-      const response = await getAllHotel(pageNum, 5);
+    const response = await getAllHotel(pageNum, 5);
 
-      const hotelsWithId = response.hotels.map((hotel) => ({
-        ...hotel,
-        _id: hotel.hotelId || "",
-      }));
+    const hotelsWithId = response.hotels.map((hotel) => ({
+      ...hotel,
+      _id: hotel.hotelId || "",
+    }));
 
-      if (append) {
-        // Append new hotels to existing list
-        setHotels((prev) => [...prev, ...hotelsWithId]);
-        setOriginalHotels((prev) => [...prev, ...hotelsWithId]);
-      } else {
-        // Replace hotels (for initial load or search)
-        setHotels(hotelsWithId);
-        setOriginalHotels(hotelsWithId);
-      }
-
-      setTotalPages(response.totalPages || 1);
-      setTotalHotels(response.totalHotels || hotelsWithId.length);
-      setPage(pageNum);
-    } catch (err) {
-      console.error("Error loading hotels:", err);
-      setError("Failed to load hotels. Please try again.");
-      if (!append) {
-        setHotels([]);
-      }
-      toast.error("Failed to load hotels");
-    } finally {
-      isLoadingRef.current = false;
-      setLoading(false);
-    }
-  }, []);
+    setHotels(hotelsWithId);
+    setOriginalHotels(hotelsWithId); // ✅ Preserve original data
+    setTotalPages(response.totalPages || 1);
+    setTotalHotels(response.totalHotels || hotelsWithId.length);
+    setPage(pageNum);
+  } catch (err) {
+    console.error("Error loading hotels:", err);
+    setError("Failed to load hotels. Please try again.");
+    setHotels([]);
+    toast.error("Failed to load hotels");
+  } finally {
+    isLoadingRef.current = false;
+    setLoading(false);
+  }
+}, []);
 
 
   const handleSearch = useCallback(async (query: string) => {
@@ -110,46 +111,40 @@ const HotelsTable: React.FC = () => {
       try {
         const response = await searchHotel(query);
         const searchResults = Array.isArray(response) ? response : [];
-
+        
         const hotelsWithId = searchResults.map((hotel) => ({
           ...hotel,
           _id: hotel.hotelId || hotel._id,
         }));
-
+        
         setHotels(hotelsWithId);
         setTotalPages(Math.ceil(hotelsWithId.length / 5));
         setPage(1);
-
+        
       } catch (err) {
         console.error("Search error:", err);
         setError("Search failed. Please try again.");
         setHotels([]);
         setTotalPages(1);
         toast.error("Failed to search hotels");
-
+       
         setTimeout(() => setError(""), 3000);
       }
     }, 400);
   }, [originalHotels, totalHotels]);
 
-  // // Handle page change
-  // const handlePageChange = useCallback((newPage: number) => {
-  //   if (newPage === page) return; // Prevent unnecessary calls
-
-  //   setPage(newPage);
-
-  //   if (!isSearchMode) {
-  //     // Only fetch from server in normal mode
-  //     loadHotels(newPage);
-  //   }
-  //   // In search mode, we handle pagination with data slicing below
-  // }, [page, isSearchMode, loadHotels]);
-
-  const handleLoadMore = useCallback(() => {
-    if (page >= totalPages || isSearchMode) return;
-    const nextPage = page + 1;
-    loadHotels(nextPage, true); // true = append mode
-  }, [page, totalPages, isSearchMode, loadHotels]);
+  // Handle page change
+  const handlePageChange = useCallback((newPage: number) => {
+    if (newPage === page) return; // Prevent unnecessary calls
+    
+    setPage(newPage);
+    
+    if (!isSearchMode) {
+      // Only fetch from server in normal mode
+      loadHotels(newPage);
+    }
+    // In search mode, we handle pagination with data slicing below
+  }, [page, isSearchMode, loadHotels]);
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -162,7 +157,7 @@ const HotelsTable: React.FC = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []);
+  }, []); 
 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
@@ -181,34 +176,90 @@ const HotelsTable: React.FC = () => {
       name: hotel.name,
       address: hotel.address,
       rating: hotel.rating,
+      coordinates: {
+        lat: hotel.coordinates?.lat,
+        lng: hotel.coordinates?.lng,
+      },
     });
     setIsEditModalOpen(true);
   }, []);
 
+  const handleGetCoordinates = async () => {
+    const currentAddress = formData.address;
+    
+    if (!currentAddress || currentAddress.trim().length < 3) {
+      toast.error("Please enter an address first");
+      return;
+    }
+
+    setIsGettingCoordinates(true);
+    try {
+      const coords = await getCoordinatesFromPlace(currentAddress);
+      setFormData({
+        ...formData,
+        coordinates: {
+          lat: parseFloat(coords.lat.toFixed(6)),
+          lng: parseFloat(coords.lng.toFixed(6)),
+        },
+      });
+      toast.success("Coordinates fetched successfully!");
+    } catch (error: any) {
+      console.error("Error fetching coordinates:", error);
+      toast.error(error?.message || "Failed to fetch coordinates");
+    } finally {
+      setIsGettingCoordinates(false);
+    }
+  };
+
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedHotel?._id) return;
+    if (!selectedHotel?._id && !selectedHotel?.hotelId) {
+      toast.error("Hotel ID is missing");
+      return;
+    }
+    
+    const hotelId = selectedHotel._id || selectedHotel.hotelId;
+    if (!hotelId) return;
 
     try {
-      await updateHotel(selectedHotel._id, {
-        destinationId,
+      const updatePayload: any = {
         name: formData.name,
         address: formData.address,
         rating: Math.min(5, formData.rating),
-      });
+      };
+
+      // Only include destinationId if it exists
+      if (selectedHotel.destinationId || destinationId) {
+        updatePayload.destinationId = selectedHotel.destinationId || destinationId;
+      }
+
+      // Only include coordinates if both lat and lng are provided
+      if (formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined) {
+        updatePayload.coordinates = {
+          lat: formData.coordinates.lat,
+          lng: formData.coordinates.lng,
+        };
+      }
+
+     await updateHotel(hotelId, updatePayload);
       toast.success("Hotel updated successfully!");
 
       const updateHotelInList = (list: Hotel[]) =>
-        list.map((h) =>
-          h._id === selectedHotel._id
+        list.map((h) => {
+          const currentId = h._id || h.hotelId;
+          const selectedId = selectedHotel._id || selectedHotel.hotelId;
+          return currentId === selectedId
             ? {
-              ...h,
-              name: formData.name,
-              address: formData.address,
-              rating: Math.min(5, formData.rating),
-            }
-            : h
-        );
+                ...h,
+                name: formData.name,
+                address: formData.address,
+                rating: Math.min(5, formData.rating),
+                coordinates: formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined
+                  ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
+                  : h.coordinates,
+              }
+            : h;
+        });
 
       setHotels(updateHotelInList);
       if (!isSearchMode) {
@@ -217,20 +268,20 @@ const HotelsTable: React.FC = () => {
 
       setIsEditModalOpen(false);
       setSelectedHotel(null);
-
+      
     } catch (err) {
       console.error("Error while editing hotel", err);
       setError("Failed to update hotel. Please try again.");
-      toast.error("Failed to update hotel");
-
+      toast.error( "Failed to update hotel");
+      
       // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     }
-  }, [selectedHotel, formData, isSearchMode]);
+  }, [selectedHotel, formData, isSearchMode, destinationId]);
 
   const confirmDelete = useCallback(async () => {
     if (!selectedHotel?._id) return;
-
+    
     try {
       await deleteHotel(selectedHotel._id);
       toast.success("Hotel deleted successfully!");
@@ -247,23 +298,23 @@ const HotelsTable: React.FC = () => {
       } else {
         setTotalPages(Math.ceil(updatedHotels.length / 5));
       }
-
+      
     } catch (err) {
       console.error("Delete error:", err);
       setError("Failed to delete hotel. Please try again.");
       toast.error("Failed to delete hotel");
-
+      
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleteModalOpen(false);
       setSelectedHotel(null);
     }
   }, [selectedHotel, hotels, originalHotels, isSearchMode, totalHotels]);
-  console.log(hotels, "hotels")
+console.log(hotels,"hotels")
   const columns = useMemo<ColumnDef<Hotel>[]>(
     () => [
-      {
-        header: "#",
+      { 
+        header: "#", 
         cell: ({ row }) => {
           const baseIndex = (page - 1) * 5;
           return baseIndex + row.index + 1;
@@ -333,7 +384,7 @@ const HotelsTable: React.FC = () => {
             <MapPin className="w-5 h-5" /> Hotels List
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode
+            {isSearchMode 
               ? `Found ${hotels.length} hotel${hotels.length !== 1 ? 's' : ''} for "${searchQuery}"`
               : `${totalHotels} total hotels`
             }
@@ -342,10 +393,10 @@ const HotelsTable: React.FC = () => {
 
         <div className="flex items-center gap-4">
           <div className="w-60">
-            <SearchBar
-              placeholder="Search hotels..."
+            <SearchBar 
+              placeholder="Search hotels..." 
               onSearch={handleSearch}
-            // value={searchQuery}
+              // value={searchQuery}
             />
           </div>
           <span className="bg-slate-800 text-white px-3 py-1 rounded-full text-sm">
@@ -368,42 +419,27 @@ const HotelsTable: React.FC = () => {
         </div>
       )}
 
-
+  
       {hotels.length > 0 ? (
         <>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable data={getCurrentPageData()} columns={columns} />
           </div>
 
-
-
-          {!isSearchMode && page < totalPages && (
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={handleLoadMore}
-                disabled={loading}
-                className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Loading...
-                  </>
-                ) : (
-                  <>
-                    Load More
-                    <span className="text-sm text-gray-300">
-                      ({hotels.length} of {totalHotels})
-                    </span>
-                  </>
-                )}
-              </button>
+        
+          {totalPages > 1 && (
+            <div className="flex justify-center">
+              <Pagination 
+                total={totalPages} 
+                current={page} 
+                setPage={handlePageChange}
+              />
             </div>
           )}
 
-
+       
           <div className="text-center text-sm text-gray-500">
-            {isSearchMode
+            {isSearchMode 
               ? `Showing ${Math.min((page - 1) * 5 + 1, hotels.length)}-${Math.min(page * 5, hotels.length)} of ${hotels.length} search results`
               : `Showing ${((page - 1) * 5) + 1}-${Math.min(page * 5, totalHotels)} of ${totalHotels} hotels`
             }
@@ -416,7 +452,7 @@ const HotelsTable: React.FC = () => {
             No Hotels Found
           </h3>
           <p className="text-gray-600">
-            {searchQuery
+            {searchQuery 
               ? `No hotels match your search for "${searchQuery}"`
               : "No hotels are available at the moment"
             }
@@ -459,15 +495,92 @@ const HotelsTable: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Address
                 </label>
-                <input
-                  className="border border-gray-300 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  placeholder="Address"
-                  required
-                />
+                <div className="flex gap-2">
+                  <input
+                    className="border border-gray-300 p-2 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                    placeholder="Address"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGetCoordinates}
+                    disabled={isGettingCoordinates}
+                    className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                  >
+                    {isGettingCoordinates ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Getting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="w-4 h-4" />
+                        <span>Get Coords</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Coordinates */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    Geographic Coordinates
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Latitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="border border-gray-300 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={formData.coordinates.lat ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          coordinates: {
+                            ...formData.coordinates,
+                            lat: e.target.value ? parseFloat(e.target.value) : undefined,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 28.6139"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Longitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="border border-gray-300 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={formData.coordinates.lng ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          coordinates: {
+                            ...formData.coordinates,
+                            lng: e.target.value ? parseFloat(e.target.value) : undefined,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 77.2090"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Click "Get Coords" to automatically fetch coordinates from the address
+                </p>
               </div>
 
               <div>
@@ -531,11 +644,11 @@ const HotelsTable: React.FC = () => {
               <h3 className="text-xl font-bold mb-2 text-gray-800">
                 Confirm Delete
               </h3>
-
+              
               <p className="text-gray-600 mb-2">
                 Are you sure you want to delete this hotel?
               </p>
-
+              
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
                 <p className="font-semibold text-red-800 text-lg">
                   {selectedHotel.name}

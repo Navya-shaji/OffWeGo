@@ -69,9 +69,15 @@ export class SubscriptionBookingRepository
   async findPendingBooking(vendorId: string, planId: string) {
     return this.model.findOne({
       vendorId,
-      planId,
+      planId, // Mongoose will handle ObjectId conversion automatically
       status: "pending"
     });
+  }
+
+  async findBySessionId(sessionId: string) {
+    return this.model.findOne({
+      stripeSessionId: sessionId
+    }).populate("planId");
   }
 
   async updateBooking(id: string, data: Partial<ISubscriptionBookingModel>) {
