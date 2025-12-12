@@ -37,7 +37,7 @@ const Profile = () => {
 
 
       <div className="flex gap-0 items-start">
-        {/* Sidebar at left edge */}
+       
         <div className="w-80 flex-shrink-0 sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto py-8 pl-8 pr-6">
           <ProfileSidebar
             activeSection={activeSection}

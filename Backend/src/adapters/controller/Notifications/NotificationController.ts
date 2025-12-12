@@ -31,16 +31,42 @@ export class NotificationController {
     try {
       const recipientType = req.body.recipientType;
       const recipientId = req.body.recipientId;
+
+      // Validate required parameters
+      if (!recipientId || !recipientType) {
+        console.error("❌ Missing required parameters:", { recipientId, recipientType });
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "recipientId and recipientType are required",
+        });
+        return;
+      }
+
+      // Validate recipientType
+      if (recipientType !== "user" && recipientType !== "vendor") {
+        console.error("❌ Invalid recipientType:", recipientType);
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "recipientType must be 'user' or 'vendor'",
+        });
+        return;
+      }
+
+      console.log(`📬 Fetching notifications for ${recipientType} with ID: ${recipientId}`);
+      
       const notifications = await this._getNotificationUseCase.execute(
         recipientId,
         recipientType
       );
+
+      console.log(`✅ Returning ${notifications.length} notifications for ${recipientType} ${recipientId}`);
 
       res.status(HttpStatus.OK).json({
         success: true,
         data: notifications,
       });
     } catch (error) {
+      console.error("❌ Error fetching notifications:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,

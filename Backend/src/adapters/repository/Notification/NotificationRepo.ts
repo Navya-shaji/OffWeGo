@@ -36,10 +36,26 @@ export class NotificationRepository implements INotificationRepository {
     recipientId: string,
     recipientType: "user" | "vendor"
   ): Promise<INotificationEntity[]> {
-    const docs = await NotificationModel.find({ recipientId, recipientType })
+    // Ensure both recipientId and recipientType are provided
+    if (!recipientId || !recipientType) {
+      console.warn("⚠️ getByRecipient called with missing parameters:", { recipientId, recipientType });
+      return [];
+    }
+
+    // Filter by both recipientId AND recipientType to ensure correct filtering
+    const query = { 
+      recipientId: String(recipientId), 
+      recipientType: recipientType 
+    };
+    
+    console.log(`🔍 Fetching notifications with query:`, query);
+    
+    const docs = await NotificationModel.find(query)
       .sort({ createdAt: -1 })
       .lean();
 
+    console.log(`✅ Found ${docs.length} notifications for ${recipientType} with ID ${recipientId}`);
+    
     return docs as unknown as INotificationEntity[];
   }
 

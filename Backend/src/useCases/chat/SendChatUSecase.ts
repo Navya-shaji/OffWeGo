@@ -18,14 +18,14 @@ export class InitiateChatUsecase {
             throw new Error("Both userId and ownerId are required to initiate a chat.");
         }
 
-        // Try to find an existing chat
+   
         let chat = await this.chatRepository.getchatOfUser(initiatorId, otherPersonId).catch(() => null);
         
         if (chat) {
-            // Chat exists, format and return it
+   
             let otherUser = null;
             
-            // Determine which user is the "other" user
+  
             if (chat.userId && (chat.userId._id?.toString() === initiatorId || chat.userId.toString() === initiatorId)) {
                 otherUser = chat.vendorId;
             } else if (chat.vendorId && (chat.vendorId._id?.toString() === initiatorId || chat.vendorId.toString() === initiatorId)) {
@@ -44,7 +44,7 @@ export class InitiateChatUsecase {
                 ? otherUser.profileImage
                 : otherUser.imageUrl || "";
             
-            // Extract userId and vendorId as strings
+         
             const userIdValue = typeof chat.userId === 'object'
                 ? (chat.userId._id?.toString() || chat.userId.toString())
                 : chat.userId.toString();
@@ -66,7 +66,7 @@ export class InitiateChatUsecase {
             };
         }
 
-        // Create new chat
+
         const newChat = {
             userId: initiatorId,
             vendorId: otherPersonId,
@@ -80,10 +80,10 @@ export class InitiateChatUsecase {
             throw new Error("Error while creating new chat");
         }
 
-        // createChat returns a populated chat document
+
         const chatDoc = createdChat as any;
         
-        // Populate and format the new chat
+
         let otherUser = null;
         if (chatDoc.userId && (typeof chatDoc.userId === 'object' ? (chatDoc.userId._id?.toString() === initiatorId || chatDoc.userId._id?.toString() === otherPersonId) : chatDoc.userId.toString() === initiatorId)) {
             otherUser = chatDoc.vendorId;
@@ -101,7 +101,7 @@ export class InitiateChatUsecase {
         
         const chatObj = chatDoc.toObject ? chatDoc.toObject() : (typeof chatDoc === 'object' ? chatDoc : {});
         
-        // Extract userId and vendorId as strings
+
         const userIdValue = typeof chatDoc.userId === 'object'
             ? (chatDoc.userId._id?.toString() || chatDoc.userId.toString())
             : chatDoc.userId.toString();

@@ -28,7 +28,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   const isVendorAuthenticated = useSelector((state: RootState) => state.vendorAuth.isAuthenticated);
   const isUserAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   
-  // Determine if we're on vendor side - prioritize vendor authentication
+ 
   const isVendor = (isVendorAuthenticated && vendor?.id) ? true : (isUserAuthenticated && user?.id) ? false : !!vendor?.id;
 
   const loadNotifications = useCallback(async () => {
@@ -38,13 +38,13 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       const data = await fetchNotifications();
       console.log(data, "data");
       
-      // Filter to only show vendor notifications if on vendor side
+      
       const filteredData = isVendor 
         ? data.filter(n => n.recipientType === "vendor")
         : data.filter(n => n.recipientType === "user");
       
       setNotifications(filteredData);
-      // Notify parent of unread count
+     
       const unreadCount = filteredData.filter(n => !n.read).length;
       if (onUnreadCountChange) {
         onUnreadCountChange(unreadCount);
@@ -62,18 +62,18 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     }
   }, [open, loadNotifications]);
 
-  // Check if notification is a chat notification
+
   const isChatNotification = (notification: ServiceNotification): boolean => {
     return notification.title.toLowerCase().includes("new message from");
   };
 
-  // Extract sender name from notification title
+
   const extractSenderName = (title: string): string => {
     const match = title.match(/New message from (.+)/i);
     return match ? match[1] : "";
   };
 
-  // Load messages for a chat notification
+
   const loadChatMessages = async (notification: ServiceNotification) => {
     if (!isVendor || !vendor?.id) return;
     
@@ -81,11 +81,11 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     if (!senderName) return;
 
     try {
-      // Get all chats for the vendor
+   
       const chatsResponse = await getChatsOfUser(vendor.id);
       const chats = chatsResponse?.data || chatsResponse || [];
       
-      // Find chat with matching sender name
+ 
       const matchingChat = chats.find((chat: any) => {
         const chatName = chat.name || "";
         return chatName.toLowerCase().includes(senderName.toLowerCase()) ||

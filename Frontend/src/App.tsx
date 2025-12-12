@@ -30,32 +30,31 @@ function App() {
       if (!userId || !role) return;
 
       try {
-        // Request notification permission
+       
         if ('Notification' in window && Notification.permission === 'default') {
           await Notification.requestPermission();
         }
 
         const token = await getFcmToken();
         if (!token) {
-          console.warn("⚠️ FCM token not available");
+          console.warn("FCM token not available");
           return;
         }
 
-        console.log(`✅ FCM token obtained for ${role}:`, token.substring(0, 20) + '...');
+        console.log(` FCM token obtained for ${role}:`, token.substring(0, 20) + '...');
 
-        // Subscribe to topic for additional notification channels
+ 
         await subscribeToTopic(token, `${role}_${userId}`);
 
-        // Set up message listener (foreground notifications)
         onMessageListener()
           .then((payload) => {
-            console.log("📬 FCM Message Received in App:", payload);
+            console.log(" FCM Message Received in App:", payload);
           })
           .catch((error) => {
-            console.error("❌ Error in FCM message listener:", error);
+            console.error(" Error in FCM message listener:", error);
           });
       } catch (error) {
-        console.error("❌ Error registering FCM notifications:", error);
+        console.error("Error registering FCM notifications:", error);
       }
     };
 

@@ -26,7 +26,7 @@ export class GetChatsOfUserUsecase  {
                 return null;
             }
             
-            // Extract IDs as strings for comparison
+     
             const chatUserId = typeof chat.userId === 'object' 
                 ? (chat.userId._id?.toString() || chat.userId.toString())
                 : chat.userId.toString();
@@ -45,11 +45,11 @@ export class GetChatsOfUserUsecase  {
                 otherUser = chat.userId;
             }
             
-            // Extract userId and vendorId as strings
+           
             const userIdValue = chatUserId;
             const vendorIdValue = chatVendorId;
             
-            // Determine unread count based on current user type
+        
             const unreadCount = userType === 'user' 
                 ? (chat.unreadCountUser || 0)
                 : (chat.unreadCountVendor || 0);

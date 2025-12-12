@@ -195,7 +195,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.ALL_FLIGHTS,
-      checkRoleBasedcontrol([Role.VENDOR,Role.USER]),
+      checkRoleBasedcontrol([Role.VENDOR, Role.USER]),
       (req: Request, res: Response) => flightcontroller.getAllFlight(req, res)
     );
     this.vendorRouter.put(
@@ -235,58 +235,67 @@ export class VendorRoute {
     this.vendorRouter.post(
       VendorRoutes.CREATE_BUDDY_TRAVEL,
       (req: Request, res: Response) =>
-       buddyTravelcontroller.createBuddyTravel(req,res)
+        buddyTravelcontroller.createBuddyTravel(req, res)
     );
     this.vendorRouter.get(
       VendorRoutes.BUDDY_PACKAGES,
-      (req:Request,res:Response)=>{
-        buddyTravelcontroller.getVendorBuddyPackages(req,res)
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.getVendorBuddyPackages(req, res);
       }
-    )
-    // Chat routes for vendors
-    this.vendorRouter.post("/chat/send", (req: Request, res: Response) => {
-      chatcontroller.findOrCreateChat(req, res);
-    });
-    this.vendorRouter.get("/chat/messages/:chatId", (req: Request, res: Response) => {
-      chatcontroller.getMessages(req, res);
-    });
-    this.vendorRouter.get("/chat/:vendorId", (req: Request, res: Response) => {
-      // Add userType=vendor query parameter
-      req.query.userType = 'vendor';
-      chatcontroller.getChats(req, res);
-    });
-    this.vendorRouter.post("/chat/messages/mark-seen", (req: Request, res: Response) => {
-      chatcontroller.markMessagesSeen(req, res);
-    });
+    );
+
+    this.vendorRouter.post(
+      VendorRoutes.CHAT_SEND,
+      (req: Request, res: Response) => {
+        chatcontroller.findOrCreateChat(req, res);
+      }
+    );
+    this.vendorRouter.get(
+      VendorRoutes.CHAT_MESSAGES,
+      (req: Request, res: Response) => {
+        chatcontroller.getMessages(req, res);
+      }
+    );
+    this.vendorRouter.get(
+      VendorRoutes.CHAT_LIST,
+      (req: Request, res: Response) => {
+        req.query.userType = "vendor";
+        chatcontroller.getChats(req, res);
+      }
+    );
+    this.vendorRouter.post(
+      VendorRoutes.CHAT_MARK_SEEN,
+      (req: Request, res: Response) => {
+        chatcontroller.markMessagesSeen(req, res);
+      }
+    );
     this.vendorRouter.post(
       VendorRoutes.VENDOR_WALLET,
-      (req:Request,res:Response)=>{
-        walletcontroller.createWallet(req,res)
+      (req: Request, res: Response) => {
+        walletcontroller.createWallet(req, res);
       }
-    )
+    );
     this.vendorRouter.get(
       VendorRoutes.GET_VENDOR_WALLET,
-      checkRoleBasedcontrol([Role.VENDOR,Role.ADMIN]),
-      (req:Request,res:Response)=>{
-        walletcontroller.GetWallet(req,res)
+      checkRoleBasedcontrol([Role.VENDOR, Role.ADMIN]),
+      (req: Request, res: Response) => {
+        walletcontroller.GetWallet(req, res);
       }
-    )
-    
-    // Notification routes (verifyTokenAndCheckBlackList is already applied globally above)
+    );
+
     this.vendorRouter.post(
-      "/notification/notify",
+      VendorRoutes.NOTIFY,
       checkRoleBasedcontrol([Role.VENDOR]),
       (req: Request, res: Response) => {
         notificationcontroller.getNotifications(req, res);
       }
     );
     this.vendorRouter.patch(
-      "/notification/read/:id",
+      VendorRoutes.READ_NOTIFICATION,
       checkRoleBasedcontrol([Role.VENDOR]),
       (req: Request, res: Response) => {
         notificationcontroller.readNotifications(req, res);
       }
     );
-  
   }
 }

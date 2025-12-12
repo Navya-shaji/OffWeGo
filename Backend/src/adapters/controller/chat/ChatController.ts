@@ -16,12 +16,6 @@ export class ChatController {
   async findOrCreateChat(req: Request, res: Response) {
     try {
       const { userId, ownerId } = req.body;
-      if (!userId || !ownerId) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "User ID and Owner ID are required",
-        });
-      }
 
       const chat = await this._initiateChatUsecase.initiateChat({
         userId,
@@ -59,6 +53,7 @@ export class ChatController {
       });
     }
   }
+  
   async getMessages(req: Request, res: Response) {
     try {
       const { chatId } = req.params;

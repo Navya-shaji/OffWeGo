@@ -8,8 +8,8 @@ import {
   paymentcontroller,
   reviewcontroller,
   walletcontroller,
-  // notificationcontroller,
   chatcontroller,
+  notificationcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -191,12 +191,12 @@ export class UserRoute {
         bookingcontroller.rescheduleBooking(req, res);
       }
     );
-    // this.userRouter.post(
-    //   CommonRoutes.NOTIFICATIONS,
-    //   (req: Request, res: Response) => {
-    //     notificationcontroller.sendNotification(req, res);
-    //   }
-    // );
+    this.userRouter.post(
+      UserRoutes.NOTIFY,
+      (req: Request, res: Response) => {
+        notificationcontroller.getNotifications(req,res)
+      }
+    );
     this.userRouter.post(
       UserRoutes.WALLET_BOOKING,
       (req: Request, res: Response) => {

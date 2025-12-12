@@ -27,5 +27,5 @@ export const UserRoutes = {
   BOOKING_RESHEDULE:'/booking/:id/reschedule',
   WALLET_PAYMENT:'/wallet/payment',
   WALLET_BOOKING:'/wallet/booking',
-
+   NOTIFY: "/notification/notify"
 };

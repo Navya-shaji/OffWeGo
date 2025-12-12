@@ -4,12 +4,13 @@ import { useNavigate, Link } from "react-router-dom";
 import type { RootState } from "@/store/store";
 import { logout } from "@/store/slice/user/authSlice";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
-import { NotificationPanel } from "../Notification/NotificationModal";
+
 import { useChatContext } from "@/context/chatContext";
 import { messaging } from "@/Firebase/firebase";
 import { onMessage } from "firebase/messaging";
 import logo from "../../../public/images/logo.png";
 import { ChevronDown, Menu, X, MessageCircle, Bell } from "lucide-react";
+import {UserNotificationModal} from "../Notification/userNotificationModal";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -238,7 +239,7 @@ const Navbar = () => {
         </div>
       )}
 
-      <NotificationPanel
+        <UserNotificationModal
         open={panelOpen}
         onClose={() => setPanelOpen(false)}
         onUnreadCountChange={setNotificationUnreadCount}
