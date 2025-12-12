@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Comprehensive profile edit schema
+
 export const profileEditSchema = z.object({
   name: z
     .string()
@@ -29,11 +29,11 @@ export const profileEditSchema = z.object({
     .min(1, "Phone number is required")
     .refine((val) => {
       const trimmed = val.trim();
-      // Phone is required, cannot be empty
+    
       if (trimmed === "") {
         return false;
       }
-      // Must be exactly 10 digits
+
       return /^\d{10}$/.test(trimmed);
     }, {
       message: "Phone number must be exactly 10 digits",
@@ -42,7 +42,7 @@ export const profileEditSchema = z.object({
   imageUrl: z.string().url("Invalid image URL").optional().or(z.literal("")),
 });
 
-// Individual field schemas for real-time validation
+
 export const usernameSchema = z
   .string()
   .min(1, "Name is required")
@@ -70,7 +70,7 @@ export const phoneSchema = z
   .min(1, "Phone number is required")
   .refine((val) => {
     const trimmed = val.trim();
-    // Phone is required, cannot be empty
+ 
     if (trimmed === "") {
       return false;
     }

@@ -48,23 +48,60 @@ export class UserProfileController {
 
   async editProfileHandler(req: Request, res: Response) {
     try {
-      const userId = req.user?.userId;
+      // Extract user ID from body, params, or token (in that order)
+      const userId = req.body.userId || req.params.userId || req.user?.id || req.user?.userId;
 
-      const userData = req.body;
+      console.log("🔍 Edit Profile - User from token:", req.user);
+      console.log("🔍 Edit Profile - Request body:", req.body);
+      console.log("🔍 Edit Profile - Request params:", req.params);
+      console.log("🔍 Edit Profile - Extracted userId:", userId);
+
+      if (!userId) {
+        console.error("❌ Edit Profile - User ID not found. req.user:", req.user, "req.body:", req.body);
+        return res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "User ID is required. Please provide userId in request body or params.",
+        });
+      }
+
+    
+      const { userId: _, ...userData } = req.body;
 
       const result = await this._editUserProfileUsecase.execute(
         userId,
         userData
       );
+      
+      console.log("✅ Profile updated in DB:", result);
+      
+      if (!result) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to update profile",
+        });
+      }
+      
+ 
+      const phoneValue = result.phone !== undefined && result.phone !== null 
+        ? String(result.phone) 
+        : result.phone;
+      
+
+      const userIdString = result._id?.toString() || userId;
+      
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "User profile updated successfully",
         data: {
-          id: result?._id,
-          username: result?.name,
-          email: result?.email,
-          phone: result?.phone,
-          imageUrl: result?.imageUrl,
+          id: userIdString,
+          username: result.name || userData.name,
+          email: result.email,
+          phone: phoneValue,
+          imageUrl: result.imageUrl,
+          status: result.status,
+          role: result.role,
+          isGoogleUser: result.isGoogleUser,
+          location: result.location,
         },
       });
     } catch (error) {
@@ -80,7 +117,16 @@ export class UserProfileController {
 
   async changePasswordHandler(req: Request, res: Response) {
     try {
-      const userId = req.user?.userId;
+   
+      const userId = req.user?.id || req.user?.userId;
+      
+      if (!userId) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "User ID not found in token",
+        });
+      }
+      
       const { oldPassword, newPassword } = req.body;
 
       const result = await this._changePasswordUsecase.execute({

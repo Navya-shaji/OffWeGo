@@ -20,6 +20,7 @@ export const editProfile = async (updatedData: {
   name: string;
   phone?: string;
   imageUrl?: string;
+  userId?: string; 
 }) => {
   try {
     const res = await axiosInstance.patch("/api/profile", updatedData);
