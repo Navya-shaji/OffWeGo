@@ -8,8 +8,8 @@ import {
   paymentcontroller,
   reviewcontroller,
   walletcontroller,
-  notificationcontroller,
   chatcontroller,
+  notificationcontroller,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -127,6 +127,7 @@ export class UserRoute {
     );
     this.userRouter.get(
       UserRoutes.USER_BOOKINGS,
+      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         bookingcontroller.getUserBookings(req, res);
       }
@@ -140,9 +141,13 @@ export class UserRoute {
         reviewcontroller.getReviews(req, res);
       }
     );
-    this.userRouter.put(UserRoutes.PASSWORD, (req: Request, res: Response) => {
-      userprofileController.changePasswordHandler(req, res);
-    });
+    this.userRouter.put(
+      UserRoutes.PASSWORD,
+      verifyTokenAndCheckBlackList(TokenService),
+      (req: Request, res: Response) => {
+        userprofileController.changePasswordHandler(req, res);
+      }
+    );
     this.userRouter.patch(
       UserRoutes.CANCEL_BOOKING,
       (req: Request, res: Response) => {
@@ -180,23 +185,51 @@ export class UserRoute {
         buddyTravelcontroller.createBuddyBooking(req, res);
       }
     );
-    this.userRouter.post(
-      CommonRoutes.NOTIFICATIONS,
+    this.userRouter.patch(
+      UserRoutes.BOOKING_RESHEDULE,
       (req: Request, res: Response) => {
-        notificationcontroller.sendNotification(req, res);
+        bookingcontroller.rescheduleBooking(req, res);
       }
     );
     this.userRouter.post(
-      CommonRoutes.CHAT,
-      (req:Request,res:Response)=>{
-        chatcontroller.sendChat(req,res)
+      UserRoutes.NOTIFY,
+      (req: Request, res: Response) => {
+        notificationcontroller.getNotifications(req,res)
       }
-    )
+    );
+    this.userRouter.post(
+      UserRoutes.WALLET_BOOKING,
+      (req: Request, res: Response) => {
+        bookingcontroller.createBookingWithWallet(req, res);
+      }
+    );
+    this.userRouter.post(
+      UserRoutes.WALLET_PAYMENT,
+      (req: Request, res: Response) => {
+        walletcontroller.walletPayment(req, res);
+      }
+    );
+    this.userRouter.post(CommonRoutes.CHAT, (req: Request, res: Response) => {
+      chatcontroller.findOrCreateChat(req, res);
+    });
+
     this.userRouter.get(
-      CommonRoutes.CHATS,
-      (req:Request,res:Response)=>{
-        chatcontroller.getChat(req,res)
+      CommonRoutes.GET_MESSAGES,
+      (req: Request, res: Response) => {
+        chatcontroller.getMessages(req, res);
       }
-    )
+    );
+    this.userRouter.get(
+      CommonRoutes.GET_CHATS,
+      (req: Request, res: Response) => {
+        chatcontroller.getChats(req, res);
+      }
+    );
+    this.userRouter.post(
+      CommonRoutes.MSG_SEEN,
+      (req: Request, res: Response) => {
+        chatcontroller.markMessagesSeen(req, res);
+      }
+    );
   }
 }

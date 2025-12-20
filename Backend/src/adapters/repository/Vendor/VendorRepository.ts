@@ -120,4 +120,18 @@ export class VendorRepository
       _id: v._id.toString(),
     }));
   }
+  async findAll(): Promise<IVendorModel[]> {
+    return this.model.find({});
+  }
+  async updateFcmToken(
+    id: string,
+    token: string
+  ): Promise<IVendorModel | null> {
+    return this.model.findByIdAndUpdate(id, { fcmToken: token }, { new: true });
+  }
+
+  async getFcmTokenById(vendorId: string): Promise<string | null> {
+    const vendor = await this.model.findById(vendorId).select("fcmToken");
+    return vendor?.fcmToken || null;
+  }
 }

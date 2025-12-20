@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export const ReviewSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
   packageName: { type: String, required: true },
   destination: { type: String, required: true },
   description: { type: String, required: true },

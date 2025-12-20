@@ -1,20 +1,86 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { ISendNotificationUseCase } from "../../../domain/interface/Notification/ISendNotification";
-import { Notification } from "../../../domain/entities/NotificationEntity";
+import { IGetNotification } from "../../../domain/interface/Notification/IGetNotificationUsecase";
+import { ISendNotificationUseCase } from "../../../domain/interface/Notification/INotificationService";
+import { IReadNotificationusecase } from "../../../domain/interface/Notification/IReadNotificationusecase";
 
 export class NotificationController {
-  constructor(private _sendNotificationUseCase: ISendNotificationUseCase) {}
+  constructor(
+    private _sendNotificationUseCase: ISendNotificationUseCase,
+    private _getNotificationUseCase: IGetNotification,
+    private _readNotifictaionUsecase: IReadNotificationusecase
+  ) {}
 
   async sendNotification(req: Request, res: Response): Promise<void> {
     try {
-      const notification: Notification = req.body;
-
+      const notification = req.body;
       await this._sendNotificationUseCase.execute(notification);
-
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Notification sent successfully",
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getNotifications(req: Request, res: Response): Promise<void> {
+    try {
+      const recipientType = req.body.recipientType;
+      const recipientId = req.body.recipientId;
+
+      // Validate required parameters
+      if (!recipientId || !recipientType) {
+        console.error("❌ Missing required parameters:", { recipientId, recipientType });
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "recipientId and recipientType are required",
+        });
+        return;
+      }
+
+      // Validate recipientType
+      if (recipientType !== "user" && recipientType !== "vendor") {
+        console.error("❌ Invalid recipientType:", recipientType);
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "recipientType must be 'user' or 'vendor'",
+        });
+        return;
+      }
+
+      console.log(`📬 Fetching notifications for ${recipientType} with ID: ${recipientId}`);
+      
+      const notifications = await this._getNotificationUseCase.execute(
+        recipientId,
+        recipientType
+      );
+
+      console.log(`✅ Returning ${notifications.length} notifications for ${recipientType} ${recipientId}`);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: notifications,
+      });
+    } catch (error) {
+      console.error("❌ Error fetching notifications:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async readNotifications(req: Request, res: Response): Promise<void> {
+    try {
+      const Id = req.params.id;
+      const result = await this._readNotifictaionUsecase.execute(Id);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

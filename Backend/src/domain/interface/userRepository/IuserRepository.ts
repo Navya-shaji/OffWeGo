@@ -6,9 +6,10 @@ export interface IUserRepository {
   createUser(user: User): Promise<User>;
   findByPhone(phone: string): Promise<User | null>;
   findById(userId: string): Promise<User | null>;
-  updatePassword(email: string, newHashedPassword: string): Promise<void>;
 
+  updatePassword(email: string, newHashedPassword: string): Promise<void>;
   updatePasswordById(userId: string, newHashedPassword: string): Promise<void>;
+
   getAllUsers(
     skip: number,
     limit: number,
@@ -16,8 +17,16 @@ export interface IUserRepository {
   ): Promise<User[]>;
 
   countUsers(filter?: Record<string, unknown>): Promise<number>;
+
   updateUserStatus(userId: string, status: "active" | "block"): Promise<void>;
+
   getProfileByEmail(email: string): Promise<ProfileDto | null>;
+
   searchUser(query: string): Promise<User[]>;
+
   updateWallet(userId: string, amount: number): Promise<void>;
+
+  // NEW — FCM token methods
+  getFcmTokenById(id: string): Promise<string | null>;
+  updateFcmToken(id: string, token: string): Promise<User | null>;
 }

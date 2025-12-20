@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/slice/user/authSlice";
+import { setToken } from "@/store/slice/Token/tokenSlice";
 import { registerGoogleUser } from "@/services/user/userService";
 
 export function GoogleSignup() {
@@ -28,18 +29,35 @@ export function GoogleSignup() {
 
             try {
               const res = await registerGoogleUser(token);
+              console.log("Google signup response:", res);
+              
+              if (!res || !res.data) {
+                toast.error("Invalid response from server");
+                return;
+              }
+              
               const { user, accessToken } = res.data;
-
+              console.log("Google signup response data:", res.data);
+              console.log("User:", user);
+              console.log("AccessToken:", accessToken);
+              
               if (user && accessToken) {
+                // Store token in token slice for axios interceptor
+                dispatch(setToken(accessToken));
+                
+                // Store user data in auth slice
                 dispatch(
                   login({
                     user: {
-                      id: user.id,
-                      username: user.name,
-                      email: user.email,
-                      phone: user.phone,
-                      status: user.status,
-                      role: user.role,
+                      id: user.id || user._id || "",
+                      username: user.name || user.username || "",
+                      email: user.email || "",
+                      phone: user.phone || "",
+                      status: user.status || "active",
+                      role: user.role || "user",
+                      isGoogleUser: user.isGoogleUser !== undefined ? user.isGoogleUser : true,
+                      location: user.location,
+                      imageUrl: user.imageUrl
                     },
                     token: accessToken,
                     refreshToken: "",
@@ -51,8 +69,10 @@ export function GoogleSignup() {
               } else {
                 toast.error("Signup failed");
               }
-            } catch (error) {
-              console.log(error);
+            } catch (error: any) {
+              console.error("Google signup error:", error);
+              const errorMessage = error?.message || error?.response?.data?.message || "Google signup failed. Please try again.";
+              toast.error(errorMessage);
             }
           }}
           onError={() => {

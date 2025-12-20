@@ -18,6 +18,7 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
         .json({ message: "Unauthorized" });
     }
     const token = authHeader.split(" ")[1];
+
     try {
       const decoded = await tokenService.verifyToken(token, "access");
       if (!decoded) throw new Error("Invalid or expired token");

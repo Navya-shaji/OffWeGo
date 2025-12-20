@@ -41,5 +41,9 @@ export class SubscriptionPlanRepository
   async delete(id: string): Promise<ISubscriptionPlanModel | null> {
     return await this.model.findByIdAndDelete(id);
   }
+  async getAllSubscriptions() {
+  return this.model.find().populate("vendorId").populate("planId");
+}
+
   
 }

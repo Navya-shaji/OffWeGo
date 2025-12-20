@@ -1,3 +1,4 @@
+import axios from "axios";
 import { initializeApp } from "firebase/app";
 import {
   getMessaging,
@@ -20,21 +21,48 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging: Messaging = getMessaging(app);
 
-export const requestForToken = async (): Promise<void> => {
+export { messaging };
+
+export const getFcmToken = async (): Promise<string | null> => {
   try {
-    const currentToken = await getToken(messaging, {
-      vapidKey: "BMdRY7kU2uSCfpQXaXeNKq-di7QF_cJtk6hAquJvBEzo7IPNigurnO36a7qV5114LzjmOWs_rzQoJ7uE9Lxi_XA", 
+    // Request notification permission if not already granted
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          console.warn("⚠️ Notification permission not granted");
+          return null;
+        }
+      } else if (Notification.permission === 'denied') {
+        console.warn("⚠️ Notification permission denied");
+        return null;
+      }
+    }
+
+    const token = await getToken(messaging, {
+      vapidKey: "BMdRY7kU2uSCfpQXaXeNKq-di7QF_cJtk6hAquJvBEzo7IPNigurnO36a7qV5114LzjmOWs_rzQoJ7uE9Lxi_XA"
     });
 
-    if (currentToken) {
-      console.log("FCM Token:", currentToken);
+    if (token) {
+      console.log("✅ FCM Token obtained:", token.substring(0, 20) + '...');
+      return token;
     } else {
-      console.log("No registration token available. Request permission first.");
+      console.log("⚠️ No registration token available.");
+      return null;
     }
-  } catch (err) {
-    console.error("An error occurred while retrieving token.", err);
+
+  } catch (err: any) {
+    console.error("❌ Error retrieving FCM token:", err);
+    // Handle specific errors
+    if (err.code === 'messaging/permission-blocked') {
+      console.warn("⚠️ Notification permission is blocked");
+    } else if (err.code === 'messaging/permission-default') {
+      console.warn("⚠️ Notification permission is default");
+    }
+    return null;
   }
 };
+
 
 export const onMessageListener = (): Promise<MessagePayload> =>
   new Promise((resolve, reject) => {
@@ -46,5 +74,26 @@ export const onMessageListener = (): Promise<MessagePayload> =>
       reject(error);
     }
   });
+
+
+
+export const subscribeToTopic = async (token: string, topic: string) => {
+  try {
+    const response = await axios.post(
+      `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
+      {},
+      {
+        headers: {
+          Authorization: "key=BMdRY7kU2uSCfpQXaXeNKq-di7QF_cJtk6hAquJvBEzo7IPNigurnO36a7qV5114LzjmOWs_rzQoJ7uE9Lxi_XA",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(`Subscribed to topic: ${topic}`, response.data);
+  } catch (error) {
+    console.error("Topic subscription failed:", error);
+  }
+};
 
 export default app;

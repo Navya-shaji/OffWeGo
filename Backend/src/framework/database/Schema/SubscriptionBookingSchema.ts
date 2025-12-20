@@ -2,31 +2,56 @@ import { Schema } from "mongoose";
 
 export const SubscriptionBookingSchema = new Schema(
   {
-    vendorId: { type: String, required: true, index: true },
-    planId: { type: Schema.Types.ObjectId, ref: "SubscriptionPlan", required: true },
-    planName: { type: String, required: true },
+    vendorId: { 
+      type: String, 
+      required: true, 
+      index: true 
+    },
 
-    date: { type: String, required: true },
-    time: { type: String, required: true },
+    planId: { 
+      type: Schema.Types.ObjectId, 
+      ref: "SubscriptionPlan", 
+      required: true 
+    },
 
-    amount: { type: Number, required: true },
-    currency: { type: String, default: "usd" },
+    planName: { 
+      type: String, 
+      required: true 
+    },
+
+    features: { 
+      type: [String], 
+      default: [] 
+    },
+
+    amount: { 
+      type: Number, 
+      required: true 
+    },
+
+    currency: { 
+      type: String, 
+      default: "inr" 
+    },
 
     status: {
       type: String,
-      enum: ["pending", "active", "canceled"],
+      enum: ["pending", "active", "expired"],
       default: "pending",
     },
 
-    maxPackages: { type: Number },   
-    usedPackages: { type: Number, default: 0 }, 
-    duration: { type: Number },      
+  
+    duration: { 
+      type: Number, 
+      required: true 
+    },
 
     startDate: { type: Date },
     endDate: { type: Date },
 
     stripeSubscriptionId: { type: String },
     stripeCustomerId: { type: String },
+    stripeSessionId: { type: String },
   },
   { timestamps: true }
 );

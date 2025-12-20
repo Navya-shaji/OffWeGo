@@ -1,6 +1,3 @@
-
-import { ChatDto } from "../../dto/Chat/chatDto";
-
-export interface ISendChatMessageUseCase {
-  execute(messageDto: ChatDto): Promise<ChatDto>;
+export interface IInitiateChatUsecase {
+    initiateChat(input: { userId: string; ownerId: string }): Promise<any>;
 }

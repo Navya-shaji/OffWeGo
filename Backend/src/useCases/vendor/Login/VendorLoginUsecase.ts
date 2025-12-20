@@ -1,18 +1,23 @@
-import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
+import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { ITokenService } from "../../../domain/interface/ServiceInterface/ItokenService";
-import { LoginDTo } from "../../../domain/dto/User/LoginDto";
+import { IVendorLoginUsecase } from "../../../domain/interface/Vendor/IVendorLoginUsecase";
+import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 
-export class VendorLoginUsecase {
+export class VendorLoginUsecase implements IVendorLoginUsecase {
   constructor(
     private _vendorRepository: IVendorRepository,
     private _hashService: IPasswordService,
     private _tokenService: ITokenService
   ) {}
 
-  async execute(data: LoginDTo): Promise<{
+  async execute(
+    data: LoginDTo,
+    fcmToken?: string
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
+    fcmToken: string;
     vendor: {
       id: string;
       email: string;
@@ -24,27 +29,31 @@ export class VendorLoginUsecase {
       profileImage: string;
     };
   } | null> {
+
     const { email, password } = data;
+    console.log(fcmToken, "login");
 
     const vendor = await this._vendorRepository.findByEmail(
       email.toLowerCase().trim()
     );
 
-    if (!vendor) {
-      return null;
-    }
-
-    if (vendor.status !== "approved") {
-      return null;
-    }
+    if (!vendor || vendor.status !== "approved") return null;
 
     const isPasswordValid = await this._hashService.compare(
       password,
       vendor.password
     );
+    if (!isPasswordValid) return null;
 
-    if (!isPasswordValid) {
-      return null;
+    let savedFcmToken = "";
+    if (fcmToken) {
+      const updatedVendor = await this._vendorRepository.updateFcmToken(
+        vendor._id.toString(),
+        fcmToken
+      );
+      savedFcmToken = updatedVendor?.fcmToken || fcmToken;
+    } else {
+      savedFcmToken = vendor.fcmToken || "";
     }
 
     const payload = {
@@ -59,6 +68,7 @@ export class VendorLoginUsecase {
     return {
       accessToken,
       refreshToken,
+      fcmToken: savedFcmToken,
       vendor: {
         id: vendor.id,
         email: vendor.email,
@@ -67,7 +77,7 @@ export class VendorLoginUsecase {
         documentUrl: vendor.documentUrl,
         phone: vendor.phone,
         isBlocked: vendor.isBlocked ?? false,
-        profileImage: vendor.profileImage ? vendor.profileImage.toString() : "",
+        profileImage: vendor.profileImage?.toString() || "",
       },
     };
   }

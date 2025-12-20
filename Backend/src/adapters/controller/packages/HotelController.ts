@@ -8,18 +8,22 @@ import { Request, Response } from "express";
 
 export class HotelController {
   constructor(
-    private _createHotel: ICreateHotelUsecase,
-    private _getHotels: IgetHotelUsecase,
-    private _editHotels: IEditHotelUsecase,
-    private _deleteHotel: IDeleteHotelUsecase,
-    private _searchHotel: ISearchHotelUsecase
+    private _createHotelUsecase: ICreateHotelUsecase,
+    private _getHotelsUsecase: IgetHotelUsecase,
+    private _editHotelUsecase: IEditHotelUsecase,
+    private _deleteHotelUsecase: IDeleteHotelUsecase,
+    private _searchHotelUsecase: ISearchHotelUsecase
   ) {}
 
   async createHotels(req: Request, res: Response) {
     try {
       const destinationId = req.params.id;
       const hotelData = req.body;
-      const result = await this._createHotel.execute(hotelData, destinationId);
+
+      const result = await this._createHotelUsecase.execute(
+        hotelData,
+        destinationId
+      );
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -38,7 +42,8 @@ export class HotelController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
-      const result = await this._getHotels.execute(page, limit);
+
+      const result = await this._getHotelsUsecase.execute(page, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -57,7 +62,8 @@ export class HotelController {
     try {
       const hotelId = req.params.id;
       const hotelData = req.body;
-      const result = await this._editHotels.execute(hotelId, hotelData);
+
+      const result = await this._editHotelUsecase.execute(hotelId, hotelData);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -75,7 +81,8 @@ export class HotelController {
   async deleteHotel(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this._deleteHotel.execute(id);
+
+      const result = await this._deleteHotelUsecase.execute(id);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -93,7 +100,8 @@ export class HotelController {
   async SearchHotel(req: Request, res: Response) {
     try {
       const query = req.query.q as string;
-      const result = await this._searchHotel.execute(query);
+
+      const result = await this._searchHotelUsecase.execute(query);
 
       res.status(HttpStatus.OK).json({
         success: true,

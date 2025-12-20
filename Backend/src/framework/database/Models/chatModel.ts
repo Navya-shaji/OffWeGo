@@ -1,10 +1,14 @@
-import { model, ObjectId, Document } from "mongoose";
-import { ChatMessage } from "../../../domain/entities/chatEntity";
-import { ChatMessageSchema } from "../Schema/ChaatSchema";
+import { Document, model, ObjectId } from "mongoose";
+import { IChat } from "../../../domain/entities/chatEntity";
+import { chatSchema } from "../Schema/ChatSchema";
 
 
-export interface IChatMessageModel extends Omit<ChatMessage, "_id">, Document {
-  _id: ObjectId;
+export interface IChatModel extends Omit<IChat,'_id'>,Document{
+    _id: ObjectId;
 }
 
-export const ChatMessageModel = model<IChatMessageModel>("ChatMessage", ChatMessageSchema);
+export const chatModel = model<IChat>('chat',chatSchema)
+
+
+
+

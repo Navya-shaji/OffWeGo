@@ -2,10 +2,16 @@ import Stripe from "stripe";
 import { SubscriptionPlanDto } from "../../domain/dto/Subscription/createsubscriptionDto";
 import { ICreateSubscriptionPlanUseCase } from "../../domain/interface/SubscriptionPlan/ICreateUsecase";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
+import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
+import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { mapModelToSubscriptionDto } from "../../mappers/Subscription/mapDtoToSubscriptionModel";
 
-export class createSubscriptionusecase implements ICreateSubscriptionPlanUseCase {
-  constructor(private _subscriptionRepo: ISubscriptionPlanRepository) {}
+export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase {
+  constructor(
+    private _subscriptionRepo: ISubscriptionPlanRepository,
+    private _vendorRepo: IVendorRepository,
+    private _notificationService: INotificationService
+  ) {}
 
   async execute(data: SubscriptionPlanDto): Promise<SubscriptionPlanDto> {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -28,8 +34,21 @@ export class createSubscriptionusecase implements ICreateSubscriptionPlanUseCase
       stripePriceId: price.id,
     };
 
-    const created = await this._subscriptionRepo.create(planDataWithStripe);
+    const createdPlan = await this._subscriptionRepo.create(planDataWithStripe);
 
-    return mapModelToSubscriptionDto(created);
+    const allVendors = await this._vendorRepo.findAll();
+    const notificationPromises = allVendors.map(vendor =>
+      this._notificationService.send({
+        recipientId: vendor._id.toString(),
+        recipientType: "vendor",
+        title: "New Subscription Plan Available",
+        message: `A new subscription plan "${data.name}" is now available.`,
+        createdAt: new Date(),
+        read:false
+      })
+    );
+    await Promise.all(notificationPromises);
+
+    return mapModelToSubscriptionDto(createdPlan);
   }
 }

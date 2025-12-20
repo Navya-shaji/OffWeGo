@@ -1,38 +1,98 @@
-
-import { ChatMessage } from "../../../domain/entities/chatEntity";
+import { chatModel } from "../../../framework/database/Models/chatModel";
+import { IChat } from "../../../domain/entities/chatEntity";
 import { IChatRepository } from "../../../domain/interface/Chat/IchatRepo";
-import { ChatMessageModel } from "../../../framework/database/Models/chatModel";
-
-
 
 export class ChatRepository implements IChatRepository {
-  async save(message: ChatMessage): Promise<ChatMessage> {
-    const newMessage = new ChatMessageModel(message);
-    const saved = await newMessage.save();
-    const obj = typeof (saved as any).toObject === "function" ? (saved as any).toObject() : (saved as any);
-    return {
-      ...obj,
-      _id: obj._id ? obj._id.toString() : undefined,
-    } as ChatMessage;
+  async findChat(members: string[]): Promise<IChat | null> {
+    if (members.length !== 2) return null;
+    return await this.getchatOfUser(members[0], members[1]);
   }
 
-  async getMessagesForUser(userId: string): Promise<ChatMessage[]> {
-  const docs = await ChatMessageModel.find({
-    $or: [
-      { senderId: userId },
-      { receiverId: userId }
-    ]
-  })
-  .sort({ createdAt: 1 }) 
-  .exec();
+  async createChat(data: IChat): Promise<any> {
+    const createdChat = await chatModel.create(data);
+    const populatedChat = await chatModel
+      .findById(createdChat._id)
+      .populate({ path: "userId", select: "name imageUrl" })
+      .populate({ path: "vendorId", select: "name profileImage" });
 
-  return docs.map((doc) => {
-    const obj = typeof doc.toObject === "function" ? doc.toObject() : doc;
-    return {
-      ...obj,
-      _id: obj._id.toString(),
-    } as ChatMessage;
-  });
-}
+    return populatedChat;
+  }
 
+  async findChatById(chatId: string): Promise<IChat | null> {
+    return await chatModel.findById(chatId);
+  }
+
+  async findChatByUserId(userId: string): Promise<IChat[]> {
+    return await chatModel
+      .find({
+        $or: [{ userId: userId }, { vendorId: userId }],
+      })
+      .sort({ updatedAt: -1 });
+  }
+
+  async findChatsOfUser(userId: string): Promise<{ chats: any[] }> {
+    const chats = await chatModel
+      .find({
+        $and: [
+          { $or: [{ userId: userId }, { vendorId: userId }] },
+          { userId: { $ne: null } },
+          { vendorId: { $ne: null } },
+        ],
+      })
+      .sort({ lastMessageAt: -1 })
+      .populate("userId", "name imageUrl")
+      .populate("vendorId", "name profileImage")
+      .lean();
+
+    return { chats };
+  }
+
+  async getchatOfUser(userId: string, ownerId: string): Promise<any> {
+    const chat = await chatModel
+      .findOne({
+        $and: [
+          {
+            $or: [
+              { userId: userId, vendorId: ownerId },
+              { userId: ownerId, vendorId: userId },
+            ],
+          },
+          { userId: { $ne: null } },
+          { vendorId: { $ne: null } },
+        ],
+      })
+      .populate({ path: "userId", select: "name imageUrl" })
+      .populate({ path: "vendorId", select: "name profileImage" });
+
+    return chat;
+  }
+
+  async updateLastMessage(chatId: string, message: string, time: Date) {
+    return await chatModel.findByIdAndUpdate(chatId, {
+      lastMessage: message,
+      lastMessageAt: time,
+    });
+  }
+
+  async incrementUnreadCount(
+    chatId: string,
+    recipientType: "user" | "vendor"
+  ): Promise<void> {
+    const updateField =
+      recipientType === "user" ? "unreadCountUser" : "unreadCountVendor";
+
+    await chatModel.findByIdAndUpdate(chatId, {
+      $inc: { [updateField]: 1 },
+    });
+  }
+  async resetUnreadCount(
+    chatId: string,
+    recipientType: "user" | "vendor"
+  ): Promise<void> {
+    const updateField =
+      recipientType === "user" ? "unreadCountUser" : "unreadCountVendor";
+    await chatModel.findByIdAndUpdate(chatId, {
+      $set: { [updateField]: 0 },
+    });
+  }
 }

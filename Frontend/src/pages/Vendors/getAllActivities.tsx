@@ -9,11 +9,12 @@ import {
 } from "@/services/Activity/ActivityService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; 
 import { toast, ToastContainer } from "react-toastify";
-import { Edit, Trash, X, Upload } from "lucide-react";
+import { Edit, Trash, X, Upload, MapPin, Loader2 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "@/components/pagination/pagination";
 import { SearchBar } from "@/components/Modular/searchbar";
 import type { Activity } from "@/interface/PackageInterface";
+import { getCoordinatesFromPlace } from "@/services/Location/locationService";
 
 const ActivitiesTable: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -29,9 +30,15 @@ const ActivitiesTable: React.FC = () => {
     title: "",
     description: "",
     imageUrl: "",
+    coordinates: {
+      lat: undefined as number | undefined,
+      lng: undefined as number | undefined,
+    },
   });
   const [imagePreview, setImagePreview] = useState<string>("");
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
+  const [locationInput, setLocationInput] = useState<string>("");
+  const [isGettingCoordinates, setIsGettingCoordinates] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalActivities, setTotalActivities] = useState(0);
@@ -184,13 +191,43 @@ const ActivitiesTable: React.FC = () => {
       title: normalizedActivity.title || "",
       description: normalizedActivity.description || "",
       imageUrl: normalizedActivity.imageUrl || "",
+      coordinates: {
+        lat: normalizedActivity.coordinates?.lat,
+        lng: normalizedActivity.coordinates?.lng,
+      },
     });
     
     const imageUrl = getUrlFromImgTag(normalizedActivity.imageUrl || "");
     setImagePreview(imageUrl);
     setNewImageFile(null);
+    setLocationInput("");
     setIsEditModalOpen(true);
   }, [normalizeActivity, getUrlFromImgTag]);
+
+  const handleGetCoordinates = async () => {
+    if (!locationInput || locationInput.trim().length < 3) {
+      toast.error("Please enter a location first");
+      return;
+    }
+
+    setIsGettingCoordinates(true);
+    try {
+      const coords = await getCoordinatesFromPlace(locationInput);
+      setFormData({
+        ...formData,
+        coordinates: {
+          lat: parseFloat(coords.lat.toFixed(6)),
+          lng: parseFloat(coords.lng.toFixed(6)),
+        },
+      });
+      toast.success("Coordinates fetched successfully!");
+    } catch (error: any) {
+      console.error("Error fetching coordinates:", error);
+      toast.error(error?.message || "Failed to fetch coordinates");
+    } finally {
+      setIsGettingCoordinates(false);
+    }
+  };
 
   const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -248,6 +285,9 @@ const ActivitiesTable: React.FC = () => {
         title: formData.title.trim(),
         description: formData.description.trim(),
         imageUrl: finalImageUrl,
+        coordinates: formData.coordinates.lat && formData.coordinates.lng 
+          ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
+          : undefined,
       };
 
       const response = await updateActivity(selectedActivity.id, updateData);
@@ -270,7 +310,13 @@ const ActivitiesTable: React.FC = () => {
       setSelectedActivity(null);
       setNewImageFile(null);
       setImagePreview("");
-      setFormData({ title: "", description: "", imageUrl: "" });
+      setLocationInput("");
+      setFormData({ 
+        title: "", 
+        description: "", 
+        imageUrl: "",
+        coordinates: { lat: undefined, lng: undefined },
+      });
       
     } catch (err) {
       if (err instanceof Error)
@@ -617,6 +663,103 @@ const ActivitiesTable: React.FC = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                </p>
+              </div>
+
+              {/* Location for Coordinates */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Location (for coordinates) <span className="text-gray-500 text-xs">(Optional)</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={locationInput}
+                    onChange={(e) => setLocationInput(e.target.value)}
+                    placeholder="Enter activity location/address"
+                    disabled={isUpdating}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGetCoordinates}
+                    disabled={isGettingCoordinates || isUpdating}
+                    className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                  >
+                    {isGettingCoordinates ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Getting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="w-4 h-4" />
+                        <span>Get Coords</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter the location/address to automatically fetch coordinates
+                </p>
+              </div>
+
+              {/* Coordinates */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    Geographic Coordinates
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Latitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={formData.coordinates.lat ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          coordinates: {
+                            ...formData.coordinates,
+                            lat: e.target.value ? parseFloat(e.target.value) : undefined,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 28.6139"
+                      disabled={isUpdating}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Longitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={formData.coordinates.lng ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          coordinates: {
+                            ...formData.coordinates,
+                            lng: e.target.value ? parseFloat(e.target.value) : undefined,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 77.2090"
+                      disabled={isUpdating}
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Click "Get Coords" to automatically fetch coordinates from the location
                 </p>
               </div>
 

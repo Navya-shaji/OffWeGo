@@ -6,6 +6,7 @@ export const addCategory = async (data: CategoryType) => {
   try {
    console.log("haii")
     const res = await axiosInstance.post("/api/admin/create-categories", data);
+    console.log(res.data,"resss")
     return res.data;
   } catch (error) {
     console.error("error adding category", error);

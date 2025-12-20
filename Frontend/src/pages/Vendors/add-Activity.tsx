@@ -14,24 +14,50 @@ import {
 } from "@/Types/vendor/Package/Activity";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
+import { getCoordinatesFromPlace } from "@/services/Location/locationService";
+import { MapPin, Loader2 } from "lucide-react";
 
 const AddActivity: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [destinationId, setDestinationId] = useState<string>("");
+  const [isGettingCoordinates, setIsGettingCoordinates] = useState(false);
+  const [locationInput, setLocationInput] = useState<string>("");
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<ActivityFormData>({
     resolver: zodResolver(ActivitySchema),
-    defaultValues: { title: "", description: "", imageUrl: null },
+    defaultValues: { title: "", description: "", imageUrl: null, coordinates: { lat: undefined, lng: undefined } },
   });
 
   const notifySuccess = () => toast.success("Activity added successfully!");
   const notifyError = (msg: string) => toast.error(msg);
+
+  const handleGetCoordinates = async () => {
+    if (!locationInput || locationInput.trim().length < 3) {
+      toast.error("Please enter a location first");
+      return;
+    }
+
+    setIsGettingCoordinates(true);
+    try {
+      const coords = await getCoordinatesFromPlace(locationInput);
+      setValue("coordinates.lat", parseFloat(coords.lat.toFixed(6)));
+      setValue("coordinates.lng", parseFloat(coords.lng.toFixed(6)));
+      toast.success("Coordinates fetched successfully!");
+    } catch (error: any) {
+      console.error("Error fetching coordinates:", error);
+      toast.error(error?.message || "Failed to fetch coordinates");
+    } finally {
+      setIsGettingCoordinates(false);
+    }
+  };
 
   useEffect(() => {
     const loadDestinations = async () => {
@@ -151,6 +177,86 @@ const onSubmit = async (data: ActivityFormData) => {
                 {errors.imageUrl.message as string}
               </p>
             )}
+          </div>
+
+          {/* Location for Coordinates */}
+          <div>
+            <Label htmlFor="location">
+              Location (for coordinates) <span className="text-gray-500 text-xs">(Optional)</span>
+            </Label>
+            <div className="flex gap-2 mt-2">
+              <Input
+                id="location"
+                placeholder="Enter activity location/address"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                onClick={handleGetCoordinates}
+                disabled={isGettingCoordinates}
+                className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {isGettingCoordinates ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Getting...</span>
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="w-4 h-4" />
+                    <span>Get Coords</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Enter the location/address to automatically fetch coordinates
+            </p>
+          </div>
+
+          {/* Coordinates */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-gray-600" />
+              <Label className="text-base font-semibold">Geographic Coordinates</Label>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="lat">Latitude</Label>
+                <Input
+                  id="lat"
+                  type="number"
+                  step="any"
+                  placeholder="e.g., 28.6139"
+                  {...register("coordinates.lat", { valueAsNumber: true })}
+                />
+                {errors.coordinates?.lat && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.coordinates.lat.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="lng">Longitude</Label>
+                <Input
+                  id="lng"
+                  type="number"
+                  step="any"
+                  placeholder="e.g., 77.2090"
+                  {...register("coordinates.lng", { valueAsNumber: true })}
+                />
+                {errors.coordinates?.lng && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.coordinates.lng.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">
+              Click "Get Coords" to automatically fetch coordinates from the location
+            </p>
           </div>
 
           <Button

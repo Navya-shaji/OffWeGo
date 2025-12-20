@@ -24,9 +24,7 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [bookingDetails, setBookingDetails] = useState<Booking[]>([]);
-  const [loadingDetails, setLoadingDetails] = useState(false);
   const [bookingStatuses, setBookingStatuses] = useState<
     Record<string, "not-started" | "started" | "completed">
   >({});
@@ -170,12 +168,9 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
   const handleDateClick = async (dateStr: string, isBooked: boolean) => {
     if (!isBooked) return;
 
-    setSelectedDate(dateStr);
-    setLoadingDetails(true);
-
     try {
       const details = await getAllUserBookings(vendorId);
-      const filteredDetails = details.filter((booking) => {
+      const filteredDetails = details.filter((booking: any) => {
         const bookingDate = new Date(booking.selectedDate);
         const bookingStr = `${bookingDate.getFullYear()}-${String(
           bookingDate.getMonth() + 1
@@ -186,8 +181,6 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
     } catch (err) {
       console.error("Error fetching booking details:", err);
       setBookingDetails([]);
-    } finally {
-      setLoadingDetails(false);
     }
   };
 
@@ -232,8 +225,8 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4" style={{ overflow: 'visible' }}>
+      <div className="max-w-7xl mx-auto space-y-6" style={{ overflow: 'visible' }}>
         {/* Header */}
         <div className="bg-white rounded-3xl shadow-lg p-8 border border-indigo-100">
           <div className="flex items-center gap-4">
@@ -269,8 +262,9 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
             </div>
 
             <div className="space-y-4">
-              {todaysBookings.map((booking) => {
-                const status = getBookingStatus(booking.id);
+              {todaysBookings.map((booking: any) => {
+                const status = getBookingStatus(booking._id || "");
+                const isCancelled = booking.bookingStatus?.toLowerCase() === "cancelled" || booking.status?.toLowerCase() === "cancelled";
                 return (
                   <div
                     key={booking._id}
@@ -280,7 +274,7 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-xl font-bold text-slate-800">
-                            {booking.contactInfo.name}
+                            {booking.contactInfo?.name || booking.userId?.name || booking.adults?.[0]?.name || "Customer"}
                           </h3>
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
@@ -299,41 +293,43 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                           </span>
                         </div>
                         <p className="text-indigo-600 font-semibold text-lg mb-2">
-                          {booking.selectedPackage.packageName}
+                          {booking.selectedPackage?.packageName || booking.packageId?.packageName || "Package"}
                         </p>
                         <div className="flex items-center gap-6 text-sm text-slate-600">
                           <div className="flex items-center gap-2">
                             <Phone className="w-4 h-4" />
-                            <span>{booking.contactInfo.mobile}</span>
+                            <span>{booking.contactInfo?.mobile || "N/A"}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4" />
                             <span>
-                              {booking.adults.length + booking.children.length}{" "}
+                              {(booking.adults?.length || 0) + (booking.children?.length || 0)}{" "}
                               travelers
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <IndianRupee className="w-4 h-4" />
-                            <span className="font-semibold">
-                              ₹{booking.totalAmount.toLocaleString()}
-                            </span>
-                          </div>
+                          {!isCancelled && (
+                            <div className="flex items-center gap-2">
+                              <IndianRupee className="w-4 h-4" />
+                              <span className="font-semibold">
+                                ₹{(booking.totalAmount || 0).toLocaleString()}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        {status === "not-started" && (
+                        {status === "not-started" && !isCancelled && (
                           <button
-                            onClick={() => handleStartBooking(booking._id)}
+                            onClick={() => handleStartBooking(booking._id || "")}
                             className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all font-semibold"
                           >
                             <Play className="w-4 h-4" />
                             Start
                           </button>
                         )}
-                        {status === "started" && (
+                        {status === "started" && !isCancelled && (
                           <button
-                            onClick={() => handleEndBooking(booking._id)}
+                            onClick={() => handleEndBooking(booking._id || "")}
                             className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all font-semibold"
                           >
                             <Square className="w-4 h-4" />

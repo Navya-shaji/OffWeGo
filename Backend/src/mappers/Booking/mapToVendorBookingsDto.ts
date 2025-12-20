@@ -17,7 +17,8 @@ export function mapBookingDataToDto(booking: Booking): BookingDataDto {
     paymentStatus: booking.paymentStatus,
     payment_id: booking.paymentIntentId, 
     bookingId:booking.bookingId,
-    bookingStatus:booking.bookingStatus
+    bookingStatus:booking.bookingStatus,
+    settlementDone:booking.settlementDone
   };
 }
 

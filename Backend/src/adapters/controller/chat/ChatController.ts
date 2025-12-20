@@ -1,50 +1,89 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { ISendChatMessageUseCase } from "../../../domain/interface/Chat/IsendChatUsecase";
-import { IChatUseCase } from "../../../domain/interface/Chat/IGetChatUSecase";
-import { ChatDto } from "../../../domain/dto/Chat/chatDto";
+import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUsecase";
+import { IGetMessagesUsecase } from "../../../domain/interface/Msg/IGetMsgUsecase";
+import { IMarkMessagesSeenUseCase } from "../../../domain/interface/Chat/IMarkMesgusecase";
+import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
 
 export class ChatController {
   constructor(
-    private _sendChat: ISendChatMessageUseCase,
-    private _getChat: IChatUseCase
+    private _initiateChatUsecase: IInitiateChatUsecase,
+    private _getChatsUsecase: GetChatsOfUserUsecase,
+    private _getMessagesUsecase: IGetMessagesUsecase,
+    private _markMessagesSeenUseCase: IMarkMessagesSeenUseCase
   ) {}
 
-  async sendChat(req: Request, res: Response): Promise<void> {
+  async findOrCreateChat(req: Request, res: Response) {
     try {
-      const chatDto: ChatDto = req.body;
+      const { userId, ownerId } = req.body;
 
-      const savedMessage = await this._sendChat.execute(chatDto);
-
-      res.status(HttpStatus.OK).json({
+      const chat = await this._initiateChatUsecase.initiateChat({
+        userId,
+        ownerId,
+      });
+      return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Message sent successfully",
-        data: savedMessage,
+        data: chat,
       });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      console.error("Error creating chat:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to send message",
-        error: (error as Error).message,
+        message: "Internal Server Error",
       });
     }
   }
 
-  async getChat(req: Request, res: Response): Promise<void> {
+  async getChats(req: Request, res: Response) {
     try {
-      const { senderId } = req.params;
-      const chatMessages = await this._getChat.execute(senderId);
+      const userId = req.params.userId || req.params.vendorId;
 
-      res.status(HttpStatus.OK).json({
+      const userType = (req.query.userType as "user" | "vendor") || "user";
+
+      const chats = await this._getChatsUsecase.getChats(userId, userType);
+      return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Chat messages retrieved successfully",
-        data: chatMessages,
+        data: chats,
       });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      console.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to retrieve chat messages",
-        error: (error as Error).message,
+        message: "Internal Server Error",
+      });
+    }
+  }
+  
+  async getMessages(req: Request, res: Response) {
+    try {
+      const { chatId } = req.params;
+      const messages = await this._getMessagesUsecase.execute(chatId);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        data: messages,
+      });
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+
+  async markMessagesSeen(req: Request, res: Response) {
+    try {
+      const { chatId, userId } = req.body;
+      await this._markMessagesSeenUseCase.execute(chatId, userId);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Messages marked as seen",
+      });
+    } catch (error) {
+      console.error("Error marking messages as seen:", error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal Server Error",
       });
     }
   }

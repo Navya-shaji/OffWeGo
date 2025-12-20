@@ -8,7 +8,7 @@ import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
 import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
-import  {PackageTimeline} from "@/pages/User/Destination/packageTimeline";
+import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
@@ -19,12 +19,9 @@ import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
-// import BuddyTravelCheckoutForm from "@/components/home/Travalbuddies/buddyTravelCheckout";
-// import { Elements } from "@stripe/react-stripe-js";
-// import { loadStripe } from "@stripe/stripe-js";
+import ChatPage from "@/pages/User/chat/chat";
 
-
-// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
+import NotFound from "@/components/Modular/NotFound";
 
 const UserRoute = () => {
   return (
@@ -57,28 +54,13 @@ const UserRoute = () => {
       <Route path="/about" element={<AboutUs />} />
       <Route path="/wallet" element={<WalletManagement />} />
       <Route path="/buddy-packages" element={<Travalbuddies />} />
-        <Route path="/payment-success" element={<BookingSuccess />} />
-      
-{/* 
-      <Route
-        path="/payment-buddycheckout"
-        element={
-          <Elements stripe={stripePromise}>
-            <BuddyTravelCheckoutForm amount={0} clientSecret="" />
-          </Elements>
-        }
-      /> */}
+      <Route path="/payment-success" element={<BookingSuccess />} />
 
-      {/* <Route path="/payment-buddycheckout" element={<BuddyTravelPaymentPage />} /> */}
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
+      <Route path='/chat/:chatId?' element={<ChatPage />} />
+      <Route>
+        <Route path="*" element={<NotFound />}></Route>
+      </Route>
     </Routes>
   );
 };

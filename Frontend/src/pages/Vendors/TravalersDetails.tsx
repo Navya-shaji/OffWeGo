@@ -40,105 +40,73 @@ export default function TravelerDetails() {
   // Load persisted state on mount
   useEffect(() => {
     if (selectedPackage?._id) {
-      const loadState = async () => {
+      const storageKey = `traveler-details:${selectedPackage._id}`;
+      const savedState = localStorage.getItem(storageKey);
+
+      if (savedState) {
         try {
-          const storageKey = `traveler-details:${selectedPackage._id}`;
-          const result = await window.storage.get(storageKey);
-          
-          if (result?.value) {
-            const savedState = JSON.parse(result.value);
-            
-            if (savedState.adultCount !== undefined) {
-              setAdultCount(savedState.adultCount);
-            }
-            if (savedState.childCount !== undefined) {
-              setChildCount(savedState.childCount);
-            }
-            if (savedState.contactInfo) {
-              setContactInfo(savedState.contactInfo);
-            }
-            if (savedState.adultTravelers) {
-              setAdultTravelers(savedState.adultTravelers);
-            }
-            if (savedState.childTravelers) {
-              setChildTravelers(savedState.childTravelers);
-            }
-            if (savedState.isAdultFormValid !== undefined) {
-              setIsAdultFormValid(savedState.isAdultFormValid);
-            }
-            if (savedState.isChildFormValid !== undefined) {
-              setIsChildFormValid(savedState.isChildFormValid);
-            }
-          }
-        } catch (error) {
-          console.log('No saved traveler details found');
-        } finally {
-          setIsStateLoaded(true);
+          const parsed = JSON.parse(savedState);
+          if (parsed.adultCount !== undefined) setAdultCount(parsed.adultCount);
+          if (parsed.childCount !== undefined) setChildCount(parsed.childCount);
+          if (parsed.contactInfo) setContactInfo(parsed.contactInfo);
+          if (parsed.adultTravelers) setAdultTravelers(parsed.adultTravelers);
+          if (parsed.childTravelers) setChildTravelers(parsed.childTravelers);
+          if (parsed.isAdultFormValid !== undefined)
+            setIsAdultFormValid(parsed.isAdultFormValid);
+          if (parsed.isChildFormValid !== undefined)
+            setIsChildFormValid(parsed.isChildFormValid);
+        } catch (err) {
+          console.error("Error parsing saved traveler details:", err);
         }
-      };
-      
-      loadState();
+      }
+
+      setIsStateLoaded(true);
     } else {
       setIsStateLoaded(true);
     }
   }, [selectedPackage?._id]);
 
-// Load persisted state
-useEffect(() => {
-  if (selectedPackage?._id) {
-    const storageKey = `traveler-details:${selectedPackage._id}`;
-    const savedState = localStorage.getItem(storageKey);
-
-    if (savedState) {
-      try {
-        const parsed = JSON.parse(savedState);
-        if (parsed.adultCount !== undefined) setAdultCount(parsed.adultCount);
-        if (parsed.childCount !== undefined) setChildCount(parsed.childCount);
-        if (parsed.contactInfo) setContactInfo(parsed.contactInfo);
-        if (parsed.adultTravelers) setAdultTravelers(parsed.adultTravelers);
-        if (parsed.childTravelers) setChildTravelers(parsed.childTravelers);
-        if (parsed.isAdultFormValid !== undefined)
-          setIsAdultFormValid(parsed.isAdultFormValid);
-        if (parsed.isChildFormValid !== undefined)
-          setIsChildFormValid(parsed.isChildFormValid);
-      } catch (err) {
-        console.error("Error parsing saved traveler details:", err);
-      }
+  // Save state on every change
+  useEffect(() => {
+    if (selectedPackage?._id && isStateLoaded) {
+      const storageKey = `traveler-details:${selectedPackage._id}`;
+      const toSave = {
+        adultCount,
+        childCount,
+        contactInfo,
+        adultTravelers,
+        childTravelers,
+        isAdultFormValid,
+        isChildFormValid,
+      };
+      localStorage.setItem(storageKey, JSON.stringify(toSave));
     }
+  }, [
+    selectedPackage?._id,
+    adultCount,
+    childCount,
+    contactInfo,
+    adultTravelers,
+    childTravelers,
+    isAdultFormValid,
+    isChildFormValid,
+    isStateLoaded,
+  ]);
 
-    setIsStateLoaded(true);
-  } else {
-    setIsStateLoaded(true);
-  }
-}, [selectedPackage?._id]);
-
-// Save state on every change
-useEffect(() => {
-  if (selectedPackage?._id && isStateLoaded) {
-    const storageKey = `traveler-details:${selectedPackage._id}`;
-    const toSave = {
-      adultCount,
-      childCount,
-      contactInfo,
-      adultTravelers,
-      childTravelers,
-      isAdultFormValid,
-      isChildFormValid,
+  // Clean up data when component unmounts or when navigating back
+  useEffect(() => {
+    return () => {
+      // Cleanup function - clear localStorage when navigating away
+      if (selectedPackage?._id) {
+        const storageKey = `traveler-details:${selectedPackage._id}`;
+        // Only clear if navigating back (not forward to payment)
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('payment-checkout')) {
+          localStorage.removeItem(storageKey);
+        }
+      }
     };
-    localStorage.setItem(storageKey, JSON.stringify(toSave));
-  }
-}, [
-  selectedPackage?._id,
-  adultCount,
-  childCount,
-  contactInfo,
-  adultTravelers,
-  childTravelers,
-  isAdultFormValid,
-  isChildFormValid,
-  isStateLoaded,
-]);
-
+  }, [selectedPackage?._id]);
 
   const updateCount = (type: "adult" | "child", change: number) => {
     if (type === "adult") {
@@ -268,6 +236,11 @@ useEffect(() => {
   };
 
   const handleBack = () => {
+    // Clear localStorage when going back
+    if (selectedPackage?._id) {
+      const storageKey = `traveler-details:${selectedPackage._id}`;
+      localStorage.removeItem(storageKey);
+    }
     navigate(-1);
   };
 
@@ -289,13 +262,13 @@ useEffect(() => {
     !(adultCount === 0 && childCount >= 1);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         <div className="mb-6">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 hover:text-purple-600 font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium border border-gray-200"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Package
@@ -309,43 +282,43 @@ useEffect(() => {
           <p className="text-gray-600">Just a few more details to confirm your adventure</p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden backdrop-blur-sm bg-opacity-95">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            <div className="bg-gradient-to-br from-gray-50 to-purple-50 p-8 lg:p-10 border-r border-gray-200">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 lg:p-10 border-r border-gray-200">
               <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Ticket className="w-6 h-6 text-purple-600" />
+                <div className="p-2 bg-gray-200 rounded-lg">
+                  <Ticket className="w-6 h-6 text-gray-800" />
                 </div>
-                <h2 className="text-gray-800 text-2xl font-bold">Select Tickets</h2>
+                <h2 className="text-gray-900 text-2xl font-bold">Select Tickets</h2>
               </div>
 
               {/* Adult Ticket */}
-              <div className="group bg-white p-6 rounded-2xl mb-5 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-purple-200">
+              <div className="group bg-white p-6 rounded-2xl mb-5 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-400">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
-                      <Users className="w-6 h-6 text-purple-600" />
+                    <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-gray-200 transition-colors">
+                      <Users className="w-6 h-6 text-gray-800" />
                     </div>
                     <div>
-                      <div className="text-gray-500 text-sm font-medium mb-1">Adult Ticket</div>
+                      <div className="text-gray-600 text-sm font-medium mb-1">Adult Ticket</div>
                       <div className="text-gray-900 text-xl font-bold">₹{adultPrice}</div>
-                      <div className="text-gray-400 text-xs">per person</div>
+                      <div className="text-gray-500 text-xs">per person</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2">
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2 border border-gray-200">
                     <button
                       onClick={() => updateCount("adult", -1)}
-                      className="w-10 h-10 bg-white hover:bg-purple-100 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-10 h-10 bg-white hover:bg-gray-200 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
                       disabled={adultCount === 0}
                     >
                       −
                     </button>
-                    <span className="min-w-10 text-center text-lg font-bold text-purple-600">
+                    <span className="min-w-10 text-center text-lg font-bold text-gray-900">
                       {adultCount}
                     </span>
                     <button
                       onClick={() => updateCount("adult", 1)}
-                      className="w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
+                      className="w-10 h-10 bg-gray-900 hover:bg-black text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
                     >
                       +
                     </button>
@@ -354,32 +327,32 @@ useEffect(() => {
               </div>
 
               {/* Child Ticket */}
-              <div className="group bg-white p-6 rounded-2xl mb-8 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-fuchsia-200">
+              <div className="group bg-white p-6 rounded-2xl mb-8 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-400">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="p-3 bg-fuchsia-100 rounded-xl group-hover:bg-fuchsia-200 transition-colors">
-                      <Baby className="w-6 h-6 text-fuchsia-600" />
+                    <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-gray-200 transition-colors">
+                      <Baby className="w-6 h-6 text-gray-800" />
                     </div>
                     <div>
-                      <div className="text-gray-500 text-sm font-medium mb-1">Child Ticket</div>
+                      <div className="text-gray-600 text-sm font-medium mb-1">Child Ticket</div>
                       <div className="text-gray-900 text-xl font-bold">₹{childPrice.toLocaleString()}</div>
-                      <div className="text-gray-400 text-xs">per person (20% off)</div>
+                      <div className="text-gray-500 text-xs">per person (20% off)</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2">
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2 border border-gray-200">
                     <button
                       onClick={() => updateCount("child", -1)}
-                      className="w-10 h-10 bg-white hover:bg-fuchsia-100 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-10 h-10 bg-white hover:bg-gray-200 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
                       disabled={childCount === 0}
                     >
                       −
                     </button>
-                    <span className="min-w-10 text-center text-lg font-bold text-fuchsia-600">
+                    <span className="min-w-10 text-center text-lg font-bold text-gray-900">
                       {childCount}
                     </span>
                     <button
                       onClick={() => updateCount("child", 1)}
-                      className="w-10 h-10 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
+                      className="w-10 h-10 bg-gray-900 hover:bg-black text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
                     >
                       +
                     </button>
@@ -388,9 +361,9 @@ useEffect(() => {
               </div>
 
               {/* Contact Info */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm">
-                <h3 className="text-gray-800 text-xl font-bold mb-6 flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-purple-600" />
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h3 className="text-gray-900 text-xl font-bold mb-6 flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-gray-800" />
                   Contact Information
                 </h3>
                 <div className="space-y-4">
@@ -402,7 +375,7 @@ useEffect(() => {
                           {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
                         </label>
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-600 transition-colors">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-800 transition-colors">
                             <Icon className="w-5 h-5" />
                           </div>
                           <input
@@ -411,7 +384,7 @@ useEffect(() => {
                             value={(contactInfo as any)[field.name]}
                             onChange={handleInputChange}
                             placeholder={field.placeholder}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200"
+                            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-300 rounded-xl text-sm focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-300 transition-all duration-200 bg-white"
                           />
                         </div>
                       </div>
@@ -423,11 +396,11 @@ useEffect(() => {
 
             <div className="p-8 lg:p-10 bg-white">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-gray-800 text-2xl font-bold flex items-center gap-2">
-                  <Users className="w-6 h-6 text-purple-600" />
+                <h2 className="text-gray-900 text-2xl font-bold flex items-center gap-2">
+                  <Users className="w-6 h-6 text-gray-800" />
                   Traveller Details
                 </h2>
-                <span className="text-red-500 text-xs font-semibold px-3 py-1 bg-red-50 rounded-full">
+                <span className="text-red-500 text-xs font-semibold px-3 py-1 bg-red-50 rounded-full border border-red-200">
                   *Mandatory
                 </span>
               </div>
@@ -455,26 +428,26 @@ useEffect(() => {
                 )}
               </div>
 
-              <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg mb-6">
+              <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 text-white shadow-lg mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-medium">Booking Summary</span>
-                  <CreditCard className="w-5 h-5 text-white/60" />
+                  <CreditCard className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="space-y-2 mb-4 text-sm">
                   {adultCount > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-purple-100">Adults × {adultCount}</span>
+                      <span className="text-gray-300">Adults × {adultCount}</span>
                       <span className="font-semibold">₹{(adultCount * adultPrice).toLocaleString()}</span>
                     </div>
                   )}
                   {childCount > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-purple-100">Children × {childCount}</span>
+                      <span className="text-gray-300">Children × {childCount}</span>
                       <span className="font-semibold">₹{(childCount * childPrice).toLocaleString()}</span>
                     </div>
                   )}
                 </div>
-                <div className="border-t border-purple-400 pt-4">
+                <div className="border-t border-gray-700 pt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-medium">Total Amount</span>
                     <span className="text-3xl font-bold">₹{totalAmount.toLocaleString()}</span>
@@ -487,7 +460,7 @@ useEffect(() => {
                 disabled={!canProceedToPayment}
                 className={`w-full px-6 py-4 text-lg font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 ${
                   canProceedToPayment
-                    ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white hover:from-purple-700 hover:to-fuchsia-700 cursor-pointer"
+                    ? "bg-gray-900 hover:bg-black text-white cursor-pointer"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >

@@ -1,4 +1,5 @@
 export interface Transaction {
+  status: string;
   type: "credit" | "debit";
   amount: number;
   description: string;

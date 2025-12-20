@@ -41,7 +41,7 @@ const UserAddReview: React.FC = () => {
     const fetchBookedPackages = async () => {
       try {
         setIsLoading(true);
-        const bookings = await getUserBookings(userId);
+        const bookings = await getUserBookings();
 
         if (!Array.isArray(bookings) || bookings.length === 0) {
           setBookedPackages([]);

@@ -1,8 +1,9 @@
-export interface Notification {
+export interface INotificationEntity {
+  _id?: string;
+  recipientId: string;
+  recipientType: "user" | "vendor";
   title: string;
-  body: string;
-  recipientType: "admin" | "vendor" | "user";
-  tokens?: string[]; 
-  topic?: string; 
-  createdAt?: Date;
+  message: string;
+  createdAt: Date;
+  read:boolean;
 }

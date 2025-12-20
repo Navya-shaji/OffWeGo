@@ -8,18 +8,23 @@ import { Request, Response } from "express";
 
 export class ActivityController {
   constructor(
-    private _creatActivity: IcreateActivityUsecase,
-    private _getallActivities: IGetAllActivities,
-    private _editActivity: IEditActivityUsecase,
-    private _deleteActivity: IdeleteActivity,
-    private _searchActivity: IsearchActivityUsecase
+    private _createActivityUsecase: IcreateActivityUsecase,
+    private _getAllActivitiesUsecase: IGetAllActivities,
+    private _editActivityUsecase: IEditActivityUsecase,
+    private _deleteActivityUsecase: IdeleteActivity,
+    private _searchActivityUsecase: IsearchActivityUsecase
   ) {}
 
   async createActivities(req: Request, res: Response) {
     try {
       const destinationId = req.params.id;
       const activityData = req.body;
-      const result = await this._creatActivity.execute(activityData, destinationId);
+
+      const result = await this._createActivityUsecase.execute(
+        activityData,
+        destinationId
+      );
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
@@ -37,7 +42,9 @@ export class ActivityController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
-      const result = await this._getallActivities.execute(page, limit);
+
+      const result = await this._getAllActivitiesUsecase.execute(page, limit);
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
@@ -55,7 +62,12 @@ export class ActivityController {
     try {
       const activityId = req.params.id;
       const activityData = req.body;
-      const result = await this._editActivity.execute(activityId, activityData);
+
+      const result = await this._editActivityUsecase.execute(
+        activityId,
+        activityData
+      );
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Activity updated successfully",
@@ -72,7 +84,9 @@ export class ActivityController {
   async deleteActivity(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this._deleteActivity.execute(id);
+
+      const result = await this._deleteActivityUsecase.execute(id);
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,
@@ -89,7 +103,8 @@ export class ActivityController {
   async SearchActivity(req: Request, res: Response) {
     try {
       const query = req.query.q as string;
-      const result = await this._searchActivity.execute(query);
+
+      const result = await this._searchActivityUsecase.execute(query);
 
       res.status(HttpStatus.OK).json({
         success: true,

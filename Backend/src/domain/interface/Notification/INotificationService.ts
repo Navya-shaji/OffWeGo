@@ -1,6 +1,5 @@
-import { Notification } from "../../entities/NotificationEntity";
+import { NotificationDto } from "../../dto/Notification/NotificationDto";
 
-
-export interface INotificationService {
-  send(notification: Notification): Promise<void>;
+export interface ISendNotificationUseCase {
+  execute(notification: NotificationDto): Promise<NotificationDto[]>;
 }

@@ -1,5 +1,11 @@
-import { Notification } from "../../entities/NotificationEntity";
+import { NotificationDto } from "../../dto/Notification/NotificationDto";
+import { INotificationEntity } from "../../entities/NotificationEntity";
 
-export interface ISendNotificationUseCase {
-  execute(notification: Notification): Promise<void>;
+export interface INotificationService {
+  send(notification: NotificationDto): Promise<INotificationEntity[]>;
+  
+  getByRecipient(
+    recipientId: string,
+    recipientType: "user" | "vendor"
+  ): Promise<INotificationEntity[]>;
 }

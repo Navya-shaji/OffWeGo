@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Trash2, MapPin } from "lucide-react";
+import { Edit, Trash2, MapPin, Loader2 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,6 +14,7 @@ import {
 import { SearchBar } from "@/components/Modular/searchbar";
 import Pagination from "@/components/pagination/pagination";
 import ReusableTable from "@/components/Modular/Table";
+import { getCoordinatesFromPlace } from "@/services/Location/locationService";
 
 interface Hotel {
   _id: string;
@@ -22,6 +23,10 @@ interface Hotel {
   rating: number;
   hotelId?: string;
   destinationId?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 const HotelsTable: React.FC = () => {
@@ -36,7 +41,12 @@ const HotelsTable: React.FC = () => {
     name: "",
     address: "",
     rating: 0,
+    coordinates: {
+      lat: undefined as number | undefined,
+      lng: undefined as number | undefined,
+    },
   });
+  const [isGettingCoordinates, setIsGettingCoordinates] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalHotels, setTotalHotels] = useState(0);
@@ -166,34 +176,90 @@ console.log(setDestinationId)
       name: hotel.name,
       address: hotel.address,
       rating: hotel.rating,
+      coordinates: {
+        lat: hotel.coordinates?.lat,
+        lng: hotel.coordinates?.lng,
+      },
     });
     setIsEditModalOpen(true);
   }, []);
 
+  const handleGetCoordinates = async () => {
+    const currentAddress = formData.address;
+    
+    if (!currentAddress || currentAddress.trim().length < 3) {
+      toast.error("Please enter an address first");
+      return;
+    }
+
+    setIsGettingCoordinates(true);
+    try {
+      const coords = await getCoordinatesFromPlace(currentAddress);
+      setFormData({
+        ...formData,
+        coordinates: {
+          lat: parseFloat(coords.lat.toFixed(6)),
+          lng: parseFloat(coords.lng.toFixed(6)),
+        },
+      });
+      toast.success("Coordinates fetched successfully!");
+    } catch (error: any) {
+      console.error("Error fetching coordinates:", error);
+      toast.error(error?.message || "Failed to fetch coordinates");
+    } finally {
+      setIsGettingCoordinates(false);
+    }
+  };
+
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedHotel?._id) return;
+    if (!selectedHotel?._id && !selectedHotel?.hotelId) {
+      toast.error("Hotel ID is missing");
+      return;
+    }
+    
+    const hotelId = selectedHotel._id || selectedHotel.hotelId;
+    if (!hotelId) return;
 
     try {
-     await updateHotel(selectedHotel._id, {
-  destinationId, 
-  name: formData.name,
-  address: formData.address,
-  rating: Math.min(5, formData.rating),
-});
+      const updatePayload: any = {
+        name: formData.name,
+        address: formData.address,
+        rating: Math.min(5, formData.rating),
+      };
+
+      // Only include destinationId if it exists
+      if (selectedHotel.destinationId || destinationId) {
+        updatePayload.destinationId = selectedHotel.destinationId || destinationId;
+      }
+
+      // Only include coordinates if both lat and lng are provided
+      if (formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined) {
+        updatePayload.coordinates = {
+          lat: formData.coordinates.lat,
+          lng: formData.coordinates.lng,
+        };
+      }
+
+     await updateHotel(hotelId, updatePayload);
       toast.success("Hotel updated successfully!");
 
       const updateHotelInList = (list: Hotel[]) =>
-        list.map((h) =>
-          h._id === selectedHotel._id
+        list.map((h) => {
+          const currentId = h._id || h.hotelId;
+          const selectedId = selectedHotel._id || selectedHotel.hotelId;
+          return currentId === selectedId
             ? {
                 ...h,
                 name: formData.name,
                 address: formData.address,
                 rating: Math.min(5, formData.rating),
+                coordinates: formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined
+                  ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
+                  : h.coordinates,
               }
-            : h
-        );
+            : h;
+        });
 
       setHotels(updateHotelInList);
       if (!isSearchMode) {
@@ -211,7 +277,7 @@ console.log(setDestinationId)
       // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     }
-  }, [selectedHotel, formData, isSearchMode]);
+  }, [selectedHotel, formData, isSearchMode, destinationId]);
 
   const confirmDelete = useCallback(async () => {
     if (!selectedHotel?._id) return;
@@ -429,15 +495,92 @@ console.log(hotels,"hotels")
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Address
                 </label>
-                <input
-                  className="border border-gray-300 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  placeholder="Address"
-                  required
-                />
+                <div className="flex gap-2">
+                  <input
+                    className="border border-gray-300 p-2 flex-1 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                    placeholder="Address"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGetCoordinates}
+                    disabled={isGettingCoordinates}
+                    className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                  >
+                    {isGettingCoordinates ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Getting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="w-4 h-4" />
+                        <span>Get Coords</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Coordinates */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    Geographic Coordinates
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Latitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="border border-gray-300 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={formData.coordinates.lat ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          coordinates: {
+                            ...formData.coordinates,
+                            lat: e.target.value ? parseFloat(e.target.value) : undefined,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 28.6139"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Longitude
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="border border-gray-300 p-2 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={formData.coordinates.lng ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          coordinates: {
+                            ...formData.coordinates,
+                            lng: e.target.value ? parseFloat(e.target.value) : undefined,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 77.2090"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Click "Get Coords" to automatically fetch coordinates from the address
+                </p>
               </div>
 
               <div>

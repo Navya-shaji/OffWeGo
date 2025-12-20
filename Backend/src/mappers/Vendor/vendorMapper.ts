@@ -16,6 +16,7 @@ export const mapToVendor = (doc: IVendorModel): Vendor => ({
   lastLogin: doc.lastLogin,
   googleVerified: doc.googleVerified,
   isAdmin: doc.isAdmin,
+  fcmToken:doc.fcmToken,
 
 
   subscription: doc.subscription

@@ -21,12 +21,11 @@ import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import {
   bookingcontroller,
-  
-  chatcontroller,
-  
+  notificationcontroller,
   subscriptionpaymentcontroller,
   walletcontroller,
 } from "../../Di/User/userInjections";
+import { chatcontroller } from "../../Di/Chat/ChatInjection";
 import { Role } from "../../../domain/constants/Roles";
 
 const TokenService = new JwtService();
@@ -196,7 +195,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.ALL_FLIGHTS,
-      checkRoleBasedcontrol([Role.VENDOR,Role.USER]),
+      checkRoleBasedcontrol([Role.VENDOR, Role.USER]),
       (req: Request, res: Response) => flightcontroller.getAllFlight(req, res)
     );
     this.vendorRouter.put(
@@ -221,6 +220,13 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         subscriptionBookingController.createSubscriptionBooking(req, res)
     );
+    this.vendorRouter.get(
+      VendorRoutes.GET_VENDOR_SUBSCRIPTION,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) =>
+        subscriptionBookingController.getVendorSubscription(req, res)
+    );
     this.vendorRouter.post(
       VendorRoutes.VERIFY_PAYMENT,
       (req: Request, res: Response) =>
@@ -229,32 +235,67 @@ export class VendorRoute {
     this.vendorRouter.post(
       VendorRoutes.CREATE_BUDDY_TRAVEL,
       (req: Request, res: Response) =>
-       buddyTravelcontroller.createBuddyTravel(req,res)
+        buddyTravelcontroller.createBuddyTravel(req, res)
     );
     this.vendorRouter.get(
       VendorRoutes.BUDDY_PACKAGES,
-      (req:Request,res:Response)=>{
-        buddyTravelcontroller.getVendorBuddyPackages(req,res)
+      (req: Request, res: Response) => {
+        buddyTravelcontroller.getVendorBuddyPackages(req, res);
       }
-    )
+    );
+
+    this.vendorRouter.post(
+      VendorRoutes.CHAT_SEND,
+      (req: Request, res: Response) => {
+        chatcontroller.findOrCreateChat(req, res);
+      }
+    );
     this.vendorRouter.get(
-      CommonRoutes.CHATS,
-      (req:Request,res:Response)=>{
-        chatcontroller.getChat(req,res)
+      VendorRoutes.CHAT_MESSAGES,
+      (req: Request, res: Response) => {
+        chatcontroller.getMessages(req, res);
       }
-    )
+    );
+    this.vendorRouter.get(
+      VendorRoutes.CHAT_LIST,
+      (req: Request, res: Response) => {
+        req.query.userType = "vendor";
+        chatcontroller.getChats(req, res);
+      }
+    );
+    this.vendorRouter.post(
+      VendorRoutes.CHAT_MARK_SEEN,
+      (req: Request, res: Response) => {
+        chatcontroller.markMessagesSeen(req, res);
+      }
+    );
     this.vendorRouter.post(
       VendorRoutes.VENDOR_WALLET,
-      (req:Request,res:Response)=>{
-        walletcontroller.createWallet(req,res)
+      (req: Request, res: Response) => {
+        walletcontroller.createWallet(req, res);
       }
-    )
+    );
     this.vendorRouter.get(
       VendorRoutes.GET_VENDOR_WALLET,
-      checkRoleBasedcontrol([Role.VENDOR,Role.ADMIN]),
-      (req:Request,res:Response)=>{
-        walletcontroller.GetWallet(req,res)
+      checkRoleBasedcontrol([Role.VENDOR, Role.ADMIN]),
+      (req: Request, res: Response) => {
+        walletcontroller.GetWallet(req, res);
       }
-    )
+    );
+
+    this.vendorRouter.post(
+      VendorRoutes.NOTIFY,
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) => {
+        notificationcontroller.getNotifications(req, res);
+      }
+    );
+    this.vendorRouter.patch(
+      VendorRoutes.READ_NOTIFICATION,
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) => {
+        notificationcontroller.readNotifications(req, res);
+      }
+    );
   }
 }

@@ -20,5 +20,6 @@ export const mapSubscriptionBookingToDto = (
     paymentStatus: "succeeded",
     payment_id: booking.stripeSessionId || "",
     bookingStatus: "upcoming", 
+    settlementDone:true
   };
 };

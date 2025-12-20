@@ -296,6 +296,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 Create Subscription
               </button>
+
               <button
                 onClick={() => handleSubTabClick("All Subscriptions")}
                 className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
@@ -306,6 +307,18 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <List className="inline-block mr-2 w-4 h-4" />
                 All Subscriptions
+              </button>
+
+              <button
+                onClick={() => handleSubTabClick("Booked Subscriptions")}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                  activeTab === "Booked Subscriptions"
+                    ? "text-black font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                <List className="inline-block mr-2 w-4 h-4" />
+                Booked Subscriptions
               </button>
             </div>
           )}

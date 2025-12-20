@@ -8,19 +8,21 @@ import { Request, Response } from "express";
 
 export class CreateCategoryController {
   constructor(
-    private _createcategory: ICreateCategoryUsecase,
-    private _getcategory: IGetCategoryUsecase,
-    private _editCategory: IEditCategoryUsecase,
-    private _deleteCategory: IDeleteCategorynUseCase,
-    private _searchcategory: ISearchCategoryUsecase
+    private _createCategoryUsecase: ICreateCategoryUsecase,
+    private _getCategoryUsecase: IGetCategoryUsecase,
+    private _editCategoryUsecase: IEditCategoryUsecase,
+    private _deleteCategoryUsecase: IDeleteCategorynUseCase,
+    private _searchCategoryUsecase: ISearchCategoryUsecase
   ) {}
 
   async createCategory(req: Request, res: Response) {
     try {
-      const result = await this._createcategory.execute(req.body);
+      const result = await this._createCategoryUsecase.execute(req.body);
       res.status(HttpStatus.CREATED).json({ success: true, data: result });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error });
     }
   }
 
@@ -28,10 +30,12 @@ export class CreateCategoryController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
-      const result = await this._getcategory.execute(page, limit);
+      const result = await this._getCategoryUsecase.execute(page, limit);
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error });
     }
   }
 
@@ -39,24 +43,31 @@ export class CreateCategoryController {
     try {
       const categoryId = req.params.id;
       const categoryData = req.body;
-      const result = await this._editCategory.execute(categoryId, categoryData);
+      const result = await this._editCategoryUsecase.execute(
+        categoryId,
+        categoryData
+      );
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Category updated successfully",
         data: result,
       });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error });
     }
   }
 
   async DeleteCategory(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const result = await this._deleteCategory.execute(id);
+      const result = await this._deleteCategoryUsecase.execute(id);
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error });
     }
   }
 
@@ -70,10 +81,12 @@ export class CreateCategoryController {
         });
         return;
       }
-      const category = await this._searchcategory.execute(query);
+      const category = await this._searchCategoryUsecase.execute(query);
       res.status(HttpStatus.OK).json({ success: true, data: category });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, error });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error });
     }
   }
 }

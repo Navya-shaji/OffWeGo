@@ -29,45 +29,41 @@ export class StripeService implements IStripeService {
   }
 
   async createSubscriptionCheckoutSession(
-    priceId: string,
-    domainUrl: string,
-    bookingId?: string
-  ): Promise<{ checkoutUrl: string }> {
-    console.log(" Creating Stripe Checkout session for priceId:", priceId);
+  priceId: string,
+  domainUrl: string,
+  bookingId?: string
+): Promise<{ checkoutUrl: string; sessionId: string }> {
+  console.log(" Creating Stripe Checkout session for priceId:", priceId);
 
-    try {
-      const session = await this.stripe.checkout.sessions.create({
-        mode: "subscription",
-        payment_method_types: ["card"],
-        line_items: [{ price: priceId, quantity: 1 }],
-        metadata: {
-          bookingId: bookingId ?? "N/A",
-        },
-        success_url: `${domainUrl}/vendor/payment-success`, 
-        cancel_url: `${domainUrl}/payment/cancel`,
-      });
+  try {
+    const session = await this.stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: ["card"],
+      line_items: [{ price: priceId, quantity: 1 }],
+      metadata: { bookingId: bookingId ?? "N/A" },
+      success_url: `${domainUrl}/vendor/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${domainUrl}/payment/cancel`,
+    });
 
-      console.log(" Checkout Session created:", session.url);
-      return { checkoutUrl: session.url! };
-    } catch (error) {
-      console.error(" Error creating Checkout Session:", error);
-      throw new Error("Failed to create Stripe Checkout session");
-    }
+    return { 
+      checkoutUrl: session.url!, 
+      sessionId: session.id 
+    };
+  } catch (error) {
+    console.error("Error creating Checkout Session:", error);
+    throw new Error("Failed to create Stripe Checkout session");
   }
+}
 
-  async retrieveSession(sessionId: string): Promise<{
-    id: string;
-    payment_status: string;
-    customer_email?: string;
-  }> {
-    console.log(" Retrieving session:", sessionId);
+
+  async retrieveSession(sessionId: string) {
+    console.log("Retrieving session:", sessionId);
 
     const session = await this.stripe.checkout.sessions.retrieve(sessionId);
-    console.log("Session retrieved:", session.id, session.payment_status);
 
     return {
       id: session.id,
-      payment_status: session.payment_status,
+      payment_status: session.payment_status as string,
       customer_email: session.customer_details?.email ?? undefined,
     };
   }

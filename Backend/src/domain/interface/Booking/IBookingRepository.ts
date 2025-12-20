@@ -16,4 +16,19 @@ export interface IBookingRepository {
     selectedDate: Date
   ): Promise<Booking | null>;
   findCompletedBookingsForTransfer(): Promise<Booking[]>;
+  checkBookingExistsBetweenUserAndOwner(
+    userId: string,
+    ownerId: string
+  ): Promise<Booking | null>;
+  updatePaymentStatus(
+    bookingId: string,
+    paymentData: {
+      paymentMethod: string;
+      amountPaid: number;
+      status: "paid" | "pending" | "failed";
+    }
+  ): Promise<Booking>;
+  findByRefId(refId: string): Promise<Booking[]>;
+
+  findCompletedTrips(): Promise<Booking[]>;
 }

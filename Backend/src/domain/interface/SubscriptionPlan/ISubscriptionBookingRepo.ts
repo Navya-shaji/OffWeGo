@@ -17,8 +17,25 @@ export interface ISubscriptionBookingRepository {
     id: string,
     status: string
   ): Promise<ISubscriptionBookingModel | null>;
+
   updateUsedPackages(
     id: string,
     usedPackages: number
   ): Promise<ISubscriptionBookingModel | null>;
+
+  findPendingBooking(
+    vendorId: string,
+    planId: string
+  ): Promise<ISubscriptionBookingModel | null>;
+
+  findBySessionId(
+    sessionId: string
+  ): Promise<ISubscriptionBookingModel | null>;
+
+  updateBooking(
+    id: string,
+    data: Partial<ISubscriptionBookingModel>
+  ): Promise<ISubscriptionBookingModel | null>;
+  expireOldSubscriptions(vendorId: string): Promise<void>;
+  getAllSubscriptions(): Promise<ISubscriptionBookingModel[]>;
 }

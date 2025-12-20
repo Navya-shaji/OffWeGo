@@ -1,28 +1,102 @@
+import { INotificationEntity } from "../../../domain/entities/NotificationEntity";
 import { INotificationRepository } from "../../../domain/interface/Notification/INotificationRepo";
 import { NotificationModel } from "../../../framework/database/Models/NotificationModel";
-import { Notification as NotificationEntity } from "../../../domain/entities/NotificationEntity";
-
 
 export class NotificationRepository implements INotificationRepository {
-
-  async save(notification: NotificationEntity): Promise<NotificationEntity> {
-    const newNotification = new NotificationModel(notification);
-    const saved = await newNotification.save();
- 
-    return (typeof saved.toObject === "function" ? saved.toObject() : saved) as NotificationEntity;
+  async create(data: INotificationEntity): Promise<INotificationEntity> {
+    const doc = await NotificationModel.create(data);
+    return doc.toObject() as unknown as INotificationEntity;
   }
 
-
-  async getAllForUser(userId: string): Promise<NotificationEntity[]> {
-    const docs = await NotificationModel.find({ recipientId: userId }).sort({ createdAt: -1 }).exec();
-    return docs.map(d => (typeof (d as any).toObject === "function" ? (d as any).toObject() : d) as NotificationEntity);
+  async findAll(): Promise<INotificationEntity[]> {
+    return await NotificationModel.find();
   }
 
- 
-  async removeToken(token: string): Promise<void> {
-    await NotificationModel.updateMany(
-      { tokens: token },
-      { $pull: { tokens: token } }
-    ).exec();
+  async findById(id: string): Promise<INotificationEntity | null> {
+    return await NotificationModel.findById(id);
+  }
+
+  async update(
+    id: string,
+    data: Partial<INotificationEntity>
+  ): Promise<INotificationEntity | null> {
+    return await NotificationModel.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async delete(id: string): Promise<INotificationEntity | null> {
+    return await NotificationModel.findByIdAndDelete(id);
+  }
+
+  async findOne(
+    filter: Partial<INotificationEntity>
+  ): Promise<INotificationEntity | null> {
+    return await NotificationModel.findOne(filter);
+  }
+  async getByRecipient(
+    recipientId: string,
+    recipientType: "user" | "vendor"
+  ): Promise<INotificationEntity[]> {
+    // Ensure both recipientId and recipientType are provided
+    if (!recipientId || !recipientType) {
+      console.warn("⚠️ getByRecipient called with missing parameters:", { recipientId, recipientType });
+      return [];
+    }
+
+    // Filter by both recipientId AND recipientType to ensure correct filtering
+    const query = { 
+      recipientId: String(recipientId), 
+      recipientType: recipientType 
+    };
+    
+    console.log(`🔍 Fetching notifications with query:`, query);
+    
+    const docs = await NotificationModel.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log(`✅ Found ${docs.length} notifications for ${recipientType} with ID ${recipientId}`);
+    
+    return docs as unknown as INotificationEntity[];
+  }
+
+  async markAsRead(id: string): Promise<INotificationEntity | null> {
+    return await NotificationModel.findByIdAndUpdate(
+      id,
+      { read: true },
+      { new: true }
+    );
+  }
+
+  async markAllAsRead(recipientId: string, recipientType: "user" | "vendor") {
+    const result = await NotificationModel.updateMany(
+      { recipientId, recipientType, read: false },
+      { read: true }
+    );
+
+    return { modifiedCount: result.modifiedCount };
+  }
+
+  async getUnreadCount(recipientId: string, recipientType: "user" | "vendor") {
+    return await NotificationModel.countDocuments({
+      recipientId,
+      recipientType,
+      read: false,
+    });
+  }
+
+  async deleteNotification(id: string) {
+    const result = await NotificationModel.deleteOne({ _id: id });
+    return { deletedCount: result.deletedCount };
+  }
+
+  async deleteAllNotifications(
+    recipientId: string,
+    recipientType: "user" | "vendor"
+  ) {
+    const result = await NotificationModel.deleteMany({
+      recipientId,
+      recipientType,
+    });
+    return { deletedCount: result.deletedCount };
   }
 }

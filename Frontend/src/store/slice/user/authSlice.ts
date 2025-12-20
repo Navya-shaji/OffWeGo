@@ -8,6 +8,8 @@ type User = {
   role: string;
   phone: string;
   imageUrl?: string;
+  location?: string;
+  isGoogleUser?: boolean;
 };
 
 type AuthState = {
@@ -63,7 +65,7 @@ export const authSlice = createSlice({
       if (state.user) state.user = { ...state.user, ...action.payload };
     },
     setToken: (state, action: PayloadAction<{ token: string }>) => {
-      
+
       state.token = action.payload.token;
     },
   },

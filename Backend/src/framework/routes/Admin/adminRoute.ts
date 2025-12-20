@@ -49,6 +49,7 @@ export class AdminRoute {
     this.adminRouter.get(AdminRoutes.GET_ALL_BANNERS, (req, res) =>
       bannerController.getBanners(req, res)
     );
+   
 
     // -------------------- TOKEN MIDDLEWARE --------------------
 
@@ -120,10 +121,13 @@ export class AdminRoute {
     );
 
     this.adminRouter.get(
-      AdminRoutes.SEARCH_DESTINATION,
-      adminOnly,
+      AdminRoutes.SEARCH_DESTINATION, 
       (req, res) => destinationController.searchDestination(req, res)
     );
+     this.adminRouter.post(AdminRoutes.NEARBY_LOCATIONS,(req,res)=>{
+           
+      destinationController.getNearByDestination(req,res)
+    })
 
     this.adminRouter.delete(
       AdminRoutes.DELETE_DESTINATION,
@@ -198,6 +202,11 @@ export class AdminRoute {
       adminOnly,
       (req, res) => subscriptionController.deleteSubscription(req, res)
     );
+    this.adminRouter.get(
+      AdminRoutes.BOOKED_SUBSCRIPTION,
+      adminOnly,
+      (req, res) => subscriptionController.getAllSubscriptionBookings(req, res)
+    );
 
     // -------------------- WALLET MANAGEMENT --------------------
 
@@ -217,9 +226,13 @@ export class AdminRoute {
 
     this.adminRouter.get(
       AdminRoutes.COMPLETED_BOOKINGS,
-      adminOnly,
+      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR, Role.USER]),
       (req, res) => walletcontroller.getCompletedBookingsForTransfer(req, res)
     );
+
+    this.adminRouter.post(
+      AdminRoutes. COMPLETED_TRIP,(req,res)=>walletcontroller.completeTripAndDistribute(req,res)
+    )
 
     // -------------------- BUDDY TRAVEL PACKAGE MANAGEMENT --------------------
 

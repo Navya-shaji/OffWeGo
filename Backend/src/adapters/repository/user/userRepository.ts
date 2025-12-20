@@ -26,18 +26,15 @@ export class UserRepository
     return this.model.findOne({ phone });
   }
 
-  async updatePassword(
-    email: string,
-    newHashedPassword: string
-  ): Promise<void> {
+  async findById(userId: string): Promise<IUserModel | null> {
+    return this.model.findById(userId);
+  }
+
+  async updatePassword(email: string, newHashedPassword: string): Promise<void> {
     await this.model.updateOne(
       { email },
       { $set: { password: newHashedPassword } }
     );
-  }
-
-  async findById(userId: string): Promise<IUserModel | null> {
-    return this.model.findById(userId);
   }
 
   async updatePasswordById(
@@ -58,19 +55,18 @@ export class UserRepository
     return this.model.find(filter).skip(skip).limit(limit);
   }
 
+  async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
+    return this.model.countDocuments(filter);
+  }
+
   async updateUserStatus(
     userId: string,
     status: "active" | "block"
   ): Promise<void> {
     const user = await this.findById(userId);
     if (!user) throw new Error("User not found");
-
     user.status = status;
     await user.save();
-  }
-
-  async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
-    return this.model.countDocuments(filter);
   }
 
   async getProfileByEmail(email: string): Promise<ProfileDto | null> {
@@ -81,11 +77,27 @@ export class UserRepository
     const regex = new RegExp(query, "i");
     return this.model
       .find({ name: { $regex: regex } })
-      .select("name email phone createdAt ")
+      .select("name email phone createdAt")
       .limit(10)
       .exec();
   }
+
   async updateWallet(userId: string, amount: number): Promise<void> {
     await UserModel.findByIdAndUpdate(userId, { $inc: { walletBalance: amount } });
+  }
+
+async getFcmTokenById(userId: string): Promise<string | null> {
+  const user = await this.model.findById(userId).select("fcmToken");
+  return user?.fcmToken || null;
+}
+
+
+
+  async updateFcmToken(id: string, token: string): Promise<IUserModel | null> {
+    return UserModel.findByIdAndUpdate(
+      id,
+      { $set: { fcmToken: token } },
+      { new: true }
+    );
   }
 }

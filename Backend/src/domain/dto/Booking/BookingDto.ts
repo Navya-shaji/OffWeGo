@@ -37,6 +37,7 @@ interface BookData {
   paymentIntentId?: string;
   paymentStatus: "pending" | "succeeded" | "failed";
   bookingStatus: "upcoming" | "completed" | "cancelled";
+  settlementDone:boolean
 }
 export interface CreateBookingDto {
   data: BookData 

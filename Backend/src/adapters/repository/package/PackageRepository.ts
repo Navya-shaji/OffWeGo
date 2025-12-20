@@ -5,6 +5,7 @@ import {
 } from "../../../framework/database/Models/packageModel";
 import { Package } from "../../../domain/entities/PackageEntity";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
+import { FilterQuery } from "mongoose";
 export class PackageRepository
   extends BaseRepository<IPackageModel>
   implements IPackageRepository
@@ -33,7 +34,11 @@ export class PackageRepository
     return { packages, totalPackages };
   }
 
-  async getPackagesByDestination(destinationId: string, skip: number, limit: number) {
+  async getPackagesByDestination(
+    destinationId: string,
+    skip: number,
+    limit: number
+  ) {
     const [packages, totalPackages] = await Promise.all([
       packageModel
         .find({ destinationId })
@@ -73,7 +78,6 @@ export class PackageRepository
     return packageModel.countDocuments();
   }
 
-  // ✅ NEW FUNCTION (Required for subscription logic)
   async countPackagesByVendor(vendorId: string): Promise<number> {
     return packageModel.countDocuments({ vendorId });
   }
@@ -90,5 +94,14 @@ export class PackageRepository
     ]);
 
     return { packages, totalPackages };
+  }
+  async findOne(
+    filter: FilterQuery<IPackageModel>
+  ): Promise<IPackageModel | null> {
+    const pkg = await packageModel.findOne(filter).lean();
+    return pkg ? (pkg as unknown as IPackageModel) : null;
+  }
+  async getById(id: string): Promise<IPackageModel | null> {
+    return packageModel.findById(id);
   }
 }

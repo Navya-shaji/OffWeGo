@@ -10,6 +10,7 @@ import otpReducer from "./slice/user/otpSlice";
 import packageReducer from "./slice/packages/packageSlice";
 import tokenSlice from "./slice/Token/tokenSlice"
 import subscriptionreducer from "./slice/Subscription/subscription";
+import notificationreducer from './slice/Notifications/notificationSlice'
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -24,7 +25,8 @@ const rootReducer = combineReducers({
   otp: otpReducer,
   package: packageReducer,
   subscription: subscriptionreducer,
-  token:tokenSlice
+  token:tokenSlice,
+  notifications:notificationreducer
 });
 
 

@@ -1,50 +1,116 @@
-import { INotificationService } from "../../domain/interface/Notification/INotificationService";
-import { Notification } from "../../domain/entities/NotificationEntity";
+import { NotificationDto } from "../../domain/dto/Notification/NotificationDto";
+import { INotificationEntity } from "../../domain/entities/NotificationEntity";
+import { NotificationRepository } from "../../adapters/repository/Notification/NotificationRepo";
+import { UserRepository } from "../../adapters/repository/User/UserRepository";
+import { VendorRepository } from "../../adapters/repository/Vendor/VendorRepository";
 import { firebaseAdmin } from "./firebase";
-import { INotificationRepository } from "../../domain/interface/Notification/INotificationRepo";
-
+import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 export class FirebaseNotificationService implements INotificationService {
-  constructor(private notificationRepo: INotificationRepository) {}
+  constructor(
+    private notificationRepo: NotificationRepository,
+    private userRepo: UserRepository,
+    private vendorRepo: VendorRepository
+  ) {}
 
-  async send(notification: Notification): Promise<void> {
+  private async sendNotification(
+    token: string,
+    title: string,
+    body: string,
+    data?: any
+  ): Promise<void> {
     try {
-    
-      if (notification.tokens && notification.tokens.length > 0) {
-        const validTokens = notification.tokens.filter(t => t && t.length > 0);
+      const message = {
+        token,
+        notification: { 
+          title, 
+          body 
+        },
+        data: data || {},
+        android: {
+          priority: 'high' as const,
+          notification: {
+            sound: 'default',
+            channelId: 'default',
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+              badge: 1,
+            },
+          },
+        },
+        webpush: {
+          notification: {
+            title,
+            body,
+            icon: '/icon-192x192.png',
+            badge: '/badge-72x72.png',
+          },
+        },
+      };
 
-        if (validTokens.length > 0) {
-          const response = await firebaseAdmin.messaging().sendEachForMulticast({
-            notification: { title: notification.title, body: notification.body },
-            tokens: validTokens,
-          });
-
-          console.log(`Notifications sent: ${response.successCount}`);
-          
-          response.responses.forEach(async (resp, idx) => {
-            if (!resp.success) {
-              console.warn(` Token ${validTokens[idx]} failed:`, resp.error);
-              if (resp.error?.code === "messaging/registration-token-not-registered") {
-                await this.notificationRepo.removeToken(validTokens[idx]);
-              }
-            }
-          });
-        }
+      const response = await firebaseAdmin.messaging().send(message);
+      console.log('✅ FCM notification sent successfully:', response);
+    } catch (error: any) {
+      console.error('❌ Error sending FCM notification:', error);
+      // If token is invalid, we should handle it but not throw
+      if (error.code === 'messaging/invalid-registration-token' || 
+          error.code === 'messaging/registration-token-not-registered') {
+        console.warn('⚠️ Invalid FCM token, should be removed from database');
+      } else {
+        throw error;
       }
-
-
-      if (notification.topic) {
-        await firebaseAdmin.messaging().send({
-          notification: { title: notification.title, body: notification.body },
-          topic: notification.topic,
-        });
-        console.log(` Notification sent to topic: ${notification.topic}`);
-      }
-
-    
-      await this.notificationRepo.save(notification);
-    } catch (error) {
-      console.error(" Error sending notifications:", error);
-      throw new Error("Failed to send notification");
     }
+  }
+
+  async send(notification: NotificationDto): Promise<INotificationEntity[]> {
+    const { recipientId, recipientType, title, message } = notification;
+
+  
+    let token: string | null = null;
+    if (recipientType === "user") {
+      token = await this.userRepo.getFcmTokenById(recipientId);
+    } else {
+      token = await this.vendorRepo.getFcmTokenById(recipientId);
+    }
+
+    if (token && token.trim() !== '') {
+      // Include additional data for foreground handling
+      // FCM requires all data values to be strings
+      const notificationData: Record<string, string> = {
+        type: 'chat_message',
+        recipientId: String(recipientId),
+        recipientType: String(recipientType),
+        timestamp: new Date().toISOString(),
+        title: String(title),
+        message: String(message),
+      };
+      
+      await this.sendNotification(token, title, message, notificationData);
+      console.log(`📱 FCM notification sent to ${recipientType} (${recipientId})`);
+    } else {
+      console.warn(`⚠️ No FCM token found for ${recipientType} (${recipientId})`);
+    }
+
+    await this.notificationRepo.create({
+    
+      recipientId,
+      recipientType,
+      title,
+      message,
+      createdAt: new Date(),
+      read:false
+    });
+
+    return this.notificationRepo.getByRecipient(recipientId, recipientType);
+  }
+
+  async getByRecipient(
+    recipientId: string,
+    recipientType: "vendor" | "user"
+  ): Promise<INotificationEntity[]> {
+    return this.notificationRepo.getByRecipient(recipientId, recipientType);
   }
 }

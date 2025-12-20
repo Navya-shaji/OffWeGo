@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function AboutUs() {
   const [activeTimeline, setActiveTimeline] = useState(null);
@@ -8,6 +8,42 @@ export default function AboutUs() {
     { number: '150+', label: 'Countries Covered' },
     { number: '50K+', label: 'Travel Destinations' },
     { number: '4.9★', label: 'User Rating' }
+  ];
+
+  const successStories = [
+    {
+      title: 'Custom Tour Packages',
+      description: 'Our travel experts crafted the perfect custom itinerary combining adventure, culture, and relaxation. From the bustling streets of Tokyo to the serene beaches of Bali, every detail was meticulously planned and executed to perfection.',
+      image: '🎒'
+    },
+    {
+      title: 'Honeymoon in the Hills - A Romantic Escape to Nature',
+      description: 'Sarah and John celebrated their love with an unforgettable mountain retreat. We arranged private cabins, candlelit dinners overlooking valleys, and guided nature walks. Their dream honeymoon became a reality with our personalized touch.',
+      image: '💑'
+    },
+    {
+      title: 'Solo Vibes - Travel for the Soul',
+      description: 'Meet Emma, who found herself through solo travel across Southeast Asia. With our 24/7 support and carefully curated experiences, she explored ancient temples, learned local crafts, and made lifelong friends along the way.',
+      image: '🧘‍♀️'
+    }
+  ];
+
+  const offerings = [
+    {
+      icon: '👤',
+      title: 'Personalized Experience',
+      description: 'Expert guides & staff who care you, tailored to you and meet your needs always'
+    },
+    {
+      icon: '🏛️',
+      title: 'Historical Insight',
+      description: 'Enabling team to learn more about rich heritage and history of destinations guided'
+    },
+    {
+      icon: '📊',
+      title: 'Industry-expert feedback',
+      description: 'Real-time travel data insights & feedback that let you create seamless trips'
+    }
   ];
 
   const values = [
@@ -42,130 +78,165 @@ export default function AboutUs() {
       initials: 'SA',
       name: 'Sarah Anderson',
       role: 'CEO & Founder',
-      bio: 'A visionary entrepreneur with 15+ years in the tourism industry. Sarah\'s passion for travel and technology led to the creation of OffWeGo. She has personally visited 95 countries and believes everyone deserves accessible travel experiences.',
-      social: ['LinkedIn', 'Twitter', 'Email']
+      bio: 'A visionary entrepreneur with 15+ years in the tourism industry. Sarah\'s passion for travel and technology led to the creation of OffWeGo.',
+      social: ['L', 'T', 'E']
     },
     {
       initials: 'MJ',
       name: 'Michael Johnson',
       role: 'Chief Technology Officer',
-      bio: 'Tech wizard and AI specialist with expertise in building scalable platforms. Michael leads our engineering team to create seamless user experiences. Former lead engineer at major tech companies, now bringing innovation to travel.',
-      social: ['LinkedIn', 'GitHub', 'Email']
+      bio: 'Tech wizard and AI specialist with expertise in building scalable platforms. Michael leads our engineering team.',
+      social: ['L', 'G', 'E']
     },
     {
       initials: 'EC',
       name: 'Emily Chen',
       role: 'Head of Design',
-      bio: 'Award-winning UX/UI designer passionate about creating beautiful, intuitive interfaces. Emily believes design should make complex tasks feel effortless. Her work has been featured in major design publications worldwide.',
-      social: ['LinkedIn', 'Dribbble', 'Email']
+      bio: 'Award-winning UX/UI designer passionate about creating beautiful, intuitive interfaces for seamless experiences.',
+      social: ['L', 'D', 'E']
     },
     {
       initials: 'DP',
       name: 'David Patel',
       role: 'Travel Content Director',
-      bio: 'Globe-trotter extraordinaire who has explored 87 countries and counting. David curates authentic travel experiences and hidden gems. Former travel journalist bringing insider knowledge to our platform.',
-      social: ['LinkedIn', 'Instagram', 'Email']
-    },
-    {
-      initials: 'LM',
-      name: 'Lisa Martinez',
-      role: 'Head of Customer Success',
-      bio: 'Dedicated to ensuring every traveler has an exceptional experience. Lisa leads our 24/7 support team across 15 languages. Her commitment to customer satisfaction has earned OffWeGo its stellar reputation.',
-      social: ['LinkedIn', 'Twitter', 'Email']
-    },
-    {
-      initials: 'JK',
-      name: 'James Kim',
-      role: 'VP of Partnerships',
-      bio: 'Master negotiator who has secured partnerships with thousands of hotels, airlines, and local businesses worldwide. James ensures our users get exclusive deals and authentic local experiences.',
-      social: ['LinkedIn', 'Twitter', 'Email']
-    },
-    {
-      initials: 'AN',
-      name: 'Aisha Nkrumah',
-      role: 'Head of Sustainability',
-      bio: 'Environmental advocate championing responsible tourism. Aisha develops programs that minimize travel impact while maximizing positive contributions to local communities and environments.',
-      social: ['LinkedIn', 'Twitter', 'Email']
-    },
-    {
-      initials: 'RG',
-      name: 'Roberto Garcia',
-      role: 'Chief Marketing Officer',
-      bio: 'Creative storyteller with a knack for connecting with audiences worldwide. Roberto leads our marketing strategy and brand development, sharing inspiring travel stories that motivate millions to explore.',
-      social: ['LinkedIn', 'Instagram', 'Email']
+      bio: 'Globe-trotter extraordinaire who has explored 87 countries. David curates authentic travel experiences.',
+      social: ['L', 'I', 'E']
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 bg-white rounded-full animate-pulse delay-700"></div>
-        </div>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section with 3D Illustration Style */}
+      <div className="relative bg-gradient-to-b from-blue-100 via-blue-50 to-white overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-10 left-10 text-6xl animate-bounce" style={{animationDuration: '3s'}}>🌴</div>
+        <div className="absolute top-20 right-20 text-4xl animate-bounce" style={{animationDuration: '4s', animationDelay: '0.5s'}}>✈️</div>
+        <div className="absolute bottom-10 left-1/4 text-5xl opacity-40">🏖️</div>
+        
         <div className="relative max-w-7xl mx-auto px-4 py-32 text-center">
-          <h1 className="text-6xl font-bold mb-6 animate-fade-in">About OffWeGo</h1>
-          <p className="text-2xl mb-4 opacity-95">Transforming the way the world travels, one adventure at a time</p>
-          <p className="text-lg opacity-90">Your journey begins with us. Let's explore the world together.</p>
+          <h1 className="text-6xl font-bold mb-4 text-gray-900">About Us</h1>
+          <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
+            We're passionate about creating unforgettable travel experiences that connect people with the world's most amazing destinations
+          </p>
+          <button className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors shadow-lg">
+            Learn More
+          </button>
+        </div>
+
+        {/* 3D Car Illustration Area */}
+        <div className="absolute bottom-0 right-0 text-9xl opacity-20">🚗</div>
+      </div>
+
+      {/* Success Stories Section */}
+      <div className="bg-gradient-to-b from-white via-yellow-50 to-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-4">Success Stories</h2>
+          <div className="w-32 h-1 bg-blue-600 mx-auto mb-16"></div>
+
+          <div className="space-y-24">
+            {successStories.map((story, index) => (
+              <div key={index} className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12`}>
+                <div className="flex-1">
+                  <h3 className="text-3xl font-bold mb-4 text-gray-900">{story.title}</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                    {story.description}
+                  </p>
+                  <button className="bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition-colors">
+                    Read More →
+                  </button>
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="relative w-80 h-80 bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 rounded-full flex items-center justify-center text-9xl shadow-2xl">
+                    {story.image}
+                    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-yellow-300 rounded-full opacity-70"></div>
+                    <div className="absolute -top-4 -left-4 w-16 h-16 bg-green-300 rounded-full opacity-60"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-4 -mt-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-8 text-center text-white shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-              <div className="text-5xl font-bold mb-2">{stat.number}</div>
-              <div className="text-lg opacity-90">{stat.label}</div>
-            </div>
-          ))}
+      {/* What We Offer Section */}
+      <div className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-4">What We Offer</h2>
+          <div className="w-32 h-1 bg-yellow-400 mx-auto mb-8"></div>
+          <p className="text-center text-gray-600 text-lg max-w-4xl mx-auto mb-16">
+            Expert travel consultants providing personalized & exceptional service to guide you
+            through every adventure. Our support team ensures seamless travel planning, while seamless
+            communication keeps you informed every single step. Certified & International team from India's
+            hidden gems to global adventures
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {offerings.map((offer, index) => (
+              <div key={index} className="text-center">
+                <div className="w-24 h-24 bg-gray-100 rounded-lg mx-auto mb-6 flex items-center justify-center text-5xl">
+                  {offer.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">{offer.title}</h3>
+                <p className="text-gray-600">{offer.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Our Story Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-white rounded-3xl shadow-lg p-12">
-          <h2 className="text-5xl font-bold text-center text-indigo-600 mb-12 relative pb-6">
-            Our Story
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded"></div>
-          </h2>
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h3 className="text-3xl font-bold text-indigo-600 mb-4">How It All Began</h3>
-              <p className="text-gray-600 text-lg mb-6">
-                OffWeGo was born from a simple idea: travel should be accessible, exciting, and stress-free for everyone. Our founder, Sarah, was frustrated with the complexity of planning international trips and wished for a single platform that could handle everything.
-              </p>
-              <p className="text-gray-600 text-lg mb-6">
-                In 2020, during unprecedented times, we launched OffWeGo with a mission to revolutionize travel planning. What started as a small team of five passionate individuals has now grown into a global community serving millions of travelers worldwide.
-              </p>
-              <p className="text-gray-600 text-lg">
-                Today, we're proud to be the leading travel companion app, helping adventurers discover new horizons and create unforgettable memories.
+      {/* Why It Works Section */}
+      <div className="bg-gradient-to-b from-white to-blue-50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-16">Why It Works</h2>
+
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <span className="text-4xl">👤</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">Personalized itinerary</h3>
+              <p className="text-gray-600 text-sm">
+                Expert guides & staff who care you, tailored to you and meet your needs always
               </p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl h-96 flex items-center justify-center text-8xl shadow-xl">
-              🌍✈️
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-yellow-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <span className="text-4xl">🏛️</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">Historical context</h3>
+              <p className="text-gray-600 text-sm">
+                Enabling to learn more about the rich heritage and culture of destinations guided
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-orange-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <span className="text-4xl">📊</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">Industry-expert feedback</h3>
+              <p className="text-gray-600 text-sm">
+                Real-time travel data insights & feedback that let you create seamless trips
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Mission & Values Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-white rounded-3xl shadow-lg p-12">
-          <h2 className="text-5xl font-bold text-center text-indigo-600 mb-6 relative pb-6">
-            Our Mission & Vision
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded"></div>
-          </h2>
-          <p className="text-center text-gray-600 text-lg mb-12 max-w-4xl mx-auto">
-            We're on a mission to make travel planning effortless and inspire people to explore the world with confidence. Our vision is to become the world's most trusted travel platform, connecting cultures and creating global citizens.
+      <div className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-4">Our Mission & Values</h2>
+          <div className="w-32 h-1 bg-blue-600 mx-auto mb-8"></div>
+          <p className="text-center text-gray-600 text-lg mb-16 max-w-4xl mx-auto">
+            We're on a mission to make travel planning effortless and inspire people to explore the world with confidence
           </p>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl p-8 text-center border-2 border-transparent hover:border-indigo-600 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
-                <div className="text-6xl mb-6">{value.icon}</div>
-                <h3 className="text-2xl font-bold mb-4 text-gray-800">{value.title}</h3>
+              <div key={index} className="bg-gray-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
+                <div className="text-6xl mb-4">{value.icon}</div>
+                <h3 className="text-2xl font-bold mb-3 text-gray-900">{value.title}</h3>
                 <p className="text-gray-600">{value.description}</p>
               </div>
             ))}
@@ -174,30 +245,27 @@ export default function AboutUs() {
       </div>
 
       {/* Timeline Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-white rounded-3xl shadow-lg p-12">
-          <h2 className="text-5xl font-bold text-center text-indigo-600 mb-6 relative pb-6">
-            Our Journey
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded"></div>
-          </h2>
-          <p className="text-center text-gray-600 text-lg mb-12">From a startup to a global platform - here's how we grew</p>
+      <div className="bg-gradient-to-b from-white to-blue-50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-4">Our Journey</h2>
+          <div className="w-32 h-1 bg-blue-600 mx-auto mb-8"></div>
+          <p className="text-center text-gray-600 text-lg mb-16">From a startup to a global platform</p>
           
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-8">
             {timeline.map((item, index) => (
               <div 
                 key={index} 
-                className={`relative mb-12 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12 md:text-left'}`}
+                className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300"
+                onMouseEnter={() => setActiveTimeline(index)}
                 onMouseLeave={() => setActiveTimeline(null)}
               >
-                <div className={`bg-gray-50 rounded-xl p-6 border-2 ${activeTimeline === index ? 'border-indigo-600 shadow-lg' : 'border-gray-200'} transition-all duration-300`}>
-                  <div className="text-2xl font-bold text-indigo-600 mb-2">{item.year}</div>
-                  <h4 className="text-xl font-bold text-gray-800 mb-2">{item.title}</h4>
-                  <p className="text-gray-600">{item.description}</p>
+                <div className="flex items-start gap-6">
+                  <div className="text-3xl font-bold text-blue-600 min-w-[80px]">{item.year}</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h4>
+                    <p className="text-gray-600">{item.description}</p>
+                  </div>
                 </div>
-                <div className="hidden md:block absolute top-6 w-6 h-6 bg-indigo-600 rounded-full border-4 border-white shadow-lg" style={{
-                  left: index % 2 === 0 ? 'auto' : '-12px',
-                  right: index % 2 === 0 ? '-12px' : 'auto'
-                }}></div>
               </div>
             ))}
           </div>
@@ -205,19 +273,16 @@ export default function AboutUs() {
       </div>
 
       {/* Achievements Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-white rounded-3xl shadow-lg p-12">
-          <h2 className="text-5xl font-bold text-center text-indigo-600 mb-6 relative pb-6">
-            Our Achievements
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded"></div>
-          </h2>
-          <p className="text-center text-gray-600 text-lg mb-12">Recognition and milestones we're proud of</p>
+      <div className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-4">Our Achievements</h2>
+          <div className="w-32 h-1 bg-yellow-400 mx-auto mb-16"></div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {achievements.map((achievement, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-6 border-l-4 border-indigo-600 hover:bg-white hover:shadow-lg transform hover:translate-x-2 transition-all duration-300">
+              <div key={index} className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
                 <div className="text-4xl mb-3">{achievement.icon}</div>
-                <h4 className="text-xl font-bold text-indigo-600 mb-2">{achievement.title}</h4>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">{achievement.title}</h4>
                 <p className="text-gray-600 text-sm">{achievement.description}</p>
               </div>
             ))}
@@ -226,27 +291,24 @@ export default function AboutUs() {
       </div>
 
       {/* Team Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-white rounded-3xl shadow-lg p-12">
-          <h2 className="text-5xl font-bold text-center text-indigo-600 mb-6 relative pb-6">
-            Meet Our Team
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded"></div>
-          </h2>
-          <p className="text-center text-gray-600 text-lg mb-12">The passionate individuals dedicated to making your travel dreams come true</p>
+      <div className="bg-gradient-to-b from-white to-blue-50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-5xl font-bold text-center mb-4">Meet Our Team</h2>
+          <div className="w-32 h-1 bg-blue-600 mx-auto mb-16"></div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl p-8 text-center border-2 border-transparent hover:border-indigo-600 hover:shadow-xl transform hover:-translate-y-3 transition-all duration-300">
-                <div className="w-48 h-48 mx-auto mb-6 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-5xl font-bold shadow-lg">
+              <div key={index} className="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300">
+                <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                   {member.initials}
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{member.name}</h3>
-                <div className="text-indigo-600 font-semibold mb-4">{member.role}</div>
-                <p className="text-gray-600 text-sm mb-6">{member.bio}</p>
-                <div className="flex justify-center gap-3">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
+                <div className="text-blue-600 text-sm font-semibold mb-3">{member.role}</div>
+                <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
+                <div className="flex justify-center gap-2">
                   {member.social.map((social, idx) => (
-                    <button key={idx} className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs hover:bg-purple-600 transform hover:scale-110 transition-all duration-300">
-                      {social[0]}
+                    <button key={idx} className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white text-xs hover:bg-blue-600 transition-colors">
+                      {social}
                     </button>
                   ))}
                 </div>
@@ -257,20 +319,25 @@ export default function AboutUs() {
       </div>
 
       {/* CTA Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl shadow-2xl p-16 text-center text-white">
-          <h2 className="text-5xl font-bold mb-6">Ready to Start Your Adventure?</h2>
-          <p className="text-xl mb-8 opacity-95">Join millions of travelers who trust OffWeGo for their journeys</p>
-          <button className="bg-white text-indigo-600 px-12 py-4 rounded-full text-xl font-bold hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-            Download OffWeGo Now
-          </button>
+      <div className="bg-white py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-16 text-white">
+            <h2 className="text-4xl font-bold mb-4">Ready to Start Your Adventure?</h2>
+            <p className="text-xl mb-8 opacity-95">Join millions of travelers who trust OffWeGo</p>
+            <button className="bg-white text-blue-600 px-10 py-3 rounded-full text-lg font-bold hover:shadow-xl transition-all duration-300">
+              Download Now
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="bg-white text-center py-12 text-gray-600">
-        <p className="text-lg">&copy; 2025 OffWeGo. Inspiring adventures, connecting the world, one journey at a time.</p>
-        <p className="mt-3 text-sm">Made with ❤️ by travelers, for travelers</p>
+      <footer className="bg-gray-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h3 className="text-3xl font-bold mb-4">OFW-Go</h3>
+          <p className="text-gray-400 mb-2">&copy; 2025 OffWeGo. All rights reserved.</p>
+          <p className="text-gray-500 text-sm">Made with ❤️ by travelers, for travelers</p>
+        </div>
       </footer>
     </div>
   );

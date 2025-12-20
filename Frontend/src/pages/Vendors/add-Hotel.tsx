@@ -9,34 +9,60 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Star } from "lucide-react";
+import { Star, MapPin, Loader2 } from "lucide-react";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import type { Hotel } from "@/interface/PackageInterface";
+import { getCoordinatesFromPlace } from "@/services/Location/locationService";
 
 const CreateHotel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [destinationId, setDestinationId] = useState<string>("");
+  const [isGettingCoordinates, setIsGettingCoordinates] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    getValues,
     formState: { errors },
     reset,
   } = useForm<HotelFormData>({
     resolver: zodResolver(hotelSchema),
-    defaultValues: { name: "", address: "", rating: 0 },
+    defaultValues: { name: "", address: "", rating: 0, coordinates: { lat: undefined, lng: undefined } },
   });
 
   const rating = watch("rating");
+  const address = watch("address");
 
   const notifySuccess = () => toast.success("Hotel added successfully!");
   const notifyError = (msg: string) => toast.error(msg);
 
   const handleRatingClick = (value: number) => {
     setValue("rating", value);
+  };
+
+  const handleGetCoordinates = async () => {
+    const currentAddress = address || getValues("address");
+    
+    if (!currentAddress || currentAddress.trim().length < 3) {
+      toast.error("Please enter an address first");
+      return;
+    }
+
+    setIsGettingCoordinates(true);
+    try {
+      const coords = await getCoordinatesFromPlace(currentAddress);
+      setValue("coordinates.lat", parseFloat(coords.lat.toFixed(6)));
+      setValue("coordinates.lng", parseFloat(coords.lng.toFixed(6)));
+      toast.success("Coordinates fetched successfully!");
+    } catch (error: any) {
+      console.error("Error fetching coordinates:", error);
+      toast.error(error?.message || "Failed to fetch coordinates");
+    } finally {
+      setIsGettingCoordinates(false);
+    }
   };
 
   
@@ -118,10 +144,78 @@ const onSubmit = async (data: HotelFormData) => {
           {/* Address */}
           <div>
             <Label htmlFor="address">Address <span className="text-red-500">*</span></Label>
-            <Input id="address" placeholder="Enter hotel address" {...register("address")} />
+            <div className="flex gap-2 mt-2">
+              <Input 
+                id="address" 
+                placeholder="Enter hotel address" 
+                className="flex-1"
+                {...register("address")} 
+              />
+              <Button
+                type="button"
+                onClick={handleGetCoordinates}
+                disabled={isGettingCoordinates}
+                className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {isGettingCoordinates ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Getting...</span>
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="w-4 h-4" />
+                    <span>Get Coords</span>
+                  </>
+                )}
+              </Button>
+            </div>
             {errors.address && (
               <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
             )}
+          </div>
+
+          {/* Coordinates */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-gray-600" />
+              <Label className="text-base font-semibold">Geographic Coordinates</Label>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="lat">Latitude</Label>
+                <Input
+                  id="lat"
+                  type="number"
+                  step="any"
+                  placeholder="e.g., 28.6139"
+                  {...register("coordinates.lat", { valueAsNumber: true })}
+                />
+                {errors.coordinates?.lat && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.coordinates.lat.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="lng">Longitude</Label>
+                <Input
+                  id="lng"
+                  type="number"
+                  step="any"
+                  placeholder="e.g., 77.2090"
+                  {...register("coordinates.lng", { valueAsNumber: true })}
+                />
+                {errors.coordinates?.lng && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.coordinates.lng.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">
+              Click "Get Coords" to automatically fetch coordinates from the address
+            </p>
           </div>
 
           {/* Rating */}

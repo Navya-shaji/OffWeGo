@@ -1,58 +1,80 @@
-import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
+import { isAxiosError } from "axios";
 
-export interface ChatMessage {
-  _id?: string;
-  senderId: string;
-  receiverId: string;
-  senderRole: string;
-  receiverRole: string;
-  message: string;
-  createdAt: Date;
-}
-
-export interface SendMessagePayload {
-  senderId: string;
-  receiverId: string;
-  senderRole: string;
-  receiverRole: string;
-  message: string;
-}
-
-export const sendMessage = async (
-  data: SendMessagePayload
-): Promise<ChatMessage> => {
+export const getMessages = async (chatId: string, userType: 'user' | 'vendor' = 'user') => {
   try {
-    const res = await axiosInstance.post("/api/chat/send", data);
-    console.log(res.data);
-    return res.data?.data || res.data;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || "Failed to send message");
-    }
-    throw new Error("An unexpected error occurred while sending message");
-  }
-};
-
-
-export const getMessages = async (
-  senderId: string,
-  role: "user" | "vendor" = "user"
-): Promise<ChatMessage[]> => {
-  try {
-    const endpoint =
-      role === "vendor"
-        ? `/api/vendor/chat/${senderId}`
-        : `/api/chat/${senderId}`;
-
+    // Use different endpoints for user vs vendor
+    const endpoint = userType === 'vendor' 
+      ? `/api/vendor/chat/messages/${chatId}`
+      : `/api/chat/messages/${chatId}`;
     const res = await axiosInstance.get(endpoint);
-    console.log(`✅ Fetched ${role} chat messages:`, res.data);
-
-    return res.data?.data || [];
+    return res.data;
   } catch (error) {
+    console.error("Error fetching messages:", error);
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.message || "Failed to fetch messages");
     }
-    throw new Error("An unexpected error occurred while fetching messages");
+    throw new Error("Unexpected error while fetching messages");
+  }
+};
+
+export const findOrCreateChat = async (userId: string, otherId: string, userType: 'user' | 'vendor' = 'user') => {
+  try {
+    // Use different endpoints for user vs vendor
+    const endpoint = userType === 'vendor' 
+      ? "/api/vendor/chat/send"
+      : "/api/chat/send";
+    const res = await axiosInstance.post(endpoint, {
+      userId,
+      ownerId: otherId,
+    });
+    // Return the full response structure: { success: true, data: { _id: "...", ... } }
+    return res.data;
+  } catch (error) {
+    console.error("Error finding or creating chat:", error);
+    if (isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || "Failed to find or create chat";
+      console.error("Chat error details:", error.response?.data);
+      throw new Error(errorMessage);
+    }
+    throw new Error("Unexpected error while finding or creating chat");
+  }
+};
+
+export const getChatsOfUser = async (userId: string, userType: 'user' | 'vendor' = 'user') => {
+  try {
+    // Use different endpoints for user vs vendor
+    const endpoint = userType === 'vendor' 
+      ? `/api/vendor/chat/${userId}?userType=vendor`
+      : `/api/chat/${userId}?userType=user`;
+    const res = await axiosInstance.get(endpoint);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching user chats:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Failed to fetch chats");
+    }
+    throw new Error("Unexpected error while fetching chats");
+  }
+};
+
+export const markMessagesAsSeen = async (chatId: string, userId: string, userType: 'user' | 'vendor' = 'user') => {
+  try {
+    // Use different endpoints for user vs vendor
+    const endpoint = userType === 'vendor' 
+      ? "/api/vendor/chat/messages/mark-seen"
+      : "/api/chat/messages/mark-seen";
+    const res = await axiosInstance.post(endpoint, {
+      chatId,
+      userId,
+      userType
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error marking messages as seen:", error);
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Failed to mark messages as seen");
+    }
+    throw new Error("Unexpected error while marking messages as seen");
   }
 };

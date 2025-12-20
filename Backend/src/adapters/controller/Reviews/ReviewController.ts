@@ -5,14 +5,14 @@ import { IGetReviewUsecase } from "../../../domain/interface/Reviews/IgetReviewU
 
 export class ReviewController {
   constructor(
-    private _createReview: ICreateReviewUseCase,
-    private _allReviews: IGetReviewUsecase
+    private _createReviewUsecase: ICreateReviewUseCase,
+    private _getReviewUsecase: IGetReviewUsecase
   ) {}
 
   async createReview(req: Request, res: Response) {
     try {
       const reviewData = req.body;
-      const result = await this._createReview.execute(reviewData);
+      const result = await this._createReviewUsecase.execute(reviewData);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -29,8 +29,9 @@ export class ReviewController {
 
   async getReviews(req: Request, res: Response) {
     try {
-      const packageId = req.params.packageId;
-      const result = await this._allReviews.execute(packageId);
+      // Route uses :id but we treat it as packageName
+      const packageName = req.params.id || req.params.packageName || req.params.packageId;
+      const result = await this._getReviewUsecase.execute(packageName);
 
       res.status(HttpStatus.OK).json({
         success: true,

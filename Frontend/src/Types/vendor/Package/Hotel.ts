@@ -7,7 +7,10 @@ export const hotelSchema = z.object({
     .number()
     .min(1, "Rating must be at least 1")
     .max(5, "Rating cannot be more than 5"),
-    
+  coordinates: z.object({
+    lat: z.number().min(-90).max(90).optional(),
+    lng: z.number().min(-180).max(180).optional(),
+  }).optional(),
 });
 
 export type HotelFormData = z.infer<typeof hotelSchema>;

@@ -5,14 +5,15 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FileSearch2 } from "lucide-react";
 
-type ReusableTableProps<T extends object> = {
+type ReusableTableProps<T> = {
   data: T[];
   columns: ColumnDef<T>[];
   loading?: boolean;
 };
 
-const ReusableTable = <T extends object>({
+const ReusableTable = <T,>({
   data,
   columns,
   loading = false,
@@ -25,32 +26,23 @@ const ReusableTable = <T extends object>({
 
   if (loading) {
     return (
-      <div className="w-full">
-        <div className="rounded-xl border border-border bg-card shadow-elevated overflow-hidden">
-          <div className="h-14 bg-table-header">
-            <Skeleton className="h-full w-full" />
-          </div>
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="border-t border-table-border">
-              <Skeleton className="h-16 w-full" />
-            </div>
-          ))}
-        </div>
+      <div className="rounded-xl border bg-white shadow-sm p-4">
+        Loading...
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-border bg-card shadow-elevated">
+    <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="bg-table-header border-b border-table-border">
+              <tr key={headerGroup.id} className="bg-gray-900">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-6 py-4 text-left text-sm font-semibold text-table-header-foreground tracking-wide"
+                    className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -61,32 +53,28 @@ const ReusableTable = <T extends object>({
               </tr>
             ))}
           </thead>
+
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-6 py-16 text-center text-muted-foreground text-sm"
+                  className="text-center py-10 text-gray-500"
                 >
-                  No data available
+                  <FileSearch2 className="w-10 h-10 mx-auto text-gray-400" />
+                  <p>No Data Found</p>
                 </td>
               </tr>
             ) : (
-              table.getRowModel().rows.map((row, idx) => (
+              table.getRowModel().rows.map((row, rowIdx) => (
                 <tr
                   key={row.id}
-                  className={`
-                    border-b border-table-border last:border-0
-                    transition-colors duration-200
-                    hover:bg-table-row-hover
-                    ${idx % 2 === 0 ? "bg-table-row-even" : "bg-table-row-odd"}
-                  `}
+                  className={`border-b hover:bg-gray-50 ${
+                    rowIdx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  }`}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="px-6 py-4 text-sm text-card-foreground"
-                    >
+                    <td key={cell.id} className="px-6 py-4 text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

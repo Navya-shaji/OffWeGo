@@ -74,30 +74,51 @@ export const getFinishedTrips = async (): Promise<Booking[]> => {
   }
 };
 
-export const processFinishedTrips = async (
-  adminId: string
-): Promise<void> => {
+// export const processFinishedTrips = async (
+//   adminId: string
+// ): Promise<void> => {
+//   try {
+   
+//     const completedTrips = await getFinishedTrips();
+//     console.log(completedTrips, "Completed Trips");
+
+//     for (const trip of completedTrips) {
+//       if (!trip.selectedPackage?.vendorId) continue;
+
+//       const vendorId = trip.selectedPackage.vendorId;
+//       const bookingAmount = trip.totalAmount;
+//       const vendorShare = bookingAmount * 0.9; 
+
+//       console.log(
+//         `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
+//       );
+
+   
+//       await transferWalletAmount(adminId, vendorId, vendorShare);
+//     }
+//   } catch (error) {
+//     console.error("Error processing finished trips:", error);
+//     throw new Error("Failed to process finished trips");
+//   }
+// };
+
+export const completeTripAndDistribute = async (payload) => {
   try {
-    // 1️⃣ Fetch all completed trips
-    const completedTrips = await getFinishedTrips();
-    console.log(completedTrips, "Completed Trips");
+    const { bookingId, adminId, vendorId, amount } = payload;
 
-    for (const trip of completedTrips) {
-      if (!trip.selectedPackage?.vendorId) continue;
-
-      const vendorId = trip.selectedPackage.vendorId;
-      const bookingAmount = trip.totalAmount;
-      const vendorShare = bookingAmount * 0.9; // 90%
-
-      console.log(
-        `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
-      );
-
-      // 2️⃣ Transfer the vendor’s share
-      await transferWalletAmount(adminId, vendorId, vendorShare);
-    }
-  } catch (error) {
-    console.error("Error processing finished trips:", error);
-    throw new Error("Failed to process finished trips");
+    const response = await axiosInstance.post("/api/admin/complete-trip", {
+      bookingId,
+      adminId,
+      vendorId,
+      amount
+    });
+console.log(response,"res")
+    return response.data;
+  } catch (error:unknown) {
+    return {
+      success: false,
+      message: "Something went wrong",
+      error
+    };
   }
 };

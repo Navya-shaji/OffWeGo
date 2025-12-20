@@ -32,7 +32,7 @@ export default function UserLogin() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const response = await userLogin(data);
+      const response = await userLogin(data.email,data.password);
       dispatch(
         login({
           user: response.user,
@@ -41,7 +41,7 @@ export default function UserLogin() {
         })
       );
       dispatch(setToken(response.accessToken));
-      toast.success("✅ Login successful!");
+      toast.success("Login successful!");
       navigate("/", { replace: true });
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string; error?: string }>;

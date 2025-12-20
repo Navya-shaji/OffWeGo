@@ -1,159 +1,188 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import Navbar from "@/components/profile/navbar";
-import EditProfileModal from "./EditProfile";
 import { useState } from "react";
+import { Edit2 } from "lucide-react";
+
+import Navbar from "@/components/profile/navbar";
 import ProfileSidebar from "@/components/profile/sidebar";
+import EditProfileModal from "./EditProfile";
+import ChangePasswordModal from "./changePassword";
 import BookingDetailsSection from "../Bookings/UserBookings";
-import ChangePasswordModal from "./changePassword"; 
 import WalletManagement from "../wallet/userWallet";
-import ChatPage from "@/components/chat/chats";
 
 const Profile = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+
   const [isEditOpen, setEditOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
- const [activeSection, setActiveSection] = useState<
-  "profile" | "bookings" | "chat" | "wallet"
->("profile");
 
+  const [activeSection, setActiveSection] = useState<
+    "profile" | "bookings" | "wallet"
+  >("profile");
 
   if (!user) return null;
+
+  const getSectionTitle = () => {
+    switch (activeSection) {
+      case "profile": return "My Account";
+      case "bookings": return "My Bookings";
+      case "wallet": return "Wallet Management";
+      default: return "My Account";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="flex gap-6 p-6 mt-16 max-w-7xl mx-auto">
-        <div className="w-80 flex-shrink-0">
+
+      <div className="flex gap-0 items-start">
+       
+        <div className="w-80 flex-shrink-0 sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto py-8 pl-8 pr-6">
           <ProfileSidebar
             activeSection={activeSection}
             setActiveSection={(section: string) =>
-              setActiveSection(section as "profile" | "bookings" |"wallet")
+              setActiveSection(section as "profile" | "bookings" | "wallet")
             }
           />
         </div>
 
-        <div className="flex-1 min-w-0">
-          {activeSection === "profile" && (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-8 py-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
-                    {user?.imageUrl ? (
-                      <img
-                        src={user.imageUrl}
-                        alt="User Avatar"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-2xl text-white font-bold">
-                        {user?.username?.[0]?.toUpperCase() || "U"}
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-white">
-                      My Profile
-                    </h1>
-                    <p className="text-gray-300">
-                      Manage your account information
-                    </p>
-                  </div>
-                </div>
-              </div>
+        {/* Main content area */}
+        <div className="flex-1 min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-              <div className="p-8">
-                <div className="grid gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={user?.username || ""}
-                      readOnly
-                      className="w-full px-4 py-3 border rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none"
-                    />
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={user?.email || ""}
-                      readOnly
-                      className="w-full px-4 py-3 border rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none"
-                    />
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900">{getSectionTitle()}</h1>
+            </div>
+
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+
+              {activeSection === "profile" && (
+                <div className="space-y-8">
+
+
+                  <div className="flex items-center justify-between pb-6 border-b border-gray-200">
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-900 text-white shadow-lg">
+                        {user?.imageUrl ? (
+                          <img src={user.imageUrl} className="w-full h-full object-cover" alt="Profile" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-3xl font-bold">
+                            {user?.username?.[0]?.toUpperCase() || "U"}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">{user.username}</h2>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setEditOpen(true)}
+                      className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      Edit Profile
+                    </button>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      value={user?.phone || ""}
-                      readOnly
-                      className="w-full px-4 py-3 border rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none"
-                    />
-                  </div>
 
-                  {/* Password Section */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="password"
-                        value="••••••••"
-                        readOnly
-                        className="flex-1 px-4 py-3 border rounded-xl bg-gray-50 text-gray-800 font-medium focus:outline-none"
-                      />
-                      <button
-                        onClick={() => setPasswordModalOpen(true)}
-                        className="px-4 py-3 bg-gray-800 text-white rounded-xl font-medium hover:bg-gray-700 transition-colors whitespace-nowrap"
-                      >
-                        Change Password
-                      </button>
+                  <div className="space-y-6">
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Name
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={user.username || ""}
+                          disabled
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email account
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          value={user.email || ""}
+                          disabled
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Phone Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Mobile number
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          value={user.phone || ""}
+                          disabled
+                          placeholder="Not provided"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Location Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Location
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={user.location || "India"}
+                          disabled
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium cursor-not-allowed"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-8 flex justify-center">
-                  <button
-                    onClick={() => setEditOpen(true)}
-                    className="bg-black text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transform transition-all duration-200 shadow-md"
-                  >
-                    Edit Profile
-                  </button>
+                  {/* Security Section - Hide for Google Users */}
+                  {!user.isGoogleUser && (
+                    <div className="pt-6 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">Password</h3>
+                          <p className="text-sm text-gray-500">Change your account password</p>
+                        </div>
+                        <button
+                          onClick={() => setPasswordModalOpen(true)}
+                          className="px-6 py-2.5 border border-gray-300 text-gray-900 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                        >
+                          Change Password
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
-              </div>
+              )}
+
+              {activeSection === "bookings" && <BookingDetailsSection />}
+              {activeSection === "wallet" && <WalletManagement />}
             </div>
-          )}
-
-          {activeSection === "bookings" && <BookingDetailsSection />}
-          {activeSection === "chat" && <ChatPage />}
-
-          {activeSection === "wallet" && <WalletManagement />}
-
+          </div>
         </div>
-      </div>
 
-      {/* Edit Profile Modal */}
-      <EditProfileModal
-        isOpen={isEditOpen}
-        onClose={() => setEditOpen(false)}
-      />
-
-      {/* Change Password Modal */}
-      <ChangePasswordModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => setPasswordModalOpen(false)}
-      />
+      {/* MODALS */}
+      <EditProfileModal isOpen={isEditOpen} onClose={() => setEditOpen(false)} />
+      <ChangePasswordModal isOpen={isPasswordModalOpen} onClose={() => setPasswordModalOpen(false)} />
     </div>
   );
 };

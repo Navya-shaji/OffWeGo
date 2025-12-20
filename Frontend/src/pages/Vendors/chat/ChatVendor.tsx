@@ -1,398 +1,260 @@
-import { useState, useEffect, useRef } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft } from "lucide-react";
-import { getMessages, sendMessage, type ChatMessage } from "@/services/chat/chatService";
-import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { useParams } from "react-router-dom";
+import { useEffect, useState, useRef, useContext } from "react";
+import ChatHeader from "@/components/chat/header";
+import MessageInput from "@/components/chat/messageinput";
+import toast from "react-hot-toast";
+import { findOrCreateChat, getMessages } from "@/services/chat/chatService";
+import LoadingSpinner from "@/components/chat/spinner";
+import type { Imessage } from "@/interface/MessageInterface";
+import { socketContext } from "@/utilities/socket";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
+import { useChatContext } from "@/context/chatContext";
 
-interface Contact {
-  id: string;
-  name: string;
-  role: string;
-  avatar?: string;
-  lastMessage?: string;
-  lastMessageTime?: Date | string;
-}
+const VendorMessageContainer = () => {
+  const { chatId } = useParams();
 
-const ChatPageVendor = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showContacts, setShowContacts] = useState(true);
+  const ownerId = useSelector(
+    (state: RootState) => state.vendorAuth.vendor?.id
+  );
+
+  const [userId, vendorId] = chatId?.split("_") || [];
+
+  const { triggerSidebarRefetch } = useChatContext();
+
+  const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const senderId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
-  const senderRole = useSelector((state: RootState) => state.vendorAuth.vendor?.role) || "vendor";
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<Imessage[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const [chatInfo, setChatInfo] = useState({
+    chatId: "",     // ✔ REAL chat ID
+    userName: "",
+    userAvatar: "",
+    isOnline: false,
+  });
+
+  const roomId = chatId;
+  const { socket } = useContext(socketContext);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const extractContacts = (msgs: ChatMessage[]): Contact[] => {
-    if (!msgs || msgs.length === 0) return [];
-    
-    const contactMap = new Map<string, Contact>();
-
-    msgs.forEach((msg) => {
-      const isOwnMessage = msg.senderId === senderId;
-      const contactId = isOwnMessage ? msg.receiverId : msg.senderId;
-      const contactRole = isOwnMessage ? msg.receiverRole : msg.senderRole;
-
-      if (!contactMap.has(contactId)) {
-        contactMap.set(contactId, {
-          id: contactId,
-          name: `${contactRole.charAt(0).toUpperCase() + contactRole.slice(1)} ${contactId.slice(-4)}`,
-          role: contactRole,
-          lastMessage: msg.message,
-          lastMessageTime: msg.createdAt,
-        });
-      } else {
-        const existing = contactMap.get(contactId)!;
-        const existingTime = new Date(existing.lastMessageTime || 0);
-        const currentTime = new Date(msg.createdAt);
-
-        if (currentTime > existingTime) {
-          existing.lastMessage = msg.message;
-          existing.lastMessageTime = msg.createdAt;
-        }
+    const fetchVendorChat = async () => {
+      if (!userId || !ownerId) {
+        toast.error("Invalid chat parameters");
+        setIsLoading(false);
+        return;
       }
-    });
 
-    return Array.from(contactMap.values()).sort((a, b) => {
-      const timeA = new Date(a.lastMessageTime || 0).getTime();
-      const timeB = new Date(b.lastMessageTime || 0).getTime();
-      return timeB - timeA;
-    });
-  };
+      try {
+        setIsLoading(true);
 
-  // Fetch messages on mount
-  useEffect(() => {
-    if (!senderId) {
-      navigate("/login");
-      return;
-    }
+        // ✔ Get chat document from backend
+        const chatData = await findOrCreateChat(userId, ownerId);
 
-    const fetchMessages = async () => {
-  try {
-    setLoading(true);
-    console.log("Fetching messages for vendorId:", senderId);
+        if (!chatData?._id) throw new Error("Invalid chat data");
 
-    // ✅ use vendor route
-    const data = await getMessages(senderId, "vendor");
+        // ✔ Store actual chatId
+        setChatInfo({
+          chatId: chatData._id,
+          userName: chatData.name,
+          userAvatar: chatData.profile_image,
+          isOnline: chatData.isOnline,
+        });
 
-    console.log("=== DEBUG INFO ===");
-    console.log("Raw API response:", data);
+        // ✔ Load messages
+        const response = await getMessages(chatData._id);
+        setMessages(response.data?.messages || response.messages || []);
 
-    let messagesArray: ChatMessage[] = Array.isArray(data)
-      ? data
-      : (data as any).messages || (data as any).data || (data as any).chats || [];
-
-    setMessages(messagesArray);
-
-    const extractedContacts = extractContacts(messagesArray);
-    setContacts(extractedContacts);
-
-    if (extractedContacts.length > 0 && !selectedContact && window.innerWidth >= 768) {
-      setSelectedContact(extractedContacts[0]);
-    }
-
-    setError(null);
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Failed to load messages";
-    setError(errorMessage);
-    console.error("Error loading chat:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-    fetchMessages();
-
-    // Poll for new messages every 5 seconds
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
-  }, [senderId, navigate]);
-
-  const handleContactSelect = (contact: Contact) => {
-    console.log("Selected contact:", contact);
-    setSelectedContact(contact);
-    setShowContacts(false);
-  };
-
-  const handleBackToContacts = () => {
-    setShowContacts(true);
-  };
-
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedContact || !senderId) return;
-
-    const messageData = {
-      senderId,
-      receiverId: selectedContact.id,
-      senderRole,
-      receiverRole: selectedContact.role,
-      message: newMessage.trim(),
+        setIsLoading(false);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to load chat");
+        setIsLoading(false);
+      }
     };
 
-    console.log("Sending message:", messageData);
+    fetchVendorChat();
+  }, [chatId, userId, ownerId]);
 
-    try {
-      setSending(true);
-      const sentMessage = await sendMessage(messageData);
-      console.log("Message sent successfully:", sentMessage);
-      
-      setMessages((prev) => [...prev, sentMessage]);
-      
-      // Update contact's last message
-      setContacts((prevContacts) =>
-        prevContacts.map((contact) =>
-          contact.id === selectedContact.id
-            ? {
-                ...contact,
-                lastMessage: sentMessage.message,
-                lastMessageTime: sentMessage.createdAt,
-              }
-            : contact
-        )
-      );
-      
-      setNewMessage("");
-      setError(null);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to send message";
-      setError(errorMessage);
-      console.error("Error sending message:", err);
-    } finally {
-      setSending(false);
+  // Socket listeners
+  useEffect(() => {
+    if (socket && !socket.connected) socket.connect();
+
+    const handleReceiveMessage = (msg: Imessage) => {
+      setMessages((prev) => [...prev, msg]);
+      triggerSidebarRefetch();
+    };
+
+    const handleTyping = () => setIsTyping(true);
+    const handleStopTyping = () => setIsTyping(false);
+
+    const handleUserStatusChange = ({ userId: changed, isOnline }) => {
+      if (changed === userId) {
+        setChatInfo((p) => ({ ...p, isOnline }));
+      }
+    };
+
+    socket.on("recive-message", handleReceiveMessage);
+    socket.on("typing", handleTyping);
+    socket.on("stop-typing", handleStopTyping);
+    socket.on("user-status-changed", handleUserStatusChange);
+
+    socket.emit("join_room", { roomId, userId: ownerId });
+
+    return () => {
+      socket.off("recive-message", handleReceiveMessage);
+      socket.off("typing", handleTyping);
+      socket.off("stop-typing", handleStopTyping);
+      socket.off("user-status-changed", handleUserStatusChange);
+      socket.emit("leave-room", { roomId, userId: ownerId });
+    };
+  }, [socket, userId, ownerId, roomId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // SEND MESSAGE
+  const handleSendMessage = (e: any) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    if (!chatInfo.chatId) {
+      return toast.error("Chat not fully loaded");
     }
+
+    const newMsg: Imessage = {
+      _id: "",
+      chatId: chatInfo.chatId,   // ✔ FIXED — REAL CHAT ID
+      messageContent: message,
+      senderId: ownerId!,
+      senderType: "vendor",
+      receiverId: userId!,
+      seen: false,
+      sendedTime: new Date(),
+      messageType: "text",
+    };
+
+    socket.emit("send_message", newMsg, (id: string) => {
+      setMessages((prev) => [...prev, { ...newMsg, _id: id }]);
+    });
+
+    setMessage("");
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const formatTime = (date: Date | string) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return "Invalid time";
-    return dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const formatLastMessageTime = (date: Date | string) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return "";
-
-    const now = new Date();
-    const diff = now.getTime() - dateObj.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days === 0) {
-      return formatTime(dateObj);
-    } else if (days === 1) {
-      return "Yesterday";
-    } else if (days < 7) {
-      return `${days}d ago`;
-    } else {
-      return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    }
-  };
-
-  const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-
-  const getFilteredMessages = () => {
-    if (!selectedContact) {
-      console.log("No contact selected");
-      return [];
-    }
-    
-    const filtered = messages.filter(
-      (msg) =>
-        (msg.senderId === senderId && msg.receiverId === selectedContact.id) ||
-        (msg.senderId === selectedContact.id && msg.receiverId === senderId)
-    );
-    
-    console.log(`Filtered ${filtered.length} messages for contact ${selectedContact.id} (${selectedContact.name})`);
-    return filtered;
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Contacts Sidebar */}
-      <div
-        className={`${
-          showContacts ? "block" : "hidden"
-        } md:block w-full md:w-80 bg-white border-r flex flex-col`}
-      >
-        {/* Contacts Header */}
-        <div className="px-6 py-4 border-b">
-          <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
-          <p className="text-sm text-gray-500 mt-1">{contacts.length} conversations</p>
-        </div>
+    <div className="flex flex-col h-full bg-white">
+      {/* Header */}
+      <ChatHeader
+        user={{
+          _id: chatInfo.chatId,
+          name: chatInfo.userName,
+          avatar: chatInfo.userAvatar,
+          isOnline: chatInfo.isOnline,
+          lastSeen: chatInfo.isOnline ? "Online" : "Offline",
+        }}
+        onBackClick={() => window.history.back()}
+        showBackButton={true}
+      />
 
-        {/* Contacts List */}
-        <div className="flex-1 overflow-y-auto">
-          {error && (
-            <div className="m-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-          
-          {contacts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500 px-4">
-              <MessageCircle className="w-16 h-16 mb-4 text-gray-300" />
-              <p className="text-center">No conversations yet</p>
-              <p className="text-sm text-center mt-1">Start chatting with vendors</p>
-            </div>
-          ) : (
-            contacts.map((contact) => (
-              <button
-                key={contact.id}
-                onClick={() => handleContactSelect(contact)}
-                className={`w-full px-4 py-3 flex items-start hover:bg-gray-50 transition-colors border-b ${
-                  selectedContact?.id === contact.id ? "bg-blue-50" : ""
-                }`}
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                  {getInitials(contact.name)}
-                </div>
-                <div className="ml-3 flex-1 text-left overflow-hidden">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-gray-900 truncate">{contact.name}</h3>
-                    <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-                      {formatLastMessageTime(contact.lastMessageTime || "")}
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gradient-to-b from-gray-50 to-white chat-scrollbar relative">
+        <AnimatePresence>
+          {messages.map((msg, index) => {
+            const date = new Date(msg.sendedTime);
+
+            const prev =
+              index > 0 ? new Date(messages[index - 1].sendedTime) : null;
+            const showSeparator =
+              !prev || date.toDateString() !== prev.toDateString();
+
+            return (
+              <div key={msg._id || index}>
+                {showSeparator && (
+                  <div className="flex justify-center my-6">
+                    <span className="bg-gray-200 text-gray-600 text-sm px-4 py-2 rounded-full font-medium">
+                      {date.toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 capitalize">{contact.role}</p>
-                  <p className="text-sm text-gray-600 truncate mt-1">{contact.lastMessage}</p>
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-      </div>
+                )}
 
-      {/* Chat Area */}
-      <div
-        className={`${
-          showContacts ? "hidden" : "flex"
-        } md:flex flex-col flex-1 bg-gray-50`}
-      >
-        {selectedContact ? (
-          <>
-            {/* Chat Header */}
-            <div className="bg-white border-b px-6 py-4 shadow-sm">
-              <div className="flex items-center">
-                <button
-                  onClick={handleBackToContacts}
-                  className="mr-3 p-2 hover:bg-gray-100 rounded-full transition-colors md:hidden"
-                  aria-label="Back to contacts"
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`flex ${
+                    msg.senderId === ownerId ? "justify-end" : "justify-start"
+                  } mb-2`}
                 >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
+                  <div
+                    className={`max-w-[280px] lg:max-w-md px-4 py-3 rounded-3xl shadow-md ${
+                      msg.senderId === ownerId
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-br-lg"
+                        : "bg-white border border-gray-200 rounded-bl-lg"
+                    }`}
+                  >
+                    <p className="text-base break-words">
+                      {msg.messageContent}
+                    </p>
 
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-                  {getInitials(selectedContact.name)}
-                </div>
-
-                <div className="ml-3">
-                  <h2 className="font-semibold text-gray-900">{selectedContact.name}</h2>
-                  <p className="text-sm text-gray-500 capitalize">{selectedContact.role}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-              {getFilteredMessages().length === 0 ? (
-                <div className="text-center text-gray-500 mt-8">
-                  <p>No messages yet.</p>
-                  <p className="text-sm mt-1">Start the conversation with {selectedContact.name}!</p>
-                </div>
-              ) : (
-                getFilteredMessages().map((msg) => {
-                  const isOwnMessage = msg.senderId === senderId;
-                  return (
-                    <div key={msg._id} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl ${
-                          isOwnMessage
-                            ? "bg-blue-500 text-white rounded-br-none"
-                            : "bg-white text-gray-900 rounded-bl-none shadow-sm"
-                        }`}
-                      >
-                        <p className="break-words">{msg.message}</p>
-                        <p className={`text-xs mt-1 ${isOwnMessage ? "text-blue-100" : "text-gray-500"}`}>
-                          {formatTime(msg.createdAt)}
-                        </p>
-                      </div>
+                    <div
+                      className={`text-xs mt-1 text-right ${
+                        msg.senderId === ownerId
+                          ? "text-purple-100"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {date.toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
                     </div>
-                  );
-                })
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+                  </div>
+                </motion.div>
+              </div>
+            );
+          })}
+        </AnimatePresence>
 
-            {/* Input Area */}
-            <div className="bg-white border-t px-4 py-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={`Message ${selectedContact.name}...`}
-                  disabled={sending}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={sending || !newMessage.trim()}
-                  className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                  aria-label="Send message"
-                >
-                  {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                </button>
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-start"
+          >
+            <div className="bg-white border px-6 py-5 rounded-3xl rounded-bl-lg shadow-md">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
               </div>
             </div>
-          </>
-        ) : (
-          <div className="hidden md:flex flex-1 items-center justify-center text-gray-500">
-            <div className="text-center">
-              <MessageCircle className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium">Select a conversation</p>
-              <p className="text-sm mt-1">Choose a contact to start messaging</p>
-            </div>
-          </div>
+          </motion.div>
         )}
+
+        <div ref={messagesEndRef} />
       </div>
+
+      {/* Input */}
+      <MessageInput
+        message={message}
+        setMessage={setMessage}
+        onSend={handleSendMessage}
+        inputRef={inputRef}
+        roomId={roomId}
+        disabled={isLoading}
+      />
     </div>
   );
 };
 
-export default ChatPageVendor;
+export default VendorMessageContainer;

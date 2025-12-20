@@ -20,7 +20,6 @@ import {
 import { SearchBar } from "@/components/Modular/searchbar";
 import type { Package as PackageInterface } from "@/interface/PackageInterface";
 import EditPackage from "./editPackageModal";
-import Pagination from "@/components/pagination/pagination";
 
 interface PackageTableProps {
   packages: PackageInterface[];
@@ -39,7 +38,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [error, setError] = useState("");
-  
+
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     package: PackageInterface | null;
@@ -82,7 +81,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
     }).format(amount);
 
   const loadPackages = useCallback(
-    async (pageNum: number = 1) => {
+    async (pageNum: number = 1, append: boolean = false) => {
       if (isLoadingRef.current) return;
 
       try {
@@ -92,17 +91,31 @@ const PackageTable: React.FC<PackageTableProps> = ({
         const response = await fetchAllPackages(pageNum, limit);
         const allPackages = response?.packages ?? [];
 
-        setPackageList(allPackages);
-        setOriginalPackages(allPackages);
+        if (append) {
+          // Append new packages to existing list
+          setPackageList((prev) => [...prev, ...allPackages]);
+          setOriginalPackages((prev) => [...prev, ...allPackages]);
+        } else {
+          // Replace packages (for initial load or search)
+          setPackageList(allPackages);
+          setOriginalPackages(allPackages);
+        }
+
         setTotalPages(Math.max(response.totalPages || 1, 1));
         setTotalPackages(response.totalPackages || 0);
-        onPackagesUpdate?.(allPackages);
+
+        if (!append) {
+          onPackagesUpdate?.(allPackages);
+        }
+
         setPage(pageNum);
       } catch (error) {
         console.error("Error loading packages:", error);
         setError("Failed to load packages. Please try again.");
-        setPackageList([]);
-        setOriginalPackages([]);
+        if (!append) {
+          setPackageList([]);
+          setOriginalPackages([]);
+        }
       } finally {
         isLoadingRef.current = false;
       }
@@ -146,15 +159,21 @@ const PackageTable: React.FC<PackageTableProps> = ({
     [loadPackages, limit]
   );
 
-  const handlePageChange = useCallback((newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    
-    setPage(newPage);
-    
-    if (!isSearchMode) {
-      loadPackages(newPage);
-    }
-  }, [totalPages, isSearchMode, loadPackages]);
+  // const handlePageChange = useCallback((newPage: number) => {
+  //   if (newPage < 1 || newPage > totalPages) return;
+
+  //   setPage(newPage);
+
+  //   if (!isSearchMode) {
+  //     loadPackages(newPage);
+  //   }
+  // }, [totalPages, isSearchMode, loadPackages]);
+
+  const handleLoadMore = useCallback(() => {
+    if (page >= totalPages || isSearchMode) return;
+    const nextPage = page + 1;
+    loadPackages(nextPage, true); // true = append mode
+  }, [page, totalPages, isSearchMode, loadPackages]);
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -208,7 +227,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
 
       setIsEditLoading(true);
       try {
-      
+
         const updatedPackages = packageList.map((pkg) =>
           pkg._id === editedPackage._id ? editedPackage : pkg
         );
@@ -252,7 +271,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
       await deletePackage(deleteModal.package._id);
 
       closeDeleteModal();
-      
+
       // Reload the current page after deletion
       if (isSearchMode && searchQuery) {
         handleSearch(searchQuery);
@@ -516,9 +535,8 @@ const PackageTable: React.FC<PackageTableProps> = ({
               {getCurrentPageData.map((pkg, index) => (
                 <tr
                   key={pkg._id}
-                  className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${
-                    index % 2 === 0 ? "bg-white" : "bg-slate-25"
-                  }`}
+                  className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-25"
+                    }`}
                 >
                   <td className="px-4 py-6 align-top">
                     <div className="max-w-[200px]">
@@ -645,10 +663,10 @@ const PackageTable: React.FC<PackageTableProps> = ({
         </div>
       )}
 
-  
+
       {editModal.isOpen && editedPackage && (
         <EditPackage
-          pkg={editedPackage }
+          pkg={editedPackage}
           onClose={closeEditModal}
           onChange={handleEditChange}
           onSubmit={handleEditSubmit}
@@ -760,13 +778,27 @@ const PackageTable: React.FC<PackageTableProps> = ({
           </div>
         </div>
       )}
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            total={totalPages}
-            current={page}
-            setPage={handlePageChange}
-          />
+      {!isSearchMode && page < totalPages && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={handleLoadMore}
+            disabled={loading}
+            className="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Loading...
+              </>
+            ) : (
+              <>
+                Load More
+                <span className="text-sm text-gray-300">
+                  ({packageList.length} of {totalPackages})
+                </span>
+              </>
+            )}
+          </button>
         </div>
       )}
     </div>

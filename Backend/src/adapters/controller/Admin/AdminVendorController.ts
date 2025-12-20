@@ -42,8 +42,8 @@ export class AdminVendorController {
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message:  "Failed to fetch vendor by email",
-        error
+        message: "Failed to fetch vendor by email",
+        error,
       });
     }
   }
@@ -52,7 +52,8 @@ export class AdminVendorController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
-      const { vendors, totalvendors } = await this._getAllVendorsUseCase.execute(page, limit);
+      const { vendors, totalvendors } =
+        await this._getAllVendorsUseCase.execute(page, limit);
       res.status(HttpStatus.OK).json({
         success: true,
         vendors,
@@ -65,7 +66,7 @@ export class AdminVendorController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch vendors",
-        error
+        error,
       });
     }
   }
@@ -81,8 +82,8 @@ export class AdminVendorController {
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message:  "Failed to fetch vendors by status",
-        error
+        message: "Failed to fetch vendors by status",
+        error,
       });
     }
   }
@@ -98,7 +99,10 @@ export class AdminVendorController {
         });
         return;
       }
-      const updated = await this._updateVendorStatusUseCase.executeById(vendorId, status);
+      const updated = await this._updateVendorStatusUseCase.executeById(
+        vendorId,
+        status
+      );
       if (updated) {
         res.status(HttpStatus.OK).json({
           success: true,
@@ -115,7 +119,7 @@ export class AdminVendorController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to update vendor approval status",
-        error
+        error,
       });
     }
   }
@@ -134,13 +138,15 @@ export class AdminVendorController {
       await this._updateVendorUseCase.execute(vendorId, isBlocked);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: `Vendor has been ${isBlocked ? "blocked" : "unblocked"} successfully.`,
+        message: `Vendor has been ${
+          isBlocked ? "blocked" : "unblocked"
+        } successfully.`,
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to block/unblock vendor",
-        error
+        error,
       });
     }
   }
@@ -164,7 +170,7 @@ export class AdminVendorController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to search vendor",
-        error
+        error,
       });
     }
   }

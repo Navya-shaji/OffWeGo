@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 
 export const TravelerSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String },
   age: { type: Number },
   gender: { type: String },
 });
@@ -22,7 +22,7 @@ export const SelectedPackageSchema = new Schema({
 });
 
 export const BookingSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
   bookingId: { type: String, required: true, unique: true },
   contactInfo: { type: ContactInfoSchema, required: true },
   adults: { type: [TravelerSchema], default: [] },
@@ -33,5 +33,6 @@ export const BookingSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   paymentStatus: { type: String, default: "pending" },
   paymentIntentId: { type: String },
-  bookingStatus:{type:String,default:"upcoming"}
+  bookingStatus:{type:String,default:"upcoming"},
+  settlementDone: { type: Boolean, default: false },
 });

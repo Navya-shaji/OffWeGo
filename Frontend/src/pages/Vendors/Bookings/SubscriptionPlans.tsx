@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { createSubscriptionBooking } from "@/services/Payment/stripecheckoutservice";
+import { toast } from "react-toastify";
 
 interface SubscriptionPlan {
   _id: string;
@@ -45,7 +46,9 @@ export default function VendorSubscriptionPage() {
   const [usedSlots, setUsedSlots] = useState(0);
   const [totalAvailableSlots, setTotalAvailableSlots] = useState(3); // Default free slots
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookingDate, setBookingDate] = useState("");
@@ -54,7 +57,9 @@ export default function VendorSubscriptionPage() {
   const [displayCount, setDisplayCount] = useState(3);
   const navigate = useNavigate();
 
-  const vendorId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
+  const vendorId = useSelector(
+    (state: RootState) => state.vendorAuth.vendor?.id
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,17 +77,22 @@ export default function VendorSubscriptionPage() {
 
         // Set all subscription plans
         setSubscriptions(subData.data || []);
-        
+
         // Set used slots from packages
         setUsedSlots(packagesData.packages?.length || 0);
 
         // Calculate total available slots
         // Check if vendor has an active subscription
         if (subData.vendorSubscription) {
-          const activeSubscription = subData.vendorSubscription as VendorSubscription;
-          if (activeSubscription.status === 'active' && activeSubscription.subscriptionId) {
+          const activeSubscription =
+            subData.vendorSubscription as VendorSubscription;
+          if (
+            activeSubscription.status === "active" &&
+            activeSubscription.subscriptionId
+          ) {
             // If active subscription exists, use its package limit + free slots
-            const subscriptionSlots = activeSubscription.subscriptionId.packageLimit || 0;
+            const subscriptionSlots =
+              activeSubscription.subscriptionId.packageLimit || 0;
             setTotalAvailableSlots(3 + subscriptionSlots); // 3 free + subscription slots
           } else {
             // Only free slots available
@@ -109,22 +119,30 @@ export default function VendorSubscriptionPage() {
     const minutes = String(now.getMinutes()).padStart(2, "0");
     setBookingTime(`${hours}:${minutes}`);
   }, []);
-  
+
   const remainingSlots = totalAvailableSlots - usedSlots;
-  
+
   const handleBookPlan = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowBookingModal(true);
   };
-  
+
   const handleProceedToPayment = async () => {
     if (!selectedPlan || !bookingDate || !bookingTime) {
-      alert("Please fill in all booking details");
+      toast({
+        title: "Missing Details",
+        description: "Please fill in all booking details.",
+        variant: "destructive",
+      });
       return;
     }
 
     if (!vendorId) {
-      alert("Vendor ID not found. Please login again.");
+      toast({
+        title: "Vendor Not Found",
+        description: "Please login again.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -140,6 +158,10 @@ export default function VendorSubscriptionPage() {
           time: bookingTime,
         })
       );
+
+      localStorage.setItem("vendorId", vendorId);
+      localStorage.setItem("selectedPlanId", selectedPlan._id);
+
       const response = await createSubscriptionBooking({
         vendorId,
         planId: selectedPlan._id,
@@ -149,21 +171,25 @@ export default function VendorSubscriptionPage() {
         time: bookingTime,
       });
 
-      console.log("Redirecting to Stripe:", response.data.checkoutUrl);
       if (response.success && response.data.checkoutUrl) {
         window.location.href = response.data.checkoutUrl;
       } else {
         throw new Error("Failed to create payment session");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Payment error:", err);
-      alert(err instanceof Error ? err.message : "Failed to initiate payment");
+
+      const errorMessage =
+        "Failed to initiate payment you have a current active plan";
+
+      toast.error(`Subscription Error: ${errorMessage}`);
+
       setBookingLoading(false);
     }
   };
 
   const handleLoadMore = () => {
-    setDisplayCount(prev => prev + 3);
+    setDisplayCount((prev) => prev + 3);
   };
 
   const handleShowLess = () => {
@@ -171,7 +197,10 @@ export default function VendorSubscriptionPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  console.log("Stored booking details:", sessionStorage.getItem("bookingDetails"));
+  console.log(
+    "Stored booking details:",
+    sessionStorage.getItem("bookingDetails")
+  );
 
   if (loading) {
     return (
@@ -181,7 +210,9 @@ export default function VendorSubscriptionPage() {
             <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
             <div className="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-gray-700 font-semibold text-lg">Loading subscription plans...</p>
+          <p className="text-gray-700 font-semibold text-lg">
+            Loading subscription plans...
+          </p>
           <p className="text-gray-500 text-sm mt-2">Please wait a moment</p>
         </div>
       </div>
@@ -196,7 +227,9 @@ export default function VendorSubscriptionPage() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <X className="w-8 h-8 text-red-600" />
             </div>
-            <p className="text-2xl font-black text-red-600 mb-3">Oops! Something went wrong</p>
+            <p className="text-2xl font-black text-red-600 mb-3">
+              Oops! Something went wrong
+            </p>
             <p className="text-sm text-gray-600 mb-6">{error}</p>
             <Button
               onClick={() => window.location.reload()}
@@ -258,7 +291,9 @@ export default function VendorSubscriptionPage() {
         <div className="absolute flex flex-col items-center justify-center">
           <div className="flex items-baseline gap-1">
             <span className="text-4xl font-bold text-gray-900">{value}</span>
-            <span className="text-xl text-gray-500 font-semibold">/{total}</span>
+            <span className="text-xl text-gray-500 font-semibold">
+              /{total}
+            </span>
           </div>
           <span className="text-xs text-gray-500 font-medium mt-1 uppercase tracking-wide">
             Used
@@ -297,7 +332,8 @@ export default function VendorSubscriptionPage() {
             Power Your Business
           </h1>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-medium">
-            Choose the perfect plan to scale your vendor operations and unlock unlimited potential
+            Choose the perfect plan to scale your vendor operations and unlock
+            unlimited potential
           </p>
         </div>
 
@@ -312,7 +348,9 @@ export default function VendorSubscriptionPage() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-gray-900">Package Slots</h3>
+                  <h3 className="text-3xl font-black text-gray-900">
+                    Package Slots
+                  </h3>
                   <p className="text-gray-600 text-sm font-medium">
                     Monitor your inventory capacity
                   </p>
@@ -325,9 +363,13 @@ export default function VendorSubscriptionPage() {
                   <div className="relative p-5 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-100 rounded-2xl hover:scale-105 transition-transform duration-300">
                     <div className="flex items-center gap-2 mb-3">
                       <TrendingUp className="w-5 h-5 text-blue-600" />
-                      <span className="text-gray-600 text-sm font-semibold">Active</span>
+                      <span className="text-gray-600 text-sm font-semibold">
+                        Active
+                      </span>
                     </div>
-                    <p className="text-4xl font-black text-gray-900">{usedSlots}</p>
+                    <p className="text-4xl font-black text-gray-900">
+                      {usedSlots}
+                    </p>
                   </div>
                 </div>
                 <div className="relative group">
@@ -335,7 +377,9 @@ export default function VendorSubscriptionPage() {
                   <div className="relative p-5 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-100 rounded-2xl hover:scale-105 transition-transform duration-300">
                     <div className="flex items-center gap-2 mb-3">
                       <Zap className="w-5 h-5 text-purple-600" />
-                      <span className="text-gray-600 text-sm font-semibold">Available</span>
+                      <span className="text-gray-600 text-sm font-semibold">
+                        Available
+                      </span>
                     </div>
                     <p className="text-4xl font-black text-gray-900">
                       {remainingSlots > 0 ? remainingSlots : 0}
@@ -347,11 +391,19 @@ export default function VendorSubscriptionPage() {
               {/* Show total available slots info */}
               <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-100 rounded-xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-600">Total Capacity:</span>
-                  <span className="text-lg font-black text-gray-900">{totalAvailableSlots} slots</span>
+                  <span className="text-sm font-semibold text-gray-600">
+                    Total Capacity:
+                  </span>
+                  <span className="text-lg font-black text-gray-900">
+                    {totalAvailableSlots} slots
+                  </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  {totalAvailableSlots === 3 ? "Free tier (3 slots)" : `3 free slots + ${totalAvailableSlots - 3} subscription slots`}
+                  {totalAvailableSlots === 3
+                    ? "Free tier (3 slots)"
+                    : `3 free slots + ${
+                        totalAvailableSlots - 3
+                      } subscription slots`}
                 </p>
               </div>
 
@@ -364,7 +416,8 @@ export default function VendorSubscriptionPage() {
                         🚀 Upgrade Required
                       </p>
                       <p className="text-gray-600 text-sm font-medium">
-                        You've used all available slots. Upgrade now to continue growing your business!
+                        You've used all available slots. Upgrade now to continue
+                        growing your business!
                       </p>
                     </div>
                   </div>
@@ -393,7 +446,9 @@ export default function VendorSubscriptionPage() {
             <p className="text-gray-500 text-lg font-medium">
               No subscription plans available at the moment.
             </p>
-            <p className="text-gray-400 text-sm mt-2">Check back soon for exciting offers!</p>
+            <p className="text-gray-400 text-sm mt-2">
+              Check back soon for exciting offers!
+            </p>
           </div>
         ) : (
           <>
@@ -448,7 +503,9 @@ export default function VendorSubscriptionPage() {
                         )}
                       </div>
 
-                      <h4 className="text-3xl font-black text-gray-900 mb-3">{plan.name}</h4>
+                      <h4 className="text-3xl font-black text-gray-900 mb-3">
+                        {plan.name}
+                      </h4>
                       <div className="mb-8">
                         <div className="flex items-baseline gap-2 mb-1">
                           <span className="text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -473,19 +530,25 @@ export default function VendorSubscriptionPage() {
                           <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
                             <CheckCircle2 className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-gray-700 font-semibold">Priority Support 24/7</span>
+                          <span className="text-gray-700 font-semibold">
+                            Priority Support 24/7
+                          </span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
                             <CheckCircle2 className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-gray-700 font-semibold">Advanced Analytics</span>
+                          <span className="text-gray-700 font-semibold">
+                            Advanced Analytics
+                          </span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
                             <CheckCircle2 className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-gray-700 font-semibold">Custom Integrations</span>
+                          <span className="text-gray-700 font-semibold">
+                            Custom Integrations
+                          </span>
                         </div>
                       </div>
 
@@ -524,18 +587,21 @@ export default function VendorSubscriptionPage() {
                       Showing {displayCount} of {subscriptions.length} plans
                     </p>
                   </button>
-                ) : hasMore === false && displayCount > 3 && (
-                  <button
-                    onClick={handleShowLess}
-                    className="group relative px-8 py-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
-                        Show Less
-                      </span>
-                      <ChevronDown className="w-5 h-5 text-gray-500 group-hover:text-blue-600 rotate-180 transition-colors" />
-                    </div>
-                  </button>
+                ) : (
+                  hasMore === false &&
+                  displayCount > 3 && (
+                    <button
+                      onClick={handleShowLess}
+                      className="group relative px-8 py-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
+                          Show Less
+                        </span>
+                        <ChevronDown className="w-5 h-5 text-gray-500 group-hover:text-blue-600 rotate-180 transition-colors" />
+                      </div>
+                    </button>
+                  )
                 )}
               </div>
             )}
@@ -602,19 +668,25 @@ export default function VendorSubscriptionPage() {
 
                 <div className="p-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 rounded-2xl mb-8 shadow-inner">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-gray-700 font-bold">Total Amount:</span>
+                    <span className="text-gray-700 font-bold">
+                      Total Amount:
+                    </span>
                     <span className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                       ₹{selectedPlan.price}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm border-t border-gray-300 pt-3 mt-3">
-                    <span className="text-gray-600 font-semibold">Duration:</span>
+                    <span className="text-gray-600 font-semibold">
+                      Duration:
+                    </span>
                     <span className="text-gray-900 font-bold">
                       {selectedPlan.duration} days
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm mt-2">
-                    <span className="text-gray-600 font-semibold">Package Slots:</span>
+                    <span className="text-gray-600 font-semibold">
+                      Package Slots:
+                    </span>
                     <span className="text-gray-900 font-bold">
                       {selectedPlan.packageLimit} slots
                     </span>

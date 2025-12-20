@@ -12,11 +12,15 @@ export class RegisterUserUseCase implements IregisterUserUseCase {
   }
 
   async execute(userInput: UserDto): Promise<boolean> {
-    const {  email, phone } = userInput;
+    const { email, phone } = userInput;
 
     const existingUser = await this._userRepository.findByEmail(email);
 
     if (existingUser) throw new Error("User Already exists");
+
+    if (!phone) {
+      throw new Error("Phone number is required");
+    }
 
     const existingPhoneNumber = await this._userRepository.findByPhone(
       phone.toString()

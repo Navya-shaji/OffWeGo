@@ -1,10 +1,31 @@
-export type Roles = "user" | "vendor" ; 
-export interface ChatDto {
-  id?: string;
-  senderId: string;
-  receiverId: string;
-  senderRole: Roles;     
-  receiverRole: Roles;
-  message: string;
-  createdAt?: Date;
+
+
+export interface IChatOut {
+  _id: string;
+  lastMessage?: string;
+  lastMessageAt?: Date;
+  name?: string;
+  profile_image?: string;
+  isOnline?: boolean;
+  userId?: string;
+  vendorId?: string;
+  unreadCount?: number;
+}
+
+
+
+export interface IMessageOut {
+    chatId: string;
+    senderId: string;
+    messageContent: string;
+    sendedTime: string;
+}
+export interface ICreateChatDto {
+    userId: string;
+    ownerId: string;
+}
+
+
+export interface IEnableChatOutputDto {
+    canChat: boolean; message: string
 }

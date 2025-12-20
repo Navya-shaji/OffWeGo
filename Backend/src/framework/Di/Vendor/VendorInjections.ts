@@ -9,7 +9,7 @@ import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUseca
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
 import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/vendorStatusCheckController";
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
-import { VendorLoginController } from "../../../adapters/controller/Vendor/VendorLoginController";
+import { VendorLoginController } from "../../../adapters/controller/Vendor/vendorLoginController"; 
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 import { JwtService } from "../../Services/jwtService";
@@ -119,11 +119,11 @@ const bookingBuddyTravelusecase=new CreateBuddyBookingUsecase(bookingRepo)
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
 export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVerifyOtpUseCase);
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
-export const vendorloginController=new VendorLoginController(vendorloginusecase,jwtService);
+export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getAllpackageByVendor,createPackageUsecase,editpackage,deletepackage,searchPackage,getPAckageByDestination);
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
-export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase)
+export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase, subscriptionBookingRepo)
 export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase, adminPackageApprovalusecase,getTravelUsecase,getvendorBuddypackagesusecase,getallbuddypackages,joinBuddyTravelusecase,bookingBuddyTravelusecase)

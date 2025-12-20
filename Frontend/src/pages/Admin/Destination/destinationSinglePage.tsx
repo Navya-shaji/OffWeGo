@@ -5,40 +5,23 @@ import "leaflet/dist/leaflet.css";
 import { getsingleDestination } from "@/services/Destination/destinationService";
 import { getPackagesByDestination } from "@/services/packages/packageService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import { MapPin, ArrowLeft } from "lucide-react";
+import { MapPin, ArrowLeft, Search, Loader2, Clock, Calendar, Star, Users } from "lucide-react";
 import Navbar from "@/components/profile/navbar";
-import { SearchBar } from "@/components/Modular/searchbar";
 import { searchPackages } from "@/services/packages/packageService";
 import type { Package } from "@/interface/PackageInterface";
 
 export const DestinationDetail = () => {
   const id = useParams().id;
-  const [destination, setDestination] = useState<DestinationInterface | null>(
-    null
-  );
+  const [destination, setDestination] = useState<DestinationInterface | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [searchResults, setSearchResults] = useState<Package[] | null>(null);
   const [packages, setPackages] = useState<Package[]>([]);
-  const [packagesLoading, setPackagesLoading] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchMode, setIsSearchMode] = useState(false);
-  const [error, setError] = useState("");
-console.log(packagesLoading,searchLoading,error)
-  console.log(searchQuery, isSearchMode);
+  
   const navigate = useNavigate();
 
   const displayedPackages = useMemo(() => {
-    const result = searchResults ?? packages;
-    console.log("🖥️ Displaying packages:", {
-      searchResultsExists: searchResults !== null,
-      searchResultsCount: searchResults?.length || 0,
-      regularPackagesCount: packages.length,
-      finalCount: result.length,
-    });
-    return result;
+    return searchResults ?? packages;
   }, [searchResults, packages]);
 
   const handleSearch = useCallback(async (query: string) => {
@@ -46,31 +29,19 @@ console.log(packagesLoading,searchLoading,error)
       clearTimeout(searchTimeoutRef.current);
     }
 
-    setSearchQuery(query);
-
     searchTimeoutRef.current = setTimeout(async () => {
       if (!query.trim()) {
-        setSearchResults(null); 
-        setIsSearchMode(false);
+        setSearchResults(null);
         return;
       }
 
-      setIsSearchMode(true);
-      setSearchLoading(true);
       try {
         const response = await searchPackages(query);
-
         const searchResultsArray = Array.isArray(response) ? response : [];
-
         setSearchResults(searchResultsArray);
       } catch (error) {
         console.error("Search error:", error);
-        setError("Search failed. Please try again.");
         setSearchResults([]);
-
-        setTimeout(() => setError(""), 3000);
-      } finally {
-        setSearchLoading(false);
       }
     }, 400);
   }, []);
@@ -78,38 +49,27 @@ console.log(packagesLoading,searchLoading,error)
   const fetchDestinationPackages = useCallback(async () => {
     if (!id) return;
 
-    setPackagesLoading(true);
     try {
       const response = await getPackagesByDestination(id);
-
       let destinationPackages: Package[] = [];
 
       if (response && Array.isArray(response.packages)) {
         destinationPackages = response.packages;
       } else if (response && Array.isArray(response)) {
         destinationPackages = response;
-      } else {
-        console.warn(" Unexpected packages response structure:", response);
-        destinationPackages = [];
       }
 
-     
       setPackages(destinationPackages);
     } catch (error) {
       console.error("Failed to fetch destination packages:", error);
       setPackages([]);
-    } finally {
-      setPackagesLoading(false);
     }
   }, [id]);
 
-  // FIXED: Load destination data
   useEffect(() => {
     if (id) {
       getsingleDestination(id)
         .then((res) => {
-          console.log("🏖️ Destination loaded:", res);
-          // Extract the actual destination data from nested response
           const destinationData = res.data || res;
           setDestination(destinationData);
         })
@@ -118,58 +78,32 @@ console.log(packagesLoading,searchLoading,error)
     }
   }, [id]);
 
-  // FIXED: Load packages and clear search (removed circular dependency)
   useEffect(() => {
     if (id) {
-      // Clear search state
       setSearchResults(null);
-      setSearchQuery("");
-      setIsSearchMode(false);
-      setError("");
-      
-      // Fetch packages
       fetchDestinationPackages();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // Only depend on id
+  }, [id, fetchDestinationPackages]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative mb-6">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-sky-200"></div>
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-t-sky-500 absolute top-0"></div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-gray-900 font-semibold text-lg">
-              Loading destination...
-            </p>
-            <p className="text-gray-600 text-sm">
-              Preparing your adventure details
-            </p>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
       </div>
     );
   }
 
   if (!destination) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-3xl shadow-2xl border border-gray-100 max-w-md">
-          <div className="w-20 h-20 mx-auto mb-6 bg-coral-100 rounded-full flex items-center justify-center">
-            <MapPin className="w-10 h-10 text-coral-500" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <MapPin className="w-10 h-10 text-indigo-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            Destination Not Found
-          </h3>
-          <p className="text-coral-500 mb-6">
-            We couldn't find the destination you're looking for.
-          </p>
+          <h3 className="text-2xl font-bold mb-2 text-gray-900">Destination Not Found</h3>
           <button
             onClick={() => navigate("/destinations")}
-            className="inline-flex items-center px-6 py-3 bg-sky-500 text-white font-semibold rounded-full hover:bg-sky-600 transition-all duration-300 hover:scale-105 shadow-lg"
+            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-medium rounded-full hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl mt-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Destinations
@@ -180,264 +114,209 @@ console.log(packagesLoading,searchLoading,error)
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <Navbar />
 
-      <div className="relative">
-        {Array.isArray(destination.imageUrls) &&
-        destination.imageUrls.length > 0 ? (
-          <div className="relative h-screen overflow-hidden">
-            <img
-              src={
-                destination.imageUrls[activeImageIndex] || "/placeholder.svg"
-              }
-              alt={destination.name}
-              className="w-full h-full object-cover transition-all duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70"></div>
-
-            {destination.imageUrls.length > 1 && (
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-                {destination.imageUrls.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImageIndex(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      idx === activeImageIndex
-                        ? "bg-white shadow-lg w-8"
-                        : "bg-white/50 hover:bg-white/75 w-2"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
-              <div className="mb-6 flex items-center gap-2 text-white/90 text-lg">
-                <MapPin className="w-5 h-5" />
-                <span className="font-medium">{destination.location}</span>
-              </div>
-
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight max-w-4xl">
-                {destination.name}
-              </h1>
-
-              <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl font-light">
-                Where White Dreams Meet Blue Horizons
-              </p>
-
-              <div className="flex gap-4 flex-wrap justify-center">
-                
-                <button
-                  onClick={() => navigate("/destinations")}
-                  className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 border-2 border-white/50"
-                >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to Destinations
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* Hero Section with Full-Screen Background */}
+      <div className="relative h-screen min-h-[600px] overflow-hidden">
+        {/* Background Image */}
+        {Array.isArray(destination.imageUrls) && destination.imageUrls.length > 0 ? (
+          <img
+            src={destination.imageUrls[0]}
+            alt={destination.name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         ) : (
-          <div className="h-screen bg-gradient-to-br from-gray-900 to-gray-800 relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/30"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
-              <div className="mb-6 flex items-center gap-2 text-white/90 text-lg">
-                <MapPin className="w-5 h-5" />
-                <span className="font-medium">{destination.location}</span>
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-400 to-blue-500" />
+        )}
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+        
+        {/* Content */}
+        <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between py-12">
+          {/* Top - Back Button */}
+          <div>
+            <button
+              onClick={() => navigate("/destinations")}
+              className="inline-flex items-center px-5 py-2.5 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-all text-sm font-medium"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Destinations
+            </button>
+          </div>
+
+          {/* Bottom - Destination Info */}
+          <div className="text-white space-y-6 pb-20">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <div className="px-5 py-2 bg-white/20 backdrop-blur-md rounded-full text-sm font-medium flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                {destination.location}
               </div>
-
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight max-w-4xl">
-                {destination.name}
-              </h1>
-
-              <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl font-light">
-                Where White Dreams Meet Blue Horizons
-              </p>
-
-              <div className="flex gap-4 flex-wrap justify-center">
-                <button className="px-8 py-4 bg-coral-500 hover:bg-coral-600 text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl">
-                  Book Now
-                </button>
-                <button
-                  onClick={() => navigate("/destinations")}
-                  className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-full transition-all duration-300 border-2 border-white/50"
-                >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to Destinations
-                </button>
+              <div className="px-5 py-2 bg-white/20 backdrop-blur-md rounded-full text-sm font-medium">
+                {packages.length} Tour Packages
               </div>
             </div>
+            
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight tracking-tight">
+              {destination.name}
+            </h1>
+            
+            <p className="text-xl sm:text-2xl text-white/90 leading-relaxed max-w-3xl font-light">
+              {destination.description}
+            </p>
 
-            <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-1/3 left-1/3 w-48 h-48 bg-coral-500/20 rounded-full blur-2xl"></div>
+            {/* Search Button */}
+            <button className="inline-flex items-center gap-3 px-8 py-4 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-all text-base font-medium mt-6">
+              <Search className="w-5 h-5" />
+              Find a tour
+            </button>
           </div>
-        )}
+        </div>
+
+        {/* Decorative Bottom Fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
       </div>
 
-      <div className="relative min-h-screen bg-gradient-to-br from-sky-50 via-white to-coral-50 py-16 px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2 space-y-10">
-            <div className="backdrop-blur-lg bg-white/80 rounded-3xl shadow-lg border border-white/40 p-8 hover:shadow-2xl transition-all duration-500">
-              <h2 className="text-3xl font-extrabold text-gray-900 mb-5 flex items-center">
-                <div className="w-2 h-8 bg-gradient-to-b from-sky-500 to-coral-500 rounded-full mr-4"></div>
-                Discover {destination.name}
-              </h2>
-              <p className="text-gray-700 leading-relaxed text-lg">
-                {destination.description}
-              </p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 pb-16">
+        
+        {/* Search Bar Card */}
+        <div className="bg-white rounded-2xl shadow-2xl p-6 mb-16">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex-1 w-full relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search packages by name, duration, or activities..."
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
+              />
             </div>
-
-            {Array.isArray(destination.imageUrls) &&
-              destination.imageUrls.length > 1 && (
-                <div className="backdrop-blur-lg bg-white/80 rounded-3xl shadow-lg border border-white/40 p-8 hover:shadow-2xl transition-all duration-500">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                    <div className="w-2 h-6 bg-gradient-to-b from-coral-500 to-sky-500 rounded-full mr-4"></div>
-                    Photo Gallery
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {destination.imageUrls.map((url, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => setActiveImageIndex(idx)}
-                        className={`relative rounded-2xl overflow-hidden cursor-pointer group transform transition duration-500 hover:scale-105 hover:shadow-xl ${
-                          idx === activeImageIndex ? "ring-4 ring-sky-400" : ""
-                        }`}
-                      >
-                        <img
-                          src={url}
-                          alt={`Image ${idx}`}
-                          className="w-full h-28 object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            <div className="backdrop-blur-lg bg-white/80 rounded-3xl shadow-lg border border-white/40 p-8 hover:shadow-2xl transition-all duration-500">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-extrabold text-gray-900 flex items-center">
-                  <div className="w-2 h-8 bg-gradient-to-b from-sky-500 to-coral-500 rounded-full mr-4"></div>
-                  Travel Packages
-                </h2>
-                <div className="w-60">
-                  <SearchBar
-                    placeholder="Search packages..."
-                    onSearch={handleSearch}
-                  />
-                </div>
-              </div>
-
-              {displayedPackages.length > 0 ? (
-                <div className="space-y-6">
-                  {displayedPackages.map((pkg) => (
-                    <div
-                      key={pkg._id || pkg.id}
-                      className="group p-6 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
-                    >
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-5">
-                          <div className="w-14 h-14 bg-gradient-to-br from-sky-500 to-coral-500 rounded-2xl flex items-center justify-center shadow-md">
-                            <span className="text-white font-bold text-xl">
-                              {pkg.packageName.charAt(0)}
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className="text-xl font-bold text-gray-900 group-hover:text-sky-600 transition-colors">
-                              {pkg.packageName}
-                            </h4>
-                            <p className="text-gray-600 text-sm line-clamp-2">
-                              {pkg.description}
-                            </p>
-                            <div className="text-sm text-gray-500 mt-2">
-                              Duration: {pkg.duration} day
-                              {pkg.duration !== 1 ? "s" : ""} |{" "}
-                              <span className="font-semibold text-coral-500">
-                                ₹{pkg.price.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() =>
-                            navigate("/timeline", {
-                              state: { selectedPackage: pkg },
-                            })
-                          }
-                          className="px-6 py-3 bg-gradient-to-r from-sky-500 to-coral-500 text-white rounded-full font-semibold shadow-md hover:shadow-lg transition-transform hover:scale-105"
-                        >
-                          View Details
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-gray-600">
-                  <MapPin className="w-10 h-10 mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-2xl font-semibold mb-2">
-                    No Packages Found
-                  </h3>
-                  <p>Travel packages for this destination are coming soon!</p>
-                </div>
-              )}
+            <div className="flex items-center gap-3">
+              <span className="px-5 py-3 bg-indigo-50 text-indigo-700 font-semibold rounded-lg">
+                {displayedPackages.length} Results
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Map Section - FIXED with null safety */}
-          <div className="space-y-10">
-            <div className="backdrop-blur-lg bg-white/80 rounded-3xl shadow-lg border border-white/40 hover:shadow-2xl transition-all duration-500 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-2xl font-extrabold text-gray-900 flex items-center">
-                  <div className="w-2 h-6 bg-gradient-to-b from-sky-500 to-coral-500 rounded-full mr-4"></div>
-                  Location Map
-                </h3>
-              </div>
-              <div className="p-6">
-                <div className="h-64 rounded-2xl overflow-hidden shadow-lg border border-white/60">
-                  {destination.coordinates?.lat && destination.coordinates?.lng ? (
-                    <MapContainer
-                      center={[
-                        destination.coordinates.lat,
-                        destination.coordinates.lng,
-                      ]}
-                      zoom={10}
-                      scrollWheelZoom={true}
-                      className="h-full w-full"
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-                      />
-                      <Marker
-                        position={[
-                          destination.coordinates.lat,
-                          destination.coordinates.lng,
-                        ]}
-                      >
-                        <Popup>
-                          <div className="text-center">
-                            <h4 className="font-bold">{destination.name}</h4>
-                            <p className="text-gray-600 text-sm">
-                              {destination.location}
-                            </p>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    </MapContainer>
+        {/* Section Header */}
+        <div className="mb-10">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Tour Packages</h2>
+          <p className="text-gray-600 text-lg">Discover curated experiences for your journey</p>
+        </div>
+
+        {/* Packages Grid */}
+        {displayedPackages.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+            {displayedPackages.map((pkg) => (
+              <div
+                key={pkg._id || pkg.id}
+                onClick={() => navigate("/timeline", { state: { selectedPackage: pkg } })}
+                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+              >
+                {/* Image */}
+                <div className="relative h-56 overflow-hidden">
+                  {destination.imageUrls && destination.imageUrls[0] ? (
+                    <img 
+                      src={destination.imageUrls[0]} 
+                      alt={pkg.packageName}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
                   ) : (
-                    <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-2xl">
-                      <div className="text-center">
-                        <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                        <p className="text-gray-500">Map coordinates not available</p>
-                      </div>
-                    </div>
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-200 to-blue-300" />
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                  
+                  {/* Price Badge */}
+                  <div className="absolute top-4 right-4 px-4 py-2 bg-white rounded-full shadow-lg">
+                    <span className="text-indigo-600 font-bold text-lg">₹{pkg.price.toLocaleString()}</span>
+                  </div>
+
+                  {/* Rating Badge */}
+                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm font-semibold text-gray-900">4.8</span>
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="font-bold text-xl mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                    {pkg.packageName}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                    {pkg.description}
+                  </p>
+                  
+                  {/* Meta Info */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-1.5 text-gray-700">
+                      <Clock className="w-4 h-4 text-indigo-500" />
+                      <span className="text-sm font-medium">{pkg.duration} Days</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-700">
+                      <Calendar className="w-4 h-4 text-indigo-500" />
+                      <span className="text-sm font-medium">Daily</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-700">
+                      <Users className="w-4 h-4 text-indigo-500" />
+                      <span className="text-sm font-medium">2-10</span>
+                    </div>
+                  </div>
+
+                  {/* View Details Button */}
+                  <button className="w-full mt-4 py-3 bg-gray-50 group-hover:bg-indigo-600 text-gray-900 group-hover:text-white font-medium rounded-xl transition-all">
+                    View Details
+                  </button>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-24 bg-white rounded-2xl shadow-lg mb-20">
+            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MapPin className="w-10 h-10 text-indigo-400" />
             </div>
+            <h3 className="text-2xl font-bold mb-2 text-gray-900">No Packages Available</h3>
+            <p className="text-gray-600 text-lg">Check back soon for new travel packages</p>
+          </div>
+        )}
+
+        {/* Map Section */}
+        <div>
+          <div className="mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Location Map</h2>
+            <p className="text-gray-600 text-lg">Explore the destination on the map</p>
+          </div>
+          
+          <div className="h-96 rounded-2xl overflow-hidden shadow-2xl">
+            {destination.coordinates?.lat && destination.coordinates?.lng ? (
+              <MapContainer
+                center={[destination.coordinates.lat, destination.coordinates.lng]}
+                zoom={10}
+                scrollWheelZoom={true}
+                className="h-full w-full"
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <Marker position={[destination.coordinates.lat, destination.coordinates.lng]}>
+                  <Popup>
+                    <div className="text-center p-2">
+                      <h4 className="font-bold text-lg mb-1">{destination.name}</h4>
+                      <p className="text-gray-600 text-sm">{destination.location}</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-50">
+                <div className="text-center">
+                  <MapPin className="w-16 h-16 mx-auto mb-3 text-indigo-300" />
+                  <p className="text-gray-500 font-medium text-lg">Map not available</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

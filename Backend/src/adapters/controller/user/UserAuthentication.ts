@@ -9,92 +9,94 @@ import { Role } from "../../../domain/constants/Roles";
 
 export class UserRegisterController {
   constructor(
-    private _registerUserUseCase: IregisterUserUseCase,
-    private _verifyOtpUseCase: IVerifyOtpUseCase,
-    private _resendOtpUseCase: IResendOtpUsecase,
+    private _registerUserUsecase: IregisterUserUseCase,
+    private _verifyOtpUsecase: IVerifyOtpUseCase,
+    private _resendOtpUsecase: IResendOtpUsecase,
     private _tokenService: ITokenService
   ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
-    const formData: RegisterDTO = req.body;
+    try {
+      const formData: RegisterDTO = req.body;
+      const otpSent = await this._registerUserUsecase.execute(formData);
 
-    if (!formData.email || !formData.password || !formData.name) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: "Email, password and name are required",
+      if (!otpSent) {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to send OTP. Please try again.",
+        });
+        return;
+      }
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: "OTP sent to your email address",
+        data: {
+          email: formData.email,
+          username: formData.name,
+        },
       });
-      return;
-    }
-
-    const otpSent = await this._registerUserUseCase.execute(formData);
-
-    if (!otpSent) {
+    } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to send OTP. Please try again.",
+        message: "User registration failed",
+        error,
       });
-      return;
     }
-
-    res.status(HttpStatus.CREATED).json({
-      success: true,
-      message: "OTP sent to your email address",
-      data: {
-        email: formData.email,
-        username: formData.name,
-      },
-    });
   }
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
-    const { userData, otp } = req.body;
+    try {
+      const { userData, otp } = req.body;
+      const verifiedUser = await this._verifyOtpUsecase.execute(userData, otp);
 
-    if (!otp || !userData?.email) {
+      const payload = {
+        id: verifiedUser._id,
+        email: verifiedUser.email,
+        role: Role.USER,
+      };
+
+      const accessToken = this._tokenService.generateAccessToken(payload);
+      const refreshToken = this._tokenService.generateRefreshToken(payload);
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "OTP verified successfully",
+        accessToken,
+        user: verifiedUser,
+      });
+    } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Email and OTP are required",
+        message: "Invalid OTP or verification failed",
+        error,
       });
-      return;
     }
-    const verifiedUser = await this._verifyOtpUseCase.execute(userData, otp);
-    const payload = {
-      id: verifiedUser._id,
-      email: verifiedUser.email,
-      role: Role.USER || "user",
-    };
-    const accessToken = this._tokenService.generateAccessToken(payload);
-    const refreshToken = this._tokenService.generateRefreshToken(payload);
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: process.env.MAX_AGE ? Number(process.env.MAX_AGE) : undefined,
-    });
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "OTP verified successfully",
-      accessToken,
-      user: verifiedUser,
-    });
   }
 
   async resendOtp(req: Request, res: Response): Promise<void> {
-    const { email } = req.body;
-    if (!email) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: "Email is required to resend OTP",
-      });
-      return;
-    }
-    const result = await this._resendOtpUseCase.execute(email);
+    try {
+      const { email } = req.body;
+      const result = await this._resendOtpUsecase.execute(email);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "OTP resent successfully",
-      data: result,
-    });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "OTP resent successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to resend OTP",
+        error,
+      });
+    }
   }
 }

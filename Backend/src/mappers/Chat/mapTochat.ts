@@ -1,22 +1,13 @@
-import { ChatDto } from "../../domain/dto/Chat/chatDto";
-import { ChatMessage } from "../../domain/entities/chatEntity";
+import { IChatOut } from "../../domain/dto/Chat/chatDto";
 
-// DTO → Entity
-export const mapDtoToChatMessage = (dto: ChatDto): ChatMessage => ({
-  senderId: dto.senderId,
-  receiverId: dto.receiverId,
-  senderRole: dto.senderRole as "user" | "vendor",
-  receiverRole: dto.receiverRole as "user" | "vendor",
-  message: dto.message,
-  createdAt: dto.createdAt ?? new Date(),
-});
-
-// Entity → DTO
-export const mapChatMessageToDto = (chat: ChatMessage): ChatDto => ({
-  senderId: chat.senderId,
-  receiverId: chat.receiverId,
-  senderRole: chat.senderRole, 
-  receiverRole: chat.receiverRole,
-  message: chat.message,
-  createdAt: chat.createdAt,
+export const mapToChatOut = (chat: IChatOut): IChatOut => ({
+  _id: chat._id,
+  lastMessage: chat.lastMessage ?? "",
+  lastMessageAt: chat.lastMessageAt ?? new Date(),
+  name: chat.name ?? "",
+  profile_image: chat.profile_image ?? "",
+  isOnline: chat.isOnline ?? false,
+  userId: chat.userId,
+  vendorId: chat.vendorId,
+  unreadCount: chat.unreadCount ?? 0,
 });

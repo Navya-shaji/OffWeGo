@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import { X, MapPin, Image, Globe, Upload, Check } from "lucide-react";
+import { X, MapPin, Image, Globe, Upload, Check, Loader2 } from "lucide-react";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCoordinatesFromPlace } from "@/services/Location/locationService";
+import { toast } from "react-toastify";
 
 interface Props {
   destination: DestinationInterface;
@@ -17,6 +19,47 @@ export const EditDestinationModal: React.FC<Props> = ({
   onChange,
   onSubmit,
 }) => {
+  const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(false);
+  const [locationTimeout, setLocationTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [lastFetchedLocation, setLastFetchedLocation] = useState<string>(destination.location);
+
+  // Debounced location update with coordinate fetching
+  useEffect(() => {
+    // Skip if location hasn't changed or is too short
+    if (destination.location === lastFetchedLocation || !destination.location || destination.location.trim().length < 3) {
+      return;
+    }
+
+    if (locationTimeout) {
+      clearTimeout(locationTimeout);
+    }
+
+    const timeout = setTimeout(async () => {
+      setIsFetchingCoordinates(true);
+      try {
+        const coords = await getCoordinatesFromPlace(destination.location);
+        setLastFetchedLocation(destination.location);
+        onChange({
+          ...destination,
+          coordinates: coords,
+        });
+        toast.success("Coordinates updated successfully");
+      } catch (error: any) {
+        console.error("Failed to fetch coordinates:", error);
+        toast.error(error?.message || "Failed to fetch coordinates for this location");
+      } finally {
+        setIsFetchingCoordinates(false);
+      }
+    }, 1000); // Wait 1 second after user stops typing
+
+    setLocationTimeout(timeout);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [destination.location]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -119,7 +162,7 @@ export const EditDestinationModal: React.FC<Props> = ({
                         className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                         type="number"
                         step="any"
-                        value={destination.coordinates?.lat ?? ""}
+                        value={destination.coordinates?.lat?.toFixed(6) ?? ""}
                         disabled
                         placeholder="Latitude"
                       />
@@ -129,7 +172,7 @@ export const EditDestinationModal: React.FC<Props> = ({
                         className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                         type="number"
                         step="any"
-                        value={destination.coordinates?.lng ?? ""}
+                        value={destination.coordinates?.lng?.toFixed(6) ?? ""}
                         disabled
                         placeholder="Longitude"
                       />
@@ -137,7 +180,7 @@ export const EditDestinationModal: React.FC<Props> = ({
                   </div>
                   <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
-                    Auto-generated
+                    {isFetchingCoordinates ? "Updating coordinates..." : "Auto-generated from location"}
                   </p>
                 </div>
               </div>
@@ -164,14 +207,23 @@ export const EditDestinationModal: React.FC<Props> = ({
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                      placeholder="e.g., Paris, France"
                       value={destination.location}
-                      disabled
+                      onChange={(e) =>
+                        onChange({ ...destination, location: e.target.value })
+                      }
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
-                      Fixed
-                    </div>
+                    {isFetchingCoordinates && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="w-4 h-4 text-purple-600 animate-spin" />
+                      </div>
+                    )}
                   </div>
+                  <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    Coordinates will update automatically when location changes
+                  </p>
                 </div>
 
                 <div>

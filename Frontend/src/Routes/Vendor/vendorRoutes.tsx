@@ -4,20 +4,28 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from "@/pages/Vendors/Dashboard";
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
 import VendorSubscriptionPage from "@/pages/Vendors/Bookings/SubscriptionPlans";
-import BookingSuccess from "@/pages/Vendors/bookingSuccess";
-import ChatPageVendor from "@/pages/Vendors/chat/chatVendor";
 import PaymentFailureModal from "@/pages/Vendors/Bookings/BookingFailed";
+import NotFound from "@/components/Modular/NotFound";
+import PaymentSuccess from "@/pages/Vendors/Bookings/subscriptionSuccesspage";
+import ChatPage from "@/pages/User/chat/chat";
+
+
 
 const VendorRoutes = () => {
   return (
     <Routes>
       <Route path="/signup" element={<VendorSignup />} />
       <Route path="/login" element={<VendorLogin />} />
-      <Route path="/subscriptionplans" element={<VendorSubscriptionPage/>}/>
-      <Route path="/payment-success" element={<BookingSuccess />} />
-      <Route path="/chat" element={<ChatPageVendor />} />
+      <Route path="/subscriptionplans" element={<VendorSubscriptionPage />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-failed" element={<PaymentFailureModal />} />
-      
+
+      <Route path="/chat/:chatId?" element={
+        <ProtectedRoute>
+          <ChatPage />
+        </ProtectedRoute>
+      } />
+
       <Route
         path="/profile"
         element={
@@ -26,6 +34,8 @@ const VendorRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

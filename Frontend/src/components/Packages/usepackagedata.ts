@@ -59,11 +59,33 @@ export const usePackageData = () => {
       setLoadingActivities(true);
 
       try {
-        // Fetch destinations
+        // Fetch destinations - fetch all destinations with a high limit
         let destinationsResult: DestinationInterface[] = [];
         try {
-          const destResp = await fetchAllDestinations();
-          destinationsResult = extractApiData<DestinationInterface>(destResp);
+          // Fetch first page with a high limit to get all destinations
+          const destResp = await fetchAllDestinations(1, 1000);
+          // Handle both response structures
+          if (destResp.destinations && Array.isArray(destResp.destinations)) {
+            destinationsResult = destResp.destinations;
+          } else {
+            destinationsResult = extractApiData<DestinationInterface>(destResp);
+          }
+          
+          // If there are more pages, fetch them all
+          if (destResp.totalPages && destResp.totalPages > 1) {
+            const allDestinations = [...destinationsResult];
+            for (let page = 2; page <= destResp.totalPages; page++) {
+              try {
+                const pageResp = await fetchAllDestinations(page, 1000);
+                if (pageResp.destinations && Array.isArray(pageResp.destinations)) {
+                  allDestinations.push(...pageResp.destinations);
+                }
+              } catch (pageError) {
+                console.error(`Error loading destinations page ${page}:`, pageError);
+              }
+            }
+            destinationsResult = allDestinations;
+          }
         } catch (destError) {
           console.error("Error loading destinations:", destError);
         }

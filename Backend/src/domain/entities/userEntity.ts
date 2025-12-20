@@ -4,8 +4,7 @@ export interface User {
   _id?: ObjectId;
   name: string;
   email: string;
-  phone: number;
-  password: string;
+  password?: string;
   role: "user" | "admin";
   status?: "active" | "block";
   imageUrl?: string;
@@ -13,4 +12,8 @@ export interface User {
   updatedAt?: Date;
   lastLogin?: Date;
   isAdmin?: boolean;
+  fcmToken: string;
+  isGoogleUser?: boolean;
+  location?: string;
+  phone?: number | string;
 }

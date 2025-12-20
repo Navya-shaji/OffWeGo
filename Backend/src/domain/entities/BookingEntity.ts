@@ -20,6 +20,10 @@ export interface PackageInfo {
 }
 
 export interface Booking {
+  // adminId(bookingId: string, vendorId: any, adminId: any, totalAmount: number): unknown;
+  vendorId: any;
+  startDate: string | number | Date;
+  packageId(packageId: any): unknown;
   _id?: string;
   bookingId: string;
   userId: string;
@@ -34,4 +38,5 @@ export interface Booking {
   createdAt?: Date;
   updatedAt?: Date;
   bookingStatus: "upcoming" | "completed" | "cancelled";
+  settlementDone:boolean
 }

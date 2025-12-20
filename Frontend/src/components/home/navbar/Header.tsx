@@ -123,7 +123,7 @@ const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <nav className="flex flex-col space-y-2">
-              {["Home", "Destinations", "Articles", "Buddy Travel", "Travel Buddies"].map( // <-- Added "Travel Buddies" here
+              {["Home", "Destinations", "Articles", "Buddy Travel", "Travel Buddies"].map( 
                 (item) => (
                   <a
                     key={item}

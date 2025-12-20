@@ -4,29 +4,24 @@ export interface ISubscriptionBooking {
   _id: ObjectId;
 
   vendorId: string;
-planId: ObjectId;
-  
+  planId: ObjectId;
 
   planName: string;
-
-  date?: string;
-  time?: string;
+  features?: string[];         
 
   amount: number;
   currency: string;
 
-  status: "pending" | "active" | "canceled";
+  status: "pending" | "active" | "expired";
 
   stripeSubscriptionId?: string;
   stripeCustomerId?: string;
   stripeSessionId?: string;
 
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: Date;           
+  endDate?: Date;       
 
-  usedPackages?: number;
-  maxPackages?: number;
-  duration?: number;
+  duration: number;            
 
   createdAt?: Date;
   updatedAt?: Date;

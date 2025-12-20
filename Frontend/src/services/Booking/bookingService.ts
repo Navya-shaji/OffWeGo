@@ -18,9 +18,9 @@ console.log(response.data,"response")
 };
 
 
-export const getUserBookings = async (userId: string) => {
-  const response = await axiosInstance.get(`/api/bookings/${userId}`);
-  console.log(response.data.bookings)
+export const getUserBookings = async () => {
+  const response = await axiosInstance.get(`/api/bookings`);
+  console.log(response.data.bookings,"bookings")
   return response.data.bookings;
 };
 
@@ -36,8 +36,23 @@ export const bookingdates=async(vendorId:string)=>{
   console.log(response.data.booking_dates,"hfjh")
   return response.data.booking_dates
 }
-export const cancelBooking = async (bookingId: string) => {
-  const response = await axiosInstance.patch(`/api/bookings/${bookingId}`);
-  console.log(response)
+export const cancelBooking = async (bookingId: string, reason?: string) => {
+  const response = await axiosInstance.patch(`/api/bookings/${bookingId}`, {
+    reason: reason || undefined,
+  });
+  console.log(response.data.data,"res")
   return response.data
+};
+
+export const rescheduleBooking = async (bookingId: string, newDate: string) => {
+  try {
+    const response = await axiosInstance.patch(`/api/booking/${bookingId}/reschedule`, {
+      newDate,
+    });
+    console.log(response.data, "reschedule response");
+    return response.data;
+  } catch (error) {
+    console.error("Error rescheduling booking:");
+    throw error;
+  }
 };

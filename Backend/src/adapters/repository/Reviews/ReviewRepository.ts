@@ -4,17 +4,37 @@ import {
   ReviewModel,
   IReviewModel,
 } from "../../../framework/database/Models/ReviewModel";
+import mongoose from "mongoose";
 
 export class ReviewRepository implements IReviewRepository {
-  async create(review: IReview): Promise<IReviewModel> {
-    return await ReviewModel.create(review);
+  async create(review: IReview): Promise<IReview> {
+    // Ensure userId is converted to ObjectId
+    const reviewData = {
+      ...review,
+      userId: new mongoose.Types.ObjectId(review.userId)
+    };
+    const created = await ReviewModel.create(reviewData);
+    return created.toObject();
   }
 
-  async findByPackage(packageId: string): Promise<IReviewModel[]> {
-    return await ReviewModel.find({ packageId }).populate(
+  async findByPackage(packageName: string): Promise<IReviewModel[]> {
+    return await ReviewModel.find({ packageName }).populate(
       "userId",
-      "name  profileImage"
+      "name profileImage"
     );
+  }
+
+  async findByPackageAndUser(packageName: string, userId: string): Promise<IReview | null> {
+  
+    const userIdObjectId = new mongoose.Types.ObjectId(userId);
+    const review = await ReviewModel.findOne({ 
+      packageName, 
+      userId: userIdObjectId 
+    }).populate(
+      "userId",
+      "name profileImage"
+    );
+    return review ? review.toObject() : null;
   }
 
   async findByUser(userId: string): Promise<IReviewModel[]> {
