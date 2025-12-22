@@ -676,7 +676,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br">
+    <div className="w-full bg-gradient-to-br">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse"></div>
        
@@ -1067,13 +1067,14 @@ const handleSubmit = async (e: React.FormEvent) => {
         </Card>
       </div>
 
-   
+      {/* Subscription Required Modal - Only show if no active subscription and check is complete */}
       {!isCheckingSubscription && !hasActiveSubscription && (
         <SubscriptionRequiredModal
           isOpen={showSubscriptionModal}
           onClose={() => {
             setShowSubscriptionModal(false);
-            
+            // Refresh subscription status when modal is closed
+            // This handles the case when user returns from subscription purchase page
             checkSubscription();
           }}
           message={getSubscriptionMessage()}

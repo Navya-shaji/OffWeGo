@@ -1,6 +1,7 @@
 import { BuddyTravelDto } from "../../domain/dto/BuddyTravel/BuddyTravelDto";
 import { IBuddyTravelRepository } from "../../domain/interface/BuddyTravel/IBuddyTravelRepository";
 import { IBuddyPackageApprovalUsecase } from "../../domain/interface/BuddyTravel/IGetPendingBuddyPAckagesUsecase";
+import { mapToBuddyTravelDtoArray } from "../../mappers/BuddyTravel/mapToAllBuddypackages";
 
 export class GetBuddyTravelUsecase implements IBuddyPackageApprovalUsecase {
   constructor(private _buddyRepo: IBuddyTravelRepository) {}
@@ -18,15 +19,18 @@ export class GetBuddyTravelUsecase implements IBuddyPackageApprovalUsecase {
     const normalizedAction = action.toLowerCase();
 
     if (normalizedAction === "pending") {
-      return await this._buddyRepo.findByStatus("PENDING");
+      const trips = await this._buddyRepo.findByStatus("PENDING");
+      return mapToBuddyTravelDtoArray(trips);
     }
 
     if (normalizedAction === "approved") {
-      return await this._buddyRepo.findByStatus("APPROVED");
+      const trips = await this._buddyRepo.findByStatus("APPROVED");
+      return mapToBuddyTravelDtoArray(trips);
     }
 
     if (normalizedAction === "reject") {
-      return await this._buddyRepo.findByStatus("REJECTED");
+      const trips = await this._buddyRepo.findByStatus("REJECTED");
+      return mapToBuddyTravelDtoArray(trips);
     }
 
     throw new Error(`Invalid action type: ${action}`);

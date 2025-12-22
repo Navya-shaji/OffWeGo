@@ -1,4 +1,4 @@
-import express, { Express } from "express"; 
+import express, { Express } from "express";
 import dotenv from "dotenv";
 import http from "http";
 import cors from "cors";
@@ -12,8 +12,10 @@ import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 
 import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
-
-import { autoSettleTrips } from "./framework/Services/cronjob";
+import {
+  autoSettleTrips,
+  updateBuddyTravelTripStatus,
+} from "./framework/Services/cronjob";
 import { SocketIoServer } from "./Io";
 
 export class App {
@@ -21,7 +23,6 @@ export class App {
   private database: ConnectDB;
   private server!: http.Server;
   private io!: SocketIOServer;
-
 
   constructor() {
     dotenv.config();
@@ -34,7 +35,7 @@ export class App {
           "http://localhost:5173",
           "http://localhost:4173",
           "http://localhost:1212",
-          "https://jvm9v112-5173.inc1.devtunnels.ms",
+          "https://ktzc00t7-1212.inc1.devtunnels.ms/",
         ],
         credentials: true,
       })
@@ -55,7 +56,6 @@ export class App {
     this.app.use("/api", new UserRoute().userRouter);
     this.app.use("/api/admin", new AdminRoute().adminRouter);
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
-
   }
 
   public async listen(): Promise<void> {
@@ -65,6 +65,8 @@ export class App {
       await this.database.connect();
       autoSettleTrips.start();
       console.log("⏱️ Auto Settlement Cron Started");
+      updateBuddyTravelTripStatus.start();
+      console.log("⏱️ Buddy Travel Trip Status Update Cron Started");
 
       this.server = http.createServer(this.app);
 

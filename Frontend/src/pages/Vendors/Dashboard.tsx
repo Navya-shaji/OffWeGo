@@ -23,54 +23,51 @@ import VendorWalletManagement from "./Wallet/vendorWallet";
 import VendorDashboard from "./Dashboard/VendorDashboard";
 import VendorMessageContainer from "./chat/ChatVendor";
 
-
 function Dashboard() {
-  const [activeTab, setActiveTab] = useState("Profile");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const dispatch = useDispatch<AppDispatch>();
   const { packages } = useSelector((state: RootState) => state.package);
   const vendorId = useSelector((state: RootState) => state.vendorAuth.vendor?.id);
-
 
   useEffect(() => {
     dispatch(fetchPackages());
   }, [dispatch]);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <VendorSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-gray-50 ml-64 min-w-0">
         <Navbar />
-        <div className="flex-1 p-6 overflow-y-auto">
-
-          {activeTab === "Profile" && <Profile />}
-          {activeTab === "Add Package" && <AddPackage />}
-          {activeTab === "Add Buddy Travel" && <AddBuddyTravelPage />}
-          {activeTab === "All Packages" && <PackageTable packages={packages} />}
-          {activeTab === "Buddy Packages" && (
-            <VendorApprovedPackages vendorId={vendorId || ""} />
-          )}
-          {activeTab === "All Destinations" && <DestinationTable />}
-          {activeTab === "Add Destination" && <CreateDestination />}
-          {activeTab === "Create Hotel" && <CreateHotel />}
-          {activeTab === "All Hotels" && <HotelsTable />}
-          {activeTab === "Create Activity" && <AddActivity />}
-          {activeTab === "All Activities" && <ActivitiesTable />}
-          {activeTab === "Create Flight" && <CreateFlight />}
-          {activeTab === "All Flights" && <GetAllFlight />}
-          {activeTab === "All Bookings" && <AllBookings />}
-          {activeTab === "Dashboard" && <VendorDashboard />}
-          {activeTab === "VendorWalletManagement" && (
-            <VendorWalletManagement />
-          )}
-          {activeTab === "Booking Slots" && (
-            <TravelCalendar vendorId={vendorId || ""} />
-          )}
-          {activeTab === "Chat" && <VendorMessageContainer />}
-
+        <div className="flex-1 overflow-y-auto bg-gray-50 scrollbar-hide">
+          <div className={`${activeTab === "Profile" ? "h-full flex items-center justify-center" : "p-6"}`}>
+            {activeTab === "Profile" && <Profile />}
+            {activeTab === "Add Package" && <AddPackage />}
+            {activeTab === "Add Buddy Travel" && <AddBuddyTravelPage />}
+            {activeTab === "All Packages" && <PackageTable packages={packages} />}
+            {activeTab === "Buddy Packages" && (
+              <VendorApprovedPackages vendorId={vendorId || ""} />
+            )}
+            {activeTab === "All Destinations" && <DestinationTable />}
+            {activeTab === "Add Destination" && <CreateDestination />}
+            {activeTab === "Create Hotel" && <CreateHotel />}
+            {activeTab === "All Hotels" && <HotelsTable />}
+            {activeTab === "Create Activity" && <AddActivity />}
+            {activeTab === "All Activities" && <ActivitiesTable />}
+            {activeTab === "Create Flight" && <CreateFlight />}
+            {activeTab === "All Flights" && <GetAllFlight />}
+            {activeTab === "All Bookings" && <AllBookings />}
+            {activeTab === "Dashboard" && <VendorDashboard />}
+            {activeTab === "VendorWalletManagement" && (
+              <VendorWalletManagement />
+            )}
+            {activeTab === "Booking Slots" && (
+              <TravelCalendar vendorId={vendorId || ""} />
+            )}
+            {activeTab === "Chat" && <VendorMessageContainer />}
+          </div>
         </div>
       </div>
     </div>

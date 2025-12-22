@@ -3,10 +3,12 @@ import { WalletRepository } from "../../adapters/repository/Wallet/walletReposit
 import { BookingRepository } from "../../adapters/repository/Booking/BookingRepository";
 import { PackageRepository } from "../../adapters/repository/Package/PackageRepository";
 import { CompleteTripUseCase } from "../../useCases/wallet/completedTripUsecase";
+import { BuddyTravelRepository } from "../../adapters/repository/BuddyTravel/buddyTravelRepository";
 
 const walletRepo = new WalletRepository();
 const bookingRepo = new BookingRepository();
 const packageRepo = new PackageRepository();
+const buddyTravelRepo = new BuddyTravelRepository();
 
 const completeTrip = new CompleteTripUseCase(
   walletRepo,
@@ -14,6 +16,38 @@ const completeTrip = new CompleteTripUseCase(
   packageRepo
 );
 
+// Cron job to auto-update Buddy Travel trip status based on dates
+export const updateBuddyTravelTripStatus = cron.schedule("0 * * * *", async () => {
+  console.log("🔄 Checking Buddy Travel trip statuses...");
+  try {
+    const now = new Date();
+    const allTrips = await buddyTravelRepo.findAll();
+
+    for (const trip of allTrips) {
+      const startDate = new Date(trip.startDate);
+      const endDate = new Date(trip.endDate);
+      
+      let newTripStatus: "UPCOMING" | "ONGOING" | "COMPLETED";
+
+      if (now < startDate) {
+        newTripStatus = "UPCOMING";
+      } else if (now >= startDate && now <= endDate) {
+        newTripStatus = "ONGOING";
+      } else {
+        newTripStatus = "COMPLETED";
+      }
+
+      // Only update if status changed
+      if (trip.tripStatus !== newTripStatus) {
+        await buddyTravelRepo.updateTripStatus(trip._id.toString(), newTripStatus);
+        console.log(`✅ Updated trip ${trip._id}: ${trip.tripStatus} → ${newTripStatus}`);
+      }
+    }
+    console.log("✅ Buddy Travel trip status check completed");
+  } catch (error) {
+    console.error("❌ Error updating Buddy Travel trip statuses:", error);
+  }
+});
 
 export const autoSettleTrips = cron.schedule("*/1 * * * *", async () => {
   console.log("Checking for completed trips...");

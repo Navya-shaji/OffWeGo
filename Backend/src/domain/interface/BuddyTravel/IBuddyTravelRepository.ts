@@ -27,4 +27,9 @@ export interface IBuddyTravelRepository {
   approveBuddyPackage(id: string): Promise<BuddyTravel | null>;
   rejectBuddyPackage(id: string): Promise<BuddyTravel | null>;
   findAll(): Promise<BuddyTravel[]>;
+  updateTripStatus(id: string, tripStatus: "UPCOMING" | "ONGOING" | "COMPLETED"): Promise<BuddyTravel | null>;
+  getBuddyTripsByCategoryId(categoryId: string, skip: number, limit: number): Promise<{
+    trips: BuddyTravel[];
+    totalTrips: number;
+  }>;
 }

@@ -5,8 +5,13 @@ export const buddyTravelSchema = new Schema(
     vendorId: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    category: { type: String, required: true },
+    categoryId: { 
+      type: Schema.Types.ObjectId, 
+      ref: "Category", 
+      required: true 
+    },
     destination: { type: String, required: true },
+    location: { type: String, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     price: { type: Number, required: true },
@@ -17,6 +22,15 @@ export const buddyTravelSchema = new Schema(
         type: String,
       },
     ],
+
+    includedFeatures: {
+      food: { type: Boolean, default: false },
+      stay: { type: Boolean, default: false },
+      transport: { type: Boolean, default: false },
+      activities: { type: Boolean, default: false },
+      guide: { type: Boolean, default: false },
+      insurance: { type: Boolean, default: false },
+    },
 
     itinerary: [
       {
@@ -46,10 +60,18 @@ export const buddyTravelSchema = new Schema(
       },
     ],
 
+    
     status: {
       type: String,
-      enum: ["PENDING", "ACTIVE", "CANCELLED", "COMPLETED", "APPROVED"],
+      enum: ["PENDING", "ACTIVE", "CANCELLED", "COMPLETED", "APPROVED", "REJECTED"],
       default: "PENDING",
+    },
+
+    
+    tripStatus: {
+      type: String,
+      enum: ["UPCOMING", "ONGOING", "COMPLETED"],
+      default: "UPCOMING",
     },
 
     isApproved: { type: Boolean, default: false },

@@ -109,12 +109,19 @@ export class BuddyTravelController {
 
   async getAllbuddyPackages(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._getallBuddyPackages.execute();
+      const categoryId = req.query.categoryId as string | undefined;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      const result = await this._getallBuddyPackages.execute(categoryId, page, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Buddy packages fetched successfully",
-        data: result,
+        data: result.packages,
+        totalPackages: result.totalPackages,
+        page,
+        limit,
       });
     } catch (error) {
       console.error("Error in getAllbuddyPackages:", error);

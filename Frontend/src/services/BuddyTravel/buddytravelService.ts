@@ -16,16 +16,22 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
       vendorId,
       title: data.title,
       description: data.description,
-      category: data.category,
+      categoryId: data.categoryId || data.category,
       destination: data.destination,
-
+      location: data.location || data.destination,
       startDate: new Date(data.startDate).toISOString(),
       endDate: new Date(data.endDate).toISOString(),
-
       price: Number(data.price),
       maxPeople: Number(data.maxPeople),
       joinedUsers: data.joinedUsers || [],
-
+      includedFeatures: data.includedFeatures || {
+        food: false,
+        stay: false,
+        transport: false,
+        activities: false,
+        guide: false,
+        insurance: false,
+      },
       itinerary: data.itinerary || [],
       hotels: data.hotels || [],
       activities: data.activities || [],
@@ -128,12 +134,22 @@ export const getBuddypackagesByvendor = async (vendorId: string) => {
   }
 };
 
-export const getAllBuddyPackages = async () => {
+export const getAllBuddyPackages = async (categoryId?: string, page: number = 1, limit: number = 10) => {
   try {
-    const response = await axiosInstance.get("/api/buddy-packages");
+    const params: any = { page, limit };
+    if (categoryId) {
+      params.categoryId = categoryId;
+    }
+    
+    const response = await axiosInstance.get("/api/buddy-packages", { params });
 
     if (response.data.success) {
-      return response.data.data;
+      return {
+        data: response.data.data || [],
+        totalPackages: response.data.totalPackages || 0,
+        page: response.data.page || page,
+        limit: response.data.limit || limit,
+      };
     } else {
       throw new Error(response.data.message || "Failed to fetch buddy travel packages");
     }

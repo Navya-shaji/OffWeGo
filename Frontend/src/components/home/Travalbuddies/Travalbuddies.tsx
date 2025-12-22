@@ -1,23 +1,30 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, Users, Calendar, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Search, Filter, MapPin, Users, Calendar, X, Loader2, CheckCircle, AlertCircle, Clock, MapPin as LocationIcon } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import type { RootState } from '@/store/store';
 import { getAllBuddyPackages, joinBuddyTravel } from '@/services/BuddyTravel/buddytravelService';
+import { getCategory } from '@/services/category/categoryService';
 
 interface BuddyPackage {
   _id: string;
+  id?: string;
   title: string;
   destination: string;
-  category: string;
-  duration: string;
+  location?: string;
+  categoryId?: string;
+  category?: string | { name: string; id: string };
+  duration?: string;
   price: number;
   maxPeople: number;
-  image: string;
+  image?: string;
   description: string;
   joinedUsers: string[];
   startDate: string;
   endDate: string;
+  tripStatus?: 'UPCOMING' | 'ONGOING' | 'COMPLETED';
+  remainingSlots?: number;
+  totalJoined?: number;
 }
 
 const Travalbuddies = () => {
@@ -26,19 +33,36 @@ const Travalbuddies = () => {
 
   const [packages, setPackages] = useState<BuddyPackage[]>([]);
   const [destinations, setDestinations] = useState<string[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [joiningPackageId, setJoiningPackageId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
   
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [selectedDestination, setSelectedDestination] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchData();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const categoryResponse = await getCategory();
+      let categoriesData = [];
+      if (Array.isArray(categoryResponse)) {
+        categoriesData = categoryResponse;
+      } else if (categoryResponse?.data) {
+        categoriesData = Array.isArray(categoryResponse.data) ? categoryResponse.data : [];
+      }
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
 
   useEffect(() => {
     if (successMessage) {
@@ -47,12 +71,12 @@ const Travalbuddies = () => {
     }
   }, [successMessage]);
 
-  const fetchData = async () => {
+  const fetchData = async (categoryId?: string) => {
     try {
       setLoading(true);
       setError('');
 
-      const packagesRes = await getAllBuddyPackages();
+      const packagesRes = await getAllBuddyPackages(categoryId);
       
       let packagesData: BuddyPackage[] = [];
       if (packagesRes.data && Array.isArray(packagesRes.data)) {
@@ -76,9 +100,19 @@ const Travalbuddies = () => {
     }
   };
 
+  useEffect(() => {
+    fetchData(selectedCategoryId || undefined);
+  }, [selectedCategoryId]);
+
   const handleJoinPackage = async (pkg: BuddyPackage) => {
     if (!userId) {
       setError('Please login to join a package');
+      return;
+    }
+
+    // Check trip status
+    if (pkg.tripStatus === 'ONGOING' || pkg.tripStatus === 'COMPLETED') {
+      setError(`Cannot join trip. Trip status is ${pkg.tripStatus}`);
       return;
     }
 
@@ -87,7 +121,8 @@ const Travalbuddies = () => {
       return;
     }
 
-    if (pkg.joinedUsers?.length >= pkg.maxPeople) {
+    const remainingSlots = pkg.remainingSlots ?? (pkg.maxPeople - (pkg.joinedUsers?.length || 0));
+    if (remainingSlots <= 0 || pkg.joinedUsers?.length >= pkg.maxPeople) {
       setError('This package is already full');
       return;
     }
@@ -98,7 +133,7 @@ const Travalbuddies = () => {
       setSuccessMessage('');
 console.log(pkg,"jdk")
      
-      const response = await joinBuddyTravel(userId, pkg.id);
+      const response = await joinBuddyTravel(userId, pkg._id || pkg.id);
       
       console.log('Join response:', response);
 
@@ -143,20 +178,22 @@ console.log(pkg,"jdk")
   };
 
   const clearFilters = () => {
-    setSelectedCategory('');
+    setSelectedCategoryId('');
     setSelectedDestination('');
     setSearchQuery('');
   };
 
-  const hasActiveFilters = selectedCategory || selectedDestination || searchQuery;
+  const hasActiveFilters = selectedCategoryId || selectedDestination || searchQuery;
 
   const filteredPackages = packages.filter(pkg => {
-    const matchesCategory = !selectedCategory || pkg.category?.toLowerCase() === selectedCategory.toLowerCase();
+    const categoryName = typeof pkg.category === 'object' ? pkg.category?.name : pkg.category;
+    const matchesCategory = !selectedCategoryId || pkg.categoryId === selectedCategoryId;
     const matchesDestination = !selectedDestination || pkg.destination?.toLowerCase() === selectedDestination.toLowerCase();
     const matchesSearch = !searchQuery || 
       pkg.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       pkg.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pkg.destination?.toLowerCase().includes(searchQuery.toLowerCase());
+      pkg.destination?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pkg.location?.toLowerCase().includes(searchQuery.toLowerCase());
     
     return matchesCategory && matchesDestination && matchesSearch;
   });
@@ -166,7 +203,28 @@ console.log(pkg,"jdk")
   };
 
   const isFull = (pkg: BuddyPackage) => {
-  console.log(pkg)
+    const remainingSlots = pkg.remainingSlots ?? (pkg.maxPeople - (pkg.joinedUsers?.length || 0));
+    return remainingSlots <= 0;
+  };
+
+  const canJoin = (pkg: BuddyPackage) => {
+    if (!userId) return false;
+    if (pkg.tripStatus === 'ONGOING' || pkg.tripStatus === 'COMPLETED') return false;
+    if (pkg.joinedUsers?.includes(userId)) return false;
+    return !isFull(pkg);
+  };
+
+  const getTripStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'UPCOMING':
+        return { label: 'Upcoming', color: 'bg-blue-100 text-blue-800' };
+      case 'ONGOING':
+        return { label: 'Ongoing', color: 'bg-green-100 text-green-800' };
+      case 'COMPLETED':
+        return { label: 'Completed', color: 'bg-gray-100 text-gray-800' };
+      default:
+        return { label: 'Upcoming', color: 'bg-blue-100 text-blue-800' };
+    }
   };
 
   if (loading) {
@@ -235,6 +293,19 @@ console.log(pkg,"jdk")
 
             <div className="hidden md:flex gap-4">
               <select
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[150px]"
+              >
+                <option value="">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat.id || cat._id} value={cat.id || cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
                 value={selectedDestination}
                 onChange={(e) => setSelectedDestination(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white min-w-[150px]"
@@ -262,10 +333,10 @@ console.log(pkg,"jdk")
 
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2 mb-6">
-            {selectedCategory && (
+            {selectedCategoryId && (
               <span className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                Category: {selectedCategory}
-                <button onClick={() => setSelectedCategory('')} className="hover:bg-blue-200 rounded-full p-0.5">
+                Category: {categories.find(c => (c.id || c._id) === selectedCategoryId)?.name || 'Selected'}
+                <button onClick={() => setSelectedCategoryId('')} className="hover:bg-blue-200 rounded-full p-0.5">
                   <X className="w-3 h-3" />
                 </button>
               </span>
@@ -322,15 +393,20 @@ console.log(pkg,"jdk")
                     </div>
                   )}
                   <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-sm font-semibold text-blue-600 shadow-md">
-                    ${pkg.price}
+                    ₹{pkg.price}
                   </div>
+                  {pkg.tripStatus && (
+                    <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold text-white ${getTripStatusBadge(pkg.tripStatus).color.replace('bg-', 'bg-').replace('text-', 'text-')}`}>
+                      {getTripStatusBadge(pkg.tripStatus).label}
+                    </div>
+                  )}
                   {isFull(pkg) && !isUserJoined(pkg) && (
-                    <div className="absolute top-3 left-3 bg-red-500 px-3 py-1 rounded-full text-xs font-bold text-white">
+                    <div className="absolute bottom-3 left-3 bg-red-500 px-3 py-1 rounded-full text-xs font-bold text-white">
                       FULL
                     </div>
                   )}
                   {isUserJoined(pkg) && (
-                    <div className="absolute top-3 left-3 bg-green-500 px-3 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1">
+                    <div className="absolute bottom-3 left-3 bg-green-500 px-3 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" />
                       JOINED
                     </div>
@@ -346,33 +422,40 @@ console.log(pkg,"jdk")
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="line-clamp-1">{pkg.destination}</span>
                     </div>
-                    {pkg.duration && (
+                    {pkg.location && (
                       <div className="flex items-center gap-2 text-gray-600 text-sm">
-                        <Calendar className="w-4 h-4 flex-shrink-0" />
-                        {pkg.duration}
+                        <LocationIcon className="w-4 h-4 flex-shrink-0" />
+                        <span className="line-clamp-1">{pkg.location}</span>
                       </div>
                     )}
                     <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <Calendar className="w-4 h-4 flex-shrink-0" />
+                      <span>{new Date(pkg.startDate).toLocaleDateString()} - {new Date(pkg.endDate).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <Users className="w-4 h-4 flex-shrink-0" />
-                      {pkg.joinedUsers?.length || 0}/{pkg.maxPeople} joined
+                      <span>{pkg.totalJoined || pkg.joinedUsers?.length || 0}/{pkg.maxPeople} joined</span>
+                      {pkg.remainingSlots !== undefined && (
+                        <span className="text-green-600 font-medium">({pkg.remainingSlots} slots left)</span>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    {pkg.category && (
-                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                        {pkg.category}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {pkg.category && (
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                          {typeof pkg.category === 'object' ? pkg.category.name : pkg.category}
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={() => handleJoinPackage(pkg)}
-                      disabled={isUserJoined(pkg) || isFull(pkg) || joiningPackageId === pkg._id || !userId}
+                      disabled={!canJoin(pkg) || joiningPackageId === pkg._id}
                       className={`px-4 py-2 rounded-lg transition font-medium text-sm flex items-center gap-2 ${
                         isUserJoined(pkg)
                           ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                          : isFull(pkg)
-                          ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                          : !userId
+                          : !canJoin(pkg)
                           ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                           : joiningPackageId === pkg._id
                           ? 'bg-blue-400 text-white cursor-wait'
@@ -388,6 +471,11 @@ console.log(pkg,"jdk")
                         <>
                           <CheckCircle className="w-4 h-4" />
                           Joined
+                        </>
+                      ) : pkg.tripStatus === 'ONGOING' || pkg.tripStatus === 'COMPLETED' ? (
+                        <>
+                          <Clock className="w-4 h-4" />
+                          {pkg.tripStatus === 'ONGOING' ? 'Ongoing' : 'Completed'}
                         </>
                       ) : isFull(pkg) ? (
                         'Full'

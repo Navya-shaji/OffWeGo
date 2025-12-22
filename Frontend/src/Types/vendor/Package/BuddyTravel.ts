@@ -13,9 +13,14 @@ export const buddyTravelSchema = z.object({
     .min(20, 'Description must be at least 20 characters')
     .max(1000, 'Description must not exceed 1000 characters'),
   
-  category: z
+  categoryId: z
     .string()
     .min(1, 'Please select a category'),
+  
+  location: z
+    .string()
+    .min(1, 'Location is required')
+    .min(3, 'Location must be at least 3 characters'),
   
   destination: z
     .string()

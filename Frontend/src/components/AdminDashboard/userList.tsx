@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { toast } from "react-toastify";
 import {
   getAllUsers,
   searchUser,
@@ -120,7 +121,38 @@ const UserList = () => {
   const handleConfirmStatusChange = async () => {
     if (!selectedUser) return;
     const newStatus = selectedUser.status === "active" ? "blocked" : "active";
-    await handleActionChange(selectedUser.id, newStatus);
+    const action = newStatus === "blocked" ? "block" : "unblock";
+    
+    try {
+      await handleActionChange(selectedUser.id, newStatus);
+      
+      // Show success toast with blur background
+      toast.success(
+        `Successfully ${action}ed user "${selectedUser.name}"`,
+        {
+          position: "top-right",
+          autoClose: 3000,
+          style: {
+            backdropFilter: "blur(10px)",
+            background: "rgba(255, 255, 255, 0.9)",
+          },
+        }
+      );
+    } catch (error) {
+      // Show error toast with blur background
+      toast.error(
+        `Failed to ${action} user "${selectedUser.name}". Please try again.`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          style: {
+            backdropFilter: "blur(10px)",
+            background: "rgba(255, 255, 255, 0.9)",
+          },
+        }
+      );
+    }
+    
     setModalOpen(false);
     setSelectedUser(null);
   };
@@ -149,6 +181,8 @@ const UserList = () => {
         setOriginalUsers(prevOriginal);
         setError("Failed to update status");
         setTimeout(() => setError(""), 3000);
+        // Re-throw the error so it can be caught by the calling function
+        throw err;
       }
     },
     [users, originalUsers, isSearchMode]
@@ -277,7 +311,7 @@ const UserList = () => {
     <div className="p-4 space-y-4">
       {/* ---------------- Modal ---------------- */}
       {modalOpen && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+        <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h3 className="text-lg font-semibold">
               {selectedUser.status === "active" ? "Block User" : "Unblock User"}

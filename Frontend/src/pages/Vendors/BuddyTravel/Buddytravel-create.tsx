@@ -12,12 +12,22 @@ const AddBuddyTravelPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
+    categoryId: '',
     destination: '',
+    location: '',
     startDate: '',
     endDate: '',
     price: '',
     maxPeople: '',
+  });
+
+  const [includedFeatures, setIncludedFeatures] = useState({
+    food: false,
+    stay: false,
+    transport: false,
+    activities: false,
+    guide: false,
+    insurance: false,
   });
 
   const [itinerary, setItinerary] = useState([]);
@@ -257,10 +267,13 @@ const AddBuddyTravelPage = () => {
     try {
       const payload = {
         ...formData,
+        categoryId: formData.categoryId,
         price: parseFloat(formData.price),
         maxPeople: parseInt(formData.maxPeople),
         startDate: new Date(formData.startDate).toISOString(),
         endDate: new Date(formData.endDate).toISOString(),
+        location: formData.location,
+        includedFeatures: includedFeatures,
         itinerary: itinerary,
         hotels: selectedHotels,
         activities: selectedActivities,
@@ -274,12 +287,21 @@ const AddBuddyTravelPage = () => {
         setFormData({
           title: '',
           description: '',
-          category: '',
+          categoryId: '',
           destination: '',
+          location: '',
           startDate: '',
           endDate: '',
           price: '',
           maxPeople: '',
+        });
+        setIncludedFeatures({
+          food: false,
+          stay: false,
+          transport: false,
+          activities: false,
+          guide: false,
+          insurance: false,
         });
         setItinerary([]);
         setSelectedHotels([]);
@@ -306,12 +328,21 @@ const AddBuddyTravelPage = () => {
     setFormData({
       title: '',
       description: '',
-      category: '',
+      categoryId: '',
       destination: '',
+      location: '',
       startDate: '',
       endDate: '',
       price: '',
       maxPeople: '',
+    });
+    setIncludedFeatures({
+      food: false,
+      stay: false,
+      transport: false,
+      activities: false,
+      guide: false,
+      insurance: false,
     });
     setItinerary([]);
     setSelectedHotels([]);
@@ -323,7 +354,7 @@ const AddBuddyTravelPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+    <div className="w-full bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
@@ -358,8 +389,8 @@ const AddBuddyTravelPage = () => {
                     </div>
                   ) : (
                     <select
-                      name="category"
-                      value={formData.category}
+                      name="categoryId"
+                      value={formData.categoryId}
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500"
                     >
@@ -371,7 +402,7 @@ const AddBuddyTravelPage = () => {
                       ))}
                     </select>
                   )}
-                  {errors.category && <div className="text-sm text-red-600 mt-1">{errors.category}</div>}
+                  {errors.categoryId && <div className="text-sm text-red-600 mt-1">{errors.categoryId}</div>}
                 </div>
 
                 <div>
@@ -397,6 +428,19 @@ const AddBuddyTravelPage = () => {
                   )}
                   {errors.destination && <div className="text-sm text-red-600 mt-1">{errors.destination}</div>}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="e.g., Goa, India"
+                />
+                {errors.location && <div className="text-sm text-red-600 mt-1">{errors.location}</div>}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -464,6 +508,44 @@ const AddBuddyTravelPage = () => {
                   placeholder="Describe your travel experience..."
                 />
                 {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
+              </div>
+            </div>
+
+            {/* Included Features Section */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">Included Features</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  { key: 'food', label: 'Food', icon: '🍽️' },
+                  { key: 'stay', label: 'Stay', icon: '🏨' },
+                  { key: 'transport', label: 'Transport', icon: '🚗' },
+                  { key: 'activities', label: 'Activities', icon: '🎯' },
+                  { key: 'guide', label: 'Guide', icon: '👨‍🏫' },
+                  { key: 'insurance', label: 'Insurance', icon: '🛡️' },
+                ].map((feature) => (
+                  <label
+                    key={feature.key}
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      includedFeatures[feature.key]
+                        ? 'border-indigo-500 bg-indigo-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={includedFeatures[feature.key]}
+                      onChange={(e) =>
+                        setIncludedFeatures({
+                          ...includedFeatures,
+                          [feature.key]: e.target.checked,
+                        })
+                      }
+                      className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                    />
+                    <span className="text-2xl">{feature.icon}</span>
+                    <span className="font-medium text-gray-700">{feature.label}</span>
+                  </label>
+                ))}
               </div>
             </div>
 

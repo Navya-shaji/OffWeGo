@@ -2,16 +2,27 @@ export interface BuddyTravel {
   id?: string;
   title: string;
   destination: string;
+  location: string;
   startDate: Date;
   endDate: Date;
   price: number;
   maxPeople: number;
   joinedUsers: string[];
   description: string;
-  category: string;
-  status: 'PENDING' | 'ACTIVE' | 'CANCELLED' | 'COMPLETED' | 'APPROVED';
+  categoryId: string;
+  category?: string; // For backward compatibility
+  status: 'PENDING' | 'ACTIVE' | 'CANCELLED' | 'COMPLETED' | 'APPROVED' | 'REJECTED';
+  tripStatus: 'UPCOMING' | 'ONGOING' | 'COMPLETED';
   vendorId: string;
   isApproved: boolean;
+  includedFeatures?: {
+    food: boolean;
+    stay: boolean;
+    transport: boolean;
+    activities: boolean;
+    guide: boolean;
+    insurance: boolean;
+  };
 
   itinerary?: {
     day: number;

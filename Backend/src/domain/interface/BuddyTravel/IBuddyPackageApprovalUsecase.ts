@@ -1,8 +1,8 @@
-import { BuddyTravel } from "../../entities/BuddyTripEntity";
+import { BuddyTravelDto } from "../../dto/BuddyTravel/BuddyTravelDto";
 
 export interface IAdminBuddyPackageApprovalUseCase {
   execute(
     status?: "Pending" | "approve" | "reject",
     id?: string
-  ): Promise<BuddyTravel[] | BuddyTravel | null>;
+  ): Promise<BuddyTravelDto[] | BuddyTravelDto | null>;
 }

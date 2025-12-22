@@ -1,6 +1,8 @@
 import { BuddyTravelDto } from "../../domain/dto/BuddyTravel/BuddyTravelDto";
 import { IAdminBuddyPackageApprovalUseCase } from "../../domain/interface/BuddyTravel/IBuddyPackageApprovalUsecase";
 import { IBuddyTravelRepository } from "../../domain/interface/BuddyTravel/IBuddyTravelRepository";
+import { mapToBuddyTravelDtoArray } from "../../mappers/BuddyTravel/mapToAllBuddypackages";
+import { mapToBuddyTravelDto } from "../../mappers/BuddyTravel/mapToAllBuddypackages";
 
 export class BuddyTravalAdminApprovalUsecase implements IAdminBuddyPackageApprovalUseCase {
   constructor(private _buddyTravelRepo: IBuddyTravelRepository) {}
@@ -10,22 +12,33 @@ export class BuddyTravalAdminApprovalUsecase implements IAdminBuddyPackageApprov
     id?: string
   ): Promise<BuddyTravelDto[] | BuddyTravelDto | null> {
     if (!status) {
-      return await this._buddyTravelRepo.findAll();
+      const results = await this._buddyTravelRepo.findAll();
+      // Map from entity to DTO
+      return mapToBuddyTravelDtoArray(results);
     }
 
     const normalizedAction = status.toLowerCase();
 
     switch (normalizedAction) {
-      case "pending":
-        return await this._buddyTravelRepo.findByStatus("PENDING");
+      case "pending": {
+        const pendingResults = await this._buddyTravelRepo.findByStatus("PENDING");
+        // Map from entity to DTO
+        return mapToBuddyTravelDtoArray(pendingResults);
+      }
 
-      case "approve":
+      case "approve": {
         if (!id) throw new Error("BuddyTravel ID is required for approval");
-        return await this._buddyTravelRepo.approveBuddyPackage(id);
+        const approved = await this._buddyTravelRepo.approveBuddyPackage(id);
+        // Map from entity to DTO
+        return approved ? mapToBuddyTravelDto(approved) : null;
+      }
 
-      case "reject":
+      case "reject": {
         if (!id) throw new Error("BuddyTravel ID is required for rejection");
-        return await this._buddyTravelRepo.rejectBuddyPackage(id);
+        const rejected = await this._buddyTravelRepo.rejectBuddyPackage(id);
+        // Map from entity to DTO
+        return rejected ? mapToBuddyTravelDto(rejected) : null;
+      }
 
       default:
         throw new Error(`Invalid action type: ${status}`);

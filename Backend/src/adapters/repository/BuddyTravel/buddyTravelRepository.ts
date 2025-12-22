@@ -35,15 +35,31 @@ export class BuddyTravelRepository
 async joinBuddyTrip(tripId: string, userId: string) {
   const trip = await this.model.findById(tripId);
 
-  if (!trip) return null;
+  if (!trip) {
+    throw new Error("Trip not found");
+  }
 
-  if (trip.status !== "APPROVED") return null;
-  if (trip.joinedUsers.includes(userId)) return trip;
-  if (trip.joinedUsers.length >= trip.maxPeople) return null;
+  // Check if trip is approved
+  if (trip.status !== "APPROVED") {
+    throw new Error("Trip is not approved yet");
+  }
+
+  // Check trip status - cannot join if Ongoing or Completed
+  if (trip.tripStatus === "ONGOING" || trip.tripStatus === "COMPLETED") {
+    throw new Error(`Cannot join trip. Trip status is ${trip.tripStatus}`);
+  }
+
+  // Check for duplicate join
+  if (trip.joinedUsers.includes(userId)) {
+    throw new Error("You have already joined this trip");
+  }
+
+  // Check if max people limit reached
+  if (trip.joinedUsers.length >= trip.maxPeople) {
+    throw new Error("Trip is full. Maximum number of people reached");
+  }
 
   trip.joinedUsers.push(userId);
-  trip.maxPeople = trip.maxPeople - 1;
-
   await trip.save();
   return trip;
 }
@@ -66,14 +82,14 @@ async joinBuddyTrip(tripId: string, userId: string) {
     return { trips, totalTrips };
   }
 
-async findByStatus(): Promise<IBuddyTravelModel[]> {
-  const statuses = ["APPROVED", "PENDING", "REJECTED"];
-  return this.model.find({ status: { $in: statuses } });
+async findByStatus(status: string): Promise<IBuddyTravelModel[]> {
+  const results = await this.model.find({ status }).lean();
+  return results as unknown as IBuddyTravelModel[];
 }
 
 
   async approveBuddyPackage(id: string): Promise<IBuddyTravelModel | null> {
-    return this.model.findByIdAndUpdate(
+    const result = await this.model.findByIdAndUpdate(
       id,
       {
         status: "APPROVED",
@@ -81,10 +97,11 @@ async findByStatus(): Promise<IBuddyTravelModel[]> {
       },
       { new: true }
     );
+    return result ? (result.toObject() as IBuddyTravelModel) : null;
   }
 
   async rejectBuddyPackage(id: string): Promise<IBuddyTravelModel | null> {
-    return this.model.findByIdAndUpdate(
+    const result = await this.model.findByIdAndUpdate(
       id,
       {
         status: "REJECTED",
@@ -92,9 +109,26 @@ async findByStatus(): Promise<IBuddyTravelModel[]> {
       },
       { new: true }
     );
+    return result ? (result.toObject() as IBuddyTravelModel) : null;
   }
 async findAll(): Promise<IBuddyTravelModel[]> {
   return this.model.find().lean() as unknown as IBuddyTravelModel[];
+}
+
+async updateTripStatus(id: string, tripStatus: "UPCOMING" | "ONGOING" | "COMPLETED"): Promise<IBuddyTravelModel | null> {
+  return this.model.findByIdAndUpdate(
+    id,
+    { tripStatus },
+    { new: true }
+  );
+}
+
+async getBuddyTripsByCategoryId(categoryId: string, skip: number, limit: number) {
+  const [trips, totalTrips] = await Promise.all([
+    this.model.find({ categoryId }).skip(skip).limit(limit).populate("categoryId"),
+    this.model.countDocuments({ categoryId }),
+  ]);
+  return { trips, totalTrips };
 }
 
 }
