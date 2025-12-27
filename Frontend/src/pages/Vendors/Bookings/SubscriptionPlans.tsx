@@ -15,6 +15,7 @@ import {
   Clock,
   CreditCard,
   ChevronDown,
+  History,
 } from "lucide-react";
 import { getSubscriptions } from "@/services/subscription/subscriptionservice";
 import { fetchAllPackages } from "@/services/packages/packageService";
@@ -311,15 +312,27 @@ export default function VendorSubscriptionPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
       <VendorNavbar />
       <div className="max-w-7xl mx-auto p-6 md:p-8">
-        <button
-          onClick={() => navigate("/vendor/profile")}
-          className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105 mb-8"
-        >
-          <Home className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
-          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-            Back to Home
-          </span>
-        </button>
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate("/vendor/profile")}
+            className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
+          >
+            <Home className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+              Back to Home
+            </span>
+          </button>
+          
+          <button
+            onClick={() => navigate("/vendor/subscription/history")}
+            className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
+          >
+            <History className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+              Subscription History
+            </span>
+          </button>
+        </div>
 
         <div className="text-center mb-12 mt-8">
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-blue-200 rounded-full mb-6 shadow-md">

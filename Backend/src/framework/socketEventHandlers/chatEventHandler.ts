@@ -55,7 +55,8 @@ export class ChatEventHandler {
             // Broadcast message to chat room
             this._io.to(data.chatId).emit("receive-message", {
                 ...data,
-                _id: id
+                _id: id,
+                replyTo: data.replyTo // Ensure replyTo data is included
             });
 
             // Emit notification event to recipient's personal room
@@ -80,6 +81,34 @@ export class ChatEventHandler {
 
             console.log('✅ Message broadcasted to room:', data.chatId);
         });
+
+        // Handle message deletion
+        this._socket.on(
+            "delete_message",
+            async (
+                { messageId, chatId }: { messageId: string; chatId: string },
+                ack?: (res: { success: boolean; message?: string }) => void
+            ) => {
+                try {
+                    if (!messageId || !chatId) {
+                        if (ack) ack({ success: false, message: "messageId and chatId are required" });
+                        return;
+                    }
+
+                    const success = await chatHandler.handleDeleteMessage(messageId);
+                    if (!success) {
+                        if (ack) ack({ success: false, message: "Failed to delete message" });
+                        return;
+                    }
+
+                    this._io.to(chatId).emit("message_deleted", { messageId, chatId });
+                    if (ack) ack({ success: true });
+                } catch (error) {
+                    console.error("Error in delete_message handler:", error);
+                    if (ack) ack({ success: false, message: "Server error" });
+                }
+            }
+        );
 
         // Handle messages marked as seen
         this._socket.on("mark_messages_seen", async ({ chatId, userId }: { chatId: string; userId: string }) => {

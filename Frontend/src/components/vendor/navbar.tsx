@@ -16,9 +16,10 @@ const VendorNavbar: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const logo = "/images/logo.png";
 
   const vendor = useAppSelector((state) => state.vendorAuth.vendor);
-  const { totalUnreadCount } = useChatContext();
+  const { unreadChatCount } = useChatContext();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -58,8 +59,19 @@ const VendorNavbar: React.FC = () => {
   return (
     <>
       <header className="bg-white text-gray-900 z-30 h-[73px] w-full shadow-sm">
-        <div className="flex items-center justify-end w-full px-6 h-full">
-          <div className="flex items-center gap-4 relative ml-auto">
+        <div className="flex items-center justify-between w-full px-6 h-full">
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <img 
+              src={logo} 
+              alt="OffWeGo" 
+              className="w-32 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate("/vendor/profile")}
+            />
+          </div>
+          
+          {/* Right Section */}
+          <div className="flex items-center gap-4 relative">
             {/* 💬 Chat Button */}
             <button
               onClick={() => navigate("/vendor/chat")}
@@ -67,9 +79,9 @@ const VendorNavbar: React.FC = () => {
               title="Messages"
             >
               <MessageCircle className="w-5 h-5" />
-              {(totalUnreadCount ?? 0) > 0 && (
+              {(unreadChatCount ?? 0) > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gray-800 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
-                  {(totalUnreadCount ?? 0) > 99 ? '99+' : totalUnreadCount}
+                  {(unreadChatCount ?? 0) > 99 ? '99+' : unreadChatCount}
                 </span>
               )}
             </button>
@@ -93,7 +105,23 @@ const VendorNavbar: React.FC = () => {
               className="flex items-center gap-2 cursor-pointer relative select-none p-2 hover:bg-gray-100 rounded-lg transition-colors"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+              {vendor?.profileImage ? (
+                <img 
+                  src={vendor.profileImage.startsWith('http') ? vendor.profileImage : `${import.meta.env.VITE_IMAGE_URL}${vendor.profileImage}`}
+                  alt={vendor?.name || "Vendor"} 
+                  className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.src = '';
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) {
+                      fallback.style.display = 'flex';
+                    }
+                  }}
+                />
+              ) : null}
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center" style={{display: vendor?.profileImage ? 'none' : 'flex'}}>
                 <User className="w-5 h-5 text-gray-700" />
               </div>
 

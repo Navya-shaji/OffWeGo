@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { ICreateBookingSubscriptionUseCase } from "../../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionUsecase";
 import { ISubscriptionBookingRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
+import { IGetVendorSubscriptionHistoryUseCase } from "../../../domain/interface/SubscriptionPlan/IGetVendorHistory";
 
 export class SubscriptionBookingController {
   constructor(
     private _createBookingSubscriptionUsecase: ICreateBookingSubscriptionUseCase,
-    private _subscriptionBookingRepository: ISubscriptionBookingRepository
+    private _subscriptionBookingRepository: ISubscriptionBookingRepository,
+    private _getVendorSubscriptionHistoryUsecase: IGetVendorSubscriptionHistoryUseCase
   ) {}
 
   async createSubscriptionBooking(req: Request, res: Response): Promise<void> {
@@ -73,6 +75,35 @@ export class SubscriptionBookingController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch subscription",
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  async getVendorSubscriptionHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const vendorId = req.user?.id || req.user?._id;
+      
+      if (!vendorId) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "Vendor ID not found in authentication token",
+        });
+        return;
+      }
+
+      const result = await this._getVendorSubscriptionHistoryUsecase.execute(vendorId);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Vendor subscription history fetched successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching vendor subscription history:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch vendor subscription history",
         error: (error as Error).message,
       });
     }

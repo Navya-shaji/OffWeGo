@@ -45,6 +45,7 @@ import { CreateBookingSubscriptionUseCase } from "../../../useCases/subscription
 import { SubscriptionBookingController } from "../../../adapters/controller/Subscriptionplan/SubscriptionBookingController";
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
 import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
+import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/subscription/GetVendorSubscriptionUsecase"; 
 import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
 import { CreateBuddyTravelUseCase } from "../../../useCases/buddyTravel/createBuddyTravelUSecase";
 import { BuddyTravelRepository } from "../../../adapters/repository/BuddyTravel/buddyTravelRepository";
@@ -106,6 +107,7 @@ const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
 const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase(subscriptionRepo,subscriptionplanRepo,walletRepo,stripeservice)
+const getVendorSubscriptionHistoryUseCase=new GetVendorSubscriptionHistoryUseCase(subscriptionBookingRepo)
 const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo,packageRepo)
 const adminPackageApprovalusecase=new BuddyTravalAdminApprovalUsecase(buddyRepo)
 const getTravelUsecase=new GetBuddyTravelUsecase(buddyRepo)
@@ -125,5 +127,5 @@ export const packagecontroller=new PackageController(getAllpackageByVendor,creat
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
-export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase, subscriptionBookingRepo)
+export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase, subscriptionBookingRepo, getVendorSubscriptionHistoryUseCase)
 export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase, adminPackageApprovalusecase,getTravelUsecase,getvendorBuddypackagesusecase,getallbuddypackages,joinBuddyTravelusecase,bookingBuddyTravelusecase)

@@ -84,7 +84,55 @@ export class SubscriptionBookingRepository
     return this.model.findByIdAndUpdate(id, data, { new: true });
   }
    async getAllSubscriptions() {
-    return this.model.find().sort({ createdAt: -1 });
+    const bookings = await this.model.find()
+      .populate("planId")
+      .sort({ createdAt: -1 });
+    
+ 
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
+   const vendorIds = Array.from(
+  new Set(bookings.map((b: any) => b.vendorId).filter(Boolean))
+);
+
+    const vendors = await VendorModel.find({ _id: { $in: vendorIds } });
+    
+  
+    const vendorMap = vendors.reduce((map: any, vendor: any) => {
+      map[vendor._id.toString()] = vendor;
+      return map;
+    }, {});
+    
+  
+    return bookings.map((booking: any) => {
+      const bookingObj = booking.toObject();
+      return {
+        ...bookingObj,
+        vendorDetails: vendorMap[booking.vendorId] || null
+      };
+    });
+  }
+
+  async findByVendorId(vendorId: string) {
+    const bookings = await this.model.find({ vendorId })
+      .populate("planId")
+      .sort({ createdAt: -1 });
+
+    // Fetch vendor details separately since vendorId is a string, not an ObjectId ref
+    const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
+    const vendor = await VendorModel.findById(vendorId);
+
+    // Attach vendor details to each booking while preserving Mongoose document methods
+    return bookings.map((booking: any) => {
+      const bookingObj = booking.toObject();
+      return {
+        ...bookingObj,
+        vendorDetails: vendor ? {
+          name: vendor.name,
+          email: vendor.email
+        } : null
+      };
+    });
   }
   
 }

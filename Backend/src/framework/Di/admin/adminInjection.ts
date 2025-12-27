@@ -48,6 +48,7 @@ import { FirebaseNotificationService } from "../../Services/FirebaseNotification
 // import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
 import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
 import { GetSubscriptionBookingUseCase } from "../../../useCases/subscription/GetAllSubscriptionBookingUsecase";
+import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/subscription/GetVendorSubscriptionUsecase"; 
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
 // import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
 // import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
@@ -105,6 +106,7 @@ const Banneractionusecase=new BannerActionUsecase(bannerRepo)
 const subscriptioneditusecase=new EditSubscriptionUseCase(subscriptionrepo)
 const deletesubscriptionusecase=new DeleteSubscriptionUsecase(subscriptionrepo)
 const getnearbydestinationusecase=new GetNearByDestinationUSecase(destinationRepository)
+const getVendorSubscriptionHistoryUseCase=new GetVendorSubscriptionHistoryUseCase(subscriptionbookingRepo)
 // const sendnotificationusecase=new SendNotificationUseCase(notificationService)
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 const getbookedsubscriptionusecase=new GetSubscriptionBookingUseCase(subscriptionbookingRepo)
@@ -124,5 +126,5 @@ export const destinationController = new DestinationController(
 )
 export const categoryController=new CreateCategoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
 export const bannerController=new BannerController(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
-export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,subscriptioneditusecase,deletesubscriptionusecase,getbookedsubscriptionusecase)
+export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,subscriptioneditusecase,deletesubscriptionusecase,getbookedsubscriptionusecase,getVendorSubscriptionHistoryUseCase)
 // export const notificationcontroller=new NotificationController(sendnotificationusecase,getNotificationusecase)

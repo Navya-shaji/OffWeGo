@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck } from "lucide-react";
+import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, Smile, Mic, Paperclip, Search, MoreVertical } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -28,7 +28,24 @@ interface ChatMessage {
     messageContent: string;
     sendedTime: Date;
     seen: boolean;
-    messageType?: "text" | "image";
+    messageType?: "text" | "image" | "voice" | "file";
+    deliveryStatus?: "sending" | "sent" | "delivered" | "read";
+    fileUrl?: string;
+    fileName?: string;
+    fileSize?: number;
+    isDeleted?: boolean;
+    deletedAt?: Date;
+    replyTo?: {
+        _id: string;
+        messageContent: string;
+        senderName: string;
+    };
+}
+
+interface TypingUser {
+    userId: string;
+    name: string;
+    isTyping: boolean;
 }
 
 
@@ -41,7 +58,17 @@ const ChatPage = () => {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showContacts, setShowContacts] = useState(true);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
+    const [isTyping, setIsTyping] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+    const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId?: string }>();
     const socketRef = useRef<Socket | null>(null);
@@ -49,6 +76,8 @@ const ChatPage = () => {
 
     const user = useSelector((state: RootState) => state.auth.user);
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
+    const isUserAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const isVendorAuthenticated = useSelector((state: RootState) => state.vendorAuth.isAuthenticated);
 
     const senderId = user?.id || vendor?.id;
     const senderRole = user ? (user.role || "user") : (vendor ? "vendor" : "user");
@@ -116,14 +145,32 @@ const ChatPage = () => {
             setContacts(prev => prev.map(contact => {
                 if (contact._id === newMessage.chatId) {
                     const isFromCurrentUser = newMessage.senderId === senderId;
+                    const isCurrentChat = contact._id === selectedContact?._id;
+                    
+                    // Only increment unread count if:
+                    // 1. Message is not from current user
+                    // 2. Chat is not currently selected (user is viewing another chat)
+                    const shouldIncrement = !isFromCurrentUser && !isCurrentChat;
+                    
+                    // If it's the current chat, reset to 0 (messages are being viewed)
+                    // Otherwise, increment if message is from other user
+                    const currentCount = Math.max(0, contact.unreadCount || 0);
+                    const newUnreadCount = isCurrentChat 
+                        ? 0 
+                        : (shouldIncrement ? currentCount + 1 : currentCount);
+                    
+                    // Ensure unreadCount is never negative
+                    const finalUnreadCount = Math.max(0, newUnreadCount);
+                    
+                    if (shouldIncrement) {
+                        console.log(`📊 Incrementing unread count for chat ${contact._id}: ${currentCount} -> ${finalUnreadCount}`);
+                    }
+                    
                     return {
                         ...contact,
                         lastMessage: newMessage.messageContent,
                         lastMessageTime: newMessage.sendedTime,
-                        // Increment unread count if message is not from current user and chat is not currently selected
-                        unreadCount: (contact._id !== selectedContact?._id && !isFromCurrentUser)
-                            ? (contact.unreadCount || 0) + 1
-                            : contact.unreadCount || 0
+                        unreadCount: finalUnreadCount
                     };
                 }
                 return contact;
@@ -161,6 +208,79 @@ const ChatPage = () => {
         socket.on("user-status-changed", handleUserStatusChange);
         socket.on("vendor-status-changed", handleVendorStatusChange);
         
+        // Listen for messages-seen event to update unread count
+        const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
+            console.log("👁️ Messages marked as seen for chat:", data.chatId);
+            // Update unread count to 0 for this chat
+            setContacts(prev => prev.map(contact => {
+                if (contact._id === data.chatId) {
+                    console.log(`📊 Resetting unread count for chat ${contact._id} from ${contact.unreadCount} to 0 (via socket)`);
+                    return { ...contact, unreadCount: 0 };
+                }
+                return contact;
+            }));
+            
+            // Update seen status for messages in current chat
+            if (selectedContact?._id === data.chatId) {
+                setMessages(prev => prev.map(msg => {
+                    if (msg.senderId !== senderId) {
+                        return { ...msg, seen: true };
+                    }
+                    return msg;
+                }));
+            }
+        };
+        
+        socket.on("messages-seen", handleMessagesSeen);
+        
+        // Listen for typing indicators
+        const handleTypingStart = (data: { chatId: string; senderId: string; senderName: string }) => {
+            if (data.chatId === selectedContact?._id && data.senderId !== senderId) {
+                setTypingUsers(prev => {
+                    const exists = prev.find(user => user.userId === data.senderId);
+                    if (!exists) {
+                        return [...prev, {
+                            userId: data.senderId,
+                            name: data.senderName,
+                            isTyping: true
+                        }];
+                    }
+                    return prev.map(user => 
+                        user.userId === data.senderId 
+                            ? { ...user, isTyping: true }
+                            : user
+                    );
+                });
+            }
+        };
+
+        const handleTypingStop = (data: { chatId: string; senderId: string }) => {
+            if (data.chatId === selectedContact?._id) {
+                setTypingUsers(prev => prev.map(user => 
+                    user.userId === data.senderId 
+                        ? { ...user, isTyping: false }
+                        : user
+                ).filter(user => user.isTyping));
+            }
+        };
+
+        socket.on("typing_start", handleTypingStart);
+        socket.on("typing_stop", handleTypingStop);
+        
+        // Listen for message deletion
+        const handleMessageDeleted = (data: { messageId: string; chatId: string }) => {
+            console.log("Message deleted:", data);
+            if (data.chatId === selectedContact?._id) {
+                setMessages(prev => prev.map(msg => 
+                    msg._id === data.messageId 
+                        ? { ...msg, isDeleted: true, deletedAt: new Date(), messageContent: "This message was deleted" }
+                        : msg
+                ));
+            }
+        };
+
+        socket.on("message_deleted", handleMessageDeleted);
+        
         // Debug socket events
         socket.on("connect", () => {
             console.log("Socket connected:", socket.id);
@@ -178,6 +298,10 @@ const ChatPage = () => {
             socket.off("receive-message", handleReceiveMessage);
             socket.off("user-status-changed", handleUserStatusChange);
             socket.off("vendor-status-changed", handleVendorStatusChange);
+            socket.off("messages-seen", handleMessagesSeen);
+            socket.off("typing_start", handleTypingStart);
+            socket.off("typing_stop", handleTypingStop);
+            socket.off("message_deleted", handleMessageDeleted);
             // Only disconnect if we created our own socket
             if (!globalSocket && socketRef.current) {
                 socketRef.current.disconnect();
@@ -295,6 +419,9 @@ const ChatPage = () => {
                     const otherParticipantId = isUser ? vendorIdValue : userIdValue;
                     const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
 
+                    // Ensure unreadCount is a valid number (not negative)
+                    const unreadCount = Math.max(0, chat.unreadCount || 0);
+
                     return {
                         _id: chat._id,
                         name: name,
@@ -304,7 +431,7 @@ const ChatPage = () => {
                         lastMessageTime: chat.lastMessageAt || new Date(),
                         vendorId: vendorIdValue,
                         userId: userIdValue,
-                        unreadCount: chat.unreadCount || 0,
+                        unreadCount: unreadCount, // Ensure it's never negative
                         isOnline: isOtherOnline
                     };
                 });
@@ -365,7 +492,7 @@ const ChatPage = () => {
 
         const fetchMessages = async () => {
             try {
-                const userType = user ? 'user' : 'vendor';
+                const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
                 const res = await getMessages(selectedContact._id, userType);
                 console.log("Messages response:", res);
                 
@@ -392,20 +519,34 @@ const ChatPage = () => {
                     console.log("Joined room:", selectedContact._id);
                 }
 
-                // Mark messages as seen and reset unread count
-                try {
-                    const userType = user ? 'user' : 'vendor';
-                    await markMessagesAsSeen(selectedContact._id, senderId, userType);
-                    console.log("✅ Messages marked as seen");
-                    // Reset unread count for this contact
-                    setContacts(prev => prev.map(c =>
-                        c._id === selectedContact._id
-                            ? { ...c, unreadCount: 0 }
-                            : c
-                    ));
-                } catch (error) {
-                    console.error("Error marking messages as seen:", error);
-                }
+                // OPTIMISTIC UPDATE: Reset unread count immediately (before API call)
+                setContacts(prev => prev.map(c => {
+                    if (c._id === selectedContact._id && (c.unreadCount || 0) > 0) {
+                        const oldCount = c.unreadCount || 0;
+                        console.log(`📊 [OPTIMISTIC] Resetting unread count for chat ${c._id} from ${oldCount} to 0`);
+                        return { ...c, unreadCount: 0 };
+                    }
+                    return c;
+                }));
+                
+                // Update seen status for all messages in this chat immediately
+                setMessages(prev => prev.map(msg => {
+                    if (msg.senderId !== senderId && !msg.seen) {
+                        return { ...msg, seen: true };
+                    }
+                    return msg;
+                }));
+
+                // Mark messages as seen in backend (fire and forget - don't wait)
+                const currentUserType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
+                markMessagesAsSeen(selectedContact._id, senderId, currentUserType)
+                    .then(() => {
+                        console.log("✅ Messages marked as seen in backend for chat:", selectedContact._id);
+                    })
+                    .catch((error) => {
+                        console.error("Error marking messages as seen:", error);
+                        // Revert optimistic update on error (optional - you might want to keep it)
+                    });
 
             } catch (error) {
                 console.error("Error fetching messages:", error);
@@ -470,7 +611,12 @@ const ChatPage = () => {
             messageType: 'text',
             sendedTime: new Date(),
             seen: false,
-            senderName: (user as any)?.name || user?.username || vendor?.name || "User"
+            senderName: (user as any)?.name || user?.username || vendor?.name || "User",
+            replyTo: replyingTo ? {
+                _id: replyingTo._id,
+                messageContent: replyingTo.messageContent,
+                senderName: (user as any)?.name || user?.username || vendor?.name || "User"
+            } : undefined
         };
 
         console.log("Message data being sent:", messageData);
@@ -513,6 +659,7 @@ const ChatPage = () => {
             });
 
             setNewMessage("");
+            setReplyingTo(null);
 
             // Update local contact list sort order immediately
             setContacts(prev => prev.map(c =>
@@ -534,6 +681,109 @@ const ChatPage = () => {
             e.preventDefault();
             handleSendMessage();
         }
+    };
+
+    const handleEmojiSelect = (emoji: string) => {
+        setNewMessage(prev => prev + emoji);
+        setShowEmojiPicker(false);
+    };
+
+    const handleTypingStart = () => {
+        if (!isTyping && selectedContact && socketRef.current) {
+            setIsTyping(true);
+            socketRef.current.emit("typing_start", {
+                chatId: selectedContact._id,
+                senderId: senderId,
+                senderName: user?.name || vendor?.name || "User"
+            });
+        }
+
+        // Clear existing timeout
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+        }
+
+        // Set timeout to stop typing indicator
+        typingTimeoutRef.current = setTimeout(() => {
+            handleTypingStop();
+        }, 3000);
+    };
+
+    const handleTypingStop = () => {
+        if (isTyping && selectedContact && socketRef.current) {
+            setIsTyping(false);
+            socketRef.current.emit("typing_stop", {
+                chatId: selectedContact._id,
+                senderId: senderId
+            });
+        }
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+        }
+    };
+
+    const handleDeleteMessage = async (messageId: string) => {
+        try {
+            setDeletingMessageId(messageId);
+            
+            if (!socketRef.current) {
+                toast.error("Socket not connected");
+                setDeletingMessageId(null);
+                return;
+            }
+
+            const chatId = selectedContact?._id;
+            if (!chatId) {
+                toast.error("No chat selected");
+                setDeletingMessageId(null);
+                return;
+            }
+
+            socketRef.current.emit(
+                "delete_message",
+                {
+                    messageId: messageId,
+                    chatId: chatId,
+                },
+                (res: { success: boolean; message?: string }) => {
+                    if (!res?.success) {
+                        toast.error(res?.message || "Failed to delete message");
+                        setDeletingMessageId(null);
+                        return;
+                    }
+
+                    // Mark message as deleted instead of removing it
+                    setMessages(prev => prev.map(msg => 
+                        msg._id === messageId 
+                            ? { ...msg, isDeleted: true, deletedAt: new Date(), messageContent: "This message was deleted" }
+                            : msg
+                    ));
+
+                    toast.success("Message deleted");
+                    setDeletingMessageId(null);
+                }
+            );
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            toast.error("Failed to delete message");
+            setDeletingMessageId(null);
+        }
+    };
+
+    const handleReplyToMessage = (message: ChatMessage) => {
+        if (message.isDeleted) return; // Can't reply to deleted messages
+        
+        setReplyingTo(message);
+        setNewMessage("");
+        const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+        if (inputElement) {
+            inputElement.focus();
+        }
+    };
+
+    const handleCancelReply = () => {
+        setReplyingTo(null);
     };
 
     const formatTime = (date: Date | string) => {
@@ -636,7 +886,7 @@ const ChatPage = () => {
                                         <h3 className="font-semibold text-gray-900 truncate text-base flex-1">{contact.name}</h3>
                                         {((contact.unreadCount ?? 0) > 0) && (
                                             <span className="ml-2 min-w-[20px] h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1.5 flex-shrink-0">
-                                                {(contact.unreadCount ?? 0) > 99 ? '99+' : contact.unreadCount}
+                                                {Math.max(0, contact.unreadCount ?? 0) > 99 ? '99+' : Math.max(0, contact.unreadCount ?? 0)}
                                             </span>
                                         )}
                                     </div>
@@ -705,7 +955,7 @@ const ChatPage = () => {
                         </div>
 
                         {/* Messages Container */}
-                        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-gray-100">
+                        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1 bg-[#e5ddd5] bg-opacity-50">
                             {messages.length === 0 ? (
                                 <div className="text-center text-gray-500 mt-8">
                                     <p>No messages yet.</p>
@@ -714,27 +964,76 @@ const ChatPage = () => {
                             ) : (
                                 messages.map((msg) => {
                                     const isOwnMessage = msg.senderId === senderId;
+                                    const isDeleted = msg.isDeleted;
                                     return (
-                                        <div key={msg._id || Math.random()} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+                                        <div key={msg._id || Math.random()} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"} mb-2 group`}>
                                             <div
-                                                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl ${isOwnMessage
-                                                    ? "bg-blue-600 text-white rounded-br-none"
-                                                    : "bg-white text-gray-900 rounded-bl-none shadow-sm"
-                                                    }`}
+                                                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl relative ${isOwnMessage
+                                                    ? "bg-[#dcf8c6] text-gray-900 rounded-br-sm"
+                                                    : "bg-white text-gray-900 rounded-bl-sm shadow-sm"
+                                                    } ${isDeleted ? 'opacity-60' : ''}`}
                                             >
-                                                <p className="break-words text-sm md:text-base">{msg.messageContent}</p>
-                                                <div className={`text-[10px] sm:text-xs mt-1 flex items-center justify-end gap-1 ${isOwnMessage ? "text-blue-100" : "text-gray-400"}`}>
+                                                {/* Reply preview */}
+                                                {msg.replyTo && (
+                                                    <div className={`mb-2 p-2 rounded-lg text-xs ${isOwnMessage ? 'bg-green-100' : 'bg-gray-100'}`}>
+                                                        <div className="font-medium text-gray-600">
+                                                            Replying to {msg.replyTo.senderName}
+                                                        </div>
+                                                        <div className="text-gray-500 truncate">
+                                                            {msg.replyTo.messageContent}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                <p className={`break-words text-sm md:text-base ${isDeleted ? 'italic text-gray-500' : ''}`}>
+                                                    {msg.messageContent}
+                                                </p>
+                                                <div className={`text-[10px] sm:text-xs mt-1 flex items-center justify-end gap-1 ${isOwnMessage ? "text-[#4fc3f7]" : "text-gray-400"}`}>
                                                     <span>{formatTime(msg.sendedTime)}</span>
-                                                    {isOwnMessage && (
+                                                    {isDeleted && (
+                                                        <span className="ml-1 text-gray-400">(deleted)</span>
+                                                    )}
+                                                    {isOwnMessage && !isDeleted && (
                                                         <span className="flex items-center">
                                                             {msg.seen ? (
-                                                                <CheckCheck className="w-3.5 h-3.5 text-blue-200" />
+                                                                <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb]" />
                                                             ) : (
-                                                                <Check className="w-3.5 h-3.5 text-blue-200" />
+                                                                <Check className="w-3.5 h-3.5 text-gray-400" />
                                                             )}
                                                         </span>
                                                     )}
                                                 </div>
+                                                
+                                                {/* Message actions - shown on hover */}
+                                                {!isDeleted && (
+                                                    <div className={`absolute top-1 ${isOwnMessage ? "left-0 -translate-x-full" : "right-0 translate-x-full"} opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white rounded-lg shadow-lg p-1`}>
+                                                        <button
+                                                            onClick={() => handleReplyToMessage(msg)}
+                                                            className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-blue-600 transition-colors"
+                                                            title="Reply"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                                            </svg>
+                                                        </button>
+                                                        {isOwnMessage && (
+                                                            <button
+                                                                onClick={() => handleDeleteMessage(msg._id)}
+                                                                disabled={deletingMessageId === msg._id}
+                                                                className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-red-600 transition-colors disabled:opacity-50"
+                                                                title="Delete"
+                                                            >
+                                                                {deletingMessageId === msg._id ? (
+                                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                                ) : (
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                )}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     );
@@ -745,12 +1044,45 @@ const ChatPage = () => {
 
                         {/* Input Area */}
                         <div className="bg-white border-t px-4 py-4">
+                            {/* Reply Preview */}
+                            {replyingTo && (
+                                <div className="mb-2 p-2 bg-gray-100 rounded-lg flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <div className="text-xs font-medium text-gray-600">
+                                            Replying to {user?.name || vendor?.name || "User"}
+                                        </div>
+                                        <div className="text-xs text-gray-500 truncate">
+                                            {replyingTo.messageContent}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleCancelReply}
+                                        className="ml-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
+                            
+                            {/* Typing Indicator */}
+                            {typingUsers.length > 0 && (
+                                <div className="text-xs text-gray-500 mb-2 px-2">
+                                    {typingUsers.map(user => user.name).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                                </div>
+                            )}
+                            
                             <div className="flex items-center gap-2">
                                 <input
                                     type="text"
                                     value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onChange={(e) => {
+                                        setNewMessage(e.target.value);
+                                        handleTypingStart();
+                                    }}
                                     onKeyPress={handleKeyPress}
+                                    onBlur={handleTypingStop}
                                     placeholder={`Message ${selectedContact.name}...`}
                                     disabled={sending}
                                     className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"

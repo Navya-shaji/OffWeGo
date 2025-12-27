@@ -53,6 +53,36 @@ export const deleteSubscription = async (id: string) => {
   }
 };
 
+export const getVendorSubscription = async (vendorId?: string) => {
+  try {
+    const res = await axiosInstance.get(`/api/vendor/subscription`, {
+      params: { vendorId },
+    });
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.error || "Failed to fetch vendor subscription"
+      );
+    }
+    throw new Error("Unexpected error fetching vendor subscription");
+  }
+};
+
+export const getVendorSubscriptionHistory = async () => {
+  try {
+    const res = await axiosInstance.get('/api/vendor/subscription/history');
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Failed to fetch subscription history'
+      );
+    }
+    throw new Error('Unexpected error fetching subscription history');
+  }
+};
+
 export const getAllSubscriptionBookings = async () => {
   try {
     const res = await axiosInstance.get("/api/admin/booked-subscription");
@@ -300,7 +330,7 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
 };
 
 // Get vendor's own subscription booking by vendor ID (legacy - kept for compatibility)
-export const getVendorSubscription = async (vendorId?: string) => {
+export const getVendorSubscriptionLegacy = async (vendorId?: string) => {
   try {
     // Try vendor-specific endpoint first
     const res = await axiosInstance.get("/api/vendor/subscription");

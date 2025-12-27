@@ -12,10 +12,9 @@ import {
   Activity as ActivityIcon,
   BookOpen,
   Wallet,
-  
+  MessageCircle,
 } from "lucide-react";
 import { useAppSelector } from "@/hooks";
-import logo from "../../../public/images/logo.png";
 
 interface SidebarProps {
   activeTab: string;
@@ -32,27 +31,20 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   const vendor = useAppSelector((state) => state.vendorAuth.vendor);
 
-
+  // ✅ Chat added inside menu
   const menuItems = [
     { icon: Package, label: "Dashboard" },
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
-    
+    { icon: MessageCircle, label: "Chat" },
   ];
 
   const handleSubTabClick = (label: string) => setActiveTab(label);
 
   return (
-    <div className="w-64 bg-white fixed left-0 top-0 h-screen flex flex-col z-40">
-      {/* Brand Name Section */}
-      <div className="px-6 py-6">
-        <div className="flex items-center">
-          <img src={logo} alt="logo" className="w-32 h-8" />
-        </div>
-      </div>
-
-      <nav className="px-4 py-4 space-y-1 flex-1 overflow-y-auto scrollbar-hide">
+    <div className="w-64 bg-white fixed left-0 top-[73px] h-[calc(100vh-73px)] flex flex-col z-40">
+      <nav className="px-4 py-6 space-y-1 flex-1 overflow-y-auto scrollbar-hide">
         {/* Top Menu Items */}
         {menuItems.map((item, index) => (
           <button

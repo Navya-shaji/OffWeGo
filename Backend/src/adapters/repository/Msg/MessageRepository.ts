@@ -21,7 +21,8 @@ export class MessageRepository {
             messageContent: data.messageContent,
             messageType: data.messageType || 'text',
             seen: data.seen ?? false,
-            sendedTime: data.sendedTime ?? new Date()
+            sendedTime: data.sendedTime ?? new Date(),
+            replyTo: data.replyTo
         });
         const saved = await newMessage.save();
         console.log('✅ Message saved to DB with ID:', saved._id);
@@ -29,7 +30,7 @@ export class MessageRepository {
     }
 
     async getMessages(chatId: string): Promise<IMessage[]> {
-        return await messageModel.find({ chatId }).sort({ sendedTime: 1 });
+        return await messageModel.find({ chatId }).sort({ sendedTime: 1 }).populate('replyTo.messageId');
     }
 
     async countUnreadMessages(chatId: string, userId: string): Promise<number> {
@@ -45,5 +46,25 @@ export class MessageRepository {
             { chatId, senderId: { $ne: userId } },
             { $set: { seen: true } }
         );
+    }
+
+    async deleteMessage(messageId: string): Promise<boolean> {
+        try {
+            const result = await messageModel.findByIdAndUpdate(
+                messageId,
+                { 
+                    $set: { 
+                        isDeleted: true, 
+                        deletedAt: new Date(),
+                        messageContent: "This message was deleted"
+                    }
+                },
+                { new: true }
+            );
+            return !!result;
+        } catch (error) {
+            console.error('Error deleting message:', error);
+            return false;
+        }
     }
 }
