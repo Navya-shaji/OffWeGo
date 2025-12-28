@@ -116,9 +116,15 @@ export const deletePackage = async (id: string): Promise<void> => {
 };
 
 export const searchPackages = async (query: string) => {
-  const response = await axiosInstance.get("/api/vendor/packages/search", {
-    params: { q: query },
-  });
+  const state = store.getState();
+  const isVendor = Boolean(state.vendorAuth?.vendor);
+
+  const response = await axiosInstance.get(
+    isVendor ? "/api/vendor/packages/search" : "/api/packages/search",
+    {
+      params: { q: query },
+    }
+  );
 
   return response.data.packages;
 };

@@ -106,6 +106,13 @@ export class UserRoute {
         packagecontroller.getPackagesForUser(req, res);
       }
     );
+
+    this.userRouter.get(
+      UserRoutes.SEARCH_PACKAGES,
+      (req: Request, res: Response) => {
+        packagecontroller.searchPackage(req, res);
+      }
+    );
     this.userRouter.patch(
       UserRoutes.EDIT_PROFILE,
       verifyTokenAndCheckBlackList(TokenService),
@@ -193,8 +200,16 @@ export class UserRoute {
     );
     this.userRouter.post(
       UserRoutes.NOTIFY,
+      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
-        notificationcontroller.getNotifications(req,res)
+        notificationcontroller.getNotifications(req, res);
+      }
+    );
+    this.userRouter.patch(
+      UserRoutes.READ_NOTIFICATION,
+      verifyTokenAndCheckBlackList(TokenService),
+      (req: Request, res: Response) => {
+        notificationcontroller.readNotifications(req, res);
       }
     );
     this.userRouter.post(

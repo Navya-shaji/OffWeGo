@@ -1,5 +1,6 @@
 export interface DestinationInterface{
-  id:string,
+  id?:string,
+  _id?: string,
   name: string;
   description: string;
   location: string;

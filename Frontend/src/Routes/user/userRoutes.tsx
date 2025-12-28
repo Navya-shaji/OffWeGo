@@ -3,9 +3,6 @@ import Signup from "@/pages/User/Auth/signup";
 import Home from "@/pages/User/Home/Home";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
-import Forgotpassword from "@/components/ForgotPassword/forgot-password";
-import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
-import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
@@ -20,7 +17,6 @@ import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
 import ChatPage from "@/pages/User/chat/chat";
-
 import NotFound from "@/components/Modular/NotFound";
 
 const UserRoute = () => {
@@ -29,9 +25,6 @@ const UserRoute = () => {
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/forgot-password" element={<Forgotpassword />} />
-      <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route
         path="/profile"
@@ -45,19 +38,74 @@ const UserRoute = () => {
       <Route path="/destinations" element={<AllDestinationsPage />} />
       <Route path="/destination/:id" element={<DestinationDetail />} />
       <Route path="/timeline" element={<PackageTimeline />} />
-      <Route path="/travaler-details" element={<TravelerDetails />} />
-      <Route path="/payment-checkout" element={<PaymentCheckout />} />
-      <Route path="/booking-success" element={<BookingSuccess />} />
-      <Route path="/bookings" element={<BookingDetailsPage />} />
-      <Route path="/review" element={<UserAddReview />} />
+      <Route
+        path="/travaler-details"
+        element={
+          <ProtectedRoute>
+            <TravelerDetails />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-checkout"
+        element={
+          <ProtectedRoute>
+            <PaymentCheckout />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/booking-success"
+        element={
+          <ProtectedRoute>
+            <BookingSuccess />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute>
+            <BookingDetailsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/review"
+        element={
+          <ProtectedRoute>
+            <UserAddReview />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/contact" element={<ExpandedContactUsPage />} />
       <Route path="/about" element={<AboutUs />} />
-      <Route path="/wallet" element={<WalletManagement />} />
+      <Route
+        path="/wallet"
+        element={
+          <ProtectedRoute>
+            <WalletManagement />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/buddy-packages" element={<Travalbuddies />} />
-      <Route path="/payment-success" element={<BookingSuccess />} />
+      <Route
+        path="/payment-success"
+        element={
+          <ProtectedRoute>
+            <BookingSuccess />
+          </ProtectedRoute>
+        }
+      />
 
-
-      <Route path='/chat/:chatId?' element={<ChatPage />} />
+      <Route
+        path='/chat/:chatId?'
+        element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
       <Route>
         <Route path="*" element={<NotFound />}></Route>
       </Route>

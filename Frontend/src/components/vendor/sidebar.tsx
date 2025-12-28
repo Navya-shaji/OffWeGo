@@ -12,7 +12,7 @@ import {
   Activity as ActivityIcon,
   BookOpen,
   Wallet,
-  MessageCircle,
+
 } from "lucide-react";
 import { useAppSelector } from "@/hooks";
 
@@ -31,13 +31,13 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   const vendor = useAppSelector((state) => state.vendorAuth.vendor);
 
-  // ✅ Chat added inside menu
+
   const menuItems = [
     { icon: Package, label: "Dashboard" },
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
-    { icon: MessageCircle, label: "Chat" },
+   
   ];
 
   const handleSubTabClick = (label: string) => setActiveTab(label);

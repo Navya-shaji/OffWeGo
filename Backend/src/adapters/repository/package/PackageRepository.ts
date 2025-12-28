@@ -65,10 +65,10 @@ export class PackageRepository
     return await this.model
       .find({ packageName: { $regex: regex } })
       .select(
-        "packageName itinerary inclusions amenities price duration hotels activities checkInTime checkOutTime includeFlight flight"
+        "destinationId vendorId packageName description images itinerary inclusions amenities price duration startDate endDate hotels activities checkInTime checkOutTime flightOption flight"
       )
-      .populate("hotels", "name")
-      .populate("activities", "title")
+      .populate("hotels")
+      .populate("activities")
       .populate("flight")
       .limit(10)
       .exec();
