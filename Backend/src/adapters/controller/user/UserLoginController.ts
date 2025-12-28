@@ -5,6 +5,7 @@ import { ITokenService } from "../../../domain/interface/ServiceInterface/Itoken
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
 import { IForgotpassUsecase } from "../../../domain/interface/UserLogin/IForgotPassUSecase";
+import { ICreateWalletUsecase } from "../../../domain/interface/Wallet/ICreateUserWalletUsecase";
 import { LoginDTo } from "../../../domain/dto/User/LoginDto";
 
 export class UserLoginController {
@@ -13,7 +14,8 @@ export class UserLoginController {
     private _tokenService: ITokenService,
     private _otpService: IOtpService,
     private _resetPasswordUseCase: IResetPasswordUseCase,
-    private _forgotPassUsecase: IForgotpassUsecase
+    private _forgotPassUsecase: IForgotpassUsecase,
+    private _createWalletUsecase: ICreateWalletUsecase
   ) {}
 
   async loginUser(req: Request, res: Response): Promise<void> {
@@ -24,6 +26,16 @@ export class UserLoginController {
       const result = await this._loginUserUseCase.execute(loginPayload, fcmToken);
 
       const user = result.user;
+
+      // Ensure wallet exists for this user (idempotent)
+      try {
+        const userId = (user as any).id || (user as any)._id?.toString();
+        if (userId) {
+          await this._createWalletUsecase.execute(userId, "user");
+        }
+      } catch (walletErr) {
+        console.error("Wallet creation on login failed:", walletErr);
+      }
 
       if (user.status?.toLowerCase().includes("block")) {
         res.status(HttpStatus.FORBIDDEN).json({
