@@ -2,6 +2,7 @@ import { Booking } from "../../../domain/entities/BookingEntity";
 import { BuddyTravel } from "../../../domain/entities/BuddyTripEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
 import { BookingModel } from "../../../framework/database/Models/BookingModel";
+import { isValidObjectId } from "mongoose";
 
 export class BookingRepository implements IBookingRepository {
   async createBooking(booking: Booking): Promise<Booking> {
@@ -54,13 +55,17 @@ export class BookingRepository implements IBookingRepository {
   }
   async cancelBooking(bookingId: string): Promise<Booking> {
     // Try to find and update by MongoDB _id first, then by bookingId field
-    let updated = await BookingModel.findByIdAndUpdate(
-      bookingId,
-      { bookingStatus: "cancelled" },
-      { new: true }
-    )
-      .lean<Booking>()
-      .exec();
+    let updated: Booking | null = null;
+
+    if (isValidObjectId(bookingId)) {
+      updated = await BookingModel.findByIdAndUpdate(
+        bookingId,
+        { bookingStatus: "cancelled" },
+        { new: true }
+      )
+        .lean<Booking>()
+        .exec();
+    }
 
     if (!updated) {
       updated = await BookingModel.findOneAndUpdate(
@@ -81,7 +86,12 @@ export class BookingRepository implements IBookingRepository {
   async findOne(bookingId: string): Promise<Booking | null> {
     console.log("Finding booking by bookingId or _id:", bookingId);
     // Try to find by MongoDB _id first, then by bookingId field
-    let booking = await BookingModel.findById(bookingId).lean<Booking>().exec();
+    let booking: Booking | null = null;
+
+    if (isValidObjectId(bookingId)) {
+      booking = await BookingModel.findById(bookingId).lean<Booking>().exec();
+    }
+
     if (!booking) {
       booking = await BookingModel.findOne({ bookingId })
         .lean<Booking>()

@@ -14,7 +14,7 @@ interface Imessage {
     messageType: string;
     sendedTime: Date;
     seen: boolean;
-    senderType?: "User" | "vendor" | "user"; 
+    senderType?: "User" | "vendor" | "user"; // Normalized later
     senderName?: string;
     receiverId?: string;
 }
@@ -40,13 +40,15 @@ interface ChatContextType {
     error: string | null;
     isTyping: boolean;
     totalUnreadCount: number;
+    unreadChatCount: number;
+    markChatAsRead: (chatId: string) => void;
     sendMessage: (content: string) => Promise<void>;
     selectChat: (myId: string, otherId: string) => Promise<void>;
     fetchChats: () => Promise<void>;
     triggerSidebarRefetch: () => void;
 }
 
-
+// @ts-ignore
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -72,17 +74,92 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         try {
             const res = await getChatsOfUser(myId, myType);
             const chatsList = res.data || [];
+            console.log("📊 Context: Fetched chats with unread counts:", chatsList.map((c: any) => ({ id: c._id, unreadCount: c.unreadCount })));
             setChats(chatsList);
         } catch (err) {
             console.error("Failed to fetch chats", err);
         }
     };
 
-    const totalUnreadCount = chats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+    // Calculate total unread count - ensure we only count unread messages
+    const totalUnreadCount = chats.reduce((sum, chat) => {
+        const count = chat.unreadCount || 0;
+        return sum + (count > 0 ? count : 0); // Only add positive counts
+    }, 0);
+
+    const unreadChatCount = chats.reduce((sum, chat) => {
+        const count = chat.unreadCount || 0;
+        return sum + (count > 0 ? 1 : 0);
+    }, 0);
+
+    const markChatAsRead = (chatId: string) => {
+        if (!chatId) return;
+        setChats(prev => prev.map(c => c._id === chatId ? { ...c, unreadCount: 0 } : c));
+    };
 
     useEffect(() => {
         fetchChatsData();
     }, [myId, triggerState[0]]);
+    
+    // Listen for socket events to update unread counts
+    useEffect(() => {
+        if (!socket) return;
+        
+        const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
+            console.log("👁️ Context: Messages marked as seen for chat:", data.chatId);
+            // Update the chat's unread count to 0
+            setChats(prev => prev.map(chat => {
+                if (chat._id === data.chatId) {
+                    console.log(`📊 Context: Resetting unread count for chat ${chat._id} from ${chat.unreadCount} to 0`);
+                    return { ...chat, unreadCount: 0 };
+                }
+                return chat;
+            }));
+        };
+
+        const handleNewMessageNotification = (data: {
+            chatId: string;
+            senderId: string;
+            senderName?: string;
+            messagePreview?: string;
+            timestamp?: string | Date;
+        }) => {
+            if (!data?.chatId) return;
+
+            // If the user is currently viewing this chat, don't increment unread count.
+            if (currentChat && currentChat._id === data.chatId) {
+                return;
+            }
+
+            setChats(prev => {
+                const idx = prev.findIndex(c => c._id === data.chatId);
+                if (idx === -1) {
+                    setTrigger(t => t + 1);
+                    return prev;
+                }
+
+                const updated = [...prev];
+                const existing = updated[idx];
+                const currentUnread = Math.max(0, existing.unreadCount || 0);
+                updated[idx] = {
+                    ...existing,
+                    unreadCount: currentUnread + 1,
+                    lastMessage: data.messagePreview ?? existing.lastMessage,
+                    lastMessageAt: (data.timestamp ? new Date(data.timestamp) : new Date()) as any,
+                };
+
+                return updated;
+            });
+        };
+        
+        socket.on("messages-seen", handleMessagesSeen);
+        socket.on("new-message-notification", handleNewMessageNotification);
+        
+        return () => {
+            socket.off("messages-seen", handleMessagesSeen);
+            socket.off("new-message-notification", handleNewMessageNotification);
+        };
+    }, [socket, currentChat]);
 
     // Socket Listeners
     useEffect(() => {
@@ -127,6 +204,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const sendMessage = async (content: string) => {
         if (!currentChat || !socket || !myId) return;
 
+        // Ensure other person ID is updated or available? 
+        // currentChat.userId / vendorId logic
+        // But we rely on socket to broadcast.
 
         const newMsg: Imessage = {
             _id: "",
@@ -139,8 +219,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             senderType: (myType === 'user' ? 'User' : 'vendor') as any
         };
 
-        socket.emit("send_message", { ...newMsg, senderName: user?.username || user?.name || vendor?.name }, (ack: any) => {
-         
+        socket.emit("send_message", { ...newMsg, senderName: user?.username || vendor?.name }, () => {
+            // Optimistic update handled by receive-message usually? 
+            // Or append local immediately? 
+            // ChatContainer might double append if we append here AND listen?
+            // Socket usually echoes back to sender?
+            // Backend chatHandler: _io.to(chatId).emit("receive-message", savedMessage);
+            // Yes it echoes. So we don't append here to avoid duplication, OR we check ID.
         });
     };
 
@@ -148,7 +233,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <ChatContext.Provider value={{
-            messages, currentChat, loading, chats, vendors, error, isTyping, totalUnreadCount,
+            messages, currentChat, loading, chats, vendors, error, isTyping, totalUnreadCount, unreadChatCount,
+            markChatAsRead,
             sendMessage, selectChat, fetchChats: fetchChatsData, triggerSidebarRefetch
         }}>
             {children}

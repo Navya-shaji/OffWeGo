@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/Types/User/auth/loginZodSchema";
 import type { LoginFormData } from "@/Types/User/auth/loginZodSchema";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { login } from "@/store/slice/user/authSlice";
@@ -71,6 +71,12 @@ export default function UserLogin() {
           </div>
 
           <div className="w-full md:w-1/2 px-8 py-12 flex flex-col justify-center bg-white/70 shadow-lg rounded-lg backdrop-blur-sm">
+            <div className="flex justify-center mb-4">
+              <Link to="/" className="select-none">
+                <img src="/images/logo.png" alt="OffWeGo" className="h-12 w-auto" />
+              </Link>
+            </div>
+
             <h2 className="text-3xl font-quicksand text-center text-gray-900 mb-6 tracking-wide">
               User Login
             </h2>
@@ -80,12 +86,15 @@ export default function UserLogin() {
               className="space-y-5 max-w-sm mx-auto w-full"
             >
               <div>
-                <input
-                  {...register("email")}
-                  placeholder="Email"
-                  disabled={isLoading}
-                  className="w-full border border-gray-300 rounded-md px-4 py-4 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                  <input
+                    {...register("email")}
+                    placeholder="Email"
+                    disabled={isLoading}
+                    className="w-full border border-gray-300 rounded-md pl-11 pr-4 py-4 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  />
+                </div>
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">
                     {errors.email.message}
@@ -94,12 +103,13 @@ export default function UserLogin() {
               </div>
 
               <div className="relative">
+                <Lock className="absolute left-3 top-4 text-gray-500 w-5 h-5" />
                 <input
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
                   placeholder="Password"
                   disabled={isLoading}
-                  className="w-full border border-gray-300 rounded-md px-4 py-4 pr-10 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full border border-gray-300 rounded-md pl-11 pr-10 py-4 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
                 <span
                   className="absolute right-3 top-4 cursor-pointer text-gray-500 hover:text-gray-700 transition"

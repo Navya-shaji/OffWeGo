@@ -3,7 +3,11 @@ import axiosInstance from "@/axios/instance";
 import type { BuddyTravel } from "@/interface/BuddyTravelInterface";
 import store from "@/store/store";
 
-export const addBuddyTravel = async (data: BuddyTravel) => {
+type BuddyTravelPayload = BuddyTravel & {
+  category?: string;
+};
+
+export const addBuddyTravel = async (data: BuddyTravelPayload) => {
   try {
     const state = store.getState();
     const vendorId = state.vendorAuth?.vendor?.id;
@@ -32,6 +36,7 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
         guide: false,
         insurance: false,
       },
+      images: data.images || [],
       itinerary: data.itinerary || [],
       hotels: data.hotels || [],
       activities: data.activities || [],
@@ -58,15 +63,16 @@ export const addBuddyTravel = async (data: BuddyTravel) => {
 
 export const updateBuddyPackageStatus = async (
   buddyId: string,
-  status: "pending" | "approve" | "reject"
+  status: "approve" | "reject"
 ) => {
   try {
-    console.log("resss");
+    if (!buddyId || buddyId === "undefined" || buddyId === undefined) {
+      throw new Error("Invalid buddy package ID provided");
+    }
     const response = await axiosInstance.patch(
       `/api/admin/buddy-travel/${buddyId}`,
       { status }
     );
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating buddy package status:", error);
@@ -86,17 +92,31 @@ export const updateBuddyPackageStatus = async (
   }
 };
 
-export const getBuddyTravelPackages = async (status: string) => {
+type BuddyTravelStatusFilter =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "approve"
+  | "reject";
+
+export const getBuddyTravelPackages = async (
+  status?: BuddyTravelStatusFilter
+) => {
   try {
-    console.log("bbfhb");
+    const normalized = status?.toLowerCase();
+    const backendStatus = normalized === "rejected" ? "reject" : normalized;
     const response = await axiosInstance.get(
-      `/api/admin/buddy-packages/:status`,
+      "/api/admin/buddy-packages",
       {
-        params: { status },
+        params: backendStatus ? { status: backendStatus } : undefined,
       }
     );
-    console.log(response.data.data, "res");
-    return response.data.data || [];
+
+    if (response.data?.success) {
+      return response.data.data || [];
+    }
+
+    throw new Error(response.data?.message || "Failed to fetch buddy travel packages");
   } catch (error) {
     console.error(" Error fetching buddy travel packages:", error);
 

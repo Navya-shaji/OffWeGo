@@ -2,6 +2,8 @@ import Login from "@/pages/User/Auth/Login";
 import Signup from "@/pages/User/Auth/signup";
 import Home from "@/pages/User/Home/Home";
 import { Route, Routes } from "react-router-dom";
+import type { ReactNode } from "react";
+
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
@@ -18,8 +20,16 @@ import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
 import ChatPage from "@/pages/User/chat/chat";
 import NotFound from "@/components/Modular/NotFound";
+import Footer from "@/components/home/footer/Footer";
 
 const UserRoute = () => {
+  const withFooter = (element: ReactNode) => (
+    <>
+      {element}
+      <Footer />
+    </>
+  );
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -30,19 +40,19 @@ const UserRoute = () => {
         path="/profile"
         element={
           <ProtectedRoute>
-            <Profile />
+            {withFooter(<Profile />)}
           </ProtectedRoute>
         }
       />
 
-      <Route path="/destinations" element={<AllDestinationsPage />} />
-      <Route path="/destination/:id" element={<DestinationDetail />} />
-      <Route path="/timeline" element={<PackageTimeline />} />
+      <Route path="/destinations" element={withFooter(<AllDestinationsPage />)} />
+      <Route path="/destination/:id" element={withFooter(<DestinationDetail />)} />
+      <Route path="/timeline" element={withFooter(<PackageTimeline />)} />
       <Route
         path="/travaler-details"
         element={
           <ProtectedRoute>
-            <TravelerDetails />
+            {withFooter(<TravelerDetails />)}
           </ProtectedRoute>
         }
       />
@@ -50,7 +60,7 @@ const UserRoute = () => {
         path="/payment-checkout"
         element={
           <ProtectedRoute>
-            <PaymentCheckout />
+            {withFooter(<PaymentCheckout />)}
           </ProtectedRoute>
         }
       />
@@ -58,7 +68,7 @@ const UserRoute = () => {
         path="/booking-success"
         element={
           <ProtectedRoute>
-            <BookingSuccess />
+            {withFooter(<BookingSuccess />)}
           </ProtectedRoute>
         }
       />
@@ -66,7 +76,7 @@ const UserRoute = () => {
         path="/bookings"
         element={
           <ProtectedRoute>
-            <BookingDetailsPage />
+            {withFooter(<BookingDetailsPage />)}
           </ProtectedRoute>
         }
       />
@@ -74,26 +84,26 @@ const UserRoute = () => {
         path="/review"
         element={
           <ProtectedRoute>
-            <UserAddReview />
+            {withFooter(<UserAddReview />)}
           </ProtectedRoute>
         }
       />
-      <Route path="/contact" element={<ExpandedContactUsPage />} />
-      <Route path="/about" element={<AboutUs />} />
+      <Route path="/contact" element={withFooter(<ExpandedContactUsPage />)} />
+      <Route path="/about" element={withFooter(<AboutUs />)} />
       <Route
         path="/wallet"
         element={
           <ProtectedRoute>
-            <WalletManagement />
+            {withFooter(<WalletManagement />)}
           </ProtectedRoute>
         }
       />
-      <Route path="/buddy-packages" element={<Travalbuddies />} />
+      <Route path="/buddy-packages" element={withFooter(<Travalbuddies />)} />
       <Route
         path="/payment-success"
         element={
           <ProtectedRoute>
-            <BookingSuccess />
+            {withFooter(<BookingSuccess />)}
           </ProtectedRoute>
         }
       />
@@ -102,10 +112,11 @@ const UserRoute = () => {
         path='/chat/:chatId?'
         element={
           <ProtectedRoute>
-            <ChatPage />
+            {withFooter(<ChatPage />)}
           </ProtectedRoute>
         }
       />
+
       <Route>
         <Route path="*" element={<NotFound />}></Route>
       </Route>

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Wallet, ArrowDownRight, ArrowUpRight, Clock, Receipt } from "lucide-react";
 
-export default function WalletManagement() {
+export default function WalletManagement({ embedded = false }: { embedded?: boolean }) {
   const user = useSelector((state: RootState) => state.auth.user);
   const [wallet, setWallet] = useState<IWallet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,10 +55,10 @@ export default function WalletManagement() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className={embedded ? "flex items-center justify-center py-14" : "flex items-center justify-center min-h-screen"}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your wallet...</p>
+          <div className={embedded ? "animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-gray-800 mx-auto" : "animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"}></div>
+          <p className={embedded ? "mt-3 text-gray-600" : "mt-4 text-gray-600"}>Loading your wallet...</p>
         </div>
       </div>
     );
@@ -66,10 +66,10 @@ export default function WalletManagement() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className={embedded ? "flex items-center justify-center py-14" : "flex items-center justify-center min-h-screen"}>
         <div className="text-center">
-          <div className="text-red-600 text-xl font-semibold">Error Loading Wallet</div>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <div className={embedded ? "text-red-600 text-lg font-semibold" : "text-red-600 text-xl font-semibold"}>Error Loading Wallet</div>
+          <p className={embedded ? "mt-2 text-sm text-gray-600" : "mt-2 text-gray-600"}>{error}</p>
         </div>
       </div>
     );
@@ -77,10 +77,10 @@ export default function WalletManagement() {
 
   if (!wallet) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className={embedded ? "flex items-center justify-center py-14" : "flex items-center justify-center min-h-screen"}>
         <div className="text-center">
-          <div className="text-gray-800 text-xl font-semibold">No Wallet Found</div>
-          <p className="mt-2 text-gray-600">No wallet found for your account.</p>
+          <div className={embedded ? "text-gray-900 text-lg font-semibold" : "text-gray-800 text-xl font-semibold"}>No Wallet Found</div>
+          <p className={embedded ? "mt-2 text-sm text-gray-600" : "mt-2 text-gray-600"}>No wallet found for your account.</p>
         </div>
       </div>
     );
@@ -107,22 +107,21 @@ export default function WalletManagement() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-  
-      <div className="bg-gradient-to-r bg-black rounded-xl shadow-lg p-6 mb-6 text-white">
-             <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-          <Wallet className="w-8 h-8" />
-          My Wallet
-        </h1>
-       
-      </div>
+    <div className={embedded ? "" : "min-h-screen bg-gray-50 p-4 md:p-8"}>
+      <div className={embedded ? "bg-gray-900 rounded-2xl p-6 mb-6 text-white" : "bg-gradient-to-r bg-black rounded-xl shadow-lg p-6 mb-6 text-white"}>
+        {!embedded && (
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+              <Wallet className="w-8 h-8" />
+              My Wallet
+            </h1>
+          </div>
+        )}
         <div className="flex justify-between items-start">
           <div>
             <p className="text-blue-100 text-sm mb-2">Available Balance</p>
-            <h2 className="text-4xl font-bold">{formatCurrency(wallet.balance)}</h2>
+            <h2 className={embedded ? "text-3xl font-bold" : "text-4xl font-bold"}>{formatCurrency(wallet.balance)}</h2>
           </div>
-   
         </div>
         <div className="mt-6 flex gap-6">
           <div>
@@ -138,7 +137,7 @@ export default function WalletManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <div className={embedded ? "bg-white rounded-xl border border-gray-200 p-6" : "bg-white rounded-lg shadow p-6 border-l-4 border-green-500"}>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-gray-600 text-sm font-medium">Credits</h3>
             <ArrowDownRight className="w-5 h-5 text-green-600" />
@@ -149,7 +148,7 @@ export default function WalletManagement() {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+        <div className={embedded ? "bg-white rounded-xl border border-gray-200 p-6" : "bg-white rounded-lg shadow p-6 border-l-4 border-red-500"}>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-gray-600 text-sm font-medium">Debits</h3>
             <ArrowUpRight className="w-5 h-5 text-red-600" />
@@ -162,7 +161,7 @@ export default function WalletManagement() {
       </div>
 
       {/* Transaction History */}
-      <div className="bg-white rounded-lg shadow">
+      <div className={embedded ? "bg-white rounded-xl border border-gray-200" : "bg-white rounded-lg shadow"}>
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <Receipt className="w-5 h-5" />

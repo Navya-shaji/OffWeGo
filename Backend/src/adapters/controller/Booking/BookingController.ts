@@ -93,9 +93,9 @@ export class BookingController {
         message: "Booking cancelled successfully",
         data: booking,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Cancel booking error:", error);
-      const errorMessage = error?.message || "Failed to cancel booking";
+      const errorMessage = "Failed to cancel booking";
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: errorMessage,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   Calendar,
@@ -18,11 +18,11 @@ import {
   AlertCircle,
   MessageCircle,
   RefreshCw,
-  MoreVertical,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { useNavigate } from "react-router-dom";
+import { getsingleDestination } from "@/services/Destination/destinationService";
 import {
   cancelBooking,
   getUserBookings,
@@ -99,8 +99,6 @@ const RescheduleModal = ({
     setError("");
     onClose();
   };
-
-
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -179,7 +177,7 @@ const RescheduleModal = ({
 };
 
 
-const BookingDetailsSection = () => {
+const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
@@ -208,7 +206,43 @@ const BookingDetailsSection = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+  const [destinationNameById, setDestinationNameById] = useState<Record<string, string>>({});
+
+  const isMongoObjectId = (value: unknown) => {
+    if (typeof value !== "string") return false;
+    return /^[a-f\d]{24}$/i.test(value);
+  };
+
+  const normalizePaymentMethodLabel = (booking: any) => {
+    const raw: string | undefined =
+      booking.paymentMethod ||
+      booking.payment_method ||
+      booking.paymentProvider ||
+      booking.payment_provider ||
+      booking.gateway ||
+      booking.paymentGateway;
+
+    if (raw && raw !== "-") {
+      const lowered = String(raw).toLowerCase();
+      if (lowered.includes("wallet")) return "Wallet";
+      if (lowered.includes("stripe")) return "Stripe";
+      if (lowered.includes("razor")) return "Razorpay";
+      if (lowered.includes("paypal")) return "PayPal";
+      return String(raw);
+    }
+
+    if (booking.usedWallet || booking.walletTransactionId || booking.walletTxnId) return "Wallet";
+    if (booking.stripePaymentIntentId || booking.stripeSessionId) return "Stripe";
+
+    const paymentId: string | undefined = booking.payment_id || booking.paymentId || booking.razorpayPaymentId;
+    if (paymentId) {
+      if (String(paymentId).startsWith("pi_") || String(paymentId).startsWith("cs_")) return "Stripe";
+      return "Razorpay";
+    }
+
+    return "-";
+  };
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -234,6 +268,67 @@ const BookingDetailsSection = () => {
     fetchBookings();
   }, [user?.id]);
 
+  useEffect(() => {
+    const destinationIds = new Set<string>();
+
+    for (const booking of bookings) {
+      const destinationObj = booking?.selectedPackage?.destination;
+      const destinationIdFromPackage = booking?.selectedPackage?.destinationId;
+
+      if (typeof destinationObj === "string" && isMongoObjectId(destinationObj)) destinationIds.add(destinationObj);
+      if (typeof destinationObj === "object" && destinationObj?._id && isMongoObjectId(destinationObj._id)) destinationIds.add(destinationObj._id);
+
+      if (typeof destinationIdFromPackage === "string" && isMongoObjectId(destinationIdFromPackage)) destinationIds.add(destinationIdFromPackage);
+      if (typeof destinationIdFromPackage === "object" && destinationIdFromPackage?._id && isMongoObjectId(destinationIdFromPackage._id)) destinationIds.add(destinationIdFromPackage._id);
+
+      if (typeof booking?.destinationId === "string" && isMongoObjectId(booking.destinationId)) destinationIds.add(booking.destinationId);
+    }
+
+    const idsToFetch = [...destinationIds].filter((id) => !destinationNameById[id]);
+    if (idsToFetch.length === 0) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const results = await Promise.all(
+          idsToFetch.map(async (id) => {
+            try {
+              const res = await getsingleDestination(id);
+              const data = res?.data || res;
+              const name =
+                data?.destination?.name ||
+                data?.destination?.destinationName ||
+                data?.name ||
+                data?.destinationName ||
+                data?.data?.name ||
+                data?.data?.destinationName;
+              return { id, name: typeof name === "string" && name.trim() ? name : undefined };
+            } catch {
+              return { id, name: undefined };
+            }
+          })
+        );
+
+        if (cancelled) return;
+
+        setDestinationNameById((prev) => {
+          const next = { ...prev };
+          for (const r of results) {
+            if (r.name) next[r.id] = r.name;
+          }
+          return next;
+        });
+      } catch {
+        // ignore
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [bookings, destinationNameById]);
+
   const getBookingStatus = (booking: any) => {
     if (booking.bookingStatus?.toLowerCase() === "cancelled") return "cancelled";
 
@@ -251,7 +346,7 @@ const BookingDetailsSection = () => {
     if (startDate > today) return "upcoming";
     return "ongoing";
   };
-  console.log(bookings, "Book")
+
   const getStatusBadge = (status: string) => {
     const config: any = {
       upcoming: { bg: "bg-blue-100", text: "text-blue-800", icon: <Clock className="w-4 h-4" />, label: "Upcoming" },
@@ -373,73 +468,78 @@ const BookingDetailsSection = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className={embedded ? "flex items-center justify-center py-14" : "flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-blue-50"}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-gray-800 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium text-xl">Loading your bookings...</p>
+          <div className={embedded ? "animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-gray-800 mx-auto mb-3" : "animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-gray-800 mx-auto mb-4"}></div>
+          <p className={embedded ? "text-gray-600 font-medium" : "text-gray-600 font-medium text-xl"}>Loading your bookings...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div className="flex items-center gap-6">
-                <button
-                  onClick={() => navigate("/")}
-                  className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-900 hover:to-gray-950 transition-all shadow-lg font-semibold"
-                >
-                  <Home className="w-6 h-6" /> Home
-                </button>
-                <div className="flex items-center gap-4">
-                  <Package className="w-10 h-10 text-gray-800" />
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-900 bg-clip-text text-transparent">
-                    My Bookings
-                  </h1>
-                </div>
-              </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-6 py-3 border-2 border-gray-400 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-gray-200 text-lg font-medium"
-              >
-                <option value="all">All Bookings</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-          </div>
+  const header = (
+    <div className={embedded ? "flex flex-col md:flex-row justify-between items-start md:items-center gap-4" : "flex flex-col md:flex-row justify-between items-start md:items-center gap-6"}>
+      <div className={embedded ? "flex items-center gap-3" : "flex items-center gap-6"}>
+        {!embedded && (
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-900 hover:to-gray-950 transition-all shadow-lg font-semibold"
+          >
+            <Home className="w-6 h-6" /> Home
+          </button>
+        )}
+        <div className={embedded ? "flex items-center gap-3" : "flex items-center gap-4"}>
+          <Package className={embedded ? "w-6 h-6 text-gray-800" : "w-10 h-10 text-gray-800"} />
+          <h1 className={embedded ? "text-xl font-bold text-gray-900" : "text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-900 bg-clip-text text-transparent"}>
+            My Bookings
+          </h1>
+        </div>
+      </div>
+      <select
+        value={filterStatus}
+        onChange={(e) => setFilterStatus(e.target.value)}
+        className={embedded ? "px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-200 text-sm font-medium" : "px-6 py-3 border-2 border-gray-400 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-gray-200 text-lg font-medium"}
+      >
+        <option value="all">All Bookings</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="ongoing">Ongoing</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+  );
 
-          {/* Bookings Table */}
-          <div className="bg-white rounded-2xl shadow-2xl" style={{ overflow: 'visible' }}>
-            {filteredBookings.length === 0 ? (
-              <div className="text-center py-32">
-                <Calendar className="w-24 h-24 text-gray-400 mx-auto mb-6" />
-                <h2 className="text-3xl font-bold text-gray-800 mb-4">No Bookings Yet</h2>
-                <p className="text-xl text-gray-600 mb-8">Start your next adventure!</p>
+  const bookingsBody = (
+    <div className={embedded ? "" : "min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6"}>
+      <div className={embedded ? "" : "max-w-7xl mx-auto"}>
+        <div className={embedded ? "mb-6" : "bg-white rounded-2xl shadow-xl p-8 mb-8"}>
+          {header}
+        </div>
+
+        <div className={embedded ? "bg-white rounded-2xl border border-gray-200" : "bg-white rounded-2xl shadow-2xl"} style={{ overflow: 'visible' }}>
+          {filteredBookings.length === 0 ? (
+            <div className={embedded ? "text-center py-16" : "text-center py-32"}>
+              <Calendar className={embedded ? "w-12 h-12 text-gray-300 mx-auto mb-4" : "w-24 h-24 text-gray-400 mx-auto mb-6"} />
+              <h2 className={embedded ? "text-lg font-semibold text-gray-900 mb-2" : "text-3xl font-bold text-gray-800 mb-4"}>No Bookings Yet</h2>
+              <p className={embedded ? "text-sm text-gray-500" : "text-xl text-gray-600 mb-8"}>Start your next adventure!</p>
+              {!embedded && (
                 <button
                   onClick={() => navigate("/")}
                   className="px-10 py-5 bg-gradient-to-r from-gray-800 to-gray-900 text-white text-xl font-bold rounded-xl hover:from-gray-900 hover:to-gray-950 transition-all shadow-xl"
                 >
                   Explore Packages
                 </button>
-              </div>
-            ) : (
-              <div 
-                className="overflow-x-auto" 
-                style={{ 
-                  overflowY: 'visible',
-                  maxHeight: 'none'
-                }}
-              >
-                <style>{`
+              )}
+            </div>
+          ) : (
+            <div
+              className="overflow-x-auto"
+              style={{
+                overflowY: 'visible',
+                maxHeight: 'none'
+              }}
+            >
+              <style>{`
                   div.overflow-x-auto::-webkit-scrollbar {
                     display: none;
                     width: 0;
@@ -450,87 +550,124 @@ const BookingDetailsSection = () => {
                     scrollbar-width: none;
                   }
                 `}</style>
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
-                      <th className="px-8 py-6 text-left text-lg font-bold">Package</th>
-                      <th className="px-8 py-6 text-left text-lg font-bold">Date</th>
-                      <th className="px-8 py-6 text-left text-lg font-bold">Guests</th>
-                      <th className="px-8 py-6 text-left text-lg font-bold">Amount</th>
-                      <th className="px-8 py-6 text-center text-lg font-bold">Status</th>
-                      <th className="px-8 py-6 text-center text-lg font-bold">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBookings.map((booking, index) => {
-                      const status = getBookingStatus(booking);
-                      return (
-                        <tr
-                          key={booking._id}
-                          className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100 transition-all duration-200 border-b-2 border-gray-100`}
-                        >
-                          <td className="px-8 py-6 font-bold text-gray-900 text-lg">
-                            {booking.selectedPackage?.packageName || "N/A"}
-                          </td>
-                          <td className="px-8 py-6 text-gray-700 font-semibold">
-                            {new Date(booking.selectedDate).toLocaleDateString("en-US", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </td>
-                          <td className="px-8 py-6">
-                            <div className="flex gap-3">
-                              <span className="px-4 py-2 bg-gray-100 text-gray-800 rounded-full font-bold">
-                                {(booking.adults?.length || 0)} Adults
-                              </span>
-                              <span className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full font-bold">
-                                {(booking.children?.length || 0)} Children
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-8 py-6 text-2xl font-bold text-gray-900">
-                            ₹{(booking.totalAmount || 0).toLocaleString("en-IN")}
-                          </td>
-                          <td className="px-8 py-6 text-center">
-                            {getStatusBadge(status)}
-                          </td>
-                          <td className="px-8 py-6">
-                            <div className="flex items-center justify-center">
-                              <button
-                                ref={(el) => {
-                                  if (el) buttonRefs.current[booking._id] = el;
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const button = buttonRefs.current[booking._id];
-                                  if (button) {
-                                    const rect = button.getBoundingClientRect();
-                                    setMenuPosition({
-                                      top: rect.bottom + window.scrollY + 8,
-                                      left: rect.right + window.scrollX - 224, // 224 = w-56 (14rem)
-                                    });
-                                  }
-                                  setOpenMenuId(openMenuId === booking._id ? null : booking._id);
-                                }}
-                                className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
-                                title="Actions"
-                                  >
-                                <MoreVertical className="w-6 h-6 text-gray-700" />
-                                  </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+              <table className="w-full">
+                <thead>
+                  <tr className={embedded ? "bg-gray-900 text-white" : "bg-gradient-to-r from-gray-800 to-gray-900 text-white"}>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Booking ID</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Package</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Destination</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Travel Date</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Booked On</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Guests</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Amount</th>
+                    <th className={embedded ? "px-5 py-4 text-left text-sm font-semibold" : "px-8 py-6 text-left text-lg font-bold"}>Payment</th>
+                    <th className={embedded ? "px-5 py-4 text-center text-sm font-semibold" : "px-8 py-6 text-center text-lg font-bold"}>Status</th>
+                    <th className={embedded ? "px-5 py-4 text-center text-sm font-semibold" : "px-8 py-6 text-center text-lg font-bold"}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBookings.map((booking, index) => {
+                    const status = getBookingStatus(booking);
+                    const adultsCount = Array.isArray(booking.adults) ? booking.adults.length : (typeof booking.adults === "number" ? booking.adults : 0);
+                    const childrenCount = Array.isArray(booking.children) ? booking.children.length : (typeof booking.children === "number" ? booking.children : 0);
+                    const computedGuests = (adultsCount || childrenCount) ? (adultsCount + childrenCount) : (booking.guestCount || booking.numberOfPeople || 0);
+                    const destinationObj = booking.selectedPackage?.destination;
+                    const destinationId =
+                      (typeof destinationObj === "object" && destinationObj?._id ? destinationObj._id : undefined) ||
+                      (typeof booking.selectedPackage?.destinationId === "string" ? booking.selectedPackage.destinationId : undefined) ||
+                      (typeof booking.selectedPackage?.destinationId === "object" && booking.selectedPackage?.destinationId?._id ? booking.selectedPackage.destinationId._id : undefined) ||
+                      (typeof destinationObj === "string" ? destinationObj : undefined) ||
+                      (typeof booking.destinationId === "string" ? booking.destinationId : undefined);
+
+                    const destinationNameFromBooking =
+                      (typeof destinationObj === "object" && (destinationObj?.name || destinationObj?.destinationName)
+                        ? (destinationObj?.name || destinationObj?.destinationName)
+                        : undefined) ||
+                      (typeof booking.destination === "string" && !isMongoObjectId(booking.destination)
+                        ? booking.destination
+                        : undefined) ||
+                      booking.destinationName;
+
+                    const destination =
+                      destinationNameFromBooking ||
+                      (destinationId && destinationNameById[destinationId] ? destinationNameById[destinationId] : undefined) ||
+                      (destinationId && isMongoObjectId(destinationId) ? "Loading..." : undefined) ||
+                      "-";
+                    const bookedOn = booking.createdAt || booking.bookingDate || booking.selectedDate;
+                    const paymentMethod = normalizePaymentMethodLabel(booking);
+                    return (
+                      <tr
+                        key={booking._id}
+                        className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-100 transition-all duration-200 border-b border-gray-100`}
+                      >
+                        <td className={embedded ? "px-5 py-4 text-gray-900 font-semibold text-sm" : "px-8 py-6 text-gray-900 font-bold"}>
+                          <div className="max-w-[14rem]">
+                            <p className="font-mono truncate">{booking.bookingId || booking._id || "-"}</p>
+                          </div>
+                        </td>
+                        <td className={embedded ? "px-5 py-4 font-semibold text-gray-900 text-sm" : "px-8 py-6 font-bold text-gray-900 text-lg"}>
+                          {booking.selectedPackage?.packageName || "N/A"}
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-gray-700 font-medium text-sm" : "px-8 py-6 text-gray-700 font-semibold"}>
+                          <div className="max-w-[14rem] truncate">{destination}</div>
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-gray-700 font-medium text-sm" : "px-8 py-6 text-gray-700 font-semibold"}>
+                          {new Date(booking.selectedDate).toLocaleDateString("en-US", {
+                            day: "numeric",
+                            month: embedded ? "short" : "long",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-gray-700 font-medium text-sm" : "px-8 py-6 text-gray-700 font-semibold"}>
+                          {bookedOn
+                            ? new Date(bookedOn).toLocaleDateString("en-US", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "-"}
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-gray-700 font-medium text-sm" : "px-8 py-6 text-gray-700 font-semibold"}>
+                          <div className="whitespace-nowrap">
+                            <span className="font-semibold">{computedGuests || "-"}</span>
+                            {(adultsCount || childrenCount) ? (
+                              <span className="ml-2 text-xs text-gray-500">(A:{adultsCount} C:{childrenCount})</span>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-gray-900 font-semibold text-sm" : "px-8 py-6 text-gray-900 font-bold"}>
+                          ₹{booking.totalAmount || booking.amount || "-"}
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-gray-700 font-semibold text-sm" : "px-8 py-6 text-gray-700 font-semibold"}>
+                          {paymentMethod}
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-center" : "px-8 py-6 text-center"}>
+                          {getStatusBadge(status)}
+                        </td>
+                        <td className={embedded ? "px-5 py-4 text-center" : "px-8 py-6 text-center"}>
+                          <button
+                            onClick={() => handleViewDetails(booking)}
+                            className={embedded ? "inline-flex items-center justify-center px-3 py-2 rounded-lg bg-gray-900 text-white text-xs font-semibold hover:bg-gray-800 transition-colors" : "inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-gray-800 to-gray-900 text-white font-bold hover:from-gray-900 hover:to-gray-950 transition-all shadow-lg"}
+                          >
+                            <Eye className={embedded ? "w-4 h-4" : "w-6 h-6"} />
+                            <span className={embedded ? "ml-2" : "ml-3"}>View</span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
+    </div>
+  );
 
+  return (
+    <>
+      {bookingsBody}
       {/* Dropdown Menu Portal */}
       {openMenuId && menuPosition && filteredBookings.find((b) => b._id === openMenuId) && createPortal(
         <>
@@ -660,7 +797,7 @@ const BookingDetailsSection = () => {
                 {getStatusBadge(getBookingStatus(selectedBooking))}
                 <div className="text-right">
                   <p className="text-gray-600 font-semibold">Booked On</p>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-2xl font-bold text-gray-900">
                     {new Date(selectedBooking.createdAt || selectedBooking.selectedDate).toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "long",

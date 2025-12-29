@@ -8,6 +8,8 @@ export interface BuddyTravel {
   price: number;
   maxPeople: number;
   joinedUsers: string[];
+  images?: string[];
+  reservedSlots?: number;
   description: string;
   categoryId: string;
   category?: string; // For backward compatibility

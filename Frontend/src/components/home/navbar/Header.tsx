@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import { logout } from "@/store/slice/user/authSlice";
-import logo from "../../../../public/images/logo.png";
+const logo = "/images/logo.png";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

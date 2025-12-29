@@ -23,7 +23,7 @@ const getchatusecase = new GetChatsOfUserUsecase(chatRepo);
 const createchat = new InitiateChatUsecase(chatRepo, bookingRepo);
 const createmsg = new CreateMessageUseCase(messegeRepo);
 const getmsg = new GetMessagesUseCase(messegeRepo);
-const markMessagesSeenUseCase = new MarkMessagesSeenUseCase(messegeRepo);
+const markMessagesSeenUseCase = new MarkMessagesSeenUseCase(messegeRepo,chatRepo);
 
 const notificationService = new FirebaseNotificationService(notificationRepo, userRepo, vendorRepo);
 

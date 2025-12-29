@@ -16,6 +16,8 @@ export const buddyTravelSchema = new Schema(
     endDate: { type: Date, required: true },
     price: { type: Number, required: true },
     maxPeople: { type: Number, required: true },
+    images: { type: [String], default: [] },
+    reservedSlots: { type: Number, default: 0 },
 
     joinedUsers: [
       {
@@ -60,14 +62,14 @@ export const buddyTravelSchema = new Schema(
       },
     ],
 
-    
+    // Approval status (admin approval)
     status: {
       type: String,
       enum: ["PENDING", "ACTIVE", "CANCELLED", "COMPLETED", "APPROVED", "REJECTED"],
       default: "PENDING",
     },
 
-    
+    // Trip status based on dates (Upcoming, Ongoing, Completed)
     tripStatus: {
       type: String,
       enum: ["UPCOMING", "ONGOING", "COMPLETED"],

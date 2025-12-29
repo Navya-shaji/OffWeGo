@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Slider from "react-slick";
 import { getBanner } from "@/services/Banner/bannerService";
 import { Button } from "@/components/ui/button";
 import type { BannerInterface } from "@/interface/bannerInterface";
+import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -58,6 +59,15 @@ const Banner: React.FC = () => {
 
   const activeBanners = banners.filter((b) => b.action);
 
+  const scrollToSection = useCallback((id: string, fallbackPath?: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else if (fallbackPath) {
+      window.location.href = fallbackPath;
+    }
+  }, []);
+
   return (
     <section className="relative h-screen bg-black overflow-hidden">
       {/* Video Background */}
@@ -75,7 +85,13 @@ const Banner: React.FC = () => {
                   preload="auto"
                   controls={false}
                 >
-                  <source src={banner.Banner_video_url} type="video/mp4" />
+                  <source
+                    src={
+                      resolveCloudinaryUrl(banner.Banner_video_url, "video") ??
+                      banner.Banner_video_url
+                    }
+                    type="video/mp4"
+                  />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -91,7 +107,13 @@ const Banner: React.FC = () => {
             preload="auto"
             controls={false}
           >
-            <source src={activeBanners[0].Banner_video_url} type="video/mp4" />
+            <source
+              src={
+                resolveCloudinaryUrl(activeBanners[0].Banner_video_url, "video") ??
+                activeBanners[0].Banner_video_url
+              }
+              type="video/mp4"
+            />
             Your browser does not support the video tag.
           </video>
         ) : (
@@ -139,7 +161,10 @@ const Banner: React.FC = () => {
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap gap-4">
-                <Button className="group relative px-8 py-6 bg-white text-black font-semibold overflow-hidden transition-all duration-300 hover:scale-105 rounded-none">
+                <Button
+                  onClick={() => scrollToSection("destinations", "/destinations")}
+                  className="group relative px-8 py-6 bg-white text-black font-semibold overflow-hidden transition-all duration-300 hover:scale-105 rounded-none"
+                >
                   <span className="relative z-10">Explore Destinations</span>
                   <div className="absolute inset-0 bg-black transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                   <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
@@ -147,7 +172,10 @@ const Banner: React.FC = () => {
                   </span>
                 </Button>
                 
-                <Button className="px-8 py-6 border-2 border-white text-white font-semibold backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300 rounded-none bg-transparent">
+                <Button
+                  onClick={() => scrollToSection("destinations", "/destinations")}
+                  className="px-8 py-6 border-2 border-white text-white font-semibold backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300 rounded-none bg-transparent"
+                >
                   Learn More
                 </Button>
               </div>
@@ -168,7 +196,7 @@ const Banner: React.FC = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes scroll-down {
           0% { transform: translateY(-100%); }
           100% { transform: translateY(200%); }

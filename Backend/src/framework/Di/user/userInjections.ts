@@ -63,11 +63,12 @@ import { PackageRepository } from "../../../adapters/repository/Package/PackageR
 import { ReadNotificationusecase } from "../../../useCases/notifications/ReadNotificationusecase";
 import { CompleteTripUseCase } from "../../../useCases/wallet/completedTripUsecase";
 import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
+import { GetMessagesUseCase } from "../../../useCases/msg/getMessageUsecase";
+import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessageusecase";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
-import { GetMessagesUseCase } from "../../../useCases/chat/GetMessagesUsecase";
-import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessagesSeenUseCase";
+
 
 // Setup Repos and Services
 const userRepository = new UserRepository();

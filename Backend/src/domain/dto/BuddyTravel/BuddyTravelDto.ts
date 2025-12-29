@@ -22,6 +22,7 @@ export interface BuddyTravelDto {
     name: string;
     description?: string;
   };
+  images?: string[];
   status: "PENDING" | "ACTIVE" | "CANCELLED" | "COMPLETED" | "APPROVED" | "REJECTED";
   tripStatus: "UPCOMING" | "ONGOING" | "COMPLETED";
   vendorId: string;
