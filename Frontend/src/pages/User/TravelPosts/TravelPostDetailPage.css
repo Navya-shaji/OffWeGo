@@ -1,0 +1,530 @@
+.travel-post-detail-page {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #000000;
+}
+
+.travel-post-detail-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.travel-post-detail-loading,
+.travel-post-detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin: 20px;
+  color: #000000;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #000000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  color: #000000;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back-button:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+  color: #000000;
+}
+
+.travel-post-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.save-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #000000;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.save-button:hover {
+  background: #333333;
+  border-color: #333333;
+  color: #ffffff;
+}
+
+.save-button.saved {
+  background: #ffffff;
+  border: 1px solid #000000;
+  color: #000000;
+}
+
+.save-button.saved:hover {
+  background: #f8f9fa;
+  color: #000000;
+}
+
+.travel-post-detail-content-horizontal {
+  display: flex;
+  gap: 40px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.post-main-content {
+  flex: 1;
+  padding: 40px;
+  min-width: 0;
+}
+
+.post-sidebar {
+  width: 450px;
+  flex-shrink: 0;
+  padding: 40px;
+  background: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+}
+
+.post-content-wrapper {
+  max-width: none;
+}
+
+.post-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.post-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.meta-icon {
+  color: #000000;
+  font-size: 14px;
+}
+
+.post-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.tags-icon {
+  color: #000000;
+  font-size: 14px;
+}
+
+.tag {
+  background: #e9ecef;
+  color: #000000;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  border: 1px solid #ced4da;
+}
+
+.tag:hover {
+  background: #dee2e6;
+}
+
+.post-excerpt {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border-left: 4px solid #000000;
+}
+
+.post-excerpt p {
+  margin: 0;
+  font-size: 16px;
+  color: #6c757d;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.post-cover-image {
+  margin-bottom: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+}
+
+.cover-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.post-gallery {
+  margin-bottom: 25px;
+}
+
+.gallery-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 15px;
+}
+
+.gallery-grid-vertical {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 1px solid #dee2e6;
+}
+
+.gallery-item:hover {
+  transform: scale(1.02);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.post-body {
+  line-height: 1.7;
+}
+
+.post-content {
+  color: #000000;
+  font-size: 16px;
+}
+
+/* Saved Posts Section */
+.saved-posts-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.saved-posts-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 15px;
+}
+
+.saved-posts-loading {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px 0;
+}
+
+.saved-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-post-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saved-post-item:hover {
+  background: #f8f9fa;
+  border-color: #ced4da;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.saved-post-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.saved-post-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.saved-post-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-post-excerpt {
+  font-size: 12px;
+  color: #6c757d;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-post-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.saved-post-views,
+.saved-post-likes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.no-saved-posts {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-saved-posts p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #212529;
+  font-weight: 600;
+}
+
+.post-content h1 { font-size: 1.8rem; }
+.post-content h2 { font-size: 1.6rem; }
+.post-content h3 { font-size: 1.4rem; }
+.post-content h4 { font-size: 1.2rem; }
+.post-content h5 { font-size: 1.1rem; }
+.post-content h6 { font-size: 1rem; }
+
+.post-content p {
+  margin-bottom: 20px;
+  color: #212529;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.post-content ul,
+.post-content ol {
+  margin-bottom: 20px;
+  padding-left: 30px;
+}
+
+.post-content li {
+  margin-bottom: 8px;
+  color: #212529;
+  font-size: 16px;
+}
+
+.post-content blockquote {
+  margin: 20px 0;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-left: 4px solid #007bff;
+  font-style: italic;
+  border-radius: 8px;
+}
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.post-content code {
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #e83e8c;
+}
+
+.post-content pre {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 20px 0;
+  border: 1px solid #e9ecef;
+}
+
+.post-content pre code {
+  background: none;
+  padding: 0;
+  color: #212529;
+}
+
+@media (max-width: 1200px) {
+  .travel-post-detail-content-horizontal {
+    flex-direction: column;
+  }
+  
+  .post-sidebar {
+    width: 100%;
+    order: -1;
+  }
+  
+  .gallery-grid-vertical {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .travel-post-detail-container {
+    padding: 15px;
+  }
+  
+  .travel-post-detail-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .post-title {
+    font-size: 2rem;
+  }
+  
+  .post-meta {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .post-main-content {
+    padding: 25px;
+  }
+  
+  .post-sidebar {
+    padding: 25px;
+  }
+  
+  .gallery-grid-vertical {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  
+  .gallery-image {
+    height: 120px;
+  }
+  
+  .cover-image {
+    max-height: 300px;
+  }
+  
+  .post-content h1 { font-size: 1.6rem; }
+  .post-content h2 { font-size: 1.4rem; }
+  .post-content h3 { font-size: 1.2rem; }
+  .post-content h4 { font-size: 1.1rem; }
+  .post-content h5 { font-size: 1rem; }
+  .post-content h6 { font-size: 0.9rem; }
+  
+  .post-content p {
+    font-size: 15px;
+  }
+}

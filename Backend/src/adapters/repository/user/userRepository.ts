@@ -5,6 +5,7 @@ import {
   UserModel,
 } from "../../../framework/database/Models/userModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
+import { Types } from "mongoose";
 
 export class UserRepository
   extends BaseRepository<IUserModel>
@@ -99,5 +100,38 @@ async getFcmTokenById(userId: string): Promise<string | null> {
       { $set: { fcmToken: token } },
       { new: true }
     );
+  }
+
+  async toggleSaveTravelPost(userId: string, postId: string): Promise<boolean> {
+    const user = await this.model.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const objectId = new Types.ObjectId(postId);
+    const current = (user as any).savedTravelPosts as Types.ObjectId[] | undefined;
+    const savedPosts = Array.isArray(current) ? current : [];
+
+    const alreadySaved = savedPosts.some((id) => id.toString() === postId);
+
+    if (alreadySaved) {
+      (user as any).savedTravelPosts = savedPosts.filter((id) => id.toString() !== postId);
+      await user.save();
+      return false;
+    }
+
+    (user as any).savedTravelPosts = [...savedPosts, objectId];
+    await user.save();
+    return true;
+  }
+
+  async getSavedTravelPostIds(userId: string): Promise<string[]> {
+    const user = await this.model.findById(userId).select("savedTravelPosts");
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const savedPosts = (user as any).savedTravelPosts as Types.ObjectId[] | undefined;
+    return Array.isArray(savedPosts) ? savedPosts.map((id) => id.toString()) : [];
   }
 }

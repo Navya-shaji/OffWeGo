@@ -18,9 +18,13 @@ import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
 import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
+import BuddyTravelPaymentPage from "@/components/home/Travalbuddies/buddyTravelCheckout";
 import ChatPage from "@/pages/User/chat/chat";
 import NotFound from "@/components/Modular/NotFound";
 import Footer from "@/components/home/footer/Footer";
+import TravelPostListPage from "@/pages/User/TravelPosts/TravelPostListPage";
+import TravelPostCreatePage from "@/pages/User/TravelPosts/TravelPostCreatePage";
+import TravelPostDetailPage from "@/pages/User/TravelPosts/TravelPostDetailPage";
 
 const UserRoute = () => {
   const withFooter = (element: ReactNode) => (
@@ -100,6 +104,14 @@ const UserRoute = () => {
       />
       <Route path="/buddy-packages" element={withFooter(<Travalbuddies />)} />
       <Route
+        path="/payment-buddycheckout"
+        element={
+          <ProtectedRoute>
+            {withFooter(<BuddyTravelPaymentPage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/payment-success"
         element={
           <ProtectedRoute>
@@ -107,6 +119,17 @@ const UserRoute = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/posts" element={withFooter(<TravelPostListPage />)} />
+      <Route
+        path="/posts/new"
+        element={
+          <ProtectedRoute>
+            {withFooter(<TravelPostCreatePage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/posts/:slug" element={withFooter(<TravelPostDetailPage />)} />
 
       <Route
         path='/chat/:chatId?'

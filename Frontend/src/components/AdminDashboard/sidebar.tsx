@@ -41,6 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { icon: Users, label: "Users" },
     { icon: UserCheck, label: "Vendors" },
     { icon: MapPin, label: "Destinations" },
+    { icon: List, label: "Travel Posts" },
   ];
 
   const handleRequestClick = () => {

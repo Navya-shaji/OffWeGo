@@ -3,28 +3,26 @@ import { IChat } from "../../../domain/entities/chatEntity";
 
 export class ChatRepository {
     async findChat(members: string[]): Promise<IChat | null> {
-        // This method is kept for backward compatibility but uses getchatOfUser logic
-        if (members.length !== 2) {
-            return null;
-        }
+        // if (members.length !== 2) {
+        //     return null;
+        // }
         return await this.getchatOfUser(members[0], members[1]);
     }
 
     async createChat(data: IChat): Promise<any> {
-        console.log('💾 Creating chat with data:', data);
-        // Validate that we have both userId and vendorId
-        if (!data.userId || !data.vendorId) {
-            console.error('❌ Cannot create chat: missing userId or vendorId', data);
-            throw new Error('Both userId and vendorId are required to create a chat');
-        }
+   
+        // if (!data.userId || !data.vendorId) {
+        //     console.error('❌ Cannot create chat: missing userId or vendorId', data);
+        //     throw new Error('Both userId and vendorId are required to create a chat');
+        // }
         
         const createdChat = await chatModel.create(data);
-        console.log('✅ Chat created with ID:', createdChat._id);
-        console.log('📝 Raw chat document:', {
-            _id: createdChat._id,
-            userId: createdChat.userId,
-            vendorId: createdChat.vendorId
-        });
+        // console.log('✅ Chat created with ID:', createdChat._id);
+        // console.log('📝 Raw chat document:', {
+        //     _id: createdChat._id,
+        //     userId: createdChat.userId,
+        //     vendorId: createdChat.vendorId
+        // });
         
         // Populate the chat with user and vendor information
         const populatedChat = await chatModel.findById(createdChat._id)
@@ -37,11 +35,11 @@ export class ChatRepository {
                 select: 'name profileImage'
             });
         
-        console.log('📦 Returning populated chat:', {
-            _id: populatedChat?._id,
-            userId: populatedChat?.userId,
-            vendorId: populatedChat?.vendorId
-        });
+        // console.log('📦 Returning populated chat:', {
+        //     _id: populatedChat?._id,
+        //     userId: populatedChat?.userId,
+        //     vendorId: populatedChat?.vendorId
+        // });
         
         return populatedChat;
     }

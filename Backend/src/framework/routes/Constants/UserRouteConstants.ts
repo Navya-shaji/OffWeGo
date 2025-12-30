@@ -30,4 +30,16 @@ export const UserRoutes = {
   WALLET_BOOKING: '/wallet/booking',
   NOTIFY: "/notification/notify",
   READ_NOTIFICATION: "/notification/read/:id",
+  TRAVEL_POSTS: "/posts",
+  TRAVEL_POSTS_MY: "/posts/my",
+  TRAVEL_POST_CATEGORIES: "/posts/categories",
+  TRAVEL_POST_BY_SLUG: "/posts/:slug",
+  TRAVEL_POST_SAVE_TOGGLE: "/posts/:id/save",
+  TRAVEL_POST_SAVED: "/posts/saved",
+};
+
+export const UserRouteConstants = {
+  TRAVEL_POST_BY_SLUG: "/posts/:slug",
+  TRAVEL_POST_TOGGLE_SAVE: "/posts/:id/save",
+  TRAVEL_POST_SAVED: "/posts/saved",
 };

@@ -26,7 +26,10 @@ export interface IUserRepository {
 
   updateWallet(userId: string, amount: number): Promise<void>;
 
-  // NEW — FCM token methods
+
   getFcmTokenById(id: string): Promise<string | null>;
   updateFcmToken(id: string, token: string): Promise<User | null>;
+
+  toggleSaveTravelPost(userId: string, postId: string): Promise<boolean>;
+  getSavedTravelPostIds(userId: string): Promise<string[]>;
 }

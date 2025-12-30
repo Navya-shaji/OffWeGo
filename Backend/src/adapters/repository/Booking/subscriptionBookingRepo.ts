@@ -4,6 +4,7 @@ import {
 } from "../../../framework/database/Models/SubscriptionBookingModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 import { ISubscriptionBookingRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
+import { VendorModel } from "../../../framework/database/Models/vendorModel";
 
 export class SubscriptionBookingRepository
   extends BaseRepository<ISubscriptionBookingModel>
@@ -89,8 +90,8 @@ export class SubscriptionBookingRepository
       .sort({ createdAt: -1 });
     
  
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
+    // // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
    const vendorIds = Array.from(
   new Set(bookings.map((b: any) => b.vendorId).filter(Boolean))
 );
@@ -119,7 +120,7 @@ export class SubscriptionBookingRepository
       .sort({ createdAt: -1 });
 
     // Fetch vendor details separately since vendorId is a string, not an ObjectId ref
-    const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
+    // const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
     const vendor = await VendorModel.findById(vendorId);
 
     // Attach vendor details to each booking while preserving Mongoose document methods

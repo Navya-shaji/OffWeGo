@@ -63,10 +63,22 @@ import { PackageRepository } from "../../../adapters/repository/Package/PackageR
 import { ReadNotificationusecase } from "../../../useCases/notifications/ReadNotificationusecase";
 import { CompleteTripUseCase } from "../../../useCases/wallet/completedTripUsecase";
 import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
-import { GetMessagesUseCase } from "../../../useCases/msg/getMessageUsecase";
-import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessageusecase";
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
+
+import { TravelPostRepository } from "../../../adapters/repository/TravelPost/TravelPostRepository"; 
+import { CreateTravelPostUsecase } from "../../../useCases/travelPost/CreateTravelPostUsecase";
+import { ListTravelPostsUsecase } from "../../../useCases/travelPost/ListTravelPostsUsecase";
+import { GetTravelPostUsecase } from "../../../useCases/travelPost/GetTravelPostUsecase";
+import { ToggleSaveTravelPostUsecase } from "../../../useCases/travelPost/ToggleSaveTravelPostUsecase";
+import { ListSavedTravelPostsUsecase } from "../../../useCases/travelPost/ListSavedTravelPostsUsecase";
+import { TravelPostController } from "../../../adapters/controller/TravelPost/TravelPostController";
+import { CategoryRepository } from "../../../adapters/repository/Category/CategoryRepository";
+import { DestinationRepository } from "../../../adapters/repository/Destination/DestinationRepository";
+import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
+import { GetAllDestinations } from "../../../useCases/destination/getAllDestinationUsecase";
+import { GetMessagesUseCase } from "../../../useCases/msg/getMessageUsecase";
+import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessageusecase";
 
 
 
@@ -89,6 +101,9 @@ const notificationservice = new FirebaseNotificationService(notificationRepo, us
 const subscriptionbookingRepo = new SubscriptionBookingRepository()
 const chatRepo = new ChatRepository()
 const msgRepo = new MessageRepository()
+const travelPostRepo = new TravelPostRepository()
+const travelPostCategoryRepo = new CategoryRepository()
+const travelPostDestinationRepo = new DestinationRepository()
 
 
 // Use Cases
@@ -130,6 +145,13 @@ const walletpaymentusecase = new WalletPaymentUseCase(walletRepo)
 const readnotificationusecase = new ReadNotificationusecase(notificationRepo)
 const completedTripusecase = new CompleteTripUseCase(walletRepo, bookingRepo, packageRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
+const createTravelPostUsecase = new CreateTravelPostUsecase(travelPostRepo)
+const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo)
+const getTravelPostUsecase = new GetTravelPostUsecase(travelPostRepo)
+const toggleSaveTravelPostUsecase = new ToggleSaveTravelPostUsecase(userRepository, travelPostRepo)
+const listSavedTravelPostsUsecase = new ListSavedTravelPostsUsecase(userRepository, travelPostRepo)
+const travelPostCategoriesUsecase = new GetAllCategories(travelPostCategoryRepo)
+const travelPostDestinationsUsecase = new GetAllDestinations(travelPostDestinationRepo)
 
 // Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase, verifyOtpUsecase, resendotpusecase, jwtService);
@@ -154,3 +176,12 @@ export const subscriptionpaymentcontroller = new SubscriptionPaymentController(v
 export const walletcontroller = new WalletController(createwalletusecase, getUserWalletusecase, transferamountusecase, completedbookings, walletpaymentusecase, completedTripusecase)
 export const notificationcontroller = new NotificationController(notificationUsecase, getNotificationusecase, readnotificationusecase)
 export const chatcontroller = new ChatController(sendchatusecase, getchatusecase, getmessagesusecase, markmessagesseenusecase)
+export const travelPostController = new TravelPostController(
+  createTravelPostUsecase,
+  listTravelPostsUsecase,
+  getTravelPostUsecase,
+  toggleSaveTravelPostUsecase,
+  listSavedTravelPostsUsecase,
+  travelPostCategoriesUsecase,
+  travelPostDestinationsUsecase
+)

@@ -29,28 +29,8 @@ export class MessageRepository {
         return saved.toObject();
     }
 
-    async getMessages(
-        chatId: string,
-        options?: { limit?: number; before?: Date }
-    ): Promise<{ messages: IMessage[]; hasMore: boolean }> {
-        const limit = Math.min(Math.max(options?.limit ?? 50, 1), 100);
-
-        const query: any = { chatId };
-        if (options?.before) {
-            query.sendedTime = { $lt: options.before };
-        }
-
-        const docs = await messageModel
-            .find(query)
-            .sort({ sendedTime: -1 })
-            .limit(limit + 1)
-            .populate('replyTo.messageId');
-
-        const hasMore = docs.length > limit;
-        const slice = hasMore ? docs.slice(0, limit) : docs;
-        const messages = slice.reverse().map((d) => (d as any).toObject?.() ?? d);
-
-        return { messages, hasMore };
+    async getMessages(chatId: string): Promise<IMessage[]> {
+        return await messageModel.find({ chatId }).sort({ sendedTime: 1 }).populate('replyTo.messageId');
     }
 
     async countUnreadMessages(chatId: string, userId: string): Promise<number> {

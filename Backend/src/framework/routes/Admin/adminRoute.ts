@@ -7,6 +7,7 @@ import {
   categoryController,
   destinationController,
   subscriptionController,
+  adminTravelPostController,
 } from "../../Di/Admin/adminInjection";
 
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
@@ -104,6 +105,20 @@ export class AdminRoute {
       AdminRoutes.UPDATE_USER_STATUS,
       adminOnly,
       (req, res) => AdminuserController.updateStatus(req, res)
+    );
+
+    // -------------------- TRAVEL STORY MODERATION --------------------
+
+    this.adminRouter.get(
+      AdminRoutes.TRAVEL_POSTS_BY_STATUS,
+      adminOnly,
+      (req, res) => adminTravelPostController.listTravelPostsByStatus(req, res)
+    );
+
+    this.adminRouter.patch(
+      AdminRoutes.TRAVEL_POST_STATUS_UPDATE,
+      adminOnly,
+      (req, res) => adminTravelPostController.updateTravelPostStatus(req, res)
     );
 
     // -------------------- DESTINATION MANAGEMENT --------------------

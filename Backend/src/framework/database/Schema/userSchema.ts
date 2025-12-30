@@ -7,6 +7,7 @@ export const userSchema = new Schema({
   phone: { type: Number },
   password: { type: String },
   imageUrl: { type: String },
+  savedTravelPosts: { type: [Schema.Types.ObjectId], ref: "TravelPost", default: [] },
   createdAt: { type: Date },
   status: {
     type: String,

@@ -10,13 +10,14 @@ import {
   walletcontroller,
   chatcontroller,
   notificationcontroller,
+  travelPostController,
 } from "../../Di/User/userInjections";
 import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
-import { UserRoutes } from "../Constants/UserRouteConstants";
+import { UserRoutes, UserRouteConstants } from "../Constants/UserRouteConstants";
+import { CommonRoutes } from "../Constants/commonRoutes";
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
-import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import {
   buddyTravelcontroller,
@@ -222,6 +223,57 @@ export class UserRoute {
       UserRoutes.WALLET_PAYMENT,
       (req: Request, res: Response) => {
         walletcontroller.walletPayment(req, res);
+      }
+    );
+
+    this.userRouter.get(UserRoutes.TRAVEL_POSTS, (req: Request, res: Response) => {
+      travelPostController.listTravelPosts(req, res);
+    });
+    this.userRouter.get(
+      UserRoutes.TRAVEL_POSTS_MY,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol(["user"]),
+      (req: Request, res: Response) => {
+        travelPostController.listMyTravelPosts(req, res);
+      }
+    );
+    this.userRouter.get(
+      UserRoutes.TRAVEL_POST_CATEGORIES,
+      (req: Request, res: Response) => {
+        travelPostController.listTravelPostFilters(req, res);
+      }
+    );
+    this.userRouter.post(
+      UserRoutes.TRAVEL_POSTS,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol(["user"]),
+      (req: Request, res: Response) => {
+        travelPostController.createTravelPost(req, res);
+      }
+    );
+
+    this.userRouter.get(
+      UserRouteConstants.TRAVEL_POST_BY_SLUG,
+      (req: Request, res: Response) => {
+        travelPostController.getTravelPostBySlug(req, res);
+      }
+    );
+
+    this.userRouter.post(
+      UserRouteConstants.TRAVEL_POST_TOGGLE_SAVE,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol(["user"]),
+      (req: Request, res: Response) => {
+        travelPostController.toggleSaveTravelPost(req, res);
+      }
+    );
+
+    this.userRouter.get(
+      UserRouteConstants.TRAVEL_POST_SAVED,
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol(["user"]),
+      (req: Request, res: Response) => {
+        travelPostController.listSavedTravelPosts(req, res);
       }
     );
     this.userRouter.post(CommonRoutes.CHAT, (req: Request, res: Response) => {

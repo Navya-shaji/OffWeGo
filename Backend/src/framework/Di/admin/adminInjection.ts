@@ -48,8 +48,13 @@ import { FirebaseNotificationService } from "../../Services/FirebaseNotification
 // import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
 import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
 import { GetSubscriptionBookingUseCase } from "../../../useCases/subscription/GetAllSubscriptionBookingUsecase";
-import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/subscription/GetVendorSubscriptionUsecase"; 
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
+import { ListTravelPostsUsecase } from "../../../useCases/travelPost/ListTravelPostsUsecase";
+import { ApproveTravelPostUsecase } from "../../../useCases/travelPost/ApproveTravelPostUsecase";
+import { RejectTravelPostUsecase } from "../../../useCases/travelPost/RejectTravelPostUsecase";
+import { AdminTravelPostController } from "../../../adapters/controller/Admin/AdminTravelPostController";
+import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/subscription/GetVendorSubscriptionUsecase";
+import { TravelPostRepository } from "../../../adapters/repository/TravelPost/TravelPostRepository";
 // import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
 // import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
@@ -68,6 +73,7 @@ const userRepo=new UserRepository()
 const notitifiactionRepo=new NotificationRepository()
 const notificationRepo=new FirebaseNotificationService(notitifiactionRepo,userRepo,vendorRepo)
 const subscriptionbookingRepo=new SubscriptionBookingRepository()
+const travelPostRepo = new TravelPostRepository()
 
 // Services
 const hashPassword = new HashPassword();
@@ -111,6 +117,10 @@ const getVendorSubscriptionHistoryUseCase=new GetVendorSubscriptionHistoryUseCas
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 const getbookedsubscriptionusecase=new GetSubscriptionBookingUseCase(subscriptionbookingRepo)
 
+const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo)
+const approveTravelPostUsecase = new ApproveTravelPostUsecase(travelPostRepo)
+const rejectTravelPostUsecase = new RejectTravelPostUsecase(travelPostRepo)
+
 // Controllers
 export const adminController = new AdminController(adminLoginuseCase);
 export const adminVendorController = new AdminVendorController(adminvendorfindByemailUsecase,getAllVendorsUseCase,updateVendorStatusUseCase,vendorblockUnblockUsecase,vendorRepository,searchvendorusecase);
@@ -127,4 +137,9 @@ export const destinationController = new DestinationController(
 export const categoryController=new CreateCategoryController(createcategoryUsecase,getAllcategoryUsecase,editCategory,deleteCategory,searchcategory);
 export const bannerController=new BannerController(createbannerUsecase,getbannerUsecase,editbanner,deleteBanner,Banneractionusecase);
 export const subscriptionController=new SubscriptionController(subscriptionusecase,getallsubscriptions,subscriptioneditusecase,deletesubscriptionusecase,getbookedsubscriptionusecase,getVendorSubscriptionHistoryUseCase)
+export const adminTravelPostController = new AdminTravelPostController(
+  listTravelPostsUsecase,
+  approveTravelPostUsecase,
+  rejectTravelPostUsecase
+)
 // export const notificationcontroller=new NotificationController(sendnotificationusecase,getNotificationusecase)

@@ -13,7 +13,7 @@ export const errorMiddleware = (
     const statusCode = err instanceof AppError ? err.statusCode : 500;
 
     console.log("");
-    console.log(color.red(color.bold("🔥 ERROR OCCURRED")));
+    console.log(color.red(color.bold(" ERROR OCCURRED")));
     console.log(color.yellow("Message: ") + err.message);
     console.log(color.yellow("Status: ") + statusCode);
     console.log(color.yellow("Path: ") + req.originalUrl);
