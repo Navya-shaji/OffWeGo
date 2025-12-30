@@ -14,7 +14,6 @@ import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
 import {
   autoSettleTrips,
-  updateBuddyTravelTripStatus,
 } from "./framework/Services/cronjob";
 import { SocketIoServer } from "./Io";
 
@@ -64,13 +63,11 @@ export class App {
     try {
       await this.database.connect();
       autoSettleTrips.start();
-      console.log("⏱️ Auto Settlement Cron Started");
-      updateBuddyTravelTripStatus.start();
-      console.log("⏱️ Buddy Travel Trip Status Update Cron Started");
+      console.log("⏱ Auto Settlement Cron Started");
 
       this.server = http.createServer(this.app);
 
-      // Initialize Socket.IO server
+   
       this.io = new SocketIOServer(this.server, {
         cors: {
           origin: [

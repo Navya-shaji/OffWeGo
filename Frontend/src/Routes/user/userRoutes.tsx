@@ -17,8 +17,6 @@ import AllDestinationsPage from "@/pages/User/Destination/AllDestinationPage";
 import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
-import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
-import BuddyTravelPaymentPage from "@/components/home/Travalbuddies/buddyTravelCheckout";
 import ChatPage from "@/pages/User/chat/chat";
 import NotFound from "@/components/Modular/NotFound";
 import Footer from "@/components/home/footer/Footer";
@@ -99,15 +97,6 @@ const UserRoute = () => {
         element={
           <ProtectedRoute>
             {withFooter(<WalletManagement />)}
-          </ProtectedRoute>
-        }
-      />
-      <Route path="/buddy-packages" element={withFooter(<Travalbuddies />)} />
-      <Route
-        path="/payment-buddycheckout"
-        element={
-          <ProtectedRoute>
-            {withFooter(<BuddyTravelPaymentPage />)}
           </ProtectedRoute>
         }
       />

@@ -15,7 +15,6 @@ import { BannerForm } from "../banner/bannerForm";
 import AddSubscription from "@/pages/Admin/Subscription/CreateSubscription";
 import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
 import AdminDashboard from "./Dashboard";
-import IncomingBuddyRequests from "../buddyTravel/buddyTravelConfirmation";
 import AdminWalletManagement from "../Wallet/AdminWallet";
 import BookedSubscriptions from "../Subscription/BookedSubscriptions";
 
@@ -94,7 +93,7 @@ const AdminLayout = () => {
             {activeTab === "All Subscriptions" && <SubscriptionList />}
             {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
             {activeTab === "Booked Subscriptions" && <BookedSubscriptions />}
-            {activeTab === "Buddy Packages" && <IncomingBuddyRequests />}
+           
           </div>
         </div>
       </div>

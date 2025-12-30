@@ -17,8 +17,7 @@ import CreateFlight from "./createFlight";
 import GetAllFlight from "./GetAllFlight";
 import AllBookings from "./Bookings/UserBookings";
 import { TravelCalendar } from "./Bookings/TravelCalendar";
-import AddBuddyTravelPage from "./BuddyTravel/Buddytravel-create";
-import VendorApprovedPackages from "./BuddyTravel/BuddyPackage-table";
+
 import VendorWalletManagement from "./Wallet/vendorWallet";
 import VendorDashboard from "./Dashboard/VendorDashboard";
 import VendorMessageContainer from "./chat/ChatVendor";
@@ -45,11 +44,8 @@ function Dashboard() {
           <div className={`${activeTab === "Profile" ? "h-full flex items-center justify-center" : "p-6"}`}>
             {activeTab === "Profile" && <Profile />}
             {activeTab === "Add Package" && <AddPackage />}
-            {activeTab === "Add Buddy Travel" && <AddBuddyTravelPage />}
+         
             {activeTab === "All Packages" && <PackageTable packages={packages} />}
-            {activeTab === "Buddy Packages" && (
-              <VendorApprovedPackages vendorId={vendorId || ""} />
-            )}
             {activeTab === "All Destinations" && <DestinationTable />}
             {activeTab === "Add Destination" && <CreateDestination />}
             {activeTab === "Create Hotel" && <CreateHotel />}

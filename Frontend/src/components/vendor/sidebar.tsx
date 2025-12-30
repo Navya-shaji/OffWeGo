@@ -83,9 +83,9 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           <div className="ml-4 mt-1 space-y-1">
             {[
               "Add Package",
-              "Add Buddy Travel",
+            
               "All Packages",
-              "Buddy Packages",
+             
             ].map((label) => (
               <button
                 key={label}

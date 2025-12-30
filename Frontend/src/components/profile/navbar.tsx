@@ -29,16 +29,19 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  // FCM Message Listener - Continuous listening
   useEffect(() => {
     if (!user?.id) return;
 
-    const unsubscribe = onMessage(messaging, (payload: any) => {
-      console.log("📬 User FCM Message Received:", payload);
-      
-      // Handle both notification and data payload
-      const title = payload.notification?.title || payload.data?.title || "New Notification";
-      const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
+    const unsubscribe = onMessage(messaging, (payload) => {
+      const title =
+        payload.notification?.title ||
+        payload.data?.title ||
+        "New Notification";
+      const body =
+        payload.notification?.body ||
+        payload.data?.body ||
+        payload.data?.message ||
+        "";
 
       dispatch(
         addNotification({
@@ -59,13 +62,11 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-18">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="logo" className="w-35 h-10 mr-2"  />
+              <img src={logo} alt="logo" className="w-35 h-10 mr-2" />
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-6">
-          
-          </div>
+          <div className="hidden md:flex items-center space-x-6"></div>
 
           <div className="hidden md:flex items-center space-x-4">
             {!user ? (
@@ -85,7 +86,7 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center space-x-3">
-                {/* Notification Bell */}
+            
                 <div
                   className="relative cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   onClick={() => setPanelOpen(true)}
@@ -94,7 +95,9 @@ const Navbar = () => {
 
                   {notificationUnreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gray-800 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
-                      {notificationUnreadCount > 99 ? "99+" : notificationUnreadCount}
+                      {notificationUnreadCount > 99
+                        ? "99+"
+                        : notificationUnreadCount}
                     </span>
                   )}
                 </div>
@@ -107,7 +110,7 @@ const Navbar = () => {
                     <MessageCircle className="w-5 h-5" />
                     {(unreadChatCount ?? 0) > 0 && (
                       <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
-                        {(unreadChatCount ?? 0) > 99 ? '99+' : unreadChatCount}
+                        {(unreadChatCount ?? 0) > 99 ? "99+" : unreadChatCount}
                       </span>
                     )}
                   </button>
@@ -176,24 +179,6 @@ const Navbar = () => {
             className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
           >
             Destinations
-          </Link>
-          <Link
-            to="/articles"
-            className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
-          >
-            Articles
-          </Link>
-          <Link
-            to="/buddy-travel"
-            className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
-          >
-            Buddy Travel
-          </Link>
-          <Link
-            to="/search"
-            className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
-          >
-            Search
           </Link>
 
           {!user ? (

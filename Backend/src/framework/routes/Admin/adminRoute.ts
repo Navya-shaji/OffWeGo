@@ -18,7 +18,7 @@ import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import { Role } from "../../../domain/constants/Roles";
 import { walletcontroller } from "../../Di/User/userInjections";
-import { buddyTravelcontroller } from "../../Di/Vendor/VendorInjections";
+
 
 const TokenService = new JwtService();
 
@@ -249,18 +249,5 @@ export class AdminRoute {
       AdminRoutes. COMPLETED_TRIP,(req,res)=>walletcontroller.completeTripAndDistribute(req,res)
     )
 
-    // -------------------- BUDDY TRAVEL PACKAGE MANAGEMENT --------------------
-
-    this.adminRouter.patch(
-      AdminRoutes.UPDATE_PACKAGE_STATUS,
-      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req, res) => buddyTravelcontroller.updateBuddyPackageStatus(req, res)
-    );
-
-    this.adminRouter.get(
-      AdminRoutes.GET_BUDDY_PACKAGES,
-      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req, res) => buddyTravelcontroller.getBuddyTravelPackages(req, res)
-    );
   }
 }

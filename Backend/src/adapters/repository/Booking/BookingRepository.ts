@@ -1,5 +1,4 @@
 import { Booking } from "../../../domain/entities/BookingEntity";
-import { BuddyTravel } from "../../../domain/entities/BuddyTripEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
 import { BookingModel } from "../../../framework/database/Models/BookingModel";
 import { isValidObjectId } from "mongoose";
@@ -41,7 +40,6 @@ export class BookingRepository implements IBookingRepository {
   async findByVendorId(vendorId: string): Promise<Booking[]> {
     return BookingModel.find({ vendorId })
       .populate("selectedPackage")
-      // .populate("userId")
       .lean<Booking[]>()
       .exec();
   }
@@ -54,7 +52,6 @@ export class BookingRepository implements IBookingRepository {
     return bookings.flatMap((b) => b.selectedDate || []);
   }
   async cancelBooking(bookingId: string): Promise<Booking> {
-    // Try to find and update by MongoDB _id first, then by bookingId field
     let updated: Booking | null = null;
 
     if (isValidObjectId(bookingId)) {
@@ -85,7 +82,7 @@ export class BookingRepository implements IBookingRepository {
   }
   async findOne(bookingId: string): Promise<Booking | null> {
     console.log("Finding booking by bookingId or _id:", bookingId);
-    // Try to find by MongoDB _id first, then by bookingId field
+
     let booking: Booking | null = null;
 
     if (isValidObjectId(bookingId)) {
@@ -101,23 +98,6 @@ export class BookingRepository implements IBookingRepository {
     return booking;
   }
 
-  async createbuddyBooking(booking: BuddyTravel): Promise<BuddyTravel> {
-    const createdBooking = new BookingModel({
-      ...booking,
-    });
-
-    await createdBooking.save();
-    return createdBooking.toObject() as unknown as BuddyTravel;
-  }
-
-  async BuddyBooking(booking: BuddyTravel): Promise<Booking> {
-    const createdBooking = new BookingModel({
-      ...booking,
-    });
-
-    await createdBooking.save();
-    return createdBooking.toObject();
-  }
   async findByPackageAndDate(
     packageId: string,
     selectedDate: Date
@@ -142,12 +122,12 @@ export class BookingRepository implements IBookingRepository {
 
     const bookings = await BookingModel.find({
       selectedPackage: { $exists: true, $ne: null },
-      bookingStatus: "completed"
+      bookingStatus: "completed",
     })
       .populate("selectedPackage")
       .lean();
 
-    const finishedTrips = bookings.filter((booking: any) => {
+    const finishedTrips = bookings.filter((booking) => {
       const selectedPackage = booking.selectedPackage;
       if (!selectedPackage?.duration || !booking.selectedDate) return false;
 
@@ -157,7 +137,7 @@ export class BookingRepository implements IBookingRepository {
       return endDate < today;
     });
 
-    const formattedTrips = finishedTrips.map((booking: any) => ({
+    const formattedTrips = finishedTrips.map((booking) => ({
       bookingId: booking.bookingId,
       userId: booking.userId,
       vendorId: booking.selectedPackage?.vendorId,
@@ -167,7 +147,8 @@ export class BookingRepository implements IBookingRepository {
       duration: booking.selectedPackage?.duration,
       endDate: new Date(
         new Date(booking.selectedDate).setDate(
-          new Date(booking.selectedDate).getDate() + booking.selectedPackage.duration
+          new Date(booking.selectedDate).getDate() +
+            booking.selectedPackage.duration
         )
       ),
       paymentStatus: booking.paymentStatus,
@@ -178,7 +159,6 @@ export class BookingRepository implements IBookingRepository {
     return formattedTrips as unknown as Booking[];
   }
 
-
   async checkBookingExistsBetweenUserAndOwner(
     userId: string,
     ownerId: string
@@ -186,7 +166,7 @@ export class BookingRepository implements IBookingRepository {
     return BookingModel.findOne({
       userId,
       vendorId: ownerId,
-      bookingStatus: { $in: ["upcoming", "confirmed", "ongoing"] }
+      bookingStatus: { $in: ["upcoming", "confirmed", "ongoing"] },
     })
       .lean<Booking>()
       .exec();
@@ -201,7 +181,7 @@ export class BookingRepository implements IBookingRepository {
       {
         paymentStatus: paymentData.status,
         paymentMethod: paymentData.paymentMethod,
-        amountPaid: paymentData.amountPaid
+        amountPaid: paymentData.amountPaid,
       },
       { new: true }
     )
@@ -218,13 +198,10 @@ export class BookingRepository implements IBookingRepository {
     return BookingModel.find({ bookingId: refId });
   }
   async findCompletedTrips(): Promise<Booking[]> {
-
     return BookingModel.find({
       bookingStatus: "upcoming",
       settlementDone: false,
-      paymentStatus: "succeeded"
+      paymentStatus: "succeeded",
     });
   }
-
-
 }

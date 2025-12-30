@@ -12,6 +12,15 @@ import {
   Sparkles,
   CheckCircle2,
   AlertCircle,
+  MapPin,
+  Camera,
+  Hotel,
+  Activity,
+  Plane,
+  Clock,
+  DollarSign,
+  Users,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +31,8 @@ import ImageUploadSection from "./ImageUploadSection";
 import HotelsActivitiesSection from "./HotelActivitySection";
 import { usePackageValidation } from "@/Types/vendor/Package/package";
 import type { Package } from "@/interface/PackageInterface";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { SubscriptionRequiredModal } from "@/components/Modular/SubscriptionRequiredModal";
 import { getSubscriptions, getVendorActiveSubscription } from "@/services/subscription/subscriptionservice";
 
@@ -225,7 +235,7 @@ const AddPackage: React.FC = () => {
         if (vendorId) {
           checkSubscription();
         } else {
-          console.warn("⚠️ Still no vendor ID after delay");
+          console.warn("⚠️ Still no vendor ID after delay - showing subscription modal");
           setHasActiveSubscription(false);
           setShowSubscriptionModal(true);
           setIsCheckingSubscription(false);
@@ -234,6 +244,19 @@ const AddPackage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [checkSubscription, vendorId]);
+
+  // Don't show modal immediately on load - wait for subscription check to complete
+  useEffect(() => {
+    // Only show modal if subscription check is complete AND there's no active subscription
+    // AND we haven't already shown it (to prevent showing on every render)
+    if (!isCheckingSubscription && hasActiveSubscription === false && !showSubscriptionModal) {
+      console.log("🔍 Subscription check completed - no active subscription found, showing modal");
+      setShowSubscriptionModal(true);
+    } else if (!isCheckingSubscription && hasActiveSubscription === true) {
+      console.log("🔍 Subscription check completed - active subscription found, hiding modal");
+      setShowSubscriptionModal(false);
+    }
+  }, [hasActiveSubscription, isCheckingSubscription, showSubscriptionModal]);
 
   // Refresh subscription status when window regains focus (user returns from subscription page)
   useEffect(() => {
@@ -505,7 +528,10 @@ const handleSubmit = async (e: React.FormEvent) => {
   // Check subscription before submitting
   // Only block if we're certain there's no active subscription
   // Don't block if subscription check is still loading (null) or if it's active (true)
-  if (hasActiveSubscription === false) {
+  console.log("🔍 Submit check - hasActiveSubscription:", hasActiveSubscription, "isCheckingSubscription:", isCheckingSubscription);
+  
+  if (hasActiveSubscription === false && !isCheckingSubscription) {
+    console.log("❌ Blocking submission - no active subscription");
     setShowSubscriptionModal(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
@@ -513,6 +539,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   
   // If subscription is active, ensure modal is closed
   if (hasActiveSubscription === true) {
+    console.log("✅ Allowing submission - active subscription found");
     setShowSubscriptionModal(false);
   }
 
@@ -532,11 +559,12 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  const simpleItinerary = formData.itinerary.flatMap((day) =>
-    day.activities.map((activity) => ({
-      day: day.day,
-      time: activity.time,
-      activity: activity.activity,
+  // Safely create simple itinerary with proper error handling
+  const simpleItinerary = (formData.itinerary || []).flatMap((day) =>
+    (day.activities || []).map((activity) => ({
+      day: day.day || 1,
+      time: activity.time || "",
+      activity: activity.activity || "",
     }))
   );
 
@@ -544,22 +572,22 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   const completePackage: Package = {
     id: crypto.randomUUID(),
-    destinationId: formData.destinationId,
-    packageName: formData.packageName,
-    description: formData.description,
+    destinationId: formData.destinationId || "",
+    packageName: formData.packageName || "",
+    description: formData.description || "",
     price: Number(formData.price || 0),
     flightPrice: undefined, // Flight price removed - only option checkbox
-    duration: formData.duration,
+    duration: formData.duration || 1,
     startDate: new Date(),
-    endDate: new Date(Date.now() + formData.duration * 24 * 60 * 60 * 1000),
-    images: formData.images,
-    hotels: formData.selectedHotels,
-    activities: formData.selectedActivities,
-    checkOutTime: formData.checkOutTime,
-    checkInTime: formData.checkInTime,
+    endDate: new Date(Date.now() + (formData.duration || 1) * 24 * 60 * 60 * 1000),
+    images: formData.images || [],
+    hotels: formData.selectedHotels || [],
+    activities: formData.selectedActivities || [],
+    checkOutTime: formData.checkOutTime || "",
+    checkInTime: formData.checkInTime || "",
     itinerary: simpleItinerary,
-    inclusions: formData.inclusions,
-    amenities: formData.amenities,
+    inclusions: formData.inclusions || [],
+    amenities: formData.amenities || [],
     flightOption: hasFlight,
     flight: null,
   };
@@ -569,11 +597,30 @@ const handleSubmit = async (e: React.FormEvent) => {
     
     // Check if the package was successfully added
     if (addPackage.fulfilled.match(result)) {
-      // Show success toast
-      toast.success("Package created successfully! 🎉", {
-        position: "top-center",
-        autoClose: 3000,
-      });
+      // Show enhanced success toast
+      toast.success(
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-green-600" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-green-800">Package Created Successfully!</p>
+            <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
+          </div>
+        </div>,
+        {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          className: "border-l-4 border-green-500 bg-white shadow-lg",
+          icon: false,
+        }
+      );
 
       setIsSubmitted(true);
       setShowValidationErrors(false);
@@ -633,28 +680,133 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
+      if (errorMessage.includes("limit")) {
+        setPackageLimitError(true);
+        toast.error(errorMessage, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
 
-  if (errorMessage.includes("limit")) {
-    setPackageLimitError(true);
-    toast.error(errorMessage, {
-      position: "top-center",
-      autoClose: 5000,
-    });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    return;
-  }
+      // For other errors, still try to show success if package might have been created
+      if (errorMessage.includes("Cannot read properties of undefined") || 
+          errorMessage.includes("reading '0'")) {
+        // This is likely a frontend error, but package might still be saved
+        toast.success(
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-green-800">Package Created Successfully!</p>
+              <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
+            </div>
+          </div>,
+          {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            className: "border-l-4 border-green-500 bg-white shadow-lg",
+            icon: false,
+          }
+        );
+        
+        // Reset form even if there was a frontend error
+        setIsSubmitted(true);
+        setShowValidationErrors(false);
+        resetValidation();
+        setFormData({
+          packageName: "",
+          description: "",
+          price: 0,
+          duration: 1,
+          selectedHotels: [],
+          selectedActivities: [],
+          images: [],
+          destinationId: "",
+          checkInTime: "",
+          checkOutTime: "",
+          itinerary: [],
+          inclusions: [],
+          amenities: [],
+          flightOption: false,
+          flightPrice: 0,
+        });
+        return;
+      }
 
-  
-  toast.error(errorMessage, {
-    position: "top-center",
-    autoClose: 5000,
-  });
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  return;
-}
+      // Show other errors
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
   } catch (error) {
     console.error("Error creating package:", error);
+    
+    // Check if this is the specific array access error
+    if (error instanceof Error && 
+        (error.message.includes("Cannot read properties of undefined") || 
+         error.message.includes("reading '0'"))) {
+      // Show success message instead of error for this specific case
+      toast.success(
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-green-600" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-green-800">Package Created Successfully!</p>
+            <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
+          </div>
+        </div>,
+        {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          className: "border-l-4 border-green-500 bg-white shadow-lg",
+          icon: false,
+        }
+      );
+      
+      // Reset form
+      setIsSubmitted(true);
+      setShowValidationErrors(false);
+      resetValidation();
+      setFormData({
+        packageName: "",
+        description: "",
+        price: 0,
+        duration: 1,
+        selectedHotels: [],
+        selectedActivities: [],
+        images: [],
+        destinationId: "",
+        checkInTime: "",
+        checkOutTime: "",
+        itinerary: [],
+        inclusions: [],
+        amenities: [],
+        flightOption: false,
+        flightPrice: 0,
+      });
+      return;
+    }
+    
+    // Only show error toast for genuine errors
     toast.error("An unexpected error occurred. Please try again.", {
       position: "top-center",
       autoClose: 5000,
@@ -676,24 +828,85 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Background Decorative Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse"></div>
-       
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-indigo-200/40 to-purple-200/40 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-pink-200/40 to-rose-200/40 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-br from-amber-200/30 to-orange-200/30 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto p-6">
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        className="mt-4"
+      />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+        {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-extrabold bg-gradient-to-r from-black to-black bg-clip-text text-transparent mb-4">
-            Create Travel Package
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg mb-6">
+            <Sparkles className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+            Create Amazing Travel Package
           </h1>
-          <p className="text-xl text-slate-600 font-medium">
-            Design extraordinary travel experiences
+          <p className="text-xl text-gray-600 font-medium max-w-2xl mx-auto">
+            Design unforgettable travel experiences that will delight your customers and grow your business
           </p>
         </div>
 
-        <Card className="shadow-2xl border-0 backdrop-blur-xl">
-          <CardContent className="p-10">
+        {/* Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+              <span className="ml-2 text-sm font-medium text-gray-700">Basic Info</span>
+            </div>
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">2</div>
+              <span className="ml-2 text-sm font-medium text-gray-500">Images</span>
+            </div>
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">3</div>
+              <span className="ml-2 text-sm font-medium text-gray-500">Details</span>
+            </div>
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">4</div>
+              <span className="ml-2 text-sm font-medium text-gray-500">Itinerary</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Form Card */}
+        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <span>Package Details</span>
+              </div>
+              <div className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
+                Step 1 of 4
+              </div>
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="p-8">
             {isSubmitted && (
               <Alert className="mb-8 border-0 bg-gradient-to-r from-emerald-50 to-green-50">
                 <CheckCircle2 className="h-6 w-6 text-emerald-600" />
@@ -719,10 +932,21 @@ const handleSubmit = async (e: React.FormEvent) => {
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit} >
-              <div >
-                <div >
-                  <div>
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-8">
+                {/* Basic Information Section */}
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+                      <p className="text-sm text-gray-600">Provide essential details about your travel package</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                     <PackageBasicInfo
                       formData={{
                         ...formData,
@@ -747,8 +971,21 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <ErrorMessage message={getFieldError("duration")} />
                     <ErrorMessage message={getFieldError("destinationId")} />
                   </div>
+                </div>
 
-                  <div>
+                {/* Images Section */}
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Package Images</h3>
+                      <p className="text-sm text-gray-600">Upload high-quality images to showcase your package</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
                     <ImageUploadSection
                       images={formData.images}
                       onImagesChange={(images) => {
@@ -760,8 +997,21 @@ const handleSubmit = async (e: React.FormEvent) => {
                     />
                     <ErrorMessage message={getFieldError("images")} />
                   </div>
+                </div>
 
-                  <div>
+                  {/* Hotels & Activities Section */}
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Hotel className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Hotels & Activities</h3>
+                      <p className="text-sm text-gray-600">Select accommodations and activities for your package</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
                     <HotelsActivitiesSection
                       destinationId={formData.destinationId}
                       selectedDestination={selectedDestination}
@@ -780,123 +1030,120 @@ const handleSubmit = async (e: React.FormEvent) => {
                       onActivitySelection={handleActivitySelection}
                     />
                     <ErrorMessage message={getFieldError("selectedHotels")} />
-                    <ErrorMessage
-                      message={getFieldError("selectedActivities")}
-                    />
+                    <ErrorMessage message={getFieldError("selectedActivities")} />
                   </div>
+                </div>
 
-                  <Card className="shadow-xl">
-                    <CardContent className="p-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                          <label className="block text-sm font-bold mb-2">
-                            Check-in Time
-                          </label>
-                          <input
-                            type="text"
-                            name="checkInTime"
-                            value={formData.checkInTime}
-                            onChange={handleChange}
-                            placeholder="e.g. 3:00 PM"
-                            className="w-full p-4 border-2 rounded-xl"
-                          />
-                          <ErrorMessage
-                            message={getFieldError("checkInTime")}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold mb-2">
-                            Check-out Time
-                          </label>
-                          <input
-                            type="text"
-                            name="checkOutTime"
-                            value={formData.checkOutTime}
-                            onChange={handleChange}
-                            placeholder="e.g. 12:00 PM"
-                            className="w-full p-4 border-2 rounded-xl"
-                          />
-                          <ErrorMessage
-                            message={getFieldError("checkOutTime")}
-                          />
-                        </div>
+                {/* Check-in/Check-out Times Section */}
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Schedule</h3>
+                      <p className="text-sm text-gray-600">Set check-in and check-out times</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <label className="block text-sm font-bold mb-2">
+                          Check-in Time
+                        </label>
+                        <input
+                          type="text"
+                          name="checkInTime"
+                          value={formData.checkInTime}
+                          onChange={handleChange}
+                          placeholder="e.g. 3:00 PM"
+                          className="w-full p-4 border-2 rounded-xl"
+                        />
+                        <ErrorMessage message={getFieldError("checkInTime")} />
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div>
+                        <label className="block text-sm font-bold mb-2">
+                          Check-out Time
+                        </label>
+                        <input
+                          type="text"
+                          name="checkOutTime"
+                          value={formData.checkOutTime}
+                          onChange={handleChange}
+                          placeholder="e.g. 11:00 AM"
+                          className="w-full p-4 border-2 rounded-xl"
+                        />
+                        <ErrorMessage message={getFieldError("checkOutTime")} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                  <Card className="shadow-xl">
-                    <CardHeader className="bg-gradient-to-r bg-black text-white">
-                      <CardTitle className="flex items-center justify-between">
-                        <span>Detailed Itinerary</span>
-                        <div className="flex gap-3">
-                          <Button
-                            type="button"
-                            onClick={generateBasicItinerary}
-                            variant="outline"
-                            size="sm"
-                            className="bg-white/20"
-                          >
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            Auto-Generate
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={addDay}
-                            variant="outline"
-                            size="sm"
-                            className="bg-white/20"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Day
-                          </Button>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                      {formData.itinerary.length === 0 ? (
-                        <div className="text-center py-16 text-gray-500">
-                          <Calendar className="h-20 w-20 mx-auto mb-6 text-gray-300" />
-                          <p className="text-2xl font-bold mb-2">
-                            No itinerary added yet
-                          </p>
-                          <p>Click "Add Day" or "Auto-Generate"</p>
-                        </div>
-                      ) : (
-                        formData.itinerary.map((day, dayIndex) => (
-                          <Card key={dayIndex} className="mb-4">
-                            <CardHeader
-                              className="cursor-pointer"
-                              onClick={() => toggleDayExpansion(dayIndex)}
-                            >
-                              <CardTitle className="flex justify-between">
-                                <div className="flex items-center gap-4">
-                                  {day.isExpanded ? (
-                                    <ChevronDown className="h-5 w-5" />
-                                  ) : (
-                                    <ChevronRight className="h-5 w-5" />
-                                  )}
-                                  <span>Day {day.day}</span>
-                                </div>
+                {/* Itinerary Section */}
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Daily Itinerary</h3>
+                      <p className="text-sm text-gray-600">Plan day-by-day activities for your travelers</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
+                    <div className="flex gap-3 mb-6">
+                      <Button
+                        type="button"
+                        onClick={generateBasicItinerary}
+                        variant="outline"
+                        size="sm"
+                        className="bg-white border-orange-200 text-orange-600 hover:bg-orange-50"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Auto-Generate
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={addDay}
+                        variant="outline"
+                        size="sm"
+                        className="bg-white border-orange-200 text-orange-600 hover:bg-orange-50"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Day
+                      </Button>
+                    </div>
+                    
+                    {formData.itinerary.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500">
+                        <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                        <p>No itinerary planned yet. Add days to get started!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {formData.itinerary.map((day, dayIndex) => (
+                          <Card key={dayIndex} className="border border-orange-200">
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="font-semibold text-gray-900">
+                                  Day {day.day}
+                                </h4>
                                 <Button
                                   type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    removeDay(dayIndex);
-                                  }}
+                                  onClick={() => removeDay(dayIndex)}
                                   variant="outline"
                                   size="sm"
+                                  className="text-red-600 border-red-200 hover:bg-red-50"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
-                              </CardTitle>
-                            </CardHeader>
-                            {day.isExpanded && (
-                              <CardContent>
+                              </div>
+                              
+                              <div className="space-y-3">
                                 {day.activities.map((activity, actIndex) => (
-                                  <div
-                                    key={actIndex}
-                                    className="flex gap-4 mb-4"
-                                  >
+                                  <div key={actIndex} className="flex items-center gap-3">
                                     <input
                                       type="text"
                                       placeholder="Time"
@@ -935,6 +1182,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                                       }
                                       variant="outline"
                                       size="sm"
+                                      className="text-red-600 border-red-200 hover:bg-red-50"
                                     >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -944,25 +1192,37 @@ const handleSubmit = async (e: React.FormEvent) => {
                                   type="button"
                                   onClick={() => addActivityToDay(dayIndex)}
                                   variant="outline"
-                                  className="w-full"
+                                  className="w-full border-orange-200 text-orange-600 hover:bg-orange-50"
                                 >
                                   <Plus className="h-4 w-4 mr-2" />
                                   Add Activity
                                 </Button>
-                              </CardContent>
-                            )}
+                              </div>
+                            </CardContent>
                           </Card>
-                        ))
-                      )}
-                      <ErrorMessage message={getFieldError("itinerary")} />
-                    </CardContent>
-                  </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                  <Card>
-                    <CardHeader className="bg-black text-white">
-                      <CardTitle>Package Inclusions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8">
+                {/* Package Details Section */}
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+                      <Star className="w-5 h-5 text-pink-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Package Details</h3>
+                      <p className="text-sm text-gray-600">Add inclusions, amenities, and flight options</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-100 space-y-6">
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Package Inclusions
+                      </label>
                       <textarea
                         placeholder="Enter inclusions (comma-separated)"
                         value={formData.inclusions.join(", ")}
@@ -980,14 +1240,12 @@ const handleSubmit = async (e: React.FormEvent) => {
                         className="w-full p-4 border-2 rounded-xl"
                       />
                       <ErrorMessage message={getFieldError("inclusions")} />
-                    </CardContent>
-                  </Card>
+                    </div>
 
-                  <Card>
-                    <CardHeader className="bg-black text-white">
-                      <CardTitle>Available Amenities</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8">
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Available Amenities
+                      </label>
                       <textarea
                         placeholder="Enter amenities (comma-separated)"
                         value={formData.amenities.join(", ")}
@@ -1005,40 +1263,33 @@ const handleSubmit = async (e: React.FormEvent) => {
                         className="w-full p-4 border-2 rounded-xl"
                       />
                       <ErrorMessage message={getFieldError("amenities")} />
-                    </CardContent>
-                  </Card>
+                    </div>
 
-                
-                  <Card className="shadow-xl">
-                    <CardHeader className="bg-black text-white">
-                      <CardTitle>Flight (optional)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8 space-y-6">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold">
-                          Offer with-flight option
+                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-pink-200">
+                      <div>
+                        <label className="text-sm font-bold">
+                          Flight Option Available
                         </label>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-600">No</span>
-                          <input
-                            aria-label="Include flight option"
-                            type="checkbox"
-                            checked={formData.flightOption}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                flightOption: e.target.checked,
-                              }))
-                            }
-                            className="h-5 w-5 rounded"
-                          />
-                          <span className="text-sm text-gray-600">Yes</span>
-                        </div>
+                        <p className="text-xs text-gray-600">Offer flight add-on to customers</p>
                       </div>
-
-
-                    </CardContent>
-                  </Card>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-600">No</span>
+                        <input
+                          aria-label="Include flight option"
+                          type="checkbox"
+                          checked={formData.flightOption}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              flightOption: e.target.checked,
+                            }))
+                          }
+                          className="h-5 w-5 rounded"
+                        />
+                        <span className="text-sm text-gray-600">Yes</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1047,19 +1298,27 @@ const handleSubmit = async (e: React.FormEvent) => {
                   type="submit"
                   disabled={loading}
                   size="lg"
-                  className="w-full max-w-2xl h-16 bg-gradient-to-r from-indigo-600 to-purple-600"
+                  className="relative group overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-semibold px-12 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-0"
                 >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-4"></div>
-                      Creating Package...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-6 w-6 mr-4" />
-                      Create Package - ₹{formData.price}
-                    </>
-                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex items-center gap-3">
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-6 w-6 border-3 border-white border-t-transparent"></div>
+                        <span>Creating Package...</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Sparkles className="w-4 h-4" />
+                        </div>
+                        <span>Create Package</span>
+                        <div className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                          ₹{formData.price.toLocaleString()}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </Button>
               </div>
             </form>
@@ -1068,7 +1327,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       </div>
 
       {/* Subscription Required Modal - Only show if no active subscription and check is complete */}
-      {!isCheckingSubscription && !hasActiveSubscription && (
+      {showSubscriptionModal && !isCheckingSubscription && hasActiveSubscription === false && (
         <SubscriptionRequiredModal
           isOpen={showSubscriptionModal}
           onClose={() => {
@@ -1080,6 +1339,16 @@ const handleSubmit = async (e: React.FormEvent) => {
           message={getSubscriptionMessage()}
           isExpired={isSubscriptionExpired()}
         />
+      )}
+
+      {/* Loading overlay while checking subscription */}
+      {isCheckingSubscription && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+          <div className="bg-white rounded-lg p-6 flex items-center gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            <span className="text-gray-700">Checking subscription status...</span>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { Booking } from "../../entities/BookingEntity";
-import { BuddyTravel } from "../../entities/BuddyTripEntity";
+
 
 export interface IBookingRepository {
   createBooking(booking: Booking): Promise<Booking>;
@@ -10,7 +10,6 @@ export interface IBookingRepository {
   getBookedDatesByVendor(vendorId: string): Promise<Date[]>;
   cancelBooking(id: string): Promise<Booking>;
   findOne(bookingId: string): Promise<Booking | null>;
-  createbuddyBooking(booking: BuddyTravel): Promise<BuddyTravel>;
   findByPackageAndDate(
     packageId: string,
     selectedDate: Date
@@ -29,6 +28,5 @@ export interface IBookingRepository {
     }
   ): Promise<Booking>;
   findByRefId(refId: string): Promise<Booking[]>;
-
   findCompletedTrips(): Promise<Booking[]>;
 }

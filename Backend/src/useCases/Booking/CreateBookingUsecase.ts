@@ -6,7 +6,7 @@ import { mapBookingDto } from "../../mappers/Booking/mapToCreateBookingDto";
 import { generateBookingId } from "../../utilities/BookingIDCreation";
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
 import { Role } from "../../domain/constants/Roles";
-import { BuddyBookingDto } from "../../domain/dto/Booking/buddyBookingDto";
+
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
@@ -21,7 +21,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
   async execute({
     data,
     payment_id,
-  }: CreateBookingDto): Promise<CreateBookingDto | BuddyBookingDto> {
+  }: CreateBookingDto): Promise<CreateBookingDto > {
 
     const completionDate = new Date(data.selectedDate);
 

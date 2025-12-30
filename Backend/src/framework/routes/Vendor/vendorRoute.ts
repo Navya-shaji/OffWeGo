@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import {
   activitycontroller,
-  buddyTravelcontroller,
   flightcontroller,
   hotelcontroller,
   packagecontroller,
@@ -239,18 +238,8 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         subscriptionpaymentcontroller.verifyPayment(req, res)
     );
-    this.vendorRouter.post(
-      VendorRoutes.CREATE_BUDDY_TRAVEL,
-      (req: Request, res: Response) =>
-       buddyTravelcontroller.createBuddyTravel(req,res)
-    );
-    this.vendorRouter.get(
-      VendorRoutes.BUDDY_PACKAGES,
-      (req:Request,res:Response)=>{
-        buddyTravelcontroller.getVendorBuddyPackages(req,res)
-      }
-    )
-    // Chat routes for vendors
+  
+
     this.vendorRouter.post("/chat/send", (req: Request, res: Response) => {
       chatcontroller.findOrCreateChat(req, res);
     });
@@ -258,7 +247,7 @@ export class VendorRoute {
       chatcontroller.getMessages(req, res);
     });
     this.vendorRouter.get("/chat/:vendorId", (req: Request, res: Response) => {
-      // Add userType=vendor query parameter
+
       req.query.userType = 'vendor';
       chatcontroller.getChats(req, res);
     });

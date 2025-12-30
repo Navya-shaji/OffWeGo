@@ -48,23 +48,9 @@ export class UserProfileController {
 
   async editProfileHandler(req: Request, res: Response) {
     try {
-      // Extract user ID from body, params, or token (in that order)
+   
       const userId = req.body.userId || req.params.userId || req.user?.id || req.user?.userId;
 
-      console.log("🔍 Edit Profile - User from token:", req.user);
-      console.log("🔍 Edit Profile - Request body:", req.body);
-      console.log("🔍 Edit Profile - Request params:", req.params);
-      console.log("🔍 Edit Profile - Extracted userId:", userId);
-
-      if (!userId) {
-        console.error("❌ Edit Profile - User ID not found. req.user:", req.user, "req.body:", req.body);
-        return res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: "User ID is required. Please provide userId in request body or params.",
-        });
-      }
-
-    
       const { userId: _, ...userData } = req.body;
 
       const result = await this._editUserProfileUsecase.execute(
@@ -72,7 +58,7 @@ export class UserProfileController {
         userData
       );
       
-      console.log("✅ Profile updated in DB:", result);
+
       
       if (!result) {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
