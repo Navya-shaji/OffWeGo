@@ -125,7 +125,6 @@ export class AdminRoute {
 
     this.adminRouter.post(
       AdminRoutes.CREATE_DESTINATION,
-      adminOnly,
       (req, res) => destinationController.addDestination(req, res)
     );
 

@@ -81,7 +81,7 @@ export default function EditSubscriptionModal({
         ...data,
         features: features,
       };
-      await subscriptionService.updateSubscription(subscription._id, updateData);
+      await subscriptionService.updateSubscription(subscription._id || '', updateData);
       dispatch(updateSubscriptionSuccess(updateData));
       toast.success("Subscription updated successfully!");
       onClose();

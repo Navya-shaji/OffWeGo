@@ -27,7 +27,7 @@ export default function AddSubscriptionForm() {
   const { status, error } = useAppSelector((state) => state.subscription);
   const loading = status === "loading";
 
-  const [features, setFeatures] = useState<string[]>([]);
+  const [features, setFeatures] = useState<string>("");
   const [currentFeature, setCurrentFeature] = useState("");
 
   const {
@@ -38,23 +38,24 @@ export default function AddSubscriptionForm() {
     formState: { errors },
   } = useForm<SubscriptionFormData>({
     resolver: zodResolver(SubscriptionSchema),
-  });
+  } as any);
 
   const notify = () => toast.success("Subscription added successfully!");
 
   const addFeature = () => {
     if (currentFeature.trim()) {
-      const newFeatures = [...features, currentFeature.trim()];
+      const newFeatures = features ? `${features}, ${currentFeature.trim()}` : currentFeature.trim();
       setFeatures(newFeatures);
-      setValue("features", newFeatures.join(", "));
+      setValue("features" as any, newFeatures);
       setCurrentFeature("");
     }
   };
 
   const removeFeature = (index: number) => {
-    const newFeatures = features.filter((_, i) => i !== index);
+    const featuresArray = features.split(", ").filter(f => f.trim());
+    const newFeatures = featuresArray.filter((_, i) => i !== index).join(", ");
     setFeatures(newFeatures);
-    setValue("features", newFeatures.join(", "));
+    setValue("features" as any, newFeatures);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -72,13 +73,14 @@ export default function AddSubscriptionForm() {
         name: data.name,
         price: data.price,
         duration: data.duration,
-        features: features.join(", "),
+        stripePriceId: data.stripePriceId,
+        features: features.split(", ").map(f => f.trim()).filter(Boolean),
       });
 
       dispatch(addSubscriptionSuccess(response));
       notify();
       reset();
-      setFeatures([]);
+      setFeatures("");
       setCurrentFeature("");
     } catch (err) {
       dispatch(addSubscriptionFailure("Failed to add subscription"));
@@ -211,9 +213,9 @@ export default function AddSubscriptionForm() {
             </div>
 
             {/* Feature Tags Display */}
-            {features.length > 0 && (
+            {features && (
               <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl border-2 border-gray-200 min-h-[60px]">
-                {features.map((feature, index) => (
+                {features.split(", ").map((feature, index) => (
                   <div
                     key={index}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-gray-400 transition-all duration-200 shadow-sm"
@@ -231,7 +233,7 @@ export default function AddSubscriptionForm() {
               </div>
             )}
 
-            {features.length === 0 && (
+            {!features && (
               <div className="p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 text-center">
                 <p className="text-sm text-gray-500">No features added yet. Start adding features above.</p>
               </div>

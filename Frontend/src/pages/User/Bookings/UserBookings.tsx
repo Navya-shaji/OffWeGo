@@ -965,8 +965,7 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
             setIsReviewModalOpen(false);
             setReviewPackage(null);
           }}
-          packageId={reviewPackage.packageId}
-          packageName={reviewPackage.packageName}
+                    packageName={reviewPackage.packageName}
           destination={reviewPackage.destination}
           onSuccess={async () => {
             const updated = await getUserBookings();

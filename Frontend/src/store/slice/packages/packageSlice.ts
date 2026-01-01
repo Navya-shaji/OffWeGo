@@ -4,7 +4,7 @@ import {
   addPackage as addPackageService,
   fetchAllPackages as fetchAllPackagesService,
 } from "@/services/packages/packageService";
-import { getPackagesByDestination } from "@/services/Destination/destinationService";
+import { getPackagesByDestination } from "@/services/packages/packageService";
 
 type PackageState = {
   packages: Package[];
@@ -57,7 +57,7 @@ export const fetchPackagesByDestination = createAsyncThunk<
   async ({ destinationId }, { rejectWithValue }) => {
     try {
       const response = await getPackagesByDestination(destinationId);
-      return response;
+      return response.packages || response;
     } catch (error) {
       if (error instanceof Error) return rejectWithValue(error.message);
       return rejectWithValue(

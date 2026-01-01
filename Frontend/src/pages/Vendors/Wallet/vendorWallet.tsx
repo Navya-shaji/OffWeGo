@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
+import type { IWallet } from "@/interface/wallet";
 import {
   Wallet,
   TrendingUp,
@@ -9,14 +10,20 @@ import {
   ArrowDownCircle,
   CheckCircle,
   Home,
+  Sparkles,
+  ArrowUpRight,
+  ArrowDownRight,
+  CreditCard,
+  DollarSign,
+  Activity,
 } from "lucide-react";
 import { getVendorWallet } from "@/services/Wallet/VendorWalletService";
 
 export default function VendorWalletManagement() {
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
-  const [wallet, setWallet] = useState(null);
+  const [wallet, setWallet] = useState<IWallet | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (vendor?.id) fetchWallet();
@@ -26,16 +33,16 @@ export default function VendorWalletManagement() {
     try {
       setLoading(true);
       setError(null);
-      const response = await getVendorWallet(vendor.id);
+      const response = await getVendorWallet(vendor?.id || "");
       setWallet(response);
     } catch (err) {
-      setError(err.message || "Failed to fetch vendor wallet");
+      setError(err instanceof Error ? err.message : "Failed to fetch vendor wallet");
     } finally {
       setLoading(false);
     }
   };
 
-  const formatCurrency = (amount) =>
+  const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -44,10 +51,14 @@ export default function VendorWalletManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <div className="text-center">
-          <RefreshCw className="animate-spin text-gray-500 mx-auto mb-3" size={40} />
-          <p className="text-gray-600 text-lg">Loading wallet details...</p>
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 mx-auto mb-4"></div>
+            <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 bg-indigo-200 opacity-20"></div>
+          </div>
+          <p className="text-gray-600 text-lg font-medium">Loading wallet details...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we fetch your financial data</p>
         </div>
       </div>
     );
@@ -55,16 +66,19 @@ export default function VendorWalletManagement() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-6 rounded-lg shadow max-w-md border border-gray-200 text-center">
-          <AlertCircle className="text-red-500 mx-auto mb-3" size={32} />
-          <h2 className="text-xl font-semibold text-gray-800">Error</h2>
-          <p className="text-red-500 mt-2">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-pink-50 to-orange-50">
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-red-200 text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="text-red-600" size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Oops! Something went wrong</h2>
+          <p className="text-red-500 mb-6">{error}</p>
           <button
             onClick={fetchWallet}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
-            Retry
+            <RefreshCw className="inline-block mr-2" size={18} />
+            Try Again
           </button>
         </div>
       </div>
@@ -72,43 +86,53 @@ export default function VendorWalletManagement() {
   }
 
   const totalEarnings = wallet?.transactions
-    ?.filter((t) => t.type === "credit")
-    .reduce((sum, t) => sum + t.amount, 0);
+    ?.filter((t: any) => t.type === "credit")
+    .reduce((sum: number, t: any) => sum + t.amount, 0);
 
   const totalWithdrawals = wallet?.transactions
-    ?.filter((t) => t.type === "debit")
-    .reduce((sum, t) => sum + t.amount, 0);
+    ?.filter((t: any) => t.type === "debit")
+    .reduce((sum: number, t: any) => sum + t.amount, 0);
 
-  const creditTransactions = wallet?.transactions?.filter((t) => t.type === "credit") || [];
-  const debitTransactions = wallet?.transactions?.filter((t) => t.type === "debit") || [];
+  const creditTransactions = wallet?.transactions?.filter((t: any) => t.type === "credit") || [];
+  const debitTransactions = wallet?.transactions?.filter((t: any) => t.type === "debit") || [];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto p-6">
         {/* Header */}
-        <div className="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <div className="mb-8 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8">
           <div className="flex items-center justify-between">
             <button
               onClick={() => (window.location.href = "/")}
-              className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               <Home className="w-4 h-4" />
               Home
             </button>
 
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-                <Wallet className="text-blue-600" /> Vendor Wallet
-              </h1>
-              <p className="text-gray-500 text-sm mt-1">
-                Manage and view wallet balance and transactions
-              </p>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Wallet className="text-white" size={24} />
+                </div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Vendor Wallet
+                </h1>
+              </div>
+              <p className="text-gray-600">Manage and view your earnings and transactions</p>
             </div>
 
             <button
               onClick={fetchWallet}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="flex items-center gap-2 px-5 py-3 bg-white/80 backdrop-blur border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-md"
             >
               <RefreshCw className={loading ? "animate-spin" : ""} size={18} />
               Refresh
@@ -119,120 +143,209 @@ export default function VendorWalletManagement() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Wallet Balance */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-gray-500 font-medium">Wallet Balance</span>
-              <Wallet size={22} className="text-blue-600" />
+          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl shadow-xl border border-white/20 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-blue-100 font-medium">Wallet Balance</span>
+                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Wallet size={20} className="text-white" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">
+                {formatCurrency(wallet?.balance || 0)}
+              </p>
+              <div className="flex items-center gap-1 text-blue-100 text-sm">
+                <Sparkles size={14} />
+                <span>Available for withdrawal</span>
+              </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatCurrency(wallet?.balance)}
-            </p>
           </div>
 
           {/* Earnings */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-gray-500 font-medium">Total Earnings</span>
-              <TrendingUp size={22} className="text-green-600" />
+          <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-2xl shadow-xl border border-white/20 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-green-100 font-medium">Total Earnings</span>
+                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp size={20} className="text-white" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">
+                {formatCurrency(totalEarnings || 0)}
+              </p>
+              <div className="flex items-center gap-1 text-green-100 text-sm">
+                <ArrowUpRight size={14} />
+                <span>90% of completed trips</span>
+              </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatCurrency(totalEarnings || 0)}
-            </p>
           </div>
 
           {/* Withdrawals */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-gray-500 font-medium">Total Withdrawals</span>
-              <ArrowDownCircle size={22} className="text-red-600" />
+          <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 rounded-2xl shadow-xl border border-white/20 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-orange-100 font-medium">Total Withdrawals</span>
+                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <ArrowDownCircle size={20} className="text-white" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">
+                {formatCurrency(totalWithdrawals || 0)}
+              </p>
+              <div className="flex items-center gap-1 text-orange-100 text-sm">
+                <ArrowDownRight size={14} />
+                <span>Amount withdrawn</span>
+              </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatCurrency(totalWithdrawals || 0)}
-            </p>
           </div>
 
           {/* Transaction Count */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-gray-500 font-medium">Transactions</span>
-              <CheckCircle size={22} className="text-purple-600" />
+          <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-2xl shadow-xl border border-white/20 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-purple-100 font-medium">Transactions</span>
+                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Activity size={20} className="text-white" />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">
+                {(wallet?.transactions?.length || 0)}
+              </p>
+              <div className="flex items-center gap-1 text-purple-100 text-sm">
+                <CreditCard size={14} />
+                <span>Total transactions</span>
+              </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {wallet?.transactions?.length || 0}
-            </p>
           </div>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="text-blue-700 mt-1" size={20} />
-            <p className="text-sm text-blue-700">
-              <strong>How earnings work:</strong> Vendors receive <b>90%</b> of each
-              completed trip. The remaining <b>10%</b> is the platform fee.
-            </p>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-6 rounded-2xl mb-8 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <DollarSign className="text-blue-600" size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">How earnings work</h3>
+              <p className="text-blue-700">
+                Vendors receive <span className="font-bold text-blue-800">90%</span> of each completed trip. 
+                The remaining <span className="font-bold text-blue-800">10%</span> is the platform fee that helps us maintain and improve the service.
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Transactions */}
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-900">Recent Transactions</h3>
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Recent Transactions</h3>
+              <p className="text-gray-600">Your latest financial activities</p>
+            </div>
 
-            <div className="flex gap-2">
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+            <div className="flex gap-3">
+              <div className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 {creditTransactions.length} Credits
-              </span>
-              <span className="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+              </div>
+              <div className="px-4 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-medium flex items-center gap-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 {debitTransactions.length} Debits
-              </span>
+              </div>
             </div>
           </div>
 
-          {wallet?.transactions?.length > 0 ? (
-            <div className="space-y-3">
-              {wallet.transactions.slice(0, 15).map((tx, idx) => (
+          {wallet && wallet.transactions?.length > 0 ? (
+            <div className="space-y-4">
+              {wallet.transactions.slice(0, 15).map((tx: any, idx: number) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition"
+                  className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl hover:shadow-lg transition-all duration-300 group"
                 >
-                  <div className="flex items-center gap-3 flex-1">
+                  <div className="flex items-center gap-4 flex-1">
                     <div
-                      className={`w-10 h-10 flex items-center justify-center rounded font-bold text-lg ${
+                      className={`w-12 h-12 flex items-center justify-center rounded-xl font-bold text-lg shadow-md ${
                         tx.type === "credit"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
+                          : "bg-gradient-to-br from-red-400 to-red-600 text-white"
                       }`}
                     >
                       {tx.type === "credit" ? "+" : "-"}
                     </div>
 
                     <div>
-                      <p className="font-semibold text-gray-800">{tx.description}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-semibold text-gray-800 text-lg">{tx.description}</p>
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <CheckCircle size={14} className="text-gray-400" />
                         {new Date(tx.date).toLocaleString("en-IN")}
                       </p>
                     </div>
                   </div>
 
-                  <p
-                    className={`font-bold text-lg ${
-                      tx.type === "credit" ? "text-green-700" : "text-red-600"
-                    }`}
-                  >
-                    {tx.type === "credit" ? "+" : "-"} {formatCurrency(tx.amount)}
-                  </p>
+                  <div className="text-right">
+                    <p
+                      className={`font-bold text-2xl ${
+                        tx.type === "credit" ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {tx.type === "credit" ? "+" : "-"} {formatCurrency(tx.amount)}
+                    </p>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      tx.type === "credit" 
+                        ? "bg-green-100 text-green-700" 
+                        : "bg-red-100 text-red-700"
+                    }`}>
+                      {tx.type === "credit" ? "Earning" : "Withdrawal"}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <Wallet className="mx-auto mb-3 text-gray-400" size={48} />
-              No transactions available yet.
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Wallet className="text-gray-400" size={40} />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No transactions yet</h3>
+              <p className="text-gray-500">Start earning by completing trips to see your transactions here</p>
             </div>
           )}
         </div>
       </div>
+
+      <style>{`
+        @keyframes blob {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </div>
   );
 }

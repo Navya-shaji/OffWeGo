@@ -203,12 +203,12 @@ export default function WalletManagement({ embedded = false }: { embedded?: bool
                       </p>
                       <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
                         <span>
-                          {formatDate(tx.date)} at {formatTime(tx.date)}
+                          {formatDate(tx.date.toString())} at {formatTime(tx.date.toString())}
                         </span>
-                        {tx.refId && (
+                        {(tx as any).refId && (
                           <>
                             <span>•</span>
-                            <span className="font-mono text-xs">{tx.refId}</span>
+                            <span className="font-mono text-xs">{(tx as any).refId}</span>
                           </>
                         )}
                       </div>

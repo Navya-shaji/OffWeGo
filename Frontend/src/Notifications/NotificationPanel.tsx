@@ -1,6 +1,6 @@
 import { X, Check, Trash2, Calendar, CreditCard, ShoppingBag, Wallet, Info, Bell } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
-import type { Notification } from '@/interface/notificationInterface';
+import type { Notification } from '@/interface/notifictaionInterface';
 
 interface NotificationPanelProps {
   isOpen: boolean;

@@ -9,6 +9,10 @@ import type { RootState } from "@/store/store";
 export default function PaymentCheckout() {
   const { state } = useLocation();
   const totalAmount = state?.totalAmount || 0;
+  const bookingData = state?.bookingData;
+  
+  console.log("Payment checkout state:", { state, totalAmount, bookingData });
+  
   const navigate = useNavigate();
   
   const [selectedPayment, setSelectedPayment] = useState("stripe");
@@ -26,7 +30,7 @@ export default function PaymentCheckout() {
   useEffect(() => {
     const fetchWallet = async () => {
       try {
-        setUserId(UserId);
+        setUserId(UserId || '');
         
         if (UserId) {
           const walletData = await getUserWallet(UserId);

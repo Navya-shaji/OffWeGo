@@ -85,7 +85,13 @@ const onSubmit = async (data: HotelFormData) => {
     return;
   }
 
-  const hotelData: Hotel = { ...data, destinationId }; 
+  const hotelData: Hotel = { 
+    ...data, 
+    destinationId,
+    coordinates: data.coordinates?.lat && data.coordinates?.lng 
+      ? { lat: data.coordinates.lat, lng: data.coordinates.lng }
+      : undefined
+  }; 
 
   try {
     setLoading(true);

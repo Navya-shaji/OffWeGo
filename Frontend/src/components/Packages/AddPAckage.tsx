@@ -7,19 +7,17 @@ import {
   Plus,
   Trash2,
   Calendar,
-  ChevronDown,
-  ChevronRight,
+ 
   Sparkles,
   CheckCircle2,
   AlertCircle,
-  MapPin,
+
   Camera,
   Hotel,
   Activity,
-  Plane,
+ 
   Clock,
-  DollarSign,
-  Users,
+
   Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +31,7 @@ import { usePackageValidation } from "@/Types/vendor/Package/package";
 import type { Package } from "@/interface/PackageInterface";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { SubscriptionRequiredModal } from "@/components/Modular/SubscriptionRequiredModal";
+import { SubscriptionRequiredModal } from "../Modular/subscriptionRequiredModal"; 
 import { getSubscriptions, getVendorActiveSubscription } from "@/services/subscription/subscriptionservice";
 
 
@@ -390,14 +388,7 @@ const handleActivitySelection = (activityIds: string[]) => {
     }
   };
 
-  const toggleDayExpansion = (dayIndex: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      itinerary: prev.itinerary.map((day, index) =>
-        index === dayIndex ? { ...day, isExpanded: !day.isExpanded } : day
-      ),
-    }));
-  };
+
 
   const addActivityToDay = (dayIndex: number) => {
     const newItinerary = formData.itinerary.map((day, index) =>

@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import {
   createTravelPost,
   fetchTravelPostFilters,
-} from "@/services/TravelPost/travelPostService";
+} from "@/services/TravelPost/TravelPostService";
 import type { TravelPostFilters } from "@/interface/TravelPost";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import Header from "@/components/home/navbar/Header";

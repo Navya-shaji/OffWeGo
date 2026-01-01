@@ -29,7 +29,6 @@ const AddActivity: React.FC = () => {
     handleSubmit,
     reset,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<ActivityFormData>({
     resolver: zodResolver(ActivitySchema),
@@ -89,7 +88,13 @@ const onSubmit = async (data: ActivityFormData) => {
   try {
     setLoading(true);
     imageUrl = await uploadToCloudinary(file); 
-    await createActivity({ ...data, imageUrl }, destinationId);
+    await createActivity({ 
+      ...data, 
+      imageUrl,
+      coordinates: data.coordinates?.lat && data.coordinates?.lng 
+        ? { lat: data.coordinates.lat, lng: data.coordinates.lng }
+        : undefined
+    }, destinationId);
 
     notifySuccess();
     reset();

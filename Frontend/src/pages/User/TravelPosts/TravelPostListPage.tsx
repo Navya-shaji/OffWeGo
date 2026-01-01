@@ -3,15 +3,12 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
+import { fetchMyTravelPosts, fetchTravelPostFilters, fetchTravelPosts } from "@/services/TravelPost/TravelPostService";
+import type { TravelPost } from "@/interface/TravelPost";
 import type { CategoryType } from "@/interface/categoryInterface";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import Header from "@/components/home/navbar/Header";
 import { useAppSelector } from "@/hooks";
-import type { TravelPost } from "@/interface/TravelPost";
-import {  fetchMyTravelPosts, fetchTravelPostFilters, fetchTravelPosts } from "@/services/TravelPost/TravelPostService";
-
-
 
 dayjs.extend(relativeTime);
 

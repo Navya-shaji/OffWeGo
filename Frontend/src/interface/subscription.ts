@@ -4,4 +4,8 @@ export interface Subscription {
   price: number;
   duration: number;
   features: string[];
+  stripePriceId: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { TravelPost } from "../../../interface/TravelPost";
-import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "../../../services/TravelPost/travelPostService";
+import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "@/services/TravelPost/TravelPostService";
 import { FaHeart, FaRegHeart, FaArrowLeft, FaEye, FaCalendar, FaUser, FaMapMarkerAlt, FaTag } from "react-icons/fa";
 import Header from "../../../components/home/navbar/Header";
 import "./TravelPostDetailPage.css";
 
-interface TravelPostDetailProps {}
+type TravelPostDetailProps = object
 
 const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
   const { slug } = useParams<{ slug: string }>();

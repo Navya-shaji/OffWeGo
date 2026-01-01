@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, Smile, Mic, Paperclip, Search, MoreVertical } from "lucide-react";
+import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -58,16 +58,15 @@ const ChatPage = () => {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showContacts, setShowContacts] = useState(true);
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [, setShowEmojiPicker] = useState(false);
+
     const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
     const [isTyping, setIsTyping] = useState(false);
-    const [recordingTime, setRecordingTime] = useState(0);
+    
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
     const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId?: string }>();

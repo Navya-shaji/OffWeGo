@@ -565,7 +565,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
             </Button>
             <Button 
               type="button"
-              onClick={(e) => onSubmit(e)}
+              onClick={(e) => {
+                console.log("EditPackage button clicked - current localData:", localData);
+                onSubmit(e);
+              }}
               disabled={isLoading}
               size="lg"
               className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"

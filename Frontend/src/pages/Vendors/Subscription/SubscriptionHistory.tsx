@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, History, CreditCard, Package, Zap, Search, Filter, ArrowLeft } from "lucide-react";
+import { Calendar, History, Search, Filter, ArrowLeft } from "lucide-react";
 import { getVendorSubscriptionHistory } from "@/services/subscription/subscriptionservice";
 import { format, parseISO } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,7 +34,6 @@ interface SubscriptionHistory {
 
 export default function VendorSubscriptionHistory() {
   const navigate = useNavigate();
-  const logo = "/images/logo.png";
 
   const [history, setHistory] = useState<SubscriptionHistory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,11 +45,93 @@ export default function VendorSubscriptionHistory() {
 
   const fetchHistory = async () => {
     try {
+      console.log("🔍 Fetching vendor subscription history...");
       const response = await getVendorSubscriptionHistory();
-      setHistory(response.data || []);
+      console.log("📦 Raw API response:", response);
+      console.log("📦 Response data:", response?.data);
+      console.log("📦 Response structure:", {
+        hasData: !!response?.data,
+        dataIsArray: Array.isArray(response?.data),
+        dataLength: response?.data?.length,
+        responseDataKeys: response?.data ? Object.keys(response.data) : 'no data'
+      });
+      
+      // Handle different response structures
+      let historyData = [];
+      
+      if (response?.data && Array.isArray(response.data)) {
+        historyData = response.data;
+        console.log("✅ Using response.data as array");
+      } else if (response?.subscriptions && Array.isArray(response.subscriptions)) {
+        historyData = response.subscriptions;
+        console.log("✅ Using response.subscriptions as array");
+      } else if (response?.bookings && Array.isArray(response.bookings)) {
+        historyData = response.bookings;
+        console.log("✅ Using response.bookings as array");
+      } else if (response?.history && Array.isArray(response.history)) {
+        historyData = response.history;
+        console.log("✅ Using response.history as array");
+      } else if (Array.isArray(response)) {
+        historyData = response;
+        console.log("✅ Using response as array");
+      } else {
+        console.warn("⚠️ Unexpected response structure:", response);
+        historyData = [];
+      }
+      
+      // Log detailed information about each subscription item
+      if (historyData.length > 0) {
+        console.log("📊 Sample subscription data structure:");
+        console.log("📊 First subscription item:", historyData[0]);
+        console.log("📊 Available fields in first item:", Object.keys(historyData[0] || {}));
+        
+        // Check for common field name variations
+        const firstItem = historyData[0];
+        console.log("🔍 Field mapping check:");
+        console.log("  - planName:", firstItem.planName || firstItem.name || firstItem.plan_name || firstItem.subscriptionName || 'missing');
+        console.log("  - amount:", firstItem.amount || firstItem.price || firstItem.total || 'missing');
+        console.log("  - status:", firstItem.status || firstItem.subscriptionStatus || firstItem.plan_status || 'missing');
+        console.log("  - startDate:", firstItem.startDate || firstItem.start_date || firstItem.createdAt || firstItem.created_at || 'missing');
+        console.log("  - endDate:", firstItem.endDate || firstItem.end_date || firstItem.expiresAt || firstItem.expires_at || 'missing');
+        console.log("  - duration:", firstItem.duration || firstItem.plan_duration || firstItem.validity || 'missing');
+        console.log("  - packageLimit:", firstItem.packageLimit || firstItem.limit || firstItem.max_packages || firstItem.package_limit || 'missing');
+        console.log("  - usedSlots:", firstItem.usedSlots || firstItem.used || firstItem.booked || firstItem.used_packages || firstItem.used_count || 'missing');
+        console.log("  - features:", firstItem.features || firstItem.plan_features || firstItem.benefits || 'missing');
+        console.log("  - paymentStatus:", firstItem.paymentStatus || firstItem.payment_status || firstItem.paymentState || 'missing');
+        console.log("  - transactionId:", firstItem.transactionId || firstItem.transaction_id || firstItem.paymentId || firstItem.payment_id || 'missing');
+      }
+      
+      // Normalize the data to match our interface
+      const normalizedData = historyData.map((item: any) => {
+        const normalized: SubscriptionHistory = {
+          _id: item._id || item.id || item.subscriptionId || '',
+          planName: item.planName || item.name || item.plan_name || item.subscriptionName || 'Unknown Plan',
+          amount: item.amount || item.price || item.total || 0,
+          currency: item.currency || item.currency_code || 'USD',
+          duration: item.duration || item.plan_duration || item.validity || undefined,
+          status: item.status || item.subscriptionStatus || item.plan_status || 'unknown',
+          startDate: item.startDate || item.start_date || item.createdAt || item.created_at || new Date().toISOString(),
+          endDate: item.endDate || item.end_date || item.expiresAt || item.expires_at || '',
+          transactionId: item.transactionId || item.transaction_id || item.paymentId || item.payment_id || '',
+          stripeSessionId: item.stripeSessionId || item.stripe_session_id || item.sessionId || '',
+          paymentStatus: item.paymentStatus || item.payment_status || item.paymentState || 'unknown',
+          packageLimit: item.packageLimit || item.limit || item.max_packages || item.package_limit || 0,
+          usedSlots: item.usedSlots || item.used || item.booked || item.used_packages || item.used_count || 0,
+          features: item.features || item.plan_features || item.benefits || [],
+          vendorDetails: item.vendorDetails || item.vendor || {}
+        };
+        
+        console.log("🔄 Normalized item:", normalized);
+        return normalized;
+      });
+      
+      console.log("📊 Final normalized history data:", normalizedData);
+      console.log("📊 Normalized data length:", normalizedData.length);
+      
+      setHistory(normalizedData);
     } catch (error) {
-      console.error("Error fetching subscription history:", error);
-      console.error("Failed to load subscription history");
+      console.error("❌ Error fetching subscription history:", error);
+      console.error("❌ Failed to load subscription history");
     } finally {
       setLoading(false);
     }
@@ -78,15 +159,15 @@ export default function VendorSubscriptionHistory() {
   const getStatusBadgeProps = (status: string) => {
     switch (status) {
       case "active":
-        return { variant: "outline" as const, className: "bg-green-50 text-green-700 border-green-200" };
+        return { variant: "outline" as const, className: "bg-gray-100 text-gray-800 border-gray-300" };
       case "pending":
-        return { variant: "outline" as const, className: "bg-amber-50 text-amber-700 border-amber-200" };
+        return { variant: "outline" as const, className: "bg-gray-50 text-gray-700 border-gray-200" };
       case "expired":
-        return { variant: "outline" as const, className: "bg-red-50 text-red-700 border-red-200" };
+        return { variant: "outline" as const, className: "bg-gray-900 text-white border-gray-800" };
       case "cancelled":
-        return { variant: "outline" as const, className: "bg-gray-50 text-gray-700 border-gray-200" };
+        return { variant: "outline" as const, className: "bg-gray-200 text-gray-600 border-gray-300" };
       default:
-        return { variant: "outline" as const, className: "bg-gray-50 text-gray-700 border-gray-200" };
+        return { variant: "outline" as const, className: "bg-gray-100 text-gray-700 border-gray-300" };
     }
   };
 
@@ -105,29 +186,46 @@ export default function VendorSubscriptionHistory() {
 
   const filteredAndSortedHistory = history
     .filter(sub => {
+      if (!sub) return false;
+      
       const matchesTab = activeTab === "all" || sub.status === activeTab;
       const matchesSearch = searchQuery === "" || 
-        sub.planName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sub.transactionId?.toLowerCase().includes(searchQuery.toLowerCase());
+        (sub.planName && sub.planName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (sub.transactionId && sub.transactionId.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesTab && matchesSearch;
     })
     .sort((a, b) => {
+      // Handle null/undefined values safely
+      if (!a || !b) return 0;
+      
       switch (sortBy) {
         case "date":
-          return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+          const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+          const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+          return dateB - dateA;
         case "name":
-          return a.planName.localeCompare(b.planName);
+          const nameA = a.planName || "";
+          const nameB = b.planName || "";
+          return nameA.localeCompare(nameB);
         case "amount":
-          return b.amount - a.amount;
+          return (b.amount || 0) - (a.amount || 0);
         case "status":
-          return a.status.localeCompare(b.status);
+          const statusA = a.status || "";
+          const statusB = b.status || "";
+          return statusA.localeCompare(statusB);
         default:
           return 0;
       }
     });
 
   const formatDate = (dateString: string) => {
-    return format(parseISO(dateString), "MMM d, yyyy");
+    try {
+      if (!dateString) return "N/A";
+      return format(parseISO(dateString), "MMM d, yyyy");
+    } catch (error) {
+      console.warn("Invalid date format:", dateString);
+      return "Invalid Date";
+    }
   };
 
   const handleViewDetails = (subscription: SubscriptionHistory) => {
@@ -196,51 +294,42 @@ export default function VendorSubscriptionHistory() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <VendorNavbar />
-      <div className="max-w-7xl mx-auto p-6 pt-4">
+      <div className="max-w-6xl mx-auto p-8">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBackToDashboard}
-                className="bg-white border-gray-200 hover:bg-gray-50 shadow-sm"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                <History className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <img 
-                    src={logo} 
-                    alt="OffWeGo" 
-                    className="w-24 h-6"
-                  />
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Subscription History
-                  </h1>
-                </div>
-                <p className="text-gray-600">Track and manage your subscription plans</p>
-              </div>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToDashboard}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <History className="h-6 w-6 text-gray-700" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Subscription History</h1>
+              <p className="text-gray-500">Track and manage your subscription plans</p>
             </div>
           </div>
         </div>
 
       {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search by plan name or transaction ID..."
-                  className="pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  className="pl-10 border-gray-200 focus:border-gray-400 focus:ring-0"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -248,7 +337,7 @@ export default function VendorSubscriptionHistory() {
             </div>
             <div className="flex gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[150px] border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                <SelectTrigger className="w-[150px] border-gray-200 focus:border-gray-400 focus:ring-0">
                   <Filter className="h-4 w-4 mr-2 text-gray-500" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -264,50 +353,46 @@ export default function VendorSubscriptionHistory() {
         </div>
 
       {/* Status Filter Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div className="mb-6">
           <div className="flex flex-wrap gap-2">
             <Button
-              variant={activeTab === "all" ? "default" : "outline"}
+              variant={activeTab === "all" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("all")}
-              className={activeTab === "all" ? "bg-blue-600 hover:bg-blue-700" : "border-gray-200 hover:bg-gray-50"}
+              className={activeTab === "all" ? "bg-gray-900 hover:bg-gray-800 text-white" : "text-gray-600 hover:text-gray-900"}
             >
               All
             </Button>
             <Button
-              variant={activeTab === "active" ? "default" : "outline"}
+              variant={activeTab === "active" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("active")}
-              className={`flex items-center gap-2 ${activeTab === "active" ? "bg-green-600 hover:bg-green-700" : "border-gray-200 hover:bg-gray-50"}`}
+              className={activeTab === "active" ? "bg-gray-900 hover:bg-gray-800 text-white" : "text-gray-600 hover:text-gray-900"}
             >
-              <div className="h-2 w-2 rounded-full bg-green-500" />
               Active
             </Button>
             <Button
-              variant={activeTab === "pending" ? "default" : "outline"}
+              variant={activeTab === "pending" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("pending")}
-              className={`flex items-center gap-2 ${activeTab === "pending" ? "bg-amber-600 hover:bg-amber-700" : "border-gray-200 hover:bg-gray-50"}`}
+              className={activeTab === "pending" ? "bg-gray-900 hover:bg-gray-800 text-white" : "text-gray-600 hover:text-gray-900"}
             >
-              <div className="h-2 w-2 rounded-full bg-amber-500" />
               Pending
             </Button>
             <Button
-              variant={activeTab === "expired" ? "default" : "outline"}
+              variant={activeTab === "expired" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("expired")}
-              className={`flex items-center gap-2 ${activeTab === "expired" ? "bg-red-600 hover:bg-red-700" : "border-gray-200 hover:bg-gray-50"}`}
+              className={activeTab === "expired" ? "bg-gray-900 hover:bg-gray-800 text-white" : "text-gray-600 hover:text-gray-900"}
             >
-              <div className="h-2 w-2 rounded-full bg-red-500" />
               Expired
             </Button>
             <Button
-              variant={activeTab === "cancelled" ? "default" : "outline"}
+              variant={activeTab === "cancelled" ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab("cancelled")}
-              className={`flex items-center gap-2 ${activeTab === "cancelled" ? "bg-gray-600 hover:bg-gray-700" : "border-gray-200 hover:bg-gray-50"}`}
+              className={activeTab === "cancelled" ? "bg-gray-900 hover:bg-gray-800 text-white" : "text-gray-600 hover:text-gray-900"}
             >
-              <div className="h-2 w-2 rounded-full bg-gray-500" />
               Cancelled
             </Button>
           </div>
@@ -335,30 +420,20 @@ export default function VendorSubscriptionHistory() {
       ) : (
         <div className="space-y-4">
           {filteredAndSortedHistory.map((subscription) => (
-            <Card 
+            <div 
               key={subscription._id} 
-              className="hover:shadow-lg transition-all duration-300 overflow-hidden border-0 shadow-md bg-white"
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow"
             >
-              <div className="md:flex">
-                <div className="p-6 flex-1">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-4">
                     <div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                        <h3 className="text-xl font-bold text-gray-900">
-                          {subscription.planName}
-                        </h3>
-                        <Badge 
-                          variant={getStatusBadgeProps(subscription.status).variant} 
-                          className={`text-xs px-3 py-1 ${getStatusBadgeProps(subscription.status).className}`}
-                        >
-                          {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center text-sm text-gray-600 font-medium">
-                        <Calendar className="h-4 w-4 mr-2 text-blue-500" />
-                        <span className="text-gray-700">Valid Period:</span>
-                        <span className="ml-2 text-gray-900">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {subscription.planName || "Unknown Plan"}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
                           {formatDate(subscription.startDate)} —{" "}
                           {subscription.endDate
                             ? formatDate(subscription.endDate)
@@ -366,186 +441,99 @@ export default function VendorSubscriptionHistory() {
                         </span>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-                        <p className="text-sm text-blue-600 font-medium mb-1">Total Amount</p>
-                        <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                          ₹{subscription.amount.toLocaleString()}
-                        </p>
-                      </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-gray-900">
+                        ₹{(subscription.amount || 0).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        <Package className="h-4 w-4 text-muted-foreground" />
-                        <span>Package Usage</span>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium text-gray-700">Package Usage</span>
-                          <span className="text-sm font-bold text-blue-600">
-                            {subscription.usedSlots} / {subscription.packageLimit}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Status</p>
+                      <Badge 
+                        variant={getStatusBadgeProps(subscription.status || "unknown").variant} 
+                        className={`text-xs ${getStatusBadgeProps(subscription.status || "unknown").className}`}
+                      >
+                        {(subscription.status || "unknown").charAt(0).toUpperCase() + (subscription.status || "unknown").slice(1)}
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Duration</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {subscription.duration ? `${subscription.duration} days` : "N/A"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Usage</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {subscription.usedSlots || 0} / {subscription.packageLimit || 0}
+                        </span>
+                        <div className="w-16 bg-gray-200 rounded-full h-1.5">
                           <div
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500 ease-out"
+                            className="bg-gray-600 h-1.5 rounded-full"
                             style={{
                               width: `${Math.min(
                                 100,
-                                (subscription.usedSlots / subscription.packageLimit) * 100
+                                ((subscription.usedSlots || 0) / Math.max(1, subscription.packageLimit || 1)) * 100
                               )}%`,
                             }}
                           ></div>
                         </div>
-                                              </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        <span>Payment</span>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">Payment Status</span>
-                          <Badge 
-                            variant={getPaymentStatusVariant(subscription.paymentStatus)}
-                            className="text-xs"
-                          >
-                            {subscription.paymentStatus}
-                          </Badge>
-                        </div>
-                        {subscription.transactionId && (
-                          <div className="flex flex-col">
-                            <span className="text-xs font-medium text-gray-700 mb-1">Transaction ID</span>
-                            <span className="text-xs text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">
-                              {subscription.transactionId}
-                            </span>
-                          </div>
-                        )}
-                        {subscription.stripeSessionId && (
-                          <div className="flex flex-col">
-                            <span className="text-xs font-medium text-gray-700 mb-1">Session ID</span>
-                            <span className="text-xs text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">
-                              {subscription.stripeSessionId.substring(0, 8)}...{subscription.stripeSessionId.substring(subscription.stripeSessionId.length - 4)}
-                            </span>
-                          </div>
-                        )}
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">Payment Method</span>
-                          <span className="text-gray-700 font-medium">Stripe</span>
-                        </div>
-                      </div>
-                                              </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span>Duration</span>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">Duration</span>
-                          <span className="text-sm font-bold text-indigo-600">
-                            {subscription.duration ? `${subscription.duration} days` : "N/A"}
-                          </span>
-                        </div>
-                        <p className="text-sm">
-                          {subscription.status === "active" ? "Expires" : "Expired"}:{" "}
-                          <span className="font-medium">
-                            {subscription.endDate 
-                              ? formatDate(subscription.endDate) 
-                              : "N/A"}
-                          </span>
-                        </p>
-                        {subscription.endDate && (
-                          <p className="text-sm">
-                            Days Left:{" "}
-                            <span className="font-medium">
-                              {Math.max(
-                                0,
-                                Math.ceil(
-                                  (new Date(subscription.endDate).getTime() - new Date().getTime()) / 
-                                  (1000 * 60 * 60 * 24)
-                                )
-                              )} days
-                            </span>
-                          </p>
-                        )}
                       </div>
                     </div>
                   </div>
 
-                  {subscription.features && subscription.features.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-gray-100">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Package className="h-4 w-4 text-blue-500" />
-                        Plan Features
-                      </h4>
-                      <div className="space-y-2">
-                        {subscription.features.map((feature, i) => (
-                          <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <svg
-                                className="h-3 w-3 text-green-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={3}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-sm text-gray-700 font-medium">{feature}</span>
-                          </div>
+                  {subscription.features && Array.isArray(subscription.features) && subscription.features.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex flex-wrap gap-2">
+                        {subscription.features.slice(0, 3).map((feature, i) => (
+                          <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                            {feature}
+                          </span>
                         ))}
+                        {subscription.features.length > 3 && (
+                          <span className="text-xs text-gray-500">
+                            +{subscription.features.length - 3} more
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
                 
-                <div className="bg-gray-50 p-4 flex flex-col justify-center items-center border-t md:border-t-0 md:border-l w-full md:w-44 flex-shrink-0 space-y-2">
+                <div className="flex flex-col gap-2 lg:ml-4">
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm"
-                    className="w-full text-gray-700 hover:bg-white hover:text-blue-600 hover:border-blue-200 border border-transparent transition-all duration-200"
+                    className="border-gray-200 text-gray-700 hover:bg-gray-50"
                     onClick={() => handleViewDetails(subscription)}
                   >
-                    <Zap className="h-3 w-3 mr-1.5" />
-                    Details
+                    View Details
                   </Button>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm"
-                    className="w-full text-gray-700 hover:bg-white hover:text-green-600 hover:border-green-200 border border-transparent transition-all duration-200"
+                    className="border-gray-200 text-gray-700 hover:bg-gray-50"
                     onClick={() => handleDownloadInvoice(subscription)}
                   >
-                    <CreditCard className="h-3 w-3 mr-1.5" />
-                    Invoice
+                    Download Invoice
                   </Button>
                   {subscription.status === "active" && (
                     <Button 
                       size="sm"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
+                      className="bg-gray-900 hover:bg-gray-800 text-white"
                       onClick={() => handleManageSubscription(subscription)}
                     >
-                      <Package className="h-3 w-3 mr-1.5" />
                       Manage
                     </Button>
                   )}
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
@@ -553,14 +541,15 @@ export default function VendorSubscriptionHistory() {
       {/* Details Modal */}
       {showDetailsModal && selectedSubscription && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Subscription Details</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Subscription Details</h2>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setShowDetailsModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   ×
                 </Button>
@@ -570,62 +559,82 @@ export default function VendorSubscriptionHistory() {
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Plan Information</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">Plan Information</h3>
                   <div className="space-y-2">
-                    <p><span className="font-medium">Plan Name:</span> {selectedSubscription.planName}</p>
-                    <p><span className="font-medium">Status:</span> 
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Plan Name:</span>
+                      <span className="font-medium">{selectedSubscription.planName || "Unknown Plan"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
                       <Badge 
-                        variant={getStatusVariant(selectedSubscription.status)} 
-                        className="ml-2"
+                        variant={getStatusVariant(selectedSubscription.status || "unknown")} 
+                        className="text-xs"
                       >
-                        {selectedSubscription.status.charAt(0).toUpperCase() + selectedSubscription.status.slice(1)}
+                        {(selectedSubscription.status || "unknown").charAt(0).toUpperCase() + (selectedSubscription.status || "unknown").slice(1)}
                       </Badge>
-                    </p>
-                    <p><span className="font-medium">Duration:</span> {selectedSubscription.duration ? `${selectedSubscription.duration} days` : 'N/A'}</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Duration:</span>
+                      <span className="font-medium">{selectedSubscription.duration ? `${selectedSubscription.duration} days` : 'N/A'}</span>
+                    </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Payment Information</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">Payment Information</h3>
                   <div className="space-y-2">
-                    <p><span className="font-medium">Amount:</span> {selectedSubscription.currency || '$'}{selectedSubscription.amount.toLocaleString()}</p>
-                    <p><span className="font-medium">Payment Status:</span> 
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Amount:</span>
+                      <span className="font-medium">{selectedSubscription.currency || '$'}{(selectedSubscription.amount || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment Status:</span>
                       <Badge 
-                        variant={getPaymentStatusVariant(selectedSubscription.paymentStatus)} 
-                        className="ml-2"
+                        variant={getPaymentStatusVariant(selectedSubscription.paymentStatus || "unknown")} 
+                        className="text-xs"
                       >
-                        {selectedSubscription.paymentStatus}
+                        {selectedSubscription.paymentStatus || "unknown"}
                       </Badge>
-                    </p>
+                    </div>
                     {selectedSubscription.transactionId && (
-                      <p><span className="font-medium">Transaction ID:</span> {selectedSubscription.transactionId}</p>
-                    )}
-                    {selectedSubscription.stripeSessionId && (
-                      <p><span className="font-medium">Session ID:</span> {selectedSubscription.stripeSessionId}</p>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Transaction ID:</span>
+                        <span className="font-medium text-sm">{selectedSubscription.transactionId}</span>
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Subscription Period</h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-3">Subscription Period</h3>
                 <div className="space-y-2">
-                  <p><span className="font-medium">Start Date:</span> {formatDate(selectedSubscription.startDate)}</p>
-                  <p><span className="font-medium">End Date:</span> {selectedSubscription.endDate ? formatDate(selectedSubscription.endDate) : 'Ongoing'}</p>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Start Date:</span>
+                    <span className="font-medium">{formatDate(selectedSubscription.startDate)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">End Date:</span>
+                    <span className="font-medium">{selectedSubscription.endDate ? formatDate(selectedSubscription.endDate) : 'Ongoing'}</span>
+                  </div>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Package Usage</h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-3">Package Usage</h3>
                 <div className="space-y-2">
-                  <p><span className="font-medium">Used Slots:</span> {selectedSubscription.usedSlots}/{selectedSubscription.packageLimit}</p>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Used Slots:</span>
+                    <span className="font-medium">{selectedSubscription.usedSlots || 0}/{selectedSubscription.packageLimit || 0}</span>
+                  </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full"
+                      className="bg-gray-700 h-2 rounded-full"
                       style={{
                         width: `${Math.min(
                           100,
-                          (selectedSubscription.usedSlots / selectedSubscription.packageLimit) * 100
+                          ((selectedSubscription.usedSlots || 0) / Math.max(1, selectedSubscription.packageLimit || 1)) * 100
                         )}%`,
                       }}
                     ></div>
@@ -633,38 +642,18 @@ export default function VendorSubscriptionHistory() {
                 </div>
               </div>
               
-              {selectedSubscription.features && selectedSubscription.features.length > 0 && (
+              {selectedSubscription.features && Array.isArray(selectedSubscription.features) && selectedSubscription.features.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Plan Features</h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-3">Plan Features</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {selectedSubscription.features.map((feature, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <svg
-                          className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span className="text-sm">{feature}</span>
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+                        </div>
+                        <span className="text-sm text-gray-700">{feature}</span>
                       </div>
                     ))}
-                  </div>
-                </div>
-              )}
-              
-              {selectedSubscription.vendorDetails && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Vendor Information</h3>
-                  <div className="space-y-2">
-                    <p><span className="font-medium">Name:</span> {selectedSubscription.vendorDetails.name}</p>
-                    <p><span className="font-medium">Email:</span> {selectedSubscription.vendorDetails.email}</p>
                   </div>
                 </div>
               )}
@@ -674,8 +663,8 @@ export default function VendorSubscriptionHistory() {
               <Button
                 variant="outline"
                 onClick={() => handleDownloadInvoice(selectedSubscription)}
+                className="border-gray-200 text-gray-700 hover:bg-gray-50"
               >
-                <CreditCard className="h-4 w-4 mr-2" />
                 Download Invoice
               </Button>
               <Button onClick={() => setShowDetailsModal(false)}>

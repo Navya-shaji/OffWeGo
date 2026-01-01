@@ -2,20 +2,30 @@ import type { Flight } from "./flightInterface";
 
 export interface Hotel {
   id?: string;
+  _id?: string;
   hotelId?: string;
   name: string;
   address: string;
   rating: number;
   destinationId: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface Activity {
   id?: string;
+  _id?: string;
   activityId?: string;
   title: string;
   description: string;
   destinationId?: string;
   imageUrl: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 

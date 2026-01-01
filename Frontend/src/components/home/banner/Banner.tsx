@@ -42,7 +42,7 @@ const Banner: React.FC = () => {
     swipe: true,
     swipeToSlide: true,
     draggable: true,
-    beforeChange: (current: number, next: number) => setCurrentSlide(next),
+    beforeChange: (_current: number, next: number) => setCurrentSlide(next),
     appendDots: (dots: React.ReactNode) => (
       <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20">
         <ul className="flex gap-2">{dots}</ul>

@@ -4,7 +4,6 @@ import {
   flexRender,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FileSearch2 } from "lucide-react";
 
 type ReusableTableProps<T> = {

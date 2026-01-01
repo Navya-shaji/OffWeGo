@@ -58,9 +58,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [currentChat, setCurrentChat] = useState<IChat | null>(null);
     const [loading, setLoading] = useState(false);
     const [chats, setChats] = useState<IChat[]>([]);
-    const [vendors, setVendors] = useState<any[]>([]);
+    const [vendors] = useState<any[]>([]);
+    const [isTyping] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isTyping, setIsTyping] = useState(false);
     const triggerState = useState(0);
     const setTrigger = triggerState[1];
 

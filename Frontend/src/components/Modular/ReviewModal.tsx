@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 interface ReviewModalProps {
   open: boolean;
   onClose: () => void;
-  packageId: string;
   packageName: string;
   destination: string;
   onSuccess?: () => void;
@@ -21,7 +20,6 @@ interface ReviewModalProps {
 export const ReviewModal: React.FC<ReviewModalProps> = ({
   open,
   onClose,
-  packageId,
   packageName,
   destination,
   onSuccess,

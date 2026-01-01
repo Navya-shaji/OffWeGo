@@ -1,4 +1,4 @@
-import { notificationService,  FCMService } from '@/Notifications';
+import { FCMService, notificationService } from '@/Notifications';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 

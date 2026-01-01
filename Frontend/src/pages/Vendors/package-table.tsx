@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import {
   deletePackage,
+  editPackage,
   fetchAllPackages,
   searchPackages,
 } from "@/services/packages/packageService";
@@ -72,6 +73,13 @@ const PackageTable: React.FC<PackageTableProps> = ({
   useEffect(() => {
     setPackageList(packages);
     setOriginalPackages(packages);
+  }, [packages]);
+
+  useEffect(() => {
+    setEditModal({ isOpen: false, package: null });
+    setEditedPackage(null);
+    setDeleteModal({ isOpen: false, package: null });
+    setError("");
   }, [packages]);
 
   const formatCurrency = (amount: number) =>
@@ -166,8 +174,28 @@ const PackageTable: React.FC<PackageTableProps> = ({
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
+      // Clean up modal states on unmount
+      setEditModal({ isOpen: false, package: null });
+      setEditedPackage(null);
+      setDeleteModal({ isOpen: false, package: null });
     };
   }, [loadPackages]);
+
+  // Additional cleanup effect to ensure modal is closed on refresh
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Close any open modals before page unload
+      setEditModal({ isOpen: false, package: null });
+      setEditedPackage(null);
+      setDeleteModal({ isOpen: false, package: null });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   const getCurrentPageData = useMemo(() => {
     if (!isSearchMode) {
@@ -204,29 +232,54 @@ const PackageTable: React.FC<PackageTableProps> = ({
   const handleEditSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!editedPackage) return;
+      if (!editedPackage || !editedPackage._id) return;
+
+      console.log("🔧 handleEditSubmit called");
+      console.log("🔧 editedPackage before API call:", editedPackage);
+      console.log("🔧 packageList before update:", packageList);
 
       setIsEditLoading(true);
       try {
+        // Call the API to update the package in the database
+        const updatedPackageFromServer = await editPackage(editedPackage._id, editedPackage);
+        console.log("📦 Updated package from server:", updatedPackageFromServer);
       
+        // Use the updated data from the server, fallback to local edited data
+        const finalUpdatedPackage = updatedPackageFromServer || editedPackage;
+        console.log("✅ Final updated package to use:", finalUpdatedPackage);
+        
         const updatedPackages = packageList.map((pkg) =>
-          pkg._id === editedPackage._id ? editedPackage : pkg
+          pkg._id === finalUpdatedPackage._id ? finalUpdatedPackage : pkg
         );
         const updatedOriginalPackages = originalPackages.map((pkg) =>
-          pkg._id === editedPackage._id ? editedPackage : pkg
+          pkg._id === finalUpdatedPackage._id ? finalUpdatedPackage : pkg
         );
+
+        console.log("🔄 Updated packages list:", updatedPackages);
+        console.log("🔄 Updated original packages list:", updatedOriginalPackages);
 
         setPackageList(updatedPackages);
         if (!isSearchMode) {
           setOriginalPackages(updatedOriginalPackages);
         }
 
+        console.log("📞 Calling onPackagesUpdate callback");
         onPackagesUpdate?.(
           isSearchMode ? updatedOriginalPackages : updatedPackages
         );
+        
+        // Force reload the current page to ensure UI updates
+        console.log("🔄 Force reloading packages to ensure UI updates");
+        if (isSearchMode && searchQuery) {
+          await handleSearch(searchQuery);
+        } else {
+          await loadPackages(page);
+        }
+        
+        console.log("🔒 Closing edit modal");
         closeEditModal();
       } catch (error) {
-        console.error("Edit failed:", error);
+        console.error("❌ Edit failed:", error);
         setError("Failed to update package. Please try again.");
         setTimeout(() => setError(""), 3000);
       } finally {

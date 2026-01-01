@@ -5,7 +5,7 @@ import type {
   TravelPost,
   TravelPostFilters,
   TravelPostListResponse,
-} from "@/interface/TravelPost"
+} from "@/interface/TravelPost";
 
 type FetchTravelPostsParams = {
   page?: number;
@@ -25,13 +25,7 @@ type FetchMyTravelPostsParams = {
   search?: string;
 };
 
-// type GetPostBySlugParams = {
-//   slug: string;
-// };
 
-// type ToggleSavePostParams = {
-//   postId: string;
-// };
 
 type GetSavedTravelPostsParams = {
   page?: number;

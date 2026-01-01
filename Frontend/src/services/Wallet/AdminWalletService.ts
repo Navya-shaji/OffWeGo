@@ -24,8 +24,52 @@ export const createWallet = async (
 export const getWallet = async (id: string): Promise<IWallet> => {
   try {
     const response = await axiosInstance.get(`/api/admin/wallet/${id}`);
-    console.log(response.data,"hjhhj")
-    return response.data;
+    
+    // Enhance transactions with additional details
+    const wallet = response.data;
+    if (wallet.transactions && Array.isArray(wallet.transactions)) {
+      wallet.transactions = await Promise.all(
+        wallet.transactions.map(async (transaction: any) => {
+          const enhancedTransaction = { ...transaction };
+          
+          // If there's a vendorId, fetch vendor name
+          if (transaction.vendorId) {
+            try {
+              const vendorResponse = await axiosInstance.get(`/api/vendor/${transaction.vendorId}`);
+              enhancedTransaction.vendorName = vendorResponse.data.name || vendorResponse.data.businessName || 'Unknown Vendor';
+            } catch (error) {
+              console.error('Failed to fetch vendor details:', error);
+              enhancedTransaction.vendorName = 'Unknown Vendor';
+            }
+          }
+          
+          // If there's a bookingId, fetch booking details
+          if (transaction.bookingId) {
+            try {
+              const bookingResponse = await axiosInstance.get(`/api/booking/${transaction.bookingId}`);
+              const booking = bookingResponse.data;
+              enhancedTransaction.bookingDetails = {
+                packageName: booking.package?.name || booking.packageName || 'Unknown Package',
+                destinationName: booking.destination?.name || booking.destinationName || 'Unknown Destination',
+                tripDate: booking.tripDate || booking.date,
+                userName: booking.user?.name || booking.userName || 'Unknown User'
+              };
+            } catch (error) {
+              console.error('Failed to fetch booking details:', error);
+              enhancedTransaction.bookingDetails = {
+                packageName: 'Unknown Package',
+                destinationName: 'Unknown Destination'
+              };
+            }
+          }
+          
+          return enhancedTransaction;
+        })
+      );
+    }
+    
+    console.log(wallet, "Enhanced admin wallet data");
+    return wallet;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Failed to get wallet");
@@ -33,6 +77,7 @@ export const getWallet = async (id: string): Promise<IWallet> => {
     throw new Error("An unexpected error occurred while fetching wallet");
   }
 };
+
 export const transferWalletAmount = async (
   adminId: string,
   vendorId: string,
@@ -74,35 +119,35 @@ export const getFinishedTrips = async (): Promise<Booking[]> => {
   }
 };
 
-// export const processFinishedTrips = async (
-//   adminId: string
-// ): Promise<void> => {
-//   try {
+export const processFinishedTrips = async (
+  adminId: string
+): Promise<void> => {
+  try {
    
-//     const completedTrips = await getFinishedTrips();
-//     console.log(completedTrips, "Completed Trips");
+    const completedTrips = await getFinishedTrips();
+    console.log(completedTrips, "Completed Trips");
 
-//     for (const trip of completedTrips) {
-//       if (!trip.selectedPackage?.vendorId) continue;
+    for (const trip of completedTrips) {
+      if (!trip.selectedPackage?.vendorId) continue;
 
-//       const vendorId = trip.selectedPackage.vendorId;
-//       const bookingAmount = trip.totalAmount;
-//       const vendorShare = bookingAmount * 0.9; 
+      const vendorId = trip.selectedPackage.vendorId;
+      const bookingAmount = trip.totalAmount;
+      const vendorShare = bookingAmount * 0.9; 
 
-//       console.log(
-//         `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
-//       );
+      console.log(
+        `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
+      );
 
    
-//       await transferWalletAmount(adminId, vendorId, vendorShare);
-//     }
-//   } catch (error) {
-//     console.error("Error processing finished trips:", error);
-//     throw new Error("Failed to process finished trips");
-//   }
-// };
+      await transferWalletAmount(adminId, vendorId, vendorShare);
+    }
+  } catch (error) {
+    console.error("Error processing finished trips:", error);
+    throw new Error("Failed to process finished trips");
+  }
+};
 
-export const completeTripAndDistribute = async (payload) => {
+export const completeTripAndDistribute = async (payload: any) => {
   try {
     const { bookingId, adminId, vendorId, amount } = payload;
 

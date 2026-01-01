@@ -67,11 +67,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       setLoading(true);
 
       await changePassword({
-        userId: user.id,
         oldPassword: currentPassword,
         newPassword: newPassword,
       });
-
 
       setCurrentPassword("");
       setNewPassword("");
