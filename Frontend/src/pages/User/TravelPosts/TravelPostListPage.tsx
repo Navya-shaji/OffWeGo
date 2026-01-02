@@ -13,7 +13,7 @@ import { useAppSelector } from "@/hooks";
 dayjs.extend(relativeTime);
 
 type SortOption = "latest" | "oldest" | "popular";
-type StoryView = "all" | "mine";
+
 
 const sortPosts = (posts: TravelPost[], sortBy: SortOption) => {
   const cloned = [...posts];
@@ -110,8 +110,8 @@ const TravelPostListPage = () => {
       console.log(` Frontend Debug - After search filter ("${search}"):`, filtered.length, "posts");
     }
     
-    // Sort the filtered results
-    const sorted = sortPosts(filtered, sortBy);
+
+    const sorted = sortPosts(filtered,"latest");
     console.log(" Frontend Debug - Final sorted posts:", sorted);
     
     return sorted;

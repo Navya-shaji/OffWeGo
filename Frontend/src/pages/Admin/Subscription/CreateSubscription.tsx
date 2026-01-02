@@ -73,7 +73,7 @@ export default function AddSubscriptionForm() {
         name: data.name,
         price: data.price,
         duration: data.duration,
-        stripePriceId: data.stripePriceId,
+        stripePriceId: "",
         features: features.split(", ").map(f => f.trim()).filter(Boolean),
       });
 

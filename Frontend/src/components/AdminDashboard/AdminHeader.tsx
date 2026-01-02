@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Menu, User, LogOut } from 'lucide-react';
-import { NotificationBell, NotificationPanel, useNotifications } from '../Notifications';
+// import { NotificationBell } from '../Notifications';
 
 
 interface AdminHeaderProps {
@@ -10,7 +10,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onMenuToggle, onLogout }: AdminHeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const { isOpen, toggleNotifications } = useNotifications();
+ 
 
   return (
     <>
@@ -45,7 +45,7 @@ export function AdminHeader({ onMenuToggle, onLogout }: AdminHeaderProps) {
             {/* Right side */}
             <div className="flex items-center space-x-4">
               {/* Notifications */}
-              <NotificationBell />
+              {/* <NotificationBell /> */}
               
               {/* User menu */}
               <div className="relative">
@@ -72,11 +72,7 @@ export function AdminHeader({ onMenuToggle, onLogout }: AdminHeaderProps) {
         </div>
       </header>
 
-      {/* Notification Panel */}
-      <NotificationPanel 
-        isOpen={isOpen} 
-        onClose={toggleNotifications} 
-      />
+  
     </>
   );
 }

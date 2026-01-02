@@ -843,47 +843,16 @@ const handleSubmit = async (e: React.FormEvent) => {
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
-        {/* Header Section */}
+    
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg mb-6">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        
+          <h1 className="text-5xl font-bold bg-gradient-to-r bg-black bg-clip-text text-transparent mb-4">
             Create Amazing Travel Package
           </h1>
-          <p className="text-xl text-gray-600 font-medium max-w-2xl mx-auto">
-            Design unforgettable travel experiences that will delight your customers and grow your business
-          </p>
+         
         </div>
-
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-2">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
-              <span className="ml-2 text-sm font-medium text-gray-700">Basic Info</span>
-            </div>
-            <div className="w-12 h-0.5 bg-gray-300"></div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">2</div>
-              <span className="ml-2 text-sm font-medium text-gray-500">Images</span>
-            </div>
-            <div className="w-12 h-0.5 bg-gray-300"></div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">3</div>
-              <span className="ml-2 text-sm font-medium text-gray-500">Details</span>
-            </div>
-            <div className="w-12 h-0.5 bg-gray-300"></div>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">4</div>
-              <span className="ml-2 text-sm font-medium text-gray-500">Itinerary</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Form Card */}
         <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+          <CardHeader className="bg-gradient-to-r bg-black text-white">
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -891,9 +860,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
                 <span>Package Details</span>
               </div>
-              <div className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-                Step 1 of 4
-              </div>
+             
             </CardTitle>
           </CardHeader>
           
@@ -927,15 +894,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <div className="space-y-8">
                 {/* Basic Information Section */}
                 <div className="relative">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-indigo-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
-                      <p className="text-sm text-gray-600">Provide essential details about your travel package</p>
-                    </div>
-                  </div>
+
                   
                   <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                     <PackageBasicInfo
@@ -964,7 +923,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                {/* Images Section */}
                 <div className="relative">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -990,7 +948,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                  {/* Hotels & Activities Section */}
                 <div className="relative">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -1025,7 +982,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                {/* Check-in/Check-out Times Section */}
                 <div className="relative">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
@@ -1289,7 +1245,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   type="submit"
                   disabled={loading}
                   size="lg"
-                  className="relative group overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-semibold px-12 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-0"
+                  className="relative group overflow-hidden bg-gradient-to-r bg-black text-white "
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center gap-3">
@@ -1317,14 +1273,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         </Card>
       </div>
 
-      {/* Subscription Required Modal - Only show if no active subscription and check is complete */}
       {showSubscriptionModal && !isCheckingSubscription && hasActiveSubscription === false && (
         <SubscriptionRequiredModal
           isOpen={showSubscriptionModal}
           onClose={() => {
             setShowSubscriptionModal(false);
-            // Refresh subscription status when modal is closed
-            // This handles the case when user returns from subscription purchase page
             checkSubscription();
           }}
           message={getSubscriptionMessage()}
@@ -1332,11 +1285,10 @@ const handleSubmit = async (e: React.FormEvent) => {
         />
       )}
 
-      {/* Loading overlay while checking subscription */}
       {isCheckingSubscription && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
           <div className="bg-white rounded-lg p-6 flex items-center gap-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 bg-black"></div>
             <span className="text-gray-700">Checking subscription status...</span>
           </div>
         </div>

@@ -120,10 +120,16 @@ export default function VendorSubscriptionPage() {
         time: bookingTime,
       });
 
-      if (response.success && response.url) {
+      console.log('Subscription booking response:', response);
+
+      // Handle the actual response format from backend
+      if (response.checkoutUrl) {
+        window.location.href = response.checkoutUrl;
+      } else if (response.success && response.url) {
         window.location.href = response.url;
       } else {
-        throw new Error("Failed to create payment session");
+        console.error('Invalid response:', response);
+        throw new Error("No payment URL provided in response");
       }
     } catch (err: any) {
       console.error("Payment error:", err);

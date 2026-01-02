@@ -79,6 +79,11 @@ export class AdminRoute {
       adminVendorController.getAllVendors(req, res)
     );
 
+    this.adminRouter.patch(
+  AdminRoutes.ADMIN_VENDOR_APPROVAL,  
+  adminOnly,
+  (req, res) => adminVendorController.updateVendorApprovalStatus(req, res)
+);
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_STATUS,
       adminOnly,

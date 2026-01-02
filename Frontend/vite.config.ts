@@ -10,6 +10,12 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+
+  
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      },
+
       includeAssets: [
         "apple-touch-icon.png",
         "favicon-16x16.png",
@@ -19,7 +25,7 @@ export default defineConfig({
         "pwa-512x512.png",
         "pwa-maskable-192x192.png",
         "pwa-maskable-512x512.png",
-        "screenshot.png", 
+        "screenshot.png",
       ],
       manifest: {
         name: "OffWeGo",

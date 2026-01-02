@@ -14,7 +14,7 @@ export class SubscriptionBookingController {
   async createSubscriptionBooking(req: Request, res: Response): Promise<void> {
     try {
       const { vendorId, planId, date, time } = req.body;
-      const domainUrl = process.env.DOMAIN_URL || "https://yourdomain.com";
+      const domainUrl = process.env.DOMAIN_URL || "";
 
       const result = await this._createBookingSubscriptionUsecase.execute({
         vendorId,
@@ -24,11 +24,7 @@ export class SubscriptionBookingController {
         domainUrl,
       });
 
-      res.status(HttpStatus.CREATED).json({
-        success: true,
-        message: "Subscription booking created successfully",
-        data: result,
-      });
+      res.status(HttpStatus.CREATED).json(result);
     } catch (error) {
       console.error(" Error creating subscription booking:", error);
       res
@@ -49,8 +45,10 @@ export class SubscriptionBookingController {
         return;
       }
 
+      // Expire old subscriptions first
       await this._subscriptionBookingRepository.expireOldSubscriptions(vendorId);
 
+      // Get the latest active subscription
       const subscription = await this._subscriptionBookingRepository.getLatestSubscriptionByVendor(vendorId);
 
       if (!subscription) {

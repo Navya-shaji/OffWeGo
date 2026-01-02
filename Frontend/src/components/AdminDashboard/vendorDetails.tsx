@@ -306,7 +306,7 @@ export const VendorList = () => {
             checked={!row.original.isBlocked}
             onChange={() =>
               openBlockModal(
-                row.original._id,
+                row.original._id as string,
                 row.original.isBlocked,
                 row.original.name
               )

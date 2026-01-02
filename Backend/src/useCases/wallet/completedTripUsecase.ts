@@ -58,8 +58,9 @@ console.log(packageData,"packageData")
         "admin",
         vendorAmount,
         "debit",
-        `Settlement paid to vendor ${packageData.vendorId}`,
-        booking.bookingId
+        `Settlement paid to vendor ${name}`,
+        booking.bookingId,
+
       );
 
       await this._walletRepository.updateBalance(

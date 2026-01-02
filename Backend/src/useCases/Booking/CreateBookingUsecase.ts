@@ -71,7 +71,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         Role.ADMIN,
         result.totalAmount,
         "credit",
-        `Booking payment received. User: ${result.userId}`,
+        `Booking payment received. User`,
         result.bookingId   
       );
     }

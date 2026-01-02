@@ -168,10 +168,7 @@ export default function VendorDashboard() {
     ? ((stats.bookings / stats.packages) * 100).toFixed(1)
     : "0";
 
-  // Get max bookings for chart scaling
-  const maxBookings = Math.max(...monthlyData.map(d => d.bookings), 1);
 
-  // Calculate growth percentage (comparing current month to previous)
   const currentMonth = new Date().getMonth();
   const currentMonthBookings = monthlyData[currentMonth]?.bookings || 0;
   const previousMonthBookings = currentMonth > 0

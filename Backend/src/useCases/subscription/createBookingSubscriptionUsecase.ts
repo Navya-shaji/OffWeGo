@@ -85,7 +85,7 @@ export class CreateBookingSubscriptionUseCase
       Role.ADMIN,
       plan.price,
       "credit",
-      `Subscription purchased by vendor ${vendorId}`
+      `Subscription purchased by vendor `
     );
 
     return {

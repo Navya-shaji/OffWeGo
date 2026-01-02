@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Calendar, History, Search, Filter, ArrowLeft, X, Download, ChevronRight } from "lucide-react";
+import { Calendar, History, Search, ArrowLeft, X, Download, ChevronRight } from "lucide-react";
 import { getVendorSubscriptionHistory } from "@/services/subscription/subscriptionservice";
 import { format, parseISO } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VendorNavbar from "@/components/vendor/navbar";
 
 interface SubscriptionHistory {
@@ -37,7 +36,7 @@ export default function VendorSubscriptionHistory() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("date");
+  const [sortBy, ] = useState("date");
   const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionHistory | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 

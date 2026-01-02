@@ -705,7 +705,7 @@ const ChatPage = () => {
                 setHasMoreMessages(true);
                 setLoadingMoreMessages(false);
                 const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
-                const res = await getMessages(selectedContact._id, userType, { limit: 30 });
+                const res = await getMessages(selectedContact._id, userType);
                 console.log("Messages response:", res);
                 
                 // Backend returns: { success: true, data: [...] }
@@ -786,14 +786,16 @@ const ChatPage = () => {
             const prevScrollHeight = container?.scrollHeight || 0;
             const prevScrollTop = container?.scrollTop || 0;
 
-            const oldestTime = messages[0]?.sendedTime;
-            const before = oldestTime ? new Date(oldestTime) : undefined;
+            // const oldestTime = messages[0]?.sendedTime;
+            // const before = oldestTime ? new Date(oldestTime) : undefined;
 
             const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
-            const res = await getMessages(selectedContact._id, userType, {
-                limit: 30,
-                before: before,
-            });
+            const res = await getMessages(selectedContact._id, userType, 
+            //     {
+            //     limit: 30,
+            //     before: before,
+            // }
+        );
 
             const older: ChatMessage[] = (res && res.data && res.data.messages && Array.isArray(res.data.messages))
                 ? res.data.messages

@@ -4,7 +4,7 @@ import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, BarCh
 import { getAllUsers } from "@/services/admin/adminUserService";
 import { getAllVendors } from "@/services/admin/adminVendorService";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
-import { getAllSubscriptionBookings } from "@/services/subscription/subscriptionservice";
+import { getSubscriptions } from "@/services/subscription/subscriptionservice";
 import { getUserBookings } from "@/services/Booking/bookingService";
 import { fetchAllPackages } from "@/services/packages/packageService";
 import { getWallet } from "@/services/Wallet/AdminWalletService";
@@ -32,7 +32,7 @@ interface MonthlyData {
 
 const AdminDashboard: React.FC = () => {
   const admin = useSelector((state: RootState) => state.adminAuth?.admin);
-  const adminId = admin?._id;
+  const adminId = admin?.id 
 
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -59,12 +59,12 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const [usersData, vendorsData, destinationsData, subscriptionBookingsData, bookingsData, packagesData, walletData] =
+      const [usersData, vendorsData, destinationsData, subscriptionsData, bookingsData, packagesData, walletData] =
         await Promise.all([
           getAllUsers(1, 1),
           getAllVendors(1, 1),
           fetchAllDestinations(1, 1),
-          getAllSubscriptionBookings().catch(() => ({ data: [] })),
+          getSubscriptions(),
           getUserBookings().catch(() => []),
           fetchAllPackages(1, 1).catch(() => ({ totalPackages: 0 })),
           adminId ? getWallet(adminId).catch(() => null) : Promise.resolve(null),
@@ -82,10 +82,6 @@ const AdminDashboard: React.FC = () => {
         b.bookingStatus === "pending" || b.status === "pending" || b.paymentStatus === "pending"
       ).length;
 
-      // Get subscription bookings count
-      const subscriptionBookings = subscriptionBookingsData?.data || [];
-      const totalSubscriptions = Array.isArray(subscriptionBookings) ? subscriptionBookings.length : 0;
-
       const totalRevenue = walletData?.balance || bookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
 
       // Process monthly data
@@ -95,7 +91,7 @@ const AdminDashboard: React.FC = () => {
         totalUsers: usersData.totalUsers || 0,
         totalVendors: vendorsData.totalvendors || 0,
         totalDestinations: destinationsData.totalDestinations || 0,
-        totalSubscriptions: totalSubscriptions,
+        totalSubscriptions: Array.isArray(subscriptionsData) ? subscriptionsData.length : 0,
         totalBookings,
         totalPackages: packagesData?.totalPackages || 0,
         totalRevenue,
@@ -358,7 +354,7 @@ const AdminDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  // label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -398,7 +394,7 @@ const AdminDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  // label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
