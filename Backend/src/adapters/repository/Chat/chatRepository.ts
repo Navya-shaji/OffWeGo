@@ -3,28 +3,12 @@ import { IChat } from "../../../domain/entities/chatEntity";
 
 export class ChatRepository {
     async findChat(members: string[]): Promise<IChat | null> {
-        // if (members.length !== 2) {
-        //     return null;
-        // }
         return await this.getchatOfUser(members[0], members[1]);
     }
 
     async createChat(data: IChat): Promise<any> {
    
-        // if (!data.userId || !data.vendorId) {
-        //     console.error('❌ Cannot create chat: missing userId or vendorId', data);
-        //     throw new Error('Both userId and vendorId are required to create a chat');
-        // }
-        
         const createdChat = await chatModel.create(data);
-        // console.log('✅ Chat created with ID:', createdChat._id);
-        // console.log('📝 Raw chat document:', {
-        //     _id: createdChat._id,
-        //     userId: createdChat.userId,
-        //     vendorId: createdChat.vendorId
-        // });
-        
-        // Populate the chat with user and vendor information
         const populatedChat = await chatModel.findById(createdChat._id)
             .populate({
                 path: 'userId',
@@ -34,13 +18,7 @@ export class ChatRepository {
                 path: 'vendorId',
                 select: 'name profileImage'
             });
-        
-        // console.log('📦 Returning populated chat:', {
-        //     _id: populatedChat?._id,
-        //     userId: populatedChat?.userId,
-        //     vendorId: populatedChat?.vendorId
-        // });
-        
+
         return populatedChat;
     }
 
@@ -49,7 +27,7 @@ export class ChatRepository {
     }
 
     async findChatByUserId(userId: string): Promise<IChat[]> {
-        // Updated to use userId and vendorId instead of members
+  
         return await chatModel.find({
             $or: [
                 { userId: userId },
@@ -59,9 +37,7 @@ export class ChatRepository {
     }
 
     async findChatsOfUser(userId: string, userType?: 'user' | 'vendor'): Promise<{ chats: any[] }> {
-        // Build query based on userType
-        // For vendors: only show chats where they are the vendor (vendorId matches)
-        // For users: only show chats where they are the user (userId matches)
+     
         let query: any = {
             $and: [
                 { userId: { $ne: null } },
@@ -70,13 +46,10 @@ export class ChatRepository {
         };
 
         if (userType === 'vendor') {
-            // Vendor should only see chats where they are the vendor
             query.$and.push({ vendorId: userId });
         } else if (userType === 'user') {
-            // User should only see chats where they are the user
             query.$and.push({ userId: userId });
         } else {
-            // Fallback: show all chats (for backward compatibility)
             query.$and.push({
                 $or: [
                     { userId: userId },

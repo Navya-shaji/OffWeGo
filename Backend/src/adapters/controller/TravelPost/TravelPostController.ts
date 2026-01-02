@@ -21,15 +21,7 @@ export class TravelPostController {
 
   async createTravelPost(req: Request, res: Response): Promise<void> {
     try {
-      const authorId = req.user?.userId || req.user?.id || req.body.authorId;
-
-      if (!authorId) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: "Author information is missing.",
-        });
-        return;
-      }
+      const authorId = req.user?.userId || req.user?.id 
 
       const payload = {
         ...req.body,

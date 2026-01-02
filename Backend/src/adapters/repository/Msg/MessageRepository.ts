@@ -7,12 +7,7 @@ export class MessageRepository {
     }
 
     async createMessage(data: any): Promise<IMessage> {
-        console.log('💾 MessageRepository.createMessage called with:', {
-            chatId: data.chatId,
-            senderId: data.senderId,
-            senderType: data.senderType,
-            messageContent: data.messageContent?.substring(0, 50)
-        });
+     
         const newMessage = new messageModel({
             chatId: data.chatId,
             senderId: data.senderId,
@@ -25,7 +20,6 @@ export class MessageRepository {
             replyTo: data.replyTo
         });
         const saved = await newMessage.save();
-        console.log('✅ Message saved to DB with ID:', saved._id);
         return saved.toObject();
     }
 

@@ -150,46 +150,48 @@ const TravelPostCreatePage = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 py-14">
-        <div className="max-w-5xl mx-auto px-4">
-        <div className="mb-8 flex flex-col gap-3 text-slate-700">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-400">
-            Share your journey
-          </p>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-            Craft a travel story that inspires others
+      
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        {/* Header Section */}
+        <div className="mb-12 text-center">
+          <p className="mb-2 text-sm uppercase tracking-widest text-gray-500">Share your journey</p>
+          <h1 className="mb-4 font-serif text-4xl font-normal tracking-wide text-gray-900 md:text-5xl">
+            CREATE YOUR TRAVEL STORY
           </h1>
-          <p className="max-w-3xl text-slate-600">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-600">
             Upload your highlights, tag the destinations you uncovered and help fellow travellers plan their
             adventures. Submitted stories are reviewed by our editorial team before going live.
           </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+          {/* Form Section */}
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="rounded-3xl bg-white shadow-lg ring-1 ring-slate-100 p-6 sm:p-10 space-y-6"
+            className="space-y-8 rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
           >
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-slate-700">Story title</label>
+            {/* Title */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-900">Story Title</label>
               <input
                 type="text"
                 {...register("title")}
                 placeholder="Sunrise above the Dolomites"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
               />
-              {errors.title && <p className="text-xs text-rose-500">{errors.title.message}</p>}
+              {errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-slate-700">Category</label>
+            {/* Category & Destination */}
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-900">Category *</label>
                 <select
                   {...register("categoryId")}
                   disabled={loadingFilters || !categoryOptions.length}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-100"
+                  className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100"
                   defaultValue=""
                 >
                   <option value="" disabled>
@@ -202,16 +204,16 @@ const TravelPostCreatePage = () => {
                   ))}
                 </select>
                 {errors.categoryId && (
-                  <p className="text-xs text-rose-500">{errors.categoryId.message}</p>
+                  <p className="text-xs text-red-600">{errors.categoryId.message}</p>
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-slate-700">Destination (optional)</label>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-900">Destination (optional)</label>
                 <select
                   {...register("destinationId")}
                   disabled={loadingFilters || !destinationOptions.length}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-100"
+                  className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100"
                   defaultValue=""
                 >
                   <option value="">Select a destination</option>
@@ -224,155 +226,169 @@ const TravelPostCreatePage = () => {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-slate-700">Travel date (optional)</label>
+            {/* Travel Date & Tags */}
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-900">Travel Date (optional)</label>
                 <input
                   type="date"
                   {...register("tripDate")}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-slate-700">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-900">
                   Tags (comma separated)
                 </label>
                 <input
                   type="text"
                   {...register("tags")}
                   placeholder="sunrise, hiking, solo travel"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-slate-700">Short teaser (optional)</label>
+            {/* Excerpt */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-900">Short Teaser (optional)</label>
               <textarea
                 rows={3}
                 {...register("excerpt")}
                 placeholder="In 200 characters or less, give readers a taste of the adventure..."
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
               />
-              {errors.excerpt && <p className="text-xs text-rose-500">{errors.excerpt.message}</p>}
+              {errors.excerpt && <p className="text-xs text-red-600">{errors.excerpt.message}</p>}
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-slate-700">Story body</label>
+            {/* Content */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-900">Story Body *</label>
               <textarea
-                rows={8}
+                rows={10}
                 {...register("content")}
                 placeholder="From sunrise hikes to late-night food stalls, walk readers through your journey..."
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
               />
-              {errors.content && <p className="text-xs text-rose-500">{errors.content.message}</p>}
+              {errors.content && <p className="text-xs text-red-600">{errors.content.message}</p>}
             </div>
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-slate-700">Cover image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverChange}
-                  className="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 focus:outline-none"
+            {/* Cover Image */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-900">Cover Image *</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverChange}
+                className="block w-full cursor-pointer rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 focus:outline-none"
+              />
+              <p className="text-xs text-gray-500">Choose a hero image that sets the scene for your story.</p>
+              {coverPreview && (
+                <img
+                  src={coverPreview}
+                  alt="Cover preview"
+                  className="mt-3 h-48 w-full rounded object-cover"
                 />
-                <p className="text-xs text-slate-500">Choose a hero image that sets the scene for your story.</p>
-                {coverPreview && (
-                  <img
-                    src={coverPreview}
-                    alt="Cover preview"
-                    className="mt-3 h-40 w-full rounded-xl object-cover"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-slate-700">Gallery (optional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleGalleryChange}
-                  className="block w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 focus:outline-none"
-                />
-                <p className="text-xs text-slate-500">Add up to 6 supporting photos that bring your journey to life.</p>
-                {Boolean(galleryPreviews.length) && (
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {galleryPreviews.map((preview, index) => (
-                      <img
-                        key={`${preview}-${index}`}
-                        src={preview}
-                        alt={`Gallery preview ${index + 1}`}
-                        className="h-28 w-full rounded-xl object-cover"
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
 
+            {/* Gallery */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-900">Gallery (optional)</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleGalleryChange}
+                className="block w-full cursor-pointer rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 focus:outline-none"
+              />
+              <p className="text-xs text-gray-500">Add up to 6 supporting photos that bring your journey to life.</p>
+              {Boolean(galleryPreviews.length) && (
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {galleryPreviews.map((preview, index) => (
+                    <img
+                      key={`${preview}-${index}`}
+                      src={preview}
+                      alt={`Gallery preview ${index + 1}`}
+                      className="h-32 w-full rounded object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded border border-gray-900 bg-gray-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Submitting your story..." : "Submit for review"}
+              {isSubmitting ? "Submitting your story..." : "Submit for Review"}
             </button>
           </form>
 
-          <aside className="space-y-6 rounded-3xl bg-white shadow-lg ring-1 ring-slate-100 p-6">
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-slate-900">What happens next?</h2>
-              <ul className="space-y-3 text-sm text-slate-600">
-                <li className="flex gap-2">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-indigo-400"></span>
-                  Our editorial team reviews every submission to keep the community inspiring and safe.
+          {/* Sidebar */}
+          <aside className="space-y-6">
+            {/* What Happens Next */}
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 font-serif text-lg font-normal tracking-wide text-gray-900">
+                What happens next?
+              </h2>
+              <ul className="space-y-3 text-sm text-gray-600">
+                <li className="flex gap-3">
+                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-900"></span>
+                  <span>Our editorial team reviews every submission to keep the community inspiring and safe.</span>
                 </li>
-                <li className="flex gap-2">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-indigo-400"></span>
-                  You&apos;ll receive an email notification once your story is published or if we need more details.
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-indigo-400"></span>
-                  Highlight practical tips, budgets, and lessons learned—these are the insights fellow travellers love.
+             
+                <li className="flex gap-3">
+                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-900"></span>
+                  <span>Highlight practical tips, budgets, and lessons learned—these are the insights fellow travellers love.</span>
                 </li>
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-              <p className="font-semibold text-slate-800">Need inspiration?</p>
-              <p className="mt-2">
+            {/* Need Inspiration */}
+            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6">
+              <p className="mb-2 text-sm font-semibold text-gray-900">Need inspiration?</p>
+              <p className="mb-4 text-sm text-gray-600">
                 Browse the latest community stories and see how others are structuring their travel notes.
               </p>
               <Link
                 to="/posts"
-                className="mt-3 inline-flex items-center text-sm font-semibold text-indigo-500 hover:text-indigo-600"
+                className="inline-flex items-center text-sm font-medium text-gray-900 underline hover:text-gray-700"
               >
-                Explore published stories ↗
+                Explore published stories →
               </Link>
             </div>
 
+            {/* Submission Checklist */}
             {filters && (
-              <div className="space-y-3 text-sm text-slate-600">
-                <p className="font-semibold text-slate-800">Submission checklist</p>
-                <ul className="list-disc space-y-2 pl-5">
-                  <li>Write at least a short narrative (80+ characters).</li>
-                  <li>Upload a striking cover image (we love landscape orientation).</li>
-                  <li>
-                    Tag one of the {filters.totalCategories} categories so your story appears in the right feed.
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <p className="mb-4 text-sm font-semibold text-gray-900">Submission checklist</p>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span>Write at least a short narrative (80+ characters).</span>
                   </li>
-                  <li>
-                    Optional, but recommended: attach a destination from our {filters.totalDestinations} curated spots.
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span>Upload a striking cover image (we love landscape orientation).</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span>Tag one of the {filters.totalCategories} categories so your story appears in the right feed.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span>•</span>
+                    <span>Optional, but recommended: attach a destination from our {filters.totalDestinations} curated spots.</span>
                   </li>
                 </ul>
               </div>
             )}
           </aside>
         </div>
-        </div>
       </div>
-    </>
+    </div>
   );
 };
 

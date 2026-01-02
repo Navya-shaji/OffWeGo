@@ -39,7 +39,6 @@ export class SubscriptionBookingController {
 
   async getVendorSubscription(req: Request, res: Response): Promise<void> {
     try {
-      // Get vendorId from JWT token (set by authentication middleware)
       const vendorId = req.user?.id || req.user?.userId;
       
       if (!vendorId) {
@@ -50,10 +49,8 @@ export class SubscriptionBookingController {
         return;
       }
 
-      // Expire old subscriptions first
       await this._subscriptionBookingRepository.expireOldSubscriptions(vendorId);
 
-      // Get the latest active subscription
       const subscription = await this._subscriptionBookingRepository.getLatestSubscriptionByVendor(vendorId);
 
       if (!subscription) {

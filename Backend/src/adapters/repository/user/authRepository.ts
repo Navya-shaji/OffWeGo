@@ -3,7 +3,7 @@ import { UserModel } from "../../../framework/database/Models/userModel";
 import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository";
 import { User } from "../../../domain/entities/userEntity";
 
-// Initialize OAuth2Client - will be created with client ID when needed
+
 let client: OAuth2Client | null = null;
 
 const getOAuthClient = (): OAuth2Client => {

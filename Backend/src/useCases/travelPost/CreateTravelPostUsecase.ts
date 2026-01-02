@@ -22,7 +22,7 @@ const createExcerpt = (content: string, fallback?: string): string => {
 };
 
 export class CreateTravelPostUsecase implements ICreateTravelPostUsecase {
-  constructor(private readonly travelPostRepository: ITravelPostRepository) {}
+  constructor(private  _travelPostRepository: ITravelPostRepository) {}
 
   async execute(payload: CreateTravelPostDto): Promise<TravelPostDto> {
     if (!payload.authorId) {
@@ -63,7 +63,7 @@ export class CreateTravelPostUsecase implements ICreateTravelPostUsecase {
       updatedAt: new Date(),
     };
 
-    const created = await this.travelPostRepository.create(post);
+    const created = await this._travelPostRepository.create(post);
 
     return mapTravelPostToDto(created);
   }

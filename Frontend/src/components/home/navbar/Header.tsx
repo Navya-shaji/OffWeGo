@@ -19,7 +19,6 @@ const Header: React.FC = () => {
     { name: "Home", path: "/" },
     { name: "Destinations", path: "/destinations" },
     { name: "Travel Stories", path: "/posts" },
-    { name: "Contact Us", path: "/contact" },
     { name: "About Us", path: "/about" },
   ];
 
@@ -78,7 +77,7 @@ const Header: React.FC = () => {
               </>
             ) : (
               <>
-                <Button className="bg-indigo-500 text-white hover:bg-indigo-600" asChild>
+                <Button className="bg-black text-white hover:bg-indigo-600" asChild>
                   <Link to="/posts/new">Share story</Link>
                 </Button>
                 <div className="relative">

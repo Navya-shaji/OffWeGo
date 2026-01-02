@@ -1,4 +1,4 @@
-import { SubscriptionPlanDto } from "../../dto/Subscription/CreatesubscriptionDto";
+import { SubscriptionPlanDto } from "../../dto/Subscription/createsubscriptionDto";
 
 
 export interface IGetSubscriptionUsecase {

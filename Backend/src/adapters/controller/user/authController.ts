@@ -23,9 +23,9 @@ export class GoogleSignupController {
         return;
       }
 
-      console.log("🔐 Google signin request received");
+      console.log(" Google signin request received");
       const user = await this._googleSignupUsecase.execute(token, fcmToken || "");
-      console.log("✅ User retrieved from use case:", { hasUser: !!user });
+      console.log(" User retrieved from use case:", { hasUser: !!user });
 
     
       const mappedUser = user as any;

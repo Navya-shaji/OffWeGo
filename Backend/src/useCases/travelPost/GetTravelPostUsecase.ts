@@ -4,7 +4,7 @@ import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
 
 export class GetTravelPostUsecase implements IGetTravelPostUsecase {
-  constructor(private readonly travelPostRepository: ITravelPostRepository) {}
+  constructor(private  _travelPostRepository: ITravelPostRepository) {}
 
   async execute(
     identifier: { id?: string; slug?: string },
@@ -17,8 +17,8 @@ export class GetTravelPostUsecase implements IGetTravelPostUsecase {
     }
 
     const post = id
-      ? await this.travelPostRepository.findById(id)
-      : await this.travelPostRepository.findBySlug(slug!);
+      ? await this._travelPostRepository.findById(id)
+      : await this._travelPostRepository.findBySlug(slug!);
 
     if (!post) {
       throw new Error("Travel post not found");
@@ -30,7 +30,7 @@ export class GetTravelPostUsecase implements IGetTravelPostUsecase {
       throw new Error("Travel post is not available");
     }
 
-    await this.travelPostRepository.incrementViews(post.id!);
+    await this._travelPostRepository.incrementViews(post.id!);
 
     const dto = mapTravelPostToDto(post);
     dto.metrics = {

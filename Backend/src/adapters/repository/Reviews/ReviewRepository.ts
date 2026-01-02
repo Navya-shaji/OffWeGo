@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 
 export class ReviewRepository implements IReviewRepository {
   async create(review: IReview): Promise<IReview> {
-    // Ensure userId is converted to ObjectId
+
     const reviewData = {
       ...review,
       userId: new mongoose.Types.ObjectId(review.userId)

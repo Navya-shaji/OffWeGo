@@ -1,4 +1,4 @@
-import { CategoryDto } from "../../dto/category/CategoryDto";
+import { CategoryDto } from "../../dto/category/categoryDto";
 
 export interface ISearchCategoryUsecase {
   execute(query: string): Promise<CategoryDto[]>;

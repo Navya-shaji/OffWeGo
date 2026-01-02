@@ -4,9 +4,8 @@ import type { TravelPost } from "../../../interface/TravelPost";
 import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "@/services/TravelPost/TravelPostService";
 import { FaHeart, FaRegHeart, FaArrowLeft, FaEye, FaCalendar, FaUser, FaMapMarkerAlt, FaTag } from "react-icons/fa";
 import Header from "../../../components/home/navbar/Header";
-import "./TravelPostDetailPage.css";
 
-type TravelPostDetailProps = object
+type TravelPostDetailProps = object;
 
 const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -47,7 +46,6 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
       const response = await toggleSavePost(post.id);
       setIsSaved(response.saved);
       setLikesCount(response.likes);
-      // Refresh saved posts list after toggling
       fetchSavedPosts();
     } catch (err: any) {
       console.error("Failed to toggle save:", err);
@@ -57,7 +55,7 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
   const fetchSavedPosts = async () => {
     try {
       setSavedPostsLoading(true);
-      const response = await getSavedTravelPosts({ limit: 5 }); // Show 5 recent saved posts
+      const response = await getSavedTravelPosts({ limit: 5 });
       setSavedPosts(response.data);
     } catch (err: any) {
       console.error("Failed to fetch saved posts:", err);
@@ -80,126 +78,157 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
 
   if (loading) {
     return (
-      <div className="travel-post-detail-loading">
-        <div className="spinner"></div>
-        <p>Loading post...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900"></div>
+          <p className="text-gray-600">Loading post...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="travel-post-detail-error">
-        <button onClick={() => navigate(-1)} className="back-button">
-          <FaArrowLeft /> Back
-        </button>
-        <p>{error || "Post not found"}</p>
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <div className="text-center">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="mb-4 inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400"
+          >
+            <FaArrowLeft /> Back
+          </button>
+          <p className="text-gray-600">{error || "Post not found"}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="travel-post-detail-page">
+    <div className="min-h-screen bg-white">
       <Header />
-      <div className="travel-post-detail-container">
-        <div className="travel-post-detail-header">
-          <button onClick={() => navigate(-1)} className="back-button">
+      
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        {/* Header Actions */}
+        <div className="mb-8 flex items-center justify-between">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400"
+          >
             <FaArrowLeft /> Back to Posts
           </button>
           
-          <div className="post-actions">
-            <button
-              onClick={handleSaveToggle}
-              className={`save-button ${isSaved ? "saved" : ""}`}
-            >
-              {isSaved ? <FaHeart /> : <FaRegHeart />}
-              <span>{isSaved ? "Saved" : "Save"}</span>
-            </button>
-          </div>
+          <button
+            onClick={handleSaveToggle}
+            className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors ${
+              isSaved 
+                ? "border-red-500 bg-red-500 text-white hover:bg-red-600" 
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+            }`}
+          >
+            {isSaved ? <FaHeart /> : <FaRegHeart />}
+            <span>{isSaved ? "Saved" : "Save"}</span>
+          </button>
         </div>
 
-        <div className="travel-post-detail-content-horizontal">
-          <div className="post-main-content">
-            <article className="post-content-wrapper">
-              <header className="post-header">
-                <h1 className="post-title">{post.title}</h1>
-                
-                <div className="post-meta">
-                  <div className="meta-item">
-                    <FaUser className="meta-icon" />
-                    <span>Author ID: {post.authorId}</span>
-                  </div>
-                  
-                  <div className="meta-item">
-                    <FaMapMarkerAlt className="meta-icon" />
-                    <span>Destination ID: {post.destinationId || 'Not specified'}</span>
-                  </div>
-                  
-                  <div className="meta-item">
-                    <FaCalendar className="meta-icon" />
-                    <span>{formatDate(post.createdAt)}</span>
-                  </div>
-                  
-                  <div className="meta-item">
-                    <FaEye className="meta-icon" />
-                    <span>{post.metrics.views} views</span>
-                  </div>
-                  
-                  <div className="meta-item">
-                    <FaHeart className="meta-icon" />
-                    <span>{likesCount} likes</span>
-                  </div>
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <article>
+              {/* Title */}
+              <h1 className="mb-6 font-serif text-4xl font-normal leading-tight tracking-wide text-gray-900 md:text-5xl">
+                {post.title}
+              </h1>
+              
+              {/* Meta Information */}
+              <div className="mb-6 flex flex-wrap gap-4 border-b border-gray-200 pb-6">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  {/* <FaUser className="text-gray-400" /> */}
+                  {/* <span>Author ID: {post.authorId}</span> */}
                 </div>
-
-                {post.tags && post.tags.length > 0 && (
-                  <div className="post-tags">
-                    <FaTag className="tags-icon" />
-                    {post.tags.map((tag, index) => (
-                      <span key={index} className="tag">
-                        {tag}
-                      </span>
-                    ))}
+                
+                {post.destinationId && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <FaMapMarkerAlt className="text-gray-400" />
+                    <span>Destination ID: {post.destinationId}</span>
                   </div>
                 )}
-              </header>
+                
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <FaCalendar className="text-gray-400" />
+                  <span>{formatDate(post.createdAt)}</span>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  {/* <FaEye className="text-gray-400" />
+                  <span>{post.metrics.views} views</span> */}
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <FaHeart className="text-gray-400" />
+                  <span>{likesCount} likes</span>
+                </div>
+              </div>
 
-              {post.excerpt && (
-                <div className="post-excerpt">
-                  <p>{post.excerpt}</p>
+              {/* Tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="mb-6 flex flex-wrap items-center gap-2">
+                  <FaTag className="text-gray-400" />
+                  {post.tags.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               )}
 
-              <div className="post-body">
-                <div
-                  className="post-content"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
-              </div>
+              {/* Excerpt */}
+              {post.excerpt && (
+                <div className="mb-8 rounded-lg bg-gray-50 p-6">
+                  <p className="text-lg leading-relaxed text-gray-700">{post.excerpt}</p>
+                </div>
+              )}
+
+              {/* Content */}
+              <div 
+                className="prose prose-gray max-w-none prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-wide prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-gray-900 prose-a:underline prose-img:rounded-lg"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
             </article>
           </div>
 
-          <div className="post-sidebar">
+          {/* Sidebar */}
+          <div className="space-y-8">
+            {/* Cover Image */}
             {post.coverImageUrl && (
-              <div className="post-cover-image">
+              <div className="overflow-hidden rounded-lg shadow-md">
                 <img
                   src={post.coverImageUrl}
                   alt={post.title}
-                  className="cover-image"
+                  className="h-auto w-full object-cover"
                 />
               </div>
             )}
 
+            {/* Gallery */}
             {post.galleryUrls && post.galleryUrls.length > 0 && (
-              <div className="post-gallery">
-                <h3 className="gallery-title">Gallery</h3>
-                <div className="gallery-grid-vertical">
+              <div>
+                <h3 className="mb-4 font-serif text-xl font-normal tracking-wide text-gray-900">
+                  Gallery
+                </h3>
+                <div className="space-y-4">
                   {post.galleryUrls.map((url, index) => (
-                    <div key={index} className="gallery-item">
+                    <div 
+                      key={index} 
+                      className="cursor-pointer overflow-hidden rounded-lg shadow-md transition-transform hover:scale-105"
+                      onClick={() => window.open(url, '_blank')}
+                    >
                       <img
                         src={url}
                         alt={`${post.title} - Image ${index + 1}`}
-                        className="gallery-image"
-                        onClick={() => window.open(url, '_blank')}
+                        className="h-auto w-full object-cover"
                       />
                     </div>
                   ))}
@@ -207,35 +236,46 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
               </div>
             )}
 
-            {/* Saved Posts Section */}
-            <div className="saved-posts-section">
-              <h3 className="saved-posts-title">Saved Posts</h3>
+            {/* Saved Posts */}
+            <div>
+              {/* <h3 className="mb-4 font-serif text-xl font-normal tracking-wide text-gray-900">
+                Saved Posts
+              </h3> */}
+              
               {savedPostsLoading ? (
-                <div className="saved-posts-loading">Loading saved posts...</div>
+                <div className="text-center text-sm text-gray-500">
+                  Loading saved posts...
+                </div>
               ) : savedPosts.length > 0 ? (
-                <div className="saved-posts-list">
+                <div className="space-y-4">
                   {savedPosts.map((savedPost) => (
                     <div 
                       key={savedPost.id} 
-                      className="saved-post-item"
+                      className="group cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white transition-all hover:shadow-lg"
                       onClick={() => handleSavedPostClick(savedPost.slug)}
                     >
                       {savedPost.coverImageUrl && (
-                        <img
-                          src={savedPost.coverImageUrl}
-                          alt={savedPost.title}
-                          className="saved-post-image"
-                        />
+                        <div className="aspect-video overflow-hidden">
+                          <img
+                            src={savedPost.coverImageUrl}
+                            alt={savedPost.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        </div>
                       )}
-                      <div className="saved-post-content">
-                        <h4 className="saved-post-title">{savedPost.title}</h4>
-                        <p className="saved-post-excerpt">{savedPost.excerpt}</p>
-                        <div className="saved-post-meta">
-                          <span className="saved-post-views">
-                            <FaEye /> {savedPost.metrics.views} views
+                      <div className="p-4">
+                        <h4 className="mb-2 font-medium text-gray-900 line-clamp-2">
+                          {savedPost.title}
+                        </h4>
+                        <p className="mb-3 text-sm text-gray-600 line-clamp-2">
+                          {savedPost.excerpt}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <FaEye /> {savedPost.metrics.views}
                           </span>
-                          <span className="saved-post-likes">
-                            <FaHeart /> {savedPost.metrics.likes} likes
+                          <span className="flex items-center gap-1">
+                            <FaHeart /> {savedPost.metrics.likes}
                           </span>
                         </div>
                       </div>
@@ -243,8 +283,10 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
                   ))}
                 </div>
               ) : (
-                <div className="no-saved-posts">
-                  <p>No saved posts yet. Start saving your favorite travel stories!</p>
+                <div className="rounded-lg bg-gray-50 p-6 text-center">
+                  {/* <p className="text-sm text-gray-600">
+                    No saved posts yet. Start saving your favorite travel stories!
+                  </p> */}
                 </div>
               )}
             </div>

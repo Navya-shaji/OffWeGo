@@ -28,15 +28,12 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   const isVendorAuthenticated = useSelector((state: RootState) => state.vendorAuth.isAuthenticated);
   const isUserAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   
-  // CRITICAL: Use route-based detection, NOT authentication-based
-  // This ensures we use the correct auth even if both user and vendor are authenticated
+
   const location = window.location.pathname;
   const isVendorRoute = location.startsWith('/vendor');
   const isAdminRoute = location.startsWith('/admin');
   
-  // Determine if we're on vendor side - ONLY use route, not auth state
-  // On vendor routes → isVendor = true
-  // On user routes → isVendor = false (even if vendor is also authenticated)
+ 
   const isVendor = isVendorRoute && !isAdminRoute;
   
   console.log("🔍 NotificationModal - Route detection:", {
@@ -61,7 +58,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       console.log("📬 Data type:", typeof data, "Is array:", Array.isArray(data));
       console.log("📬 Data length:", Array.isArray(data) ? data.length : "N/A");
       
-      // If data is empty array, that's fine - just means no notifications
       if (!Array.isArray(data)) {
         console.warn("⚠️ fetchNotifications did not return an array:", data);
         console.warn("⚠️ Data structure:", JSON.stringify(data).substring(0, 200));
@@ -84,33 +80,11 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         });
       }
       
-      // CRITICAL: Use route-based detection to determine current user ID
-      // This ensures we use the correct ID even if both user and vendor are authenticated
       const currentUserId = isVendor ? vendor?.id : user?.id;
       const expectedRecipientType = isVendor ? "vendor" : "user";
       
-      console.log("🔍 NotificationModal - Processing notifications:", {
-        isVendor,
-        currentUserId,
-        expectedRecipientType,
-        vendorId: vendor?.id,
-        userId: user?.id,
-        location: window.location.pathname,
-        totalNotifications: data.length,
-        firstNotification: data[0] ? {
-          recipientId: data[0].recipientId,
-          recipientType: data[0].recipientType,
-          title: data[0].title
-        } : null
-      });
-      
-      // Backend already filters by recipientId and recipientType, so we can trust the data
-      // Only filter by type to ensure we don't show wrong type notifications
-      // Don't filter by ID since backend already did that
       let filteredData = data;
       
-      // Only filter by recipientType if we have a current user ID
-      // If no current user ID, show all data (backend already filtered)
       if (currentUserId) {
         filteredData = data.filter(n => {
           const matchesType = n.recipientType === expectedRecipientType;
@@ -129,10 +103,8 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       
       console.log(`✅ Displaying ${filteredData.length} notifications (out of ${data.length} total) for ${expectedRecipientType} ${currentUserId || 'unknown'}`);
       
-      // Use filtered data (or all data if filtering removed everything)
       const finalData = filteredData.length > 0 ? filteredData : data;
 
-      // Hide read notifications after 15 days
       const now = Date.now();
       const fifteenDaysMs = 15 * 24 * 60 * 60 * 1000;
       const finalDataAfterRetention = finalData.filter((n) => {
@@ -149,11 +121,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         recipientId: n.recipientId
       })));
       
-      // CRITICAL: Always set notifications, even if empty array
       setNotifications(finalDataAfterRetention);
       console.log(`✅ Notifications state updated with ${finalDataAfterRetention.length} items`);
       
-      // Notify parent of unread count
       const unreadCount = finalDataAfterRetention.filter(n => !n.read).length;
       if (onUnreadCountChange) {
         onUnreadCountChange(unreadCount);
@@ -171,7 +141,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     }
   }, [open, loadNotifications]);
 
-  // Debug: Log when notifications state changes
   useEffect(() => {
     console.log("📊 Notifications state changed:", {
       count: notifications.length,

@@ -62,7 +62,7 @@ export const getWallet = async (id: string): Promise<IWallet> => {
               };
             }
           }
-          
+          console.log(enhancedTransaction,"enc")
           return enhancedTransaction;
         })
       );

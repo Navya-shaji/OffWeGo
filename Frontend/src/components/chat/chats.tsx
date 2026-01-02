@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, type KeyboardEvent } from "react";
 import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,6 +7,9 @@ import type { RootState } from "@/store/store";
 import { io, Socket } from "socket.io-client";
 import { socketContext } from "@/utilities/socket";
 import { toast } from "react-toastify";
+import { useChatContext } from "@/context/chatContext";
+
+const logo = "/images/logo.png";
 
 interface Contact {
     _id: string; // Chat ID
@@ -49,29 +52,40 @@ interface TypingUser {
 }
 
 
+const getInitials = (name: string): string => {
+    const trimmed = (name || "").trim();
+    if (!trimmed) return "?";
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] ?? "";
+    const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
+    return (first + last).toUpperCase() || "?";
+};
+
+
 const ChatPage = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [newMessage, setNewMessage] = useState("");
     const [loading, setLoading] = useState(true);
-    const [sending, setSending] = useState(false);
+    const [sending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showContacts, setShowContacts] = useState(true);
-    const [, setShowEmojiPicker] = useState(false);
-
     const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
-    const [isTyping, setIsTyping] = useState(false);
-    
     const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
     const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
+    const [hasMoreMessages, setHasMoreMessages] = useState(true);
+    const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const autoScrollRef = useRef(true);
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId?: string }>();
     const socketRef = useRef<Socket | null>(null);
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+
+    const { markChatAsRead } = useChatContext();
 
     const user = useSelector((state: RootState) => state.auth.user);
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
@@ -81,12 +95,164 @@ const ChatPage = () => {
     const senderId = user?.id || vendor?.id;
     const senderRole = user ? (user.role || "user") : (vendor ? "vendor" : "user");
 
+    const formatTime = (value: Date | string) => {
+        const d = value instanceof Date ? value : new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
+
+    const handleContactSelect = (contact: Contact) => {
+        setSelectedContact(contact);
+        setShowContacts(false);
+        markChatAsRead(contact._id);
+        const base = senderRole === "vendor" ? "/vendor/chat" : "/chat";
+        navigate(`${base}/${contact._id}`);
+    };
+
+    const handleBackToContacts = () => {
+        setShowContacts(true);
+        setSelectedContact(null);
+        const base = senderRole === "vendor" ? "/vendor/chat" : "/chat";
+        navigate(base);
+    };
+
+    const handleReplyToMessage = (msg: ChatMessage) => {
+        setReplyingTo(msg);
+    };
+
+    const handleCancelReply = () => {
+        setReplyingTo(null);
+    };
+
+    const emitTypingStop = () => {
+        if (!selectedContact || !senderId || !socketRef.current) return;
+        socketRef.current.emit("stop-typing", { roomId: selectedContact._id, userId: senderId });
+    };
+
+    const handleTypingStart = () => {
+        if (!selectedContact || !senderId || !socketRef.current) return;
+        socketRef.current.emit("typing", { roomId: selectedContact._id, userId: senderId });
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            emitTypingStop();
+        }, 1200);
+    };
+
+    const handleTypingStop = () => {
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+        }
+        emitTypingStop();
+    };
+
+    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
+    const handleSendMessage = async () => {
+        if (!selectedContact || !senderId) return;
+        const content = newMessage.trim();
+        if (!content) return;
+
+        const receiverIdRaw = senderRole === "vendor" ? selectedContact.userId : selectedContact.vendorId;
+        const receiverId = typeof receiverIdRaw === "string" ? receiverIdRaw : "";
+        const senderType = senderRole === "vendor" ? "vendor" : "User";
+
+        const tempId = `temp-${Date.now()}`;
+        const now = new Date();
+
+        const replyPayload = replyingTo
+            ? {
+                messageId: replyingTo._id,
+                messageContent: replyingTo.messageContent,
+                senderName: replyingTo.senderId === senderId
+                    ? (user?.username || vendor?.name || "You")
+                    : (selectedContact.name || "Someone"),
+            }
+            : undefined;
+
+        const payload = {
+            chatId: selectedContact._id,
+            senderId: senderId,
+            senderType: senderType,
+            senderName: user?.username || vendor?.name || "Someone",
+            receiverId: receiverId,
+            messageContent: content,
+            messageType: "text" as const,
+            seen: false,
+            sendedTime: now,
+            replyTo: replyPayload,
+        };
+
+        setNewMessage("");
+        setReplyingTo(null);
+        autoScrollRef.current = true;
+
+        setMessages(prev => ([
+            ...prev,
+            {
+                _id: tempId,
+                chatId: payload.chatId,
+                senderId: payload.senderId,
+                messageContent: payload.messageContent,
+                sendedTime: now,
+                seen: false,
+                messageType: "text",
+                deliveryStatus: "sending",
+                replyTo: replyingTo
+                    ? {
+                        _id: replyingTo._id,
+                        messageContent: replyingTo.messageContent,
+                        senderName: replyPayload?.senderName || "",
+                    }
+                    : undefined,
+            },
+        ]));
+
+        setContacts(prev => prev.map(c => {
+            if (c._id !== selectedContact._id) return c;
+            return { ...c, lastMessage: content, lastMessageTime: now };
+        }));
+
+        const socket = socketRef.current;
+        if (!socket) return;
+
+        socket.emit("send_message", payload, (id: string) => {
+            setMessages(prev => prev.map(m => {
+                if (m._id !== tempId) return m;
+                return { ...m, _id: id, deliveryStatus: "sent" };
+            }));
+        });
+    };
+
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!selectedContact || !socketRef.current) return;
+        setDeletingMessageId(messageId);
+        socketRef.current.emit(
+            "delete_message",
+            { messageId, chatId: selectedContact._id },
+            (res?: { success: boolean; message?: string }) => {
+                setDeletingMessageId(null);
+                if (res && res.success === false) {
+                    toast.error(res.message || "Failed to delete message");
+                }
+            }
+        );
+    };
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(() => {
-        scrollToBottom();
+        if (autoScrollRef.current) {
+            scrollToBottom();
+        }
+        autoScrollRef.current = false;
     }, [messages]);
 
     // Socket Connection - Use the socket from SocketProvider
@@ -128,6 +294,7 @@ const ChatPage = () => {
         const handleReceiveMessage = (newMessage: ChatMessage) => {
             console.log("Received message via socket:", newMessage);
             if (newMessage.chatId === selectedContact?._id) {
+                autoScrollRef.current = true;
                 setMessages((prev) => {
                     // Avoid duplicates
                     const exists = prev.some(msg => msg._id === newMessage._id);
@@ -206,6 +373,43 @@ const ChatPage = () => {
 
         socket.on("user-status-changed", handleUserStatusChange);
         socket.on("vendor-status-changed", handleVendorStatusChange);
+
+        const handleOnlineUsersSnapshot = (data: { onlineIds: string[] }) => {
+            const ids = Array.isArray(data?.onlineIds) ? data.onlineIds.map(String) : [];
+            setOnlineUsers(new Set(ids));
+        };
+
+        socket.on("online-users", handleOnlineUsersSnapshot);
+
+        const handleNewMessageNotification = (data: {
+            chatId: string;
+            senderId: string;
+            senderName?: string;
+            messagePreview?: string;
+            timestamp?: string | Date;
+        }) => {
+            if (!data?.chatId) return;
+            if (selectedContact?._id === data.chatId) return;
+
+            setContacts(prev => {
+                const updated = prev.map(c => {
+                    if (c._id !== data.chatId) return c;
+                    const current = Math.max(0, c.unreadCount || 0);
+                    return {
+                        ...c,
+                        unreadCount: current + 1,
+                        lastMessage: data.messagePreview ?? c.lastMessage,
+                        lastMessageTime: data.timestamp ? new Date(data.timestamp) : new Date(),
+                    };
+                });
+
+                return updated.sort((a, b) =>
+                    new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
+                );
+            });
+        };
+
+        socket.on("new-message-notification", handleNewMessageNotification);
         
         // Listen for messages-seen event to update unread count
         const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
@@ -232,39 +436,27 @@ const ChatPage = () => {
         
         socket.on("messages-seen", handleMessagesSeen);
         
-        // Listen for typing indicators
-        const handleTypingStart = (data: { chatId: string; senderId: string; senderName: string }) => {
-            if (data.chatId === selectedContact?._id && data.senderId !== senderId) {
-                setTypingUsers(prev => {
-                    const exists = prev.find(user => user.userId === data.senderId);
-                    if (!exists) {
-                        return [...prev, {
-                            userId: data.senderId,
-                            name: data.senderName,
-                            isTyping: true
-                        }];
-                    }
-                    return prev.map(user => 
-                        user.userId === data.senderId 
-                            ? { ...user, isTyping: true }
-                            : user
-                    );
-                });
-            }
+        // Listen for typing indicators (backend emits: "typing" / "stop-typing")
+        const handleTypingOn = (data: { userId: string }) => {
+            if (!selectedContact?._id) return;
+            if (!data?.userId || data.userId === senderId) return;
+            setTypingUsers(prev => {
+                const exists = prev.find(u => u.userId === data.userId);
+                if (exists) return prev.map(u => u.userId === data.userId ? { ...u, isTyping: true } : u);
+                return [...prev, { userId: data.userId, name: selectedContact.name || "", isTyping: true }];
+            });
         };
 
-        const handleTypingStop = (data: { chatId: string; senderId: string }) => {
-            if (data.chatId === selectedContact?._id) {
-                setTypingUsers(prev => prev.map(user => 
-                    user.userId === data.senderId 
-                        ? { ...user, isTyping: false }
-                        : user
-                ).filter(user => user.isTyping));
-            }
+        const handleTypingOff = (data: { userId: string }) => {
+            if (!data?.userId) return;
+            setTypingUsers(prev => prev
+                .map(u => u.userId === data.userId ? { ...u, isTyping: false } : u)
+                .filter(u => u.isTyping)
+            );
         };
 
-        socket.on("typing_start", handleTypingStart);
-        socket.on("typing_stop", handleTypingStop);
+        socket.on("typing", handleTypingOn);
+        socket.on("stop-typing", handleTypingOff);
         
         // Listen for message deletion
         const handleMessageDeleted = (data: { messageId: string; chatId: string }) => {
@@ -298,9 +490,11 @@ const ChatPage = () => {
             socket.off("user-status-changed", handleUserStatusChange);
             socket.off("vendor-status-changed", handleVendorStatusChange);
             socket.off("messages-seen", handleMessagesSeen);
-            socket.off("typing_start", handleTypingStart);
-            socket.off("typing_stop", handleTypingStop);
+            socket.off("typing", handleTypingOn);
+            socket.off("stop-typing", handleTypingOff);
             socket.off("message_deleted", handleMessageDeleted);
+            socket.off("online-users", handleOnlineUsersSnapshot);
+            socket.off("new-message-notification", handleNewMessageNotification);
             // Only disconnect if we created our own socket
             if (!globalSocket && socketRef.current) {
                 socketRef.current.disconnect();
@@ -308,6 +502,23 @@ const ChatPage = () => {
             }
         };
     }, [senderId, selectedContact, globalSocket]);
+
+    useEffect(() => {
+        setContacts(prev => prev.map(contact => {
+            const otherParticipantId = (senderRole === 'user') ? String(contact.vendorId || '') : String(contact.userId || '');
+            const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
+            if (contact.isOnline === isOtherOnline) return contact;
+            return { ...contact, isOnline: isOtherOnline };
+        }));
+
+        setSelectedContact(prev => {
+            if (!prev) return prev;
+            const otherParticipantId = (senderRole === 'user') ? String(prev.vendorId || '') : String(prev.userId || '');
+            const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
+            if (prev.isOnline === isOtherOnline) return prev;
+            return { ...prev, isOnline: isOtherOnline };
+        });
+    }, [onlineUsers, senderRole]);
 
 
     // Fetch contacts (chats)
@@ -491,8 +702,10 @@ const ChatPage = () => {
 
         const fetchMessages = async () => {
             try {
+                setHasMoreMessages(true);
+                setLoadingMoreMessages(false);
                 const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
-                const res = await getMessages(selectedContact._id, userType);
+                const res = await getMessages(selectedContact._id, userType, { limit: 30 });
                 console.log("Messages response:", res);
                 
                 // Backend returns: { success: true, data: [...] }
@@ -502,6 +715,7 @@ const ChatPage = () => {
                         messagesArray = res.data;
                     } else if (res.data.messages && Array.isArray(res.data.messages)) {
                         messagesArray = res.data.messages;
+                        setHasMoreMessages(!!res.data.hasMore);
                     }
                 } else if (res && Array.isArray(res)) {
                     messagesArray = res;
@@ -509,6 +723,7 @@ const ChatPage = () => {
                     messagesArray = res.messages;
                 }
                 
+                autoScrollRef.current = true;
                 setMessages(messagesArray);
                 console.log("Loaded messages:", messagesArray.length);
 
@@ -549,258 +764,70 @@ const ChatPage = () => {
 
             } catch (error) {
                 console.error("Error fetching messages:", error);
+                toast.error("Failed to load messages");
+                setMessages([]);
+                setHasMoreMessages(false);
             }
-        }
-
-        fetchMessages();
-    }, [selectedContact, senderId, user]);
-
-
-    const handleContactSelect = (contact: Contact) => {
-        setSelectedContact(contact);
-        setShowContacts(false);
-    };
-
-    const handleBackToContacts = () => {
-        setShowContacts(true);
-    };
-
-    const handleSendMessage = async () => {
-        if (!newMessage.trim() || !selectedContact || !senderId) return;
-
-        console.log("Selected contact:", selectedContact);
-        console.log("Sender ID:", senderId);
-        console.log("Sender role:", senderRole);
-
-        // Get receiver ID (vendor or user)
-        // If sender is user, receiver is vendor, and vice versa
-        let receiverId: string | null = null;
-        
-        if (senderRole === 'user') {
-            // User is sending, receiver is vendor
-            if (selectedContact.vendorId) {
-                receiverId = typeof selectedContact.vendorId === 'object' 
-                    ? (selectedContact.vendorId._id || String(selectedContact.vendorId))
-                    : String(selectedContact.vendorId);
-            }
-        } else {
-            // Vendor is sending, receiver is user
-            if (selectedContact.userId) {
-                receiverId = typeof selectedContact.userId === 'object'
-                    ? (selectedContact.userId._id || String(selectedContact.userId))
-                    : String(selectedContact.userId);
-            }
-        }
-
-        if (!receiverId) {
-            console.error("Could not determine receiver ID. Contact data:", selectedContact);
-            toast.error("Unable to determine recipient. Please refresh the page.");
-            return;
-        }
-
-        // Normalize senderType: 'user' -> 'User', 'vendor' -> 'vendor'
-        const normalizedSenderType = senderRole === 'user' ? 'User' : 'vendor';
-
-        const messageData = {
-            chatId: selectedContact._id,
-            senderId,
-            senderType: normalizedSenderType,
-            receiverId: receiverId,
-            messageContent: newMessage.trim(),
-            messageType: 'text',
-            sendedTime: new Date(),
-            seen: false,
-            senderName: (user as any)?.name || user?.username || vendor?.name || "User",
-            replyTo: replyingTo ? {
-                _id: replyingTo._id,
-                messageContent: replyingTo.messageContent,
-                senderName: (user as any)?.name || user?.username || vendor?.name || "User"
-            } : undefined
         };
 
-        console.log("Message data being sent:", messageData);
+        fetchMessages();
+    }, [selectedContact, senderId, isVendorAuthenticated, isUserAuthenticated, user, vendor]);
 
-        const messageText = newMessage.trim();
+    const loadOlderMessages = async () => {
+        if (!selectedContact || !senderId) return;
+        if (loadingMoreMessages || !hasMoreMessages) return;
+        if (messages.length === 0) return;
 
         try {
-            setSending(true);
+            setLoadingMoreMessages(true);
+            autoScrollRef.current = false;
 
-            if (!socketRef.current) {
-                console.error("Socket not initialized");
-                toast.error("Connection error. Please refresh the page.");
-                setSending(false);
+            const container = messagesContainerRef.current;
+            const prevScrollHeight = container?.scrollHeight || 0;
+            const prevScrollTop = container?.scrollTop || 0;
+
+            const oldestTime = messages[0]?.sendedTime;
+            const before = oldestTime ? new Date(oldestTime) : undefined;
+
+            const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
+            const res = await getMessages(selectedContact._id, userType, {
+                limit: 30,
+                before: before,
+            });
+
+            const older: ChatMessage[] = (res && res.data && res.data.messages && Array.isArray(res.data.messages))
+                ? res.data.messages
+                : [];
+
+            const hasMore = (res && res.data && typeof res.data.hasMore === 'boolean')
+                ? res.data.hasMore
+                : false;
+
+            if (older.length === 0) {
+                setHasMoreMessages(false);
                 return;
             }
 
-            if (!socketRef.current.connected) {
-                console.error("Socket not connected, attempting to reconnect...");
-                socketRef.current.connect();
-                // Wait a bit for connection
-                await new Promise(resolve => setTimeout(resolve, 500));
-                if (!socketRef.current.connected) {
-                    toast.error("Connection error. Please refresh the page.");
-                    setSending(false);
-                    return;
-                }
-            }
+            setHasMoreMessages(hasMore);
 
-            console.log("Sending message:", messageData);
-
-            socketRef.current.emit("send_message", messageData, (ackId: string) => {
-                // Acknowledge received
-                console.log("Message sent successfully, ID:", ackId);
-                if (ackId) {
-                    // Message was successfully sent and saved
-                    // The receive-message event will update the UI
-                } else {
-                    console.warn("Message sent but no ID returned");
-                }
+            setMessages(prev => {
+                const existing = new Set(prev.map(m => m._id));
+                const dedupedOlder = older.filter(m => !existing.has(m._id));
+                return [...dedupedOlder, ...prev];
             });
 
-            setNewMessage("");
-            setReplyingTo(null);
-
-            // Update local contact list sort order immediately
-            setContacts(prev => prev.map(c =>
-                c._id === selectedContact._id
-                    ? { ...c, lastMessage: messageText, lastMessageTime: new Date() }
-                    : c
-            ).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
-
-        } catch (err) {
-            console.error("Error sending message:", err);
-            toast.error("Failed to send message. Please try again.");
-        } finally {
-            setSending(false);
-        }
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
-
-    const handleEmojiSelect = (emoji: string) => {
-        setNewMessage(prev => prev + emoji);
-        setShowEmojiPicker(false);
-    };
-
-    const handleTypingStart = () => {
-        if (!isTyping && selectedContact && socketRef.current) {
-            setIsTyping(true);
-            socketRef.current.emit("typing_start", {
-                chatId: selectedContact._id,
-                senderId: senderId,
-                senderName: user?.name || vendor?.name || "User"
+            requestAnimationFrame(() => {
+                const c = messagesContainerRef.current;
+                if (!c) return;
+                const newScrollHeight = c.scrollHeight;
+                c.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
             });
-        }
-
-        // Clear existing timeout
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-        }
-
-        // Set timeout to stop typing indicator
-        typingTimeoutRef.current = setTimeout(() => {
-            handleTypingStop();
-        }, 3000);
-    };
-
-    const handleTypingStop = () => {
-        if (isTyping && selectedContact && socketRef.current) {
-            setIsTyping(false);
-            socketRef.current.emit("typing_stop", {
-                chatId: selectedContact._id,
-                senderId: senderId
-            });
-        }
-        if (typingTimeoutRef.current) {
-            clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = null;
-        }
-    };
-
-    const handleDeleteMessage = async (messageId: string) => {
-        try {
-            setDeletingMessageId(messageId);
-            
-            if (!socketRef.current) {
-                toast.error("Socket not connected");
-                setDeletingMessageId(null);
-                return;
-            }
-
-            const chatId = selectedContact?._id;
-            if (!chatId) {
-                toast.error("No chat selected");
-                setDeletingMessageId(null);
-                return;
-            }
-
-            socketRef.current.emit(
-                "delete_message",
-                {
-                    messageId: messageId,
-                    chatId: chatId,
-                },
-                (res: { success: boolean; message?: string }) => {
-                    if (!res?.success) {
-                        toast.error(res?.message || "Failed to delete message");
-                        setDeletingMessageId(null);
-                        return;
-                    }
-
-                    // Mark message as deleted instead of removing it
-                    setMessages(prev => prev.map(msg => 
-                        msg._id === messageId 
-                            ? { ...msg, isDeleted: true, deletedAt: new Date(), messageContent: "This message was deleted" }
-                            : msg
-                    ));
-
-                    toast.success("Message deleted");
-                    setDeletingMessageId(null);
-                }
-            );
         } catch (error) {
-            console.error("Error deleting message:", error);
-            toast.error("Failed to delete message");
-            setDeletingMessageId(null);
+            console.error("Error loading older messages:", error);
+        } finally {
+            setLoadingMoreMessages(false);
         }
     };
-
-    const handleReplyToMessage = (message: ChatMessage) => {
-        if (message.isDeleted) return; // Can't reply to deleted messages
-        
-        setReplyingTo(message);
-        setNewMessage("");
-        const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
-        if (inputElement) {
-            inputElement.focus();
-        }
-    };
-
-    const handleCancelReply = () => {
-        setReplyingTo(null);
-    };
-
-    const formatTime = (date: Date | string) => {
-        const dateObj = typeof date === "string" ? new Date(date) : date;
-        if (isNaN(dateObj.getTime())) return "Invalid time";
-        return dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-    };
-
-    const getInitials = (name: string) => {
-        if (!name) return "?";
-        return name
-            .split(" ")
-            .map((word) => word[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2);
-    }
-
 
     if (loading) {
         return (
@@ -812,10 +839,15 @@ const ChatPage = () => {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            {/* Page Header */}
-            <div className="bg-white border-b shadow-sm px-6 py-4">
+            <div className="bg-white border-b shadow-sm px-4 sm:px-6 py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div>
+                    <img 
+                        src={logo} 
+                        alt="OffWeGo" 
+                        className="w-32 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => navigate(user ? "/user/profile" : "/vendor/profile")}
+                    />
+                    <div className="text-right">
                         <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
                         <p className="text-sm text-gray-500 mt-1">Chat with {user ? 'vendors' : 'users'}</p>
                     </div>
@@ -905,7 +937,7 @@ const ChatPage = () => {
                 {selectedContact ? (
                     <>
                         {/* Chat Header */}
-                        <div className="bg-white border-b px-6 py-4 shadow-sm">
+                        <div className="bg-white border-b px-4 sm:px-6 py-4 shadow-sm">
                             <div className="flex items-center">
                                 <button
                                     onClick={handleBackToContacts}
@@ -947,6 +979,9 @@ const ChatPage = () => {
                                         {selectedContact.isOnline && (
                                             <span className="text-xs text-green-600 font-medium">Online</span>
                                         )}
+                                        {!selectedContact.isOnline && (
+                                            <span className="text-xs text-gray-500 font-medium">Offline</span>
+                                        )}
                                     </div>
                                     <p className="text-sm text-gray-500 capitalize">{selectedContact.role}</p>
                                 </div>
@@ -954,7 +989,21 @@ const ChatPage = () => {
                         </div>
 
                         {/* Messages Container */}
-                        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1 bg-[#e5ddd5] bg-opacity-50">
+                        <div
+                            ref={messagesContainerRef}
+                            onScroll={(e) => {
+                                const el = e.currentTarget;
+                                if (el.scrollTop <= 80) {
+                                    loadOlderMessages();
+                                }
+                            }}
+                            className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6 space-y-1 bg-[#e5ddd5] bg-opacity-50"
+                        >
+                            {loadingMoreMessages && (
+                                <div className="flex items-center justify-center py-2 text-gray-500">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                </div>
+                            )}
                             {messages.length === 0 ? (
                                 <div className="text-center text-gray-500 mt-8">
                                     <p>No messages yet.</p>
@@ -1042,13 +1091,13 @@ const ChatPage = () => {
                         </div>
 
                         {/* Input Area */}
-                        <div className="bg-white border-t px-4 py-4">
+                        <div className="bg-white border-t px-3 sm:px-4 py-4">
                             {/* Reply Preview */}
                             {replyingTo && (
                                 <div className="mb-2 p-2 bg-gray-100 rounded-lg flex items-center justify-between">
                                     <div className="flex-1">
                                         <div className="text-xs font-medium text-gray-600">
-                                            Replying to {user?.name || vendor?.name || "User"}
+                                            Replying to {user?.username || vendor?.name || "User"}
                                         </div>
                                         <div className="text-xs text-gray-500 truncate">
                                             {replyingTo.messageContent}

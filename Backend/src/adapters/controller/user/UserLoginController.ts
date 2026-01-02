@@ -27,7 +27,6 @@ export class UserLoginController {
 
       const user = result.user;
 
-      // Ensure wallet exists for this user (idempotent)
       try {
         const userId = (user as any).id || (user as any)._id?.toString();
         if (userId) {

@@ -37,7 +37,6 @@ export class ChatController {
   async getChats(req: Request, res: Response) {
     try {
       const userId = req.params.userId || req.params.vendorId;
-
       const userType = (req.query.userType as "user" | "vendor") || "user";
 
       const chats = await this._getChatsUsecase.getChats(userId, userType);

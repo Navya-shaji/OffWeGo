@@ -9,6 +9,7 @@ import {
   Users,
   TrendingUp,
   TrendingDown,
+
   Calendar,
   DollarSign,
   ArrowUpRight,
@@ -53,7 +54,6 @@ export default function VendorDashboard() {
   const [loading, setLoading] = useState(true);
   const [showInvoiceDropdown, setShowInvoiceDropdown] = useState(false);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -169,7 +169,8 @@ export default function VendorDashboard() {
     : "0";
 
   // Get max bookings for chart scaling
-  
+  const maxBookings = Math.max(...monthlyData.map(d => d.bookings), 1);
+
   // Calculate growth percentage (comparing current month to previous)
   const currentMonth = new Date().getMonth();
   const currentMonthBookings = monthlyData[currentMonth]?.bookings || 0;
