@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const hotelSchema = z.object({
-  name: z.string().min(1, "Hotel name is required").max(10,"Hotel name is too long"),
+  name: z.string().min(1, "Hotel name is required").max(25,"Hotel name is too long"),
   address: z.string().min(1, "Address is required"),
   rating: z
     .number()

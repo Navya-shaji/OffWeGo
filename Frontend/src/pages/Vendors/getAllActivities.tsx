@@ -482,7 +482,7 @@ const ActivitiesTable: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <VendorNavbar />
+     
       <div className="max-w-7xl mx-auto p-6 pt-4 space-y-4">
         <ToastContainer position="top-right" autoClose={3000} />
 
