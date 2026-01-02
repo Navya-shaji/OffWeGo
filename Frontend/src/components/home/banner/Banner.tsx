@@ -127,11 +127,11 @@ const Banner: React.FC = () => {
           </div>
         )}
         
-        {/* Dark Overlay */}
+   
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
       </div>
 
-      {/* Content */}
+
       <div className="relative z-10 h-full flex items-center">
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-4xl">
@@ -140,26 +140,24 @@ const Banner: React.FC = () => {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              {/* Subtitle */}
+         
               <div className="mb-6">
                 <span className="inline-block text-sm font-semibold tracking-[0.3em] text-white/80 uppercase border border-white/30 px-6 py-2 backdrop-blur-sm">
                   Discover the World
                 </span>
               </div>
 
-              {/* Main Heading */}
               <h1 className="text-6xl md:text-8xl lg:text-9xl font-light text-white mb-6 tracking-tight leading-none">
                 Wander
                 <span className="block font-bold">Beyond</span>
               </h1>
 
-              {/* Description */}
               <p className="text-lg md:text-xl text-white/90 mb-12 max-w-2xl leading-relaxed font-light">
                 Embark on extraordinary journeys to breathtaking destinations. 
                 Every adventure tells a story, every moment becomes a memory.
               </p>
 
-              {/* CTA Buttons */}
+       
               <div className="flex flex-wrap gap-4">
                 <Button
                   onClick={() => scrollToSection("destinations", "/destinations")}
@@ -172,19 +170,13 @@ const Banner: React.FC = () => {
                   </span>
                 </Button>
                 
-                <Button
-                  onClick={() => scrollToSection("destinations", "/destinations")}
-                  className="px-8 py-6 border-2 border-white text-white font-semibold backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300 rounded-none bg-transparent"
-                >
-                  Learn More
-                </Button>
+      
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
       <div className="absolute bottom-12 right-12 z-20">
         <div className="flex flex-col items-center gap-2 text-white/60">
           <span className="text-xs font-semibold tracking-widest uppercase rotate-90 origin-center mb-8">

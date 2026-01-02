@@ -225,9 +225,7 @@ export default function VendorSubscriptionPage() {
               SUBSCRIPTION MANAGEMENT
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            Power Your Business
-          </h1>
+        
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-medium">
             Choose the perfect plan to scale your vendor operations and unlock
             unlimited potential
@@ -278,7 +276,7 @@ export default function VendorSubscriptionPage() {
                   <div
                     className={`relative bg-white border-2 ${
                       plan.popular
-                        ? "border-blue-500 shadow-xl"
+                        ? "border-black shadow-xl"
                         : "border-gray-200 shadow-md"
                     } rounded-3xl p-8 h-full transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2`}
                   >
@@ -311,7 +309,7 @@ export default function VendorSubscriptionPage() {
                       </h4>
                       <div className="mb-8">
                         <div className="flex items-baseline gap-2 mb-1">
-                          <span className="text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          <span className="text-6xl font-black bg-gradient-to-r bg-black bg-clip-text text-transparent">
                             ₹{plan.price}
                           </span>
                           <span className="text-gray-500 text-base font-bold">
@@ -322,16 +320,12 @@ export default function VendorSubscriptionPage() {
 
                       <div className="space-y-4 mb-8">
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                            <CheckCircle2 className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-gray-700 font-semibold">
-                            Premium Features
-                          </span>
+                        
+                          
                         </div>
                         {plan.features.map((feature, idx) => (
                           <div key={idx} className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-gray to-black flex items-center justify-center shadow-md">
                               <CheckCircle2 className="w-4 h-4 text-white" />
                             </div>
                             <span className="text-gray-700 font-semibold">
@@ -344,7 +338,7 @@ export default function VendorSubscriptionPage() {
                       <Button
                         className={`w-full font-bold text-white shadow-lg transition-all duration-300 hover:shadow-xl py-6 text-base ${
                           index === 0
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                            ? "bg-gradient-to-r bg-black"
                             : index === 1
                             ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                             : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"

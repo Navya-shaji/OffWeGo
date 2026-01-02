@@ -164,7 +164,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     return match ? match[1] : "";
   };
 
-  // Load messages for a chat notification
   const loadChatMessages = async (notification: ServiceNotification) => {
     const currentUserId = isVendor ? vendor?.id : user?.id;
     if (!currentUserId) return;
@@ -176,7 +175,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     if (!senderName) return;
 
     try {
-      // Get all chats for the current user (vendor or user)
+  
       const userType = isVendor ? 'vendor' : 'user';
       const chatsResponse = await getChatsOfUser(currentUserId, userType);
       const chats = chatsResponse?.data || chatsResponse || [];

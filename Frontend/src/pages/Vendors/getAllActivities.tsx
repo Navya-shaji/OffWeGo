@@ -15,7 +15,7 @@ import Pagination from "@/components/pagination/pagination";
 import { SearchBar } from "@/components/Modular/searchbar";
 import type { Activity } from "@/interface/PackageInterface";
 import { getCoordinatesFromPlace } from "@/services/Location/locationService";
-import VendorNavbar from "@/components/vendor/navbar";
+
 
 const ActivitiesTable: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);

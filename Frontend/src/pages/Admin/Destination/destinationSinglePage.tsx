@@ -166,22 +166,18 @@ export const DestinationDetail = () => {
               {destination.description}
             </p>
 
-            {/* Search Button */}
-            <button className="inline-flex items-center gap-3 px-8 py-4 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-all text-base font-medium mt-6">
-              <Search className="w-5 h-5" />
-              Find a tour
-            </button>
+           
           </div>
         </div>
 
-        {/* Decorative Bottom Fade */}
+   
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
       </div>
 
-      {/* Main Content */}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 pb-16">
         
-        {/* Search Bar Card */}
+   
         <div className="bg-white rounded-2xl shadow-2xl p-6 mb-16">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1 w-full relative">
@@ -203,7 +199,7 @@ export const DestinationDetail = () => {
 
         {/* Section Header */}
         <div className="mb-10">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Tour Packages</h2>
+      
           <p className="text-gray-600 text-lg">Discover curated experiences for your journey</p>
         </div>
 
