@@ -4,6 +4,7 @@ import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUs
 import { IGetMessagesUsecase } from "../../../domain/interface/Msg/IGetMsgUsecase";
 import { IMarkMessagesSeenUseCase } from "../../../domain/interface/Chat/IMarkMesgusecase";
 import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
+import { Role } from "../../../domain/constants/Roles";
 
 export class ChatController {
   constructor(
@@ -37,7 +38,7 @@ export class ChatController {
   async getChats(req: Request, res: Response) {
     try {
       const userId = req.params.userId || req.params.vendorId;
-      const userType = (req.query.userType as "user" | "vendor") || "user";
+      const userType = (req.query.userType as Role.USER |Role.VENDOR) || Role.USER;
 
       const chats = await this._getChatsUsecase.getChats(userId, userType);
       return res.status(HttpStatus.OK).json({

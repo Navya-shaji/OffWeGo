@@ -5,6 +5,7 @@ import { UserRepository } from "../../adapters/repository/User/UserRepository";
 import { VendorRepository } from "../../adapters/repository/Vendor/VendorRepository";
 import { firebaseAdmin } from "./firebase";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
+import { Role } from "../../domain/constants/Roles";
 export class FirebaseNotificationService implements INotificationService {
   constructor(
     private notificationRepo: NotificationRepository,
@@ -77,8 +78,7 @@ export class FirebaseNotificationService implements INotificationService {
     }
 
     if (token && token.trim() !== '') {
-      // Include additional data for foreground handling
-      // FCM requires all data values to be strings
+
       const notificationData: Record<string, string> = {
         type: 'chat_message',
         recipientId: String(recipientId),
@@ -109,7 +109,7 @@ export class FirebaseNotificationService implements INotificationService {
 
   async getByRecipient(
     recipientId: string,
-    recipientType: "vendor" | "user"
+    recipientType: Role.USER |Role.VENDOR
   ): Promise<INotificationEntity[]> {
     return this.notificationRepo.getByRecipient(recipientId, recipientType);
   }

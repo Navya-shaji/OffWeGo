@@ -233,12 +233,28 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         subscriptionBookingController.getVendorSubscriptionHistory(req, res)
     );
+    
+    this.vendorRouter.delete(
+      "/subscription/:bookingId/cancel",
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) =>
+        subscriptionBookingController.cancelSubscription(req, res)
+    );
+    
+    this.vendorRouter.post(
+      "/subscription/:bookingId/retry",
+      verifyTokenAndCheckBlackList(TokenService),
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) =>
+        subscriptionBookingController.retryPayment(req, res)
+    );
     this.vendorRouter.post(
       VendorRoutes.VERIFY_PAYMENT,
       (req: Request, res: Response) =>
         subscriptionpaymentcontroller.verifyPayment(req, res)
     );
-  
+
 
     this.vendorRouter.post("/chat/send", (req: Request, res: Response) => {
       chatcontroller.findOrCreateChat(req, res);
@@ -247,7 +263,7 @@ export class VendorRoute {
       chatcontroller.getMessages(req, res);
     });
     this.vendorRouter.get("/chat/:vendorId", (req: Request, res: Response) => {
-
+  
       req.query.userType = 'vendor';
       chatcontroller.getChats(req, res);
     });
@@ -268,7 +284,7 @@ export class VendorRoute {
       }
     )
     
-    // Notification routes (verifyTokenAndCheckBlackList is already applied globally above)
+ 
     this.vendorRouter.post(
       "/notification/notify",
       checkRoleBasedcontrol([Role.VENDOR]),

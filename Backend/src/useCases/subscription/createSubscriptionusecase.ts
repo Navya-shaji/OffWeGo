@@ -5,6 +5,7 @@ import { ISubscriptionPlanRepository } from "../../domain/interface/Subscription
 import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { mapModelToSubscriptionDto } from "../../mappers/Subscription/mapDtoToSubscriptionModel";
+import { Role } from "../../domain/constants/Roles";
 
 export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase {
   constructor(
@@ -40,7 +41,7 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
     const notificationPromises = allVendors.map(vendor =>
       this._notificationService.send({
         recipientId: vendor._id.toString(),
-        recipientType: "vendor",
+        recipientType: Role.VENDOR,
         title: "New Subscription Plan Available",
         message: `A new subscription plan "${data.name}" is now available.`,
         createdAt: new Date(),

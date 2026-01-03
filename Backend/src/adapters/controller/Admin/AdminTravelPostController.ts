@@ -3,6 +3,9 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IListTravelPostsUsecase } from "../../../domain/interface/TravelPost/usecases/IListTravelPostsUsecase";
 import { IApproveTravelPostUsecase } from "../../../domain/interface/TravelPost/usecases/IApproveTravelPostUsecase";
 import { IRejectTravelPostUsecase } from "../../../domain/interface/TravelPost/usecases/IRejectTravelPostUsecase";
+import { success } from "../../../domain/constants/Success";
+import { ErrorMessages } from "../../../domain/constants/Error";
+import { AppError } from "../../../domain/errors/AppError";
 
 export class AdminTravelPostController {
   constructor(
@@ -43,17 +46,24 @@ export class AdminTravelPostController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Travel posts fetched successfully.",
+        message: success.SUCCESS_MESSAGES.FETCHED,
         data: result.data,
         total: result.total,
         page: result.page,
         limit: result.limit,
       });
     } catch (error) {
-      console.error("Error listing travel posts (admin):", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: (error as Error).message || "Failed to load travel posts",
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -69,7 +79,7 @@ export class AdminTravelPostController {
       if (!postId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Post id is required",
+          message: ErrorMessages.INVALID_ID,
         });
         return;
       }
@@ -77,32 +87,39 @@ export class AdminTravelPostController {
       if (!status || !["APPROVED", "REJECTED"].includes(status)) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Invalid status. Must be APPROVED or REJECTED",
+          message: ErrorMessages.INVALID_STATUS,
         });
         return;
       }
 
-      const adminId = (req.user)?.id;
-
       const updated =
         status === "APPROVED"
-          ? await this._approveTravelPostUsecase.execute(postId, adminId)
+          ? await this._approveTravelPostUsecase.execute(postId)
           : await this._rejectTravelPostUsecase.execute(
               postId,
-              rejectedReason || "Rejected",
-              adminId
+              rejectedReason || ErrorMessages.OPERATION_NOT_ALLOWED
             );
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: `Travel post ${status.toLowerCase()} successfully.`,
+        message:
+          status === "APPROVED"
+            ? success.SUCCESS_MESSAGES.APPROVED
+            : success.SUCCESS_MESSAGES.REJECTED,
         data: updated,
       });
     } catch (error) {
-      console.error("Error updating travel post status (admin):", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: (error as Error).message || "Failed to update travel post status",
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }

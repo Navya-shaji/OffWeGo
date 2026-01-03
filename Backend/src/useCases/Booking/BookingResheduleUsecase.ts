@@ -3,6 +3,7 @@ import { BookingDataDto } from "../../domain/dto/Booking/BookingDataDto";
 import { IBookingRepository } from "../../domain/interface/Booking/IBookingRepository";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
+import { Role } from "../../domain/constants/Roles";
 
 export class BookingRescheduleUseCase implements IBookingRescheduleUseCase {
   constructor(
@@ -54,7 +55,7 @@ export class BookingRescheduleUseCase implements IBookingRescheduleUseCase {
 
     await this._notificationService.send({
       recipientId: booking.userId.toString(),
-      recipientType: "user",
+      recipientType: Role.USER,
       title: "Booking Rescheduled",
       message: `Your booking for package "${packageData.packageName}" has been rescheduled to ${formattedDate}.`,
       createdAt: new Date(),
@@ -63,7 +64,7 @@ export class BookingRescheduleUseCase implements IBookingRescheduleUseCase {
 
     await this._notificationService.send({
       recipientId: vendorId.toString(),
-      recipientType: "vendor",
+      recipientType: Role.VENDOR,
       title: "Booking Rescheduled",
       message: `Booking ${booking.bookingId} for package "${packageData.packageName}" has been rescheduled to ${formattedDate}.`,
       createdAt: new Date(),

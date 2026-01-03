@@ -36,6 +36,16 @@ export interface ISubscriptionBookingRepository {
     id: string,
     data: Partial<ISubscriptionBookingModel>
   ): Promise<ISubscriptionBookingModel | null>;
+  
+  cancelBooking(
+    id: string
+  ): Promise<ISubscriptionBookingModel | null>;
+  
+  retryPayment(
+    id: string,
+    domainUrl: string
+  ): Promise<{ checkoutUrl: string; qrCode: string } | null>;
+  
   expireOldSubscriptions(vendorId: string): Promise<void>;
   getAllSubscriptions(): Promise<any[]>;
   findByVendorId(vendorId: string): Promise<any[]>;

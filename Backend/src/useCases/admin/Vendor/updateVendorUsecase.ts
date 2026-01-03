@@ -1,6 +1,7 @@
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { NotificationDto } from "../../../domain/dto/Notification/NotificationDto";
 import { INotificationService } from "../../../domain/interface/Notification/ISendNotification";
+import { Role } from "../../../domain/constants/Roles";
 
 export class UpdateVendorUsecase {
   constructor(
@@ -18,7 +19,7 @@ export class UpdateVendorUsecase {
 
     const notification: NotificationDto = {
       recipientId: vendorId,
-      recipientType: "vendor",
+      recipientType: Role.VENDOR,
       title: isBlocked ? "Account Blocked" : "Account Unblocked",
       message: isBlocked
         ? "Your vendor account has been blocked by the admin. Please contact support for assistance."

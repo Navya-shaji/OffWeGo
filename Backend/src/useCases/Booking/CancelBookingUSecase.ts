@@ -116,7 +116,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
     // Notification to user
     await this._notificationService.send({
       recipientId: booking.userId.toString(),
-      recipientType: "user",
+      recipientType: Role.USER,
       title: "Booking Cancelled",
       message: `Your booking for package "${packageData.packageName}" scheduled on ${formattedDate} has been cancelled. ${refundMessage}`,
       createdAt: new Date(),
@@ -130,7 +130,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
 
     await this._notificationService.send({
       recipientId: vendorId.toString(),
-      recipientType: "vendor",
+      recipientType: Role.VENDOR,
       title: "Booking Cancelled",
       message: vendorMessage,
       createdAt: new Date(),

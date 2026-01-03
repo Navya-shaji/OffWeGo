@@ -16,7 +16,7 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
 
     return {
       success: true,
-      url: session.url,
+      url: session.checkoutUrl,
       message: `Checkout session created for plan: ${planName}`,
     };
   }

@@ -6,6 +6,9 @@ import { IUpdateVendorStatusUseCase } from "../../../domain/interface/Admin/IUpd
 import { IUpdateVendorUsecase } from "../../../domain/interface/Admin/IUpdateVendorUsecase";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { ISearchVendorUSecase } from "../../../domain/interface/Admin/ISearchVendorUseCase";
+import { success } from "../../../domain/constants/Success";
+import { ErrorMessages } from "../../../domain/constants/Error";
+import { AppError } from "../../../domain/errors/AppError";
 
 export class AdminVendorController {
   constructor(
@@ -20,53 +23,82 @@ export class AdminVendorController {
   async getVendorByEmail(req: Request, res: Response): Promise<void> {
     try {
       const email = req.query.email?.toString().toLowerCase().trim();
+
       if (!email) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Email is required",
+          message: ErrorMessages.MISSING_REQUIRED_FIELDS,
         });
         return;
       }
+
       const vendor = await this._getVendorByEmailUseCase.execute(email);
+
       if (!vendor) {
         res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: "Vendor not found",
+          message: ErrorMessages.VENDOR_NOT_FOUND,
         });
         return;
       }
+
       res.status(HttpStatus.OK).json({
         success: true,
-        vendor,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: vendor,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to fetch vendor by email",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
 
   async getAllVendors(req: Request, res: Response): Promise<void> {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
       const { vendors, totalvendors } =
         await this._getAllVendorsUseCase.execute(page, limit);
+
       res.status(HttpStatus.OK).json({
         success: true,
-        vendors,
-        totalvendors,
-        page,
-        totalPages: Math.ceil(totalvendors / limit),
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: vendors,
+        totalVendors: totalvendors,
         currentPage: page,
+        totalPages: Math.ceil(totalvendors / limit),
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to fetch vendors",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -74,79 +106,126 @@ export class AdminVendorController {
   async getVendorsByStatus(req: Request, res: Response): Promise<void> {
     try {
       const status = req.params.status as "pending" | "approved" | "rejected";
+
       const vendors = await this._vendorRepository.findByStatus(status);
+
       res.status(HttpStatus.OK).json({
         success: true,
-        vendors,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: vendors,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to fetch vendors by status",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
 
   async updateVendorApprovalStatus(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id.trim();
+      const vendorId = req.params.id?.trim();
       const { status } = req.body;
-      if (!["approved", "rejected"].includes(status)) {
+
+      if (!vendorId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Invalid status value. Must be 'approved' or 'rejected'.",
+          message: ErrorMessages.INVALID_ID,
         });
         return;
       }
+
+      if (!["approved", "rejected"].includes(status)) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: ErrorMessages.INVALID_STATUS,
+        });
+        return;
+      }
+
       const updated = await this._updateVendorStatusUseCase.executeById(
         vendorId,
         status
       );
-      if (updated) {
-        res.status(HttpStatus.OK).json({
-          success: true,
-          message: `Vendor ${status} successfully`,
-          data: updated,
-        });
-      } else {
+
+      if (!updated) {
         res.status(HttpStatus.NOT_FOUND).json({
           success: false,
-          message: "Vendor not found",
+          message: ErrorMessages.VENDOR_NOT_FOUND,
         });
+        return;
       }
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message:
+          status === "approved"
+            ? success.SUCCESS_MESSAGES.APPROVED
+            : success.SUCCESS_MESSAGES.REJECTED,
+        data: updated,
+      });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to update vendor approval status",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
 
   async blockOrUnblockVendor(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id;
+      const vendorId = req.params.id?.trim();
       const { isBlocked } = req.body;
-      if (typeof isBlocked !== "boolean") {
+
+      if (!vendorId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "isBlocked must be a boolean",
+          message: ErrorMessages.INVALID_ID,
         });
         return;
       }
+
+      if (typeof isBlocked !== "boolean") {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: ErrorMessages.INVALID_REQUEST,
+        });
+        return;
+      }
+
       await this._updateVendorUseCase.execute(vendorId, isBlocked);
+
       res.status(HttpStatus.OK).json({
         success: true,
-        message: `Vendor has been ${
-          isBlocked ? "blocked" : "unblocked"
-        } successfully.`,
+        message: success.SUCCESS_MESSAGES.UPDATED,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to block/unblock vendor",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -154,23 +233,33 @@ export class AdminVendorController {
   async searchVendor(req: Request, res: Response): Promise<void> {
     try {
       const query = req.query.q;
+
       if (typeof query !== "string" || !query.trim()) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "The query must be a non-empty string",
+          message: ErrorMessages.INVALID_REQUEST,
         });
         return;
       }
-      const vendor = await this._searchvendorusecase.execute(query);
+
+      const vendors = await this._searchvendorusecase.execute(query.trim());
+
       res.status(HttpStatus.OK).json({
         success: true,
-        data: vendor,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: vendors,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to search vendor",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }

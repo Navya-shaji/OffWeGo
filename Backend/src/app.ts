@@ -35,6 +35,7 @@ export class App {
           "http://localhost:4173",
           "http://localhost:1212",
           "https://ktzc00t7-1212.inc1.devtunnels.ms/",
+          
         ],
         credentials: true,
       })

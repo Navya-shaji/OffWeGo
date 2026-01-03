@@ -2,10 +2,15 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
+    "target": "ES2017",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true
   },
   "exclude": ["eslint.config.mts", "node_modules", "dist"]
 }

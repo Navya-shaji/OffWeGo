@@ -5,14 +5,14 @@ import { mapTravelPostToDto } from "../../mappers/TravelPost/mapTravelPostToDto"
 
 
 export class ApproveTravelPostUsecase implements IApproveTravelPostUsecase {
-  constructor(private readonly travelPostRepository: ITravelPostRepository) {}
+  constructor(private  _travelPostRepository: ITravelPostRepository) {}
 
-  async execute(postId: string, adminId?: string, note?: string): Promise<TravelPostDto> {
+  async execute(postId: string): Promise<TravelPostDto> {
     if (!postId) {
       throw new Error("Post id is required");
     }
 
-    const post = await this.travelPostRepository.findById(postId);
+    const post = await this._travelPostRepository.findById(postId);
 
     if (!post) {
       throw new Error("Travel post not found");
@@ -22,7 +22,7 @@ export class ApproveTravelPostUsecase implements IApproveTravelPostUsecase {
       return mapTravelPostToDto(post);
     }
 
-    const updated = await this.travelPostRepository.updateStatus(postId, "APPROVED");
+    const updated = await this._travelPostRepository.updateStatus(postId, "APPROVED");
 
     if (!updated) {
       throw new Error("Failed to approve travel post");

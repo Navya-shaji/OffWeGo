@@ -13,24 +13,53 @@ export class ChatEventHandler {
     }
 
     private _setHandler(): void {
+        interface SocketData {
+            role?: string;
+            userId?: string;
+            vendorId?: string;
+        }
+
         // User registration
         this._socket.on("register_user", ({ userId }: { userId: string }) => {
             chatHandler.handleConnect(userId);
+            const socketData = this._socket as any;
+            socketData.data = socketData.data || {};
+            socketData.data.role = 'user';
+            socketData.data.userId = userId;
             this._socket.join(`user_${userId}`); // Join user-specific room
             this._io.emit("user-status-changed", {
                 userId: userId,
                 isOnline: true,
             });
+
+            const onlineIds: string[] = [];
+            for (const s of this._io.sockets.sockets.values()) {
+                const role = (s as any).data?.role;
+                const id = role === 'vendor' ? (s as any).data?.vendorId : (s as any).data?.userId;
+                if (id) onlineIds.push(String(id));
+            }
+            this._socket.emit('online-users', { onlineIds });
         });
 
         // Vendor registration
         this._socket.on("register_vendor", ({ vendorId }: { vendorId: string }) => {
             chatHandler.handleConnect(vendorId);
+            (this._socket as any).data = (this._socket as any).data || {};
+            (this._socket as any).data.role = 'vendor';
+            (this._socket as any).data.vendorId = vendorId;
             this._socket.join(`vendor_${vendorId}`); // Join vendor-specific room
             this._io.emit("vendor-status-changed", {
                 vendorId: vendorId,
                 isOnline: true,
             });
+
+            const onlineIds: string[] = [];
+            for (const s of this._io.sockets.sockets.values()) {
+                const role = (s as any).data?.role;
+                const id = role === 'vendor' ? (s as any).data?.vendorId : (s as any).data?.userId;
+                if (id) onlineIds.push(String(id));
+            }
+            this._socket.emit('online-users', { onlineIds });
         });
 
         this._socket.on("join_room", ({ roomId }: { roomId: string }) => {

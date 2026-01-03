@@ -83,6 +83,34 @@ export const getVendorSubscriptionHistory = async () => {
   }
 };
 
+export const cancelSubscription = async (bookingId: string) => {
+  try {
+    const res = await axiosInstance.delete(`/api/vendor/subscription/${bookingId}/cancel`);
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Failed to cancel subscription'
+      );
+    }
+    throw new Error('Unexpected error cancelling subscription');
+  }
+};
+
+export const retrySubscriptionPayment = async (bookingId: string) => {
+  try {
+    const res = await axiosInstance.post(`/api/vendor/subscription/${bookingId}/retry`);
+    return res.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Failed to retry payment'
+      );
+    }
+    throw new Error('Unexpected error retrying payment');
+  }
+};
+
 export const getAllSubscriptionBookings = async () => {
   try {
     const res = await axiosInstance.get("/api/admin/booked-subscription");

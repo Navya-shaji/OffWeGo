@@ -72,7 +72,7 @@ export const verifyPaymentAndCreateBooking = async (
       '/api/vendor/subscription/verify-payment',
       payload
     );
-console.log(response.data,"verify")
+
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

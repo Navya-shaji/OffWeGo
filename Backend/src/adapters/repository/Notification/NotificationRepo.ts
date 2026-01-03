@@ -1,3 +1,4 @@
+import { Role } from "../../../domain/constants/Roles";
 import { INotificationEntity } from "../../../domain/entities/NotificationEntity";
 import { INotificationRepository } from "../../../domain/interface/Notification/INotificationRepo";
 import { NotificationModel } from "../../../framework/database/Models/NotificationModel";
@@ -34,7 +35,7 @@ export class NotificationRepository implements INotificationRepository {
   }
   async getByRecipient(
     recipientId: string,
-    recipientType: "user" | "vendor"
+    recipientType: Role.USER | Role.VENDOR
   ): Promise<INotificationEntity[]> {
     if (!recipientId || !recipientType) {
       console.warn(" getByRecipient called with missing parameters:", { recipientId, recipientType });
@@ -65,7 +66,7 @@ export class NotificationRepository implements INotificationRepository {
     );
   }
 
-  async markAllAsRead(recipientId: string, recipientType: "user" | "vendor") {
+  async markAllAsRead(recipientId: string, recipientType: Role.USER | Role.VENDOR) {
     const result = await NotificationModel.updateMany(
       { recipientId, recipientType, read: false },
       { read: true }
@@ -74,7 +75,7 @@ export class NotificationRepository implements INotificationRepository {
     return { modifiedCount: result.modifiedCount };
   }
 
-  async getUnreadCount(recipientId: string, recipientType: "user" | "vendor") {
+  async getUnreadCount(recipientId: string, recipientType: Role.USER | Role.VENDOR) {
     return await NotificationModel.countDocuments({
       recipientId,
       recipientType,
@@ -89,7 +90,7 @@ export class NotificationRepository implements INotificationRepository {
 
   async deleteAllNotifications(
     recipientId: string,
-    recipientType: "user" | "vendor"
+    recipientType: Role.USER | Role.VENDOR
   ) {
     const result = await NotificationModel.deleteMany({
       recipientId,

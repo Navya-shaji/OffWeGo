@@ -4,9 +4,9 @@ import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
 
 export class RejectTravelPostUsecase implements IRejectTravelPostUsecase {
-  constructor(private readonly travelPostRepository: ITravelPostRepository) {}
+  constructor(private  _travelPostRepository: ITravelPostRepository) {}
 
-  async execute(postId: string, reason: string, adminId?: string): Promise<TravelPostDto> {
+  async execute(postId: string, reason: string): Promise<TravelPostDto> {
     if (!postId) {
       throw new Error("Post id is required");
     }
@@ -15,13 +15,13 @@ export class RejectTravelPostUsecase implements IRejectTravelPostUsecase {
       throw new Error("Rejection reason is required");
     }
 
-    const post = await this.travelPostRepository.findById(postId);
+    const post = await this._travelPostRepository.findById(postId);
 
     if (!post) {
       throw new Error("Travel post not found");
     }
 
-    const updated = await this.travelPostRepository.updateStatus(postId, "REJECTED", reason.trim());
+    const updated = await this._travelPostRepository.updateStatus(postId, "REJECTED", reason.trim());
 
     if (!updated) {
       throw new Error("Failed to reject travel post");

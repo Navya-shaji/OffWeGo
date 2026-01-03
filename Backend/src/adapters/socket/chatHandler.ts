@@ -2,6 +2,7 @@ import { CreateMessageUseCase } from "../../useCases/msg/createMessageUsecase";
 import { ChatRepository } from "../repository/Chat/chatRepository";
 import { FirebaseNotificationService } from "../../framework/Services/FirebaseNotificationService";
 import { MessageRepository } from "../repository/Msg/MessageRepository";
+import { Role } from "../../domain/constants/Roles";
 
 export class ChatHandler {
     constructor(
@@ -53,7 +54,7 @@ export class ChatHandler {
 
         if (this._notificationService && data.receiverId) {
             try {
-                const recipientType = isVendorSender ? 'user' : 'vendor';
+                const recipientType = isVendorSender ? Role.USER : Role.VENDOR;
                 const title = `New message from ${senderName || 'someone'}`;
                 const messagePreview = data.messageContent.length > 50
                     ? data.messageContent.substring(0, 50) + '...'
