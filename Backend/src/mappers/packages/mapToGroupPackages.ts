@@ -1,4 +1,4 @@
-import { PackageWiseGroup } from "../../domain/entities/PackagewiseGroup";
+import { PackageWiseGroup } from "../../domain/entities/packagewiseGroup";
 import { IPackageWiseGrouping } from "../../framework/database/Models/PackageWiseGroupingModel";
 
 export const mapToPackageGroups=(doc:IPackageWiseGrouping):PackageWiseGroup=>({

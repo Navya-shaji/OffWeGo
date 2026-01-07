@@ -16,17 +16,17 @@ export class VendorRepository
   }
 
   async createVendor(data: RegistervendorDto): Promise<IVendorModel> {
-    return this.model.create(data);
+    return (this.model as any).create(data);
   }
 
   async findByEmail(email: string): Promise<IVendorModel | null> {
-    return this.model.findOne({
+    return (this.model as any).findOne({
       email: { $regex: new RegExp(`^${email.trim()}$`, "i") },
     });
   }
 
   async findByPhone(phone: string): Promise<IVendorModel | null> {
-    return this.model.findOne({ phone });
+    return (this.model as any).findOne({ phone });
   }
 
   async findById(id: string): Promise<IVendorModel | null> {
@@ -99,17 +99,17 @@ export class VendorRepository
   }
 
   async getProfileByEmail(email: string): Promise<RegistervendorDto | null> {
-    return this.model.findOne({ email });
+    return (this.model as any).findOne({ email });
   }
 
   async countVendors(filter: Record<string, unknown> = {}): Promise<number> {
-    return this.model.countDocuments(filter);
+    return (this.model as any).countDocuments(filter);
   }
 
   async searchVendor(query: string): Promise<Vendor[]> {
     const regex = new RegExp(query, "i");
 
-    const vendors = await this.model
+    const vendors = await (this.model as any)
       .find({ name: { $regex: regex } })
       .select("name email _id phone  documentUrl status createdAt")
       .limit(10)
@@ -121,17 +121,17 @@ export class VendorRepository
     }));
   }
   async findAll(): Promise<IVendorModel[]> {
-    return this.model.find({});
+    return (this.model as any).find({});
   }
   async updateFcmToken(
     id: string,
     token: string
   ): Promise<IVendorModel | null> {
-    return this.model.findByIdAndUpdate(id, { fcmToken: token }, { new: true });
+    return (this.model as any).findByIdAndUpdate(id, { fcmToken: token }, { new: true });
   }
 
   async getFcmTokenById(vendorId: string): Promise<string | null> {
-    const vendor = await this.model.findById(vendorId).select("fcmToken");
+    const vendor = await (this.model as any).findById(vendorId).select("fcmToken");
     return vendor?.fcmToken || null;
   }
 }

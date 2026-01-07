@@ -16,7 +16,7 @@ export class UserRepository
   }
 
   async findByEmail(email: string): Promise<IUserModel | null> {
-    return this.model.findOne({ email });
+    return (this.model as any).findOne({ email });
   }
 
   async createUser(user: IUserModel): Promise<IUserModel> {
@@ -24,15 +24,15 @@ export class UserRepository
   }
 
   async findByPhone(phone: string): Promise<IUserModel | null> {
-    return this.model.findOne({ phone });
+    return (this.model as any).findOne({ phone });
   }
 
   async findById(userId: string): Promise<IUserModel | null> {
-    return this.model.findById(userId);
+    return (this.model as any).findById(userId);
   }
 
   async updatePassword(email: string, newHashedPassword: string): Promise<void> {
-    await this.model.updateOne(
+    await (this.model as any).updateOne(
       { email },
       { $set: { password: newHashedPassword } }
     );
@@ -42,7 +42,7 @@ export class UserRepository
     userId: string,
     newHashedPassword: string
   ): Promise<void> {
-    await this.model.updateOne(
+    await (this.model as any).updateOne(
       { _id: userId },
       { $set: { password: newHashedPassword } }
     );
@@ -53,11 +53,11 @@ export class UserRepository
     limit: number,
     filter: Record<string, unknown> = {}
   ): Promise<IUserModel[]> {
-    return this.model.find(filter).skip(skip).limit(limit);
+    return (this.model as any).find(filter).skip(skip).limit(limit);
   }
 
   async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
-    return this.model.countDocuments(filter);
+    return (this.model as any).countDocuments(filter);
   }
 
   async updateUserStatus(

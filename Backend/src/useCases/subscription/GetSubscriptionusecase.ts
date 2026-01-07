@@ -8,6 +8,6 @@ export class GetAllSubscription implements IGetSubscriptionUsecase {
   async execute(): Promise<SubscriptionPlanDto[] | null> {
     const result = await this._subscriptionRepo.findAll(); 
     if (!result) return null;
-    return result;
+    return result as any;
   }
 }

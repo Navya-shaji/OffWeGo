@@ -13,12 +13,12 @@ export class ReviewRepository implements IReviewRepository {
       ...review,
       userId: new mongoose.Types.ObjectId(review.userId)
     };
-    const created = await ReviewModel.create(reviewData);
+    const created = await (ReviewModel as any).create(reviewData);
     return created.toObject();
   }
 
   async findByPackage(packageName: string): Promise<IReviewModel[]> {
-    return await ReviewModel.find({ packageName }).populate(
+    return await (ReviewModel as any).find({ packageName }).populate(
       "userId",
       "name profileImage"
     );
@@ -27,7 +27,7 @@ export class ReviewRepository implements IReviewRepository {
   async findByPackageAndUser(packageName: string, userId: string): Promise<IReview | null> {
   
     const userIdObjectId = new mongoose.Types.ObjectId(userId);
-    const review = await ReviewModel.findOne({ 
+    const review = await (ReviewModel as any).findOne({ 
       packageName, 
       userId: userIdObjectId 
     }).populate(
@@ -38,6 +38,6 @@ export class ReviewRepository implements IReviewRepository {
   }
 
   async findByUser(userId: string): Promise<IReviewModel[]> {
-    return await ReviewModel.find({ userId });
+    return await (ReviewModel as any).find({ userId });
   }
 }

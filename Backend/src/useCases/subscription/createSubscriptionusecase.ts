@@ -35,7 +35,7 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
       stripePriceId: price.id,
     };
 
-    const createdPlan = await this._subscriptionRepo.create(planDataWithStripe);
+    const createdPlan = await this._subscriptionRepo.create(planDataWithStripe as any);
 
     const allVendors = await this._vendorRepo.findAll();
     const notificationPromises = allVendors.map(vendor =>
@@ -50,6 +50,6 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
     );
     await Promise.all(notificationPromises);
 
-    return mapModelToSubscriptionDto(createdPlan);
+    return mapModelToSubscriptionDto(createdPlan as any);
   }
 }

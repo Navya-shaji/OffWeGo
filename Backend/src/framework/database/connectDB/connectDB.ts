@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URL || "";
+const MONGO_URI = process.env.MONGO_URI || "";
 
 export class ConnectDB {
   public async connect(): Promise<void> {

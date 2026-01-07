@@ -8,8 +8,8 @@ export class ChatRepository {
 
     async createChat(data: IChat): Promise<any> {
    
-        const createdChat = await chatModel.create(data);
-        const populatedChat = await chatModel.findById(createdChat._id)
+        const createdChat = await (chatModel as any).create(data);
+        const populatedChat = await (chatModel as any).findById(createdChat._id)
             .populate({
                 path: 'userId',
                 select: 'name username imageUrl'
@@ -23,12 +23,12 @@ export class ChatRepository {
     }
 
     async findChatById(chatId: string): Promise<IChat | null> {
-        return await chatModel.findById(chatId);
+        return await (chatModel as any).findById(chatId);
     }
 
     async findChatByUserId(userId: string): Promise<IChat[]> {
   
-        return await chatModel.find({
+        return await (chatModel as any).find({
             $or: [
                 { userId: userId },
                 { vendorId: userId }
@@ -58,7 +58,7 @@ export class ChatRepository {
             });
         }
 
-        const chats = await chatModel.find(query)
+        const chats = await (chatModel as any).find(query)
         .sort({ lastMessageAt: -1 })
         .populate('userId', 'name username imageUrl')
         .populate('vendorId', 'name profileImage')
@@ -71,7 +71,7 @@ export class ChatRepository {
         const userObjectId = userId;
         const ownerObjectId = ownerId;
         
-        const chat = await chatModel.findOne({
+        const chat = await (chatModel as any).findOne({
             $and: [
                 {
                     $or: [
@@ -98,7 +98,7 @@ export class ChatRepository {
     }
 
     async updateLastMessage(chatId: string, message: string, time: Date) {
-        return await chatModel.findByIdAndUpdate(chatId, {
+        return await (chatModel as any).findByIdAndUpdate(chatId, {
             lastMessage: message,
             lastMessageAt: time
         });
@@ -106,14 +106,14 @@ export class ChatRepository {
 
     async incrementUnreadCount(chatId: string, recipientType: 'user' | 'vendor'): Promise<void> {
         const updateField = recipientType === 'user' ? 'unreadCountUser' : 'unreadCountVendor';
-        await chatModel.findByIdAndUpdate(chatId, {
+        await (chatModel as any).findByIdAndUpdate(chatId, {
             $inc: { [updateField]: 1 }
         });
     }
 
     async resetUnreadCount(chatId: string, recipientType: 'user' | 'vendor'): Promise<void> {
         const updateField = recipientType === 'user' ? 'unreadCountUser' : 'unreadCountVendor';
-        await chatModel.findByIdAndUpdate(chatId, {
+        await (chatModel as any).findByIdAndUpdate(chatId, {
             $set: { [updateField]: 0 }
         });
     }

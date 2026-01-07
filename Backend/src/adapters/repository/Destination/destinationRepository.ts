@@ -24,33 +24,32 @@ export class DestinationRepository
     skip: number,
     limit: number
   ): Promise<IDestinationModel[]> {
-    return this.model.find().skip(skip).limit(limit);
+    return (this.model as any).find().skip(skip).limit(limit);
   }
 
   async edit(
     destination: IDestinationModel
   ): Promise<IDestinationModel | null> {
-    return this.model.findByIdAndUpdate(destination._id, destination, {
+    return (this.model as any).findByIdAndUpdate(destination._id, destination, {
       new: true,
     });
   }
 
   async delete(id: string): Promise<IDestinationModel | null> {
-    return await this.model.findByIdAndDelete(id);
+    return await (this.model as any).findByIdAndDelete(id);
   }
 
   async getDestination(id: string): Promise<IDestinationModel | null> {
-    return this.model.findById(id);
+    return (this.model as any).findById(id);
   }
 
   async countDestinations(): Promise<number> {
-    return this.model.countDocuments();
+    return (this.model as any).countDocuments();
   }
 
   async searchDestination(query: string): Promise<IDestinationModel[]> {
     const regex = new RegExp(query, "i");
-    return this.model
-
+    return (this.model as any)
       .find({
         $or: [{ name: { $regex: regex } }, { location: { $regex: regex } }],
       })

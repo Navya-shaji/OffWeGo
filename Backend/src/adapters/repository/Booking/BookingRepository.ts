@@ -15,36 +15,36 @@ export class BookingRepository implements IBookingRepository {
   }
 
   async findById(id: string): Promise<Booking | null> {
-    return BookingModel.findById(id).lean<Booking>().exec();
+    return (BookingModel as any).findById(id).lean().exec();
   }
 
   async update(id: string, updateData: Partial<Booking>): Promise<Booking> {
-    const updatedBooking = await BookingModel.findByIdAndUpdate(
+    const updatedBooking = await (BookingModel as any).findByIdAndUpdate(
       id,
       updateData,
       { new: true }
     )
-      .lean<Booking>()
+      .lean()
       .exec();
 
     if (!updatedBooking) throw new Error("Booking not found");
     return updatedBooking;
   }
   async findByUserId(userId: string): Promise<Booking[]> {
-    return BookingModel.find({ userId })
+    return (BookingModel as any).find({ userId })
       .populate("selectedPackage")
-      .lean<Booking[]>()
+      .lean()
       .exec();
   }
 
   async findByVendorId(vendorId: string): Promise<Booking[]> {
-    return BookingModel.find({ vendorId })
+    return (BookingModel as any).find({ vendorId })
       .populate("selectedPackage")
-      .lean<Booking[]>()
+      .lean()
       .exec();
   }
   async getBookedDatesByVendor(vendorId: string): Promise<Date[]> {
-    const bookings = await BookingModel.find({ vendorId })
+    const bookings = await (BookingModel as any).find({ vendorId })
       .select("selectedDate")
       .lean()
       .exec();
@@ -55,22 +55,22 @@ export class BookingRepository implements IBookingRepository {
     let updated: Booking | null = null;
 
     if (isValidObjectId(bookingId)) {
-      updated = await BookingModel.findByIdAndUpdate(
+      updated = await (BookingModel as any).findByIdAndUpdate(
         bookingId,
         { bookingStatus: "cancelled" },
         { new: true }
       )
-        .lean<Booking>()
+        .lean()
         .exec();
     }
 
     if (!updated) {
-      updated = await BookingModel.findOneAndUpdate(
+      updated = await (BookingModel as any).findOneAndUpdate(
         { bookingId },
         { bookingStatus: "cancelled" },
         { new: true }
       )
-        .lean<Booking>()
+        .lean()
         .exec();
     }
 
@@ -86,12 +86,12 @@ export class BookingRepository implements IBookingRepository {
     let booking: Booking | null = null;
 
     if (isValidObjectId(bookingId)) {
-      booking = await BookingModel.findById(bookingId).lean<Booking>().exec();
+      booking = await (BookingModel as any).findById(bookingId).lean().exec();
     }
 
     if (!booking) {
-      booking = await BookingModel.findOne({ bookingId })
-        .lean<Booking>()
+      booking = await (BookingModel as any).findOne({ bookingId })
+        .lean()
         .exec();
     }
     console.log("Result from DB:", booking);
@@ -108,11 +108,11 @@ export class BookingRepository implements IBookingRepository {
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const booking = await BookingModel.findOne({
+    const booking = await (BookingModel as any).findOne({
       selectedPackage: packageId,
       selectedDate: { $gte: startOfDay, $lte: endOfDay },
     })
-      .lean<Booking>()
+      .lean()
       .exec();
 
     return booking;
@@ -120,7 +120,7 @@ export class BookingRepository implements IBookingRepository {
   async findCompletedBookingsForTransfer(): Promise<Booking[]> {
     const today = new Date();
 
-    const bookings = await BookingModel.find({
+    const bookings = await (BookingModel as any).find({
       selectedPackage: { $exists: true, $ne: null },
       bookingStatus: "completed",
     })
@@ -163,12 +163,12 @@ export class BookingRepository implements IBookingRepository {
     userId: string,
     ownerId: string
   ): Promise<Booking | null> {
-    return BookingModel.findOne({
+    return (BookingModel as any).findOne({
       userId,
       vendorId: ownerId,
       bookingStatus: { $in: ["upcoming", "confirmed", "ongoing"] },
     })
-      .lean<Booking>()
+      .lean()
       .exec();
   }
 
@@ -176,7 +176,7 @@ export class BookingRepository implements IBookingRepository {
     bookingId: string,
     paymentData: { paymentMethod: string; amountPaid: number; status: string }
   ): Promise<Booking> {
-    const updatedBooking = await BookingModel.findOneAndUpdate(
+    const updatedBooking = await (BookingModel as any).findOneAndUpdate(
       { bookingId },
       {
         paymentStatus: paymentData.status,
@@ -185,7 +185,7 @@ export class BookingRepository implements IBookingRepository {
       },
       { new: true }
     )
-      .lean<Booking>()
+      .lean()
       .exec();
 
     if (!updatedBooking) {
@@ -195,10 +195,10 @@ export class BookingRepository implements IBookingRepository {
     return updatedBooking;
   }
   async findByRefId(refId: string): Promise<Booking[]> {
-    return BookingModel.find({ bookingId: refId });
+    return (BookingModel as any).find({ bookingId: refId });
   }
   async findCompletedTrips(): Promise<Booking[]> {
-    return BookingModel.find({
+    return (BookingModel as any).find({
       bookingStatus: "upcoming",
       settlementDone: false,
       paymentStatus: "succeeded",

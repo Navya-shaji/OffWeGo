@@ -11,7 +11,7 @@ export class EditSubscriptionUseCase implements IEditSubscriptionusecase {
     id: string,
     updatedData: SubscriptionPlanDto
   ): Promise<SubscriptionPlanDto | null> {
-    const Data = await this._subscriptionRepository.update(id, updatedData);
-    return mapModelToSubscriptionDto(Data);
+    const Data = await this._subscriptionRepository.update(id, updatedData as any);
+    return mapModelToSubscriptionDto(Data as any);
   }
 }

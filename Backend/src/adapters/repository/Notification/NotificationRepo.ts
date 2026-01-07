@@ -5,33 +5,33 @@ import { NotificationModel } from "../../../framework/database/Models/Notificati
 
 export class NotificationRepository implements INotificationRepository {
   async create(data: INotificationEntity): Promise<INotificationEntity> {
-    const doc = await NotificationModel.create(data);
+    const doc = await (NotificationModel as any).create(data);
     return doc.toObject() as unknown as INotificationEntity;
   }
 
   async findAll(): Promise<INotificationEntity[]> {
-    return await NotificationModel.find();
+    return await (NotificationModel as any).find();
   }
 
   async findById(id: string): Promise<INotificationEntity | null> {
-    return await NotificationModel.findById(id);
+    return await (NotificationModel as any).findById(id);
   }
 
   async update(
     id: string,
     data: Partial<INotificationEntity>
   ): Promise<INotificationEntity | null> {
-    return await NotificationModel.findByIdAndUpdate(id, data, { new: true });
+    return await (NotificationModel as any).findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id: string): Promise<INotificationEntity | null> {
-    return await NotificationModel.findByIdAndDelete(id);
+    return await (NotificationModel as any).findByIdAndDelete(id);
   }
 
   async findOne(
     filter: Partial<INotificationEntity>
   ): Promise<INotificationEntity | null> {
-    return await NotificationModel.findOne(filter);
+    return await (NotificationModel as any).findOne(filter);
   }
   async getByRecipient(
     recipientId: string,
@@ -49,7 +49,7 @@ export class NotificationRepository implements INotificationRepository {
     
     console.log(` Fetching notifications with query:`, query);
     
-    const docs = await NotificationModel.find(query)
+    const docs = await (NotificationModel as any).find(query)
       .sort({ createdAt: -1 })
       .lean();
 
@@ -59,7 +59,7 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   async markAsRead(id: string): Promise<INotificationEntity | null> {
-    return await NotificationModel.findByIdAndUpdate(
+    return await (NotificationModel as any).findByIdAndUpdate(
       id,
       { read: true },
       { new: true }
@@ -67,7 +67,7 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   async markAllAsRead(recipientId: string, recipientType: Role.USER | Role.VENDOR) {
-    const result = await NotificationModel.updateMany(
+    const result = await (NotificationModel as any).updateMany(
       { recipientId, recipientType, read: false },
       { read: true }
     );
@@ -76,7 +76,7 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   async getUnreadCount(recipientId: string, recipientType: Role.USER | Role.VENDOR) {
-    return await NotificationModel.countDocuments({
+    return await (NotificationModel as any).countDocuments({
       recipientId,
       recipientType,
       read: false,
@@ -84,7 +84,7 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   async deleteNotification(id: string) {
-    const result = await NotificationModel.deleteOne({ _id: id });
+    const result = await (NotificationModel as any).deleteOne({ _id: id });
     return { deletedCount: result.deletedCount };
   }
 
@@ -92,7 +92,7 @@ export class NotificationRepository implements INotificationRepository {
     recipientId: string,
     recipientType: Role.USER | Role.VENDOR
   ) {
-    const result = await NotificationModel.deleteMany({
+    const result = await (NotificationModel as any).deleteMany({
       recipientId,
       recipientType,
     });

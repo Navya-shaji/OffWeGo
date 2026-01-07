@@ -3,12 +3,12 @@ import { IMessage } from "../../../domain/entities/MessageEntity";
 
 export class MessageRepository {
     async saveMessage(data: IMessage): Promise<IMessage> {
-        return await messageModel.create(data);
+        return await (messageModel as any).create(data);
     }
 
     async createMessage(data: any): Promise<IMessage> {
      
-        const newMessage = new messageModel({
+        const newMessage = new (messageModel as any)({
             chatId: data.chatId,
             senderId: data.senderId,
             senderType: data.senderType,
@@ -24,11 +24,11 @@ export class MessageRepository {
     }
 
     async getMessages(chatId: string): Promise<IMessage[]> {
-        return await messageModel.find({ chatId }).sort({ sendedTime: 1 }).populate('replyTo.messageId');
+        return await (messageModel as any).find({ chatId }).sort({ sendedTime: 1 }).populate('replyTo.messageId');
     }
 
     async countUnreadMessages(chatId: string, userId: string): Promise<number> {
-        return await messageModel.countDocuments({
+        return await (messageModel as any).countDocuments({
             chatId,
             senderId: { $ne: userId },
             seen: false
@@ -36,7 +36,7 @@ export class MessageRepository {
     }
 
     async markAsSeen(chatId: string, userId: string) {
-        return await messageModel.updateMany(
+        return await (messageModel as any).updateMany(
             { chatId, senderId: { $ne: userId } },
             { $set: { seen: true } }
         );
@@ -44,7 +44,7 @@ export class MessageRepository {
 
     async deleteMessage(messageId: string): Promise<boolean> {
         try {
-            const result = await messageModel.findByIdAndUpdate(
+            const result = await (messageModel as any).findByIdAndUpdate(
                 messageId,
                 { 
                     $set: { 

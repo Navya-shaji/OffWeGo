@@ -1,5 +1,5 @@
 import { PackageDTO } from "../../../domain/dto/package/PackageDto";
-import { PackageWiseGroup } from "../../../domain/entities/PackagewiseGroup";
+import { PackageWiseGroup } from "../../../domain/entities/packagewiseGroup";
 import { IPackageWiseGrouping } from "../../../domain/interface/Vendor/IPackagewiseGroupingRepository";
 import { PackageWiseGroupingModel } from "../../../framework/database/Models/PackageWiseGroupingModel";
 

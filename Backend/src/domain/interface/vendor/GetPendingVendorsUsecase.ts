@@ -1,5 +1,5 @@
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
-import { Vendor } from "../../entities/VendorEntities";
+import { Vendor } from "../../entities/vendorEntities";
 import { IVendorRepository } from "./IVendorRepository";
 
 export class GetPendingVendorsUsecase {

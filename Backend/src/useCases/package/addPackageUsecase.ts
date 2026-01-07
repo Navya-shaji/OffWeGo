@@ -1,5 +1,5 @@
 import { PackageDTO } from "../../domain/dto/package/PackageDto";
-import { Package } from "../../domain/entities/PackageEntity";
+import { Package } from "../../domain/entities/packageEntity";
 import { ICreatePackage } from "../../domain/interface/Vendor/IAddPackageUsecase";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { ISubscriptionBookingRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";

@@ -39,7 +39,6 @@ export class UserRoute {
 
     this.userRouter.get(
       UserRoutes.GET_ALL_DESTINATIONS,
-      verifyTokenAndCheckBlackList(TokenService),
       (req: Request, res: Response) => {
         destinationController.getAllDestination(req, res);
       }

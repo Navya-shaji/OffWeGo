@@ -1,5 +1,5 @@
 import { Role } from "../../../domain/constants/Roles";
-import { UserDto } from "../../../domain/dto/User/UserDto";
+import { UserDto } from "../../../domain/dto/User/userDto";
 import { IGetAllUserUsecase } from "../../../domain/interface/Admin/IGetAllUsers";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 

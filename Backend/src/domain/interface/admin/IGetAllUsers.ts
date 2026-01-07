@@ -1,4 +1,4 @@
-import { UserDto } from "../../dto/User/UserDto";
+import { UserDto } from "../../dto/User/userDto";
 
 export interface IGetAllUserUsecase {
   execute(

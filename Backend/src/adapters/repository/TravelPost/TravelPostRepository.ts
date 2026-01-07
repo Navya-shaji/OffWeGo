@@ -42,7 +42,7 @@ const mapDocumentToEntity = (doc: ITravelPostDocument): TravelPost => {
 
 export class TravelPostRepository implements ITravelPostRepository {
   async create(post: TravelPost): Promise<TravelPost> {
-    const created = await TravelPostModel.create({
+    const created = await (TravelPostModel as any).create({
       authorId: post.authorId,
       title: post.title,
       slug: post.slug,
@@ -67,7 +67,7 @@ export class TravelPostRepository implements ITravelPostRepository {
       throw new Error("Post id is required for update");
     }
 
-    const updated = await TravelPostModel.findByIdAndUpdate(
+    const updated = await (TravelPostModel as any).findByIdAndUpdate(
       post.id,
       {
         title: post.title,
@@ -94,12 +94,12 @@ export class TravelPostRepository implements ITravelPostRepository {
   }
 
   async findById(id: string): Promise<TravelPost | null> {
-    const doc = await TravelPostModel.findById(id);
+    const doc = await (TravelPostModel as any).findById(id);
     return doc ? mapDocumentToEntity(doc) : null;
   }
 
   async findBySlug(slug: string): Promise<TravelPost | null> {
-    const doc = await TravelPostModel.findOne({ slug });
+    const doc = await (TravelPostModel as any).findOne({ slug });
     return doc ? mapDocumentToEntity(doc) : null;
   }
 
@@ -112,7 +112,7 @@ export class TravelPostRepository implements ITravelPostRepository {
       return [];
     }
 
-    const docs = await TravelPostModel.find({
+    const docs = await (TravelPostModel as any).find({
       _id: { $in: objectIds },
       status: "APPROVED",
     }).sort({ createdAt: -1 });
@@ -143,11 +143,11 @@ export class TravelPostRepository implements ITravelPostRepository {
     const skip = (pagination.page - 1) * pagination.limit;
 
     const [docs, total] = await Promise.all([
-      TravelPostModel.find(query)
+      (TravelPostModel as any).find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(pagination.limit),
-      TravelPostModel.countDocuments(query),
+      (TravelPostModel as any).countDocuments(query),
     ]);
 
     return {
@@ -163,7 +163,7 @@ export class TravelPostRepository implements ITravelPostRepository {
     status: "PENDING" | "APPROVED" | "REJECTED",
     rejectedReason?: string
   ): Promise<TravelPost | null> {
-    const updated = await TravelPostModel.findByIdAndUpdate(
+    const updated = await (TravelPostModel as any).findByIdAndUpdate(
       id,
       {
         status,
@@ -176,7 +176,7 @@ export class TravelPostRepository implements ITravelPostRepository {
   }
 
   async incrementViews(id: string): Promise<void> {
-    await TravelPostModel.findByIdAndUpdate(id, {
+    await (TravelPostModel as any).findByIdAndUpdate(id, {
       $inc: { "metrics.views": 1 },
     });
   }
@@ -184,12 +184,12 @@ export class TravelPostRepository implements ITravelPostRepository {
   async adjustLikes(id: string, delta: number): Promise<void> {
     if (!delta) return;
 
-    await TravelPostModel.findByIdAndUpdate(id, {
+    await (TravelPostModel as any).findByIdAndUpdate(id, {
       $inc: { "metrics.likes": delta },
     });
 
     if (delta < 0) {
-      await TravelPostModel.findOneAndUpdate(
+      await (TravelPostModel as any).findOneAndUpdate(
         { _id: id, "metrics.likes": { $lt: 0 } },
         { $set: { "metrics.likes": 0 } }
       );

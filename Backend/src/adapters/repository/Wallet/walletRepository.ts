@@ -16,12 +16,12 @@ export class WalletRepository
   }
 
   async createWallet(data: IWallet): Promise<IWallet> {
-    const createdWallet = await this.model.create(data);
+    const createdWallet = await (this.model as any).create(data);
     return createdWallet as unknown as IWallet;
   }
 
   async findByOwnerId(ownerId: string): Promise<IWallet | null> {
-    const wallet = await this.model.findOne({ ownerId });
+    const wallet = await (this.model as any).findOne({ ownerId });
     return wallet as unknown as IWallet;
   }
 
@@ -35,7 +35,7 @@ async updateBalance(
 ): Promise<IWallet> {
   console.log("updateBalance CALLED FOR:", ownerId, ownerType, amount, type);
 
-  const updatedWallet = await this.model.findOneAndUpdate(
+  const updatedWallet = await (this.model as any).findOneAndUpdate(
     { ownerId, ownerType },
     {
       $push: {
@@ -63,12 +63,12 @@ async updateBalance(
 
 
   async addTransaction(ownerId: string, transaction: Transaction): Promise<IWallet> {
-    const updated = await WalletModel.findOneAndUpdate(
+    const updated = await (WalletModel as any).findOneAndUpdate(
       { ownerId },
       { $push: { transactions: transaction } },
       { new: true }
     )
-      .lean<IWallet>()
+      .lean()
       .exec();
 
     if (!updated) throw new Error("Wallet not found");
@@ -77,7 +77,7 @@ async updateBalance(
 
 
   async markTransactionCompleted(ownerId: string, refId: string): Promise<IWallet> {
-    const updatedWallet = await this.model.findOneAndUpdate(
+    const updatedWallet = await (this.model as any).findOneAndUpdate(
       { ownerId, "transactions.refId": refId },
       {
         $set: {

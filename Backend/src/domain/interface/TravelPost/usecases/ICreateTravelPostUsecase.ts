@@ -1,4 +1,4 @@
-import { CreateTravelPostDto } from "../../../dto/TravelPost/CreateTravelPostDto";
+import { CreateTravelPostDto } from "../../../dto/TravelPost/CreateTravelDto";
 import { TravelPostDto } from "../../../dto/TravelPost/TravelPostDto";
 
 export interface ICreateTravelPostUsecase {

@@ -25,25 +25,25 @@ export class HotelRepository
     id: string,
     updatedData: Partial<Hotel>
   ): Promise<IHotelModel | null> {
-    return await HotelModel.findByIdAndUpdate(id, updatedData, {
+    return await (HotelModel as any).findByIdAndUpdate(id, updatedData, {
       new: true,
     });
   }
 
   async delete(id: string): Promise<IHotelModel | null> {
-    return await HotelModel.findByIdAndDelete(id);
+    return await (HotelModel as any).findByIdAndDelete(id);
   }
 
   async searchHotel(query: string): Promise<Hotel[]> {
     const regex = new RegExp(query, "i");
-    return HotelModel.find({ name: { $regex: regex } })
+    return (HotelModel as any).find({ name: { $regex: regex } })
       .select("name address")
       .limit(10)
       .exec();
   }
 
   async countHotels(): Promise<number> {
-    return await HotelModel.countDocuments();
+    return await (HotelModel as any).countDocuments();
   }
 
   async findByName(name: string): Promise<Hotel | null> {

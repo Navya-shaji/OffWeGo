@@ -13,9 +13,12 @@ import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
 import {
-  autoSettleTrips,
+  createAutoSettlementCron,
 } from "./framework/Services/cronjob";
 import { SocketIoServer } from "./Io";
+import { WalletRepository } from "./adapters/repository/Wallet/walletRepository";
+import { BookingRepository } from "./adapters/repository/Booking/BookingRepository";
+import { PackageRepository } from "./adapters/repository/Package/PackageRepository";
 
 export class App {
   private app: Express;
@@ -63,6 +66,18 @@ export class App {
 
     try {
       await this.database.connect();
+      
+      // Create repository instances for cron job
+      const walletRepo = new WalletRepository();
+      const bookingRepo = new BookingRepository();
+      const packageRepo = new PackageRepository();
+      
+      // Create and start cron job with dependency injection
+      const autoSettleTrips = createAutoSettlementCron(
+        walletRepo,
+        bookingRepo,
+        packageRepo
+      );
       autoSettleTrips.start();
       console.log("⏱ Auto Settlement Cron Started");
 

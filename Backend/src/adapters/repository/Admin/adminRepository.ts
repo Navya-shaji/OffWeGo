@@ -7,10 +7,10 @@ import { VendorModel } from "../../../framework/database/Models/vendorModel";
 
 export class AdminRepository implements IAdminRepository {
   async findByEmail(email: string): Promise<User | null> {
-    return await UserModel.findOne({ email: email.toLowerCase().trim() });
+    return await (UserModel as any).findOne({ email: email.toLowerCase().trim() });
   }
 
   async findVendorByEmail(email: string): Promise<Vendor | null> {
-    return await VendorModel.findOne({ email: email.toLowerCase().trim() });
+    return await (VendorModel as any).findOne({ email: email.toLowerCase().trim() });
   }
 }

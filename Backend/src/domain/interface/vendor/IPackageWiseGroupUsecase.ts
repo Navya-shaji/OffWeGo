@@ -1,5 +1,5 @@
 import { PackageDTO } from "../../dto/package/PackageDto";
-import { PackageWiseGroup } from "../../entities/PackagewiseGroup";
+import { PackageWiseGroup } from "../../entities/packagewiseGroup";
 
 
 export interface ICreateGroupUseCase {

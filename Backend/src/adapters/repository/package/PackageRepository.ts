@@ -3,7 +3,7 @@ import {
   packageModel,
   IPackageModel,
 } from "../../../framework/database/Models/packageModel";
-import { Package } from "../../../domain/entities/PackageEntity";
+import { Package } from "../../../domain/entities/packageEntity";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 import { FilterQuery } from "mongoose";
 export class PackageRepository
@@ -15,20 +15,20 @@ export class PackageRepository
   }
 
   async createPackage(data: Package): Promise<IPackageModel> {
-    const created = await packageModel.create(data);
+    const created = await (packageModel as any).create(data);
     await created.populate(["hotels", "activities", "flight"]);
     return created;
   }
 
   async getAllPackages(skip: number, limit: number) {
     const [packages, totalPackages] = await Promise.all([
-      packageModel
+      (packageModel as any)
         .find()
         .skip(skip)
         .limit(limit)
         .populate("hotels activities flight")
         .exec(),
-      packageModel.countDocuments(),
+      (packageModel as any).countDocuments(),
     ]);
 
     return { packages, totalPackages };
@@ -40,13 +40,13 @@ export class PackageRepository
     limit: number
   ) {
     const [packages, totalPackages] = await Promise.all([
-      packageModel
+      (packageModel as any)
         .find({ destinationId })
         .skip(skip)
         .limit(limit)
         .populate("hotels activities")
         .exec(),
-      packageModel.countDocuments({ destinationId }),
+      (packageModel as any).countDocuments({ destinationId }),
     ]);
 
     return { packages, totalPackages };
@@ -75,22 +75,22 @@ export class PackageRepository
   }
 
   async countPackages(): Promise<number> {
-    return packageModel.countDocuments();
+    return (packageModel as any).countDocuments();
   }
 
   async countPackagesByVendor(vendorId: string): Promise<number> {
-    return packageModel.countDocuments({ vendorId });
+    return (packageModel as any).countDocuments({ vendorId });
   }
 
   async getAllPackagesByVendor(vendorId: string, skip: number, limit: number) {
     const [packages, totalPackages] = await Promise.all([
-      packageModel
+      (packageModel as any)
         .find({ vendorId })
         .skip(skip)
         .limit(limit)
         .populate("hotels activities")
         .exec(),
-      packageModel.countDocuments({ vendorId }),
+      (packageModel as any).countDocuments({ vendorId }),
     ]);
 
     return { packages, totalPackages };
@@ -98,10 +98,10 @@ export class PackageRepository
   async findOne(
     filter: FilterQuery<IPackageModel>
   ): Promise<IPackageModel | null> {
-    const pkg = await packageModel.findOne(filter).lean();
+    const pkg = await (packageModel as any).findOne(filter).lean();
     return pkg ? (pkg as unknown as IPackageModel) : null;
   }
   async getById(id: string): Promise<IPackageModel | null> {
-    return packageModel.findById(id);
+    return (packageModel as any).findById(id);
   }
 }

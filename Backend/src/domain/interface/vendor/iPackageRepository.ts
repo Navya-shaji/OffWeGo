@@ -1,6 +1,6 @@
 import { FilterQuery } from "mongoose";
 import { IPackageModel } from "../../../framework/database/Models/packageModel";
-import { Package } from "../../entities/PackageEntity";
+import { Package } from "../../entities/packageEntity";
 
 export interface IPackageRepository {
   findById(packageId: any): unknown;
