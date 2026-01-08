@@ -29,7 +29,6 @@ export default function AdminWalletManagement() {
     
     try {
       const wallet = await getWallet(Admin.id);
-      console.log(wallet, "wall");
       setAdminWallet(wallet);
     } catch (err: any) {
       setError(err.message);

@@ -28,11 +28,9 @@ router.post(
         process.env.STRIPE_WEBHOOK_SECRET as string
       );
     } catch (err: unknown) {
-      console.error("❌ Webhook Error:",err);
       return res.status(400).send(`Webhook Error ${err}`);
     }
 
-    console.log("⚡ Webhook event received:", event.type);
 
     switch (event.type) {
       case "checkout.session.completed": {
@@ -41,7 +39,6 @@ router.post(
         const bookingId = session.metadata?.bookingId;
 
         if (bookingId) {
-          console.log("🔄 Updating subscription booking:", bookingId);
 
           await subscriptionBookingModel.updateOne(
             { _id: bookingId },
@@ -53,13 +50,11 @@ router.post(
             }
           );
 
-          console.log("✅ Subscription updated successfully");
         }
         break;
       }
 
       case "invoice.payment_succeeded": {
-        console.log("💰 Invoice paid successfully");
         break;
       }
     }

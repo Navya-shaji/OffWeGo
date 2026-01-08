@@ -1,5 +1,5 @@
 import { RegistervendorDto } from "../../../domain/dto/Vendor/RegisterVendorDto";
-import { VendorDto } from "../../../domain/dto/Vendor/vendorDto";
+import { VendorDto } from "../../../domain/dto/Vendor/VendorDto";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";

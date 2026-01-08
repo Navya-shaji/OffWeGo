@@ -33,7 +33,6 @@ async updateBalance(
   description: string,
   refId?: string
 ): Promise<IWallet> {
-  console.log("updateBalance CALLED FOR:", ownerId, ownerType, amount, type);
 
   const updatedWallet = await (this.model as any).findOneAndUpdate(
     { ownerId, ownerType },

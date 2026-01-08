@@ -1,5 +1,5 @@
 import { IGetDestinationBasedPackage } from "../../domain/interface/Vendor/IGetDestinationBasedPackage"; 
-import { Package } from "../../domain/entities/packageEntity"; 
+import { Package } from "../../domain/entities/PackageEntity"; 
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
 export class GetDestinationBasedPackageUseCase implements IGetDestinationBasedPackage {

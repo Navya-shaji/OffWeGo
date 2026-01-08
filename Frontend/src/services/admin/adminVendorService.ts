@@ -14,8 +14,8 @@ export const getAllVendors = async (
     params: { page, limit },
   });
   return {
-    vendors: response.data.vendors,
-    totalvendors: response.data.totalvendors,
+    vendors: response.data.data, // Backend returns vendors in 'data' field
+    totalvendors: response.data.totalVendors, // Backend uses 'totalVendors' (camelCase)
     totalPages: response.data.totalPages,
     currentPage: response.data.currentPage,
   };
@@ -44,12 +44,11 @@ export const updateVendorBlockStatus = async (
       isBlocked,
     }
   );
-  console.log(response.data.vendorId)
   return response.data;
 };
 export const searchVendor = async (query: string) => {
   const response = await axiosInstance.get("/api/admin/vendors/search", {
     params: { q: query },
   });
-  return response.data.data;
+  return response.data.data; // Backend returns vendors in 'data' field
 };

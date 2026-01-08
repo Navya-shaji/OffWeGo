@@ -11,7 +11,6 @@ export default function PaymentCheckout() {
   const totalAmount = state?.totalAmount || 0;
   const bookingData = state?.bookingData;
   
-  console.log("Payment checkout state:", { state, totalAmount, bookingData });
   
   const navigate = useNavigate();
   
@@ -34,7 +33,6 @@ export default function PaymentCheckout() {
         
         if (UserId) {
           const walletData = await getUserWallet(UserId);
-          console.log(walletData, "data");
           setWalletBalance(walletData.balance || 0);
         }
       } catch (err) {
@@ -73,15 +71,13 @@ export default function PaymentCheckout() {
 );
 
 
-      console.log(response, "booking response");
+   
 
       if (response.success) {
-        // Update wallet balance locally
         setWalletBalance(prev => prev - subtotal);
 
         alert("Payment successful! Your booking is confirmed.");
 
-        // Navigate to success page
         navigate("/booking-success", {
           state: {
             paymentMethod: "wallet",
@@ -115,7 +111,6 @@ export default function PaymentCheckout() {
 
   const hasInsufficientBalance = selectedPayment === "wallet" && walletBalance < subtotal;
   
-  console.log(walletBalance, "balance");
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">

@@ -47,13 +47,13 @@ export class NotificationRepository implements INotificationRepository {
       recipientType: recipientType 
     };
     
-    console.log(` Fetching notifications with query:`, query);
+  
     
     const docs = await (NotificationModel as any).find(query)
       .sort({ createdAt: -1 })
       .lean();
 
-    console.log(` Found ${docs.length} notifications for ${recipientType} with ID ${recipientId}`);
+   
     
     return docs as unknown as INotificationEntity[];
   }

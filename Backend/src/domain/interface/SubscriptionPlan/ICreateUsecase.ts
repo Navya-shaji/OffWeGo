@@ -1,4 +1,4 @@
-import { SubscriptionPlanDto } from "../../dto/Subscription/createsubscriptionDto";
+import { SubscriptionPlanDto } from "../../dto/Subscription/CreatesubscriptionDto";
 
 
 export interface ICreateSubscriptionPlanUseCase {

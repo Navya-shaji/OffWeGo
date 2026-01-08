@@ -5,7 +5,8 @@ export class DeleteHotelUsecase implements IDeleteHotelUsecase {
   constructor(private _hotelRepo: IHotelRepository) {}
   async execute(id: string): Promise<{ success: boolean; message: string }> {
     const result = await this._hotelRepo.delete(id);
-    console.log(result)
-    return { success: true, message: "Hotel deleted successfully"};
+    if (result) {
+      return { success: true, message: "Hotel deleted successfully" };
+    }
   }
 }

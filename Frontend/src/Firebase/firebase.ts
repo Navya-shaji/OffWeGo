@@ -44,20 +44,17 @@ export const getFcmToken = async (): Promise<string | null> => {
     });
 
     if (token) {
-      console.log("✅ FCM Token obtained:", token.substring(0, 20) + '...');
       return token;
     } else {
-      console.log("⚠️ No registration token available.");
       return null;
     }
 
   } catch (err: any) {
-    console.error("❌ Error retrieving FCM token:", err);
-    // Handle specific errors
+    console.error(" Error retrieving FCM token:", err);
     if (err.code === 'messaging/permission-blocked') {
-      console.warn("⚠️ Notification permission is blocked");
+      console.warn(" Notification permission is blocked");
     } else if (err.code === 'messaging/permission-default') {
-      console.warn("⚠️ Notification permission is default");
+      console.warn(" Notification permission is default");
     }
     return null;
   }
@@ -90,7 +87,6 @@ export const subscribeToTopic = async (token: string, topic: string) => {
       }
     );
 
-    console.log(`Subscribed to topic: ${topic}`, response.data);
   } catch (error) {
     console.error("Topic subscription failed:", error);
   }

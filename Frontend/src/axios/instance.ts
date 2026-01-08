@@ -16,10 +16,8 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  // Determine which token to use based on the endpoint being called
   const url = config.url || '';
 
-  // Never attach Authorization header to refresh-token calls (they should rely on httpOnly cookie)
   if (url.includes('/refresh-token')) {
     return config;
   }
@@ -35,31 +33,25 @@ axiosInstance.interceptors.request.use((config) => {
     token = tokenSliceToken;
   }
   
-  // For notification endpoints, accept token from either user or vendor
   if (!token && isNotificationEndpoint) {
     const userToken = store.getState().auth?.token;
     const vendorToken = store.getState().vendorAuth?.token;
-    // Try user token first, then vendor, then token slice
+
     token = userToken || vendorToken || tokenSliceToken;
-    console.log("🔑 Notification endpoint - Token selection:", {
-      hasUserToken: !!userToken,
-      hasVendorToken: !!vendorToken,
-      hasTokenSliceToken: !!tokenSliceToken,
-      selectedToken: token ? "Found" : "Not found"
-    });
+ 
   } else if (!token && isVendorEndpoint) {
-    // For vendor endpoints, prioritize vendor token
+
     const vendorToken = store.getState().vendorAuth?.token;
     token = vendorToken || tokenSliceToken;
   } else if (!token && isAdminEndpoint) {
     const adminToken = store.getState().adminAuth?.token;
     token = adminToken || tokenSliceToken;
   } else if (!token && isUserEndpoint) {
-    // For user endpoints, prioritize user token
+   
     const userToken = store.getState().auth?.token;
     token = userToken || tokenSliceToken;
   } else {
-    // For other endpoints (admin, etc.), use any available token
+
     const tokenState = store.getState().token?.accessToken;
     const authState = store.getState().auth?.token;
     const vendorToken = store.getState().vendorAuth?.token;

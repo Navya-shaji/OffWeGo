@@ -1,4 +1,4 @@
-import { VendorDto } from "../../../domain/dto/Vendor/vendorDto";
+import { VendorDto } from "../../../domain/dto/Vendor/VendorDto";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 export class GetVendorByEmailUseCase {

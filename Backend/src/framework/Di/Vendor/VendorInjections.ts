@@ -1,5 +1,5 @@
 import { VendorSignupController } from "../../../adapters/controller/Vendor/VendorSignup";
-import { VendorVerifyOtpController } from "../../../adapters/controller/Vendor/verifyVendorOtp";
+import { VendorVerifyOtpController } from "../../../adapters/controller/Vendor/VerifyVendorOtp";
 import { PackageController } from "../../../adapters/controller/Packages/PackageController";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { OtpService } from "../../Services/otpService";
@@ -7,9 +7,9 @@ import { HashPassword } from "../../Services/hashPassword";
 import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVendorUseCase";
 import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUsecase";
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
-import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/vendorStatusCheckController";
+import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/VendorStatusCheckController";
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
-import { VendorLoginController } from "../../../adapters/controller/Vendor/vendorLoginController"; 
+import { VendorLoginController } from "../../../adapters/controller/Vendor/VendorLoginController"; 
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 import { JwtService } from "../../Services/jwtService";
@@ -43,10 +43,10 @@ import { EditFlightUsecase } from "../../../useCases/flight/EditFlightUsecase";
 import { DeleteFlightUsecase } from "../../../useCases/flight/DeleteFlightUSecase";
 import { CreateBookingSubscriptionUseCase } from "../../../useCases/subscription/createBookingSubscriptionUsecase";
 import { SubscriptionBookingController } from "../../../adapters/controller/Subscriptionplan/SubscriptionBookingController";
-import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
-import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
+import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/SubscriptionBookingRepo";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/SubscriptionRepo";
 import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/subscription/GetVendorSubscriptionUsecase"; 
-import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
+import { WalletRepository } from "../../../adapters/repository/Wallet/WalletRepository";
 import { StripeService } from "../../Services/stripeService";
 
 

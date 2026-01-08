@@ -14,7 +14,7 @@ import CreateBanner from "../banner/createBanner";
 import { BannerForm } from "../banner/bannerForm";
 import AddSubscription from "@/pages/Admin/Subscription/CreateSubscription";
 import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
-import AdminDashboard from "./Dashboard";
+import DashboardContent from "./Dashboard";
 import AdminWalletManagement from "../Wallet/AdminWallet";
 import BookedSubscriptions from "../Subscription/BookedSubscriptions";
 
@@ -66,7 +66,7 @@ const AdminLayout = () => {
 
         <div className="flex-1 overflow-auto">
           <div className="p-4 sm:p-6">
-            {activeTab === "Dashboard" && <AdminDashboard />}
+            {activeTab === "Dashboard" && <DashboardContent />}
 
             {activeTab === "Pending Requests" && (
               <VendorRequests filter="pending" />

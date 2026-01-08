@@ -20,7 +20,7 @@ export const messageSchema = new Schema({
     },
     senderId: {
         type: String,
-        refPath: 'Role'
+        refPath: 'senderType'
     },
     senderType: {
         type: String,
@@ -33,7 +33,7 @@ export const messageSchema = new Schema({
     },
     receiverId: {
         type: String,
-        refPath: 'Role',
+        refPath: 'senderType',
         required: false
     },
     messageType: {
@@ -69,7 +69,7 @@ export const messageSchema = new Schema({
     replyTo: {
         messageId: {
             type: String,
-            ref: 'Message',
+            ref: 'message',
             required: false
         },
         messageContent: {

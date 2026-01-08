@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useContext, type KeyboardEvent } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck } from "lucide-react";
+import { useState, useEffect, useRef, useContext } from "react";
+import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, Image, X, RotateCcw } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -12,7 +12,7 @@ import { useChatContext } from "@/context/chatContext";
 const logo = "/images/logo.png";
 
 interface Contact {
-    _id: string; // Chat ID
+    _id: string; 
     name: string;
     role: string;
     avatar?: string;
@@ -76,6 +76,10 @@ const ChatPage = () => {
     const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
     const [hasMoreMessages, setHasMoreMessages] = useState(true);
     const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [deletedMessages, setDeletedMessages] = useState<Map<string, ChatMessage>>(new Map());
+    const inputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -146,7 +150,7 @@ const ChatPage = () => {
         emitTypingStop();
     };
 
-    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
             e.preventDefault();
             handleSendMessage();
@@ -156,7 +160,19 @@ const ChatPage = () => {
     const handleSendMessage = async () => {
         if (!selectedContact || !senderId) return;
         const content = newMessage.trim();
-        if (!content) return;
+        if (!content && !selectedImage) return;
+
+        let messageContent = content;
+        let messageType: 'text' | 'image' = 'text';
+        let fileUrl = '';
+
+        // Handle image upload
+        if (selectedImage) {
+            // For now, create a local URL (in production, upload to server)
+            fileUrl = URL.createObjectURL(selectedImage);
+            messageContent = selectedImage.name;
+            messageType = 'image';
+        }
 
         const receiverIdRaw = senderRole === "vendor" ? selectedContact.userId : selectedContact.vendorId;
         const receiverId = typeof receiverIdRaw === "string" ? receiverIdRaw : "";
@@ -181,14 +197,17 @@ const ChatPage = () => {
             senderType: senderType,
             senderName: user?.username || vendor?.name || "Someone",
             receiverId: receiverId,
-            messageContent: content,
-            messageType: "text" as const,
+            messageContent: messageContent,
+            messageType: messageType,
             seen: false,
             sendedTime: now,
+            fileUrl: fileUrl,
             replyTo: replyPayload,
         };
 
         setNewMessage("");
+        setSelectedImage(null);
+        setImagePreview(null);
         setReplyingTo(null);
         autoScrollRef.current = true;
 
@@ -201,7 +220,8 @@ const ChatPage = () => {
                 messageContent: payload.messageContent,
                 sendedTime: now,
                 seen: false,
-                messageType: "text",
+                messageType: messageType,
+                fileUrl: fileUrl,
                 deliveryStatus: "sending",
                 replyTo: replyingTo
                     ? {
@@ -215,7 +235,7 @@ const ChatPage = () => {
 
         setContacts(prev => prev.map(c => {
             if (c._id !== selectedContact._id) return c;
-            return { ...c, lastMessage: content, lastMessageTime: now };
+            return { ...c, lastMessage: messageContent, lastMessageTime: now };
         }));
 
         const socket = socketRef.current;
@@ -244,6 +264,41 @@ const ChatPage = () => {
         );
     };
 
+    const handleRevertMessage = async (messageId: string) => {
+        const deletedMessage = deletedMessages.get(messageId);
+        if (!deletedMessage || !socketRef.current) return;
+
+        // Restore message locally
+        setMessages(prev => prev.map(m => 
+            m._id === messageId ? deletedMessage : m
+        ));
+
+        // Remove from deleted messages
+        setDeletedMessages(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(messageId);
+            return newMap;
+        });
+
+        // Send revert via socket
+        socketRef.current.emit("revert_message", { messageId, chatId: selectedContact?._id });
+    };
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            setSelectedImage(file);
+            const preview = URL.createObjectURL(file);
+            setImagePreview(preview);
+        }
+    };
+
+    const clearImageSelection = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
+        URL.revokeObjectURL(imagePreview || '');
+    };
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -255,14 +310,12 @@ const ChatPage = () => {
         autoScrollRef.current = false;
     }, [messages]);
 
-    // Socket Connection - Use the socket from SocketProvider
     const socketContextValue = useContext(socketContext);
     const globalSocket = socketContextValue?.socket;
 
     useEffect(() => {
         if (!senderId) return;
 
-        // Use global socket if available, otherwise create a new one
         const socketUrl = import.meta.env.VITE_SOCKET_URL?.replace(/\/$/, '') || "http://localhost:1212";
         
         if (!globalSocket) {
@@ -271,61 +324,48 @@ const ChatPage = () => {
                 reconnection: true,
                 reconnectionDelay: 1000,
             });
-            // Register based on role
             if (senderRole === 'vendor') {
                 socketRef.current.emit("register_vendor", { vendorId: senderId });
             } else {
                 socketRef.current.emit("register_user", { userId: senderId });
             }
-            console.log("Created new socket connection");
         } else {
             socketRef.current = globalSocket;
-            // Register based on role if not already registered
             if (senderRole === 'vendor') {
                 socketRef.current.emit("register_vendor", { vendorId: senderId });
             } else {
                 socketRef.current.emit("register_user", { userId: senderId });
             }
-            console.log("Using global socket connection");
         }
 
         const socket = socketRef.current;
 
         const handleReceiveMessage = (newMessage: ChatMessage) => {
-            console.log("Received message via socket:", newMessage);
             if (newMessage.chatId === selectedContact?._id) {
                 autoScrollRef.current = true;
                 setMessages((prev) => {
-                    // Avoid duplicates
                     const exists = prev.some(msg => msg._id === newMessage._id);
                     if (exists) {
-                        console.log("Message already exists, skipping");
                         return prev;
                     }
-                    console.log("Adding new message to chat");
                     return [...prev, newMessage];
                 });
             }
 
-            // Update contact list with last message and increment unread count if not from current user
             setContacts(prev => prev.map(contact => {
                 if (contact._id === newMessage.chatId) {
                     const isFromCurrentUser = newMessage.senderId === senderId;
                     const isCurrentChat = contact._id === selectedContact?._id;
                     
-                    // Only increment unread count if:
-                    // 1. Message is not from current user
-                    // 2. Chat is not currently selected (user is viewing another chat)
+                
                     const shouldIncrement = !isFromCurrentUser && !isCurrentChat;
-                    
-                    // If it's the current chat, reset to 0 (messages are being viewed)
-                    // Otherwise, increment if message is from other user
+                 
                     const currentCount = Math.max(0, contact.unreadCount || 0);
                     const newUnreadCount = isCurrentChat 
                         ? 0 
                         : (shouldIncrement ? currentCount + 1 : currentCount);
                     
-                    // Ensure unreadCount is never negative
+                
                     const finalUnreadCount = Math.max(0, newUnreadCount);
                     
                     if (shouldIncrement) {
@@ -346,7 +386,6 @@ const ChatPage = () => {
 
         socket.on("receive-message", handleReceiveMessage);
         
-        // Listen for online status changes
         const handleUserStatusChange = (data: { userId: string; isOnline: boolean }) => {
             setOnlineUsers(prev => {
                 const updated = new Set(prev);
@@ -411,19 +450,14 @@ const ChatPage = () => {
 
         socket.on("new-message-notification", handleNewMessageNotification);
         
-        // Listen for messages-seen event to update unread count
         const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
-            console.log("👁️ Messages marked as seen for chat:", data.chatId);
-            // Update unread count to 0 for this chat
             setContacts(prev => prev.map(contact => {
                 if (contact._id === data.chatId) {
-                    console.log(`📊 Resetting unread count for chat ${contact._id} from ${contact.unreadCount} to 0 (via socket)`);
                     return { ...contact, unreadCount: 0 };
                 }
                 return contact;
             }));
             
-            // Update seen status for messages in current chat
             if (selectedContact?._id === data.chatId) {
                 setMessages(prev => prev.map(msg => {
                     if (msg.senderId !== senderId) {
@@ -436,7 +470,6 @@ const ChatPage = () => {
         
         socket.on("messages-seen", handleMessagesSeen);
         
-        // Listen for typing indicators (backend emits: "typing" / "stop-typing")
         const handleTypingOn = (data: { userId: string }) => {
             if (!selectedContact?._id) return;
             if (!data?.userId || data.userId === senderId) return;
@@ -460,7 +493,6 @@ const ChatPage = () => {
         
         // Listen for message deletion
         const handleMessageDeleted = (data: { messageId: string; chatId: string }) => {
-            console.log("Message deleted:", data);
             if (data.chatId === selectedContact?._id) {
                 setMessages(prev => prev.map(msg => 
                     msg._id === data.messageId 
@@ -472,7 +504,6 @@ const ChatPage = () => {
 
         socket.on("message_deleted", handleMessageDeleted);
         
-        // Debug socket events
         socket.on("connect", () => {
             console.log("Socket connected:", socket.id);
         });
@@ -495,7 +526,6 @@ const ChatPage = () => {
             socket.off("message_deleted", handleMessageDeleted);
             socket.off("online-users", handleOnlineUsersSnapshot);
             socket.off("new-message-notification", handleNewMessageNotification);
-            // Only disconnect if we created our own socket
             if (!globalSocket && socketRef.current) {
                 socketRef.current.disconnect();
                 socketRef.current = null;
@@ -521,7 +551,6 @@ const ChatPage = () => {
     }, [onlineUsers, senderRole]);
 
 
-    // Fetch contacts (chats)
     useEffect(() => {
         if (!senderId) {
             navigate("/login");
@@ -531,14 +560,10 @@ const ChatPage = () => {
         const fetchContacts = async () => {
             try {
                 setLoading(true);
-                // Determine user type: 'user' or 'vendor'
                 const userType = user ? 'user' : 'vendor';
-                console.log('🔍 Fetching chats:', { senderId, userType, isUser: !!user, isVendor: !!vendor });
                 const responseY = await getChatsOfUser(senderId, userType);
-                console.log('📦 Chat response:', responseY);
 
                 let chats: any[] = [];
-                // Handle different response structures
                 if (responseY && responseY.data) {
                     if (Array.isArray(responseY.data)) {
                         chats = responseY.data;
@@ -549,23 +574,18 @@ const ChatPage = () => {
                     chats = responseY;
                 }
 
-                // Debug: Log first chat to verify structure (remove in production)
                 if (chats.length > 0) {
                     console.log("Chat data sample:", chats[0]);
                     console.log("Full chat data structure:", JSON.stringify(chats[0], null, 2));
                 }
 
-                // Format contacts - Backend already formats with name and profile_image
                 const formattedContacts: Contact[] = chats.map((chat: any) => {
                     const isUser = senderRole === 'user';
                     
-                    // For vendors: show user profile, for users: show vendor profile
                     let name = chat.name || "Unknown";
                     let avatar = chat.profile_image || "";
                     
-                    // If current user is vendor, show the user's profile (other participant)
                     if (!isUser) {
-                        // Vendor viewing - show user profile
                         if (chat.userId) {
                             if (typeof chat.userId === 'object' && chat.userId !== null) {
                                 name = chat.userId.name || chat.userId.username || name;
@@ -576,7 +596,6 @@ const ChatPage = () => {
                             }
                         }
                     } else {
-                        // User viewing - show vendor profile
                         if (chat.vendorId) {
                             if (typeof chat.vendorId === 'object' && chat.vendorId !== null) {
                                 name = chat.vendorId.name || chat.vendorId.businessName || chat.vendorId.username || name;
@@ -617,19 +636,15 @@ const ChatPage = () => {
                     if (chat.userId && typeof chat.userId === 'string') {
                         userIdValue = chat.userId;
                     } else if (chat.userId) {
-                        // If it's an object, extract the ID
                         userIdValue = typeof chat.userId === 'object'
                             ? (chat.userId._id?.toString() || chat.userId.id?.toString() || String(chat.userId))
                             : String(chat.userId);
                     }
                     
-                    console.log(`Chat ${chat._id} - userId: ${userIdValue}, vendorId: ${vendorIdValue}`);
 
-                    // Determine if the other participant is online
                     const otherParticipantId = isUser ? vendorIdValue : userIdValue;
                     const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
 
-                    // Ensure unreadCount is a valid number (not negative)
                     const unreadCount = Math.max(0, chat.unreadCount || 0);
 
                     return {
@@ -706,9 +721,7 @@ const ChatPage = () => {
                 setLoadingMoreMessages(false);
                 const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
                 const res = await getMessages(selectedContact._id, userType);
-                console.log("Messages response:", res);
                 
-                // Backend returns: { success: true, data: [...] }
                 let messagesArray: ChatMessage[] = [];
                 if (res && res.data) {
                     if (Array.isArray(res.data)) {
@@ -725,25 +738,19 @@ const ChatPage = () => {
                 
                 autoScrollRef.current = true;
                 setMessages(messagesArray);
-                console.log("Loaded messages:", messagesArray.length);
 
-                // Join chat room
                 if (socketRef.current) {
                     socketRef.current.emit("join_room", { roomId: selectedContact._id });
-                    console.log("Joined room:", selectedContact._id);
                 }
 
-                // OPTIMISTIC UPDATE: Reset unread count immediately (before API call)
                 setContacts(prev => prev.map(c => {
                     if (c._id === selectedContact._id && (c.unreadCount || 0) > 0) {
                         const oldCount = c.unreadCount || 0;
-                        console.log(`📊 [OPTIMISTIC] Resetting unread count for chat ${c._id} from ${oldCount} to 0`);
                         return { ...c, unreadCount: 0 };
                     }
                     return c;
                 }));
                 
-                // Update seen status for all messages in this chat immediately
                 setMessages(prev => prev.map(msg => {
                     if (msg.senderId !== senderId && !msg.seen) {
                         return { ...msg, seen: true };
@@ -751,7 +758,6 @@ const ChatPage = () => {
                     return msg;
                 }));
 
-                // Mark messages as seen in backend (fire and forget - don't wait)
                 const currentUserType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
                 markMessagesAsSeen(selectedContact._id, senderId, currentUserType)
                     .then(() => {
@@ -759,7 +765,6 @@ const ChatPage = () => {
                     })
                     .catch((error) => {
                         console.error("Error marking messages as seen:", error);
-                        // Revert optimistic update on error (optional - you might want to keep it)
                     });
 
             } catch (error) {
@@ -1055,35 +1060,35 @@ const ChatPage = () => {
                                                 </div>
                                                 
                                                 {/* Message actions - shown on hover */}
-                                                {!isDeleted && (
-                                                    <div className={`absolute top-1 ${isOwnMessage ? "left-0 -translate-x-full" : "right-0 translate-x-full"} opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white rounded-lg shadow-lg p-1`}>
+                                                <div className={`absolute top-1 ${isOwnMessage ? "left-0 -translate-x-full" : "right-0 translate-x-full"} opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white rounded-lg shadow-lg p-1`}>
+                                                    <button
+                                                        onClick={() => handleReplyToMessage(msg)}
+                                                        className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-blue-600 transition-colors"
+                                                        title="Reply"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                                        </svg>
+                                                    </button>
+                                                    {isOwnMessage && (
                                                         <button
-                                                            onClick={() => handleReplyToMessage(msg)}
-                                                            className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-blue-600 transition-colors"
-                                                            title="Reply"
+                                                            onClick={() => isDeleted ? handleRevertMessage(msg._id) : handleDeleteMessage(msg._id)}
+                                                            disabled={deletingMessageId === msg._id}
+                                                            className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-red-600 transition-colors disabled:opacity-50"
+                                                            title={isDeleted ? "Restore" : "Delete"}
                                                         >
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                                            </svg>
+                                                            {deletingMessageId === msg._id ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : isDeleted ? (
+                                                                <RotateCcw className="w-4 h-4" />
+                                                            ) : (
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                            )}
                                                         </button>
-                                                        {isOwnMessage && (
-                                                            <button
-                                                                onClick={() => handleDeleteMessage(msg._id)}
-                                                                disabled={deletingMessageId === msg._id}
-                                                                className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-red-600 transition-colors disabled:opacity-50"
-                                                                title="Delete"
-                                                            >
-                                                                {deletingMessageId === msg._id ? (
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                ) : (
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                    </svg>
-                                                                )}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     );
@@ -1109,10 +1114,33 @@ const ChatPage = () => {
                                         onClick={handleCancelReply}
                                         className="ml-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
                                     >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
+                                        <X size={16} />
                                     </button>
+                                </div>
+                            )}
+
+                            {/* Image preview */}
+                            {imagePreview && (
+                                <div className="mb-2 p-3 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                                    <div className="relative inline-block">
+                                        <img 
+                                            src={imagePreview} 
+                                            alt="Preview" 
+                                            className="max-w-xs max-h-32 rounded-lg object-cover shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                            onClick={() => {
+                                                window.open(imagePreview, '_blank');
+                                            }}
+                                        />
+                                        <button
+                                            onClick={clearImageSelection}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-lg transition-all hover:scale-110"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                            Click to preview
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             
@@ -1124,6 +1152,23 @@ const ChatPage = () => {
                             )}
                             
                             <div className="flex items-center gap-2">
+                                {/* Image picker */}
+                                <input
+                                    type="file"
+                                    ref={inputRef}
+                                    accept="image/*"
+                                    onChange={handleImageSelect}
+                                    className="hidden"
+                                    id="image-picker"
+                                />
+                                <label
+                                    htmlFor="image-picker"
+                                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100 cursor-pointer"
+                                    title="Send image"
+                                >
+                                    <Image size={20} />
+                                </label>
+                                
                                 <input
                                     type="text"
                                     value={newMessage}
@@ -1139,7 +1184,7 @@ const ChatPage = () => {
                                 />
                                 <button
                                     onClick={handleSendMessage}
-                                    disabled={sending || !newMessage.trim()}
+                                    disabled={sending || (!newMessage.trim() && !selectedImage)}
                                     className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                                     aria-label="Send message"
                                 >
@@ -1149,12 +1194,9 @@ const ChatPage = () => {
                         </div>
                     </>
                 ) : (
-                    <div className="hidden md:flex flex-1 items-center justify-center text-gray-500">
-                        <div className="text-center">
-                            <MessageCircle className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-                            <p className="text-lg font-medium">Select a conversation</p>
-                            <p className="text-sm mt-1">Choose a contact to start messaging</p>
-                        </div>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                        <p className="text-lg font-medium">Select a conversation</p>
+                        <p className="text-sm mt-1">Choose a contact to start messaging</p>
                     </div>
                 )}
             </div>

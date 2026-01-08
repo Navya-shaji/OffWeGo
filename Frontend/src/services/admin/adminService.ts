@@ -11,13 +11,13 @@ export const getVendorsByStatus = async (
   status: "pending" | "approved" | "rejected"
 ) => {
   const response = await axiosInstance.get(`/api/admin/vendors/status/${status}`);
-  return response.data.vendors; 
+  return response.data.data; // Backend returns vendors in 'data' field
 };
 
 
 export const getPendingVendors = async () => {
   const response = await axiosInstance.get("/api/admin/vendors/pending");
-  return response.data.vendors; 
+  return response.data.data; // Backend returns vendors in 'data' field
 };
 
 export const updateVendorStatus = async (vendorId: string, status: "approved" | "rejected") => {

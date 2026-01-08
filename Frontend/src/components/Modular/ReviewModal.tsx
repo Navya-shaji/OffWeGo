@@ -81,7 +81,6 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       };
 
       const response = await createReviews(reviewData);
-      console.log(response, "res");
       if (response?.success) {
         toast.success(response.message || "Review added successfully! 🎉");
         handleClose();

@@ -1,4 +1,4 @@
-import { IChatOut } from "../../domain/dto/Chat/chatDto";
+import { IChatOut } from "../../domain/dto/Chat/ChatDto";
 
 export const mapToChatOut = (chat: IChatOut): IChatOut => ({
   _id: chat._id,

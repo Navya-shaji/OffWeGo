@@ -14,6 +14,7 @@ type FetchTravelPostsParams = {
   categoryId?: string;
   destinationId?: string;
   search?: string;
+  sortBy?: "latest" | "oldest" | "popular";
 };
 
 type FetchMyTravelPostsParams = {
@@ -23,6 +24,7 @@ type FetchMyTravelPostsParams = {
   categoryId?: string;
   destinationId?: string;
   search?: string;
+  sortBy?: "latest" | "oldest" | "popular";
 };
 
 
@@ -36,41 +38,24 @@ export const fetchTravelPosts = async (
   params: FetchTravelPostsParams = {}
 ): Promise<TravelPostListResponse> => {
   try {
-    console.log("🔍 API Call - Fetching posts with params:", params);
     const response = await axiosInstance.get("/api/posts", {
       params,
     });
 
-    console.log("🔍 API Response - Raw data:", response.data);
     const payload = response.data || {};
 
-    // Check if we have posts and if filtering is applied
     const posts = (payload.data as TravelPost[]) ?? [];
-    const hasFilters = params.categoryId || params.destinationId || params.search;
-    
-    console.log("🔍 API Debug - Posts before filtering:", posts);
-    console.log("🔍 API Debug - Has filters:", hasFilters);
-    
-    // If we have filters, check if any posts match
-    if (hasFilters && posts.length > 0) {
-      console.log("🔍 API Debug - Checking post category IDs:");
-      posts.forEach(post => {
-        console.log(`  - Post "${post.title}" categoryId: "${post.categoryId}"`);
-        console.log(`    Matches selected "${params.categoryId}": ${post.categoryId === params.categoryId}`);
-      });
-    }
-
+  
     const result = {
       data: posts,
       total: typeof payload.total === "number" ? payload.total : posts.length,
+      totalPosts: typeof payload.totalPosts === "number" ? payload.totalPosts : posts.length,
       page: typeof payload.page === "number" ? payload.page : params.page ?? 1,
       limit: typeof payload.limit === "number" ? payload.limit : params.limit ?? 10,
     };
     
-    console.log("🔍 API Result - Processed:", result);
     return result;
   } catch (error) {
-    console.error("🔍 API Error:", error);
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
@@ -104,9 +89,7 @@ export const createTravelPost = async (
 
 export const fetchTravelPostFilters = async (): Promise<TravelPostFilters> => {
   try {
-    console.log("🔍 Filters API - Fetching categories and destinations");
     const response = await axiosInstance.get("/api/posts/categories");
-    console.log("🔍 Filters API - Raw response:", response.data);
     const payload = response.data?.data ?? {};
 
     const result = {
@@ -117,10 +100,8 @@ export const fetchTravelPostFilters = async (): Promise<TravelPostFilters> => {
         payload.totalDestinations ?? (payload.destinations?.length ?? 0),
     };
     
-    console.log("🔍 Filters API - Processed result:", result);
     return result;
   } catch (error) {
-    console.error("🔍 Filters API - Error:", error);
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
@@ -146,6 +127,7 @@ export const fetchMyTravelPosts = async (
     return {
       data: (payload.data as TravelPost[]) ?? [],
       total: typeof payload.total === "number" ? payload.total : 0,
+      totalPosts: typeof payload.totalPosts === "number" ? payload.totalPosts : 0,
       page: typeof payload.page === "number" ? payload.page : params.page ?? 1,
       limit: typeof payload.limit === "number" ? payload.limit : params.limit ?? 10,
     };

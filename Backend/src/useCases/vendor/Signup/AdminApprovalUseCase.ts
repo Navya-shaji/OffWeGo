@@ -2,7 +2,7 @@ import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepos
 import { IAdminVendorApprovalUseCase } from "../../../domain/interface/Admin/IAdminVendorApprovalUsecase";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
 import { IVendorModel } from "../../../framework/database/Models/vendorModel";
-import { VendorDto } from "../../../domain/dto/Vendor/vendorDto";
+import { VendorDto } from "../../../domain/dto/Vendor/VendorDto";
 
 export class AdminVendorApprovalUseCase implements IAdminVendorApprovalUseCase {
   constructor(private _vendorRepository: IVendorRepository) {}

@@ -106,7 +106,6 @@ export class FCMService {
         if (this.token) {
           // Send token to backend
           await notificationService.updateFCMToken(this.token);
-          console.log('FCM token registered:', this.token);
         }
         return this.token;
       } else {
@@ -119,15 +118,12 @@ export class FCMService {
     }
   }
 
-  // Setup foreground message handler
   private setupMessageHandler(): void {
     try {
       const onMessage = require('firebase/messaging').onMessage;
       
       onMessage(this.messaging, (payload: any) => {
-        console.log('Foreground message received:', payload);
         
-        // Show custom notification or update UI
         this.handleForegroundMessage(payload);
       });
     } catch (error) {
@@ -135,11 +131,10 @@ export class FCMService {
     }
   }
 
-  // Handle foreground messages
   private handleForegroundMessage(payload: any): void {
     const { notification, data } = payload;
     
-    // Create browser notification
+    
     if (Notification.permission === 'granted') {
       new Notification(notification?.title || 'New Notification', {
         body: notification?.body || '',
@@ -149,7 +144,6 @@ export class FCMService {
       });
     }
 
-    // Dispatch custom event for UI updates
     window.dispatchEvent(new CustomEvent('newNotification', {
       detail: {
         title: notification?.title,
@@ -160,20 +154,17 @@ export class FCMService {
     }));
   }
 
-  // Get current token
+
   getToken(): string | null {
     return this.token;
   }
 
-  // Check if notifications are supported
   isSupported(): boolean {
     return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
   }
 }
 
-// Notification trigger functions for different events
 export const notificationTriggers = {
-  // Booking notification
   bookingNotification: async (bookingData: any): Promise<void> => {
     const message: FCMMessage = {
       to: bookingData.adminFCMToken || '/topics/admin',
@@ -194,7 +185,7 @@ export const notificationTriggers = {
     await notificationService.sendNotification(message);
   },
 
-  // Payment credit notification
+
   paymentNotification: async (paymentData: any): Promise<void> => {
     const message: FCMMessage = {
       to: paymentData.adminFCMToken || '/topics/admin',
@@ -215,7 +206,7 @@ export const notificationTriggers = {
     await notificationService.sendNotification(message);
   },
 
-  // Subscription purchase notification
+ 
   subscriptionNotification: async (subscriptionData: any): Promise<void> => {
     const message: FCMMessage = {
       to: subscriptionData.adminFCMToken || '/topics/admin',
@@ -237,7 +228,6 @@ export const notificationTriggers = {
     await notificationService.sendNotification(message);
   },
 
-  // Wallet transaction notification
   walletNotification: async (transactionData: any): Promise<void> => {
     const isCredit = transactionData.type === 'credit';
     const message: FCMMessage = {

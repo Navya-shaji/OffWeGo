@@ -1,4 +1,4 @@
-import { CreateReviewDTO } from "../../domain/dto/Review/createReviewDto";
+import { CreateReviewDTO } from "../../domain/dto/Review/CreateReviewDto";
 import { ICreateReviewUseCase } from "../../domain/interface/Reviews/IcreateReviewUsecase";
 import { IReviewRepository } from "../../domain/interface/Reviews/IReviewRepository";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";

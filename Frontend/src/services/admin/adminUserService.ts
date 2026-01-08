@@ -16,7 +16,7 @@ export const getAllUsers = async (
   });
 
   return {
-    users: response.data.users,
+    users: response.data.data, // Backend returns users in 'data' field
     totalUsers: response.data.totalUsers,
     totalPages: response.data.totalPages,
     currentPage: response.data.currentPage,
@@ -34,6 +34,6 @@ export const searchUser=async(query:string)=>{
   const response=await axiosInstance.get('/api/admin/user/search',{
     params: { q: query }
   })
-  return response.data.data
+  return response.data.data // Backend returns users in 'data' field
 
 }

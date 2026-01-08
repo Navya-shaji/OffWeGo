@@ -3,7 +3,7 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { CreateSubscriptionUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { IEditSubscriptionusecase } from "../../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/createsubscriptionDto";
+import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/CreatesubscriptionDto";
 import { IDeleteSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IDeletesubscription";
 import { IGetSubscriptionBookingUseCase } from "../../../domain/interface/SubscriptionPlan/IGetAllSubscriptionBookingUsecase";
 import { IGetVendorSubscriptionHistoryUseCase } from "../../../domain/interface/SubscriptionPlan/IGetVendorHistory";

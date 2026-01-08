@@ -23,7 +23,7 @@ export class VendorLoginController {
         loginPayload,
         fcmToken
       );
-      console.log(res);
+
 
       if (!result || !result.vendor) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -51,8 +51,6 @@ export class VendorLoginController {
         fcmToken,
       });
     } catch (error) {
-      console.error("Error during vendor login:", error);
-
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Internal server error during login",

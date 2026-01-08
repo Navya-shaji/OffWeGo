@@ -52,11 +52,10 @@ const HotelsTable: React.FC = () => {
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-const [destinationId, setDestinationId] = useState<string>("");
+const [destinationId, ] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-console.log(setDestinationId)
   const loadHotels = useCallback(async (pageNum: number = 1) => {
   if (isLoadingRef.current) return;
 
@@ -310,7 +309,7 @@ console.log(setDestinationId)
       setSelectedHotel(null);
     }
   }, [selectedHotel, hotels, originalHotels, isSearchMode, totalHotels]);
-console.log(hotels,"hotels")
+
   const columns = useMemo<ColumnDef<Hotel>[]>(
     () => [
       { 

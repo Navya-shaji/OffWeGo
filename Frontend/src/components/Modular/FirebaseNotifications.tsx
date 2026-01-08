@@ -9,7 +9,6 @@ const FirebaseNotification = () => {
   useEffect(() => {
     onMessageListener()
       .then((payload) => {
-        console.log("Received foreground notification:", payload);
 
         setNotification(payload);
 

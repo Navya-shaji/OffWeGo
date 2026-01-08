@@ -39,7 +39,6 @@ export const CategoryTable = () => {
     try {
       setLoading(true);
       const response = await getCategory(page, 5);
-      console.log(response,"")
       setCategory(response.categories || []);
       const total = Number(response?.totalCategories || 0);
       setTotalPages(Math.ceil(total / 5));

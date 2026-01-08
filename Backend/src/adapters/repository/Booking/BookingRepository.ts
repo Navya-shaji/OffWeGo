@@ -81,7 +81,7 @@ export class BookingRepository implements IBookingRepository {
     return updated;
   }
   async findOne(bookingId: string): Promise<Booking | null> {
-    console.log("Finding booking by bookingId or _id:", bookingId);
+    
 
     let booking: Booking | null = null;
 
@@ -94,7 +94,7 @@ export class BookingRepository implements IBookingRepository {
         .lean()
         .exec();
     }
-    console.log("Result from DB:", booking);
+  
     return booking;
   }
 
@@ -155,7 +155,7 @@ export class BookingRepository implements IBookingRepository {
       bookingStatus: booking.bookingStatus,
     }));
 
-    console.log(formattedTrips, "Finished trip details");
+    
     return formattedTrips as unknown as Booking[];
   }
 

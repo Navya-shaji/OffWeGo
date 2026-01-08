@@ -25,8 +25,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
 
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
   const user = useSelector((state: RootState) => state.auth.user);
-  const isVendorAuthenticated = useSelector((state: RootState) => state.vendorAuth.isAuthenticated);
-  const isUserAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
   
 
   const location = window.location.pathname;
@@ -35,28 +34,14 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   
  
   const isVendor = isVendorRoute && !isAdminRoute;
-  
-  console.log("🔍 NotificationModal - Route detection:", {
-    location,
-    isVendorRoute,
-    isAdminRoute,
-    isVendor,
-    userAuth: isUserAuthenticated,
-    userId: user?.id,
-    vendorAuth: isVendorAuthenticated,
-    vendorId: vendor?.id,
-  });
+
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      console.log("🔄 Loading notifications...");
-      // fetchNotifications() uses route-based detection internally
       const data = await fetchNotifications();
-      console.log("📬 Notifications fetched:", data);
-      console.log("📬 Data type:", typeof data, "Is array:", Array.isArray(data));
-      console.log("📬 Data length:", Array.isArray(data) ? data.length : "N/A");
+    
       
       if (!Array.isArray(data)) {
         console.warn("⚠️ fetchNotifications did not return an array:", data);
@@ -67,18 +52,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         }
         return;
       }
-      
-      // Ensure we have valid notification objects
-      if (data.length > 0) {
-        console.log("📬 First notification structure:", {
-          keys: Object.keys(data[0]),
-          hasId: !!(data[0]._id || data[0].id),
-          hasTitle: !!data[0].title,
-          hasMessage: !!data[0].message,
-          hasRecipientType: !!data[0].recipientType,
-          hasRecipientId: !!data[0].recipientId
-        });
-      }
+  
       
       const currentUserId = isVendor ? vendor?.id : user?.id;
       const expectedRecipientType = isVendor ? "vendor" : "user";
@@ -101,7 +75,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         });
       }
       
-      console.log(`✅ Displaying ${filteredData.length} notifications (out of ${data.length} total) for ${expectedRecipientType} ${currentUserId || 'unknown'}`);
       
       const finalData = filteredData.length > 0 ? filteredData : data;
 
@@ -113,16 +86,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         if (!n.read) return true;
         return now - createdAtMs <= fifteenDaysMs;
       });
-      console.log(`📊 Final notifications to display: ${finalData.length}`);
-      console.log(`📊 Final data sample:`, finalData.slice(0, 3).map(n => ({
-        id: n._id || n.id,
-        title: n.title,
-        recipientType: n.recipientType,
-        recipientId: n.recipientId
-      })));
+ 
       
       setNotifications(finalDataAfterRetention);
-      console.log(`✅ Notifications state updated with ${finalDataAfterRetention.length} items`);
       
       const unreadCount = finalDataAfterRetention.filter(n => !n.read).length;
       if (onUnreadCountChange) {
@@ -142,23 +108,13 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   }, [open, loadNotifications]);
 
   useEffect(() => {
-    console.log("📊 Notifications state changed:", {
-      count: notifications.length,
-      loading,
-      error,
-      sample: notifications.slice(0, 2).map(n => ({
-        id: n._id || n.id,
-        title: n.title
-      }))
-    });
+
   }, [notifications, loading, error]);
 
-  // Check if notification is a chat notification
   const isChatNotification = (notification: ServiceNotification): boolean => {
     return notification.title.toLowerCase().includes("new message from");
   };
 
-  // Extract sender name from notification title
   const extractSenderName = (title: string): string => {
     const match = title.match(/New message from (.+)/i);
     return match ? match[1] : "";
@@ -180,7 +136,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       const chatsResponse = await getChatsOfUser(currentUserId, userType);
       const chats = chatsResponse?.data || chatsResponse || [];
       
-      // Find chat with matching sender name
       const matchingChat = chats.find((chat: any) => {
         const chatName = chat.name || "";
         return chatName.toLowerCase().includes(senderName.toLowerCase()) ||
@@ -268,7 +223,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         onUnreadCountChange?.(unreadCount);
         return updated;
       });
-      console.log(notificationId,"idd")
       await ReadNotification(notificationId);
       
       dispatch(markAsRead(notificationId));

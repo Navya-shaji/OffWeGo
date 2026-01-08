@@ -4,9 +4,7 @@ import type { CategoryType } from "@/interface/categoryInterface";
 
 export const addCategory = async (data: CategoryType) => {
   try {
-   console.log("haii")
     const res = await axiosInstance.post("/api/admin/create-categories", data);
-    console.log(res.data,"resss")
     return res.data;
   } catch (error) {
     console.error("error adding category", error);
@@ -30,7 +28,6 @@ export const getCategory = async (
     const res = await axiosInstance.get("/api/admin/categories", {
       params: { page, limit },
     });
-    console.log(res.data.data,"category")
     return {
       categories: res.data.data.categories,
       totalCategories: res.data.totalCategories,

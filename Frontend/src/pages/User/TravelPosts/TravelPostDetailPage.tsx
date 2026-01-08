@@ -1,13 +1,26 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import type { TravelPost } from "../../../interface/TravelPost";
 import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "@/services/TravelPost/TravelPostService";
-import { FaHeart, FaRegHeart, FaArrowLeft, FaEye, FaCalendar, FaMapMarkerAlt, FaTag } from "react-icons/fa";
+import { 
+  Heart, 
+  ArrowLeft, 
+  Eye, 
+  Calendar, 
+  MapPin, 
+  Tag, 
+  User,
+  Clock,
+  Share2,
+  Bookmark
+} from "lucide-react";
 import Header from "../../../components/home/navbar/Header";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-type TravelPostDetailProps = object;
+dayjs.extend(relativeTime);
 
-const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
+const TravelPostDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<TravelPost | null>(null);
@@ -17,6 +30,8 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
   const [likesCount, setLikesCount] = useState(0);
   const [savedPosts, setSavedPosts] = useState<TravelPost[]>([]);
   const [savedPostsLoading, setSavedPostsLoading] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     if (slug) {
@@ -68,20 +83,36 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
     navigate(`/posts/${savedPostSlug}`);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const handleShare = () => {
+    if (navigator.share && post) {
+      navigator.share({
+        title: post.title,
+        text: post.excerpt,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const openImageModal = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsImageModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsImageModalOpen(false);
   };
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900"></div>
-          <p className="text-gray-600">Loading post...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="mx-auto mb-6 h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
+            <p className="text-lg font-medium text-gray-600">Loading your travel story...</p>
+          </div>
         </div>
       </div>
     );
@@ -89,169 +120,216 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
 
   if (error || !post) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <div className="text-center">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="mb-4 inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400"
-          >
-            <FaArrowLeft /> Back
-          </button>
-          <p className="text-gray-600">{error || "Post not found"}</p>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="mx-auto mb-6 h-24 w-24 rounded-full bg-red-100 flex items-center justify-center">
+              <div className="text-4xl">📝</div>
+            </div>
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">Story Not Found</h2>
+            <p className="mb-6 text-gray-600 max-w-md">{error || "This travel story couldn't be found or has been removed."}</p>
+            <Link
+              to="/posts"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Stories
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <Header />
       
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* Header Actions */}
-        <div className="mb-8 flex items-center justify-between">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400"
+      {/* Hero Section with Cover Image */}
+      <div className="relative h-96 overflow-hidden">
+        {post.coverImageUrl && (
+          <img
+            src={post.coverImageUrl}
+            alt={post.title}
+            className="h-full w-full object-cover"
+          />
+        )}
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+        
+        {/* Floating Action Buttons */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+          <Link
+            to="/posts"
+            className="flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-gray-800 hover:bg-white transition-all shadow-lg"
           >
-            <FaArrowLeft /> Back to Posts
-          </button>
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Link>
           
-          <button
-            onClick={handleSaveToggle}
-            className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors ${
-              isSaved 
-                ? "border-red-500 bg-red-500 text-white hover:bg-red-600" 
-                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-            }`}
-          >
-            {isSaved ? <FaHeart /> : <FaRegHeart />}
-            <span>{isSaved ? "Saved" : "Save"}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-gray-800 hover:bg-white transition-all shadow-lg"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </button>
+            
+            <button
+              onClick={handleSaveToggle}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all shadow-lg ${
+                isSaved 
+                  ? "bg-red-500 text-white hover:bg-red-600" 
+                  : "bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white"
+              }`}
+            >
+              {isSaved ? <Bookmark className="w-4 h-4 fill-current" /> : <Bookmark className="w-4 h-4" />}
+              {isSaved ? "Saved" : "Save"}
+            </button>
+          </div>
         </div>
-
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <article>
-              {/* Title */}
-              <h1 className="mb-6 font-serif text-4xl font-normal leading-tight tracking-wide text-gray-900 md:text-5xl">
-                {post.title}
-              </h1>
+        
+        {/* Title Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="mb-4 font-serif text-4xl font-bold leading-tight tracking-wide md:text-6xl">
+              {post.title}
+            </h1>
+            
+            {/* Meta Info */}
+            <div className="flex flex-wrap items-center gap-6 text-sm">
+              {post.authorName && (
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  <span>{post.authorName}</span>
+                </div>
+              )}
               
-              {/* Meta Information */}
-              <div className="mb-6 flex flex-wrap gap-4 border-b border-gray-200 pb-6">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  {/* <FaUser className="text-gray-400" /> */}
-                  {/* <span>Author ID: {post.authorId}</span> */}
+              {post.destinationName && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>{post.destinationName}</span>
                 </div>
-                
-                {post.destinationId && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FaMapMarkerAlt className="text-gray-400" />
-                    <span>Destination ID: {post.destinationId}</span>
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FaCalendar className="text-gray-400" />
-                  <span>{formatDate(post.createdAt)}</span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  {/* <FaEye className="text-gray-400" />
-                  <span>{post.metrics.views} views</span> */}
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FaHeart className="text-gray-400" />
-                  <span>{likesCount} likes</span>
-                </div>
+              )}
+              
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>{dayjs(post.createdAt).format("MMMM D, YYYY")}</span>
               </div>
+              
+              {post.tripDate && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span>Trip {dayjs(post.tripDate).format("MMMM YYYY")}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
-              {/* Tags */}
-              {post.tags && post.tags.length > 0 && (
-                <div className="mb-6 flex flex-wrap items-center gap-2">
-                  <FaTag className="text-gray-400" />
+      {/* Main Content */}
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="grid gap-12 lg:grid-cols-3">
+          {/* Main Content Area */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Excerpt */}
+            {post.excerpt && (
+              <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 p-8 border border-blue-100">
+                <p className="text-lg leading-relaxed text-gray-800 italic">
+                  "{post.excerpt}"
+                </p>
+              </div>
+            )}
+
+            {/* Content */}
+            <article className="prose prose-lg prose-gray max-w-none prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-wide prose-headings:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-700 prose-a:text-blue-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl prose-img:shadow-lg">
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            </article>
+
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="rounded-2xl bg-gray-50 p-6 border border-gray-200">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+                  <Tag className="w-5 h-5 text-gray-600" />
+                  Tags
+                </h3>
+                <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag, index) => (
-                    <span 
-                      key={index} 
-                      className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+                    <span
+                      key={index}
+                      className="rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-2 text-sm font-medium text-blue-800 border border-blue-200"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Excerpt */}
-              {post.excerpt && (
-                <div className="mb-8 rounded-lg bg-gray-50 p-6">
-                  <p className="text-lg leading-relaxed text-gray-700">{post.excerpt}</p>
+            {/* Engagement Stats */}
+            <div className="rounded-2xl bg-gradient-to-r from-purple-50 to-pink-50 p-6 border border-purple-200">
+              <div className="flex items-center justify-around">
+                <div className="text-center">
+                  <div className="mb-2 flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">{post.metrics.views}</p>
+                  <p className="text-sm text-gray-600">Views</p>
                 </div>
-              )}
-
-              {/* Content */}
-              <div 
-                className="prose prose-gray max-w-none prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-wide prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-gray-900 prose-a:underline prose-img:rounded-lg"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
-            </article>
+                
+                <div className="text-center">
+                  <div className="mb-2 flex items-center justify-center">
+                    <Heart className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">{likesCount}</p>
+                  <p className="text-sm text-gray-600">Likes</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-8">
-            {/* Cover Image */}
-            {post.coverImageUrl && (
-              <div className="overflow-hidden rounded-lg shadow-md">
-                <img
-                  src={post.coverImageUrl}
-                  alt={post.title}
-                  className="h-auto w-full object-cover"
-                />
-              </div>
-            )}
-
             {/* Gallery */}
             {post.galleryUrls && post.galleryUrls.length > 0 && (
-              <div>
-                <h3 className="mb-4 font-serif text-xl font-normal tracking-wide text-gray-900">
-                  Gallery
-                </h3>
-                <div className="space-y-4">
-                  {post.galleryUrls.map((url, index) => (
-                    <div 
-                      key={index} 
-                      className="cursor-pointer overflow-hidden rounded-lg shadow-md transition-transform hover:scale-105"
-                      onClick={() => window.open(url, '_blank')}
+              <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-200">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">Photo Gallery</h3>
+                <div className="grid gap-3">
+                  {post.galleryUrls.slice(0, 6).map((url, index) => (
+                    <div
+                      key={index}
+                      className="group cursor-pointer overflow-hidden rounded-lg"
+                      onClick={() => openImageModal(index)}
                     >
-                      <img
-                        src={url}
-                        alt={`${post.title} - Image ${index + 1}`}
-                        className="h-auto w-full object-cover"
-                      />
+                      <div className="aspect-video overflow-hidden">
+                        <img
+                          src={url}
+                          alt={`${post.title} - Image ${index + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="mt-2 text-center">
+                        <p className="text-sm text-gray-600">Photo {index + 1}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Saved Posts */}
-            <div>
-              {/* <h3 className="mb-4 font-serif text-xl font-normal tracking-wide text-gray-900">
-                Saved Posts
-              </h3> */}
-              
-              {savedPostsLoading ? (
-                <div className="text-center text-sm text-gray-500">
-                  Loading saved posts...
-                </div>
-              ) : savedPosts.length > 0 ? (
+            {/* Related Saved Posts */}
+            {savedPosts.length > 0 && (
+              <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-200">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">Saved Stories</h3>
                 <div className="space-y-4">
                   {savedPosts.map((savedPost) => (
-                    <div 
-                      key={savedPost.id} 
-                      className="group cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white transition-all hover:shadow-lg"
+                    <div
+                      key={savedPost.id}
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-lg hover:border-blue-300"
                       onClick={() => handleSavedPostClick(savedPost.slug)}
                     >
                       {savedPost.coverImageUrl && (
@@ -264,35 +342,56 @@ const TravelPostDetailPage: React.FC<TravelPostDetailProps> = () => {
                         </div>
                       )}
                       <div className="p-4">
-                        <h4 className="mb-2 font-medium text-gray-900 line-clamp-2">
+                        <h4 className="mb-2 font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
                           {savedPost.title}
                         </h4>
                         <p className="mb-3 text-sm text-gray-600 line-clamp-2">
                           {savedPost.excerpt}
                         </p>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <FaEye /> {savedPost.metrics.views}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <FaHeart /> {savedPost.metrics.likes}
-                          </span>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>{dayjs(savedPost.createdAt).format("MMM D, YYYY")}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {savedPost.metrics.views}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3" />
+                              {savedPost.metrics.likes}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="rounded-lg bg-gray-50 p-6 text-center">
-                  {/* <p className="text-sm text-gray-600">
-                    No saved posts yet. Start saving your favorite travel stories!
-                  </p> */}
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Image Modal */}
+      {isImageModalOpen && post.galleryUrls && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={closeModal}
+        >
+          <div className="relative max-w-6xl max-h-[90vh] p-4">
+            <img
+              src={post.galleryUrls[selectedImageIndex]}
+              alt={`${post.title} - Image ${selectedImageIndex + 1}`}
+              className="max-h-[80vh] w-auto rounded-lg shadow-2xl"
+            />
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 rounded-full bg-white/90 p-2 text-gray-800 hover:bg-white transition-all"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

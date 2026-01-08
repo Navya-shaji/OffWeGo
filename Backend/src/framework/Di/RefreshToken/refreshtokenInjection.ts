@@ -1,5 +1,5 @@
 import { RefreshTokenUseCase } from "../../../useCases/auth/refreshtokenusecase";
-import { RefreshTokenController } from "../../../adapters/controller/Auth/authcontroller";
+import { RefreshTokenController } from "../../../adapters/controller/Auth/Authcontroller";
 import { JwtService } from "../../Services/jwtService";
 
 const jwtService = new JwtService();

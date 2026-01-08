@@ -1,5 +1,5 @@
-import { User } from "../../../domain/entities/userEntity";
-import { Vendor } from "../../../domain/entities/vendorEntities";
+import { User } from "../../../domain/entities/UserEntity";
+import { Vendor } from "../../../domain/entities/VendorEntities";
 import { IAdminRepository } from "../../../domain/interface/Admin/IAdminRepository";
 
 import { UserModel } from "../../../framework/database/Models/userModel";

@@ -19,7 +19,6 @@ export default function WalletManagement({ embedded = false }: { embedded?: bool
         const data = await getUserWallet(user.id);
         setWallet(data);
       } catch (err) {
-        console.log(err);
         setError("Failed to load wallet");
       } finally {
         setLoading(false);

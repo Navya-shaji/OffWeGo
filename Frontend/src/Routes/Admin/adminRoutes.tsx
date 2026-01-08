@@ -1,5 +1,5 @@
 import NotFound from "@/components/Modular/NotFound";
-import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
+import AdminLayout from "@/pages/Admin/Dashboard/AdminDashboard";
 import Login from "@/pages/Admin/Login/AdminLogin";
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
 
@@ -14,7 +14,7 @@ const AdminRoute = () => {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <AdminDashboard />
+            <AdminLayout />
           </ProtectedRoute>
         }
       />

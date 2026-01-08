@@ -1,4 +1,4 @@
-import { CategoryDto } from "../../dto/category/categoryDto";
+import { CategoryDto } from "../../dto/Category/CategoryDto";
 
 export interface IGetCategoryUsecase {
   execute(

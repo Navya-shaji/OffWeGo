@@ -74,17 +74,15 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         try {
             const res = await getChatsOfUser(myId, myType);
             const chatsList = res.data || [];
-            console.log("📊 Context: Fetched chats with unread counts:", chatsList.map((c: any) => ({ id: c._id, unreadCount: c.unreadCount })));
             setChats(chatsList);
         } catch (err) {
             console.error("Failed to fetch chats", err);
         }
     };
 
-    // Calculate total unread count - ensure we only count unread messages
     const totalUnreadCount = chats.reduce((sum, chat) => {
         const count = chat.unreadCount || 0;
-        return sum + (count > 0 ? count : 0); // Only add positive counts
+        return sum + (count > 0 ? count : 0); 
     }, 0);
 
     const unreadChatCount = chats.reduce((sum, chat) => {
@@ -101,16 +99,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         fetchChatsData();
     }, [myId, triggerState[0]]);
     
-    // Listen for socket events to update unread counts
     useEffect(() => {
         if (!socket) return;
         
         const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
-            console.log("👁️ Context: Messages marked as seen for chat:", data.chatId);
-            // Update the chat's unread count to 0
+      
             setChats(prev => prev.map(chat => {
                 if (chat._id === data.chatId) {
-                    console.log(`📊 Context: Resetting unread count for chat ${chat._id} from ${chat.unreadCount} to 0`);
                     return { ...chat, unreadCount: 0 };
                 }
                 return chat;
@@ -126,7 +121,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         }) => {
             if (!data?.chatId) return;
 
-            // If the user is currently viewing this chat, don't increment unread count.
             if (currentChat && currentChat._id === data.chatId) {
                 return;
             }
@@ -161,12 +155,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         };
     }, [socket, currentChat]);
 
-    // Socket Listeners
     useEffect(() => {
         if (!socket) return;
 
         const handleReceive = (msg: Imessage) => {
-            console.log("Context received msg:", msg);
             if (currentChat && msg.chatId === currentChat._id) {
                 setMessages(prev => [...prev, msg]);
             }

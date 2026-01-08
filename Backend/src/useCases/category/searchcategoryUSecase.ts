@@ -1,4 +1,4 @@
-import { CategoryDto } from "../../domain/dto/category/categoryDto";
+import { CategoryDto } from "../../domain/dto/Category/CategoryDto";
 import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
 import { ISearchCategoryUsecase } from "../../domain/interface/Category/IsearchcategoryUsecase";
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -13,7 +13,6 @@ import { useAppSelector } from "@/hooks";
 dayjs.extend(relativeTime);
 
 type SortOption = "latest" | "oldest" | "popular";
-
 
 const sortPosts = (posts: TravelPost[], sortBy: SortOption) => {
   const cloned = [...posts];
@@ -41,21 +40,43 @@ const TravelPostListPage = () => {
   const [view, setView] = useState("all");
   const [myStatus, setMyStatus] = useState<"" | "PENDING" | "APPROVED" | "REJECTED">("");
 
+  // Infinite scroll states
+  const [displayedPosts, setDisplayedPosts] = useState<TravelPost[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const POSTS_PER_PAGE = 9;
+
   const approvedPostsQuery = useQuery({
-    queryKey: ["travel-posts", "approved"],
+    queryKey: ["travel-posts", "approved", { page, categoryId, destinationId, search, sortBy }],
     queryFn: () =>
       fetchTravelPosts({
         status: "APPROVED",
+        page,
+        limit: POSTS_PER_PAGE,
+        categoryId: categoryId || undefined,
+        destinationId: destinationId || undefined,
+        search: search || undefined,
+        sortBy,
       }),
     staleTime: 1000 * 60 * 5,
     enabled: view === "all",
   });
 
   const myPostsQuery = useQuery({
-    queryKey: ["travel-posts", "mine", { myStatus }],
+    queryKey: ["travel-posts", "mine", { myStatus, page, categoryId, destinationId, search, sortBy }],
     queryFn: () =>
       fetchMyTravelPosts({
         status: myStatus || undefined,
+        page,
+        limit: POSTS_PER_PAGE,
+        categoryId: categoryId || undefined,
+        destinationId: destinationId || undefined,
+        search: search || undefined,
+        sortBy,
       }),
     staleTime: 1000 * 60 * 2,
     enabled: view === "mine" && isAuthenticated,
@@ -70,52 +91,72 @@ const TravelPostListPage = () => {
   const categoryOptions: CategoryType[] = filtersQuery.data?.categories ?? [];
   const destinationOptions: DestinationInterface[] = filtersQuery.data?.destinations ?? [];
 
-  console.log(" Frontend Debug - Available categories:", categoryOptions);
-  console.log(" Frontend Debug - Available destinations:", destinationOptions);
-
   const activeQuery = view === "mine" ? myPostsQuery : approvedPostsQuery;
 
-  const filteredPosts = useMemo(() => {
-    if (!activeQuery.data?.data) return [];
-    const base = activeQuery.data.data;
-    
-    console.log(" Frontend Debug - Active query data:", activeQuery.data);
-    console.log(" Frontend Debug - Raw posts array:", base);
-    console.log(" Frontend Debug - Posts length:", base?.length);
-    console.log(" Frontend Debug - Filters applied:", { categoryId, destinationId, search, sortBy });
-    
-    // Apply frontend filtering
-    let filtered = base;
-    
-    // Filter by category
-    if (categoryId) {
-      filtered = filtered.filter(post => post.categoryId === categoryId);
-      console.log(` Frontend Debug - After category filter (${categoryId}):`, filtered.length, "posts");
-    }
-    
-    // Filter by destination
-    if (destinationId) {
-      filtered = filtered.filter(post => post.destinationId === destinationId);
-      console.log(` Frontend Debug - After destination filter (${destinationId}):`, filtered.length, "posts");
-    }
-    
-    // Filter by search
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filtered = filtered.filter(post => 
-        post.title.toLowerCase().includes(searchLower) ||
-        post.content.toLowerCase().includes(searchLower) ||
-        post.tags?.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-      console.log(` Frontend Debug - After search filter ("${search}"):`, filtered.length, "posts");
-    }
-    
+  // Reset displayed posts when filters change
+  useEffect(() => {
+    setDisplayedPosts([]);
+    setPage(1);
+    setHasMore(true);
+  }, [categoryId, destinationId, search, sortBy, view, myStatus]);
 
-    const sorted = sortPosts(filtered,"latest");
-    console.log(" Frontend Debug - Final sorted posts:", sorted);
-    
-    return sorted;
-  }, [activeQuery.data, categoryId, destinationId, search, sortBy]);
+  // Update displayed posts when query data changes
+  useEffect(() => {
+    if (activeQuery.data?.data) {
+      const newPosts = activeQuery.data.data;
+
+      if (page === 1) {
+        setDisplayedPosts(newPosts);
+      } else {
+        setDisplayedPosts((prev) => [...prev, ...newPosts]);
+      }
+
+      // Check if there are more posts to load
+      setHasMore(newPosts.length === POSTS_PER_PAGE && (activeQuery.data.totalPosts > page * POSTS_PER_PAGE || newPosts.length >= POSTS_PER_PAGE));
+    }
+  }, [activeQuery.data, page]);
+
+  // Infinite scroll observer
+  const loadMorePosts = useCallback(() => {
+    if (!hasMore || isLoadingMore || activeQuery.isLoading) return;
+
+    setIsLoadingMore(true);
+    setPage((prev) => prev + 1);
+
+    // Reset loading state after a short delay to prevent multiple calls
+    setTimeout(() => setIsLoadingMore(false), 500);
+  }, [hasMore, isLoadingMore, activeQuery.isLoading]);
+
+  useEffect(() => {
+    if (loadMoreRef.current) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          const target = entries[0];
+          if (target.isIntersecting && hasMore && !isLoadingMore) {
+            loadMorePosts();
+          }
+        },
+        {
+          threshold: 0.1,
+          rootMargin: "100px", // Start loading 100px before element comes into view
+        }
+      );
+
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current && loadMoreRef.current) {
+        observerRef.current.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [loadMorePosts, hasMore, isLoadingMore]);
+
+  const filteredPosts = useMemo(() => {
+    // For infinite scroll, we use the displayed posts directly
+    // since filtering is handled by the API
+    return displayedPosts;
+  }, [displayedPosts]);
 
   const renderPostCard = (post: TravelPost) => {
     const statusBadge = view === "mine" ? (
@@ -141,7 +182,7 @@ const TravelPostListPage = () => {
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-            
+
             {statusBadge}
 
             <div className="absolute left-4 top-4">
@@ -416,9 +457,29 @@ const TravelPostListPage = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {filteredPosts.map((post) => renderPostCard(post))}
-          </div>
+          <>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPosts.map((post) => renderPostCard(post))}
+            </div>
+
+            {/* Load More Indicator */}
+            <div ref={loadMoreRef} className="py-8">
+              {isLoadingMore && (
+                <div className="flex items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900"></div>
+                  <span className="ml-3 text-sm text-gray-600">Loading more stories...</span>
+                </div>
+              )}
+
+              {!hasMore && filteredPosts.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-500">
+                    {filteredPosts.length === 1 ? "That's all the stories for now!" : `You've reached the end! ${filteredPosts.length} amazing stories loaded.`}
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>

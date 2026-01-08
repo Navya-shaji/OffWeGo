@@ -1,4 +1,5 @@
-import { ChatRepository } from "../../adapters/repository/Chat/chatRepository";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChatRepository } from "../../adapters/repository/Chat/ChatRepository";
 import { BookingRepository } from "../../adapters/repository/Booking/BookingRepository";
 
 export class InitiateChatUsecase {
@@ -19,7 +20,7 @@ export class InitiateChatUsecase {
         }
 
    
-        let chat = await this.chatRepository.getchatOfUser(initiatorId, otherPersonId).catch(() => null);
+        const  chat = await this.chatRepository.getchatOfUser(initiatorId, otherPersonId).catch(() => null);
         
         if (chat) {
    
@@ -81,7 +82,7 @@ export class InitiateChatUsecase {
         }
 
 
-        const chatDoc = createdChat as any;
+        const chatDoc = createdChat 
         
 
         let otherUser = null;

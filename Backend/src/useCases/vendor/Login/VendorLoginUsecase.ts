@@ -31,7 +31,6 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
   } | null> {
 
     const { email, password } = data;
-    console.log(fcmToken, "login");
 
     const vendor = await this._vendorRepository.findByEmail(
       email.toLowerCase().trim()

@@ -84,28 +84,23 @@ interface EnhancedPackageFormData {
 const AddPackage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   
-  // Get vendor ID from Redux state
   const vendor = useSelector((state: RootState) => state.vendorAuth?.vendor);
   const vendorId = vendor?.id;
   const packages = useSelector((state: RootState) => state.package.packages);
   
-  // Debug: Log vendor ID when it changes
   useEffect(() => {
-    console.log("👤 Vendor ID from Redux:", vendorId, "Vendor object:", vendor);
   }, [vendorId, vendor]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
     const [showValidationErrors, setShowValidationErrors] = useState(false);
-  const [packageLimitError, setPackageLimitError] = useState<boolean>(false);
+  const [, setPackageLimitError] = useState<boolean>(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null);
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
     const { loading, error } = useSelector((state: RootState) => state.package);
-    console.log(packageLimitError)
 
-  // Helper function to check if subscription is expired
   const isSubscriptionExpired = () => {
     if (!subscriptionData?.vendorSubscription) {
       return false;
@@ -115,7 +110,6 @@ const AddPackage: React.FC = () => {
            subscription.status === "expired";
   };
 
-  // Helper function to get subscription message
   const getSubscriptionMessage = () => {
     if (!subscriptionData?.vendorSubscription) {
       return "You do not have an active subscription. Please purchase a subscription plan to add packages.";
@@ -154,7 +148,6 @@ const AddPackage: React.FC = () => {
     loadingDestinations,
   } = usePackageData();
 
-  // Function to check subscription status
   const checkSubscription = useCallback(async () => {
     try {
       setIsCheckingSubscription(true);
@@ -167,55 +160,37 @@ const AddPackage: React.FC = () => {
         return;
       }
 
-      console.log("🔍 Checking subscription for vendor ID:", vendorId);
       
-      // Use the new function that specifically gets active subscriptions
       const result = await getVendorActiveSubscription(vendorId);
       
-      console.log("📋 Subscription check result:", result);
       
       if (result.hasActiveSubscription && result.vendorSubscription) {
         const subscription = result.vendorSubscription;
         
-        // Double-check: verify subscription is truly active and not expired
         const endDate = subscription.endDate ? new Date(subscription.endDate) : null;
         const currentDate = new Date();
         const isExpired = endDate ? endDate < currentDate : true;
         const isActive = subscription.status === "active" && !isExpired && endDate && endDate >= currentDate;
         
-        console.log("✅ Subscription validation:", {
-          status: subscription.status,
-          endDate: endDate?.toISOString(),
-          currentDate: currentDate.toISOString(),
-          isExpired,
-          isActive,
-          vendorId: vendorId
-        });
+      
         
         if (isActive) {
-          // Active subscription found - don't show modal
-          console.log("✅ Active subscription found - closing modal");
           setHasActiveSubscription(true);
           setShowSubscriptionModal(false);
           setSubscriptionData({ vendorSubscription: subscription });
         } else {
-          // Subscription exists but is expired or inactive - show modal
-          console.log("❌ Subscription expired or inactive - showing modal");
           setHasActiveSubscription(false);
           setShowSubscriptionModal(true);
           setSubscriptionData({ vendorSubscription: subscription });
         }
       } else {
-        // No active subscription found - show modal
-        console.log("❌ No active subscription found - showing modal");
         setHasActiveSubscription(false);
         setShowSubscriptionModal(true);
         setSubscriptionData(null);
       }
     } catch (error) {
-      console.error("❌ Error checking subscription:", error);
-      // On error, don't block - let backend handle validation
-      // But show modal to be safe
+      console.error(" Error checking subscription:", error);
+     
       setHasActiveSubscription(false);
       setShowSubscriptionModal(true);
     } finally {
@@ -223,17 +198,15 @@ const AddPackage: React.FC = () => {
     }
   }, [vendorId]);
 
-  // Check subscription status on component mount and when vendorId changes
   useEffect(() => {
     if (vendorId) {
       checkSubscription();
     } else {
-      // If no vendor ID, wait a bit and try again (vendor might be loading)
       const timer = setTimeout(() => {
         if (vendorId) {
           checkSubscription();
         } else {
-          console.warn("⚠️ Still no vendor ID after delay - showing subscription modal");
+          console.warn(" Still no vendor ID after delay - showing subscription modal");
           setHasActiveSubscription(false);
           setShowSubscriptionModal(true);
           setIsCheckingSubscription(false);
@@ -243,28 +216,21 @@ const AddPackage: React.FC = () => {
     }
   }, [checkSubscription, vendorId]);
 
-  // Don't show modal immediately on load - wait for subscription check to complete
   useEffect(() => {
-    // Only show modal if subscription check is complete AND there's no active subscription
-    // AND we haven't already shown it (to prevent showing on every render)
+
     if (!isCheckingSubscription && hasActiveSubscription === false && !showSubscriptionModal) {
-      console.log("🔍 Subscription check completed - no active subscription found, showing modal");
       setShowSubscriptionModal(true);
     } else if (!isCheckingSubscription && hasActiveSubscription === true) {
-      console.log("🔍 Subscription check completed - active subscription found, hiding modal");
       setShowSubscriptionModal(false);
     }
   }, [hasActiveSubscription, isCheckingSubscription, showSubscriptionModal]);
 
-  // Refresh subscription status when window regains focus (user returns from subscription page)
   useEffect(() => {
     const handleFocus = () => {
-      // Refresh subscription status when user returns to the page
       checkSubscription();
     };
 
     const handleVisibilityChange = () => {
-      // Refresh subscription status when tab becomes visible
       if (document.visibilityState === 'visible') {
         checkSubscription();
       }
@@ -509,37 +475,28 @@ const handleActivitySelection = (activityIds: string[]) => {
     validateField("itinerary", basicItinerary);
   };
 
- // In your AddPackage component, update the handleSubmit function:
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setShowValidationErrors(true);
-  setPackageLimitError(false); // Reset error state
+  setPackageLimitError(false); 
 
-  // Check subscription before submitting
-  // Only block if we're certain there's no active subscription
-  // Don't block if subscription check is still loading (null) or if it's active (true)
-  console.log("🔍 Submit check - hasActiveSubscription:", hasActiveSubscription, "isCheckingSubscription:", isCheckingSubscription);
+ 
   
   if (hasActiveSubscription === false && !isCheckingSubscription) {
-    console.log("❌ Blocking submission - no active subscription");
+  
     setShowSubscriptionModal(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
   
-  // If subscription is active, ensure modal is closed
   if (hasActiveSubscription === true) {
-    console.log("✅ Allowing submission - active subscription found");
     setShowSubscriptionModal(false);
   }
 
-  console.log(packages, "package count");
   const vendorPackageCount = packages.length;
-  console.log(vendorPackageCount, "count");
 
-  // Note: This frontend check is a UX optimization
-  // The backend will perform the authoritative validation
+  
   if (vendorPackageCount >= 3) {
     setPackageLimitError(true);
     toast.error("Package limit reached! You can only create up to 3 packages on the free tier.", {
@@ -550,7 +507,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  // Safely create simple itinerary with proper error handling
   const simpleItinerary = (formData.itinerary || []).flatMap((day) =>
     (day.activities || []).map((activity) => ({
       day: day.day || 1,
@@ -567,7 +523,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     packageName: formData.packageName || "",
     description: formData.description || "",
     price: Number(formData.price || 0),
-    flightPrice: undefined, // Flight price removed - only option checkbox
+    flightPrice: undefined, 
     duration: formData.duration || 1,
     startDate: new Date(),
     endDate: new Date(Date.now() + (formData.duration || 1) * 24 * 60 * 60 * 1000),
@@ -586,9 +542,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const result = await dispatch(addPackage(completePackage));
     
-    // Check if the package was successfully added
     if (addPackage.fulfilled.match(result)) {
-      // Show enhanced success toast
       toast.success(
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -641,9 +595,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       const errorPayload = result.payload as string | undefined;
       const errorMessage = errorPayload || "An error occurred";
 
-      console.log("Backend error:", errorMessage);
 
-      // Check for subscription-related errors
       if (
         errorMessage.includes("You do not have an active subscription") ||
         errorMessage.includes("subscription") ||
@@ -651,7 +603,6 @@ const handleSubmit = async (e: React.FormEvent) => {
         errorMessage.includes("expired") ||
         errorMessage.includes("Subscription expired")
       ) {
-        // Re-check subscription status to get latest data
         try {
           const subData = await getSubscriptions();
           setSubscriptionData(subData);
@@ -681,10 +632,8 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
-      // For other errors, still try to show success if package might have been created
       if (errorMessage.includes("Cannot read properties of undefined") || 
           errorMessage.includes("reading '0'")) {
-        // This is likely a frontend error, but package might still be saved
         toast.success(
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -709,7 +658,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           }
         );
         
-        // Reset form even if there was a frontend error
         setIsSubmitted(true);
         setShowValidationErrors(false);
         resetValidation();
@@ -733,7 +681,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
-      // Show other errors
+    
       toast.error(errorMessage, {
         position: "top-center",
         autoClose: 5000,
@@ -744,11 +692,11 @@ const handleSubmit = async (e: React.FormEvent) => {
   } catch (error) {
     console.error("Error creating package:", error);
     
-    // Check if this is the specific array access error
+
     if (error instanceof Error && 
         (error.message.includes("Cannot read properties of undefined") || 
          error.message.includes("reading '0'"))) {
-      // Show success message instead of error for this specific case
+    
       toast.success(
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -773,7 +721,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         }
       );
       
-      // Reset form
+   
       setIsSubmitted(true);
       setShowValidationErrors(false);
       resetValidation();
@@ -796,8 +744,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
       return;
     }
-    
-    // Only show error toast for genuine errors
+ 
     toast.error("An unexpected error occurred. Please try again.", {
       position: "top-center",
       autoClose: 5000,

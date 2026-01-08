@@ -1,6 +1,6 @@
 import { Hotel } from "./HotelEntity";
 import { Activity } from "./ActivityEntity";
-import { Flight } from "./flightEntity"; 
+import { Flight } from "./FlightEntity"; 
 
 export interface Package {
   id?: string;

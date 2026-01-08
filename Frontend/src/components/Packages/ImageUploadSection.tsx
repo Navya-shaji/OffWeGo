@@ -27,9 +27,7 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     try {
       for (const file of fileArray) {
         try {
-          console.log("Uploading file:", file.name);
           const url = await uploadToCloudinary(file);
-          console.log("Upload successful:", url);
           uploadedUrls.push(url);
         } catch (error) {
           console.error("Failed to upload image:", error);
@@ -43,7 +41,7 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
       }
     } finally {
       setUploading(false);
-      // Clear the file input
+   
       e.target.value = '';
     }
   };
@@ -52,7 +50,6 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     onImagesChange(images.filter((_, i) => i !== index));
   };
 
-  // Inline SVG placeholder as data URL to prevent network requests
   const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23f3f4f6'/%3E%3Cpath d='M25 35l10 10 20-20' stroke='%23d1d5db' stroke-width='2' fill='none'/%3E%3Ctext x='40' y='55' text-anchor='middle' font-family='Arial' font-size='10' fill='%239ca3af'%3EImage%3C/text%3E%3C/svg%3E";
 
   return (

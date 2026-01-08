@@ -41,9 +41,7 @@ export default function BookedSubscriptions() {
           getAllSubscriptionBookings(),
           getSubscriptions()
         ]);
-        
-        console.log("Fetched bookings:", bookingsRes);
-        console.log("Fetched subscription plans:", plansRes);
+       
         
         setBookings(bookingsRes.data || []);
         setSubscriptionPlans(Array.isArray(plansRes?.data) ? plansRes.data : []);
@@ -70,7 +68,6 @@ export default function BookedSubscriptions() {
     if (statusFilter !== "all") {
       filtered = filtered.filter((booking) => booking.status === statusFilter);
     }
-    console.log("Filtered bookings:", filtered); // Debug log
     setFilteredBookings(filtered);
   }, [bookings, searchQuery, statusFilter]);
 

@@ -23,7 +23,6 @@ const ExpandedContactUsPage = () => {
 
   const handleSubmit = (e:any) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
     setSubmitted(true);
     
     setTimeout(() => {

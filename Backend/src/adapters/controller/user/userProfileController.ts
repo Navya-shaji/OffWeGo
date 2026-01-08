@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
 import { IUserProfileEditUsecase } from "../../../domain/interface/UsecaseInterface/IEditProfileOfUserUsecas";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { IChangePasswordUseCase } from "../../../domain/dto/User/changePassDto";
+import { IChangePasswordUseCase } from "../../../domain/dto/User/ChangePassDto";
 
 export class UserProfileController {
   constructor(
@@ -37,7 +37,6 @@ export class UserProfileController {
         });
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch profile",
@@ -57,9 +56,6 @@ export class UserProfileController {
         userId,
         userData
       );
-      
-
-      
       if (!result) {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,

@@ -1,4 +1,4 @@
-import { Flight } from "../../../domain/entities/flightEntity";
+import { Flight } from "../../../domain/entities/FlightEntity";
 import {
   IFlightModel,
   flightModel,

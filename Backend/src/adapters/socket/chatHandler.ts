@@ -1,5 +1,5 @@
 import { CreateMessageUseCase } from "../../useCases/msg/createMessageUsecase";
-import { ChatRepository } from "../repository/Chat/chatRepository";
+import { ChatRepository } from "../repository/Chat/ChatRepository";
 import { FirebaseNotificationService } from "../../framework/Services/FirebaseNotificationService";
 import { MessageRepository } from "../repository/Msg/MessageRepository";
 import { Role } from "../../domain/constants/Roles";
@@ -17,12 +17,7 @@ export class ChatHandler {
     }
 
     async handleSendMessage(data: any, senderName: string): Promise<string> {
-        console.log('📨 handleSendMessage called with:', {
-            chatId: data.chatId,
-            senderId: data.senderId,
-            senderType: data.senderType,
-            messageContent: data.messageContent?.substring(0, 50)
-        });
+   
 
         const message = await this._sendMessageUseCase.createMessage({
             chatId: data.chatId,
@@ -36,7 +31,7 @@ export class ChatHandler {
             replyTo: data.replyTo,
         });
 
-        console.log(' Message saved with ID:', message._id);
+      
 
         const normalizedSenderType = (data.senderType || '').toLowerCase();
         const isVendorSender = normalizedSenderType === 'vendor';

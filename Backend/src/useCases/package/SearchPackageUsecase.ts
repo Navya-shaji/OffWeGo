@@ -1,4 +1,4 @@
-import { Package } from "../../domain/entities/packageEntity";
+import { Package } from "../../domain/entities/PackageEntity";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { ISearchPackageUsecase } from "../../domain/interface/Vendor/IPackagesearchUsecase";
 

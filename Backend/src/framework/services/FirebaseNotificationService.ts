@@ -53,10 +53,9 @@ export class FirebaseNotificationService implements INotificationService {
       };
 
       const response = await firebaseAdmin.messaging().send(message);
-      console.log('✅ FCM notification sent successfully:', response);
+    
     } catch (error: any) {
-      console.error('❌ Error sending FCM notification:', error);
-      // If token is invalid, we should handle it but not throw
+     
       if (error.code === 'messaging/invalid-registration-token' || 
           error.code === 'messaging/registration-token-not-registered') {
         console.warn('⚠️ Invalid FCM token, should be removed from database');
@@ -89,7 +88,6 @@ export class FirebaseNotificationService implements INotificationService {
       };
       
       await this.sendNotification(token, title, message, notificationData);
-      console.log(`📱 FCM notification sent to ${recipientType} (${recipientId})`);
     } else {
       console.warn(`⚠️ No FCM token found for ${recipientType} (${recipientId})`);
     }

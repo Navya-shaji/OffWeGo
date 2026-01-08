@@ -1,4 +1,4 @@
-import { CreateCheckoutSessionDTO } from "../../dto/Subscription/createCheckoutSessionDto";
+import { CreateCheckoutSessionDTO } from "../../dto/Subscription/CreateCheckoutSessionDto";
 
 export interface ICreateCheckoutSessionUseCase {
   execute(data: CreateCheckoutSessionDTO): Promise<{

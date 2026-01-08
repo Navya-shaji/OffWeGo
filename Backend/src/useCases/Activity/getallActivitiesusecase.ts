@@ -10,7 +10,6 @@ export class GetAllActivitiesUsecase implements IGetAllActivities{
         const skip=(page-1)*limit
         const activity=await this._activityRepo.getAllActivity(skip,limit)
         const totalActivity=await this._activityRepo.countActivity()
-        console.log(activity)
         return {
             activity:activity.map(mapToActivityDto),
             totalActivities:totalActivity

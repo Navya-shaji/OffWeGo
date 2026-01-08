@@ -23,15 +23,15 @@ export class GoogleSignupController {
         return;
       }
 
-      console.log(" Google signin request received");
+    
       const user = await this._googleSignupUsecase.execute(token, fcmToken || "");
-      console.log(" User retrieved from use case:", { hasUser: !!user });
+     
 
     
       const mappedUser = user as any;
       const userId = mappedUser.id || mappedUser._id?.toString();
       
-      console.log("🔍 User ID extracted:", userId);
+     
       
       if (!user || !userId) {
         console.error("❌ User or userId is missing:", { user: !!user, userId: !!userId });
@@ -56,7 +56,7 @@ export class GoogleSignupController {
         email: mappedUser.email || user.email,
       };
       
-      console.log("🎫 Generating tokens for payload:", payload);
+      
 
       const accessToken = this._tokenService.generateAccessToken(payload);
       const refreshToken = this._tokenService.generateRefreshToken(payload);

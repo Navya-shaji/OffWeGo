@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { UserModel } from "../../../framework/database/Models/userModel";
 import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository";
-import { User } from "../../../domain/entities/userEntity";
+import { User } from "../../../domain/entities/UserEntity";
 
 
 let client: OAuth2Client | null = null;

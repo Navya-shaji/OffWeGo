@@ -1,4 +1,4 @@
-import { Vendor } from "../../domain/entities/vendorEntities";
+import { Vendor } from "../../domain/entities/VendorEntities";
 import { IVendorModel } from "../../framework/database/Models/vendorModel";
 
 export const mapToVendor = (doc: IVendorModel): Vendor => ({

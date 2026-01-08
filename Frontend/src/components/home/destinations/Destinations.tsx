@@ -66,25 +66,17 @@ const Destinations = (_props: DestinationsProps) => {
 
           try {
             const response = await getNearbyDestinations(lat, lng, radiusInKm);
-            console.log("Nearby API Response:", response);
-            
-            // Handle different response structures
-            // API returns: {success: true, data: [...]}
-            // Axios wraps it as: {data: {success: true, data: [...]}}
+        
             let destinationsData = [];
             
             if (response?.data?.data && Array.isArray(response.data.data)) {
-              // Axios response with nested data
               destinationsData = response.data.data;
             } else if (response?.data && Array.isArray(response.data)) {
-              // Direct data array or {data: [...]}
               destinationsData = response.data;
             } else if (Array.isArray(response)) {
-              // Response is array directly
               destinationsData = response;
             }
             
-            console.log("Setting destinations:", destinationsData);
             setDestinations(destinationsData);
           } catch (err) {
             console.error("Nearby fetch error:", err);

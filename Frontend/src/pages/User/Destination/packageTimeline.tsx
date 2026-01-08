@@ -49,7 +49,6 @@ export const PackageTimeline = () => {
 
   useEffect(() => {
     if (selectedPackage) {
-      console.log("Selected package:", selectedPackage);
     }
   }, [selectedPackage]);
 
@@ -113,7 +112,6 @@ export const PackageTimeline = () => {
   ) => {
     const basePackagePrice = selectedPackage.price;
     const flightPrice = selectedFlight ? selectedFlight.price : 0;
-    console.log(selectedDate,"Date")
     
     navigate("/travaler-details", {
       state: {

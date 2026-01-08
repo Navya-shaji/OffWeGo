@@ -31,14 +31,11 @@ const VendorNavbar: React.FC = () => {
     navigate("/vendor/subscriptionplans");
   };
 
-  // FCM Message Listener - Continuous listening using Firebase onMessage
   useEffect(() => {
     if (!vendor?.id) return;
 
     const unsubscribe = onMessage(messaging, (payload: any) => {
-      console.log("📬 Vendor FCM Message Received:", payload);
       
-      // Handle both notification and data payload
       const title = payload.notification?.title || payload.data?.title || "New Notification";
       const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
 
@@ -66,7 +63,7 @@ const VendorNavbar: React.FC = () => {
               src={logo} 
               alt="OffWeGo" 
               className="w-32 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate("/vendor/profile")}
+              onClick={() => navigate("/vendor/login")}
             />
           </div>
           

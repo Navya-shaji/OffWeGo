@@ -12,14 +12,11 @@ export interface SubscriptionBookingPayload {
 
 export const createSubscriptionBooking = async (data: SubscriptionBookingPayload) => {
   try {
-    console.log("Creating subscription booking...");
 
     const res = await axiosInstance.post(SUBSCRIPTION_BOOKING, data);
 
-    console.log("Booking created:", res.data);
     return res.data;
   } catch (error) {
-    console.error("Error creating subscription booking:", error);
 
     if (isAxiosError(error)) {
       throw new Error(

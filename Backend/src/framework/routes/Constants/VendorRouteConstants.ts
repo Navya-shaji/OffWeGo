@@ -12,7 +12,7 @@ export const VendorRoutes = {
   ALL_PACKAGES: "/packages",
   EDIT_PACKAGE: "/packages/:id",
   DELET_PACKAGE: "/packages/:id",
-  EDIT_PROFILE: "/profile/:id",
+  EDIT_PROFILE: "/profile",
   PACKAGE_WISE_GROUPING: "/package-groups",
   PACKAGE_WISE_GROUPS: "/package-group/:id",
   CREATE_HOTEL: "/add-hotel/:id",

@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/createsubscriptionDto";
+import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
 import { ICreateSubscriptionPlanUseCase } from "../../domain/interface/SubscriptionPlan/ICreateUsecase";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
@@ -35,6 +35,7 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
       stripePriceId: price.id,
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createdPlan = await this._subscriptionRepo.create(planDataWithStripe as any);
 
     const allVendors = await this._vendorRepo.findAll();
@@ -50,6 +51,7 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
     );
     await Promise.all(notificationPromises);
 
-    return mapModelToSubscriptionDto(createdPlan as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return mapModelToSubscriptionDto(createdPlan  as any);
   }
 }

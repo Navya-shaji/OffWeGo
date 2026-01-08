@@ -24,7 +24,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    console.log(storedUser);
+   
   }, [dispatch]);
 
   const handleLogout = () => {
@@ -40,11 +40,16 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="from-blue-50 via-white to-amber-50 backdrop-blur-sm shadow-sm sticky top-1 z-50 w-full h-22">
+    <header className="bg-gradient-to-r from-slate-50 via-white to-gray-50 backdrop-blur-md shadow-lg sticky top-0 z-50 w-full border-b border-gray-100/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-22">
+        <div className="flex justify-between items-center h-20">
           <div className="flex items-center p-4">
-            <img src={logo} alt="logo" className="w-35 h-10 mr-2" />
+            <img 
+              src={logo} 
+              alt="logo" 
+              className="w-35 h-10 mr-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate("/")}
+            />
           </div>
           <nav className="hidden md:flex space-x-8">
             {navLinks.map((item) => (
@@ -126,7 +131,7 @@ const Header: React.FC = () => {
         </div>
 
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t">
+          <div className="md:hidden py-4 border-t border-gray-200/50 bg-gradient-to-b from-white/95 to-gray-50/95 backdrop-blur-md">
             <nav className="flex flex-col space-y-2">
               {navLinks.map((item) => (
                 <Link

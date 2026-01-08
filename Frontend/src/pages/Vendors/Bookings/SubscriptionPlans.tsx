@@ -53,9 +53,6 @@ export default function VendorSubscriptionPage() {
 
         const subData = await getSubscriptions();
 
-        console.log("Subscription Data:", subData);
-
-        // Transform subscription data to include packageLimit
         const transformedSubscriptions = (subData.data || []).map((sub: Subscription) => ({
           ...sub,
           popular: sub.name.toLowerCase().includes('pro') || sub.price > 500
@@ -120,7 +117,6 @@ export default function VendorSubscriptionPage() {
         time: bookingTime,
       });
 
-      console.log('Subscription booking response:', response);
 
       // Handle the actual response format from backend
       if (response.checkoutUrl) {

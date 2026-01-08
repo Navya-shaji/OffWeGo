@@ -32,18 +32,15 @@ const PaymentSuccess = () => {
           planId,
         });
 
-        console.log("Payment verification response:", response);
 
         if (response.success) {
           setStatus("success");
           setMessage("Payment verified successfully! Redirecting to dashboard...");
           toast.success("Subscription activated successfully!");
           
-          // Clear localStorage items
           localStorage.removeItem("vendorId");
           localStorage.removeItem("selectedPlanId");
           
-          // Navigate to vendor profile (dashboard)
           setTimeout(() => {
             navigate("/vendor/profile");
           }, 2000);

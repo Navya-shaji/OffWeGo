@@ -47,60 +47,30 @@ export default function VendorSubscriptionHistory() {
 
   const fetchHistory = async () => {
     try {
-      console.log("🔍 Fetching vendor subscription history...");
       const response = await getVendorSubscriptionHistory();
-      console.log("📦 Raw API response:", response);
-      console.log("📦 Response data:", response?.data);
-      console.log("📦 Response structure:", {
-        hasData: !!response?.data,
-        dataIsArray: Array.isArray(response?.data),
-        dataLength: response?.data?.length,
-        responseDataKeys: response?.data ? Object.keys(response.data) : 'no data'
-      });
+    
       
-      // Handle different response structures
       let historyData = [];
       
       if (response?.data && Array.isArray(response.data)) {
         historyData = response.data;
-        console.log("✅ Using response.data as array");
       } else if (response?.subscriptions && Array.isArray(response.subscriptions)) {
         historyData = response.subscriptions;
-        console.log("✅ Using response.subscriptions as array");
       } else if (response?.bookings && Array.isArray(response.bookings)) {
         historyData = response.bookings;
-        console.log("✅ Using response.bookings as array");
       } else if (response?.history && Array.isArray(response.history)) {
         historyData = response.history;
-        console.log("✅ Using response.history as array");
       } else if (Array.isArray(response)) {
         historyData = response;
-        console.log("✅ Using response as array");
       } else {
         console.warn("⚠️ Unexpected response structure:", response);
         historyData = [];
       }
       
-      // Log detailed information about each subscription item
       if (historyData.length > 0) {
-        console.log("📊 Sample subscription data structure:");
-        console.log("📊 First subscription item:", historyData[0]);
-        console.log("📊 Available fields in first item:", Object.keys(historyData[0] || {}));
-        
-        // Check for common field name variations
+      
         const firstItem = historyData[0];
-        console.log("🔍 Field mapping check:");
-        console.log("  - planName:", firstItem.planName || firstItem.name || firstItem.plan_name || firstItem.subscriptionName || 'missing');
-        console.log("  - amount:", firstItem.amount || firstItem.price || firstItem.total || 'missing');
-        console.log("  - status:", firstItem.status || firstItem.subscriptionStatus || firstItem.plan_status || 'missing');
-        console.log("  - startDate:", firstItem.startDate || firstItem.start_date || firstItem.createdAt || firstItem.created_at || 'missing');
-        console.log("  - endDate:", firstItem.endDate || firstItem.end_date || firstItem.expiresAt || firstItem.expires_at || 'missing');
-        console.log("  - duration:", firstItem.duration || firstItem.plan_duration || firstItem.validity || 'missing');
-        console.log("  - packageLimit:", firstItem.packageLimit || firstItem.limit || firstItem.max_packages || firstItem.package_limit || 'missing');
-        console.log("  - usedSlots:", firstItem.usedSlots || firstItem.used || firstItem.booked || firstItem.used_packages || firstItem.used_count || 'missing');
-        console.log("  - features:", firstItem.features || firstItem.plan_features || firstItem.benefits || 'missing');
-        console.log("  - paymentStatus:", firstItem.paymentStatus || firstItem.payment_status || firstItem.paymentState || 'missing');
-        console.log("  - transactionId:", firstItem.transactionId || firstItem.transaction_id || firstItem.paymentId || firstItem.payment_id || 'missing');
+      
       }
       
       // Normalize the data to match our interface
@@ -123,17 +93,15 @@ export default function VendorSubscriptionHistory() {
           vendorDetails: item.vendorDetails || item.vendor || {}
         };
         
-        console.log("🔄 Normalized item:", normalized);
         return normalized;
       });
       
-      console.log("📊 Final normalized history data:", normalizedData);
-      console.log("📊 Normalized data length:", normalizedData.length);
+    
       
       setHistory(normalizedData);
     } catch (error) {
-      console.error("❌ Error fetching subscription history:", error);
-      console.error("❌ Failed to load subscription history");
+      console.error(" Error fetching subscription history:", error);
+      console.error(" Failed to load subscription history");
     } finally {
       setLoading(false);
     }

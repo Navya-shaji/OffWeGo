@@ -1,4 +1,4 @@
-import { Vendor } from "../../entities/vendorEntities";
+import { Vendor } from "../../entities/VendorEntities";
 
 export interface IAdminVendorApprovalUseCase {
   execute(): Promise<Vendor[]>;

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - OffWeGo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Dancing Script', cursive;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        padding: 1rem;
+      }
+      
+      .offline-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 3rem;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: fadeInUp 0.6s ease-out;
+      }
+      
+      .offline-icon {
+        font-size: 5rem;
+        margin-bottom: 2rem;
+        animation: bounce 2s infinite;
+      }
+      
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      
+      .subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+      }
+      
+      .retry-btn {
+        background: linear-gradient(45deg, #E50914, #d60f13);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 2rem;
+        font-size: 1.1rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
+      }
+      
+      .retry-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(229, 9, 20, 0.4);
+        background: linear-gradient(45deg, #d60f13, #c41e3a);
+      }
+      
+      .status-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff6b6b;
+        margin: 0 auto 1rem;
+        animation: pulse 2s infinite;
+      }
+      
+      .features-list {
+        text-align: left;
+        margin: 2rem 0;
+        padding: 0;
+        list-style: none;
+      }
+      
+      .features-list li {
+        margin: 1rem 0;
+        padding: 0.5rem 0;
+        opacity: 0.8;
+        font-size: 1rem;
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+      
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .offline-container {
+          padding: 2rem;
+          margin: 1rem;
+        }
+        
+        h1 {
+          font-size: 2rem;
+        }
+        
+        .offline-icon {
+          font-size: 4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-container">
+      <div class="offline-icon">✈️</div>
+      <h1>You're Offline</h1>
+      <p class="subtitle">No internet connection detected. Please check your connection and try again.</p>
+      
+      <ul class="features-list">
+        <li>📱 Install OffWeGo as a mobile app</li>
+        <li>🔍 Search and book travel packages</li>
+        <li>📅 Manage your bookings</li>
+        <li>💰 Track your earnings</li>
+      </ul>
+      
+      <div class="status-indicator"></div>
+      
+      <a href="/" class="retry-btn">🔄 Try Again</a>
+    </div>
+    
+    <script>
+      // Check connection status periodically
+      setInterval(() => {
+        if (navigator.onLine) {
+          window.location.href = '/';
+        }
+      }, 5000);
+      
+      // Listen for connection changes
+      window.addEventListener('online', () => {
+        window.location.href = '/';
+      });
+    </script>
+  </body>
+</html>

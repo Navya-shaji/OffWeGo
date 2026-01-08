@@ -1,5 +1,5 @@
 import { MessageRepository } from "../../adapters/repository/Msg/MessageRepository";
-import { ChatRepository } from "../../adapters/repository/Chat/chatRepository";
+import { ChatRepository } from "../../adapters/repository/Chat/ChatRepository";
 
 export class MarkMessagesSeenUseCase {
     constructor(

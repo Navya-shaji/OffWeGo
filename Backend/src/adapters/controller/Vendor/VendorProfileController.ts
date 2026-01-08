@@ -47,7 +47,7 @@ export class VendorProfileController {
 
   async EditProfile(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id;
+      const vendorId = req.user.id
       const vendorData = req.body;
 
       const result = await this._editVendorProfileUsecase.execute(

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Search, Menu, User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 // import { NotificationBell } from '../Notifications';
+
+const logo = "/images/logo.png";
 
 
 interface AdminHeaderProps {
@@ -10,6 +13,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onMenuToggle, onLogout }: AdminHeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
  
 
   return (
@@ -19,6 +23,12 @@ export function AdminHeader({ onMenuToggle, onLogout }: AdminHeaderProps) {
           <div className="flex items-center justify-between h-16">
             {/* Left side */}
             <div className="flex items-center">
+              <img 
+                src={logo} 
+                alt="OffWeGo Admin" 
+                className="w-32 h-8 mr-4 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate("/admin/login")}
+              />
               <button
                 onClick={onMenuToggle}
                 className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"

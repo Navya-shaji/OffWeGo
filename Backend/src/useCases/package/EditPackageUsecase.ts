@@ -1,5 +1,5 @@
 import { PackageDTO } from "../../domain/dto/package/PackageDto";
-import { Package } from "../../domain/entities/packageEntity";
+import { Package } from "../../domain/entities/PackageEntity";
 import { packageModel } from "../../framework/database/Models/packageModel";
 import { mapToPackageDTO } from "../../mappers/Packages/mapTopackages";
 

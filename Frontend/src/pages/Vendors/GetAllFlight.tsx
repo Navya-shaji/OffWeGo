@@ -31,19 +31,19 @@ const FlightsPage: React.FC = () => {
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isSearchMode, setIsSearchMode] = useState<boolean>(false);
+  const [, setIsSearchMode] = useState<boolean>(false);
 
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [flightToDelete, setFlightToDelete] = useState<Flight | null>(null);
 
-console.log(isSearchMode)
+
   const loadFlights = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
       const response = await fetchAllFlights();
-      console.log("Fetched flights:", response);
+     
       
       // Ensure response is an array
       const flightsArray = Array.isArray(response) ? response : [];

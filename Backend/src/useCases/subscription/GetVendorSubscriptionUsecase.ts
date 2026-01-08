@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IGetVendorSubscriptionHistoryUseCase } from "../../domain/interface/SubscriptionPlan/IGetVendorHistory";
 import { ISubscriptionBookingRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
 import { VendorModel } from "../../framework/database/Models/vendorModel";
@@ -11,7 +12,6 @@ export class GetVendorSubscriptionHistoryUseCase implements IGetVendorSubscripti
       
       const vendor = await VendorModel.findById(vendorId);
       
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return bookings.map((booking: any) => {
         const bookingObj = booking.toObject ? booking.toObject() : booking;
         return {
@@ -23,8 +23,7 @@ export class GetVendorSubscriptionHistoryUseCase implements IGetVendorSubscripti
         };
       });
     } catch (error) {
-      console.error("Error in GetVendorSubscriptionHistoryUseCase:", error);
-      throw error;
+      throw new error;
     }
   }
 }

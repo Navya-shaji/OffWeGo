@@ -1,4 +1,5 @@
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/createsubscriptionDto";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
 import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
 
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";

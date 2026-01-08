@@ -1,5 +1,5 @@
 import { chatModel } from "../../../framework/database/Models/chatModel";
-import { IChat } from "../../../domain/entities/chatEntity";
+import { IChat } from "../../../domain/entities/ChatEntity";
 
 export class ChatRepository {
     async findChat(members: string[]): Promise<IChat | null> {

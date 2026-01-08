@@ -52,7 +52,6 @@ function CheckoutForm({ amount }: { amount: number }) {
       redirect: "if_required",
     });
 
-    console.log("Payment Intent:", paymentIntent);
 
     if (error) {
       if (error.type === "card_error" || error.type === "validation_error") {
@@ -71,7 +70,6 @@ function CheckoutForm({ amount }: { amount: number }) {
 
       try {
         const result = await createBooking(bData, paymentIntent.id);
-        console.log("Booking created:", result);
 
         toast.success("Booking created successfully!");
 

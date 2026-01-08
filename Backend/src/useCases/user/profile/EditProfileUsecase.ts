@@ -1,5 +1,5 @@
 
-import { User } from "../../../domain/entities/userEntity";
+import { User } from "../../../domain/entities/UserEntity";
 import { UserModel } from "../../../framework/database/Models/userModel";
 import { mapToUser } from "../../../mappers/User/userMapper";
 

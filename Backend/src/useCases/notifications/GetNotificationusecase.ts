@@ -8,7 +8,6 @@ export class GetNotificationUseCase implements IGetNotification {
 
   async execute(recipientId: string, recipientType: "vendor" | "user"): Promise<NotificationDto[]> {
     const notifications = await this.notificatioService.getByRecipient(recipientId, recipientType);
-    console.log(notifications,"fff")
     return notificationMapperDto(notifications)
   }
 }

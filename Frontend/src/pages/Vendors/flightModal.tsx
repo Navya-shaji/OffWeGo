@@ -104,7 +104,7 @@ const handleProceedWithFlight = () => {
   onClose();
 };
 
-console.log(selectedDate,"selected")
+
   const handleProceedWithoutFlight = () => {
     onProceed("without-flight");
     onClose();

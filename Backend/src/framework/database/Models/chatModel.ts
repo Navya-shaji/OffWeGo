@@ -1,5 +1,5 @@
 import { Document, model, ObjectId } from "mongoose";
-import { IChat } from "../../../domain/entities/chatEntity";
+import { IChat } from "../../../domain/entities/ChatEntity";
 import { chatSchema } from "../Schema/ChatSchema";
 
 

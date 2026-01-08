@@ -234,19 +234,13 @@ const PackageTable: React.FC<PackageTableProps> = ({
       e.preventDefault();
       if (!editedPackage || !editedPackage._id) return;
 
-      console.log("🔧 handleEditSubmit called");
-      console.log("🔧 editedPackage before API call:", editedPackage);
-      console.log("🔧 packageList before update:", packageList);
-
+   
       setIsEditLoading(true);
       try {
-        // Call the API to update the package in the database
+     
         const updatedPackageFromServer = await editPackage(editedPackage._id, editedPackage);
-        console.log("📦 Updated package from server:", updatedPackageFromServer);
       
-        // Use the updated data from the server, fallback to local edited data
         const finalUpdatedPackage = updatedPackageFromServer || editedPackage;
-        console.log("✅ Final updated package to use:", finalUpdatedPackage);
         
         const updatedPackages = packageList.map((pkg) =>
           pkg._id === finalUpdatedPackage._id ? finalUpdatedPackage : pkg
@@ -255,31 +249,27 @@ const PackageTable: React.FC<PackageTableProps> = ({
           pkg._id === finalUpdatedPackage._id ? finalUpdatedPackage : pkg
         );
 
-        console.log("🔄 Updated packages list:", updatedPackages);
-        console.log("🔄 Updated original packages list:", updatedOriginalPackages);
+     
 
         setPackageList(updatedPackages);
         if (!isSearchMode) {
           setOriginalPackages(updatedOriginalPackages);
         }
 
-        console.log("📞 Calling onPackagesUpdate callback");
         onPackagesUpdate?.(
           isSearchMode ? updatedOriginalPackages : updatedPackages
         );
         
-        // Force reload the current page to ensure UI updates
-        console.log("🔄 Force reloading packages to ensure UI updates");
+       
         if (isSearchMode && searchQuery) {
           await handleSearch(searchQuery);
         } else {
           await loadPackages(page);
         }
         
-        console.log("🔒 Closing edit modal");
         closeEditModal();
       } catch (error) {
-        console.error("❌ Edit failed:", error);
+        console.error(" Edit failed:", error);
         setError("Failed to update package. Please try again.");
         setTimeout(() => setError(""), 3000);
       } finally {

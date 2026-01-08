@@ -1,7 +1,7 @@
 import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
 import { CreateCategoryDto } from "../../domain/dto/Admin/CategoryDto";
 import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
-import { CategoryDto } from "../../domain/dto/category/categoryDto";
+import { CategoryDto } from "../../domain/dto/Category/CategoryDto";
 import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { Role } from "../../domain/constants/Roles";

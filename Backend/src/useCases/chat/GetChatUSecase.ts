@@ -1,4 +1,5 @@
-import { ChatRepository } from "../../adapters/repository/Chat/chatRepository";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChatRepository } from "../../adapters/repository/Chat/ChatRepository";
 import { mapToChatOut } from "../../mappers/Chat/mapTochat";
 
 export class GetChatsOfUserUsecase  {
@@ -9,20 +10,16 @@ export class GetChatsOfUserUsecase  {
     }
 
     async getChats(userId: string, userType: 'user' | 'vendor' = 'user') {
-        console.log(`🔍 GetChatsUSecase.getChats called: userId=${userId}, userType=${userType}`);
         const result = await this.chatRepository.findChatsOfUser(userId);
         const chats = result?.chats || [];
-        console.log(`📊 Repository returned ${chats.length} chats`);
         
         if (!Array.isArray(chats)) {
-            console.error("❌ findChatsOfUser did not return an array in chats property:", result);
             return [];
         }
         
         const formattedChats = chats.map((chat: any) => {
       
             if (!chat.userId || !chat.vendorId) {
-                console.warn("Chat missing populated fields:", chat._id);
                 return null;
             }
             

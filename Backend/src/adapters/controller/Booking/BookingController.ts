@@ -5,7 +5,7 @@ import { IGetUserBookingUsecase } from "../../../domain/interface/Booking/IGetUs
 import { IGetVendorSideBookingUsecase } from "../../../domain/interface/Booking/IGetVendorSideBookingUsecase";
 import { IBookingDatesUsecase } from "../../../domain/interface/Booking/IBookingDatesUsecase";
 import { ICancelBookingUsecase } from "../../../domain/interface/Booking/ICancelBookingUSecase";
-import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingResheduleusecase";
+import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingRescheduleUseCase";
 import { Traveler } from "../../../domain/entities/BookingEntity";
 import { success } from "../../../domain/constants/Success";
 import { ErrorMessages } from "../../../domain/constants/Error";

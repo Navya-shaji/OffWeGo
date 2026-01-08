@@ -18,7 +18,7 @@ export class SocketIoServer {
 
     private setupSocket(): void {
         this.io.on("connection", (socket) => {
-            console.log(socket.id, "socket connected");
+        
             new ChatEventHandler(socket, this.io);
             socket.on("disconnect", () => {
                 this.userSockets.forEach((userSocket, userId) => {

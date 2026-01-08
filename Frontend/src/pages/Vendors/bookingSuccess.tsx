@@ -9,7 +9,6 @@ export default function BookingSuccess() {
   const location = useLocation();
 
   const data = location.state?.booking;
-  console.log(data,"fhfhfhfhfh")
   useEffect(() => {
     if (data) {
       setBookingDetails({
@@ -59,7 +58,6 @@ export default function BookingSuccess() {
       </div>
     );
   }
-  console.log(bookingDetails, "Deta");
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-brp-5">
       <div className="bg-white rounded-xl shadow-2xl p-10 max-w-2xl w-full">

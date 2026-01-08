@@ -15,16 +15,10 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
 
   async execute(data: VerifyPaymentDTO) {
     const { sessionId, vendorId, planId } = data;
-    console.log("VerifyPayment called with:", { sessionId, vendorId, planId });
 
     try {
       const session = await this._stripeService.retrieveSession(sessionId);
-      console.log("Stripe session retrieved:", {
-        id: session?.id,
-        payment_status: session?.payment_status,
-        customer_email: session?.customer_email,
-      });
-
+    
       if (!session) {
         throw new Error("Stripe session not found");
       }
@@ -36,17 +30,27 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         };
       }
 
+      // First try to find by sessionId
       let existingBooking: ISubscriptionBookingModel | null =
         await this._bookingRepository.findBySessionId(sessionId);
 
+      // If not found, try to find pending booking
       if (!existingBooking) {
-        console.log("Booking not found by sessionId, trying vendorId and planId");
         existingBooking =
           await this._bookingRepository.findPendingBooking(vendorId, planId);
       }
 
+      // If still not found, check all bookings for this vendor
       if (!existingBooking) {
-        console.log("No pending booking found, checking for active booking");
+        const allVendorBookings = await this._bookingRepository.findByVendor(vendorId);
+        const foundBooking = allVendorBookings.find(b => 
+          b.planId?.toString() === planId || 
+          b.stripeSessionId === sessionId
+        );
+        existingBooking = foundBooking || null;
+      }
+
+      if (!existingBooking) {
         const activeBookings =
           await this._bookingRepository.findActiveBookings(vendorId);
 
@@ -71,11 +75,7 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       }
 
       if (!existingBooking) {
-        console.error("No booking found for:", {
-          vendorId,
-          planId,
-          sessionId,
-        });
+       
         throw new Error(
           "Subscription booking not found. Please create a new subscription booking and try again."
         );
@@ -98,7 +98,6 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         }
       );
 
-      console.log("Booking updated successfully:", updatedBooking?._id);
 
       if (!updatedBooking) {
         throw new Error("Failed to update booking status");
@@ -110,7 +109,6 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         booking: mapSubscriptionBookingToDto(updatedBooking),
       };
     } catch (error) {
-      console.error("VerifyPayment error:", error);
       throw new Error(
         error instanceof Error ? error.message : "Failed to verify payment"
       );

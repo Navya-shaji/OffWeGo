@@ -254,8 +254,11 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
         setLoading(true);
         const data = await getUserBookings();
         const sorted = (data || []).sort(
-          (a: any, b: any) =>
-            new Date(b.selectedDate).getTime() - new Date(a.selectedDate).getTime()
+          (a: any, b: any) => {
+            const bookingDateA = new Date(a.createdAt || a.bookingDate || a.selectedDate);
+            const bookingDateB = new Date(b.createdAt || b.bookingDate || b.selectedDate);
+            return bookingDateA.getTime() - bookingDateB.getTime();
+          }
         );
         setBookings(sorted);
       } catch (error) {
@@ -377,30 +380,47 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
       return;
     }
     try {
-      const chatResponse = await findOrCreateChat(user.id, vendorId);
-      // The response structure is: { success: true, data: { _id: "...", name: "...", ... } }
-      const chat = chatResponse?.data || chatResponse;
-      const chatId = chat?._id || chat?.id;
+      console.log("Starting chat with vendor:", { userId: user.id, vendorId });
+      const chatResponse = await findOrCreateChat(user.id, vendorId, 'user');
+      console.log("Chat response:", chatResponse);
+      
+      // Handle different response structures
+      let chatId = null;
+      
+      if (chatResponse?.data?._id) {
+        chatId = chatResponse.data._id;
+      } else if (chatResponse?._id) {
+        chatId = chatResponse._id;
+      } else if (chatResponse?.data?.id) {
+        chatId = chatResponse.data.id;
+      } else if (chatResponse?.id) {
+        chatId = chatResponse.id;
+      }
+      
+      console.log("Extracted chat ID:", chatId);
       
       if (chatId) {
         // Navigate to chat - the chat component will load vendor info
         navigate(`/chat/${chatId}`);
       } else {
-        console.error("Chat created but no ID returned:", chatResponse);
-        toast.error("Chat created but failed to open. Please try again.");
+        console.error("No chat ID found in response:", chatResponse);
+        toast.error("Chat session created but no valid chat ID found.");
       }
-    } catch (err: any) {
-      console.error("Chat error:", err);
-      toast.error(err?.message || "Failed to start chat. Please try again.");
+    } catch (error: any) {
+      console.error("Error starting chat:", error);
+      toast.error(error.message || "Failed to start chat.");
     }
   };
 
   const shouldShowChatButton = (booking: any) => {
+    // Show chat button for upcoming bookings that are not cancelled
+    if (!booking) return false;
+    
     const status = getBookingStatus(booking);
-    const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
-    return vendorId && ["upcoming", "ongoing"].includes(status);
+    return status === "upcoming" && 
+           booking.bookingStatus?.toLowerCase() !== "cancelled" && 
+           booking.bookingStatus?.toLowerCase() !== "rejected";
   };
-
 
   const openCancelModal = (id: string) => {
     setBookingToCancel(id);
@@ -413,10 +433,29 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
       setLoading(true);
       const res = await cancelBooking(bookingToCancel, reason);
       console.log(res, "res");
-      if (res?.success) {
+      
+      // Check for success response (backend returns { success: true, data: booking })
+      if (res?.success === true || res?.data) {
         toast.success("Booking cancelled successfully");
-        const updated = await getUserBookings();
-        setBookings(updated || []);
+        
+        // Immediately update local state for instant UI feedback
+        setBookings(prevBookings => 
+          prevBookings.map(booking => 
+            booking._id === bookingToCancel 
+              ? { ...booking, bookingStatus: 'cancelled' }
+              : booking
+          )
+        );
+        
+        // Also fetch fresh data to ensure consistency
+        try {
+          const updated = await getUserBookings();
+          setBookings(updated || []);
+        } catch (fetchError) {
+          console.error("Error fetching updated bookings:", fetchError);
+          // Keep local state update if fetch fails
+        }
+        
         if (selectedBooking?._id === bookingToCancel) {
           setIsModalOpen(false);
           setSelectedBooking(null);
@@ -427,12 +466,11 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
     } catch (err: any) {
       console.error("Cancel booking error:", err);
       const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Failed to cancel booking.";
-      throw new Error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-
 
   const openRescheduleModal = (bookingId: string, currentDate?: string) => {
     setBookingToReschedule(bookingId);

@@ -1,4 +1,4 @@
-import { Package } from "../../entities/packageEntity";
+import { Package } from "../../entities/PackageEntity";
 
 export interface IGetDestinationBasedPackage {
   execute(destinationId: string, skip?: number, limit?: number): Promise<{

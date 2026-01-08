@@ -24,7 +24,10 @@ export class MessageRepository {
     }
 
     async getMessages(chatId: string): Promise<IMessage[]> {
-        return await (messageModel as any).find({ chatId }).sort({ sendedTime: 1 }).populate('replyTo.messageId');
+        return await (messageModel as any).find({ chatId }).sort({ sendedTime: 1 }).populate({
+            path: 'replyTo.messageId',
+            model: 'message'
+        });
     }
 
     async countUnreadMessages(chatId: string, userId: string): Promise<number> {

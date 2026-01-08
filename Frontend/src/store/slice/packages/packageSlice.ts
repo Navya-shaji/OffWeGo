@@ -25,10 +25,8 @@ export const addPackage = createAsyncThunk<
 >("package/add", async (data, { rejectWithValue }) => {
   try {
     const response = await addPackageService(data);
-    console.log("thunk", response.packages[0]);
     return response.packages[0];
   } catch (error) {
-    console.log("er");
     if (error instanceof Error) return rejectWithValue(error.message);
     return rejectWithValue("Unknown error while adding package");
   }

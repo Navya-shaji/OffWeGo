@@ -38,7 +38,6 @@ export const getWallet = async (id: string): Promise<IWallet> => {
               const vendorResponse = await axiosInstance.get(`/api/vendor/${transaction.vendorId}`);
               enhancedTransaction.vendorName = vendorResponse.data.name || vendorResponse.data.businessName || 'Unknown Vendor';
             } catch (error) {
-              console.error('Failed to fetch vendor details:', error);
               enhancedTransaction.vendorName = 'Unknown Vendor';
             }
           }
@@ -55,20 +54,18 @@ export const getWallet = async (id: string): Promise<IWallet> => {
                 userName: booking.user?.name || booking.userName || 'Unknown User'
               };
             } catch (error) {
-              console.error('Failed to fetch booking details:', error);
               enhancedTransaction.bookingDetails = {
                 packageName: 'Unknown Package',
                 destinationName: 'Unknown Destination'
               };
             }
           }
-          console.log(enhancedTransaction,"enc")
+         
           return enhancedTransaction;
         })
       );
     }
     
-    console.log(wallet, "Enhanced admin wallet data");
     return wallet;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -84,13 +81,11 @@ export const transferWalletAmount = async (
   amount: number
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    console.log("Haii")
     const response = await axiosInstance.post("/api/admin/transfer-wallet", {
       adminId,
       vendorId,
       amount,
     });
-console.log(response,"res")
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -106,7 +101,6 @@ console.log(response,"res")
 export const getFinishedTrips = async (): Promise<Booking[]> => {
   try {
     const response = await axiosInstance.get("/api/admin/completed-bookings");
-    console.log(response.data, "Finished Trips Data");
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -125,7 +119,6 @@ export const processFinishedTrips = async (
   try {
    
     const completedTrips = await getFinishedTrips();
-    console.log(completedTrips, "Completed Trips");
 
     for (const trip of completedTrips) {
       if (!trip.selectedPackage?.vendorId) continue;
@@ -134,15 +127,12 @@ export const processFinishedTrips = async (
       const bookingAmount = trip.totalAmount;
       const vendorShare = bookingAmount * 0.9; 
 
-      console.log(
-        `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
-      );
 
    
       await transferWalletAmount(adminId, vendorId, vendorShare);
     }
   } catch (error) {
-    console.error("Error processing finished trips:", error);
+   
     throw new Error("Failed to process finished trips");
   }
 };
@@ -157,7 +147,7 @@ export const completeTripAndDistribute = async (payload: any) => {
       vendorId,
       amount
     });
-console.log(response,"res")
+
     return response.data;
   } catch (error:unknown) {
     return {

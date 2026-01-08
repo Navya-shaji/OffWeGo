@@ -1,6 +1,6 @@
 import { model, Document, ObjectId } from "mongoose";
 import { userSchema } from "../Schema/userSchema";
-import { User } from "../../../domain/entities/userEntity";
+import { User } from "../../../domain/entities/UserEntity";
 
 export interface IUserModel extends Omit<User, "_id">, Document {
   _id: ObjectId;

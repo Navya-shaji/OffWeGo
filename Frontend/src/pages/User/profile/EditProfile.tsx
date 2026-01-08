@@ -291,20 +291,17 @@ export default function EditProfileModal({
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      // Ensure phone is a string before sending
       const phoneString = phone ? String(phone) : "";
       const phoneToSend = phoneString.trim() || (isGoogleUser ? undefined : phoneString.trim());
       
       const updated = await editProfile({
         name: username.trim(),
-        phone: phoneToSend, // Phone is optional for Google users
+        phone: phoneToSend, 
         imageUrl: newImageUrl,
-        userId: user.id, // Include user ID in the request body
+        userId: user.id,
       });
 
-      console.log("✅ Profile update response:", updated);
       
-      // Update Redux state with the updated user data
       if (updated && updated.data) {
         const updatedUserData = {
           id: updated.data.id || user.id,
@@ -320,10 +317,8 @@ export default function EditProfileModal({
           location: updated.data.location || user.location,
         };
         
-        console.log("📝 Updating Redux with:", updatedUserData);
         dispatch(updateUserProfile(updatedUserData));
         
-        // Also update local state to reflect changes immediately
         setUsername(updatedUserData.username);
         setPhone(updatedUserData.phone);
         setImagePreviewUrl(updatedUserData.imageUrl || null);

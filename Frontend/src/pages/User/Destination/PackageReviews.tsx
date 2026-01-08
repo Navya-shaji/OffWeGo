@@ -14,13 +14,11 @@ export const PackageReviews: React.FC<PackageReviewsProps> = ({
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  console.log(reviews, "Reviews");
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const data = await allReviews(packageName);
 
-        // Ensure it's an array
         if (Array.isArray(data)) {
           setReviews(data);
         } else {

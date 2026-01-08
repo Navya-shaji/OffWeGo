@@ -90,7 +90,6 @@ export default function AllBookings() {
   const vendorId = useSelector(
     (state: RootState) => state.vendorAuth.vendor?.id
   );
-  console.log(vendorId,"id")
 
   useEffect(() => {
     if (vendorId) {
@@ -108,7 +107,6 @@ export default function AllBookings() {
     setIsLoading(true);
     try {
       const data = await getAllUserBookings(vendorId);
-      console.log(data,"data")
       setBookings(data);
       setFilteredBookings(data);
       setDisplayCount(ITEMS_PER_PAGE);

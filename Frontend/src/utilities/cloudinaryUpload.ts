@@ -41,8 +41,6 @@ export const resolveCloudinaryUrl = (
 };
 
 
-console.log("Cloud Name:", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
-console.log("Upload Preset:", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
 
 export const uploadToCloudinary = async (file: File): Promise<string> => {
   const { cloudName, uploadPreset } = getCloudinaryConfig();

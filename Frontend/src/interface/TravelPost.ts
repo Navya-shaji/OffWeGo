@@ -42,6 +42,7 @@ export interface CreateTravelPostPayload {
 export interface TravelPostListResponse {
   data: TravelPost[];
   total: number;
+  totalPosts: number;
   page: number;
   limit: number;
 }

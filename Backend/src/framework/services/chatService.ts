@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { ChatRepository } from "../../adapters/repository/Chat/chatRepository"; 
+import { ChatRepository } from "../../adapters/repository/Chat/ChatRepository"; 
 
 export class SocketService {
   private io: Server;
@@ -12,11 +12,11 @@ export class SocketService {
 
   initialize() {
     this.io.on("connection", (socket) => {
-      console.log(` ${socket.id} connected`);
+    
 
       socket.on("joinRoom", (roomId: string) => {
         socket.join(roomId);
-        console.log(`User joined room: ${roomId}`);
+       
       });
 
       socket.on("sendMessage", async (data) => {
@@ -25,7 +25,7 @@ export class SocketService {
       });
 
       socket.on("disconnect", () => {
-        console.log(` ${socket.id} disconnected`);
+        
       });
     });
   }

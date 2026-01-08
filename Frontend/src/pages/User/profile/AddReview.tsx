@@ -139,7 +139,6 @@ const UserAddReview: React.FC = () => {
       };
   
       const response=await createReviews(reviewData);
-      console.log(response,"res")
       if (response.data.success) {
       toast.success(response.data.message || "Review added successfully!");
       setDescription("");

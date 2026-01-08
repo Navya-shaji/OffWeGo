@@ -41,7 +41,6 @@ function App() {
           return;
         }
 
-        console.log(` FCM token obtained for ${role}:`, token.substring(0, 20) + '...');
 
  
         await subscribeToTopic(token, `${role}_${userId}`);

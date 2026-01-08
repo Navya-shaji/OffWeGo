@@ -1,5 +1,5 @@
 import { ProfileDto } from "../../dto/User/profileDto";
-import { User } from "../../entities/userEntity";
+import { User } from "../../entities/UserEntity";
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
