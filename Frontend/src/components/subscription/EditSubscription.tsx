@@ -186,27 +186,7 @@ export default function EditSubscriptionModal({
             )}
           </div>
 
-          {/* Status Toggle */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-black rounded-full"></span>
-              Status
-            </label>
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("isActive")}
-                  className="sr-only peer"
-                  defaultChecked={subscription.isActive}
-                />
-                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-black/10 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                <span className="ml-3 text-sm font-medium text-gray-700">
-                  {subscription.isActive ? "Active" : "Inactive"}
-                </span>
-              </label>
-            </div>
-          </div>
+ 
 
           {/* Features */}
           <div className="space-y-2">

@@ -59,6 +59,7 @@ function Dashboard() {
             {activeTab === "VendorWalletManagement" && (
               <VendorWalletManagement />
             )}
+            
             {activeTab === "Booking Slots" && (
               <TravelCalendar vendorId={vendorId || ""} />
             )}

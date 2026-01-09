@@ -33,23 +33,26 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
     (state: RootState) => state.vendorAuth.vendor?.id
   );
   console.log("TravelCalendar - vendorId from Redux:", vendorIdFromRedux); // Debug log
-  console.log("TravelCalendar - full vendorAuth state:", useSelector((state: RootState) => state.vendorAuth)); // Debug log
+  console.log(
+    "TravelCalendar - full vendorAuth state:",
+    useSelector((state: RootState) => state.vendorAuth)
+  ); // Debug log
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookingDetails, setBookingDetails] = useState<Booking[]>([]);
   const [bookingStatuses, setBookingStatuses] = useState<
     Record<string, "not-started" | "started" | "completed">
   >({});
-  const [selectedDateBookings, setSelectedDateBookings] = useState<Booking[]>([]);
+  const [selectedDateBookings, setSelectedDateBookings] = useState<Booking[]>(
+    []
+  );
 
   // Helper function to get vendor ID
   const getVendorId = () => {
     const id = vendorId || vendorIdFromRedux;
-    console.log("getVendorId - prop vendorId:", vendorId); // Debug log
-    console.log("getVendorId - redux vendorId:", vendorIdFromRedux); // Debug log
-    console.log("getVendorId - final id:", id); // Debug log
+
     return id;
   };
-
+  console.log(vendorId, "ven");
   useEffect(() => {
     const fetchWalletBalance = async () => {
       try {
@@ -58,15 +61,13 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           console.error("No vendorId available for wallet");
           return;
         }
-        console.log("Fetching wallet for vendorId:", actualVendorId); 
-        const response = await getVendorWallet(actualVendorId);
-        console.log("Wallet response:", response); 
+        const response = await getVendorWallet(vendorId);
         setWalletBalance(response?.balance || 0);
-      } catch  {
+      } catch {
         console.error("Error fetching wallet balance:");
       }
     };
-    
+
     if (getVendorId()) {
       fetchWalletBalance();
     }
@@ -80,19 +81,16 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           console.error("No vendorId available");
           return;
         }
-        console.log("Fetching dates for vendorId:", actualVendorId);
         const response = await bookingdates(actualVendorId);
-        console.log("Booking dates response:", response); 
         setDates(response || []);
-        console.log("Set dates to:", response || []); 
-      } catch  {
+      } catch {
         console.error("Error fetching booking dates:");
-        setError( "Failed to load booking dates.");
+        setError("Failed to load booking dates.");
       } finally {
         setLoading(false);
       }
     };
-    
+
     if (getVendorId()) {
       fetchDates();
     }
@@ -106,27 +104,21 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           console.error("No vendorId available for bookings");
           return;
         }
-        console.log("Fetching bookings for vendorId:", actualVendorId);
         const response = await getAllUserBookings(actualVendorId);
-        console.log("Raw bookings response:", response);
         if (response && Array.isArray(response)) {
-          console.log("Bookings array length:", response.length); 
-          console.log("First few bookings:", response.slice(0, 3)); 
           setBookingDetails(response);
-          
-      
-          const bookingDates = response.map(booking => booking.selectedDate);
-          console.log("All booking dates:", bookingDates); 
+
+          const bookingDates = response.map((booking) => booking.selectedDate);
         } else {
           console.warn("Unexpected bookings response format:", response);
           setBookingDetails([]);
         }
       } catch (err) {
         console.error("Error fetching booking details:", err);
-        setError( "Failed to load booking details.");
+        setError("Failed to load booking details.");
       }
     };
-    
+
     if (getVendorId()) {
       fetchAllBookings();
     }
@@ -141,63 +133,52 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
   }, []);
 
   const todaysBookings = useMemo(() => {
-    console.log("Calculating todaysBookings..."); // Debug log
-    console.log("Today's date string:", todayStr); // Debug log
-    console.log("All booking details:", bookingDetails); // Debug log
-    
     const todayBookings = bookingDetails.filter((booking) => {
-      console.log("Checking booking:", booking); // Debug log
-      
       if (!booking.selectedDate) {
-        console.log("Booking has no selectedDate, skipping"); // Debug log
         return false;
       }
-      
+
       const bookingDate = new Date(booking.selectedDate);
-      console.log("Booking date object:", bookingDate); // Debug log
-      
+
       if (isNaN(bookingDate.getTime())) {
-        console.log("Invalid booking date, skipping"); // Debug log
         return false;
       }
-      
+
       const bookingStr = `${bookingDate.getFullYear()}-${String(
         bookingDate.getMonth() + 1
       ).padStart(2, "0")}-${String(bookingDate.getDate()).padStart(2, "0")}`;
-      console.log("Booking date string:", bookingStr); // Debug log
-      console.log("Does it match today?", bookingStr === todayStr); // Debug log
-      
+
       return bookingStr === todayStr;
     });
-    
-    console.log("Today's bookings result:", todayBookings); // Debug log
+
     return todayBookings;
   }, [bookingDetails, todayStr]);
 
   const bookedDatesSet = useMemo(() => {
     const datesSet = new Set(
-      dates.map((dateStr) => {
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return null;
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}-${String(d.getDate()).padStart(2, "0")}`;
-      }).filter(Boolean)
+      dates
+        .map((dateStr) => {
+          const d = new Date(dateStr);
+          if (isNaN(d.getTime())) return null;
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+            2,
+            "0"
+          )}-${String(d.getDate()).padStart(2, "0")}`;
+        })
+        .filter(Boolean)
     );
-    console.log("Booked dates set:", Array.from(datesSet)); // Debug log
     return datesSet;
   }, [dates]);
 
   const stats = useMemo(() => {
     if (dates.length === 0)
-      return { 
-        totalBookings: 0, 
-        upcomingMonths: 0, 
+      return {
+        totalBookings: 0,
+        upcomingMonths: 0,
         mostBookedMonth: "N/A",
-        totalRevenue: walletBalance, // Use wallet balance instead of booking sum
+        totalRevenue: walletBalance,
         averageBookingValue: 0,
-        thisMonthBookings: 0
+        thisMonthBookings: 0,
       };
 
     const monthCounts: Record<string, number> = {};
@@ -209,13 +190,15 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
     dates.forEach((dateStr) => {
       const dateObj = new Date(dateStr);
       if (isNaN(dateObj.getTime())) return;
-      
+
       const monthYear = `${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
       uniqueMonths.add(monthYear);
       monthCounts[monthYear] = (monthCounts[monthYear] || 0) + 1;
-      
-      // Count current month bookings
-      if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
+
+      if (
+        dateObj.getMonth() === currentMonth &&
+        dateObj.getFullYear() === currentYear
+      ) {
         thisMonthCount++;
       }
     });
@@ -225,30 +208,32 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
       { month: "N/A", count: 0 }
     );
 
-    // Only calculate revenue from completed bookings
-    const completedBookings = bookingDetails.filter(booking => 
-      booking.paymentStatus === "succeeded"
+    const completedBookings = bookingDetails.filter(
+      (booking) => booking.paymentStatus === "succeeded"
     );
-    
-    const completedRevenue = completedBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
-    const averageBookingValue = completedBookings.length > 0 ? completedRevenue / completedBookings.length : 0;
+
+    const completedRevenue = completedBookings.reduce(
+      (sum, booking) => sum + (booking.totalAmount || 0),
+      0
+    );
+    const averageBookingValue =
+      completedBookings.length > 0
+        ? completedRevenue / completedBookings.length
+        : 0;
 
     return {
       totalBookings: dates.length,
       upcomingMonths: uniqueMonths.size,
       mostBookedMonth: mostBooked.month,
-      totalRevenue: walletBalance, // Use wallet balance
+      totalRevenue: walletBalance,
       averageBookingValue,
-      thisMonthBookings: thisMonthCount
+      thisMonthBookings: thisMonthCount,
     };
   }, [dates, bookingDetails, walletBalance]);
 
   const calendarDays = useMemo(() => {
-    console.log("Calculating calendar days..."); // Debug log
-    console.log("Current date:", currentDate); // Debug log
-    console.log("Booked dates set:", Array.from(bookedDatesSet)); // Debug log
-    console.log("Booking details for calendar:", bookingDetails); // Debug log
-    
+    console.log("Calculating calendar days...");
+
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
@@ -271,10 +256,7 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
       const date = new Date(year, month, day);
       const isWeekend = date.getDay() === 0 || date.getDay() === 6;
       const isToday = new Date().toDateString() === date.toDateString();
-      
-      console.log(`Day ${day} (${dateStr}): isBooked=${isBooked}`); // Debug log
-      
-      // Get booking details for this date
+
       const dayBookings = bookingDetails.filter((booking) => {
         if (!booking.selectedDate) return false;
         const bookingDate = new Date(booking.selectedDate);
@@ -284,11 +266,13 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
         return bookingStr === dateStr;
       });
 
-      // Calculate revenue only from completed bookings
-      const completedDayBookings = dayBookings.filter(booking => booking.paymentStatus === "succeeded");
-      const dayRevenue = completedDayBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
-
-      console.log(`Day ${day} bookings:`, dayBookings.length, "Revenue:", dayRevenue); // Debug log
+      const completedDayBookings = dayBookings.filter(
+        (booking) => booking.paymentStatus === "succeeded"
+      );
+      const dayRevenue = completedDayBookings.reduce(
+        (sum, booking) => sum + (booking.totalAmount || 0),
+        0
+      );
 
       days.push({
         day,
@@ -298,11 +282,10 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
         isToday,
         bookings: dayBookings,
         bookingCount: dayBookings.length,
-        totalRevenue: dayRevenue // Only completed bookings revenue
+        totalRevenue: dayRevenue,
       });
     }
 
-    console.log("Final calendar days:", days); // Debug log
     return days;
   }, [currentDate, bookedDatesSet, bookingDetails]);
 
@@ -336,13 +319,16 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
       if (response && Array.isArray(response)) {
         const filteredDetails = response.filter((booking: Booking) => {
           if (!booking.selectedDate) return false;
-          
+
           const bookingDate = new Date(booking.selectedDate);
           if (isNaN(bookingDate.getTime())) return false;
-          
+
           const bookingStr = `${bookingDate.getFullYear()}-${String(
             bookingDate.getMonth() + 1
-          ).padStart(2, "0")}-${String(bookingDate.getDate()).padStart(2, "0")}`;
+          ).padStart(2, "0")}-${String(bookingDate.getDate()).padStart(
+            2,
+            "0"
+          )}`;
           return bookingStr === dateStr;
         });
         setSelectedDateBookings(filteredDetails || []);
@@ -351,7 +337,7 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
       }
     } catch (err) {
       console.error("Error fetching booking details:", err);
-      setError( "Failed to fetch booking details");
+      setError("Failed to fetch booking details");
       setSelectedDateBookings([]);
     }
   };
@@ -369,14 +355,11 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
   };
 
   const getCustomerName = (booking: Booking) => {
-    return booking.contactInfo?.name || 
-           booking.adults?.[0]?.name || 
-           "Customer";
+    return booking.contactInfo?.name || booking.adults?.[0]?.name || "Customer";
   };
 
   const getPackageName = (booking: Booking) => {
-    return booking.selectedPackage?.packageName || 
-           "Package";
+    return booking.selectedPackage?.packageName || "Package";
   };
 
   const getPhoneNumber = (booking: Booking) => {
@@ -437,7 +420,6 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           </div>
         </div>
 
-        {/* Today's Bookings Section */}
         {todaysBookings.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-6">
@@ -480,8 +462,8 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                             {status === "completed"
                               ? "Completed"
                               : status === "started"
-                                ? "In Progress"
-                                : "Not Started"}
+                              ? "In Progress"
+                              : "Not Started"}
                           </span>
                         </div>
                         <p className="text-blue-600 font-semibold text-base mb-2">
@@ -507,7 +489,9 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                       <div className="flex gap-2">
                         {status === "not-started" && (
                           <button
-                            onClick={() => handleStartBooking(booking._id || "")}
+                            onClick={() =>
+                              handleStartBooking(booking._id || "")
+                            }
                             className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                           >
                             <Play className="w-4 h-4" />
@@ -532,15 +516,16 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           </div>
         )}
 
-        {/* Selected Date Bookings Modal */}
         {selectedDateBookings.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
-                Bookings for {selectedDateBookings[0]?.selectedDate ? 
-                  new Date(selectedDateBookings[0].selectedDate).toLocaleDateString() : 
-                  "Selected Date"
-                }
+                Bookings for{" "}
+                {selectedDateBookings[0]?.selectedDate
+                  ? new Date(
+                      selectedDateBookings[0].selectedDate
+                    ).toLocaleDateString()
+                  : "Selected Date"}
               </h2>
               <button
                 onClick={() => setSelectedDateBookings([])}
@@ -557,15 +542,23 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{getCustomerName(booking)}</h3>
-                      <p className="text-sm text-gray-600">{getPackageName(booking)}</p>
-                      <p className="text-sm text-gray-600">{getPhoneNumber(booking)}</p>
+                      <h3 className="font-semibold text-gray-900">
+                        {getCustomerName(booking)}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {getPackageName(booking)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {getPhoneNumber(booking)}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-blue-600">
                         ₹{(booking.totalAmount || 0).toLocaleString()}
                       </p>
-                      <p className="text-sm text-gray-500">{getTravelerCount(booking)} travelers</p>
+                      <p className="text-sm text-gray-500">
+                        {getTravelerCount(booking)} travelers
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -574,7 +567,6 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           </div>
         )}
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
@@ -582,7 +574,9 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                 <p className="text-gray-600 text-sm font-medium mb-2">
                   Total Bookings
                 </p>
-                <p className="text-4xl font-bold text-gray-900">{stats.totalBookings}</p>
+                <p className="text-4xl font-bold text-gray-900">
+                  {stats.totalBookings}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   {stats.thisMonthBookings} this month
                 </p>
@@ -603,7 +597,10 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                   ₹{stats.totalRevenue.toLocaleString("en-IN")}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Avg: ₹{Math.round(stats.averageBookingValue).toLocaleString("en-IN")}
+                  Avg: ₹
+                  {Math.round(stats.averageBookingValue).toLocaleString(
+                    "en-IN"
+                  )}
                 </p>
               </div>
               <div className="bg-green-50 p-3 rounded-xl">
@@ -618,10 +615,10 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                 <p className="text-gray-600 text-sm font-medium mb-2">
                   Active Months
                 </p>
-                <p className="text-4xl font-bold text-gray-900">{stats.upcomingMonths}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  With bookings
+                <p className="text-4xl font-bold text-gray-900">
+                  {stats.upcomingMonths}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">With bookings</p>
               </div>
               <div className="bg-purple-50 p-3 rounded-xl">
                 <Calendar className="w-8 h-8 text-purple-600" />
@@ -635,10 +632,10 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                 <p className="text-gray-600 text-sm font-medium mb-2">
                   Peak Month
                 </p>
-                <p className="text-2xl font-bold text-gray-900">{stats.mostBookedMonth}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Most bookings
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.mostBookedMonth}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">Most bookings</p>
               </div>
               <div className="bg-orange-50 p-3 rounded-xl">
                 <Star className="w-8 h-8 text-orange-600" />
@@ -709,7 +706,15 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                 );
               }
 
-              const { day, isBooked, isWeekend, isToday, date, bookingCount, totalRevenue } = dayInfo;
+              const {
+                day,
+                isBooked,
+                isWeekend,
+                isToday,
+                date,
+                bookingCount,
+                totalRevenue,
+              } = dayInfo;
 
               return (
                 <div
@@ -722,11 +727,15 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
                         : "bg-blue-500 text-white font-semibold hover:bg-blue-600"
                       : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                   } ${isToday ? "ring-2 ring-blue-500 ring-offset-2" : ""}`}
-                  title={isBooked ? `${bookingCount} booking(s) - ₹${totalRevenue.toLocaleString("en-IN")}` : "Available"}
+                  title={
+                    isBooked
+                      ? `${bookingCount} booking(s) - ₹${totalRevenue.toLocaleString(
+                          "en-IN"
+                        )}`
+                      : "Available"
+                  }
                 >
-                  <span className="text-sm font-semibold">
-                    {day}
-                  </span>
+                  <span className="text-sm font-semibold">{day}</span>
                   {isBooked && (
                     <div className="flex items-center gap-1 mt-1">
                       {bookingCount > 1 && (
@@ -746,23 +755,31 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           </div>
         </div>
 
-        {/* Calendar Summary */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Monthly Summary</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">
+            Monthly Summary
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-2">Total Bookings This Month</p>
-              <p className="text-3xl font-bold text-blue-600">{stats.thisMonthBookings}</p>
+              <p className="text-sm text-gray-600 mb-2">
+                Total Bookings This Month
+              </p>
+              <p className="text-3xl font-bold text-blue-600">
+                {stats.thisMonthBookings}
+              </p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-2">Revenue This Month</p>
               <p className="text-3xl font-bold text-green-600">
-                ₹{bookingDetails
-                  .filter(booking => {
+                ₹
+                {bookingDetails
+                  .filter((booking) => {
                     const bookingDate = new Date(booking.selectedDate);
-                    return bookingDate.getMonth() === new Date().getMonth() && 
-                           bookingDate.getFullYear() === new Date().getFullYear() &&
-                           booking.paymentStatus === "succeeded"; // Only completed bookings
+                    return (
+                      bookingDate.getMonth() === new Date().getMonth() &&
+                      bookingDate.getFullYear() === new Date().getFullYear() &&
+                      booking.paymentStatus === "succeeded"
+                    );
                   })
                   .reduce((sum, booking) => sum + (booking.totalAmount || 0), 0)
                   .toLocaleString("en-IN")}
@@ -771,60 +788,27 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-2">Average per Booking</p>
               <p className="text-3xl font-bold text-purple-600">
-                ₹{stats.thisMonthBookings > 0 
+                ₹
+                {stats.thisMonthBookings > 0
                   ? Math.round(
                       bookingDetails
-                        .filter(booking => {
+                        .filter((booking) => {
                           const bookingDate = new Date(booking.selectedDate);
-                          return bookingDate.getMonth() === new Date().getMonth() && 
-                                 bookingDate.getFullYear() === new Date().getFullYear() &&
-                                 booking.paymentStatus === "succeeded"; // Only completed bookings
+                          return (
+                            bookingDate.getMonth() === new Date().getMonth() &&
+                            bookingDate.getFullYear() ===
+                              new Date().getFullYear() &&
+                            booking.paymentStatus === "succeeded"
+                          );
                         })
-                        .reduce((sum, booking) => sum + (booking.totalAmount || 0), 0) / stats.thisMonthBookings
+                        .reduce(
+                          (sum, booking) => sum + (booking.totalAmount || 0),
+                          0
+                        ) / stats.thisMonthBookings
                     ).toLocaleString("en-IN")
-                  : "0"
-                }
+                  : "0"}
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={() => {
-                const today = new Date();
-                setCurrentDate(today);
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-              Go to Today
-            </button>
-            <button
-              onClick={() => {
-                const today = new Date();
-                const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-                handleDateClick(todayStr, bookedDatesSet.has(todayStr));
-              }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-            >
-              View Today's Bookings
-            </button>
-            <button
-              onClick={() => {
-                setBookingDetails([]);
-                setSelectedDateBookings([]);
-                const actualVendorId = getVendorId();
-                if (actualVendorId) {
-                  getAllUserBookings(actualVendorId).then(setBookingDetails);
-                }
-              }}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
-            >
-              Refresh Data
-            </button>
           </div>
         </div>
       </div>
