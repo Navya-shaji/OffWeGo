@@ -14,15 +14,15 @@ const ExpandedContactUsPage = () => {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = (e:any) => {
+  const handleChange = () => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+     
     });
   };
 
-  const handleSubmit = (e:any) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+
     setSubmitted(true);
     
     setTimeout(() => {

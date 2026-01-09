@@ -25,14 +25,13 @@ export const getVendorWallet = async (id: string): Promise<IWallet> => {
   try {
     const response = await axiosInstance.get(`/api/vendor/wallet/${id}`);
     
-    // Enhance transactions with additional details
     const wallet = response.data;
     if (wallet.transactions && Array.isArray(wallet.transactions)) {
       wallet.transactions = await Promise.all(
-        wallet.transactions.map(async (transaction: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        wallet.transactions.map(async (transaction:any) => {
           const enhancedTransaction = { ...transaction };
           
-          // If there's a vendorId, fetch vendor name (though this should be the same vendor)
           if (transaction.vendorId) {
             try {
               const vendorResponse = await axiosInstance.get(`/api/vendor/${transaction.vendorId}`);

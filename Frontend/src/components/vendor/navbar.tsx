@@ -34,6 +34,7 @@ const VendorNavbar: React.FC = () => {
   useEffect(() => {
     if (!vendor?.id) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const unsubscribe = onMessage(messaging, (payload: any) => {
       
       const title = payload.notification?.title || payload.data?.title || "New Notification";

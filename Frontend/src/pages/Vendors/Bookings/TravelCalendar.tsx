@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useMemo } from "react";
 import {
   Calendar,
@@ -57,13 +58,12 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
           console.error("No vendorId available for wallet");
           return;
         }
-        console.log("Fetching wallet for vendorId:", actualVendorId); // Debug log
+        console.log("Fetching wallet for vendorId:", actualVendorId); 
         const response = await getVendorWallet(actualVendorId);
-        console.log("Wallet response:", response); // Debug log
+        console.log("Wallet response:", response); 
         setWalletBalance(response?.balance || 0);
-      } catch (err: any) {
-        console.error("Error fetching wallet balance:", err);
-        // Don't set error for wallet, just log it
+      } catch  {
+        console.error("Error fetching wallet balance:");
       }
     };
     
@@ -82,12 +82,12 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
         }
         console.log("Fetching dates for vendorId:", actualVendorId);
         const response = await bookingdates(actualVendorId);
-        console.log("Booking dates response:", response); // Debug log
-        setDates(response || []); // Use response directly since bookingdates already extracts booking_dates
-        console.log("Set dates to:", response || []); // Debug log
-      } catch (err: any) {
-        console.error("Error fetching booking dates:", err);
-        setError(err?.response?.data?.message || "Failed to load booking dates.");
+        console.log("Booking dates response:", response); 
+        setDates(response || []);
+        console.log("Set dates to:", response || []); 
+      } catch  {
+        console.error("Error fetching booking dates:");
+        setError( "Failed to load booking dates.");
       } finally {
         setLoading(false);
       }
@@ -108,23 +108,22 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
         }
         console.log("Fetching bookings for vendorId:", actualVendorId);
         const response = await getAllUserBookings(actualVendorId);
-        console.log("Raw bookings response:", response); // Debug log
-        
+        console.log("Raw bookings response:", response);
         if (response && Array.isArray(response)) {
-          console.log("Bookings array length:", response.length); // Debug log
-          console.log("First few bookings:", response.slice(0, 3)); // Debug log
+          console.log("Bookings array length:", response.length); 
+          console.log("First few bookings:", response.slice(0, 3)); 
           setBookingDetails(response);
           
-          // Log booking dates for debugging
+      
           const bookingDates = response.map(booking => booking.selectedDate);
-          console.log("All booking dates:", bookingDates); // Debug log
+          console.log("All booking dates:", bookingDates); 
         } else {
           console.warn("Unexpected bookings response format:", response);
           setBookingDetails([]);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching booking details:", err);
-        setError(err?.response?.data?.message || "Failed to load booking details.");
+        setError( "Failed to load booking details.");
       }
     };
     
@@ -350,9 +349,9 @@ export const TravelCalendar: React.FC<{ vendorId: string }> = ({
       } else {
         setSelectedDateBookings([]);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error fetching booking details:", err);
-      setError(err?.response?.data?.message || "Failed to fetch booking details");
+      setError( "Failed to fetch booking details");
       setSelectedDateBookings([]);
     }
   };

@@ -1,8 +1,7 @@
 import { CreateMessageUseCase } from "../../useCases/msg/createMessageUsecase";
-import { ChatRepository } from "../repository/Chat/ChatRepository";
+import { ChatRepository } from "../repository/Chat/chatRepository";
 import { FirebaseNotificationService } from "../../framework/Services/FirebaseNotificationService";
 import { MessageRepository } from "../repository/Msg/MessageRepository";
-import { Role } from "../../domain/constants/Roles";
 
 export class ChatHandler {
     constructor(
@@ -17,7 +16,12 @@ export class ChatHandler {
     }
 
     async handleSendMessage(data: any, senderName: string): Promise<string> {
-   
+        console.log('📨 handleSendMessage called with:', {
+            chatId: data.chatId,
+            senderId: data.senderId,
+            senderType: data.senderType,
+            messageContent: data.messageContent?.substring(0, 50)
+        });
 
         const message = await this._sendMessageUseCase.createMessage({
             chatId: data.chatId,
@@ -31,25 +35,27 @@ export class ChatHandler {
             replyTo: data.replyTo,
         });
 
-      
+        console.log('✅ Message saved with ID:', message._id);
 
+        // Normalize senderType for comparison (handle 'User', 'user', 'vendor')
         const normalizedSenderType = (data.senderType || '').toLowerCase();
         const isVendorSender = normalizedSenderType === 'vendor';
         
-        
+        // Increment unread count
         if (this._chatRepository && data.receiverId) {
             try {
                 const recipientType = isVendorSender ? 'user' : 'vendor';
                 await this._chatRepository.incrementUnreadCount(data.chatId, recipientType);
-                
+                console.log(`📊 Incremented unread count for ${recipientType}`);
             } catch (error) {
-                console.error(' Error incrementing unread count:', error);
+                console.error('❌ Error incrementing unread count:', error);
             }
         }
 
+        // Send notification
         if (this._notificationService && data.receiverId) {
             try {
-                const recipientType = isVendorSender ? Role.USER : Role.VENDOR;
+                const recipientType = isVendorSender ? 'user' : 'vendor';
                 const title = `New message from ${senderName || 'someone'}`;
                 const messagePreview = data.messageContent.length > 50
                     ? data.messageContent.substring(0, 50) + '...'
@@ -63,9 +69,9 @@ export class ChatHandler {
                     read: false
                 });
 
-         
+                console.log(`🔔 Notification sent to ${recipientType}: ${data.receiverId}`);
             } catch (error) {
-                console.error(' Error sending notification:', error);
+                console.error('❌ Error sending notification:', error);
             }
         }
 

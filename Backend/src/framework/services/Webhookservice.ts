@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { Router, Request, Response } from "express";
 import Stripe from "stripe";
 import { subscriptionBookingModel } from "../database/Models/SubscriptionBookingModel"; 
 import dotenv from "dotenv";
-import * as QRCode from "qrcode";
 
 dotenv.config();
 

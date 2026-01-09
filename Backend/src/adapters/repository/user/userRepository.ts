@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ProfileDto } from "../../../domain/dto/User/profileDto";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import {

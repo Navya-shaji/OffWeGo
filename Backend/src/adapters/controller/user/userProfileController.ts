@@ -51,6 +51,7 @@ export class UserProfileController {
       const userId = req.body.userId || req.params.userId || req.user?.id || req.user?.userId;
 
       const { userId: _, ...userData } = req.body;
+      console.log(_)
 
       const result = await this._editUserProfileUsecase.execute(
         userId,

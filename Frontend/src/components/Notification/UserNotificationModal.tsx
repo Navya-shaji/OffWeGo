@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Bell, X, Loader2, MessageCircle, CheckCircle, AlertCircle, Info, Calendar, Star, Heart, Gift, MapPin, User as UserIcon } from "lucide-react";
+import { Bell, X, Loader2, MessageCircle, CheckCircle, Calendar, Star, Heart, Gift, MapPin, User as UserIcon } from "lucide-react";
 import { useSelector } from "react-redux";
 import { fetchNotifications, ReadNotification, type Notification as ServiceNotification } from "@/services/Notification/Notification";
 import type { RootState } from "@/store/store";
@@ -123,9 +123,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
   };
 
   useEffect(() => {
-    if (open) {
-     
-    }
+    if (open) { /* empty */ }
   }, [open, notifications.length, loading, error, user?.id]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -206,6 +204,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
     try {
       const chatsResponse = await getChatsOfUser(user.id, 'user');
       const chats = chatsResponse?.data || chatsResponse || [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const matchingChat = chats.find((chat: any) => {
         const chatName = (chat.name || "").toLowerCase();
         const target = senderName.toLowerCase();

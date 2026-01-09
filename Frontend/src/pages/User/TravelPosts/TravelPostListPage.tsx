@@ -14,22 +14,7 @@ dayjs.extend(relativeTime);
 
 type SortOption = "latest" | "oldest" | "popular";
 
-const sortPosts = (posts: TravelPost[], sortBy: SortOption) => {
-  const cloned = [...posts];
-  switch (sortBy) {
-    case "oldest":
-      return cloned.sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
-    case "popular":
-      return cloned.sort((a, b) => b.metrics.views - a.metrics.views);
-    case "latest":
-    default:
-      return cloned.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-  }
-};
+
 
 const TravelPostListPage = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -147,14 +132,14 @@ const TravelPostListPage = () => {
 
     return () => {
       if (observerRef.current && loadMoreRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         observerRef.current.unobserve(loadMoreRef.current);
       }
     };
   }, [loadMorePosts, hasMore, isLoadingMore]);
 
   const filteredPosts = useMemo(() => {
-    // For infinite scroll, we use the displayed posts directly
-    // since filtering is handled by the API
+  
     return displayedPosts;
   }, [displayedPosts]);
 

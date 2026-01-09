@@ -9,11 +9,9 @@ import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";
 import { ChevronLeft, ChevronRight, MapPin, Search, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-interface DestinationsProps {
-  id?: string;
-}
 
-const Destinations = (_props: DestinationsProps) => {
+
+const Destinations = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [originalDestinations, setOriginalDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);

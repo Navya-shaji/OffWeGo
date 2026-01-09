@@ -5,7 +5,6 @@ import { UserRepository } from "../../adapters/repository/User/UserRepository";
 import { VendorRepository } from "../../adapters/repository/Vendor/VendorRepository";
 import { firebaseAdmin } from "./firebase";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
-import { Role } from "../../domain/constants/Roles";
 export class FirebaseNotificationService implements INotificationService {
   constructor(
     private notificationRepo: NotificationRepository,
@@ -53,9 +52,10 @@ export class FirebaseNotificationService implements INotificationService {
       };
 
       const response = await firebaseAdmin.messaging().send(message);
-    
+      console.log('✅ FCM notification sent successfully:', response);
     } catch (error: any) {
-     
+      console.error('❌ Error sending FCM notification:', error);
+      // If token is invalid, we should handle it but not throw
       if (error.code === 'messaging/invalid-registration-token' || 
           error.code === 'messaging/registration-token-not-registered') {
         console.warn('⚠️ Invalid FCM token, should be removed from database');
@@ -77,7 +77,8 @@ export class FirebaseNotificationService implements INotificationService {
     }
 
     if (token && token.trim() !== '') {
-
+      // Include additional data for foreground handling
+      // FCM requires all data values to be strings
       const notificationData: Record<string, string> = {
         type: 'chat_message',
         recipientId: String(recipientId),
@@ -88,6 +89,7 @@ export class FirebaseNotificationService implements INotificationService {
       };
       
       await this.sendNotification(token, title, message, notificationData);
+      console.log(`📱 FCM notification sent to ${recipientType} (${recipientId})`);
     } else {
       console.warn(`⚠️ No FCM token found for ${recipientType} (${recipientId})`);
     }
@@ -107,7 +109,7 @@ export class FirebaseNotificationService implements INotificationService {
 
   async getByRecipient(
     recipientId: string,
-    recipientType: Role.USER |Role.VENDOR
+    recipientType: "vendor" | "user"
   ): Promise<INotificationEntity[]> {
     return this.notificationRepo.getByRecipient(recipientId, recipientType);
   }

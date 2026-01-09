@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from "react";
 import { markAllAsRead, markAsRead } from "@/store/slice/Notifications/notificationSlice";
 import { Bell, X, Loader2, MessageCircle } from "lucide-react";
@@ -44,8 +45,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     
       
       if (!Array.isArray(data)) {
-        console.warn("⚠️ fetchNotifications did not return an array:", data);
-        console.warn("⚠️ Data structure:", JSON.stringify(data).substring(0, 200));
+       
         setNotifications([]);
         if (onUnreadCountChange) {
           onUnreadCountChange(0);
@@ -64,7 +64,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
           const matchesType = n.recipientType === expectedRecipientType;
           
           if (!matchesType) {
-            console.warn("⚠️ Notification filtered out (wrong type):", {
+            console.warn("Notification filtered out (wrong type):", {
               notificationId: n._id || n.id,
               notificationRecipientType: n.recipientType,
               expectedRecipientType
@@ -205,7 +205,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       });
 
       if (matchingChat?._id) {
-        // Navigate to chat based on user type
         const chatPath = isVendor ? `/vendor/chat/${matchingChat._id}` : `/chat/${matchingChat._id}`;
         navigate(chatPath);
         onClose();

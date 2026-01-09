@@ -3,6 +3,8 @@ import { WalletRepository } from "../../adapters/repository/Wallet/WalletReposit
 import { BookingRepository } from "../../adapters/repository/Booking/BookingRepository";
 import { PackageRepository } from "../../adapters/repository/Package/PackageRepository";
 import { CompleteTripUseCase } from "../../useCases/wallet/completedTripUsecase";
+import { SubscriptionBookingRepository } from "../../adapters/repository/Booking/SubscriptionBookingRepo";
+import { VendorRepository } from "../../adapters/repository/Vendor/VendorRepository";
 
 export const createAutoSettlementCron = (
   walletRepo: WalletRepository,
@@ -15,33 +17,18 @@ export const createAutoSettlementCron = (
     packageRepo
   );
 
-  return cron.schedule("*/1 * * * *", async () => {
+  const subscriptionRepo = new SubscriptionBookingRepository();
+  const vendorRepo = new VendorRepository();
 
+  return cron.schedule("0 2 * * *", async () => {
+    console.log("🕐 Starting daily cronjob - Trip Settlement & Subscription Check");
 
+    // 1. Process trip settlements
     const bookings = await bookingRepo.findCompletedTrips();
-  
+    console.log(`📋 Found ${bookings.length} bookings to settle`);
 
     for (const booking of bookings) {
       try {
-        const pkg = await packageRepo.getById(booking.selectedPackage as any);
-        if (!pkg) {
-          continue;
-        }
-
-        const duration = pkg.duration;
-
-        const startDate = new Date(booking.selectedDate);
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + duration);
-
-        const now = new Date();
-
-
-        if (now < endDate) {
-          continue;
-        }
-
-
         await completeTrip.execute(
           booking.bookingId,
           booking.vendorId!,
@@ -58,5 +45,20 @@ export const createAutoSettlementCron = (
         console.error(" Error settling booking:", err);
       }
     }
+
+    // 2. Check subscription expirations
+    try {
+      const vendors = await vendorRepo.getAllVendors(0, 1000);
+      console.log(`Checking subscriptions for ${vendors.length} vendors`);
+
+      for (const vendor of vendors) {
+        await subscriptionRepo.expireOldSubscriptions(vendor._id.toString());
+      }
+      console.log(" Subscription expiration check completed");
+    } catch (err) {
+      console.error(" Error checking subscriptions:", err);
+    }
+
+    console.log(" Daily cronjob completed");
   });
 };

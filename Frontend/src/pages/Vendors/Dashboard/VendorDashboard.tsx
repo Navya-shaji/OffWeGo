@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -122,7 +123,6 @@ export default function VendorDashboard() {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const currentYear = new Date().getFullYear();
 
-    // Initialize all months with zero values
     const monthlyMap = new Map<string, { bookings: number; revenue: number }>();
     months.forEach(month => {
       monthlyMap.set(month, { bookings: 0, revenue: 0 });
@@ -181,10 +181,9 @@ export default function VendorDashboard() {
 
   const isPositiveGrowth = parseFloat(growthPercentage) >= 0;
 
-  // Invoice download function - PDF generation
   const handleDownloadInvoice = (period: "monthly" | "yearly") => {
     const currentDate = new Date();
-    let invoiceData = {
+    const invoiceData = {
       vendorName: vendor?.name || "Vendor",
       vendorEmail: vendor?.email || "",
       period: period,

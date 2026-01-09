@@ -3,6 +3,7 @@ import http from "http";
 import { ChatEventHandler } from "./framework/socketEventHandlers/chatEventHandler";
 
 export class SocketIoServer {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private userSockets: Map<string, any> = new Map();
     private ChatOnline: Map<string, boolean> = new Map();
     private io: SocketIOServer;

@@ -88,7 +88,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       } else {
         toast.error(response?.message || "You have already submitted a review for this package");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting review:", error);
       toast.error(error?.response?.data?.message || "Error while submitting review");
     } finally {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IGoogleSignupUseCase } from "../../../domain/interface/UsecaseInterface/IgoogleSignupUsecase";
@@ -28,13 +29,13 @@ export class GoogleSignupController {
      
 
     
-      const mappedUser = user as any;
+      const mappedUser = user as any
       const userId = mappedUser.id || mappedUser._id?.toString();
       
      
       
       if (!user || !userId) {
-        console.error("❌ User or userId is missing:", { user: !!user, userId: !!userId });
+        console.error(" User or userId is missing:", { user: !!user, userId: !!userId });
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           message: "User information is incomplete or missing.",
@@ -49,7 +50,6 @@ export class GoogleSignupController {
         console.error("Wallet creation on Google signin failed:", walletErr);
       }
 
-      // IMPORTANT: use userId key to match auth middleware expectations (req.user.userId)
       const payload = {
         userId: userId,
         role: mappedUser.role || user.role || 'user',

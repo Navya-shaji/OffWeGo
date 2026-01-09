@@ -214,6 +214,7 @@ export const getSavedTravelPosts = async (
     return {
       data: (payload.data as TravelPost[]) ?? [],
       total: typeof payload.total === "number" ? payload.total : 0,
+      totalPosts: typeof payload.totalPosts === "number" ? payload.totalPosts : 0,
       page: typeof payload.page === "number" ? payload.page : params.page ?? 1,
       limit: typeof payload.limit === "number" ? payload.limit : params.limit ?? 10,
     };

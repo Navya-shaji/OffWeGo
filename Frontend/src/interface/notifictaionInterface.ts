@@ -12,6 +12,7 @@ export interface Notification {
     transactionId?: string;
     amount?: number;
     userId?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
 }
@@ -31,6 +32,8 @@ export interface FCMMessage {
   };
   data?: {
     type: string;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
   priority?: 'high' | 'normal';

@@ -3,12 +3,19 @@ import { IMessage } from "../../../domain/entities/MessageEntity";
 
 export class MessageRepository {
     async saveMessage(data: IMessage): Promise<IMessage> {
-        return await (messageModel as any).create(data);
+        return await messageModel.create(data);
     }
 
     async createMessage(data: any): Promise<IMessage> {
-     
-        const newMessage = new (messageModel as any)({
+        console.log('💾 MessageRepository.createMessage called with:', {
+            chatId: data.chatId,
+            senderId: data.senderId,
+            senderType: data.senderType,
+            messageContent: data.messageContent,
+            messageContentLength: data.messageContent?.length || 0,
+            charCodes: data.messageContent?.split('').map(char => char.charCodeAt(0))
+        });
+        const newMessage = new messageModel({
             chatId: data.chatId,
             senderId: data.senderId,
             senderType: data.senderType,
@@ -20,18 +27,39 @@ export class MessageRepository {
             replyTo: data.replyTo
         });
         const saved = await newMessage.save();
+        console.log('✅ Message saved to DB with ID:', saved._id);
+        console.log('✅ Saved message content:', saved.messageContent);
+        console.log('✅ Saved message content length:', saved.messageContent?.length || 0);
+        console.log('✅ Saved char codes:', saved.messageContent?.split('').map(char => char.charCodeAt(0)));
         return saved.toObject();
     }
 
-    async getMessages(chatId: string): Promise<IMessage[]> {
-        return await (messageModel as any).find({ chatId }).sort({ sendedTime: 1 }).populate({
-            path: 'replyTo.messageId',
-            model: 'message'
-        });
+    async getMessages(
+        chatId: string,
+        options?: { limit?: number; before?: Date }
+    ): Promise<{ messages: IMessage[]; hasMore: boolean }> {
+        const limit = Math.min(Math.max(options?.limit ?? 50, 1), 100);
+
+        const query: any = { chatId };
+        if (options?.before) {
+            query.sendedTime = { $lt: options.before };
+        }
+
+        const docs = await messageModel
+            .find(query)
+            .sort({ sendedTime: -1 })
+            .limit(limit + 1)
+            .populate('replyTo.messageId');
+
+        const hasMore = docs.length > limit;
+        const slice = hasMore ? docs.slice(0, limit) : docs;
+        const messages = slice.reverse().map((d) => (d as any).toObject?.() ?? d);
+
+        return { messages, hasMore };
     }
 
     async countUnreadMessages(chatId: string, userId: string): Promise<number> {
-        return await (messageModel as any).countDocuments({
+        return await messageModel.countDocuments({
             chatId,
             senderId: { $ne: userId },
             seen: false
@@ -39,7 +67,7 @@ export class MessageRepository {
     }
 
     async markAsSeen(chatId: string, userId: string) {
-        return await (messageModel as any).updateMany(
+        return await messageModel.updateMany(
             { chatId, senderId: { $ne: userId } },
             { $set: { seen: true } }
         );
@@ -47,7 +75,7 @@ export class MessageRepository {
 
     async deleteMessage(messageId: string): Promise<boolean> {
         try {
-            const result = await (messageModel as any).findByIdAndUpdate(
+            const result = await messageModel.findByIdAndUpdate(
                 messageId,
                 { 
                     $set: { 

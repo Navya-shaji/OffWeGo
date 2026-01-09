@@ -33,7 +33,7 @@ export class AuthRepository implements IAuthRepository {
         throw new Error("Invalid Google token - missing email");
       }
       
-      const userDoc = await (UserModel as any).findOneAndUpdate(
+      const userDoc = await (UserModel).findOneAndUpdate(
       { email: payload.email },
       {
         $setOnInsert: {
@@ -54,8 +54,7 @@ export class AuthRepository implements IAuthRepository {
         throw new Error("User creation or retrieval failed");
       }
       return userDoc;
-    } catch (error: any) {
-      console.error("Google authentication error:", error);
+    } catch (error) {
       if (error.message) {
         throw error;
       }

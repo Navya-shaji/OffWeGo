@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -33,9 +34,9 @@ export default function VendorWalletManagement() {
 
   useEffect(() => {
     if (vendor?.id) fetchWallet();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vendor]);
 
-  // Initialize displayed transactions when wallet data changes
   useEffect(() => {
     if (wallet?.transactions) {
       const initial = wallet.transactions.slice(0, TRANSACTIONS_PER_PAGE);

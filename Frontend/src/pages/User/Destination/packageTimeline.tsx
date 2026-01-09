@@ -48,8 +48,7 @@ export const PackageTimeline = () => {
 
 
   useEffect(() => {
-    if (selectedPackage) {
-    }
+    if (selectedPackage) { /* empty */ }
   }, [selectedPackage]);
 
   const toggleDay = (day: number) => {

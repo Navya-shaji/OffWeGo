@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import axiosInstance from "@/axios/instance";
 
 export const createBooking = async (
@@ -36,7 +37,7 @@ export const cancelBooking = async (bookingId: string, reason?: string) => {
   const response = await axiosInstance.patch(`/api/bookings/${bookingId}`, {
     reason: reason || undefined,
   });
-  return response.data; // Return full response to access success property
+  return response.data; 
 };
 
 export const rescheduleBooking = async (bookingId: string, newDate: string) => {

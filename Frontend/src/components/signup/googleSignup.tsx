@@ -64,9 +64,9 @@ export function GoogleSignup() {
               } else {
                 toast.error("Signup failed");
               }
-            } catch (error: any) {
+            } catch (error) {
               console.error("Google signup error:", error);
-              const errorMessage = error?.message || error?.response?.data?.message || "Google signup failed. Please try again.";
+              const errorMessage =  "Google signup failed. Please try again.";
               toast.error(errorMessage);
             }
           }}

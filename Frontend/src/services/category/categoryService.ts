@@ -64,7 +64,7 @@ export const deleteCategory = async (id: string) => {
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      throw new Error(error.response?.data?.error || "Failed to edit category");
+      throw new Error(error.response?.data?.error || "Failed to delete category");
     }
     throw new Error("Failed to delete category");
   }

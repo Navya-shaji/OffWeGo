@@ -37,6 +37,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
     "dotenv": "^16.6.0",
+    "emoji-picker-react": "^4.16.1",
     "firebase": "^12.5.0",
     "formik": "^2.4.6",
     "framer-motion": "^12.19.2",

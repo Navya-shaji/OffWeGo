@@ -1,13 +1,24 @@
 import axiosInstance from "@/axios/instance";
 import { isAxiosError } from "axios";
 
-export const getMessages = async (chatId: string, userType: 'user' | 'vendor' = 'user') => {
+export const getMessages = async (
+  chatId: string,
+  userType: 'user' | 'vendor' = 'user',
+  options?: { limit?: number; before?: string | Date }
+) => {
   try {
     // Use different endpoints for user vs vendor
     const endpoint = userType === 'vendor' 
       ? `/api/vendor/chat/messages/${chatId}`
       : `/api/chat/messages/${chatId}`;
-    const res = await axiosInstance.get(endpoint);
+
+    const params: any = {};
+    if (typeof options?.limit === 'number') params.limit = options.limit;
+    if (options?.before) {
+      params.before = options.before instanceof Date ? options.before.toISOString() : options.before;
+    }
+
+    const res = await axiosInstance.get(endpoint, { params });
     return res.data;
   } catch (error) {
     console.error("Error fetching messages:", error);
@@ -78,3 +89,4 @@ export const markMessagesAsSeen = async (chatId: string, userId: string, userTyp
     throw new Error("Unexpected error while marking messages as seen");
   }
 };
+

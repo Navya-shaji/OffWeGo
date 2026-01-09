@@ -127,9 +127,9 @@ export default function VendorSubscriptionPage() {
         console.error('Invalid response:', response);
         throw new Error("No payment URL provided in response");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Payment error:", err);
-      toast.error(`Subscription Error: ${err.message || "Failed to initiate payment"}`);
+      toast.error(`Subscription Error: Failed to initiate payment`);
       setBookingLoading(false);
     }
   };

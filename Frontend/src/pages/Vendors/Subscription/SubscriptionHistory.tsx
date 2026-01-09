@@ -67,13 +67,8 @@ export default function VendorSubscriptionHistory() {
         historyData = [];
       }
       
-      if (historyData.length > 0) {
-      
-        const firstItem = historyData[0];
-      
-      }
-      
-      // Normalize the data to match our interface
+   
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const normalizedData = historyData.map((item: any) => {
         const normalized: SubscriptionHistory = {
           _id: item._id || item.id || item.subscriptionId || '',
@@ -170,19 +165,19 @@ export default function VendorSubscriptionHistory() {
       
       switch (sortBy) {
         case "date":
-          const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+          { const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
           const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-          return dateB - dateA;
+          return dateB - dateA; }
         case "name":
-          const nameA = a.planName || "";
+          { const nameA = a.planName || "";
           const nameB = b.planName || "";
-          return nameA.localeCompare(nameB);
+          return nameA.localeCompare(nameB); }
         case "amount":
           return (b.amount || 0) - (a.amount || 0);
         case "status":
-          const statusA = a.status || "";
+          { const statusA = a.status || "";
           const statusB = b.status || "";
-          return statusA.localeCompare(statusB);
+          return statusA.localeCompare(statusB); }
         default:
           return 0;
       }
@@ -192,8 +187,7 @@ export default function VendorSubscriptionHistory() {
     try {
       if (!dateString) return "N/A";
       return format(parseISO(dateString), "MMM d, yyyy");
-    } catch (error) {
-      console.warn("Invalid date format:", dateString);
+    } catch  {
       return "Invalid Date";
     }
   };

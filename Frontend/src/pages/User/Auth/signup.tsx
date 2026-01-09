@@ -50,10 +50,11 @@ export default function Signup() {
           autoClose: 3000,
         });
       }
-    } catch (error) {
+    } catch  {
       toast.error("An error occurred during registration. Please try again.", {
         position: "top-right",
         autoClose: 3000,
+       
       });
     }
   };

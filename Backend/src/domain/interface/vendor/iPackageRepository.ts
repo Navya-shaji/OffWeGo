@@ -3,7 +3,7 @@ import { IPackageModel } from "../../../framework/database/Models/packageModel";
 import { Package } from "../../entities/PackageEntity";
 
 export interface IPackageRepository {
-  findById(packageId: any): unknown;
+  findById(packageId: string): unknown;
   createPackage(data: Package): Promise<IPackageModel>;
 
   getAllPackages(

@@ -59,6 +59,7 @@ export const walletPayment = async (
 export const createBookingWithWallet = async (
   userId: string,
   amount: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bookingData: any,
   description?: string
 ) => {

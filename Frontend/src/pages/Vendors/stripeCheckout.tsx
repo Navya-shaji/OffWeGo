@@ -22,7 +22,6 @@ function CheckoutForm({ amount }: { amount: number }) {
   const location = useLocation();
   const bData = location.state?.bookingData;
 
-  // Add validation for booking data
   useEffect(() => {
     if (!bData) {
       toast.error("Booking data not found. Please try again.");
@@ -79,6 +78,7 @@ function CheckoutForm({ amount }: { amount: number }) {
             paymentIntentId: paymentIntent.id,
           },
         });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (bookingError: any) {
         console.error("Booking creation failed:", bookingError);
 
@@ -90,7 +90,6 @@ function CheckoutForm({ amount }: { amount: number }) {
 
         toast.error(errorMsg);
 
-        // 👇 Redirect to failure page instead of success
         navigate("/payment-failed", {
           state: {
             booking: null,
@@ -121,14 +120,13 @@ function CheckoutForm({ amount }: { amount: number }) {
         },
       });
     }
-  } catch (err: any) {
-    console.error("Payment error:", err);
-    setErrorMessage(err.message || "An error occurred during payment");
-    toast.error(err.message || "An error occurred during payment");
+  } catch  {
+    setErrorMessage( "An error occurred during payment");
+    toast.error("An error occurred during payment");
     navigate("/payment-failed", {
       state: {
         paymentIntentId: null,
-        error: err.message || "An error occurred during payment",
+        error: "An error occurred during payment",
       },
     });
   } finally {

@@ -49,14 +49,13 @@ const PaymentSuccess = () => {
           setMessage(response.message || "Payment verification failed");
           toast.error(response.message || "Payment verification failed");
         }
-      } catch (err: any) {
-        console.error("Payment verification error:", err);
+      } catch  {
+       
         setStatus("error");
-        const errorMessage = err?.response?.data?.message || err?.message || "Error verifying payment";
+        const errorMessage ="Error verifying payment";
         setMessage(errorMessage);
         toast.error(errorMessage);
         
-        // Navigate back to subscription plans after error
         setTimeout(() => {
           navigate("/vendor/subscriptionplans");
         }, 3000);

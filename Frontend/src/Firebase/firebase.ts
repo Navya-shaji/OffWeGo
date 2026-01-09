@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
 import { initializeApp } from "firebase/app";
 import {
@@ -25,16 +26,15 @@ export { messaging };
 
 export const getFcmToken = async (): Promise<string | null> => {
   try {
-    // Request notification permission if not already granted
     if ('Notification' in window) {
       if (Notification.permission === 'default') {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-          console.warn("⚠️ Notification permission not granted");
+          console.warn(" Notification permission not granted");
           return null;
         }
       } else if (Notification.permission === 'denied') {
-        console.warn("⚠️ Notification permission denied");
+        console.warn(" Notification permission denied");
         return null;
       }
     }
@@ -49,6 +49,7 @@ export const getFcmToken = async (): Promise<string | null> => {
       return null;
     }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(" Error retrieving FCM token:", err);
     if (err.code === 'messaging/permission-blocked') {

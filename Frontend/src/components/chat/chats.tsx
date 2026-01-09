@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, Image, X, RotateCcw } from "lucide-react";
+import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, X, RotateCcw, Smile } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -8,6 +8,7 @@ import { io, Socket } from "socket.io-client";
 import { socketContext } from "@/utilities/socket";
 import { toast } from "react-toastify";
 import { useChatContext } from "@/context/chatContext";
+import EmojiPicker from "emoji-picker-react";
 
 const logo = "/images/logo.png";
 
@@ -76,13 +77,12 @@ const ChatPage = () => {
     const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
     const [hasMoreMessages, setHasMoreMessages] = useState(true);
     const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [deletedMessages, setDeletedMessages] = useState<Map<string, ChatMessage>>(new Map());
-    const inputRef = useRef<HTMLInputElement>(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const emojiPickerRef = useRef<HTMLDivElement>(null);
     const autoScrollRef = useRef(true);
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId?: string }>();
@@ -160,19 +160,13 @@ const ChatPage = () => {
     const handleSendMessage = async () => {
         if (!selectedContact || !senderId) return;
         const content = newMessage.trim();
-        if (!content && !selectedImage) return;
+        if (!content) return;
 
-        let messageContent = content;
-        let messageType: 'text' | 'image' = 'text';
-        let fileUrl = '';
+        console.log('🔍 Sending message with content:', content);
+        console.log('🔍 Content length:', content.length);
+        console.log('🔍 Content char codes:', content.split('').map(char => char.charCodeAt(0)));
 
-        // Handle image upload
-        if (selectedImage) {
-            // For now, create a local URL (in production, upload to server)
-            fileUrl = URL.createObjectURL(selectedImage);
-            messageContent = selectedImage.name;
-            messageType = 'image';
-        }
+        const messageContent = content;
 
         const receiverIdRaw = senderRole === "vendor" ? selectedContact.userId : selectedContact.vendorId;
         const receiverId = typeof receiverIdRaw === "string" ? receiverIdRaw : "";
@@ -198,16 +192,13 @@ const ChatPage = () => {
             senderName: user?.username || vendor?.name || "Someone",
             receiverId: receiverId,
             messageContent: messageContent,
-            messageType: messageType,
             seen: false,
             sendedTime: now,
-            fileUrl: fileUrl,
+            fileUrl: '',
             replyTo: replyPayload,
         };
 
         setNewMessage("");
-        setSelectedImage(null);
-        setImagePreview(null);
         setReplyingTo(null);
         autoScrollRef.current = true;
 
@@ -220,8 +211,6 @@ const ChatPage = () => {
                 messageContent: payload.messageContent,
                 sendedTime: now,
                 seen: false,
-                messageType: messageType,
-                fileUrl: fileUrl,
                 deliveryStatus: "sending",
                 replyTo: replyingTo
                     ? {
@@ -284,20 +273,37 @@ const ChatPage = () => {
         socketRef.current.emit("revert_message", { messageId, chatId: selectedContact?._id });
     };
 
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-            setSelectedImage(file);
-            const preview = URL.createObjectURL(file);
-            setImagePreview(preview);
+    const handleEmojiClick = (emojiObject: any) => {
+        const emoji = emojiObject.emoji;
+        setNewMessage(prev => prev + emoji);
+        setShowEmojiPicker(false);
+        // Focus back to input after selecting emoji
+        const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+        if (inputElement) {
+            inputElement.focus();
         }
     };
 
-    const clearImageSelection = () => {
-        setSelectedImage(null);
-        setImagePreview(null);
-        URL.revokeObjectURL(imagePreview || '');
+    const toggleEmojiPicker = () => {
+        setShowEmojiPicker(!showEmojiPicker);
     };
+
+    // Close emoji picker when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+                setShowEmojiPicker(false);
+            }
+        };
+
+        if (showEmojiPicker) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showEmojiPicker]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -567,13 +573,15 @@ const ChatPage = () => {
                 if (responseY && responseY.data) {
                     if (Array.isArray(responseY.data)) {
                         chats = responseY.data;
-                    } else if (Array.isArray(responseY.data.chats)) {
+                    } else if (responseY.data.chats && Array.isArray(responseY.data.chats)) {
                     chats = responseY.data.chats;
                     }
                 } else if (responseY && Array.isArray(responseY)) {
                     chats = responseY;
+                } else if (responseY && responseY.messages && Array.isArray(responseY.messages)) {
+                    chats = responseY.messages;
                 }
-
+                
                 if (chats.length > 0) {
                     console.log("Chat data sample:", chats[0]);
                     console.log("Full chat data structure:", JSON.stringify(chats[0], null, 2));
@@ -670,10 +678,7 @@ const ChatPage = () => {
                         setSelectedContact(chatToSelect);
                         setShowContacts(false);
                     } else {
-                        // Chat not found in list, might be a new chat
-                        // Try to get vendor info from the chat data structure
-                        // For now, set a placeholder and it will be updated when messages are loaded
-                        // or when the chat is found in a refresh
+                      
                         const placeholderContact: Contact = {
                             _id: chatId,
                             name: "Vendor",
@@ -745,7 +750,6 @@ const ChatPage = () => {
 
                 setContacts(prev => prev.map(c => {
                     if (c._id === selectedContact._id && (c.unreadCount || 0) > 0) {
-                        const oldCount = c.unreadCount || 0;
                         return { ...c, unreadCount: 0 };
                     }
                     return c;
@@ -1118,32 +1122,8 @@ const ChatPage = () => {
                                     </button>
                                 </div>
                             )}
-
-                            {/* Image preview */}
-                            {imagePreview && (
-                                <div className="mb-2 p-3 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-                                    <div className="relative inline-block">
-                                        <img 
-                                            src={imagePreview} 
-                                            alt="Preview" 
-                                            className="max-w-xs max-h-32 rounded-lg object-cover shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                            onClick={() => {
-                                                window.open(imagePreview, '_blank');
-                                            }}
-                                        />
-                                        <button
-                                            onClick={clearImageSelection}
-                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-lg transition-all hover:scale-110"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                                            Click to preview
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                             
+
                             {/* Typing Indicator */}
                             {typingUsers.length > 0 && (
                                 <div className="text-xs text-gray-500 mb-2 px-2">
@@ -1151,26 +1131,35 @@ const ChatPage = () => {
                                 </div>
                             )}
                             
-                            <div className="flex items-center gap-2">
-                                {/* Image picker */}
-                                <input
-                                    type="file"
-                                    ref={inputRef}
-                                    accept="image/*"
-                                    onChange={handleImageSelect}
-                                    className="hidden"
-                                    id="image-picker"
-                                />
-                                <label
-                                    htmlFor="image-picker"
-                                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100 cursor-pointer"
-                                    title="Send image"
+
+                            <div className="flex items-center gap-2 relative">
+                                {/* Emoji Picker Button */}
+                                <button
+                                    onClick={toggleEmojiPicker}
+                                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
+                                    title="Add emoji"
                                 >
-                                    <Image size={20} />
-                                </label>
+                                    <Smile size={20} />
+                                </button>
+
+                                {/* Emoji Picker */}
+                                {showEmojiPicker && (
+                                    <div 
+                                        ref={emojiPickerRef}
+                                        className="absolute bottom-12 left-0 z-50"
+                                    >
+                                        <EmojiPicker 
+                                            onEmojiClick={handleEmojiClick}
+                                            theme={'light' as any}
+                                            emojiStyle={'native' as any}
+                                            searchPlaceholder="Search emoji..."
+                                            height={350}
+                                            width={300}
+                                        />
+                                    </div>
+                                )}
                                 
                                 <input
-                                    type="text"
                                     value={newMessage}
                                     onChange={(e) => {
                                         setNewMessage(e.target.value);
@@ -1184,7 +1173,7 @@ const ChatPage = () => {
                                 />
                                 <button
                                     onClick={handleSendMessage}
-                                    disabled={sending || (!newMessage.trim() && !selectedImage)}
+                                    disabled={sending || !newMessage.trim()}
                                     className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                                     aria-label="Send message"
                                 >

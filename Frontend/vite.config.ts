@@ -2,7 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { fileURLToPath } from 'url';
 import { VitePWA } from "vite-plugin-pwa";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
@@ -13,7 +16,10 @@ export default defineConfig({
       
       // Service Worker Configuration
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp}',
+          'manifest.json'
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -42,10 +48,6 @@ export default defineConfig({
         skipWaiting: true,
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
-        globPatterns: [
-          '**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp}',
-          'manifest.json'
-        ],
       },
 
       // Manifest Configuration
@@ -153,7 +155,7 @@ export default defineConfig({
       // PWA Configuration
       strategies: 'injectManifest',
       injectRegister: 'auto',
-      injectManifest: 'auto'
+      
     }),
   ],
   resolve: {

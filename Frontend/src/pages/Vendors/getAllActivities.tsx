@@ -229,6 +229,7 @@ const ActivitiesTable: React.FC = () => {
         },
       });
       toast.success("Coordinates fetched successfully!");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching coordinates:", error);
       toast.error(error?.message || "Failed to fetch coordinates");

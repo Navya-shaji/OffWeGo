@@ -100,6 +100,7 @@ export const useCreateDestinationForm = () => {
             errorMessage += "Location request timed out.";
             break;
           default:
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             errorMessage += "Unknown error occurred.";
             break;
         }
@@ -150,7 +151,7 @@ export const useCreateDestinationForm = () => {
         setValue("coordinates.lng", parseFloat(lng.toFixed(6)));
         
       
-        const updatedValues = getValues();
+      
       } else {
         throw new Error("No coordinates returned");
       }
@@ -216,7 +217,7 @@ export const useCreateDestinationForm = () => {
     
   
     const watchedLocation = watch("location");
-  
+  console.log(watchedLocation)
     
     return currentValues;
   };

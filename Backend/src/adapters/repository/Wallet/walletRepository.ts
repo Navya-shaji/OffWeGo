@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 import { IWalletRepository } from "../../../domain/interface/Wallet/IWalletRepository";
 import {
@@ -76,6 +77,7 @@ async updateBalance(
 
 
   async markTransactionCompleted(ownerId: string, refId: string): Promise<IWallet> {
+
     const updatedWallet = await (this.model as any).findOneAndUpdate(
       { ownerId, "transactions.refId": refId },
       {

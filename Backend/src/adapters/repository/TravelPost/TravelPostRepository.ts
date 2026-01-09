@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FilterQuery, Types } from "mongoose";
 import { TravelPostModel, ITravelPostDocument } from "../../../framework/database/Models/TravelPostModel";
 import {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Booking } from "../../../domain/entities/BookingEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
 import { BookingModel } from "../../../framework/database/Models/BookingModel";
@@ -202,6 +203,7 @@ export class BookingRepository implements IBookingRepository {
       bookingStatus: "upcoming",
       settlementDone: false,
       paymentStatus: "succeeded",
+      selectedDate: { $lt: new Date() }
     });
   }
 }

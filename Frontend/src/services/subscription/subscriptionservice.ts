@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { Subscription } from "@/interface/subscription";
@@ -127,16 +128,13 @@ export const getAllSubscriptionBookings = async () => {
   }
 };
 
-// Get vendor's active subscription booking by vendor ID
-// This should return only active, non-expired subscriptions
-// Note: Backend should handle expiring old subscriptions via cron job or on-demand
+
 export const getVendorActiveSubscription = async (vendorId?: string) => {
   try {
     if (!vendorId) {
       throw new Error("Vendor ID is required");
     }
 
-    // Try vendor-specific endpoint first
     let res;
     try {
       res = await axiosInstance.get("/api/vendor/subscription");
@@ -144,7 +142,7 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
       try {
         res = await axiosInstance.get("/api/admin/booked-subscription");
       } catch (adminError: any) {
-        console.error("❌ Both endpoints failed:", {
+        console.error(" Both endpoints failed:", {
           vendorError: vendorError?.response?.status,
           adminError: adminError?.response?.status
         });
@@ -218,33 +216,23 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
         const subVendorId = sub.vendorId?.toString() || sub.vendorId;
         const currentVendorId = vendorId.toString();
         const matches = subVendorId === currentVendorId;
-        
-        if (matches) {
-        
-        }
-        
+    
         return matches;
       });
       
-      
-      if (vendorSubscriptions.length > 0) {
-     
-      }
-      
+ 
   
       const activeSubscription = vendorSubscriptions.find((sub: any) => {
-        // Check status
+   
         if (sub.status !== "active") {
           return false;
         }
         
-        // Check if subscription is not expired
         const endDate = sub.endDate ? new Date(sub.endDate) : null;
         if (!endDate) {
           return false; 
         }
         
-        // Subscription is active if endDate >= now
         const isNotExpired = endDate >= now;
         
         
@@ -261,7 +249,7 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
         };
       }
     } else {
-      console.log("⚠️ Unexpected API response structure:", res.data);
+      console.log(" Unexpected API response structure:", res.data);
     }
     
     return {
@@ -269,7 +257,7 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
       vendorSubscription: null,
       hasActiveSubscription: false
     };
-  } catch (error: any) {
+  } catch (error) {
     
     if (isAxiosError(error)) {
       console.error("API Error Response:", {

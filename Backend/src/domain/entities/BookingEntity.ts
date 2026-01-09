@@ -21,9 +21,9 @@ export interface PackageInfo {
 
 export interface Booking {
  
-  vendorId: any;
+  vendorId: string
   startDate: string | number | Date;
-  packageId(packageId: any): unknown;
+  packageId(packageId: string): unknown;
   _id?: string;
   bookingId: string;
   userId: string;

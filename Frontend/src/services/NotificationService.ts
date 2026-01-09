@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosInstance from "@/axios/instance";
 import type { FCMMessage, NotificationCount } from "@/interface/notifictaionInterface";
+import { onMessage } from 'firebase/messaging';
 
-// API Service for notifications
+
 export const notificationService = {
-  // Get all notifications for admin
+
   getNotifications: async (page: number = 1, limit: number = 20): Promise<{
     notifications: Notification[];
     totalCount: number;
@@ -16,39 +18,37 @@ export const notificationService = {
     return response.data;
   },
 
-  // Get notification count
   getNotificationCount: async (): Promise<NotificationCount> => {
     const response = await axiosInstance.get("/api/admin/notifications/count");
     return response.data;
   },
 
-  // Mark notification as read
+
   markAsRead: async (notificationId: string): Promise<void> => {
     await axiosInstance.patch(`/api/admin/notifications/${notificationId}/read`);
   },
 
-  // Mark all notifications as read
+
   markAllAsRead: async (): Promise<void> => {
     await axiosInstance.patch("/api/admin/notifications/read-all");
   },
 
-  // Delete notification
+
   deleteNotification: async (notificationId: string): Promise<void> => {
     await axiosInstance.delete(`/api/admin/notifications/${notificationId}`);
   },
 
-  // Update FCM token
+ 
   updateFCMToken: async (token: string): Promise<void> => {
     await axiosInstance.post("/api/admin/fcm-token", { token });
   },
 
-  // Send notification to specific user (admin function)
+  
   sendNotification: async (message: FCMMessage): Promise<void> => {
     await axiosInstance.post("/api/admin/send-notification", message);
   }
 };
 
-// FCM Service for Firebase Cloud Messaging
 export class FCMService {
   private static instance: FCMService;
   private messaging: any = null;
@@ -61,14 +61,11 @@ export class FCMService {
     return FCMService.instance;
   }
 
-  // Initialize Firebase Messaging
   async initialize(): Promise<void> {
     try {
-      // Import Firebase dynamically to avoid SSR issues
       const { getMessaging } = await import('firebase/messaging');
       const { initializeApp } = await import('firebase/app');
 
-      // Firebase config (should be in environment variables)
       const firebaseConfig = {
         apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
         authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -77,14 +74,11 @@ export class FCMService {
         appId: process.env.REACT_APP_FIREBASE_APP_ID,
       };
 
-      // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       this.messaging = getMessaging(app);
 
-      // Request permission and get token
       await this.requestPermission();
       
-      // Setup foreground message handler
       this.setupMessageHandler();
       
     } catch (error) {
@@ -92,7 +86,6 @@ export class FCMService {
     }
   }
 
-  // Request notification permission
   async requestPermission(): Promise<string | null> {
     try {
       const { getToken } = await import('firebase/messaging');
@@ -104,7 +97,7 @@ export class FCMService {
         });
         
         if (this.token) {
-          // Send token to backend
+       
           await notificationService.updateFCMToken(this.token);
         }
         return this.token;
@@ -120,8 +113,6 @@ export class FCMService {
 
   private setupMessageHandler(): void {
     try {
-      const onMessage = require('firebase/messaging').onMessage;
-      
       onMessage(this.messaging, (payload: any) => {
         
         this.handleForegroundMessage(payload);

@@ -44,8 +44,5 @@ socket.on('disconnect', (reason) => {
 
 if (!token) {
   console.warn("No token found - socket will not auto-connect. SocketManager will handle connection when user logs in.");
-} else {
- 
-}
-
+} 
 export default socket

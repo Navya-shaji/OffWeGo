@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { fetchTravelPosts } from "@/services/TravelPost/TravelPostService";
-import type { TravelPost } from "@/interface/TravelPost";
-import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { MapPin, Eye, Heart, User } from "lucide-react";
+import dayjs from "dayjs";
 
 dayjs.extend(relativeTime);
 

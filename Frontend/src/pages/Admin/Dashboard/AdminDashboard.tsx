@@ -17,6 +17,7 @@ import SubscriptionList from "@/pages/Admin/Subscription/GetAllSubscription";
 import DashboardContent from "./Dashboard";
 import AdminWalletManagement from "../Wallet/AdminWallet";
 import BookedSubscriptions from "../Subscription/BookedSubscriptions";
+import { CategoryProvider } from "@/contexts/CategoryContext";
 
 const AdminLayout = () => {
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -40,64 +41,66 @@ const AdminLayout = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+    <CategoryProvider>
+      <div className="flex h-screen bg-gray-50 overflow-hidden">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="lg:hidden bg-white shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-30">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <Menu className="w-6 h-6 text-gray-700" />
-          </button>
-          <div className="text-xl font-bold text-gray-800">OffWeGo 🕊️</div>
-          <div className="w-10" />
-        </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="lg:hidden bg-white shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
+            <div className="text-xl font-bold text-gray-800">OffWeGo 🕊️</div>
+            <div className="w-10" />
+          </div>
 
-        <div className="hidden lg:block">
-          <Navbar />
-        </div>
+          <div className="hidden lg:block">
+            <Navbar />
+          </div>
 
-        <div className="flex-1 overflow-auto">
-          <div className="p-4 sm:p-6">
-            {activeTab === "Dashboard" && <DashboardContent />}
+          <div className="flex-1 overflow-auto">
+            <div className="p-4 sm:p-6">
+              {activeTab === "Dashboard" && <DashboardContent />}
 
-            {activeTab === "Pending Requests" && (
-              <VendorRequests filter="pending" />
-            )}
+              {activeTab === "Pending Requests" && (
+                <VendorRequests filter="pending" />
+              )}
 
-            {activeTab === "Approved Requests" && (
-              <VendorRequests filter="approved" />
-            )}
+              {activeTab === "Approved Requests" && (
+                <VendorRequests filter="approved" />
+              )}
 
-            {activeTab === "Rejected Requests" && (
-              <VendorRequests filter="rejected" />
-            )}
+              {activeTab === "Rejected Requests" && (
+                <VendorRequests filter="rejected" />
+              )}
 
-            {activeTab === "Users" && <UserList />}
-            {activeTab === "Vendors" && <VendorList />}
-            {activeTab === "Travel Posts" && <TravelPostModeration />}
-            {activeTab === "Add Destination" && <CreateDestination />}
-            {activeTab === "Destinations" && <DestinationTable />}
-            {activeTab === "Create Category" && <CategoryForm />}
-            {activeTab === "All Categories" && <CategoryTable />}
-            {activeTab === "Add Banner" && <CreateBanner />}
-            {activeTab === "All Banners" && <BannerForm />}
-            {activeTab === "Create Subscription" && <AddSubscription />}
-            {activeTab === "All Subscriptions" && <SubscriptionList />}
-            {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
-            {activeTab === "Booked Subscriptions" && <BookedSubscriptions />}
-           
+              {activeTab === "Users" && <UserList />}
+              {activeTab === "Vendors" && <VendorList />}
+              {activeTab === "Travel Posts" && <TravelPostModeration />}
+              {activeTab === "Add Destination" && <CreateDestination />}
+              {activeTab === "Destinations" && <DestinationTable />}
+              {activeTab === "Create Category" && <CategoryForm />}
+              {activeTab === "All Categories" && <CategoryTable />}
+              {activeTab === "Add Banner" && <CreateBanner />}
+              {activeTab === "All Banners" && <BannerForm />}
+              {activeTab === "Create Subscription" && <AddSubscription />}
+              {activeTab === "All Subscriptions" && <SubscriptionList />}
+              {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
+              {activeTab === "Booked Subscriptions" && <BookedSubscriptions />}
+               
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </CategoryProvider>
   );
 };
 

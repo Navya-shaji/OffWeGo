@@ -75,6 +75,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
     }
   }, [pkg])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validateField = (field: string, value: any): string | null => {
     switch (field) {
       case 'packageName':
@@ -146,7 +147,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
   const validateForm = (): boolean => {
     const errors: ValidationError[] = []
 
-    // Validate basic fields
     const fieldsToValidate = ['packageName', 'duration', 'description', 'price']
     fieldsToValidate.forEach(field => {
       const error = validateField(field, localData?.[field])
@@ -155,7 +155,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
       }
     })
 
-    // Validate optional fields
     const optionalFields = ['checkInTime', 'checkOutTime']
     optionalFields.forEach(field => {
       if (localData?.[field]) {
@@ -828,7 +827,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
             </Card>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
             <Button 
               type="button" 

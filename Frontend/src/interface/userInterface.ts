@@ -1,5 +1,5 @@
 export interface User {
-  imageUrl: any;
+  imageUrl: unknown;
   _id: string;
   username: string;
   name: string;

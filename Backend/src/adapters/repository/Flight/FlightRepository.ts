@@ -15,7 +15,7 @@ export class FlightRepository
     super(flightModel);
   }
   async createFlight(flightData: Partial<FlightDto>): Promise<IFlightModel> {
-    const createdFlight = await (flightModel as any).create(flightData);
+    const createdFlight = await (flightModel).create(flightData);
     return createdFlight;
   }
   async getAllFlights(): Promise<IFlightModel[]> {

@@ -1,8 +1,8 @@
-import { Role } from "../../constants/Roles";
-
 export interface NotificationDto {
+  id?: string;
+  _id?: string;
   recipientId: string;
-  recipientType: Role.USER | Role.VENDOR;
+  recipientType: "user" | "vendor" ;
   title: string;
   message: string;
   createdAt?: Date;

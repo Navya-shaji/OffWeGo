@@ -276,14 +276,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
         setIsEditLoading(false);
       }
     },
-    [
-      editedPackage,
-      packageList,
-      originalPackages,
-      isSearchMode,
-      onPackagesUpdate,
-      closeEditModal,
-    ]
+    [editedPackage, packageList, originalPackages, isSearchMode, onPackagesUpdate, searchQuery, closeEditModal, handleSearch, loadPackages, page]
   );
 
   const confirmDelete = useCallback(async () => {

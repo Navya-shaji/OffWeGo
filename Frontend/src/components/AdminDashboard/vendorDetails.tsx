@@ -166,6 +166,7 @@ export const VendorList = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCurrentPageData = () => {

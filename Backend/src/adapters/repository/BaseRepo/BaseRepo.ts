@@ -7,26 +7,26 @@ export abstract class BaseRepository<T extends Document>
   constructor(protected readonly model: Model<T>) {}
 
   async create(data: Partial<T>): Promise<T> {
-    return await (this.model as any).create(data);
+    return await (this.model).create(data);
   }
 
   async findAll(): Promise<T[]> {
-    return (this.model as any).find();
+    return (this.model).find();
   }
 
   async findById(id: string): Promise<T | null> {
-    return (this.model as any).findById(id);
+    return (this.model ).findById(id);
   }
 
   async update(id: string, data: Partial<T>): Promise<T | null> {
-    return (this.model as any).findByIdAndUpdate(id, data, { new: true });
+    return (this.model).findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id: string): Promise<T | null> {
-    return (this.model as any).findByIdAndDelete(id);
+    return (this.model).findByIdAndDelete(id);
   }
 
   async findOne(filter: Partial<T>): Promise<T | null> {
-    return (this.model as any).findOne(filter as Record<string, unknown>);
+    return (this.model).findOne(filter as Record<string, unknown>);
   }
 }

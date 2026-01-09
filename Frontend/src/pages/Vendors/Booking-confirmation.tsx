@@ -9,7 +9,6 @@ import type { RootState } from "@/store/store";
 export default function PaymentCheckout() {
   const { state } = useLocation();
   const totalAmount = state?.totalAmount || 0;
-  const bookingData = state?.bookingData;
   
   
   const navigate = useNavigate();

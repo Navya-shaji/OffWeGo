@@ -62,10 +62,10 @@ export default function AdminLogin() {
           autoClose: 5000,
         });
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Admin login error:", err);
       
-      // Handle different error scenarios
       let errorMessage = "Invalid email or password";
       
       if (err?.message) {

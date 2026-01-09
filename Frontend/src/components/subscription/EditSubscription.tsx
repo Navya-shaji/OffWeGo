@@ -56,7 +56,7 @@ export default function EditSubscriptionModal({
     if (currentFeature.trim()) {
       const newFeatures = [...features, currentFeature.trim()];
       setFeatures(newFeatures);
-      setValue("features", newFeatures as any);
+      setValue("features", newFeatures);
       setCurrentFeature("");
     }
   };
@@ -64,7 +64,7 @@ export default function EditSubscriptionModal({
   const removeFeature = (index: number) => {
     const newFeatures = features.filter((_, i) => i !== index);
     setFeatures(newFeatures);
-    setValue("features", newFeatures as any);
+    setValue("features", newFeatures);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -87,7 +87,7 @@ export default function EditSubscriptionModal({
       onClose();
       reset();
       onUpdated();
-    } catch (err) {
+    } catch  {
       dispatch(updateSubscriptionFailure("Failed to update subscription"));
       toast.error("Failed to update subscription");
     }

@@ -31,6 +31,7 @@ export default function SubscriptionList() {
 
   useEffect(() => {
     fetchSubscriptions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchSubscriptions = async () => {
@@ -39,7 +40,7 @@ export default function SubscriptionList() {
       const response = await subscriptionService.getSubscriptions();
       const data = response?.data || response;
       dispatch(getSubscriptionsSuccess(Array.isArray(data) ? data : []));
-    } catch (err: unknown) {
+    } catch {
       dispatch(getSubscriptionsFailure("Failed to fetch subscriptions"));
       toast.error("Failed to fetch subscriptions");
     }

@@ -55,7 +55,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
         "admin",
         vendorAmount,
         "debit",
-        `Settlement paid to vendor ${name}`,
+        `Settlement paid to vendor ${vendorId}`,
         booking.bookingId,
 
       );

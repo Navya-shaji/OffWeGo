@@ -95,10 +95,12 @@ export default function AllBookings() {
     if (vendorId) {
       loadBookings();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vendorId]);
 
   useEffect(() => {
     filterBookings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, bookings]);
 
   const loadBookings = async () => {

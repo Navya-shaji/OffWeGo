@@ -6,13 +6,6 @@ import type { RootState } from "@/store/store";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
 import { toast } from "react-toastify";
 
-// Define notification data type
-interface MessageNotificationData {
-    senderName?: string;
-    messagePreview?: string;
-    chatId: string;
-}
-
 interface SocketContextType {
     socket: Socket | null;
 }
@@ -21,9 +14,6 @@ export const socketContext = createContext<SocketContextType | null>(null);
 
 export const useSocket = () => {
     const context = useContext(socketContext);
-    if (!context) {
-        throw new Error('useSocket must be used within a SocketProvider');
-    }
     return context;
 };
 
@@ -46,7 +36,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             });
 
             newSocket.on("connect", () => {
-                // eslint-disable-next-line no-console
                 console.log("Socket connected:", newSocket.id);
                 // Register based on role
                 if (user) {
@@ -57,18 +46,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             });
 
             newSocket.on("disconnect", () => {
-                // eslint-disable-next-line no-console
                 console.log("Socket disconnected");
             });
 
             newSocket.on("error", (error) => {
-                // eslint-disable-next-line no-console
                 console.error("Socket error:", error);
             });
 
-           
-            newSocket.on("new-message-notification", (data: MessageNotificationData) => {
-                // eslint-disable-next-line no-console
+            // Enhanced notification handling
+            newSocket.on("new-message-notification", (data: any) => {
                 console.log("📬 New message notification received:", data);
                 
                 // Add to Redux store
@@ -79,7 +65,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                     })
                 );
 
-                // Show toast only if not on the specific chat page
+                // Show toast only if not on the chat page
                 if (window.location.pathname !== `/chat/${data.chatId}`) {
                     toast.info(`New message from ${data.senderName || 'Someone'}`);
                 }

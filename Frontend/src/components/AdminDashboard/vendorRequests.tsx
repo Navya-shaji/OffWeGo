@@ -14,7 +14,7 @@ interface Props {
 const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); 
 
   const fetchVendors = () => {
     setLoading(true);
@@ -26,6 +26,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
 
   useEffect(() => {
     fetchVendors();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const handleStatusChange = async (

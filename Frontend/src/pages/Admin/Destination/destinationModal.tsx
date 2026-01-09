@@ -23,9 +23,7 @@ export const EditDestinationModal: React.FC<Props> = ({
   const [locationTimeout, setLocationTimeout] = useState<NodeJS.Timeout | null>(null);
   const [lastFetchedLocation, setLastFetchedLocation] = useState<string>(destination.location);
 
-  // Debounced location update with coordinate fetching
   useEffect(() => {
-    // Skip if location hasn't changed or is too short
     if (destination.location === lastFetchedLocation || !destination.location || destination.location.trim().length < 3) {
       return;
     }
@@ -44,13 +42,14 @@ export const EditDestinationModal: React.FC<Props> = ({
           coordinates: coords,
         });
         toast.success("Coordinates updated successfully");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Failed to fetch coordinates:", error);
         toast.error(error?.message || "Failed to fetch coordinates for this location");
       } finally {
         setIsFetchingCoordinates(false);
       }
-    }, 1000); // Wait 1 second after user stops typing
+    }, 1000); 
 
     setLocationTimeout(timeout);
 

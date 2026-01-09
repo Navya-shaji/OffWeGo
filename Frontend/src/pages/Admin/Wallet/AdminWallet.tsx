@@ -19,6 +19,7 @@ export default function AdminWalletManagement() {
     if (Admin?.id) {
       fetchWalletData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Admin]);
 
   const fetchWalletData = async () => {
@@ -30,6 +31,7 @@ export default function AdminWalletManagement() {
     try {
       const wallet = await getWallet(Admin.id);
       setAdminWallet(wallet);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {

@@ -138,8 +138,7 @@ const UserList = () => {
           },
         }
       );
-    } catch (error) {
-      // Show error toast with blur background
+    } catch  {
       toast.error(
         `Failed to ${action} user "${selectedUser.name}". Please try again.`,
         {
@@ -198,6 +197,7 @@ const UserList = () => {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

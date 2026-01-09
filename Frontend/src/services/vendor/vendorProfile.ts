@@ -17,7 +17,7 @@ export const vendorProfile = async (email: string) => {
 };
 
 export const editProfile = async (
-  id: string,
+ 
   updatedData: {
     name?: string;
     phone?: string;

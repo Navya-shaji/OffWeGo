@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ISubscriptionBookingModel,
   subscriptionBookingModel,
@@ -74,7 +75,7 @@ export class SubscriptionBookingRepository
   async findPendingBooking(vendorId: string, planId: string) {
     return this.model.findOne({
       vendorId,
-      planId, // Mongoose will handle ObjectId conversion automatically
+      planId, 
       status: "pending"
     });
   }
@@ -135,18 +136,14 @@ export class SubscriptionBookingRepository
       .populate("planId")
       .sort({ createdAt: -1 });
     
-    // Fetch vendor details separately since vendorId is a string, not an ObjectId ref
-    const VendorModel = require("../../../framework/database/Models/vendorModel").VendorModel;
     const vendorIds = Array.from(new Set(bookings.map((b: any) => b.vendorId).filter(Boolean)));
     const vendors = await VendorModel.find({ _id: { $in: vendorIds } });
     
-    // Create a map of vendorId to vendor details
     const vendorMap = vendors.reduce((map: any, vendor: any) => {
       map[vendor._id.toString()] = vendor;
       return map;
     }, {});
     
-    // Attach vendor details to each booking while preserving Mongoose document methods
     return bookings.map((booking: any) => {
       const bookingObj = booking.toObject();
       return {

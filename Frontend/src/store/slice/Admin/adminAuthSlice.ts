@@ -11,7 +11,7 @@ interface AuthState {
 
 const storedToken = localStorage.getItem("adminToken");
 const storedRefreshToken = localStorage.getItem("adminRefreshToken");
-const storedAdmin = localStorage.getItem("adminData"); // Fixed: use "adminData" consistently
+const storedAdmin = localStorage.getItem("adminData"); 
 
 const initialState: AuthState = {
   isAuthenticated: !!storedToken,
@@ -28,13 +28,12 @@ export const loginAdmin = createAsyncThunk<
   try {
     const response = await adminLogin(email, password);
 
-    // Store the response data with correct field names
     localStorage.setItem("adminToken", response.accessToken);
     localStorage.setItem("adminRefreshToken", response.refreshToken);
     localStorage.setItem("adminData", JSON.stringify(response.admin));
 
     return response;
-  } catch (err) {
+  } catch  {
     return thunkAPI.rejectWithValue("Login failed");
   }
 });

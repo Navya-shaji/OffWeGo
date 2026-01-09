@@ -37,7 +37,6 @@ export default function TravelerDetails() {
   const childPrice = adultPrice * 0.8;
   const totalAmount = adultCount * adultPrice + childCount * childPrice;
 
-  // Load persisted state on mount
   useEffect(() => {
     if (selectedPackage?._id) {
       const storageKey = `traveler-details:${selectedPackage._id}`;
@@ -381,6 +380,7 @@ export default function TravelerDetails() {
                           <input
                             type={field.type}
                             name={field.name}
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             value={(contactInfo as any)[field.name]}
                             onChange={handleInputChange}
                             placeholder={field.placeholder}

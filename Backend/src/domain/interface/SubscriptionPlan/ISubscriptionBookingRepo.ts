@@ -47,6 +47,8 @@ export interface ISubscriptionBookingRepository {
   ): Promise<{ checkoutUrl: string; qrCode: string } | null>;
   
   expireOldSubscriptions(vendorId: string): Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getAllSubscriptions(): Promise<any[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   findByVendorId(vendorId: string): Promise<any[]>;
 }

@@ -30,6 +30,7 @@ const MessageInput = ({
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onSend(e as any); 
     }
   };

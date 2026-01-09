@@ -29,15 +29,21 @@ const TravelPostDetailPage = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [savedPosts, setSavedPosts] = useState<TravelPost[]>([]);
-  const [savedPostsLoading, setSavedPostsLoading] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
+
+
+function setSavedPostsLoading(arg0: boolean) {
+  throw new Error("Function not implemented.");
+  return arg0
+}
   useEffect(() => {
     if (slug) {
       fetchPost();
     }
     fetchSavedPosts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const fetchPost = async () => {
@@ -47,8 +53,8 @@ const TravelPostDetailPage = () => {
       setPost(response.data);
       setLikesCount(response.data.metrics.likes);
       setIsSaved(response.data.isSaved || false);
-    } catch (err: any) {
-      setError(err.message || "Failed to load post");
+    } catch  {
+      setError("Failed to load post");
     } finally {
       setLoading(false);
     }
@@ -62,8 +68,8 @@ const TravelPostDetailPage = () => {
       setIsSaved(response.saved);
       setLikesCount(response.likes);
       fetchSavedPosts();
-    } catch (err: any) {
-      console.error("Failed to toggle save:", err);
+    } catch  {
+      console.error("Failed to toggle save:");
     }
   };
 
@@ -72,8 +78,8 @@ const TravelPostDetailPage = () => {
       setSavedPostsLoading(true);
       const response = await getSavedTravelPosts({ limit: 5 });
       setSavedPosts(response.data);
-    } catch (err: any) {
-      console.error("Failed to fetch saved posts:", err);
+    } catch  {
+      console.error("Failed to fetch saved posts:");
     } finally {
       setSavedPostsLoading(false);
     }
@@ -397,3 +403,5 @@ const TravelPostDetailPage = () => {
 };
 
 export default TravelPostDetailPage;
+
+

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -82,7 +83,7 @@ export default function AddSubscriptionForm() {
       reset();
       setFeatures("");
       setCurrentFeature("");
-    } catch (err) {
+    } catch {
       dispatch(addSubscriptionFailure("Failed to add subscription"));
       toast.error("Failed to add subscription");
     }

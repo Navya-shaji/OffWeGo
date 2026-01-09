@@ -24,7 +24,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-   
+   console.log(storedUser)
   }, [dispatch]);
 
   const handleLogout = () => {

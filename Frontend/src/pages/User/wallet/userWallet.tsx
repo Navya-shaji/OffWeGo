@@ -18,7 +18,7 @@ export default function WalletManagement({ embedded = false }: { embedded?: bool
       try {
         const data = await getUserWallet(user.id);
         setWallet(data);
-      } catch (err) {
+      } catch  {
         setError("Failed to load wallet");
       } finally {
         setLoading(false);
@@ -204,10 +204,10 @@ export default function WalletManagement({ embedded = false }: { embedded?: bool
                         <span>
                           {formatDate(tx.date.toString())} at {formatTime(tx.date.toString())}
                         </span>
-                        {(tx as any).refId && (
+                        {(tx).refId && (
                           <>
                             <span>•</span>
-                            <span className="font-mono text-xs">{(tx as any).refId}</span>
+                            <span className="font-mono text-xs">{(tx).refId}</span>
                           </>
                         )}
                       </div>
