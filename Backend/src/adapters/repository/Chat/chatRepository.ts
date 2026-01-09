@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { chatModel } from "../../../framework/database/Models/chatModel";
 import { IChat } from "../../../domain/entities/ChatEntity";
 
@@ -38,7 +39,7 @@ export class ChatRepository {
 
     async findChatsOfUser(userId: string, userType?: 'user' | 'vendor'): Promise<{ chats: any[] }> {
      
-        let query: any = {
+        const query: any = {
             $and: [
                 { userId: { $ne: null } },
                 { vendorId: { $ne: null } }

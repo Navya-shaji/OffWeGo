@@ -1,4 +1,5 @@
-import { MapPin, Loader2, Search, Navigation, Filter, Star, Clock, Users } from "lucide-react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { MapPin, Loader2, Search, Filter, Star, Clock, Users } from "lucide-react";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";

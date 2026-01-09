@@ -31,8 +31,7 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({ children }) 
   };
 
   const refreshCategories = async () => {
-    // This will be implemented by the component that uses the context
-    // since it needs access to the fetchCategories function
+    
   };
 
   return (
@@ -50,6 +49,7 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({ children }) 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useCategoryContext = () => {
   const context = useContext(CategoryContext);
   if (context === undefined) {

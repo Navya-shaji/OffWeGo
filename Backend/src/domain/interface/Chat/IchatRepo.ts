@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IChat } from "../../entities/ChatEntity";
 
 export interface IChatRepository {

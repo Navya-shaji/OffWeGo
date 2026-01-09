@@ -12,6 +12,7 @@ export const getMessages = async (
       ? `/api/vendor/chat/messages/${chatId}`
       : `/api/chat/messages/${chatId}`;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {};
     if (typeof options?.limit === 'number') params.limit = options.limit;
     if (options?.before) {
