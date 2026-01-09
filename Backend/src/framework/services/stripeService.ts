@@ -11,7 +11,6 @@ export class StripeService implements IStripeService {
   }
 
   async createPaymentIntent(amount: number): Promise<string> {
-    console.log("Creating Payment Intent for amount:", amount);
 
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
@@ -20,10 +19,8 @@ export class StripeService implements IStripeService {
         automatic_payment_methods: { enabled: true },
       });
 
-      console.log(" PaymentIntent created:", paymentIntent.id);
       return paymentIntent.client_secret!;
-    } catch (error) {
-      console.error(" Error creating PaymentIntent:", error);
+    } catch  {
       throw new Error("Failed to create payment intent");
     }
   }
@@ -33,7 +30,6 @@ export class StripeService implements IStripeService {
   domainUrl: string,
   bookingId?: string
 ): Promise<{ checkoutUrl: string; sessionId: string }> {
-  console.log(" Creating Stripe Checkout session for priceId:", priceId);
 
   try {
     const session = await this.stripe.checkout.sessions.create({
@@ -49,15 +45,13 @@ export class StripeService implements IStripeService {
       checkoutUrl: session.url!, 
       sessionId: session.id 
     };
-  } catch (error) {
-    console.error("Error creating Checkout Session:", error);
+  } catch {
     throw new Error("Failed to create Stripe Checkout session");
   }
 }
 
 
   async retrieveSession(sessionId: string) {
-    console.log("Retrieving session:", sessionId);
 
     const session = await this.stripe.checkout.sessions.retrieve(sessionId);
 

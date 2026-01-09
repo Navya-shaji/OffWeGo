@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { Router, Request, Response } from "express";
 import Stripe from "stripe";
-import { subscriptionPlanModel } from "../database/Models/subscriptionModel"; 
+import { subscriptionBookingModel } from "../database/Models/SubscriptionBookingModel"; 
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 router.post(
   "/stripe",
-  express.raw({ type: "application/json" }),
+  require("express").raw({ type: "application/json" }),
   async (req: Request, res: Response) => {
     const sig = req.headers["stripe-signature"];
 
@@ -27,11 +28,9 @@ router.post(
         process.env.STRIPE_WEBHOOK_SECRET as string
       );
     } catch (err: unknown) {
-      console.error("❌ Webhook Error:",err);
       return res.status(400).send(`Webhook Error ${err}`);
     }
 
-    console.log("⚡ Webhook event received:", event.type);
 
     switch (event.type) {
       case "checkout.session.completed": {
@@ -40,9 +39,8 @@ router.post(
         const bookingId = session.metadata?.bookingId;
 
         if (bookingId) {
-          console.log("🔄 Updating subscription:", bookingId);
 
-          await subscriptionPlanModel.updateOne(
+          await subscriptionBookingModel.updateOne(
             { _id: bookingId },
             {
               $set: {
@@ -52,13 +50,11 @@ router.post(
             }
           );
 
-          console.log("✅ Subscription updated successfully");
         }
         break;
       }
 
       case "invoice.payment_succeeded": {
-        console.log("💰 Invoice paid successfully");
         break;
       }
     }

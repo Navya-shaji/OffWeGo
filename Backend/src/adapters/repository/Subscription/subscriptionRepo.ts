@@ -1,5 +1,5 @@
 import { ISubscriptionPlanRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionplan";
-import { ISubscriptionPlan } from "../../../domain/entities/subscriptionplan";
+import { ISubscriptionPlan } from "../../../domain/entities/Subscriptionplan";
 import {
   subscriptionPlanModel,
   ISubscriptionPlanModel,

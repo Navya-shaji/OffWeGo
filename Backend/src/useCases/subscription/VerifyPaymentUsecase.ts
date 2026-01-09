@@ -5,26 +5,20 @@ import { ISubscriptionBookingRepository } from "../../domain/interface/Subscript
 import { IVerifyPaymentUseCase } from "../../domain/interface/SubscriptionPlan/IVerifyPaymentUsecase";
 import { mapSubscriptionBookingToDto } from "../../mappers/Booking/mapToSubscriptionDto";
 import type { ISubscriptionBookingModel } from "../../framework/database/Models/SubscriptionBookingModel";
+
 export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
   constructor(
-    private stripeService: IStripeService,
-    private planRepository: ISubscriptionPlanRepository,
-    private bookingRepository: ISubscriptionBookingRepository
+    private _stripeService: IStripeService,
+    private _planRepository: ISubscriptionPlanRepository,
+    private _bookingRepository: ISubscriptionBookingRepository
   ) {}
 
   async execute(data: VerifyPaymentDTO) {
     const { sessionId, vendorId, planId } = data;
-    console.log("🔍 VerifyPayment called with:", { sessionId, vendorId, planId });
 
     try {
-      // First, retrieve the Stripe session to verify payment
-      const session = await this.stripeService.retrieveSession(sessionId);
-      console.log("💳 Stripe session retrieved:", {
-        id: session?.id,
-        payment_status: session?.payment_status,
-        customer_email: session?.customer_email
-      });
-
+      const session = await this._stripeService.retrieveSession(sessionId);
+    
       if (!session) {
         throw new Error("Stripe session not found");
       }
@@ -36,28 +30,40 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         };
       }
 
-      // Try to find booking by sessionId first (most reliable)
-      let existingBooking: ISubscriptionBookingModel | null = await this.bookingRepository.findBySessionId(sessionId);
-      
-      // If not found by sessionId, try finding by vendorId and planId
+      // First try to find by sessionId
+      let existingBooking: ISubscriptionBookingModel | null =
+        await this._bookingRepository.findBySessionId(sessionId);
+
+      // If not found, try to find pending booking
       if (!existingBooking) {
-        console.log("📋 Booking not found by sessionId, trying vendorId and planId");
-        existingBooking = await this.bookingRepository.findPendingBooking(
-          vendorId,
-          planId
-        );
+        existingBooking =
+          await this._bookingRepository.findPendingBooking(vendorId, planId);
       }
 
-      // If still not found, check if there's an active booking (might have been already processed)
+      // If still not found, check all bookings for this vendor
       if (!existingBooking) {
-        console.log("📋 No pending booking found, checking for active booking");
-        const activeBookings = await this.bookingRepository.findActiveBookings(vendorId);
-        const foundBooking = activeBookings.find(
-          (b: any) => b.stripeSessionId === sessionId || b.planId?.toString() === planId
+        const allVendorBookings = await this._bookingRepository.findByVendor(vendorId);
+        const foundBooking = allVendorBookings.find(b => 
+          b.planId?.toString() === planId || 
+          b.stripeSessionId === sessionId
         );
-        
+        existingBooking = foundBooking || null;
+      }
+
+      if (!existingBooking) {
+        const activeBookings =
+          await this._bookingRepository.findActiveBookings(vendorId);
+
+        const foundBooking = activeBookings.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (b: any) =>
+            b.stripeSessionId === sessionId ||
+            b.planId?.toString() === planId
+        );
+
         if (foundBooking) {
           existingBooking = foundBooking as ISubscriptionBookingModel;
+
           if (existingBooking.status === "active") {
             return {
               success: true,
@@ -69,30 +75,29 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       }
 
       if (!existingBooking) {
-        console.error("❌ No booking found for:", { vendorId, planId, sessionId });
+       
         throw new Error(
           "Subscription booking not found. Please create a new subscription booking and try again."
         );
       }
 
-      // Verify the plan exists
-      const plan = await this.planRepository.findById(planId);
+      const plan = await this._planRepository.findById(planId);
       if (!plan) {
         throw new Error("Subscription plan not found");
       }
 
-      // Update booking to active status
-      const updatedBooking = await this.bookingRepository.updateBooking(
+      const updatedBooking = await this._bookingRepository.updateBooking(
         existingBooking._id.toString(),
         {
           status: "active",
           stripeSessionId: sessionId,
           startDate: new Date(),
-          endDate: new Date(Date.now() + plan.duration * 24 * 60 * 60 * 1000),
+          endDate: new Date(
+            Date.now() + plan.duration * 24 * 60 * 60 * 1000
+          ),
         }
       );
 
-      console.log("✅ Booking updated successfully:", updatedBooking?._id);
 
       if (!updatedBooking) {
         throw new Error("Failed to update booking status");
@@ -104,7 +109,6 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
         booking: mapSubscriptionBookingToDto(updatedBooking),
       };
     } catch (error) {
-      console.error("❌ VerifyPayment error:", error);
       throw new Error(
         error instanceof Error ? error.message : "Failed to verify payment"
       );

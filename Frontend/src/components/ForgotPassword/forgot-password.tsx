@@ -27,9 +27,8 @@ export default function ForgotPasswordModal({ onClose }: { onClose: () => void }
       } else {
         toast.error(response?.message || "Email not found");
       }
-    } catch (err: any) {
-      console.error("Error:", err.message);
-      toast.error(err.message || "Something went wrong");
+    } catch  {
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }

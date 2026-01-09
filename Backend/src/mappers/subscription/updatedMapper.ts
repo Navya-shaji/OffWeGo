@@ -1,12 +1,16 @@
-// import { CreateSubscriptionDTO } from "../../domain/dto/Subscription/CreatesubscriptionDto";
-// import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
+import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
+import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
 
-// export const mapDtoToPartialModel = (
-//   dto: CreateSubscriptionDTO
-// ): Partial<ISubscriptionPlanModel> => ({
-//   name: dto.name,
-//   description: dto.description,
-//   price: dto.price,
-//   durationInDays: dto.durationInDays,
-//   commissionRate: dto.commissionRate,
-// });
+export const mapModelToSubscriptionDto = (
+  model: ISubscriptionPlanModel
+): SubscriptionPlanDto => {
+  return {
+    _id: model._id?.toString(),
+    name: model.name,
+    price: model.price,
+    duration: model.duration,
+    features: model.features ?? [],
+    stripePriceId: model.stripePriceId,
+    isActive: model.isActive,
+  };
+};

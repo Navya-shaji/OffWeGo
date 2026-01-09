@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { loginAdmin } from "@/store/slice/Admin/adminAuthSlice";
 import {
@@ -36,20 +36,56 @@ export default function AdminLogin() {
   });
 
   const onSubmit = async (data: AdminLoginFormData) => {
+    // Validate form before submission
+    if (!data.email || !data.password) {
+      toast.error("Please fill in all fields", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     try {
       // Call API through thunk
       const response = await dispatch(loginAdmin(data)).unwrap();
 
-    if (response?.accessToken ) {
-    dispatch(setToken(response.accessToken));
-}
-
-
-      toast.success("Admin login successful");
-      navigate("/admin/dashboard");
-    } catch (err) {
-      toast.error("Invalid email or password");
-      console.error(err);
+      if (response?.accessToken) {
+        dispatch(setToken(response.accessToken));
+        toast.success(`Welcome back! Admin login successful`, {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        navigate("/admin/dashboard");
+      } else {
+        toast.error("Login failed: No access token received", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Admin login error:", err);
+      
+      let errorMessage = "Invalid email or password";
+      
+      if (err?.message) {
+        if (err.message.includes("401") || err.message.includes("unauthorized")) {
+          errorMessage = "Invalid credentials. Please check your email and password.";
+        } else if (err.message.includes("404") || err.message.includes("not found")) {
+          errorMessage = "Admin account not found.";
+        } else if (err.message.includes("500") || err.message.includes("server error")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (err.message.includes("network") || err.message.includes("fetch")) {
+          errorMessage = "Network error. Please check your connection.";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+      });
     }
   };
 

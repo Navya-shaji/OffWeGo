@@ -1,9 +1,9 @@
 import { OAuth2Client } from "google-auth-library";
 import { UserModel } from "../../../framework/database/Models/userModel";
 import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository";
-import { User } from "../../../domain/entities/userEntity";
+import { User } from "../../../domain/entities/UserEntity";
 
-// Initialize OAuth2Client - will be created with client ID when needed
+
 let client: OAuth2Client | null = null;
 
 const getOAuthClient = (): OAuth2Client => {
@@ -33,7 +33,7 @@ export class AuthRepository implements IAuthRepository {
         throw new Error("Invalid Google token - missing email");
       }
       
-      const userDoc = await UserModel.findOneAndUpdate(
+      const userDoc = await (UserModel).findOneAndUpdate(
       { email: payload.email },
       {
         $setOnInsert: {
@@ -54,8 +54,7 @@ export class AuthRepository implements IAuthRepository {
         throw new Error("User creation or retrieval failed");
       }
       return userDoc;
-    } catch (error: any) {
-      console.error("Google authentication error:", error);
+    } catch (error) {
       if (error.message) {
         throw error;
       }

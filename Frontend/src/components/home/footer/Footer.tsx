@@ -1,7 +1,6 @@
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+
+import { MapPin, Mail, Phone } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -18,37 +17,7 @@ const Footer: React.FC = () => {
               and create memories that last a lifetime.
             </p>
 
-            {/* Newsletter */}
-            <div className="space-y-4">
-              <h5 className="text-sm font-semibold tracking-wider uppercase text-white/80 mb-4">
-                Newsletter
-              </h5>
-              <div className="flex gap-0">
-                <Input
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-4 bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors duration-300 rounded-none border-r-0"
-                />
-                <Button className="px-6 py-4 bg-white text-black font-semibold hover:bg-white/90 transition-colors duration-300 rounded-none">
-                  Subscribe
-                </Button>
-              </div>
-            </div>
-
-            {/* Social Links */}
-            <div className="mt-12 flex gap-4">
-              <a href="#" className="w-10 h-10 border border-white/20 hover:border-white hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 border border-white/20 hover:border-white hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center">
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 border border-white/20 hover:border-white hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 border border-white/20 hover:border-white hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center">
-                <Linkedin className="w-4 h-4" />
-              </a>
-            </div>
+      
           </div>
 
           {/* Contact */}

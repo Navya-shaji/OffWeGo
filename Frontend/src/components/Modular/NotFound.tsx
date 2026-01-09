@@ -1,12 +1,27 @@
-import  { useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 export default function NotFound() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated: isVendorAuthenticated } = useSelector((state: RootState) => state.vendorAuth);
 
   useEffect(() => {
     document.title = "404 — Page not found";
   }, []);
 
-
+  const handleBackToHome = () => {
+    // Redirect based on authentication status
+    if (isVendorAuthenticated) {
+      navigate("/vendor/profile"); // Vendor home
+    } else if (isAuthenticated) {
+      navigate("/"); // User home
+    } else {
+      navigate("/"); // Default to user home for unauthenticated users
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4 overflow-hidden relative">
@@ -231,7 +246,8 @@ export default function NotFound() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <button
-            
+              onClick={handleBackToHome}
+              
               className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl text-base font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white bg-white text-gray-900 hover:bg-gray-100 transform transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
             >
               <svg
@@ -247,7 +263,7 @@ export default function NotFound() {
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Back to Home
+              {isVendorAuthenticated ? "Back to Dashboard" : isAuthenticated ? "Back to Home" : "Back to Home"}
             </button>
 
           </div>

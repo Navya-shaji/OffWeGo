@@ -5,14 +5,13 @@ import {
   searchDestination,
 } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
+import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";
 import { ChevronLeft, ChevronRight, MapPin, Search, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-interface DestinationsProps {
-  id?: string;
-}
 
-const Destinations = ({ id }: DestinationsProps) => {
+
+const Destinations = () => {
   const [destinations, setDestinations] = useState<DestinationInterface[]>([]);
   const [originalDestinations, setOriginalDestinations] = useState<DestinationInterface[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,13 +64,10 @@ const Destinations = ({ id }: DestinationsProps) => {
 
           try {
             const response = await getNearbyDestinations(lat, lng, radiusInKm);
-            console.log("Nearby API Response:", response);
-            
         
             let destinationsData = [];
             
             if (response?.data?.data && Array.isArray(response.data.data)) {
-            
               destinationsData = response.data.data;
             } else if (response?.data && Array.isArray(response.data)) {
               destinationsData = response.data;
@@ -79,7 +75,6 @@ const Destinations = ({ id }: DestinationsProps) => {
               destinationsData = response;
             }
             
-            console.log("Setting destinations:", destinationsData);
             setDestinations(destinationsData);
           } catch (err) {
             console.error("Nearby fetch error:", err);
@@ -161,7 +156,7 @@ const Destinations = ({ id }: DestinationsProps) => {
 
   return (
     <div className="min-h-screen bg-white">
-    
+      {/* Hero Section */}
       <div className="relative bg-black text-white py-32 px-6">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-8">
@@ -205,9 +200,9 @@ const Destinations = ({ id }: DestinationsProps) => {
         </div>
       </div>
 
- 
+      {/* Main Content */}
       <div className="container mx-auto px-6 py-24 max-w-7xl">
-
+        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-8 py-6 mb-12 max-w-4xl mx-auto">
             <div className="flex justify-between items-center">
@@ -262,7 +257,7 @@ const Destinations = ({ id }: DestinationsProps) => {
           )}
         </div>
 
-   
+        {/* Loading State */}
         {loading ? (
           <div className="flex justify-center items-center py-40">
             <div className="text-center">
@@ -271,7 +266,7 @@ const Destinations = ({ id }: DestinationsProps) => {
             </div>
           </div>
         ) : destinations.length === 0 ? (
-      
+          /* No Results */
           <div className="text-center py-32 border border-black/10 max-w-3xl mx-auto">
             <MapPin className="w-24 h-24 text-black/20 mx-auto mb-8" />
             <h3 className="text-4xl font-light text-black mb-4">
@@ -299,9 +294,9 @@ const Destinations = ({ id }: DestinationsProps) => {
             )}
           </div>
         ) : (
-        
+          /* Destinations Grid */
           <div className="relative">
-        
+            {/* Scroll Buttons */}
             <div className="flex justify-end gap-3 mb-8">
               <button
                 onClick={scrollLeft}
@@ -330,7 +325,11 @@ const Destinations = ({ id }: DestinationsProps) => {
             >
               {destinations.map((destination, idx) => (
                 <DestinationCard
-                  key={destination.id || `dest-${idx}-${destination.name}`}
+                  key={
+                    destination.id ??
+                    destination._id ??
+                    `dest-${idx}-${destination.name}`
+                  }
                   destination={destination}
                 />
               ))}
@@ -344,17 +343,29 @@ const Destinations = ({ id }: DestinationsProps) => {
 
 const DestinationCard = React.memo(
   ({ destination }: { destination: DestinationInterface }) => {
+    const destinationId = destination.id ?? destination._id;
     return (
       <Link
-        to={`/destination/${destination.id}`}
+        to={destinationId ? `/destination/${destinationId}` : "/destinations"}
         className="flex-shrink-0 w-[385px] h-[500px] group cursor-pointer"
       >
-        <div className="bg-white h-full flex flex-col transition-all duration-300 hover:shadow-xl" style={{ borderRadius: '20px', boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)' }}>
-          {/* Image Container */}
-          <div className="relative h-[240px] overflow-hidden" style={{ borderRadius: '20px 20px 0 0' }}>
+        <div
+          className="bg-white h-full flex flex-col transition-all duration-300 hover:shadow-xl"
+          style={{
+            borderRadius: "20px",
+            boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
+          }}
+        >
+          <div
+            className="relative h-[240px] overflow-hidden"
+            style={{ borderRadius: "20px 20px 0 0" }}
+          >
             {destination.imageUrls?.length > 0 ? (
               <img
-                src={destination.imageUrls[0]}
+                src={
+                  resolveCloudinaryUrl(destination.imageUrls[0], "image") ??
+                  destination.imageUrls[0]
+                }
                 alt={destination.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
@@ -365,9 +376,7 @@ const DestinationCard = React.memo(
             )}
           </div>
 
-          {/* Content Container */}
           <div className="flex-1 p-6 flex flex-col">
-            {/* Location */}
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <span className="text-gray-500 text-sm font-medium">
@@ -375,12 +384,10 @@ const DestinationCard = React.memo(
               </span>
             </div>
 
-            {/* Title */}
             <h3 className="text-gray-900 text-xl font-bold mb-3 leading-tight">
               {destination.name}
             </h3>
 
-            {/* Description */}
             <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 flex-1">
               {destination.description ||
                 "Discover this amazing destination and create unforgettable memories."}

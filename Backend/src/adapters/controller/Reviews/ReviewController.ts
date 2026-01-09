@@ -29,7 +29,7 @@ export class ReviewController {
 
   async getReviews(req: Request, res: Response) {
     try {
-      // Route uses :id but we treat it as packageName
+     
       const packageName = req.params.id || req.params.packageName || req.params.packageId;
       const result = await this._getReviewUsecase.execute(packageName);
 

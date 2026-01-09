@@ -4,12 +4,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const FirebaseNotification = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [notification, setNotification] = useState<any>(null);
 
   useEffect(() => {
     onMessageListener()
       .then((payload) => {
-        console.log("Received foreground notification:", payload);
 
         setNotification(payload);
 

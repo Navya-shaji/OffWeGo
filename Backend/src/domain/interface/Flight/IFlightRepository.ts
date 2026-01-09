@@ -1,6 +1,6 @@
 import { IFlightModel } from "../../../framework/database/Models/flightModel";
 import { FlightDto } from "../../dto/Flight/FlightDto";
-import { Flight } from "../../entities/flightEntity";
+import { Flight } from "../../entities/FlightEntity";
 
 export interface IFlightRepository {
   createFlight(flightData: Partial<FlightDto>): Promise<IFlightModel>;

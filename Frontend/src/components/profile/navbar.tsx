@@ -4,13 +4,13 @@ import { useNavigate, Link } from "react-router-dom";
 import type { RootState } from "@/store/store";
 import { logout } from "@/store/slice/user/authSlice";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
-
+import { NotificationPanel } from "../Notification/NotificationModal";
 import { useChatContext } from "@/context/chatContext";
 import { messaging } from "@/Firebase/firebase";
 import { onMessage } from "firebase/messaging";
-import logo from "../../../public/images/logo.png";
 import { ChevronDown, Menu, X, MessageCircle, Bell } from "lucide-react";
-import {UserNotificationModal} from "../Notification/userNotificationModal";
+
+const logo = "/images/logo.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +18,7 @@ const Navbar = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
   const user = useSelector((state: RootState) => state.auth.user);
-  const { totalUnreadCount } = useChatContext();
+  const { unreadChatCount } = useChatContext();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -29,16 +29,19 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  // FCM Message Listener - Continuous listening
   useEffect(() => {
     if (!user?.id) return;
 
-    const unsubscribe = onMessage(messaging, (payload: any) => {
-      console.log("📬 User FCM Message Received:", payload);
-      
-      // Handle both notification and data payload
-      const title = payload.notification?.title || payload.data?.title || "New Notification";
-      const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
+    const unsubscribe = onMessage(messaging, (payload) => {
+      const title =
+        payload.notification?.title ||
+        payload.data?.title ||
+        "New Notification";
+      const body =
+        payload.notification?.body ||
+        payload.data?.body ||
+        payload.data?.message ||
+        "";
 
       dispatch(
         addNotification({
@@ -54,18 +57,19 @@ const Navbar = () => {
   }, [user?.id, dispatch]);
 
   return (
-    <nav className="bg-white-50 backdrop-blur-sm shadow-sm sticky top-4 z-50 w-full">
+    <nav className="bg-white-50 backdrop-blur-sm sticky top-4 z-50 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <img src={logo} alt="logo" className="w-35 h-10 mr-2"  />
-            </Link>
+            <img 
+              src={logo} 
+              alt="logo" 
+              className="w-35 h-10 mr-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate("/")}
+            />
           </div>
 
-          <div className="hidden md:flex items-center space-x-6">
-          
-          </div>
+          <div className="hidden md:flex items-center space-x-6"></div>
 
           <div className="hidden md:flex items-center space-x-4">
             {!user ? (
@@ -85,15 +89,18 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center space-x-3">
-                {/* Notification Bell */}
+            
                 <div
-                  className="relative cursor-pointer"
+                  className="relative cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   onClick={() => setPanelOpen(true)}
                 >
-                  <Bell className="w-5 h-5 text-gray-700 hover:text-gray-900 transition-colors" />
+                  <Bell className="w-5 h-5 text-gray-700" />
+
                   {notificationUnreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
-                      {notificationUnreadCount > 99 ? '99+' : notificationUnreadCount}
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gray-800 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
+                      {notificationUnreadCount > 99
+                        ? "99+"
+                        : notificationUnreadCount}
                     </span>
                   )}
                 </div>
@@ -104,9 +111,9 @@ const Navbar = () => {
                     title="Messages"
                   >
                     <MessageCircle className="w-5 h-5" />
-                    {(totalUnreadCount ?? 0) > 0 && (
+                    {(unreadChatCount ?? 0) > 0 && (
                       <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1">
-                        {(totalUnreadCount ?? 0) > 99 ? '99+' : totalUnreadCount}
+                        {(unreadChatCount ?? 0) > 99 ? "99+" : unreadChatCount}
                       </span>
                     )}
                   </button>
@@ -176,24 +183,6 @@ const Navbar = () => {
           >
             Destinations
           </Link>
-          <Link
-            to="/articles"
-            className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
-          >
-            Articles
-          </Link>
-          <Link
-            to="/buddy-travel"
-            className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
-          >
-            Buddy Travel
-          </Link>
-          <Link
-            to="/search"
-            className="block px-3 py-2 text-gray-700 hover:text-coral-500 transition-colors"
-          >
-            Search
-          </Link>
 
           {!user ? (
             <div className="pt-4 space-y-2">
@@ -239,7 +228,7 @@ const Navbar = () => {
         </div>
       )}
 
-        <UserNotificationModal
+      <NotificationPanel
         open={panelOpen}
         onClose={() => setPanelOpen(false)}
         onUnreadCountChange={setNotificationUnreadCount}

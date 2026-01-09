@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ProfileDto } from "../../../domain/dto/User/profileDto";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import {
@@ -5,6 +6,7 @@ import {
   UserModel,
 } from "../../../framework/database/Models/userModel";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
+import { Types } from "mongoose";
 
 export class UserRepository
   extends BaseRepository<IUserModel>
@@ -15,7 +17,7 @@ export class UserRepository
   }
 
   async findByEmail(email: string): Promise<IUserModel | null> {
-    return this.model.findOne({ email });
+    return (this.model as any).findOne({ email });
   }
 
   async createUser(user: IUserModel): Promise<IUserModel> {
@@ -23,15 +25,15 @@ export class UserRepository
   }
 
   async findByPhone(phone: string): Promise<IUserModel | null> {
-    return this.model.findOne({ phone });
+    return (this.model as any).findOne({ phone });
   }
 
   async findById(userId: string): Promise<IUserModel | null> {
-    return this.model.findById(userId);
+    return (this.model as any).findById(userId);
   }
 
   async updatePassword(email: string, newHashedPassword: string): Promise<void> {
-    await this.model.updateOne(
+    await (this.model as any).updateOne(
       { email },
       { $set: { password: newHashedPassword } }
     );
@@ -41,7 +43,7 @@ export class UserRepository
     userId: string,
     newHashedPassword: string
   ): Promise<void> {
-    await this.model.updateOne(
+    await (this.model as any).updateOne(
       { _id: userId },
       { $set: { password: newHashedPassword } }
     );
@@ -52,11 +54,11 @@ export class UserRepository
     limit: number,
     filter: Record<string, unknown> = {}
   ): Promise<IUserModel[]> {
-    return this.model.find(filter).skip(skip).limit(limit);
+    return (this.model as any).find(filter).skip(skip).limit(limit);
   }
 
   async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
-    return this.model.countDocuments(filter);
+    return (this.model as any).countDocuments(filter);
   }
 
   async updateUserStatus(
@@ -99,5 +101,38 @@ async getFcmTokenById(userId: string): Promise<string | null> {
       { $set: { fcmToken: token } },
       { new: true }
     );
+  }
+
+  async toggleSaveTravelPost(userId: string, postId: string): Promise<boolean> {
+    const user = await this.model.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const objectId = new Types.ObjectId(postId);
+    const current = (user as any).savedTravelPosts as Types.ObjectId[] | undefined;
+    const savedPosts = Array.isArray(current) ? current : [];
+
+    const alreadySaved = savedPosts.some((id) => id.toString() === postId);
+
+    if (alreadySaved) {
+      (user as any).savedTravelPosts = savedPosts.filter((id) => id.toString() !== postId);
+      await user.save();
+      return false;
+    }
+
+    (user as any).savedTravelPosts = [...savedPosts, objectId];
+    await user.save();
+    return true;
+  }
+
+  async getSavedTravelPostIds(userId: string): Promise<string[]> {
+    const user = await this.model.findById(userId).select("savedTravelPosts");
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const savedPosts = (user as any).savedTravelPosts as Types.ObjectId[] | undefined;
+    return Array.isArray(savedPosts) ? savedPosts.map((id) => id.toString()) : [];
   }
 }

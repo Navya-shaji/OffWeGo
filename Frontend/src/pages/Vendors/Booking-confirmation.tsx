@@ -9,6 +9,8 @@ import type { RootState } from "@/store/store";
 export default function PaymentCheckout() {
   const { state } = useLocation();
   const totalAmount = state?.totalAmount || 0;
+  
+  
   const navigate = useNavigate();
   
   const [selectedPayment, setSelectedPayment] = useState("stripe");
@@ -26,11 +28,10 @@ export default function PaymentCheckout() {
   useEffect(() => {
     const fetchWallet = async () => {
       try {
-        setUserId(UserId);
+        setUserId(UserId || '');
         
         if (UserId) {
           const walletData = await getUserWallet(UserId);
-          console.log(walletData, "data");
           setWalletBalance(walletData.balance || 0);
         }
       } catch (err) {
@@ -69,15 +70,13 @@ export default function PaymentCheckout() {
 );
 
 
-      console.log(response, "booking response");
+   
 
       if (response.success) {
-        // Update wallet balance locally
         setWalletBalance(prev => prev - subtotal);
 
         alert("Payment successful! Your booking is confirmed.");
 
-        // Navigate to success page
         navigate("/booking-success", {
           state: {
             paymentMethod: "wallet",
@@ -111,7 +110,6 @@ export default function PaymentCheckout() {
 
   const hasInsufficientBalance = selectedPayment === "wallet" && walletBalance < subtotal;
   
-  console.log(walletBalance, "balance");
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">

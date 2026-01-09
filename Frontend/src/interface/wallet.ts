@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 
 export interface IWallet{
@@ -6,6 +7,8 @@ export interface IWallet{
     ownerType:"user"|"admin"|"vendor"
     balance:number
     transactions:{
+        [x: string]: any
+        refId: any
         type:"credit"|"debit"
         amount:number
         description:string

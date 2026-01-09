@@ -1,9 +1,10 @@
-import { CreateReviewDTO } from "../../domain/dto/Review/createReviewDto";
+import { CreateReviewDTO } from "../../domain/dto/Review/CreateReviewDto";
 import { ICreateReviewUseCase } from "../../domain/interface/Reviews/IcreateReviewUsecase";
 import { IReviewRepository } from "../../domain/interface/Reviews/IReviewRepository";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { mapToSingleReviewEntity } from "../../mappers/Review/mapToCreateReviewDto";
+import { Role } from "../../domain/constants/Roles";
 
 export class CreateReviewUseCase implements ICreateReviewUseCase {
   constructor(
@@ -33,7 +34,7 @@ export class CreateReviewUseCase implements ICreateReviewUseCase {
 
     await this._notificationService.send({
       recipientId: vendorId.toString(),
-      recipientType: "vendor",
+      recipientType: Role.VENDOR,
       title: "New Review Received",
       message: `Your package "${packageData.packageName}" has received a new review with ${review.rating} star(s).`,
       createdAt: new Date(),

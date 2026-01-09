@@ -1,4 +1,4 @@
-import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/createCheckoutSessionDto";
+import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/CreateCheckoutSessionDto";
 import { IGetSubscriptionBookingUseCase } from "../../domain/interface/SubscriptionPlan/IGetAllSubscriptionBookingUsecase";
 import { ISubscriptionBookingRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
 import { mapBookingToCheckoutDTO } from "../../mappers/Subscription/subscription";

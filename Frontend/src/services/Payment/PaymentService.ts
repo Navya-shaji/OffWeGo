@@ -5,14 +5,11 @@ import axiosInstance from "@/axios/instance";
 
 export const createPayment = async (amount: number, currency: string) => {
   try {
-    console.log(amount,currency)
     const res = await axiosInstance.post("/api/create-payment", { amount, currency });
 
-    console.log("PaymentIntent response:", res);
 
     return res.data; 
   } catch (error) {
-    console.error("Error creating payment:", error);
 
     if (isAxiosError(error)) {
       const msg =

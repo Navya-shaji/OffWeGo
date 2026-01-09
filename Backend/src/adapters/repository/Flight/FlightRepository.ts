@@ -1,4 +1,4 @@
-import { Flight } from "../../../domain/entities/flightEntity";
+import { Flight } from "../../../domain/entities/FlightEntity";
 import {
   IFlightModel,
   flightModel,
@@ -15,7 +15,7 @@ export class FlightRepository
     super(flightModel);
   }
   async createFlight(flightData: Partial<FlightDto>): Promise<IFlightModel> {
-    const createdFlight = await flightModel.create(flightData);
+    const createdFlight = await (flightModel).create(flightData);
     return createdFlight;
   }
   async getAllFlights(): Promise<IFlightModel[]> {

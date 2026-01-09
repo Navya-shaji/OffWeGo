@@ -4,7 +4,7 @@ import {
   addPackage as addPackageService,
   fetchAllPackages as fetchAllPackagesService,
 } from "@/services/packages/packageService";
-import { getPackagesByDestination } from "@/services/Destination/destinationService";
+import { getPackagesByDestination } from "@/services/packages/packageService";
 
 type PackageState = {
   packages: Package[];
@@ -25,10 +25,8 @@ export const addPackage = createAsyncThunk<
 >("package/add", async (data, { rejectWithValue }) => {
   try {
     const response = await addPackageService(data);
-    console.log("thunk", response.packages[0]);
     return response.packages[0];
   } catch (error) {
-    console.log("er");
     if (error instanceof Error) return rejectWithValue(error.message);
     return rejectWithValue("Unknown error while adding package");
   }
@@ -57,7 +55,7 @@ export const fetchPackagesByDestination = createAsyncThunk<
   async ({ destinationId }, { rejectWithValue }) => {
     try {
       const response = await getPackagesByDestination(destinationId);
-      return response;
+      return response.packages || response;
     } catch (error) {
       if (error instanceof Error) return rejectWithValue(error.message);
       return rejectWithValue(

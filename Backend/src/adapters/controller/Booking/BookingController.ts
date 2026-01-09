@@ -1,12 +1,15 @@
-import { ICreateBookingUseCase } from "../../../domain/interface/Booking/ICreateBookingUSecase";
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { ICreateBookingUseCase } from "../../../domain/interface/Booking/ICreateBookingUSecase";
 import { IGetUserBookingUsecase } from "../../../domain/interface/Booking/IGetUserBookingUsecase";
 import { IGetVendorSideBookingUsecase } from "../../../domain/interface/Booking/IGetVendorSideBookingUsecase";
 import { IBookingDatesUsecase } from "../../../domain/interface/Booking/IBookingDatesUsecase";
 import { ICancelBookingUsecase } from "../../../domain/interface/Booking/ICancelBookingUSecase";
-import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingResheduleusecase";
+import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingRescheduleUseCase";
 import { Traveler } from "../../../domain/entities/BookingEntity";
+import { success } from "../../../domain/constants/Success";
+import { ErrorMessages } from "../../../domain/constants/Error";
+import { AppError } from "../../../domain/errors/AppError";
 
 export class BookingController {
   constructor(
@@ -15,68 +18,121 @@ export class BookingController {
     private _vendorsidebookingUsecase: IGetVendorSideBookingUsecase,
     private _bookingDatesUsecase: IBookingDatesUsecase,
     private _cancelBookingUsecase: ICancelBookingUsecase,
-    private _rescheduleBookingUsecase: IBookingRescheduleUseCase,
-   
+    private _rescheduleBookingUsecase: IBookingRescheduleUseCase
   ) {}
 
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
       const { data, payment_id, paymentStatus } = req.body;
+
       const result = await this._createBookingUsecase.execute({
         data,
         payment_id,
         paymentStatus,
       });
 
-      res.status(HttpStatus.CREATED).json({ success: true, booking: result });
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: success.SUCCESS_MESSAGES.CREATED,
+        data: result,
+      });
     } catch (error) {
-      console.error("Error creating booking:", error);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error });
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 
   async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId;
+
       const bookings = await this._userbookingsUsecase.execute(userId);
 
-      res.status(HttpStatus.OK).json({ success: true, bookings });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: bookings,
+      });
     } catch (error) {
-      console.error("Error fetching user bookings:", error);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error });
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 
   async getVendorsideBookings(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.vendorId;
+
       const bookings = await this._vendorsidebookingUsecase.execute(vendorId);
-      res.status(HttpStatus.OK).json({ success: true, bookings });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: bookings,
+      });
     } catch (error) {
-      console.error("Error fetching user bookings:", error);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error });
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 
   async bookingDates(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.vendorId;
-      const booking_dates = await this._bookingDatesUsecase.execute(vendorId);
+
+      const bookingDates = await this._bookingDatesUsecase.execute(vendorId);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        booking_dates: booking_dates,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: bookingDates,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -84,22 +140,33 @@ export class BookingController {
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
       const bookingId = req.params.id;
-      const reason = req.body?.reason;
-      console.log("Cancelling booking:", bookingId, "Reason:", reason);
+
       const booking = await this._cancelBookingUsecase.execute(bookingId);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Booking cancelled successfully",
+        message: success.SUCCESS_MESSAGES.DELETED,
         data: booking,
       });
-    } catch (error: any) {
-      console.error("Cancel booking error:", error);
-      const errorMessage = error?.message || "Failed to cancel booking";
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+      if (error instanceof AppError) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: errorMessage,
-        error: errorMessage,
+        message: ErrorMessages.BOOKING_FAILED,
       });
     }
   }
@@ -116,17 +183,24 @@ export class BookingController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Booking rescheduled successfully",
-        booking: updatedBooking,
+        message: success.SUCCESS_MESSAGES.UPDATED,
+        data: updatedBooking,
       });
     } catch (error) {
-      console.error("Error rescheduling booking:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Failed to reschedule booking",
+        message: ErrorMessages.BOOKING_FAILED,
       });
     }
   }
+
   async createBookingWithWallet(req: Request, res: Response): Promise<void> {
     try {
       const { data: bookingData, payment_id, description } = req.body;
@@ -135,6 +209,7 @@ export class BookingController {
         bookingData.adults?.filter(
           (a: Traveler) => a.name && a.name.trim() !== ""
         ) || [];
+
       const children =
         bookingData.children?.filter(
           (c: Traveler) => c.name && c.name.trim() !== ""
@@ -160,15 +235,21 @@ export class BookingController {
 
       res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "Booking created successfully with wallet payment",
-        booking,
+        message: success.SUCCESS_MESSAGES.CREATED,
+        data: booking,
       });
     } catch (error) {
-      console.error("Error creating booking with wallet:", error);
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to create booking",
-        error: (error as Error).message,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }

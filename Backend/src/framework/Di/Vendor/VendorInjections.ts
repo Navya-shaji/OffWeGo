@@ -1,5 +1,5 @@
 import { VendorSignupController } from "../../../adapters/controller/Vendor/VendorSignup";
-import { VendorVerifyOtpController } from "../../../adapters/controller/Vendor/verifyVendorOtp";
+import { VendorVerifyOtpController } from "../../../adapters/controller/Vendor/VerifyVendorOtp";
 import { PackageController } from "../../../adapters/controller/Packages/PackageController";
 import { VendorRepository } from "../../../adapters/repository/Vendor/VendorRepository";
 import { OtpService } from "../../Services/otpService";
@@ -7,9 +7,9 @@ import { HashPassword } from "../../Services/hashPassword";
 import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVendorUseCase";
 import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUsecase";
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
-import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/vendorStatusCheckController";
+import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/VendorStatusCheckController";
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
-import { VendorLoginController } from "../../../adapters/controller/Vendor/vendorLoginController"; 
+import { VendorLoginController } from "../../../adapters/controller/Vendor/VendorLoginController"; 
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
 import { VendorProfileUsecase } from "../../../useCases/vendor/profile/VendorProfileUsecase";
 import { JwtService } from "../../Services/jwtService";
@@ -43,20 +43,12 @@ import { EditFlightUsecase } from "../../../useCases/flight/EditFlightUsecase";
 import { DeleteFlightUsecase } from "../../../useCases/flight/DeleteFlightUSecase";
 import { CreateBookingSubscriptionUseCase } from "../../../useCases/subscription/createBookingSubscriptionUsecase";
 import { SubscriptionBookingController } from "../../../adapters/controller/Subscriptionplan/SubscriptionBookingController";
-import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/subscriptionBookingRepo";
-import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/subscriptionRepo";
-import { WalletRepository } from "../../../adapters/repository/Wallet/walletRepository";
-import { CreateBuddyTravelUseCase } from "../../../useCases/buddyTravel/createBuddyTravelUSecase";
-import { BuddyTravelRepository } from "../../../adapters/repository/BuddyTravel/buddyTravelRepository";
-import { BuddyTravelController } from "../../../adapters/controller/BuddyTravel/BuddyController";
+import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/SubscriptionBookingRepo";
+import { SubscriptionPlanRepository } from "../../../adapters/repository/Subscription/SubscriptionRepo";
+import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/subscription/GetVendorSubscriptionUsecase"; 
+import { WalletRepository } from "../../../adapters/repository/Wallet/WalletRepository";
 import { StripeService } from "../../Services/stripeService";
-import { BuddyTravalAdminApprovalUsecase } from "../../../useCases/buddyTravel/buddyPackageAprovalUsecase";
-import { GetBuddyTravelUsecase } from "../../../useCases/buddyTravel/GetBuddyTravelUsecase";
-import { GetVendorBuddyPackageUsecase } from "../../../useCases/buddyTravel/GetVendorBuddyPacakgeUsecase";
-import { GetAllBuddyTravelUsecase } from "../../../useCases/buddyTravel/GetAllBuddyTravelUsecase";
-import { JoinTravelUsecase } from "../../../useCases/buddyTravel/JoinTravelUSecase";
-import { CreateBuddyBookingUsecase } from "../../../useCases/buddyTravel/createBuddyBookingusecase";
-import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
+
 
 
 //  Setup Repository and Services
@@ -70,10 +62,8 @@ const activityRepo=new ActivityRepository()
 const flightRepo=new FlightRepository()
 const subscriptionRepo=new SubscriptionBookingRepository()
 const subscriptionplanRepo=new SubscriptionPlanRepository()
-const buddyRepo=new BuddyTravelRepository()
 const walletRepo=new WalletRepository()
 const stripeservice=new StripeService()
-const bookingRepo=new BookingRepository()
 const subscriptionBookingRepo=new SubscriptionBookingRepository()
 
 
@@ -106,13 +96,8 @@ const getallflightusecase=new GetAllFlightUsecase(flightRepo)
 const editflightusecase=new EditFlightUsecase(flightRepo)
 const deleteflightusecase=new DeleteFlightUsecase(flightRepo)
 const createBookingsubscriptionusecase=new CreateBookingSubscriptionUseCase(subscriptionRepo,subscriptionplanRepo,walletRepo,stripeservice)
-const creatbuddytravelUsecase=new CreateBuddyTravelUseCase(buddyRepo,packageRepo)
-const adminPackageApprovalusecase=new BuddyTravalAdminApprovalUsecase(buddyRepo)
-const getTravelUsecase=new GetBuddyTravelUsecase(buddyRepo)
-const getvendorBuddypackagesusecase=new GetVendorBuddyPackageUsecase(buddyRepo)
-const getallbuddypackages=new GetAllBuddyTravelUsecase(buddyRepo)
-const joinBuddyTravelusecase=new JoinTravelUsecase(buddyRepo,walletRepo)
-const bookingBuddyTravelusecase=new CreateBuddyBookingUsecase(bookingRepo)
+const getVendorSubscriptionHistoryUseCase=new GetVendorSubscriptionHistoryUseCase(subscriptionBookingRepo)
+
 
 
 //  Controllers
@@ -125,5 +110,4 @@ export const packagecontroller=new PackageController(getAllpackageByVendor,creat
 export const hotelcontroller=new HotelController(createHotelUsecase,getallHotels,editHotelusecase,deletehotelusecase,searchhotelusecase);
 export const activitycontroller=new ActivityController(createactivityUsecase,getallActivities,editActivityusecase,deleteactivityusecase,searchActivityusecase)
 export const flightcontroller=new FlightController(createflightusecase,getallflightusecase,editflightusecase,deleteflightusecase)
-export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase, subscriptionBookingRepo)
-export const buddyTravelcontroller=new BuddyTravelController(creatbuddytravelUsecase, adminPackageApprovalusecase,getTravelUsecase,getvendorBuddypackagesusecase,getallbuddypackages,joinBuddyTravelusecase,bookingBuddyTravelusecase)
+export const subscriptionBookingController=new SubscriptionBookingController(createBookingsubscriptionusecase, subscriptionBookingRepo, getVendorSubscriptionHistoryUseCase)

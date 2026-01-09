@@ -1,5 +1,5 @@
-import { SubscriptionBookingRepository } from "../../adapters/repository/Booking/subscriptionBookingRepo";
-import { SubscriptionPlanRepository } from "../../adapters/repository/Subscription/subscriptionRepo";
+import { SubscriptionBookingRepository } from "../../adapters/repository/Booking/SubscriptionBookingRepo";
+import { SubscriptionPlanRepository } from "../../adapters/repository/Subscription/SubscriptionRepo";
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
 import { ICreateBookingSubscriptionRequest } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionRequest";
 import { ICreateBookingSubscriptionResponse } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionResponse";
@@ -85,7 +85,7 @@ export class CreateBookingSubscriptionUseCase
       Role.ADMIN,
       plan.price,
       "credit",
-      `Subscription purchased by vendor ${vendorId}`
+      `Subscription purchased by vendor `
     );
 
     return {

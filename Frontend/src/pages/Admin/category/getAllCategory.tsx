@@ -14,6 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SearchBar } from "@/components/Modular/searchbar";
 import { DeleteConfirmationModal } from "./DeleteConfirmation";
+import { useCategoryContext } from "@/contexts/CategoryContext";
 
 interface CellInfo<T> {
   getValue?: () => unknown;
@@ -21,7 +22,7 @@ interface CellInfo<T> {
 }
 
 export const CategoryTable = () => {
-  const [category, setCategory] = useState<CategoryType[]>([]);
+  const { categories, setCategories, removeCategory, loading, setLoading } = useCategoryContext();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(
@@ -32,15 +33,13 @@ export const CategoryTable = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<CategoryType | null>(
     null
   );
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getCategory(page, 5);
-      console.log(response,"")
-      setCategory(response.categories || []);
+      setCategories(response.categories || []);
       const total = Number(response?.totalCategories || 0);
       setTotalPages(Math.ceil(total / 5));
     } catch (error) {
@@ -48,7 +47,7 @@ export const CategoryTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, setCategories, setLoading]);
 
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
@@ -56,12 +55,12 @@ export const CategoryTable = () => {
         try {
           setLoading(true);
           const response = await searchCategory(searchQuery);
-          setCategory(response || []);
+          setCategories(response || []);
           setTotalPages(1);
           setPage(1);
         } catch (error) {
           console.error("Search failed:", error);
-          setCategory([]);
+          setCategories([]);
           setTotalPages(1);
         } finally {
           setLoading(false);
@@ -72,7 +71,7 @@ export const CategoryTable = () => {
     }, 500);
 
     return () => clearTimeout(delayDebounce);
-  }, [searchQuery, page, fetchCategories]);
+  }, [searchQuery, page, fetchCategories, setCategories, setLoading]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -89,17 +88,15 @@ export const CategoryTable = () => {
       await deleteCategory(categoryToDelete.id);
       toast.success("Category deleted successfully");
 
-      if (searchQuery.trim()) {
-        await handleSearch(searchQuery);
-      } else {
-        await fetchCategories();
-      }
+      // Immediately remove the deleted category from the context state
+      removeCategory(categoryToDelete.id);
 
       setIsDeleteConfirmOpen(false);
       setCategoryToDelete(null);
     } catch (error) {
       console.error("Delete failed:", error);
-      toast.error("Failed to delete category");
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete category";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -126,8 +123,8 @@ export const CategoryTable = () => {
       await editCategory(updatedCategory.id, updatedCategory);
       toast.success("Category updated successfully");
 
-      setCategory((prevCategories) =>
-        prevCategories.map((cat) =>
+      setCategories((prevCategories: CategoryType[]) =>
+        prevCategories.map((cat: CategoryType) =>
           cat.id === updatedCategory.id ? updatedCategory : cat
         )
       );
@@ -265,7 +262,7 @@ export const CategoryTable = () => {
         </div>
       </div>
 
-      <ReusableTable data={category} columns={columns} loading={loading} />
+      <ReusableTable data={categories} columns={columns} loading={loading} />
 
       {isEditModalOpen && selectedCategory && (
         <EditCategory

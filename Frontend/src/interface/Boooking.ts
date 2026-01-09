@@ -18,6 +18,7 @@ export interface PackageInfo {
   price: number;
   description?: string;
   duration?: number;
+  vendorId?: string;
 }
 
 export interface Booking {

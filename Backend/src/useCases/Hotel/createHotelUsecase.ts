@@ -7,7 +7,6 @@ export class CreateHotelUsecase implements ICreateHotelUsecase {
   constructor(private _hotelRepo: IHotelRepository) {}
 
   async execute(data: HotelDto, destinationId: string): Promise<HotelDto> {
-    console.log(destinationId,"id")
     if (!destinationId) {
       throw new Error("Destination is required");
     }

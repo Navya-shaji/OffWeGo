@@ -57,9 +57,8 @@ const CreateHotel: React.FC = () => {
       setValue("coordinates.lat", parseFloat(coords.lat.toFixed(6)));
       setValue("coordinates.lng", parseFloat(coords.lng.toFixed(6)));
       toast.success("Coordinates fetched successfully!");
-    } catch (error: any) {
-      console.error("Error fetching coordinates:", error);
-      toast.error(error?.message || "Failed to fetch coordinates");
+    } catch {
+      toast.error( "Failed to fetch coordinates");
     } finally {
       setIsGettingCoordinates(false);
     }
@@ -85,7 +84,13 @@ const onSubmit = async (data: HotelFormData) => {
     return;
   }
 
-  const hotelData: Hotel = { ...data, destinationId }; 
+  const hotelData: Hotel = { 
+    ...data, 
+    destinationId,
+    coordinates: data.coordinates?.lat && data.coordinates?.lng 
+      ? { lat: data.coordinates.lat, lng: data.coordinates.lng }
+      : undefined
+  }; 
 
   try {
     setLoading(true);

@@ -7,6 +7,7 @@ import {
   categoryController,
   destinationController,
   subscriptionController,
+  adminTravelPostController,
 } from "../../Di/Admin/adminInjection";
 
 import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
@@ -17,7 +18,7 @@ import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import { Role } from "../../../domain/constants/Roles";
 import { walletcontroller } from "../../Di/User/userInjections";
-import { buddyTravelcontroller } from "../../Di/Vendor/VendorInjections";
+
 
 const TokenService = new JwtService();
 
@@ -78,6 +79,11 @@ export class AdminRoute {
       adminVendorController.getAllVendors(req, res)
     );
 
+    this.adminRouter.patch(
+  AdminRoutes.ADMIN_VENDOR_APPROVAL,  
+  adminOnly,
+  (req, res) => adminVendorController.updateVendorApprovalStatus(req, res)
+);
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_STATUS,
       adminOnly,
@@ -106,11 +112,24 @@ export class AdminRoute {
       (req, res) => AdminuserController.updateStatus(req, res)
     );
 
+    // -------------------- TRAVEL STORY MODERATION --------------------
+
+    this.adminRouter.get(
+      AdminRoutes.TRAVEL_POSTS_BY_STATUS,
+      adminOnly,
+      (req, res) => adminTravelPostController.listTravelPostsByStatus(req, res)
+    );
+
+    this.adminRouter.patch(
+      AdminRoutes.TRAVEL_POST_STATUS_UPDATE,
+      adminOnly,
+      (req, res) => adminTravelPostController.updateTravelPostStatus(req, res)
+    );
+
     // -------------------- DESTINATION MANAGEMENT --------------------
 
     this.adminRouter.post(
       AdminRoutes.CREATE_DESTINATION,
-      adminOnly,
       (req, res) => destinationController.addDestination(req, res)
     );
 
@@ -234,18 +253,5 @@ export class AdminRoute {
       AdminRoutes. COMPLETED_TRIP,(req,res)=>walletcontroller.completeTripAndDistribute(req,res)
     )
 
-    // -------------------- BUDDY TRAVEL PACKAGE MANAGEMENT --------------------
-
-    this.adminRouter.patch(
-      AdminRoutes.UPDATE_PACKAGE_STATUS,
-      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req, res) => buddyTravelcontroller.updateBuddyPackageStatus(req, res)
-    );
-
-    this.adminRouter.get(
-      AdminRoutes.GET_BUDDY_PACKAGES,
-      checkRoleBasedcontrol([Role.ADMIN, Role.VENDOR]),
-      (req, res) => buddyTravelcontroller.getBuddyTravelPackages(req, res)
-    );
   }
 }

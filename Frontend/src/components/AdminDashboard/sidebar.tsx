@@ -12,7 +12,6 @@ import {
   FolderPlus,
   X,
   Wallet,
-  Handshake,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -34,13 +33,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [showSubscriptionDropdown, setShowSubscriptionDropdown] =
     useState(false);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
-  // const [showBuddyDropdown, setShowBuddyDropdown] = useState(false);
+ 
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
     { icon: Users, label: "Users" },
     { icon: UserCheck, label: "Vendors" },
     { icon: MapPin, label: "Destinations" },
+    { icon: List, label: "Travel Posts" },
   ];
 
   const handleRequestClick = () => {
@@ -115,17 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <span className="text-gray-700">{item.label}</span>
             </button>
           ))}
-          <button
-            onClick={() => handleSubTabClick("Buddy Packages")}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab === "Buddy Packages"
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
-          >
-            <Handshake className="w-5 h-5 mr-3 text-gray-600" />
-            <span className="text-gray-700">Buddy Packages</span>
-          </button>
+      
           <button
             onClick={handleRequestClick}
             className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${

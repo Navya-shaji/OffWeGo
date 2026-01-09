@@ -39,7 +39,6 @@ export class SubscriptionPaymentController {
     } catch (error) {
       const errorMessage = (error as Error).message || "Failed to verify payment";
       
-      // Determine appropriate status code based on error message
       let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       if (errorMessage.includes("not found") || errorMessage.includes("not exist")) {
         statusCode = HttpStatus.NOT_FOUND;

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { Users, Building2, MapPin, CreditCard, Activity, BarChart3, PieChart, Package, TrendingUp, DollarSign, Calendar, BookOpen } from "lucide-react";
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
@@ -32,7 +34,7 @@ interface MonthlyData {
 
 const AdminDashboard: React.FC = () => {
   const admin = useSelector((state: RootState) => state.adminAuth?.admin);
-  const adminId = admin?.id || admin?._id;
+  const adminId = admin?.id 
 
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -354,7 +356,7 @@ const AdminDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  // label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -394,7 +396,7 @@ const AdminDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  // label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"

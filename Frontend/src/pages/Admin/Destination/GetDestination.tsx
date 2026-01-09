@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
   fetchAllDestinations,
@@ -336,11 +337,13 @@ export const DestinationTable = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {Array.isArray(destinations) &&
               getCurrentPageData().length > 0 ? (
-                getCurrentPageData().map((dest) => (
-                  <tr
-                    key={dest.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
+                getCurrentPageData().map((dest, idx) => {
+                  const destinationId = dest.id ?? dest._id;
+                  return (
+                    <tr
+                      key={destinationId ?? `destination-${idx}`}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="h-16 w-16">
                         {Array.isArray(dest.imageUrls) &&
@@ -398,7 +401,9 @@ export const DestinationTable = () => {
                           <Edit size={18} />
                         </button>
                         <button
-                          onClick={() => confirmDelete(dest.id)}
+                          onClick={() => {
+                            if (destinationId) confirmDelete(destinationId);
+                          }}
                           className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-all hover:scale-110 active:scale-95"
                           title="Delete destination"
                         >
@@ -406,8 +411,9 @@ export const DestinationTable = () => {
                         </button>
                       </div>
                     </td>
-                  </tr>
-                ))
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">

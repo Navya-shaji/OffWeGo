@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Booking } from "../../../domain/entities/BookingEntity";
-import { BuddyTravel } from "../../../domain/entities/BuddyTripEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
 import { BookingModel } from "../../../framework/database/Models/BookingModel";
+import { isValidObjectId } from "mongoose";
 
 export class BookingRepository implements IBookingRepository {
   async createBooking(booking: Booking): Promise<Booking> {
@@ -15,37 +16,36 @@ export class BookingRepository implements IBookingRepository {
   }
 
   async findById(id: string): Promise<Booking | null> {
-    return BookingModel.findById(id).lean<Booking>().exec();
+    return (BookingModel as any).findById(id).lean().exec();
   }
 
   async update(id: string, updateData: Partial<Booking>): Promise<Booking> {
-    const updatedBooking = await BookingModel.findByIdAndUpdate(
+    const updatedBooking = await (BookingModel as any).findByIdAndUpdate(
       id,
       updateData,
       { new: true }
     )
-      .lean<Booking>()
+      .lean()
       .exec();
 
     if (!updatedBooking) throw new Error("Booking not found");
     return updatedBooking;
   }
   async findByUserId(userId: string): Promise<Booking[]> {
-    return BookingModel.find({ userId })
+    return (BookingModel as any).find({ userId })
       .populate("selectedPackage")
-      .lean<Booking[]>()
+      .lean()
       .exec();
   }
 
   async findByVendorId(vendorId: string): Promise<Booking[]> {
-    return BookingModel.find({ vendorId })
+    return (BookingModel as any).find({ vendorId })
       .populate("selectedPackage")
-      // .populate("userId")
-      .lean<Booking[]>()
+      .lean()
       .exec();
   }
   async getBookedDatesByVendor(vendorId: string): Promise<Date[]> {
-    const bookings = await BookingModel.find({ vendorId })
+    const bookings = await (BookingModel as any).find({ vendorId })
       .select("selectedDate")
       .lean()
       .exec();
@@ -53,22 +53,25 @@ export class BookingRepository implements IBookingRepository {
     return bookings.flatMap((b) => b.selectedDate || []);
   }
   async cancelBooking(bookingId: string): Promise<Booking> {
-    // Try to find and update by MongoDB _id first, then by bookingId field
-    let updated = await BookingModel.findByIdAndUpdate(
-      bookingId,
-      { bookingStatus: "cancelled" },
-      { new: true }
-    )
-      .lean<Booking>()
-      .exec();
+    let updated: Booking | null = null;
+
+    if (isValidObjectId(bookingId)) {
+      updated = await (BookingModel as any).findByIdAndUpdate(
+        bookingId,
+        { bookingStatus: "cancelled" },
+        { new: true }
+      )
+        .lean()
+        .exec();
+    }
 
     if (!updated) {
-      updated = await BookingModel.findOneAndUpdate(
+      updated = await (BookingModel as any).findOneAndUpdate(
         { bookingId },
         { bookingStatus: "cancelled" },
         { new: true }
       )
-        .lean<Booking>()
+        .lean()
         .exec();
     }
 
@@ -79,35 +82,23 @@ export class BookingRepository implements IBookingRepository {
     return updated;
   }
   async findOne(bookingId: string): Promise<Booking | null> {
-    console.log("Finding booking by bookingId or _id:", bookingId);
-    // Try to find by MongoDB _id first, then by bookingId field
-    let booking = await BookingModel.findById(bookingId).lean<Booking>().exec();
+    
+
+    let booking: Booking | null = null;
+
+    if (isValidObjectId(bookingId)) {
+      booking = await (BookingModel as any).findById(bookingId).lean().exec();
+    }
+
     if (!booking) {
-      booking = await BookingModel.findOne({ bookingId })
-        .lean<Booking>()
+      booking = await (BookingModel as any).findOne({ bookingId })
+        .lean()
         .exec();
     }
-    console.log("Result from DB:", booking);
+  
     return booking;
   }
 
-  async createbuddyBooking(booking: BuddyTravel): Promise<BuddyTravel> {
-    const createdBooking = new BookingModel({
-      ...booking,
-    });
-
-    await createdBooking.save();
-    return createdBooking.toObject() as unknown as BuddyTravel;
-  }
-
-  async BuddyBooking(booking: BuddyTravel): Promise<Booking> {
-    const createdBooking = new BookingModel({
-      ...booking,
-    });
-
-    await createdBooking.save();
-    return createdBooking.toObject();
-  }
   async findByPackageAndDate(
     packageId: string,
     selectedDate: Date
@@ -118,11 +109,11 @@ export class BookingRepository implements IBookingRepository {
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const booking = await BookingModel.findOne({
+    const booking = await (BookingModel as any).findOne({
       selectedPackage: packageId,
       selectedDate: { $gte: startOfDay, $lte: endOfDay },
     })
-      .lean<Booking>()
+      .lean()
       .exec();
 
     return booking;
@@ -130,14 +121,14 @@ export class BookingRepository implements IBookingRepository {
   async findCompletedBookingsForTransfer(): Promise<Booking[]> {
     const today = new Date();
 
-    const bookings = await BookingModel.find({
+    const bookings = await (BookingModel as any).find({
       selectedPackage: { $exists: true, $ne: null },
-      bookingStatus: "completed"
+      bookingStatus: "completed",
     })
       .populate("selectedPackage")
       .lean();
 
-    const finishedTrips = bookings.filter((booking: any) => {
+    const finishedTrips = bookings.filter((booking) => {
       const selectedPackage = booking.selectedPackage;
       if (!selectedPackage?.duration || !booking.selectedDate) return false;
 
@@ -147,7 +138,7 @@ export class BookingRepository implements IBookingRepository {
       return endDate < today;
     });
 
-    const formattedTrips = finishedTrips.map((booking: any) => ({
+    const formattedTrips = finishedTrips.map((booking) => ({
       bookingId: booking.bookingId,
       userId: booking.userId,
       vendorId: booking.selectedPackage?.vendorId,
@@ -157,28 +148,28 @@ export class BookingRepository implements IBookingRepository {
       duration: booking.selectedPackage?.duration,
       endDate: new Date(
         new Date(booking.selectedDate).setDate(
-          new Date(booking.selectedDate).getDate() + booking.selectedPackage.duration
+          new Date(booking.selectedDate).getDate() +
+            booking.selectedPackage.duration
         )
       ),
       paymentStatus: booking.paymentStatus,
       bookingStatus: booking.bookingStatus,
     }));
 
-    console.log(formattedTrips, "Finished trip details");
+    
     return formattedTrips as unknown as Booking[];
   }
-
 
   async checkBookingExistsBetweenUserAndOwner(
     userId: string,
     ownerId: string
   ): Promise<Booking | null> {
-    return BookingModel.findOne({
+    return (BookingModel as any).findOne({
       userId,
       vendorId: ownerId,
-      bookingStatus: { $in: ["upcoming", "confirmed", "ongoing"] }
+      bookingStatus: { $in: ["upcoming", "confirmed", "ongoing"] },
     })
-      .lean<Booking>()
+      .lean()
       .exec();
   }
 
@@ -186,16 +177,16 @@ export class BookingRepository implements IBookingRepository {
     bookingId: string,
     paymentData: { paymentMethod: string; amountPaid: number; status: string }
   ): Promise<Booking> {
-    const updatedBooking = await BookingModel.findOneAndUpdate(
+    const updatedBooking = await (BookingModel as any).findOneAndUpdate(
       { bookingId },
       {
         paymentStatus: paymentData.status,
         paymentMethod: paymentData.paymentMethod,
-        amountPaid: paymentData.amountPaid
+        amountPaid: paymentData.amountPaid,
       },
       { new: true }
     )
-      .lean<Booking>()
+      .lean()
       .exec();
 
     if (!updatedBooking) {
@@ -205,16 +196,17 @@ export class BookingRepository implements IBookingRepository {
     return updatedBooking;
   }
   async findByRefId(refId: string): Promise<Booking[]> {
-    return BookingModel.find({ bookingId: refId });
+    return (BookingModel as any).find({ bookingId: refId });
   }
   async findCompletedTrips(): Promise<Booking[]> {
-
-    return BookingModel.find({
-      bookingStatus: "upcoming",
+    return (BookingModel as any).find({
+      $or: [
+        { bookingStatus: "upcoming" },
+        { bookingStatus: "completed" }
+      ],
       settlementDone: false,
-      paymentStatus: "succeeded"
+      paymentStatus: "succeeded",
+      selectedDate: { $lt: new Date() }
     });
   }
-
-
 }

@@ -1,5 +1,5 @@
 import { ReviewRepository } from "../../adapters/repository/Reviews/ReviewRepository";
-import { CreateReviewDTO } from "../../domain/dto/Review/createReviewDto";
+import { CreateReviewDTO } from "../../domain/dto/Review/CreateReviewDto";
 import { IGetReviewUsecase } from "../../domain/interface/Reviews/IgetReviewUsecase";
 import { mapToReviewEntity } from "../../mappers/Review/mapToReviewDto";
 

@@ -8,6 +8,7 @@ export interface User {
   role: "user" | "admin";
   status?: "active" | "block";
   imageUrl?: string;
+  savedTravelPosts?: ObjectId[];
   createdAt?: Date;
   updatedAt?: Date;
   lastLogin?: Date;

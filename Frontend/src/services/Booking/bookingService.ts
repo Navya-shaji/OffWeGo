@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import axiosInstance from "@/axios/instance";
 
 export const createBooking = async (
@@ -13,35 +14,30 @@ export const createBooking = async (
  
   });
   
-console.log(response.data,"response")
   return response.data;
 };
 
 
 export const getUserBookings = async () => {
   const response = await axiosInstance.get(`/api/bookings`);
-  console.log(response.data.bookings,"bookings")
-  return response.data.bookings;
+  return response.data.data;
 };
 
 export const getAllUserBookings = async (vendorId:string) => {
   const response = await axiosInstance.get(`/api/vendor/bookings/${vendorId}`);
-  console.log(response.data.bookings,"bookings")
  
-  return response.data.bookings;
+  return response.data.data;
 };
 
 export const bookingdates=async(vendorId:string)=>{
   const response=await axiosInstance.get(`/api/vendor/bookings/date/${vendorId}`)
-  console.log(response.data.booking_dates,"hfjh")
   return response.data.booking_dates
 }
 export const cancelBooking = async (bookingId: string, reason?: string) => {
   const response = await axiosInstance.patch(`/api/bookings/${bookingId}`, {
     reason: reason || undefined,
   });
-  console.log(response.data.data,"res")
-  return response.data
+  return response.data; 
 };
 
 export const rescheduleBooking = async (bookingId: string, newDate: string) => {
@@ -49,10 +45,8 @@ export const rescheduleBooking = async (bookingId: string, newDate: string) => {
     const response = await axiosInstance.patch(`/api/booking/${bookingId}/reschedule`, {
       newDate,
     });
-    console.log(response.data, "reschedule response");
     return response.data;
   } catch (error) {
-    console.error("Error rescheduling booking:");
     throw error;
   }
 };

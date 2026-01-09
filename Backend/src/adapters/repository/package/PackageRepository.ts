@@ -6,6 +6,7 @@ import {
 import { Package } from "../../../domain/entities/PackageEntity";
 import { BaseRepository } from "../BaseRepo/BaseRepo";
 import { FilterQuery } from "mongoose";
+
 export class PackageRepository
   extends BaseRepository<IPackageModel>
   implements IPackageRepository
@@ -20,7 +21,10 @@ export class PackageRepository
     return created;
   }
 
-  async getAllPackages(skip: number, limit: number) {
+  async getAllPackages(
+    skip: number,
+    limit: number
+  ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
     const [packages, totalPackages] = await Promise.all([
       packageModel
         .find()
@@ -28,7 +32,7 @@ export class PackageRepository
         .limit(limit)
         .populate("hotels activities flight")
         .exec(),
-      packageModel.countDocuments(),
+      packageModel.countDocuments().exec(),
     ]);
 
     return { packages, totalPackages };
@@ -38,7 +42,7 @@ export class PackageRepository
     destinationId: string,
     skip: number,
     limit: number
-  ) {
+  ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
     const [packages, totalPackages] = await Promise.all([
       packageModel
         .find({ destinationId })
@@ -46,43 +50,47 @@ export class PackageRepository
         .limit(limit)
         .populate("hotels activities")
         .exec(),
-      packageModel.countDocuments({ destinationId }),
+      packageModel.countDocuments({ destinationId }).exec(),
     ]);
 
     return { packages, totalPackages };
   }
 
-  async delete(id: string) {
-    return await this.model.findByIdAndDelete(id);
+  async delete(id: string): Promise<IPackageModel | null> {
+    return this.model.findByIdAndDelete(id).exec();
   }
 
-  async searchPackage(query: string) {
+  async searchPackage(query: string): Promise<IPackageModel[]> {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return [];
 
     const regex = new RegExp(trimmedQuery, "i");
 
-    return await this.model
+    return this.model
       .find({ packageName: { $regex: regex } })
       .select(
-        "packageName itinerary inclusions amenities price duration hotels activities checkInTime checkOutTime includeFlight flight"
+        "destinationId vendorId packageName description images itinerary inclusions amenities price duration startDate endDate hotels activities checkInTime checkOutTime flightOption flight"
       )
-      .populate("hotels", "name")
-      .populate("activities", "title")
+      .populate("hotels")
+      .populate("activities")
       .populate("flight")
       .limit(10)
       .exec();
   }
 
   async countPackages(): Promise<number> {
-    return packageModel.countDocuments();
+    return packageModel.countDocuments().exec();
   }
 
   async countPackagesByVendor(vendorId: string): Promise<number> {
-    return packageModel.countDocuments({ vendorId });
+    return packageModel.countDocuments({ vendorId }).exec();
   }
 
-  async getAllPackagesByVendor(vendorId: string, skip: number, limit: number) {
+  async getAllPackagesByVendor(
+    vendorId: string,
+    skip: number,
+    limit: number
+  ): Promise<{ packages: IPackageModel[]; totalPackages: number }> {
     const [packages, totalPackages] = await Promise.all([
       packageModel
         .find({ vendorId })
@@ -90,18 +98,19 @@ export class PackageRepository
         .limit(limit)
         .populate("hotels activities")
         .exec(),
-      packageModel.countDocuments({ vendorId }),
+      packageModel.countDocuments({ vendorId }).exec(),
     ]);
 
     return { packages, totalPackages };
   }
+
   async findOne(
     filter: FilterQuery<IPackageModel>
   ): Promise<IPackageModel | null> {
-    const pkg = await packageModel.findOne(filter).lean();
-    return pkg ? (pkg as unknown as IPackageModel) : null;
+    return packageModel.findOne(filter).exec();
   }
+
   async getById(id: string): Promise<IPackageModel | null> {
-    return packageModel.findById(id);
+    return packageModel.findById(id).exec();
   }
 }

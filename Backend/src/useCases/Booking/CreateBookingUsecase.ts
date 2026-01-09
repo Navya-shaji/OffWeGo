@@ -6,7 +6,7 @@ import { mapBookingDto } from "../../mappers/Booking/mapToCreateBookingDto";
 import { generateBookingId } from "../../utilities/BookingIDCreation";
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
 import { Role } from "../../domain/constants/Roles";
-import { BuddyBookingDto } from "../../domain/dto/Booking/buddyBookingDto";
+
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
@@ -21,7 +21,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
   async execute({
     data,
     payment_id,
-  }: CreateBookingDto): Promise<CreateBookingDto | BuddyBookingDto> {
+  }: CreateBookingDto): Promise<CreateBookingDto > {
 
     const completionDate = new Date(data.selectedDate);
 
@@ -61,7 +61,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     };
 
     const result = await this._bookingRepository.createBooking(bookingData);
-  console.log(result.bookingId)
+
  
     if (result.paymentStatus === "succeeded") {
       const adminId = process.env.ADMIN_ID || "";
@@ -71,7 +71,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         Role.ADMIN,
         result.totalAmount,
         "credit",
-        `Booking payment received. User: ${result.userId}`,
+        `Booking payment received. User`,
         result.bookingId   
       );
     }
@@ -83,7 +83,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
   
     await this._notificationService.send({
       recipientId: result.userId.toString(),
-      recipientType: "user",
+      recipientType: Role.USER,
       title: "Booking Confirmed",
       message: `Your booking for package "${packageData.packageName}" has been confirmed for ${formattedDate}.`,
       createdAt: new Date(),
@@ -93,7 +93,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
  
     await this._notificationService.send({
       recipientId: vendorId.toString(),
-      recipientType: "vendor",
+      recipientType: Role.VENDOR,
       title: "New Booking Received",
       message: `Booking ${result.bookingId} for package "${packageData.packageName}" has been made by user ${result.userId} for ${formattedDate}.`,
       createdAt: new Date(),

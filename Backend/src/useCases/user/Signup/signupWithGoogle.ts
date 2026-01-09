@@ -1,5 +1,5 @@
 import { AuthRepository } from "../../../adapters/repository/User/AuthRepository";
-import { User } from "../../../domain/entities/userEntity";
+import { User } from "../../../domain/entities/UserEntity";
 import { IGoogleSignupUseCase } from "../../../domain/interface/UsecaseInterface/IgoogleSignupUsecase";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { mapToGoogleUser } from "../../../mappers/User/googleMappping";

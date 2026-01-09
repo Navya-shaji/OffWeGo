@@ -62,12 +62,21 @@ export class CreateCategoryController {
   async DeleteCategory(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      
+      if (!id) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, error: "Category ID is required" });
+      }
+
       const result = await this._deleteCategoryUsecase.execute(id);
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete category";
+      const statusCode = errorMessage === "Category not found" ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
       res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error });
+        .status(statusCode)
+        .json({ success: false, error: errorMessage });
     }
   }
 

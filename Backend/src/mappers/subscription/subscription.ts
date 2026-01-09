@@ -1,4 +1,4 @@
-import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/createCheckoutSessionDto";
+import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/CreateCheckoutSessionDto";
 import { ISubscriptionBooking } from "../../domain/entities/SubscriptionBookingEntity";
 
 

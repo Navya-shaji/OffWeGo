@@ -1,4 +1,4 @@
-import { CreateReviewDTO } from "../../domain/dto/Review/createReviewDto";
+import { CreateReviewDTO } from "../../domain/dto/Review/CreateReviewDto";
 import { IReview } from "../../domain/entities/ReviewEntity";
 
 export const mapToSingleReviewEntity = (review: IReview): CreateReviewDTO => ({

@@ -17,7 +17,7 @@ export const vendorProfile = async (email: string) => {
 };
 
 export const editProfile = async (
-  id: string,
+ 
   updatedData: {
     name?: string;
     phone?: string;
@@ -26,11 +26,10 @@ export const editProfile = async (
   }
 ) => {
   try {
-    const res = await axiosInstance.put(`/api/vendor/profile/${id}`, updatedData);
+    const res = await axiosInstance.put(`/api/vendor/profile`, updatedData);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      console.error(error.response?.data);
       throw new Error(error.response?.data?.message || "Failed to update vendor profile");
     }
     throw new Error("An unexpected error occurred during profile update");

@@ -42,12 +42,8 @@ export class JwtService implements ITokenService {
         });
       });
     } catch (error) {
-      console.error("Token verification failed:", error);
       if (error instanceof TokenExpiredError) {
-        console.log(
-          "Access token expired at",
-          new Date(error.expiredAt).toLocaleString()
-        );
+       throw new Error()
       }
       return null;
     }

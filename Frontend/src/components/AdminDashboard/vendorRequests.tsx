@@ -14,7 +14,7 @@ interface Props {
 const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); // For modal
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); 
 
   const fetchVendors = () => {
     setLoading(true);
@@ -26,6 +26,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
 
   useEffect(() => {
     fetchVendors();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const handleStatusChange = async (
@@ -38,7 +39,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
       if (newStatus === "approved" && onTabChange) {
         onTabChange("Approved Requests");
       } else {
-        setVendors((prev) => prev.filter((ven) => ven.id !== vendorId));
+        setVendors((prev) => prev.filter((ven) => (ven._id || ven.id) !== vendorId));
       }
     } catch {
       toast.error("Failed to update status");
@@ -83,7 +84,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
         <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {vendors.map((vendor) => (
             <div
-              key={vendor.id}
+              key={vendor._id || vendor.id}
               className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
             >
               <div className="space-y-3 text-gray-700">
@@ -125,13 +126,13 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
               {filter === "pending" && (
                 <div className="mt-6 flex gap-4">
                   <button
-                    onClick={() => handleStatusChange(vendor.id, "approved")}
+                    onClick={() => handleStatusChange(vendor._id || vendor.id, "approved")}
                     className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => handleStatusChange(vendor.id, "rejected")}
+                    onClick={() => handleStatusChange(vendor._id || vendor.id, "rejected")}
                     className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     Reject

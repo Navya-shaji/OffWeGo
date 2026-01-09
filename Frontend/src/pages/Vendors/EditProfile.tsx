@@ -94,13 +94,13 @@ export default function EditVendorProfileModal({
         phone,
         profileImage: newImageUrl,
       });
-console.log(updated,"")
+
       const mappedVendor = {
         ...updated.data,
         profileImage: updated.data.profileImage || "/placeholder-avatar.png",
         documentUrl: vendor.documentUrl,
       };
-      console.log(mappedVendor)
+     
       dispatch(
         login({
           vendor: mappedVendor,

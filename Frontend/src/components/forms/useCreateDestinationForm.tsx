@@ -100,10 +100,10 @@ export const useCreateDestinationForm = () => {
             errorMessage += "Location request timed out.";
             break;
           default:
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             errorMessage += "Unknown error occurred.";
             break;
         }
-       console.log(errorMessage)
         setIsGettingLocation(false);
       },
       {
@@ -116,7 +116,6 @@ export const useCreateDestinationForm = () => {
 
   const handleCoordinatesFromLocation = async () => {
     const currentValues = getValues();
-    console.log("All form values:", currentValues);
     
     let location = currentValues.location;
 
@@ -125,7 +124,6 @@ export const useCreateDestinationForm = () => {
       const locationInput = document.querySelector('input[name="location"]') as HTMLInputElement;
       if (locationInput) {
         location = locationInput.value;
-        console.log("Got location from DOM:", location);
       }
     }
     
@@ -134,8 +132,7 @@ export const useCreateDestinationForm = () => {
       location = watch("location");
     }
     
-    console.log("Current location value:", location);
-    console.log("Location field type:", typeof location);
+
     
     if (!location || (typeof location === 'string' && location.trim() === "")) {
       return;
@@ -146,18 +143,15 @@ export const useCreateDestinationForm = () => {
     try {
 
       const locationString = typeof location === 'string' ? location.trim() : String(location).trim();
-      console.log("Processing location:", locationString);
       
       const { lat, lng } = await getCoordinatesFromPlace(locationString);
       
       if (lat && lng) {
         setValue("coordinates.lat", parseFloat(lat.toFixed(6)));
         setValue("coordinates.lng", parseFloat(lng.toFixed(6)));
-        console.log("Coordinates set:", { lat, lng });
         
       
-        const updatedValues = getValues();
-        console.log("Updated form values:", updatedValues);
+      
       } else {
         throw new Error("No coordinates returned");
       }
@@ -219,14 +213,11 @@ export const useCreateDestinationForm = () => {
 
   const debugFormFields = () => {
     const currentValues = getValues();
-    console.log("=== FORM DEBUG ===");
-    console.log("All form values:", currentValues);
-    console.log("Available keys:", Object.keys(currentValues));
-    console.log("==================");
+
     
-    // Also check what's being watched
+  
     const watchedLocation = watch("location");
-    console.log("Watched location:", watchedLocation);
+  console.log(watchedLocation)
     
     return currentValues;
   };

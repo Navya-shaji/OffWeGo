@@ -29,7 +29,6 @@ const AddActivity: React.FC = () => {
     handleSubmit,
     reset,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<ActivityFormData>({
     resolver: zodResolver(ActivitySchema),
@@ -51,9 +50,8 @@ const AddActivity: React.FC = () => {
       setValue("coordinates.lat", parseFloat(coords.lat.toFixed(6)));
       setValue("coordinates.lng", parseFloat(coords.lng.toFixed(6)));
       toast.success("Coordinates fetched successfully!");
-    } catch (error: any) {
-      console.error("Error fetching coordinates:", error);
-      toast.error(error?.message || "Failed to fetch coordinates");
+    } catch  {
+      toast.error("Failed to fetch coordinates");
     } finally {
       setIsGettingCoordinates(false);
     }
@@ -62,7 +60,7 @@ const AddActivity: React.FC = () => {
   useEffect(() => {
     const loadDestinations = async () => {
       try {
-        const res = await fetchAllDestinations(1, 50); // adjust pagination
+        const res = await fetchAllDestinations(1, 50); 
         setDestinations(res.destinations);
       } catch (err) {
         console.error("Failed to load destinations:", err);
@@ -89,7 +87,13 @@ const onSubmit = async (data: ActivityFormData) => {
   try {
     setLoading(true);
     imageUrl = await uploadToCloudinary(file); 
-    await createActivity({ ...data, imageUrl }, destinationId);
+    await createActivity({ 
+      ...data, 
+      imageUrl,
+      coordinates: data.coordinates?.lat && data.coordinates?.lng 
+        ? { lat: data.coordinates.lat, lng: data.coordinates.lng }
+        : undefined
+    }, destinationId);
 
     notifySuccess();
     reset();

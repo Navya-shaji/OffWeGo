@@ -166,6 +166,7 @@ export const VendorList = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCurrentPageData = () => {
@@ -306,7 +307,7 @@ export const VendorList = () => {
             checked={!row.original.isBlocked}
             onChange={() =>
               openBlockModal(
-                row.original._id,
+                row.original._id as string,
                 row.original.isBlocked,
                 row.original.name
               )

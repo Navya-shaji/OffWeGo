@@ -6,49 +6,33 @@ import {
   Crown,
   CheckCircle2,
   X,
-  Zap,
-  TrendingUp,
   Shield,
-  Award,
   Home,
   Calendar,
   Clock,
   CreditCard,
   ChevronDown,
+  History,
+  Star,
+  Rocket,
 } from "lucide-react";
 import { getSubscriptions } from "@/services/subscription/subscriptionservice";
-import { fetchAllPackages } from "@/services/packages/packageService";
 import VendorNavbar from "@/components/vendor/navbar";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { createSubscriptionBooking } from "@/services/Payment/stripecheckoutservice";
 import { toast } from "react-toastify";
+import type { Subscription } from "@/interface/subscription";
 
-interface SubscriptionPlan {
-  _id: string;
-  name: string;
-  price: number;
-  packageLimit: number;
-  duration: number;
+interface SubscriptionPlan extends Subscription {
   popular?: boolean;
-}
-
-interface VendorSubscription {
-  subscriptionId: {
-    packageLimit: number;
-  };
-  status: string;
 }
 
 export default function VendorSubscriptionPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionPlan[]>([]);
-  const [usedSlots, setUsedSlots] = useState(0);
-  const [totalAvailableSlots, setTotalAvailableSlots] = useState(3); // Default free slots
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
-    null
-  );
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookingDate, setBookingDate] = useState("");
@@ -67,41 +51,14 @@ export default function VendorSubscriptionPage() {
         setLoading(true);
         setError(null);
 
-        const [subData, packagesData] = await Promise.all([
-          getSubscriptions(),
-          fetchAllPackages(1, 100),
-        ]);
+        const subData = await getSubscriptions();
 
-        console.log("Subscription Data:", subData);
-        console.log("Packages Data:", packagesData);
+        const transformedSubscriptions = (subData.data || []).map((sub: Subscription) => ({
+          ...sub,
+          popular: sub.name.toLowerCase().includes('pro') || sub.price > 500
+        }));
 
-        // Set all subscription plans
-        setSubscriptions(subData.data || []);
-
-        // Set used slots from packages
-        setUsedSlots(packagesData.packages?.length || 0);
-
-        // Calculate total available slots
-        // Check if vendor has an active subscription
-        if (subData.vendorSubscription) {
-          const activeSubscription =
-            subData.vendorSubscription as VendorSubscription;
-          if (
-            activeSubscription.status === "active" &&
-            activeSubscription.subscriptionId
-          ) {
-            // If active subscription exists, use its package limit + free slots
-            const subscriptionSlots =
-              activeSubscription.subscriptionId.packageLimit || 0;
-            setTotalAvailableSlots(3 + subscriptionSlots); // 3 free + subscription slots
-          } else {
-            // Only free slots available
-            setTotalAvailableSlots(3);
-          }
-        } else {
-          // No subscription, only free slots
-          setTotalAvailableSlots(3);
-        }
+        setSubscriptions(transformedSubscriptions);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err instanceof Error ? err.message : "Failed to load data");
@@ -120,8 +77,6 @@ export default function VendorSubscriptionPage() {
     setBookingTime(`${hours}:${minutes}`);
   }, []);
 
-  const remainingSlots = totalAvailableSlots - usedSlots;
-
   const handleBookPlan = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowBookingModal(true);
@@ -129,20 +84,12 @@ export default function VendorSubscriptionPage() {
 
   const handleProceedToPayment = async () => {
     if (!selectedPlan || !bookingDate || !bookingTime) {
-      toast({
-        title: "Missing Details",
-        description: "Please fill in all booking details.",
-        variant: "destructive",
-      });
+      toast.error("Please fill in all booking details.");
       return;
     }
 
     if (!vendorId) {
-      toast({
-        title: "Vendor Not Found",
-        description: "Please login again.",
-        variant: "destructive",
-      });
+      toast.error("Please login again.");
       return;
     }
 
@@ -153,37 +100,36 @@ export default function VendorSubscriptionPage() {
         "bookingDetails",
         JSON.stringify({
           vendorId,
-          planId: selectedPlan._id,
           date: bookingDate,
           time: bookingTime,
         })
       );
 
-      localStorage.setItem("vendorId", vendorId);
-      localStorage.setItem("selectedPlanId", selectedPlan._id);
+      localStorage.setItem("vendorId", vendorId || "");
+      localStorage.setItem("selectedPlanId", selectedPlan._id || "");
 
       const response = await createSubscriptionBooking({
-        vendorId,
-        planId: selectedPlan._id,
+        vendorId: vendorId || "",
+        planId: selectedPlan._id || "",
         planName: selectedPlan.name,
         amount: selectedPlan.price,
         date: bookingDate,
         time: bookingTime,
       });
 
-      if (response.success && response.data.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl;
+
+      // Handle the actual response format from backend
+      if (response.checkoutUrl) {
+        window.location.href = response.checkoutUrl;
+      } else if (response.success && response.url) {
+        window.location.href = response.url;
       } else {
-        throw new Error("Failed to create payment session");
+        console.error('Invalid response:', response);
+        throw new Error("No payment URL provided in response");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Payment error:", err);
-
-      const errorMessage =
-        "Failed to initiate payment you have a current active plan";
-
-      toast.error(`Subscription Error: ${errorMessage}`);
-
+      toast.error(`Subscription Error: Failed to initiate payment`);
       setBookingLoading(false);
     }
   };
@@ -197,10 +143,9 @@ export default function VendorSubscriptionPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  console.log(
-    "Stored booking details:",
-    sessionStorage.getItem("bookingDetails")
-  );
+  const displayedSubscriptions = subscriptions.slice(0, displayCount);
+  const hasMore = subscriptions.length > displayCount;
+  const showingAll = displayCount >= subscriptions.length;
 
   if (loading) {
     return (
@@ -243,83 +188,31 @@ export default function VendorSubscriptionPage() {
     );
   }
 
-  const CircularProgress = ({
-    value,
-    total,
-    size = 160,
-  }: {
-    value: number;
-    total: number;
-    size?: number;
-  }) => {
-    const percentage = (value / total) * 100;
-    const strokeWidth = 10;
-    const radius = (size - strokeWidth) / 2;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (percentage / 100) * circumference;
-
-    return (
-      <div className="relative inline-flex items-center justify-center">
-        <svg width={size} height={size} className="transform -rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#e5e7eb"
-            strokeWidth={strokeWidth}
-            fill="none"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="url(#gradient)"
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            className="transition-all duration-1000 ease-out"
-          />
-          <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="absolute flex flex-col items-center justify-center">
-          <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-gray-900">{value}</span>
-            <span className="text-xl text-gray-500 font-semibold">
-              /{total}
-            </span>
-          </div>
-          <span className="text-xs text-gray-500 font-medium mt-1 uppercase tracking-wide">
-            Used
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  const displayedSubscriptions = subscriptions.slice(0, displayCount);
-  const hasMore = subscriptions.length > displayCount;
-  const showingAll = displayCount >= subscriptions.length;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
       <VendorNavbar />
       <div className="max-w-7xl mx-auto p-6 md:p-8">
-        <button
-          onClick={() => navigate("/vendor/profile")}
-          className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105 mb-8"
-        >
-          <Home className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
-          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-            Back to Home
-          </span>
-        </button>
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate("/vendor/profile")}
+            className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
+          >
+            <Home className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+              Back to Home
+            </span>
+          </button>
+          
+          <button
+            onClick={() => navigate("/vendor/subscription/history")}
+            className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
+          >
+            <History className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+              Subscription History
+            </span>
+          </button>
+        </div>
 
         <div className="text-center mb-12 mt-8">
           <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-blue-200 rounded-full mb-6 shadow-md">
@@ -328,107 +221,11 @@ export default function VendorSubscriptionPage() {
               SUBSCRIPTION MANAGEMENT
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            Power Your Business
-          </h1>
+        
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-medium">
             Choose the perfect plan to scale your vendor operations and unlock
             unlimited potential
           </p>
-        </div>
-
-        <div className="mb-12 bg-white border-2 border-gray-200 rounded-3xl p-8 md:p-10 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-md opacity-50"></div>
-                  <div className="relative p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
-                    <Package className="w-8 h-8 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-3xl font-black text-gray-900">
-                    Package Slots
-                  </h3>
-                  <p className="text-gray-600 text-sm font-medium">
-                    Monitor your inventory capacity
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur-md opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                  <div className="relative p-5 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-100 rounded-2xl hover:scale-105 transition-transform duration-300">
-                    <div className="flex items-center gap-2 mb-3">
-                      <TrendingUp className="w-5 h-5 text-blue-600" />
-                      <span className="text-gray-600 text-sm font-semibold">
-                        Active
-                      </span>
-                    </div>
-                    <p className="text-4xl font-black text-gray-900">
-                      {usedSlots}
-                    </p>
-                  </div>
-                </div>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl blur-md opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                  <div className="relative p-5 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-100 rounded-2xl hover:scale-105 transition-transform duration-300">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Zap className="w-5 h-5 text-purple-600" />
-                      <span className="text-gray-600 text-sm font-semibold">
-                        Available
-                      </span>
-                    </div>
-                    <p className="text-4xl font-black text-gray-900">
-                      {remainingSlots > 0 ? remainingSlots : 0}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Show total available slots info */}
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-100 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-600">
-                    Total Capacity:
-                  </span>
-                  <span className="text-lg font-black text-gray-900">
-                    {totalAvailableSlots} slots
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {totalAvailableSlots === 3
-                    ? "Free tier (3 slots)"
-                    : `3 free slots + ${
-                        totalAvailableSlots - 3
-                      } subscription slots`}
-                </p>
-              </div>
-
-              {remainingSlots <= 0 && (
-                <div className="relative overflow-hidden p-5 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-200 rounded-2xl shadow-md">
-                  <div className="flex items-start gap-3">
-                    <Crown className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5 animate-bounce" />
-                    <div>
-                      <p className="text-gray-900 font-bold text-base mb-1">
-                        🚀 Upgrade Required
-                      </p>
-                      <p className="text-gray-600 text-sm font-medium">
-                        You've used all available slots. Upgrade now to continue
-                        growing your business!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-center">
-              <CircularProgress value={usedSlots} total={totalAvailableSlots} />
-            </div>
-          </div>
         </div>
 
         <div className="mb-10">
@@ -475,7 +272,7 @@ export default function VendorSubscriptionPage() {
                   <div
                     className={`relative bg-white border-2 ${
                       plan.popular
-                        ? "border-blue-500 shadow-xl"
+                        ? "border-black shadow-xl"
                         : "border-gray-200 shadow-md"
                     } rounded-3xl p-8 h-full transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2`}
                   >
@@ -491,15 +288,15 @@ export default function VendorSubscriptionPage() {
                           }`}
                         >
                           {index === 0 ? (
-                            <Package className="w-7 h-7" />
+                            <Rocket className="w-7 h-7" />
                           ) : index === 1 ? (
                             <Shield className="w-7 h-7" />
                           ) : (
-                            <Award className="w-7 h-7" />
+                            <Crown className="w-7 h-7" />
                           )}
                         </div>
                         {index === 2 && (
-                          <Crown className="w-7 h-7 text-amber-500 animate-pulse" />
+                          <Star className="w-7 h-7 text-amber-500 animate-pulse" />
                         )}
                       </div>
 
@@ -508,7 +305,7 @@ export default function VendorSubscriptionPage() {
                       </h4>
                       <div className="mb-8">
                         <div className="flex items-baseline gap-2 mb-1">
-                          <span className="text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          <span className="text-6xl font-black bg-gradient-to-r bg-black bg-clip-text text-transparent">
                             ₹{plan.price}
                           </span>
                           <span className="text-gray-500 text-base font-bold">
@@ -519,43 +316,25 @@ export default function VendorSubscriptionPage() {
 
                       <div className="space-y-4 mb-8">
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                            <CheckCircle2 className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-gray-700 font-semibold">
-                            {plan.packageLimit} Package Slots
-                          </span>
+                        
+                          
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                            <CheckCircle2 className="w-4 h-4 text-white" />
+                        {plan.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center gap-3">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-gray to-black flex items-center justify-center shadow-md">
+                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-gray-700 font-semibold">
+                              {feature}
+                            </span>
                           </div>
-                          <span className="text-gray-700 font-semibold">
-                            Priority Support 24/7
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                            <CheckCircle2 className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-gray-700 font-semibold">
-                            Advanced Analytics
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                            <CheckCircle2 className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-gray-700 font-semibold">
-                            Custom Integrations
-                          </span>
-                        </div>
+                        ))}
                       </div>
 
                       <Button
                         className={`w-full font-bold text-white shadow-lg transition-all duration-300 hover:shadow-xl py-6 text-base ${
                           index === 0
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                            ? "bg-gradient-to-r bg-black"
                             : index === 1
                             ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                             : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
@@ -688,7 +467,7 @@ export default function VendorSubscriptionPage() {
                       Package Slots:
                     </span>
                     <span className="text-gray-900 font-bold">
-                      {selectedPlan.packageLimit} slots
+                      Premium Access
                     </span>
                   </div>
                 </div>

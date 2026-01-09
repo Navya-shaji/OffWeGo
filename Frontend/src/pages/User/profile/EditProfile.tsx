@@ -53,10 +53,8 @@ export default function EditProfileModal({
     if (user) {
       setUsername(user.username || "");
       setEmail(user.email || "");
-      // Ensure phone is always a string (could be number from DB)
       setPhone(user.phone ? String(user.phone) : "");
       setImagePreviewUrl(user.imageUrl || null);
-      // Reset errors when user data is loaded
       setErrorUsername(null);
       setErrorPhone(null);
       setErrorImage(null);
@@ -64,7 +62,6 @@ export default function EditProfileModal({
     }
   }, [user, isOpen]);
 
-  // Reset errors when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setErrorUsername(null);
@@ -80,17 +77,16 @@ export default function EditProfileModal({
     setErrorImage(null);
     
     if (file) {
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setErrorImage("Image size must be less than 5MB");
-        event.target.value = ""; // Clear the input
+        event.target.value = ""; 
         return;
       }
       
       // Validate file type
       if (!file.type.startsWith("image/")) {
         setErrorImage("File must be an image (JPG, PNG, GIF, or WebP)");
-        event.target.value = ""; // Clear the input
+        event.target.value = ""; 
         return;
       }
       
@@ -108,7 +104,6 @@ export default function EditProfileModal({
 
   const handleUsernameChange = (value: string) => {
     setUsername(value);
-    // Validate in real-time - show error immediately if empty
     const trimmed = value.trim();
     
     if (trimmed.length === 0) {
@@ -120,7 +115,6 @@ export default function EditProfileModal({
     } else if (!/^[a-zA-Z\s'-]+$/.test(trimmed)) {
       setErrorUsername("Name can only contain letters, spaces, hyphens, and apostrophes");
     } else {
-      // Validate with schema for final check
       const result = usernameSchema.safeParse(value);
       if (!result.success) {
         setErrorUsername(result.error.issues[0]?.message || "Invalid username");
@@ -131,12 +125,10 @@ export default function EditProfileModal({
   };
 
   const handlePhoneChange = (value: string) => {
-    // Only allow digits - ensure value is a string
     const stringValue = String(value || "");
     const digitsOnly = stringValue.replace(/\D/g, '');
     setPhone(digitsOnly);
     
-    // For Google users, phone is optional
     if (isGoogleUser) {
       if (digitsOnly.length === 0) {
         setErrorPhone(null); // No error if empty for Google users
@@ -187,29 +179,26 @@ export default function EditProfileModal({
       return;
     }
 
-    // Validate image file if selected
     if (selectedFile) {
       try {
-        // Check file size (max 5MB)
         if (selectedFile.size > 5 * 1024 * 1024) {
           setErrorImage("Image size must be less than 5MB");
           setIsLoading(false);
           return;
         }
-        // Check file type
         if (!selectedFile.type.startsWith("image/")) {
           setErrorImage("File must be an image (JPG, PNG, GIF, or WebP)");
           setIsLoading(false);
           return;
         }
-      } catch (error) {
+      } catch  {
         setErrorImage("Invalid image file");
         setIsLoading(false);
         return;
       }
     }
 
-    // Validate username
+
     const usernameValidation = usernameSchema.safeParse(username);
     if (!usernameValidation.success) {
       setErrorUsername(usernameValidation.error.issues[0]?.message || "Invalid username");
@@ -291,20 +280,17 @@ export default function EditProfileModal({
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      // Ensure phone is a string before sending
       const phoneString = phone ? String(phone) : "";
       const phoneToSend = phoneString.trim() || (isGoogleUser ? undefined : phoneString.trim());
       
       const updated = await editProfile({
         name: username.trim(),
-        phone: phoneToSend, // Phone is optional for Google users
+        phone: phoneToSend, 
         imageUrl: newImageUrl,
-        userId: user.id, // Include user ID in the request body
+        userId: user.id,
       });
 
-      console.log("✅ Profile update response:", updated);
       
-      // Update Redux state with the updated user data
       if (updated && updated.data) {
         const updatedUserData = {
           id: updated.data.id || user.id,
@@ -320,10 +306,8 @@ export default function EditProfileModal({
           location: updated.data.location || user.location,
         };
         
-        console.log("📝 Updating Redux with:", updatedUserData);
         dispatch(updateUserProfile(updatedUserData));
         
-        // Also update local state to reflect changes immediately
         setUsername(updatedUserData.username);
         setPhone(updatedUserData.phone);
         setImagePreviewUrl(updatedUserData.imageUrl || null);
@@ -347,7 +331,7 @@ export default function EditProfileModal({
         else setGeneralError(firstError.message);
       } else {
         console.error("Error updating profile:", err);
-        const errorMessage = (err as any)?.response?.data?.message || (err as any)?.message || "Update failed. Please try again.";
+        const errorMessage ="Update failed. Please try again.";
         setGeneralError(errorMessage);
       }
     } finally {

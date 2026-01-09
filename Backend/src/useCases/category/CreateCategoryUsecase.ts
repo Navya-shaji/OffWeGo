@@ -1,9 +1,10 @@
 import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
 import { CreateCategoryDto } from "../../domain/dto/Admin/CategoryDto";
 import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
-import { CategoryDto } from "../../domain/dto/category/categoryDto";
+import { CategoryDto } from "../../domain/dto/Category/CategoryDto";
 import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
+import { Role } from "../../domain/constants/Roles";
 
 export class CreateCategory {
   constructor(
@@ -27,7 +28,7 @@ async execute(data: CreateCategoryDto): Promise<CategoryDto> {
   for (const vendor of vendors) {
     await this._notificationservice.send({
       recipientId: vendor._id.toString(),
-      recipientType: "vendor",
+      recipientType: Role.VENDOR,
       title: "New Category Added",
       message: `A new category "${data.name}" has been added.`,
       read:false

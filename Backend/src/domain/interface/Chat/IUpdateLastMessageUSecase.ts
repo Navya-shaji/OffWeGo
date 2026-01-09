@@ -1,4 +1,4 @@
-import { IChat } from "../../entities/chatEntity";
+import { IChat } from "../../entities/ChatEntity";
 import { IMessage } from "../../entities/MessageEntity";
 
 

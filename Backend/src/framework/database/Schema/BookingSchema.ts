@@ -18,7 +18,6 @@ export const SelectedPackageSchema = new Schema({
   packageName: { type: String, required: true },
   price: { type: Number, required: true },
   duration: { type: Number, required: true },
-  
 });
 
 export const BookingSchema = new Schema({

@@ -1,4 +1,5 @@
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/createsubscriptionDto";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
 import { IEditSubscriptionusecase } from "../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
 
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
@@ -11,7 +12,7 @@ export class EditSubscriptionUseCase implements IEditSubscriptionusecase {
     id: string,
     updatedData: SubscriptionPlanDto
   ): Promise<SubscriptionPlanDto | null> {
-    const Data = await this._subscriptionRepository.update(id, updatedData);
-    return mapModelToSubscriptionDto(Data);
+    const Data = await this._subscriptionRepository.update(id, updatedData as any);
+    return mapModelToSubscriptionDto(Data as any);
   }
 }

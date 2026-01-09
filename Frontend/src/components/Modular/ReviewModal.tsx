@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 interface ReviewModalProps {
   open: boolean;
   onClose: () => void;
-  packageId: string;
   packageName: string;
   destination: string;
   onSuccess?: () => void;
@@ -21,7 +20,6 @@ interface ReviewModalProps {
 export const ReviewModal: React.FC<ReviewModalProps> = ({
   open,
   onClose,
-  packageId,
   packageName,
   destination,
   onSuccess,
@@ -83,7 +81,6 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       };
 
       const response = await createReviews(reviewData);
-      console.log(response, "res");
       if (response?.success) {
         toast.success(response.message || "Review added successfully! 🎉");
         handleClose();
@@ -91,7 +88,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       } else {
         toast.error(response?.message || "You have already submitted a review for this package");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting review:", error);
       toast.error(error?.response?.data?.message || "Error while submitting review");
     } finally {

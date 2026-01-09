@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import {
   Users,
   TrendingUp,
   TrendingDown,
-  Activity,
+
   Calendar,
   DollarSign,
   ArrowUpRight,
@@ -17,6 +18,8 @@ import {
   Sparkles,
   Target,
   BarChart3,
+  Download,
+  FileText,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { fetchAllPackages } from "@/services/packages/packageService";
@@ -26,6 +29,8 @@ import { fetchAllFlights } from "@/services/Flight/FlightService";
 import { getAllUserBookings } from "@/services/Booking/bookingService";
 import { getVendorWallet } from "@/services/Wallet/VendorWalletService";
 import type { RootState } from "@/store/store";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
+import jsPDF from "jspdf";
 
 interface MonthlyData {
   month: string;
@@ -48,6 +53,19 @@ export default function VendorDashboard() {
 
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showInvoiceDropdown, setShowInvoiceDropdown] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showInvoiceDropdown && !target.closest('.invoice-dropdown-container')) {
+        setShowInvoiceDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showInvoiceDropdown]);
 
   useEffect(() => {
     if (!vendorId) return;
@@ -105,7 +123,6 @@ export default function VendorDashboard() {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const currentYear = new Date().getFullYear();
 
-    // Initialize all months with zero values
     const monthlyMap = new Map<string, { bookings: number; revenue: number }>();
     months.forEach(month => {
       monthlyMap.set(month, { bookings: 0, revenue: 0 });
@@ -131,11 +148,11 @@ export default function VendorDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center space-y-4">
           <div className="relative">
-            <div className="w-20 h-20 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-r-purple-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+            <div className="w-20 h-20 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin mx-auto"></div>
+            <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-r-gray-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
           </div>
           <div className="space-y-2">
             <p className="text-gray-700 font-semibold text-lg">Loading your dashboard</p>
@@ -151,10 +168,7 @@ export default function VendorDashboard() {
     ? ((stats.bookings / stats.packages) * 100).toFixed(1)
     : "0";
 
-  // Get max bookings for chart scaling
-  const maxBookings = Math.max(...monthlyData.map(d => d.bookings), 1);
 
-  // Calculate growth percentage (comparing current month to previous)
   const currentMonth = new Date().getMonth();
   const currentMonthBookings = monthlyData[currentMonth]?.bookings || 0;
   const previousMonthBookings = currentMonth > 0
@@ -166,6 +180,229 @@ export default function VendorDashboard() {
     : currentMonthBookings > 0 ? "100" : "0";
 
   const isPositiveGrowth = parseFloat(growthPercentage) >= 0;
+
+  const handleDownloadInvoice = (period: "monthly" | "yearly") => {
+    const currentDate = new Date();
+    const invoiceData = {
+      vendorName: vendor?.name || "Vendor",
+      vendorEmail: vendor?.email || "",
+      period: period,
+      dateRange: "",
+      totalRevenue: 0,
+      totalBookings: 0,
+      monthlyBreakdown: [] as MonthlyData[],
+    };
+
+    if (period === "monthly") {
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      const monthName = monthlyData[currentMonth]?.month || currentDate.toLocaleString("default", { month: "long" });
+      
+      invoiceData.dateRange = `${monthName} ${currentYear}`;
+      invoiceData.totalRevenue = monthlyData[currentMonth]?.revenue || 0;
+      invoiceData.totalBookings = monthlyData[currentMonth]?.bookings || 0;
+      invoiceData.monthlyBreakdown = [monthlyData[currentMonth]];
+    } else {
+      const currentYear = currentDate.getFullYear();
+      invoiceData.dateRange = `${currentYear}`;
+      invoiceData.totalRevenue = stats.totalRevenue;
+      invoiceData.totalBookings = stats.bookings;
+      invoiceData.monthlyBreakdown = monthlyData;
+    }
+
+    // Create PDF with professional formatting
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let yPosition = 20;
+
+    // Header Section with Border
+    pdf.setFillColor(0, 0, 0);
+    pdf.rect(20, yPosition - 5, pageWidth - 40, 25, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(24);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("INVOICE", pageWidth / 2, yPosition + 8, { align: "center" });
+    
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`${invoiceData.period.toUpperCase()} REPORT`, pageWidth / 2, yPosition + 15, { align: "center" });
+    
+    pdf.setTextColor(0, 0, 0);
+    yPosition += 35;
+
+    // Company/Vendor Information Box
+    pdf.setDrawColor(200, 200, 200);
+    pdf.setLineWidth(0.5);
+    pdf.rect(20, yPosition, pageWidth - 40, 30);
+    
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Vendor Details", 25, yPosition + 8);
+    
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Name: ${invoiceData.vendorName}`, 25, yPosition + 15);
+    pdf.text(`Email: ${invoiceData.vendorEmail}`, 25, yPosition + 21);
+    pdf.text(`Period: ${invoiceData.dateRange}`, 25, yPosition + 27);
+    
+    // Invoice Details (Right side)
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    const invoiceNumber = `INV-${new Date().getTime().toString().slice(-6)}`;
+    pdf.text(`Invoice #: ${invoiceNumber}`, pageWidth - 25, yPosition + 8, { align: "right" });
+    pdf.text(`Date: ${new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}`, pageWidth - 25, yPosition + 14, { align: "right" });
+    
+    yPosition += 40;
+
+    // Summary Section with Box
+    pdf.setFillColor(245, 245, 245);
+    pdf.rect(20, yPosition, pageWidth - 40, 25, 'F');
+    
+    pdf.setFontSize(14);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Summary", 25, yPosition + 10);
+    
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Total Revenue:`, 25, yPosition + 18);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`₹${invoiceData.totalRevenue.toLocaleString("en-IN")}`, 80, yPosition + 18);
+    
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Total Bookings:`, 120, yPosition + 18);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`${invoiceData.totalBookings}`, 170, yPosition + 18);
+    
+    yPosition += 35;
+
+    // Monthly Breakdown Table
+    if (invoiceData.monthlyBreakdown.length > 0) {
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Monthly Breakdown", 20, yPosition);
+      yPosition += 8;
+
+      // Table Header with background
+      pdf.setFillColor(240, 240, 240);
+      pdf.rect(20, yPosition - 5, pageWidth - 40, 8, 'F');
+      
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Month", 25, yPosition);
+      pdf.text("Bookings", 80, yPosition);
+      pdf.text("Revenue (₹)", 130, yPosition);
+      pdf.text("Avg/Booking", 170, yPosition);
+      yPosition += 3;
+
+      // Draw line under header
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(20, yPosition, pageWidth - 20, yPosition);
+      yPosition += 5;
+
+      // Table rows
+      pdf.setFont("helvetica", "normal");
+      let rowCount = 0;
+      invoiceData.monthlyBreakdown.forEach((data) => {
+        if (yPosition > pageHeight - 30) {
+          pdf.addPage();
+          yPosition = 20;
+          // Redraw header on new page
+          pdf.setFillColor(240, 240, 240);
+          pdf.rect(20, yPosition - 5, pageWidth - 40, 8, 'F');
+          pdf.setFont("helvetica", "bold");
+          pdf.text("Month", 25, yPosition);
+          pdf.text("Bookings", 80, yPosition);
+          pdf.text("Revenue (₹)", 130, yPosition);
+          pdf.text("Avg/Booking", 170, yPosition);
+          yPosition += 8;
+        }
+        
+        // Alternate row colors
+        if (rowCount % 2 === 0) {
+          pdf.setFillColor(250, 250, 250);
+          pdf.rect(20, yPosition - 4, pageWidth - 40, 6, 'F');
+        }
+        
+        const avgBooking = data.bookings > 0 ? (data.revenue / data.bookings) : 0;
+        
+        pdf.setFont("helvetica", "normal");
+        pdf.text(data.month, 25, yPosition);
+        pdf.text(data.bookings.toString(), 80, yPosition);
+        pdf.text(`₹${data.revenue.toLocaleString("en-IN")}`, 130, yPosition);
+        pdf.text(`₹${avgBooking.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, 170, yPosition);
+        
+        // Draw row separator
+        pdf.setDrawColor(230, 230, 230);
+        pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2);
+        
+        yPosition += 6;
+        rowCount++;
+      });
+      
+      // Draw bottom border
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(20, yPosition - 2, pageWidth - 20, yPosition - 2);
+      yPosition += 5;
+    }
+
+    // Total Section
+    if (yPosition > pageHeight - 40) {
+      pdf.addPage();
+      yPosition = 20;
+    }
+    
+    pdf.setFillColor(245, 245, 245);
+    pdf.rect(pageWidth - 80, yPosition, 60, 15, 'F');
+    
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("TOTAL:", pageWidth - 75, yPosition + 7);
+    pdf.text(`₹${invoiceData.totalRevenue.toLocaleString("en-IN")}`, pageWidth - 25, yPosition + 7, { align: "right" });
+    
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Bookings: ${invoiceData.totalBookings}`, pageWidth - 75, yPosition + 13);
+    
+    yPosition += 25;
+
+    // Footer
+    if (yPosition > pageHeight - 30) {
+      pdf.addPage();
+      yPosition = pageHeight - 20;
+    } else {
+      yPosition = pageHeight - 20;
+    }
+    
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(20, yPosition - 5, pageWidth - 20, yPosition - 5);
+    
+    pdf.setFontSize(8);
+    pdf.setFont("helvetica", "italic");
+    pdf.setTextColor(128, 128, 128);
+    pdf.text(
+      `This is a computer-generated invoice. Generated on ${new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      })}`,
+      pageWidth / 2,
+      yPosition,
+      { align: "center" }
+    );
+    
+    pdf.setTextColor(0, 0, 0);
+
+    // Save PDF
+    pdf.save(`invoice_${invoiceData.period}_${new Date().getTime()}.pdf`);
+    setShowInvoiceDropdown(false);
+  };
 
   const statCards = [
     {
@@ -221,34 +458,27 @@ export default function VendorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header Section with Gradient */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 shadow-2xl">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-          <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="w-full bg-transparent">
+      <div className="w-full space-y-6">
+        {/* Header Section */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
-                <h1 className="text-3xl lg:text-4xl font-bold text-white">
-                  Welcome back, {vendor?.name || "Vendor"}!
-                </h1>
-              </div>
-              <p className="text-indigo-100 text-sm lg:text-base">
+              <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900">
+                Welcome back, {vendor?.name || "Vendor"}!
+              </h1>
+              <p className="text-gray-600 text-sm lg:text-base">
                 Your business is growing! Here's your performance overview.
               </p>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="px-5 py-3 bg-white/20 backdrop-blur-lg rounded-2xl border border-white/30 shadow-lg">
+              <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-white" />
+                  <Calendar className="w-5 h-5 text-gray-600" />
                   <div>
-                    <p className="text-xs text-indigo-100">Today</p>
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-xs text-gray-500">Today</p>
+                    <p className="text-sm font-semibold text-gray-900">
                       {new Date().toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -258,29 +488,64 @@ export default function VendorDashboard() {
                   </div>
                 </div>
               </div>
+              
+              {/* Invoice Download Button */}
+              <div className="relative invoice-dropdown-container">
+                <button
+                  onClick={() => setShowInvoiceDropdown(!showInvoiceDropdown)}
+                  className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Invoice
+                </button>
+                
+                {showInvoiceDropdown && (
+                  <div className="absolute right-0 top-12 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                    <button
+                      onClick={() => handleDownloadInvoice("monthly")}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-sm"
+                    >
+                      <FileText className="w-4 h-4 text-gray-600" />
+                      <div>
+                        <p className="font-medium text-gray-900">Monthly Invoice</p>
+                        <p className="text-xs text-gray-500">Current month</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleDownloadInvoice("yearly")}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-sm border-t border-gray-100"
+                    >
+                      <FileText className="w-4 h-4 text-gray-600" />
+                      <div>
+                        <p className="font-medium text-gray-900">Yearly Invoice</p>
+                        <p className="text-xs text-gray-500">Full year</p>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Main Revenue Card with Glassmorphism */}
-        <Card className="relative overflow-hidden border-0 bg-white/80 backdrop-blur-xl shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5"></div>
-          <CardContent className="relative p-6 lg:p-8">
+        {/* Main Revenue Card */}
+        <Card className="border border-gray-200 bg-white shadow-sm">
+          <CardContent className="p-6 lg:p-8">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
-                    <DollarSign className="w-5 h-5 text-white" />
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-gray-700" />
                   </div>
                   <p className="text-gray-600 text-sm font-semibold">Total Revenue</p>
                 </div>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  <span className="text-5xl lg:text-6xl font-bold text-gray-900">
                     ₹{stats.totalRevenue.toLocaleString("en-IN")}
                   </span>
-                  <span className={`text-sm font-bold flex items-center gap-1 px-3 py-1.5 rounded-xl ${isPositiveGrowth
-                      ? "text-emerald-700 bg-emerald-100"
-                      : "text-red-700 bg-red-100"
+                  <span className={`text-sm font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg ${isPositiveGrowth
+                      ? "text-emerald-700 bg-emerald-50"
+                      : "text-red-700 bg-red-50"
                     }`}>
                     {isPositiveGrowth ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                     {isPositiveGrowth ? "+" : ""}{growthPercentage}%
@@ -303,68 +568,86 @@ export default function VendorDashboard() {
               </div>
             </div>
 
-            {/* Enhanced Monthly Revenue Chart */}
+            {/* Enhanced Monthly Performance Graph */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-gray-700">Monthly Performance</p>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+                    <div className="w-3 h-3 rounded bg-gray-700"></div>
                     <span>Bookings</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded bg-gray-400"></div>
+                    <span>Revenue</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-end justify-between h-32 gap-2">
-                {monthlyData.map((data, i) => {
-                  const height = maxBookings > 0
-                    ? (data.bookings / maxBookings) * 100
-                    : 0;
-                  const isCurrentMonth = i === currentMonth;
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 relative group"
-                    >
-                      <div
-                        className={`w-full rounded-t-xl transition-all duration-500 cursor-pointer ${isCurrentMonth
-                            ? "bg-gradient-to-t from-indigo-600 to-purple-600 shadow-lg"
-                            : "bg-gradient-to-t from-indigo-400 to-purple-400 hover:from-indigo-600 hover:to-purple-600"
-                          }`}
-                        style={{ height: `${Math.max(height, 8)}%` }}
-                      >
-                        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl z-10">
-                          <p className="font-semibold">{data.month}</p>
-                          <p>{data.bookings} bookings</p>
-                          <p>₹{data.revenue.toLocaleString("en-IN")}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex items-center justify-between text-xs text-gray-400 px-1">
-                {monthlyData.map((data, i) => (
-                  <span key={i} className="flex-1 text-center">{data.month}</span>
-                ))}
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={monthlyData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="#6b7280"
+                      style={{ fontSize: '11px' }}
+                      tick={{ fill: '#6b7280' }}
+                    />
+                    <YAxis 
+                      stroke="#6b7280"
+                      style={{ fontSize: '11px' }}
+                      tick={{ fill: '#6b7280' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '6px',
+                        padding: '8px',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                      }}
+                      formatter={(value: any, name: string) => {
+                        if (name === 'bookings') {
+                          return [`${value} bookings`, 'Bookings'];
+                        }
+                        return [`₹${value.toLocaleString('en-IN')}`, 'Revenue'];
+                      }}
+                    />
+                    <Bar 
+                      dataKey="bookings" 
+                      fill="#374151" 
+                      radius={[4, 4, 0, 0]}
+                      name="Bookings"
+                    />
+                    <Bar 
+                      dataKey="revenue" 
+                      fill="#9ca3af" 
+                      radius={[4, 4, 0, 0]}
+                      name="Revenue"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Enhanced Stats Grid */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <Card
                 key={index}
-                className="group relative overflow-hidden border-0 bg-white shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-50`}></div>
-                <CardContent className="relative p-6">
+                <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-2xl shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
-                      <Icon className={`w-6 h-6 ${stat.iconColor}`} />
+                    <div className="p-3 bg-gray-100 rounded-lg">
+                      <Icon className="w-6 h-6 text-gray-700" />
                     </div>
                     <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                       {stat.change}
@@ -384,11 +667,11 @@ export default function VendorDashboard() {
         {/* Bottom Grid - Enhanced Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* User Bookings Card */}
-          <Card className="border-0 bg-white shadow-xl hover:shadow-2xl transition-all">
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-indigo-600" />
+                  <Users className="w-5 h-5 text-gray-700" />
                   User Bookings
                 </CardTitle>
                 <Target className="w-5 h-5 text-gray-400" />
@@ -396,11 +679,11 @@ export default function VendorDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-end gap-2">
-                  <span className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{stats.bookings}</span>
+                  <div className="flex items-end gap-2">
+                  <span className="text-5xl font-bold text-gray-900">{stats.bookings}</span>
                   <span className={`text-sm font-bold mb-2 px-3 py-1 rounded-lg flex items-center gap-1 ${isPositiveGrowth
-                      ? "text-emerald-700 bg-emerald-100"
-                      : "text-red-700 bg-red-100"
+                      ? "text-emerald-700 bg-emerald-50"
+                      : "text-red-700 bg-red-50"
                     }`}>
                     {isPositiveGrowth ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {isPositiveGrowth ? "+" : ""}{growthPercentage}%
@@ -408,15 +691,15 @@ export default function VendorDashboard() {
                 </div>
                 <p className="text-xs text-gray-500">Total bookings on your packages</p>
 
-                {/* Enhanced Progress Bar */}
+                {/* Progress Bar */}
                 <div className="space-y-2 pt-2">
                   <div className="flex justify-between text-xs text-gray-600">
                     <span className="font-medium">Booking Rate</span>
-                    <span className="font-bold text-indigo-600">{bookingRate}%</span>
+                    <span className="font-bold text-gray-900">{bookingRate}%</span>
                   </div>
                   <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-1000 shadow-lg"
+                      className="h-full bg-gray-600 rounded-full transition-all duration-1000"
                       style={{ width: `${Math.min(parseFloat(bookingRate), 100)}%` }}
                     ></div>
                   </div>
@@ -426,25 +709,25 @@ export default function VendorDashboard() {
           </Card>
 
           {/* Performance Card */}
-          <Card className="border-0 bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-xl hover:shadow-2xl transition-all">
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2 text-gray-900">
+                <BarChart3 className="w-5 h-5 text-gray-700" />
                 Performance Metrics
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-white/20 backdrop-blur-lg rounded-xl border border-white/30">
-                <span className="text-sm font-medium">Total Offerings</span>
-                <span className="text-2xl font-bold">{totalOfferings}</span>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <span className="text-sm font-medium text-gray-700">Total Offerings</span>
+                <span className="text-2xl font-bold text-gray-900">{totalOfferings}</span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-white/20 backdrop-blur-lg rounded-xl border border-white/30">
-                <span className="text-sm font-medium">Booking Rate</span>
-                <span className="text-2xl font-bold">{bookingRate}%</span>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <span className="text-sm font-medium text-gray-700">Booking Rate</span>
+                <span className="text-2xl font-bold text-gray-900">{bookingRate}%</span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-white/20 backdrop-blur-lg rounded-xl border border-white/30">
-                <span className="text-sm font-medium">Avg Revenue</span>
-                <span className="text-xl font-bold">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <span className="text-sm font-medium text-gray-700">Avg Revenue</span>
+                <span className="text-xl font-bold text-gray-900">
                   ₹{stats.bookings > 0
                     ? Math.round(stats.totalRevenue / stats.bookings).toLocaleString("en-IN")
                     : "0"}
@@ -454,27 +737,27 @@ export default function VendorDashboard() {
           </Card>
 
           {/* Quick Stats Card */}
-          <Card className="border-0 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl hover:shadow-2xl transition-all">
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2 text-gray-900">
+                <Sparkles className="w-5 h-5 text-gray-700" />
                 Quick Insights
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="p-4 bg-white/20 backdrop-blur-lg rounded-xl border border-white/30">
-                <p className="text-xs text-emerald-100 mb-1">Most Active Category</p>
-                <p className="text-xl font-bold">{getMostActiveCategory()}</p>
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1">Most Active Category</p>
+                <p className="text-xl font-bold text-gray-900">{getMostActiveCategory()}</p>
               </div>
-              <div className="p-4 bg-white/20 backdrop-blur-lg rounded-xl border border-white/30">
-                <p className="text-xs text-emerald-100 mb-1">This Month</p>
-                <p className="text-xl font-bold">
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1">This Month</p>
+                <p className="text-xl font-bold text-gray-900">
                   {monthlyData[currentMonth]?.bookings || 0} Bookings
                 </p>
               </div>
-              <div className="p-4 bg-white/20 backdrop-blur-lg rounded-xl border border-white/30">
-                <p className="text-xs text-emerald-100 mb-1">Monthly Revenue</p>
-                <p className="text-xl font-bold">
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1">Monthly Revenue</p>
+                <p className="text-xl font-bold text-gray-900">
                   ₹{(monthlyData[currentMonth]?.revenue || 0).toLocaleString("en-IN")}
                 </p>
               </div>
@@ -482,95 +765,185 @@ export default function VendorDashboard() {
           </Card>
         </div>
 
-        {/* Enhanced Monthly Activity Chart */}
-        <Card className="border-0 bg-white shadow-xl">
+        {/* Enhanced Booking Graph with Recharts */}
+        <Card className="border border-gray-200 bg-white shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
-                  <Activity className="w-5 h-5 text-white" />
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <BarChart3 className="w-5 h-5 text-gray-700" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-bold text-gray-900">
-                    Monthly Bookings Overview
+                  <CardTitle className="text-lg font-semibold text-gray-900">
+                    Booking Trends Graph
                   </CardTitle>
-                  <p className="text-xs text-gray-500 mt-1">Track your booking trends throughout the year</p>
+                  <p className="text-xs text-gray-500 mt-1">Visual representation of bookings and revenue throughout the year</p>
                 </div>
               </div>
-              <div className="px-4 py-2 bg-indigo-50 rounded-xl">
-                <p className="text-xs font-semibold text-indigo-600">{new Date().getFullYear()}</p>
+              <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-xs font-semibold text-gray-700">{new Date().getFullYear()}</p>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end justify-between gap-3 pb-2">
-              {monthlyData.map((data, i) => {
-                const height = maxBookings > 0
-                  ? (data.bookings / maxBookings) * 100
-                  : 0;
-                const isCurrentMonth = i === currentMonth;
-                return (
-                  <div key={data.month} className="flex flex-col items-center gap-2 flex-1 min-w-0">
-                    <div className="w-full h-40 bg-gradient-to-t from-gray-100 to-gray-50 rounded-xl relative overflow-hidden group cursor-pointer">
-                      <div
-                        className={`absolute bottom-0 left-0 right-0 rounded-t-xl transition-all duration-700 ${isCurrentMonth
-                            ? "bg-gradient-to-t from-indigo-600 to-purple-600 shadow-lg"
-                            : "bg-gradient-to-t from-indigo-400 to-purple-400 group-hover:from-indigo-600 group-hover:to-purple-600"
-                          }`}
-                        style={{ height: `${Math.max(height, 8)}%` }}
-                      ></div>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="text-center bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
-                          <span className="text-xs font-bold text-gray-900 block">{data.bookings}</span>
-                          <span className="text-xs text-gray-600">bookings</span>
-                        </div>
-                      </div>
-                    </div>
-                    <span className={`text-xs font-semibold ${isCurrentMonth ? 'text-indigo-600' : 'text-gray-500'}`}>
-                      {data.month}
-                    </span>
-                  </div>
-                );
-              })}
+            <div className="space-y-4">
+              {/* Recharts Bar Chart */}
+              <div className="w-full h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={monthlyData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis 
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '10px'
+                      }}
+                      formatter={(value: any, name: string) => {
+                        if (name === 'bookings') {
+                          return [`${value} bookings`, 'Bookings'];
+                        }
+                        return [`₹${value.toLocaleString('en-IN')}`, 'Revenue'];
+                      }}
+                    />
+                    <Legend 
+                      wrapperStyle={{ paddingTop: '20px' }}
+                      formatter={(value) => {
+                        if (value === 'bookings') return 'Bookings';
+                        if (value === 'revenue') return 'Revenue (₹)';
+                        return value;
+                      }}
+                    />
+                    <Bar 
+                      dataKey="bookings" 
+                      fill="#374151" 
+                      radius={[4, 4, 0, 0]}
+                      name="bookings"
+                    />
+                    <Bar 
+                      dataKey="revenue" 
+                      fill="#9ca3af" 
+                      radius={[4, 4, 0, 0]}
+                      name="revenue"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Line Chart for Trend */}
+              <div className="w-full h-64 mt-6">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={monthlyData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis 
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '10px'
+                      }}
+                      formatter={(value: any, name: string) => {
+                        if (name === 'bookings') {
+                          return [`${value} bookings`, 'Bookings'];
+                        }
+                        return [`₹${value.toLocaleString('en-IN')}`, 'Revenue'];
+                      }}
+                    />
+                    <Legend 
+                      wrapperStyle={{ paddingTop: '10px' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="bookings" 
+                      stroke="#374151" 
+                      strokeWidth={3}
+                      dot={{ fill: '#374151', r: 4 }}
+                      activeDot={{ r: 6 }}
+                      name="Bookings Trend"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#9ca3af" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ fill: '#9ca3af', r: 4 }}
+                      name="Revenue Trend"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              
+              {/* Summary Stats */}
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Peak Month</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {monthlyData.reduce((max, data) => data.bookings > max.bookings ? data : max, monthlyData[0])?.month || "N/A"}
+                  </p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Total Bookings</p>
+                  <p className="text-sm font-bold text-gray-900">{stats.bookings}</p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Avg/Month</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {Math.round(stats.bookings / 12)}
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Bottom Stats Row with Gradients */}
+        {/* Bottom Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative overflow-hidden p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 group-hover:from-blue-500/20 group-hover:to-indigo-500/20 transition-all"></div>
-            <div className="relative">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Total Revenue</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                ₹{stats.totalRevenue.toLocaleString("en-IN")}
-              </p>
-            </div>
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
+            <p className="text-sm text-gray-600 mb-2 font-medium">Total Revenue</p>
+            <p className="text-3xl font-bold text-gray-900">
+              ₹{stats.totalRevenue.toLocaleString("en-IN")}
+            </p>
           </div>
-          <div className="relative overflow-hidden p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 group-hover:from-purple-500/20 group-hover:to-pink-500/20 transition-all"></div>
-            <div className="relative">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Total Bookings</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                {stats.bookings}
-              </p>
-            </div>
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
+            <p className="text-sm text-gray-600 mb-2 font-medium">Total Bookings</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {stats.bookings}
+            </p>
           </div>
-          <div className="relative overflow-hidden p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all group">
-            <div className={`absolute inset-0 ${isPositiveGrowth
-                ? "bg-gradient-to-br from-emerald-500/10 to-teal-500/10 group-hover:from-emerald-500/20 group-hover:to-teal-500/20"
-                : "bg-gradient-to-br from-red-500/10 to-orange-500/10 group-hover:from-red-500/20 group-hover:to-orange-500/20"
-              } transition-all`}></div>
-            <div className="relative">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Growth Rate</p>
-              <p className={`text-3xl font-bold flex items-center gap-2 ${isPositiveGrowth
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
-                  : "bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent"
-                }`}>
-                {isPositiveGrowth ? <TrendingUp className="w-6 h-6 text-emerald-600" /> : <TrendingDown className="w-6 h-6 text-red-600" />}
-                {isPositiveGrowth ? "+" : ""}{growthPercentage}%
-              </p>
-            </div>
+          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
+            <p className="text-sm text-gray-600 mb-2 font-medium">Growth Rate</p>
+            <p className={`text-3xl font-bold flex items-center gap-2 ${isPositiveGrowth
+                ? "text-emerald-600"
+                : "text-red-600"
+              }`}>
+              {isPositiveGrowth ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
+              {isPositiveGrowth ? "+" : ""}{growthPercentage}%
+            </p>
           </div>
         </div>
       </div>

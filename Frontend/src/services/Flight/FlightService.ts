@@ -16,22 +16,16 @@ export const addFlight = async (data: Flight) => {
 export const fetchAllFlights = async (): Promise<Flight[]> => {
   try {
     const res = await axiosInstance.get("/api/vendor/flights");
-    console.log("Flight service response:", res.data);
-
-    // Backend returns { success: true, data: { flights: FlightDto[] } }
-    // Based on GetAllFlightUsecase.execute() which returns { flights: FlightDto[] }
+   
     if (res.data?.data?.flights && Array.isArray(res.data.data.flights)) {
       return res.data.data.flights;
     }
-    // Fallback: try direct data array
     if (Array.isArray(res.data?.data)) {
       return res.data.data;
     }
-    // Fallback: try flights at root
     if (Array.isArray(res.data?.flights)) {
       return res.data.flights;
     }
-    // Fallback: try message/messege (typo support)
     if (Array.isArray(res.data?.message?.flights)) {
       return res.data.message.flights;
     }
@@ -58,9 +52,7 @@ export const fetchAllFlights = async (): Promise<Flight[]> => {
 export const updateFlight = async (id: string, data: Flight) => {
   try {
     const res = await axiosInstance.put(`/api/vendor/flights/${id}`, data);
-    console.log("Update flight response:", res.data);
-    
-    // Backend returns { success: true, message: "...", data: Flight }
+   
     return res.data?.data || res.data;
   } catch (error) {
     if (isAxiosError(error)) {

@@ -1,4 +1,4 @@
-import { CategoryDto } from "../../dto/category/CategoryDto";
+import { CategoryDto } from "../../dto/Category/CategoryDto";
 import { Category } from "../../entities/CategoryEntity";
 
 export interface IEditCategoryUsecase {

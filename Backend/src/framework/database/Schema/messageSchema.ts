@@ -20,7 +20,7 @@ export const messageSchema = new Schema({
     },
     senderId: {
         type: String,
-        refPath: 'Role'
+        refPath: 'senderType'
     },
     senderType: {
         type: String,
@@ -33,8 +33,53 @@ export const messageSchema = new Schema({
     },
     receiverId: {
         type: String,
-        refPath: 'Role',
+        refPath: 'senderType',
         required: false
+    },
+    messageType: {
+        type: String,
+        enum: ['text', 'image', 'voice', 'file'],
+        default: 'text'
+    },
+    deliveryStatus: {
+        type: String,
+        enum: ['sending', 'sent', 'delivered', 'read'],
+        default: 'sent'
+    },
+    fileUrl: {
+        type: String,
+        required: false
+    },
+    fileName: {
+        type: String,
+        required: false
+    },
+    fileSize: {
+        type: Number,
+        required: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        required: false
+    },
+    replyTo: {
+        messageId: {
+            type: String,
+            ref: 'message',
+            required: false
+        },
+        messageContent: {
+            type: String,
+            required: false
+        },
+        senderName: {
+            type: String,
+            required: false
+        }
     }
 }, {
     timestamps: true

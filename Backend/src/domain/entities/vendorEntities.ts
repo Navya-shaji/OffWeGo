@@ -1,3 +1,5 @@
+import { Role } from "../constants/Roles";
+
 export interface Vendor {
   _id?: string;
   name: string;
@@ -8,7 +10,7 @@ export interface Vendor {
   documentUrl: string;
   createdAt?: Date;
   status?: "pending" | "approved" | "rejected" | "active";
-  role?: "Vendor";
+  role?: Role.VENDOR;
   lastLogin?: Date;
   isAdmin?: boolean;
   googleVerified?: boolean;

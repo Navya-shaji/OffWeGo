@@ -8,6 +8,7 @@ import PaymentFailureModal from "@/pages/Vendors/Bookings/BookingFailed";
 import NotFound from "@/components/Modular/NotFound";
 import PaymentSuccess from "@/pages/Vendors/Bookings/subscriptionSuccesspage";
 import ChatPage from "@/pages/User/chat/chat";
+import VendorSubscriptionHistory from "@/pages/Vendors/Subscription/SubscriptionHistory";
 
 
 
@@ -31,6 +32,15 @@ const VendorRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/subscription/history"
+        element={
+          <ProtectedRoute>
+            <VendorSubscriptionHistory />
           </ProtectedRoute>
         }
       />

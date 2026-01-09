@@ -1,4 +1,6 @@
 export interface NotificationDto {
+  id?: string;
+  _id?: string;
   recipientId: string;
   recipientType: "user" | "vendor" ;
   title: string;

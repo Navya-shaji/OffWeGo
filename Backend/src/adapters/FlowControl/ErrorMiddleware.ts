@@ -12,18 +12,6 @@ export const errorMiddleware = (
   try {
     const statusCode = err instanceof AppError ? err.statusCode : 500;
 
-    console.log("");
-    console.log(color.red(color.bold("🔥 ERROR OCCURRED")));
-    console.log(color.yellow("Message: ") + err.message);
-    console.log(color.yellow("Status: ") + statusCode);
-    console.log(color.yellow("Path: ") + req.originalUrl);
-    console.log(color.yellow("Method: ") + req.method);
-    console.log(color.yellow("Body: ") + JSON.stringify(req.body));
-    console.log(color.yellow("Query: ") + JSON.stringify(req.query));
-    console.log(color.yellow("Params: ") + JSON.stringify(req.params));
-    console.log(color.gray("Stack: ") + (err.stack || "No stack trace"));
-    console.log("");
-
     logErrorToFile({
       message: err.message,
       stack: err.stack,

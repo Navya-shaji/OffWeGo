@@ -3,9 +3,10 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { CreateSubscriptionUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { IEditSubscriptionusecase } from "../../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/createsubscriptionDto";
+import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/CreatesubscriptionDto";
 import { IDeleteSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IDeletesubscription";
 import { IGetSubscriptionBookingUseCase } from "../../../domain/interface/SubscriptionPlan/IGetAllSubscriptionBookingUsecase";
+import { IGetVendorSubscriptionHistoryUseCase } from "../../../domain/interface/SubscriptionPlan/IGetVendorHistory";
 
 export class SubscriptionController {
   constructor(
@@ -13,7 +14,8 @@ export class SubscriptionController {
     private _getSubscriptionsUsecase: IGetSubscriptionUsecase,
     private _editSubscriptionUsecase: IEditSubscriptionusecase,
     private _deleteSubscriptionUsecase: IDeleteSubscriptionUsecase,
-    private _getSubscriptionBookingsUsecase: IGetSubscriptionBookingUseCase
+    private _getSubscriptionBookingsUsecase: IGetSubscriptionBookingUseCase,
+    private _getVendorSubscriptionHistoryUsecase: IGetVendorSubscriptionHistoryUseCase
   ) {}
 
   async createSubscription(req: Request, res: Response) {
@@ -124,6 +126,34 @@ export class SubscriptionController {
         success: false,
         message: "Failed to fetch subscription bookings",
         error,
+      });
+    }
+  }
+
+  async getVendorSubscriptionHistory(req: Request, res: Response) {
+    try {
+      const vendorId = req.user?.id || req.user?._id;
+      
+      if (!vendorId) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "Vendor ID not found in authentication token",
+        });
+      }
+
+      const result = await this._getVendorSubscriptionHistoryUsecase.execute(vendorId);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Vendor subscription history fetched successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching vendor subscription history:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch vendor subscription history",
+        error: (error as Error).message,
       });
     }
   }

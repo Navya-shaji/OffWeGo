@@ -8,7 +8,7 @@ function Home() {
     <div className="Homepage">
       <Header />
       <Banner />
-      <Destinations id="destinations" />
+      <Destinations />
       <Footer />
     </div>
   );

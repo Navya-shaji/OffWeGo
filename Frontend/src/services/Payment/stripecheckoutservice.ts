@@ -13,9 +13,12 @@ export interface SubscriptionBookingPayload {
 }
 
 export interface SubscriptionBookingResponse {
-  success: boolean;
-  sessionId: string;
-  url: string;
+  success?: boolean;
+  sessionId?: string;
+  url?: string;
+  checkoutUrl?: string;
+  bookingId?: string;
+  qrCode?: string;
   message?: string;
 }
 
@@ -39,7 +42,7 @@ export const createSubscriptionBooking = async (
 ): Promise<SubscriptionBookingResponse> => {
   try {
     const response = await axiosInstance.post(
-      'api/vendor/subscription-booking',
+      '/api/vendor/subscription-booking',
       payload,
       {
         headers: {
@@ -66,10 +69,10 @@ export const verifyPaymentAndCreateBooking = async (
 ) => {
   try {
     const response = await axiosInstance.post(
-      'api/vendor/subscription/verify-payment',
+      '/api/vendor/subscription/verify-payment',
       payload
     );
-console.log(response.data,"verify")
+
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

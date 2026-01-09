@@ -13,7 +13,6 @@ interface CancelBookingModalProps {
 export const CancelBookingModal: React.FC<CancelBookingModalProps> = ({
   open,
   onClose,
-  bookingId,
   onConfirm,
 }) => {
   const [reason, setReason] = useState("");
@@ -42,8 +41,8 @@ export const CancelBookingModal: React.FC<CancelBookingModalProps> = ({
       setError("");
       await onConfirm(reason.trim());
       handleClose();
-    } catch (err: any) {
-      setError(err?.message || "Failed to cancel booking");
+    } catch {
+      setError("Failed to cancel booking");
     } finally {
       setLoading(false);
     }

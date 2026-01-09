@@ -9,7 +9,6 @@ export const addPackage = async (data: Package) => {
   try {
     const state = store.getState();
     const vendorId = state.vendorAuth?.vendor?.id;
-    console.log("Vendor ID:", vendorId);
     const payload = {
       ...data,
       vendorId,
@@ -18,16 +17,13 @@ export const addPackage = async (data: Package) => {
       flightOption: data.flightOption,
     };
 
-    console.log("Submitting package payload:", payload);
 
     const res = await axiosInstance.post("/api/vendor/add-Package", payload);
 
-    console.log("Server response:", res.data);
 
     return res.data.packages;
   } catch (error) {
-    console.error("Catch block error:", error);
-    console.log("error vanneeee");
+    
     if (isAxiosError(error)) {
       const msg =
         error.response?.data?.message ||
@@ -59,7 +55,6 @@ export const fetchAllPackages = async (
     });
 
     const { packages, totalPackages, totalPages, currentPage } = res.data;
-    console.log(packages, "service");
 
     if (!Array.isArray(packages)) {
       return {
@@ -89,7 +84,6 @@ export const fetchAllPackages = async (
 export const editPackage = async (id: string, data: Package) => {
   try {
     const res = await axiosInstance.put(`/api/vendor/packages/${id}`, data);
-    console.log(res.data, "frontemd");
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -116,9 +110,15 @@ export const deletePackage = async (id: string): Promise<void> => {
 };
 
 export const searchPackages = async (query: string) => {
-  const response = await axiosInstance.get("/api/vendor/packages/search", {
-    params: { q: query },
-  });
+  const state = store.getState();
+  const isVendor = Boolean(state.vendorAuth?.vendor);
+
+  const response = await axiosInstance.get(
+    isVendor ? "/api/vendor/packages/search" : "/api/packages/search",
+    {
+      params: { q: query },
+    }
+  );
 
   return response.data.packages;
 };

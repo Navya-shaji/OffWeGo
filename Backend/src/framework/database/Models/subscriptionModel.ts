@@ -1,5 +1,5 @@
 import { Document, model, ObjectId } from "mongoose";
-import { ISubscriptionPlan } from "../../../domain/entities/subscriptionplan";
+import { ISubscriptionPlan } from "../../../domain/entities/Subscriptionplan";
 import { SubscriptionPlanSchema } from "../Schema/subscriptionSchema";
 
 

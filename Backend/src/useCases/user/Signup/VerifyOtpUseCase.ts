@@ -1,4 +1,4 @@
-import { User } from "../../../domain/entities/userEntity";
+import { User } from "../../../domain/entities/UserEntity";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
 import { IOtpService } from "../../../domain/interface/ServiceInterface/Iotpservice";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";

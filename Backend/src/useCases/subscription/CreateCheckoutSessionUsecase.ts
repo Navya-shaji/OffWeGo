@@ -1,4 +1,4 @@
-import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/createCheckoutSessionDto";
+import { CreateCheckoutSessionDTO } from "../../domain/dto/Subscription/CreateCheckoutSessionDto";
 import { IStripeService } from "../../domain/interface/Payment/IStripeservice";
 import { ICreateCheckoutSessionUseCase } from "../../domain/interface/SubscriptionPlan/ICreateCheckoutSessionUsecase";
 
@@ -16,7 +16,7 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
 
     return {
       success: true,
-      url: session.url,
+      url: session.checkoutUrl,
       message: `Checkout session created for plan: ${planName}`,
     };
   }

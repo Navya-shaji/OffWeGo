@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Slider from "react-slick";
 import { getBanner } from "@/services/Banner/bannerService";
 import { Button } from "@/components/ui/button";
 import type { BannerInterface } from "@/interface/bannerInterface";
+import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -41,7 +42,7 @@ const Banner: React.FC = () => {
     swipe: true,
     swipeToSlide: true,
     draggable: true,
-    beforeChange: (current: number, next: number) => setCurrentSlide(next),
+    beforeChange: (_current: number, next: number) => setCurrentSlide(next),
     appendDots: (dots: React.ReactNode) => (
       <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20">
         <ul className="flex gap-2">{dots}</ul>
@@ -57,6 +58,15 @@ const Banner: React.FC = () => {
   };
 
   const activeBanners = banners.filter((b) => b.action);
+
+  const scrollToSection = useCallback((id: string, fallbackPath?: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else if (fallbackPath) {
+      window.location.href = fallbackPath;
+    }
+  }, []);
 
   return (
     <section className="relative h-screen bg-black overflow-hidden">
@@ -75,7 +85,13 @@ const Banner: React.FC = () => {
                   preload="auto"
                   controls={false}
                 >
-                  <source src={banner.Banner_video_url} type="video/mp4" />
+                  <source
+                    src={
+                      resolveCloudinaryUrl(banner.Banner_video_url, "video") ??
+                      banner.Banner_video_url
+                    }
+                    type="video/mp4"
+                  />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -91,7 +107,13 @@ const Banner: React.FC = () => {
             preload="auto"
             controls={false}
           >
-            <source src={activeBanners[0].Banner_video_url} type="video/mp4" />
+            <source
+              src={
+                resolveCloudinaryUrl(activeBanners[0].Banner_video_url, "video") ??
+                activeBanners[0].Banner_video_url
+              }
+              type="video/mp4"
+            />
             Your browser does not support the video tag.
           </video>
         ) : (
@@ -105,11 +127,11 @@ const Banner: React.FC = () => {
           </div>
         )}
         
-        {/* Dark Overlay */}
+   
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
       </div>
 
-      {/* Content */}
+
       <div className="relative z-10 h-full flex items-center">
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-4xl">
@@ -118,28 +140,29 @@ const Banner: React.FC = () => {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              {/* Subtitle */}
+         
               <div className="mb-6">
                 <span className="inline-block text-sm font-semibold tracking-[0.3em] text-white/80 uppercase border border-white/30 px-6 py-2 backdrop-blur-sm">
                   Discover the World
                 </span>
               </div>
 
-              {/* Main Heading */}
               <h1 className="text-6xl md:text-8xl lg:text-9xl font-light text-white mb-6 tracking-tight leading-none">
                 Wander
                 <span className="block font-bold">Beyond</span>
               </h1>
 
-              {/* Description */}
               <p className="text-lg md:text-xl text-white/90 mb-12 max-w-2xl leading-relaxed font-light">
                 Embark on extraordinary journeys to breathtaking destinations. 
                 Every adventure tells a story, every moment becomes a memory.
               </p>
 
-              {/* CTA Buttons */}
+       
               <div className="flex flex-wrap gap-4">
-                <Button className="group relative px-8 py-6 bg-white text-black font-semibold overflow-hidden transition-all duration-300 hover:scale-105 rounded-none">
+                <Button
+                  onClick={() => scrollToSection("destinations", "/destinations")}
+                  className="group relative px-8 py-6 bg-white text-black font-semibold overflow-hidden transition-all duration-300 hover:scale-105 rounded-none"
+                >
                   <span className="relative z-10">Explore Destinations</span>
                   <div className="absolute inset-0 bg-black transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                   <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
@@ -147,16 +170,13 @@ const Banner: React.FC = () => {
                   </span>
                 </Button>
                 
-                <Button className="px-8 py-6 border-2 border-white text-white font-semibold backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-300 rounded-none bg-transparent">
-                  Learn More
-                </Button>
+      
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
       <div className="absolute bottom-12 right-12 z-20">
         <div className="flex flex-col items-center gap-2 text-white/60">
           <span className="text-xs font-semibold tracking-widest uppercase rotate-90 origin-center mb-8">
@@ -168,7 +188,7 @@ const Banner: React.FC = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes scroll-down {
           0% { transform: translateY(-100%); }
           100% { transform: translateY(200%); }

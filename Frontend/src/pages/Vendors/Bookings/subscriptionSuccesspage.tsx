@@ -32,18 +32,15 @@ const PaymentSuccess = () => {
           planId,
         });
 
-        console.log("Payment verification response:", response);
 
         if (response.success) {
           setStatus("success");
           setMessage("Payment verified successfully! Redirecting to dashboard...");
           toast.success("Subscription activated successfully!");
           
-          // Clear localStorage items
           localStorage.removeItem("vendorId");
           localStorage.removeItem("selectedPlanId");
           
-          // Navigate to vendor profile (dashboard)
           setTimeout(() => {
             navigate("/vendor/profile");
           }, 2000);
@@ -52,14 +49,13 @@ const PaymentSuccess = () => {
           setMessage(response.message || "Payment verification failed");
           toast.error(response.message || "Payment verification failed");
         }
-      } catch (err: any) {
-        console.error("Payment verification error:", err);
+      } catch  {
+       
         setStatus("error");
-        const errorMessage = err?.response?.data?.message || err?.message || "Error verifying payment";
+        const errorMessage ="Error verifying payment";
         setMessage(errorMessage);
         toast.error(errorMessage);
         
-        // Navigate back to subscription plans after error
         setTimeout(() => {
           navigate("/vendor/subscriptionplans");
         }, 3000);

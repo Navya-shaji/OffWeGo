@@ -7,7 +7,7 @@ export interface IMessageModel extends Omit<IMessage,'_id'>,Document{
     _id: ObjectId;
 }
 
-export const messageModel = model<IMessage>('message',messageSchema)
+export const messageModel = model<IMessageModel>('message',messageSchema)
 
 
 

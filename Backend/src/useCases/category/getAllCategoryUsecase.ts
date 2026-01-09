@@ -1,6 +1,6 @@
 import { mapToCatrgoryDto } from "../../mappers/Category/categoryMappers";
 import { ICategoryRepository } from "../../domain/interface/Category/ICategoryRepository";
-import { CategoryDto } from "../../domain/dto/category/categoryDto";
+import { CategoryDto } from "../../domain/dto/Category/CategoryDto";
 export class GetAllCategories {
     constructor(private _categoryRepo:ICategoryRepository){}
 

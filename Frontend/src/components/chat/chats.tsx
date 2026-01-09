@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck } from "lucide-react";
+import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, X, RotateCcw, Smile } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -7,9 +7,13 @@ import type { RootState } from "@/store/store";
 import { io, Socket } from "socket.io-client";
 import { socketContext } from "@/utilities/socket";
 import { toast } from "react-toastify";
+import { useChatContext } from "@/context/chatContext";
+import EmojiPicker from "emoji-picker-react";
+
+const logo = "/images/logo.png";
 
 interface Contact {
-    _id: string; // Chat ID
+    _id: string; 
     name: string;
     role: string;
     avatar?: string;
@@ -28,8 +32,35 @@ interface ChatMessage {
     messageContent: string;
     sendedTime: Date;
     seen: boolean;
-    messageType?: "text" | "image";
+    messageType?: "text" | "image" | "voice" | "file";
+    deliveryStatus?: "sending" | "sent" | "delivered" | "read";
+    fileUrl?: string;
+    fileName?: string;
+    fileSize?: number;
+    isDeleted?: boolean;
+    deletedAt?: Date;
+    replyTo?: {
+        _id: string;
+        messageContent: string;
+        senderName: string;
+    };
 }
+
+interface TypingUser {
+    userId: string;
+    name: string;
+    isTyping: boolean;
+}
+
+
+const getInitials = (name: string): string => {
+    const trimmed = (name || "").trim();
+    if (!trimmed) return "?";
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] ?? "";
+    const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
+    return (first + last).toUpperCase() || "?";
+};
 
 
 const ChatPage = () => {
@@ -38,37 +69,259 @@ const ChatPage = () => {
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [newMessage, setNewMessage] = useState("");
     const [loading, setLoading] = useState(true);
-    const [sending, setSending] = useState(false);
+    const [sending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showContacts, setShowContacts] = useState(true);
+    const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
+    const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+    const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
+    const [hasMoreMessages, setHasMoreMessages] = useState(true);
+    const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
+    const [deletedMessages, setDeletedMessages] = useState<Map<string, ChatMessage>>(new Map());
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const emojiPickerRef = useRef<HTMLDivElement>(null);
+    const autoScrollRef = useRef(true);
     const navigate = useNavigate();
     const { chatId } = useParams<{ chatId?: string }>();
     const socketRef = useRef<Socket | null>(null);
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
+    const { markChatAsRead } = useChatContext();
+
     const user = useSelector((state: RootState) => state.auth.user);
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
+    const isUserAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const isVendorAuthenticated = useSelector((state: RootState) => state.vendorAuth.isAuthenticated);
 
     const senderId = user?.id || vendor?.id;
     const senderRole = user ? (user.role || "user") : (vendor ? "vendor" : "user");
+
+    const formatTime = (value: Date | string) => {
+        const d = value instanceof Date ? value : new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
+
+    const handleContactSelect = (contact: Contact) => {
+        setSelectedContact(contact);
+        setShowContacts(false);
+        markChatAsRead(contact._id);
+        const base = senderRole === "vendor" ? "/vendor/chat" : "/chat";
+        navigate(`${base}/${contact._id}`);
+    };
+
+    const handleBackToContacts = () => {
+        setShowContacts(true);
+        setSelectedContact(null);
+        const base = senderRole === "vendor" ? "/vendor/chat" : "/chat";
+        navigate(base);
+    };
+
+    const handleReplyToMessage = (msg: ChatMessage) => {
+        setReplyingTo(msg);
+    };
+
+    const handleCancelReply = () => {
+        setReplyingTo(null);
+    };
+
+    const emitTypingStop = () => {
+        if (!selectedContact || !senderId || !socketRef.current) return;
+        socketRef.current.emit("stop-typing", { roomId: selectedContact._id, userId: senderId });
+    };
+
+    const handleTypingStart = () => {
+        if (!selectedContact || !senderId || !socketRef.current) return;
+        socketRef.current.emit("typing", { roomId: selectedContact._id, userId: senderId });
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            emitTypingStop();
+        }, 1200);
+    };
+
+    const handleTypingStop = () => {
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = null;
+        }
+        emitTypingStop();
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
+    const handleSendMessage = async () => {
+        if (!selectedContact || !senderId) return;
+        const content = newMessage.trim();
+        if (!content) return;
+
+        console.log('🔍 Sending message with content:', content);
+        console.log('🔍 Content length:', content.length);
+        console.log('🔍 Content char codes:', content.split('').map(char => char.charCodeAt(0)));
+
+        const messageContent = content;
+
+        const receiverIdRaw = senderRole === "vendor" ? selectedContact.userId : selectedContact.vendorId;
+        const receiverId = typeof receiverIdRaw === "string" ? receiverIdRaw : "";
+        const senderType = senderRole === "vendor" ? "vendor" : "User";
+
+        const tempId = `temp-${Date.now()}`;
+        const now = new Date();
+
+        const replyPayload = replyingTo
+            ? {
+                messageId: replyingTo._id,
+                messageContent: replyingTo.messageContent,
+                senderName: replyingTo.senderId === senderId
+                    ? (user?.username || vendor?.name || "You")
+                    : (selectedContact.name || "Someone"),
+            }
+            : undefined;
+
+        const payload = {
+            chatId: selectedContact._id,
+            senderId: senderId,
+            senderType: senderType,
+            senderName: user?.username || vendor?.name || "Someone",
+            receiverId: receiverId,
+            messageContent: messageContent,
+            seen: false,
+            sendedTime: now,
+            fileUrl: '',
+            replyTo: replyPayload,
+        };
+
+        setNewMessage("");
+        setReplyingTo(null);
+        autoScrollRef.current = true;
+
+        setMessages(prev => ([
+            ...prev,
+            {
+                _id: tempId,
+                chatId: payload.chatId,
+                senderId: payload.senderId,
+                messageContent: payload.messageContent,
+                sendedTime: now,
+                seen: false,
+                deliveryStatus: "sending",
+                replyTo: replyingTo
+                    ? {
+                        _id: replyingTo._id,
+                        messageContent: replyingTo.messageContent,
+                        senderName: replyPayload?.senderName || "",
+                    }
+                    : undefined,
+            },
+        ]));
+
+        setContacts(prev => prev.map(c => {
+            if (c._id !== selectedContact._id) return c;
+            return { ...c, lastMessage: messageContent, lastMessageTime: now };
+        }));
+
+        const socket = socketRef.current;
+        if (!socket) return;
+
+        socket.emit("send_message", payload, (id: string) => {
+            setMessages(prev => prev.map(m => {
+                if (m._id !== tempId) return m;
+                return { ...m, _id: id, deliveryStatus: "sent" };
+            }));
+        });
+    };
+
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!selectedContact || !socketRef.current) return;
+        setDeletingMessageId(messageId);
+        socketRef.current.emit(
+            "delete_message",
+            { messageId, chatId: selectedContact._id },
+            (res?: { success: boolean; message?: string }) => {
+                setDeletingMessageId(null);
+                if (res && res.success === false) {
+                    toast.error(res.message || "Failed to delete message");
+                }
+            }
+        );
+    };
+
+    const handleRevertMessage = async (messageId: string) => {
+        const deletedMessage = deletedMessages.get(messageId);
+        if (!deletedMessage || !socketRef.current) return;
+
+        // Restore message locally
+        setMessages(prev => prev.map(m => 
+            m._id === messageId ? deletedMessage : m
+        ));
+
+        // Remove from deleted messages
+        setDeletedMessages(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(messageId);
+            return newMap;
+        });
+
+        // Send revert via socket
+        socketRef.current.emit("revert_message", { messageId, chatId: selectedContact?._id });
+    };
+
+    const handleEmojiClick = (emojiObject: any) => {
+        const emoji = emojiObject.emoji;
+        setNewMessage(prev => prev + emoji);
+        setShowEmojiPicker(false);
+        // Focus back to input after selecting emoji
+        const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+        if (inputElement) {
+            inputElement.focus();
+        }
+    };
+
+    const toggleEmojiPicker = () => {
+        setShowEmojiPicker(!showEmojiPicker);
+    };
+
+    // Close emoji picker when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+                setShowEmojiPicker(false);
+            }
+        };
+
+        if (showEmojiPicker) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showEmojiPicker]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(() => {
-        scrollToBottom();
+        if (autoScrollRef.current) {
+            scrollToBottom();
+        }
+        autoScrollRef.current = false;
     }, [messages]);
 
-    // Socket Connection - Use the socket from SocketProvider
     const socketContextValue = useContext(socketContext);
     const globalSocket = socketContextValue?.socket;
 
     useEffect(() => {
         if (!senderId) return;
 
-        // Use global socket if available, otherwise create a new one
         const socketUrl = import.meta.env.VITE_SOCKET_URL?.replace(/\/$/, '') || "http://localhost:1212";
         
         if (!globalSocket) {
@@ -77,53 +330,59 @@ const ChatPage = () => {
                 reconnection: true,
                 reconnectionDelay: 1000,
             });
-            // Register based on role
             if (senderRole === 'vendor') {
                 socketRef.current.emit("register_vendor", { vendorId: senderId });
             } else {
                 socketRef.current.emit("register_user", { userId: senderId });
             }
-            console.log("Created new socket connection");
         } else {
             socketRef.current = globalSocket;
-            // Register based on role if not already registered
             if (senderRole === 'vendor') {
                 socketRef.current.emit("register_vendor", { vendorId: senderId });
             } else {
                 socketRef.current.emit("register_user", { userId: senderId });
             }
-            console.log("Using global socket connection");
         }
 
         const socket = socketRef.current;
 
         const handleReceiveMessage = (newMessage: ChatMessage) => {
-            console.log("Received message via socket:", newMessage);
             if (newMessage.chatId === selectedContact?._id) {
+                autoScrollRef.current = true;
                 setMessages((prev) => {
-                    // Avoid duplicates
                     const exists = prev.some(msg => msg._id === newMessage._id);
                     if (exists) {
-                        console.log("Message already exists, skipping");
                         return prev;
                     }
-                    console.log("Adding new message to chat");
                     return [...prev, newMessage];
                 });
             }
 
-            // Update contact list with last message and increment unread count if not from current user
             setContacts(prev => prev.map(contact => {
                 if (contact._id === newMessage.chatId) {
                     const isFromCurrentUser = newMessage.senderId === senderId;
+                    const isCurrentChat = contact._id === selectedContact?._id;
+                    
+                
+                    const shouldIncrement = !isFromCurrentUser && !isCurrentChat;
+                 
+                    const currentCount = Math.max(0, contact.unreadCount || 0);
+                    const newUnreadCount = isCurrentChat 
+                        ? 0 
+                        : (shouldIncrement ? currentCount + 1 : currentCount);
+                    
+                
+                    const finalUnreadCount = Math.max(0, newUnreadCount);
+                    
+                    if (shouldIncrement) {
+                        console.log(`📊 Incrementing unread count for chat ${contact._id}: ${currentCount} -> ${finalUnreadCount}`);
+                    }
+                    
                     return {
                         ...contact,
                         lastMessage: newMessage.messageContent,
                         lastMessageTime: newMessage.sendedTime,
-                        // Increment unread count if message is not from current user and chat is not currently selected
-                        unreadCount: (contact._id !== selectedContact?._id && !isFromCurrentUser)
-                            ? (contact.unreadCount || 0) + 1
-                            : contact.unreadCount || 0
+                        unreadCount: finalUnreadCount
                     };
                 }
                 return contact;
@@ -133,7 +392,6 @@ const ChatPage = () => {
 
         socket.on("receive-message", handleReceiveMessage);
         
-        // Listen for online status changes
         const handleUserStatusChange = (data: { userId: string; isOnline: boolean }) => {
             setOnlineUsers(prev => {
                 const updated = new Set(prev);
@@ -160,8 +418,98 @@ const ChatPage = () => {
 
         socket.on("user-status-changed", handleUserStatusChange);
         socket.on("vendor-status-changed", handleVendorStatusChange);
+
+        const handleOnlineUsersSnapshot = (data: { onlineIds: string[] }) => {
+            const ids = Array.isArray(data?.onlineIds) ? data.onlineIds.map(String) : [];
+            setOnlineUsers(new Set(ids));
+        };
+
+        socket.on("online-users", handleOnlineUsersSnapshot);
+
+        const handleNewMessageNotification = (data: {
+            chatId: string;
+            senderId: string;
+            senderName?: string;
+            messagePreview?: string;
+            timestamp?: string | Date;
+        }) => {
+            if (!data?.chatId) return;
+            if (selectedContact?._id === data.chatId) return;
+
+            setContacts(prev => {
+                const updated = prev.map(c => {
+                    if (c._id !== data.chatId) return c;
+                    const current = Math.max(0, c.unreadCount || 0);
+                    return {
+                        ...c,
+                        unreadCount: current + 1,
+                        lastMessage: data.messagePreview ?? c.lastMessage,
+                        lastMessageTime: data.timestamp ? new Date(data.timestamp) : new Date(),
+                    };
+                });
+
+                return updated.sort((a, b) =>
+                    new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
+                );
+            });
+        };
+
+        socket.on("new-message-notification", handleNewMessageNotification);
         
-        // Debug socket events
+        const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
+            setContacts(prev => prev.map(contact => {
+                if (contact._id === data.chatId) {
+                    return { ...contact, unreadCount: 0 };
+                }
+                return contact;
+            }));
+            
+            if (selectedContact?._id === data.chatId) {
+                setMessages(prev => prev.map(msg => {
+                    if (msg.senderId !== senderId) {
+                        return { ...msg, seen: true };
+                    }
+                    return msg;
+                }));
+            }
+        };
+        
+        socket.on("messages-seen", handleMessagesSeen);
+        
+        const handleTypingOn = (data: { userId: string }) => {
+            if (!selectedContact?._id) return;
+            if (!data?.userId || data.userId === senderId) return;
+            setTypingUsers(prev => {
+                const exists = prev.find(u => u.userId === data.userId);
+                if (exists) return prev.map(u => u.userId === data.userId ? { ...u, isTyping: true } : u);
+                return [...prev, { userId: data.userId, name: selectedContact.name || "", isTyping: true }];
+            });
+        };
+
+        const handleTypingOff = (data: { userId: string }) => {
+            if (!data?.userId) return;
+            setTypingUsers(prev => prev
+                .map(u => u.userId === data.userId ? { ...u, isTyping: false } : u)
+                .filter(u => u.isTyping)
+            );
+        };
+
+        socket.on("typing", handleTypingOn);
+        socket.on("stop-typing", handleTypingOff);
+        
+        // Listen for message deletion
+        const handleMessageDeleted = (data: { messageId: string; chatId: string }) => {
+            if (data.chatId === selectedContact?._id) {
+                setMessages(prev => prev.map(msg => 
+                    msg._id === data.messageId 
+                        ? { ...msg, isDeleted: true, deletedAt: new Date(), messageContent: "This message was deleted" }
+                        : msg
+                ));
+            }
+        };
+
+        socket.on("message_deleted", handleMessageDeleted);
+        
         socket.on("connect", () => {
             console.log("Socket connected:", socket.id);
         });
@@ -178,7 +526,12 @@ const ChatPage = () => {
             socket.off("receive-message", handleReceiveMessage);
             socket.off("user-status-changed", handleUserStatusChange);
             socket.off("vendor-status-changed", handleVendorStatusChange);
-            // Only disconnect if we created our own socket
+            socket.off("messages-seen", handleMessagesSeen);
+            socket.off("typing", handleTypingOn);
+            socket.off("stop-typing", handleTypingOff);
+            socket.off("message_deleted", handleMessageDeleted);
+            socket.off("online-users", handleOnlineUsersSnapshot);
+            socket.off("new-message-notification", handleNewMessageNotification);
             if (!globalSocket && socketRef.current) {
                 socketRef.current.disconnect();
                 socketRef.current = null;
@@ -186,8 +539,24 @@ const ChatPage = () => {
         };
     }, [senderId, selectedContact, globalSocket]);
 
+    useEffect(() => {
+        setContacts(prev => prev.map(contact => {
+            const otherParticipantId = (senderRole === 'user') ? String(contact.vendorId || '') : String(contact.userId || '');
+            const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
+            if (contact.isOnline === isOtherOnline) return contact;
+            return { ...contact, isOnline: isOtherOnline };
+        }));
 
-    // Fetch contacts (chats)
+        setSelectedContact(prev => {
+            if (!prev) return prev;
+            const otherParticipantId = (senderRole === 'user') ? String(prev.vendorId || '') : String(prev.userId || '');
+            const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
+            if (prev.isOnline === isOtherOnline) return prev;
+            return { ...prev, isOnline: isOtherOnline };
+        });
+    }, [onlineUsers, senderRole]);
+
+
     useEffect(() => {
         if (!senderId) {
             navigate("/login");
@@ -197,41 +566,34 @@ const ChatPage = () => {
         const fetchContacts = async () => {
             try {
                 setLoading(true);
-                // Determine user type: 'user' or 'vendor'
                 const userType = user ? 'user' : 'vendor';
-                console.log('🔍 Fetching chats:', { senderId, userType, isUser: !!user, isVendor: !!vendor });
                 const responseY = await getChatsOfUser(senderId, userType);
-                console.log('📦 Chat response:', responseY);
 
                 let chats: any[] = [];
-                // Handle different response structures
                 if (responseY && responseY.data) {
                     if (Array.isArray(responseY.data)) {
                         chats = responseY.data;
-                    } else if (Array.isArray(responseY.data.chats)) {
+                    } else if (responseY.data.chats && Array.isArray(responseY.data.chats)) {
                     chats = responseY.data.chats;
                     }
                 } else if (responseY && Array.isArray(responseY)) {
                     chats = responseY;
+                } else if (responseY && responseY.messages && Array.isArray(responseY.messages)) {
+                    chats = responseY.messages;
                 }
-
-                // Debug: Log first chat to verify structure (remove in production)
+                
                 if (chats.length > 0) {
                     console.log("Chat data sample:", chats[0]);
                     console.log("Full chat data structure:", JSON.stringify(chats[0], null, 2));
                 }
 
-                // Format contacts - Backend already formats with name and profile_image
                 const formattedContacts: Contact[] = chats.map((chat: any) => {
                     const isUser = senderRole === 'user';
                     
-                    // For vendors: show user profile, for users: show vendor profile
                     let name = chat.name || "Unknown";
                     let avatar = chat.profile_image || "";
                     
-                    // If current user is vendor, show the user's profile (other participant)
                     if (!isUser) {
-                        // Vendor viewing - show user profile
                         if (chat.userId) {
                             if (typeof chat.userId === 'object' && chat.userId !== null) {
                                 name = chat.userId.name || chat.userId.username || name;
@@ -242,7 +604,6 @@ const ChatPage = () => {
                             }
                         }
                     } else {
-                        // User viewing - show vendor profile
                         if (chat.vendorId) {
                             if (typeof chat.vendorId === 'object' && chat.vendorId !== null) {
                                 name = chat.vendorId.name || chat.vendorId.businessName || chat.vendorId.username || name;
@@ -283,17 +644,16 @@ const ChatPage = () => {
                     if (chat.userId && typeof chat.userId === 'string') {
                         userIdValue = chat.userId;
                     } else if (chat.userId) {
-                        // If it's an object, extract the ID
                         userIdValue = typeof chat.userId === 'object'
                             ? (chat.userId._id?.toString() || chat.userId.id?.toString() || String(chat.userId))
                             : String(chat.userId);
                     }
                     
-                    console.log(`Chat ${chat._id} - userId: ${userIdValue}, vendorId: ${vendorIdValue}`);
 
-                    // Determine if the other participant is online
                     const otherParticipantId = isUser ? vendorIdValue : userIdValue;
                     const isOtherOnline = otherParticipantId ? onlineUsers.has(otherParticipantId) : false;
+
+                    const unreadCount = Math.max(0, chat.unreadCount || 0);
 
                     return {
                         _id: chat._id,
@@ -304,7 +664,7 @@ const ChatPage = () => {
                         lastMessageTime: chat.lastMessageAt || new Date(),
                         vendorId: vendorIdValue,
                         userId: userIdValue,
-                        unreadCount: chat.unreadCount || 0,
+                        unreadCount: unreadCount, // Ensure it's never negative
                         isOnline: isOtherOnline
                     };
                 });
@@ -318,10 +678,7 @@ const ChatPage = () => {
                         setSelectedContact(chatToSelect);
                         setShowContacts(false);
                     } else {
-                        // Chat not found in list, might be a new chat
-                        // Try to get vendor info from the chat data structure
-                        // For now, set a placeholder and it will be updated when messages are loaded
-                        // or when the chat is found in a refresh
+                      
                         const placeholderContact: Contact = {
                             _id: chatId,
                             name: "Vendor",
@@ -365,17 +722,18 @@ const ChatPage = () => {
 
         const fetchMessages = async () => {
             try {
-                const userType = user ? 'user' : 'vendor';
+                setHasMoreMessages(true);
+                setLoadingMoreMessages(false);
+                const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
                 const res = await getMessages(selectedContact._id, userType);
-                console.log("Messages response:", res);
                 
-                // Backend returns: { success: true, data: [...] }
                 let messagesArray: ChatMessage[] = [];
                 if (res && res.data) {
                     if (Array.isArray(res.data)) {
                         messagesArray = res.data;
                     } else if (res.data.messages && Array.isArray(res.data.messages)) {
                         messagesArray = res.data.messages;
+                        setHasMoreMessages(!!res.data.hasMore);
                     }
                 } else if (res && Array.isArray(res)) {
                     messagesArray = res;
@@ -383,175 +741,104 @@ const ChatPage = () => {
                     messagesArray = res.messages;
                 }
                 
+                autoScrollRef.current = true;
                 setMessages(messagesArray);
-                console.log("Loaded messages:", messagesArray.length);
 
-                // Join chat room
                 if (socketRef.current) {
                     socketRef.current.emit("join_room", { roomId: selectedContact._id });
-                    console.log("Joined room:", selectedContact._id);
                 }
 
-                // Mark messages as seen and reset unread count
-                try {
-                    const userType = user ? 'user' : 'vendor';
-                    await markMessagesAsSeen(selectedContact._id, senderId, userType);
-                    console.log("✅ Messages marked as seen");
-                    // Reset unread count for this contact
-                    setContacts(prev => prev.map(c =>
-                        c._id === selectedContact._id
-                            ? { ...c, unreadCount: 0 }
-                            : c
-                    ));
-                } catch (error) {
-                    console.error("Error marking messages as seen:", error);
-                }
+                setContacts(prev => prev.map(c => {
+                    if (c._id === selectedContact._id && (c.unreadCount || 0) > 0) {
+                        return { ...c, unreadCount: 0 };
+                    }
+                    return c;
+                }));
+                
+                setMessages(prev => prev.map(msg => {
+                    if (msg.senderId !== senderId && !msg.seen) {
+                        return { ...msg, seen: true };
+                    }
+                    return msg;
+                }));
+
+                const currentUserType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
+                markMessagesAsSeen(selectedContact._id, senderId, currentUserType)
+                    .then(() => {
+                        console.log("✅ Messages marked as seen in backend for chat:", selectedContact._id);
+                    })
+                    .catch((error) => {
+                        console.error("Error marking messages as seen:", error);
+                    });
 
             } catch (error) {
                 console.error("Error fetching messages:", error);
+                toast.error("Failed to load messages");
+                setMessages([]);
+                setHasMoreMessages(false);
             }
-        }
-
-        fetchMessages();
-    }, [selectedContact, senderId, user]);
-
-
-    const handleContactSelect = (contact: Contact) => {
-        setSelectedContact(contact);
-        setShowContacts(false);
-    };
-
-    const handleBackToContacts = () => {
-        setShowContacts(true);
-    };
-
-    const handleSendMessage = async () => {
-        if (!newMessage.trim() || !selectedContact || !senderId) return;
-
-        console.log("Selected contact:", selectedContact);
-        console.log("Sender ID:", senderId);
-        console.log("Sender role:", senderRole);
-
-        // Get receiver ID (vendor or user)
-        // If sender is user, receiver is vendor, and vice versa
-        let receiverId: string | null = null;
-        
-        if (senderRole === 'user') {
-            // User is sending, receiver is vendor
-            if (selectedContact.vendorId) {
-                receiverId = typeof selectedContact.vendorId === 'object' 
-                    ? (selectedContact.vendorId._id || String(selectedContact.vendorId))
-                    : String(selectedContact.vendorId);
-            }
-        } else {
-            // Vendor is sending, receiver is user
-            if (selectedContact.userId) {
-                receiverId = typeof selectedContact.userId === 'object'
-                    ? (selectedContact.userId._id || String(selectedContact.userId))
-                    : String(selectedContact.userId);
-            }
-        }
-
-        if (!receiverId) {
-            console.error("Could not determine receiver ID. Contact data:", selectedContact);
-            toast.error("Unable to determine recipient. Please refresh the page.");
-            return;
-        }
-
-        // Normalize senderType: 'user' -> 'User', 'vendor' -> 'vendor'
-        const normalizedSenderType = senderRole === 'user' ? 'User' : 'vendor';
-
-        const messageData = {
-            chatId: selectedContact._id,
-            senderId,
-            senderType: normalizedSenderType,
-            receiverId: receiverId,
-            messageContent: newMessage.trim(),
-            messageType: 'text',
-            sendedTime: new Date(),
-            seen: false,
-            senderName: (user as any)?.name || user?.username || vendor?.name || "User"
         };
 
-        console.log("Message data being sent:", messageData);
+        fetchMessages();
+    }, [selectedContact, senderId, isVendorAuthenticated, isUserAuthenticated, user, vendor]);
 
-        const messageText = newMessage.trim();
+    const loadOlderMessages = async () => {
+        if (!selectedContact || !senderId) return;
+        if (loadingMoreMessages || !hasMoreMessages) return;
+        if (messages.length === 0) return;
 
         try {
-            setSending(true);
+            setLoadingMoreMessages(true);
+            autoScrollRef.current = false;
 
-            if (!socketRef.current) {
-                console.error("Socket not initialized");
-                toast.error("Connection error. Please refresh the page.");
-                setSending(false);
+            const container = messagesContainerRef.current;
+            const prevScrollHeight = container?.scrollHeight || 0;
+            const prevScrollTop = container?.scrollTop || 0;
+
+            // const oldestTime = messages[0]?.sendedTime;
+            // const before = oldestTime ? new Date(oldestTime) : undefined;
+
+            const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
+            const res = await getMessages(selectedContact._id, userType, 
+            //     {
+            //     limit: 30,
+            //     before: before,
+            // }
+        );
+
+            const older: ChatMessage[] = (res && res.data && res.data.messages && Array.isArray(res.data.messages))
+                ? res.data.messages
+                : [];
+
+            const hasMore = (res && res.data && typeof res.data.hasMore === 'boolean')
+                ? res.data.hasMore
+                : false;
+
+            if (older.length === 0) {
+                setHasMoreMessages(false);
                 return;
             }
 
-            if (!socketRef.current.connected) {
-                console.error("Socket not connected, attempting to reconnect...");
-                socketRef.current.connect();
-                // Wait a bit for connection
-                await new Promise(resolve => setTimeout(resolve, 500));
-                if (!socketRef.current.connected) {
-                    toast.error("Connection error. Please refresh the page.");
-                    setSending(false);
-                    return;
-                }
-            }
+            setHasMoreMessages(hasMore);
 
-            console.log("Sending message:", messageData);
-
-            socketRef.current.emit("send_message", messageData, (ackId: string) => {
-                // Acknowledge received
-                console.log("Message sent successfully, ID:", ackId);
-                if (ackId) {
-                    // Message was successfully sent and saved
-                    // The receive-message event will update the UI
-                } else {
-                    console.warn("Message sent but no ID returned");
-                }
+            setMessages(prev => {
+                const existing = new Set(prev.map(m => m._id));
+                const dedupedOlder = older.filter(m => !existing.has(m._id));
+                return [...dedupedOlder, ...prev];
             });
 
-            setNewMessage("");
-
-            // Update local contact list sort order immediately
-            setContacts(prev => prev.map(c =>
-                c._id === selectedContact._id
-                    ? { ...c, lastMessage: messageText, lastMessageTime: new Date() }
-                    : c
-            ).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
-
-        } catch (err) {
-            console.error("Error sending message:", err);
-            toast.error("Failed to send message. Please try again.");
+            requestAnimationFrame(() => {
+                const c = messagesContainerRef.current;
+                if (!c) return;
+                const newScrollHeight = c.scrollHeight;
+                c.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+            });
+        } catch (error) {
+            console.error("Error loading older messages:", error);
         } finally {
-            setSending(false);
+            setLoadingMoreMessages(false);
         }
     };
-
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-        }
-    };
-
-    const formatTime = (date: Date | string) => {
-        const dateObj = typeof date === "string" ? new Date(date) : date;
-        if (isNaN(dateObj.getTime())) return "Invalid time";
-        return dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-    };
-
-    const getInitials = (name: string) => {
-        if (!name) return "?";
-        return name
-            .split(" ")
-            .map((word) => word[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2);
-    }
-
 
     if (loading) {
         return (
@@ -563,10 +850,15 @@ const ChatPage = () => {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            {/* Page Header */}
-            <div className="bg-white border-b shadow-sm px-6 py-4">
+            <div className="bg-white border-b shadow-sm px-4 sm:px-6 py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div>
+                    <img 
+                        src={logo} 
+                        alt="OffWeGo" 
+                        className="w-32 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => navigate(user ? "/user/profile" : "/vendor/profile")}
+                    />
+                    <div className="text-right">
                         <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
                         <p className="text-sm text-gray-500 mt-1">Chat with {user ? 'vendors' : 'users'}</p>
                     </div>
@@ -636,7 +928,7 @@ const ChatPage = () => {
                                         <h3 className="font-semibold text-gray-900 truncate text-base flex-1">{contact.name}</h3>
                                         {((contact.unreadCount ?? 0) > 0) && (
                                             <span className="ml-2 min-w-[20px] h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center px-1.5 flex-shrink-0">
-                                                {(contact.unreadCount ?? 0) > 99 ? '99+' : contact.unreadCount}
+                                                {Math.max(0, contact.unreadCount ?? 0) > 99 ? '99+' : Math.max(0, contact.unreadCount ?? 0)}
                                             </span>
                                         )}
                                     </div>
@@ -656,7 +948,7 @@ const ChatPage = () => {
                 {selectedContact ? (
                     <>
                         {/* Chat Header */}
-                        <div className="bg-white border-b px-6 py-4 shadow-sm">
+                        <div className="bg-white border-b px-4 sm:px-6 py-4 shadow-sm">
                             <div className="flex items-center">
                                 <button
                                     onClick={handleBackToContacts}
@@ -698,6 +990,9 @@ const ChatPage = () => {
                                         {selectedContact.isOnline && (
                                             <span className="text-xs text-green-600 font-medium">Online</span>
                                         )}
+                                        {!selectedContact.isOnline && (
+                                            <span className="text-xs text-gray-500 font-medium">Offline</span>
+                                        )}
                                     </div>
                                     <p className="text-sm text-gray-500 capitalize">{selectedContact.role}</p>
                                 </div>
@@ -705,7 +1000,21 @@ const ChatPage = () => {
                         </div>
 
                         {/* Messages Container */}
-                        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-gray-100">
+                        <div
+                            ref={messagesContainerRef}
+                            onScroll={(e) => {
+                                const el = e.currentTarget;
+                                if (el.scrollTop <= 80) {
+                                    loadOlderMessages();
+                                }
+                            }}
+                            className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6 space-y-1 bg-[#e5ddd5] bg-opacity-50"
+                        >
+                            {loadingMoreMessages && (
+                                <div className="flex items-center justify-center py-2 text-gray-500">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                </div>
+                            )}
                             {messages.length === 0 ? (
                                 <div className="text-center text-gray-500 mt-8">
                                     <p>No messages yet.</p>
@@ -714,25 +1023,74 @@ const ChatPage = () => {
                             ) : (
                                 messages.map((msg) => {
                                     const isOwnMessage = msg.senderId === senderId;
+                                    const isDeleted = msg.isDeleted;
                                     return (
-                                        <div key={msg._id || Math.random()} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+                                        <div key={msg._id || Math.random()} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"} mb-2 group`}>
                                             <div
-                                                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl ${isOwnMessage
-                                                    ? "bg-blue-600 text-white rounded-br-none"
-                                                    : "bg-white text-gray-900 rounded-bl-none shadow-sm"
-                                                    }`}
+                                                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl relative ${isOwnMessage
+                                                    ? "bg-[#dcf8c6] text-gray-900 rounded-br-sm"
+                                                    : "bg-white text-gray-900 rounded-bl-sm shadow-sm"
+                                                    } ${isDeleted ? 'opacity-60' : ''}`}
                                             >
-                                                <p className="break-words text-sm md:text-base">{msg.messageContent}</p>
-                                                <div className={`text-[10px] sm:text-xs mt-1 flex items-center justify-end gap-1 ${isOwnMessage ? "text-blue-100" : "text-gray-400"}`}>
+                                                {/* Reply preview */}
+                                                {msg.replyTo && (
+                                                    <div className={`mb-2 p-2 rounded-lg text-xs ${isOwnMessage ? 'bg-green-100' : 'bg-gray-100'}`}>
+                                                        <div className="font-medium text-gray-600">
+                                                            Replying to {msg.replyTo.senderName}
+                                                        </div>
+                                                        <div className="text-gray-500 truncate">
+                                                            {msg.replyTo.messageContent}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                <p className={`break-words text-sm md:text-base ${isDeleted ? 'italic text-gray-500' : ''}`}>
+                                                    {msg.messageContent}
+                                                </p>
+                                                <div className={`text-[10px] sm:text-xs mt-1 flex items-center justify-end gap-1 ${isOwnMessage ? "text-[#4fc3f7]" : "text-gray-400"}`}>
                                                     <span>{formatTime(msg.sendedTime)}</span>
-                                                    {isOwnMessage && (
+                                                    {isDeleted && (
+                                                        <span className="ml-1 text-gray-400">(deleted)</span>
+                                                    )}
+                                                    {isOwnMessage && !isDeleted && (
                                                         <span className="flex items-center">
                                                             {msg.seen ? (
-                                                                <CheckCheck className="w-3.5 h-3.5 text-blue-200" />
+                                                                <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb]" />
                                                             ) : (
-                                                                <Check className="w-3.5 h-3.5 text-blue-200" />
+                                                                <Check className="w-3.5 h-3.5 text-gray-400" />
                                                             )}
                                                         </span>
+                                                    )}
+                                                </div>
+                                                
+                                                {/* Message actions - shown on hover */}
+                                                <div className={`absolute top-1 ${isOwnMessage ? "left-0 -translate-x-full" : "right-0 translate-x-full"} opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white rounded-lg shadow-lg p-1`}>
+                                                    <button
+                                                        onClick={() => handleReplyToMessage(msg)}
+                                                        className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-blue-600 transition-colors"
+                                                        title="Reply"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                                        </svg>
+                                                    </button>
+                                                    {isOwnMessage && (
+                                                        <button
+                                                            onClick={() => isDeleted ? handleRevertMessage(msg._id) : handleDeleteMessage(msg._id)}
+                                                            disabled={deletingMessageId === msg._id}
+                                                            className="p-1.5 hover:bg-gray-100 rounded text-gray-600 hover:text-red-600 transition-colors disabled:opacity-50"
+                                                            title={isDeleted ? "Restore" : "Delete"}
+                                                        >
+                                                            {deletingMessageId === msg._id ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : isDeleted ? (
+                                                                <RotateCcw className="w-4 h-4" />
+                                                            ) : (
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                            )}
+                                                        </button>
                                                     )}
                                                 </div>
                                             </div>
@@ -744,13 +1102,71 @@ const ChatPage = () => {
                         </div>
 
                         {/* Input Area */}
-                        <div className="bg-white border-t px-4 py-4">
-                            <div className="flex items-center gap-2">
+                        <div className="bg-white border-t px-3 sm:px-4 py-4">
+                            {/* Reply Preview */}
+                            {replyingTo && (
+                                <div className="mb-2 p-2 bg-gray-100 rounded-lg flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <div className="text-xs font-medium text-gray-600">
+                                            Replying to {user?.username || vendor?.name || "User"}
+                                        </div>
+                                        <div className="text-xs text-gray-500 truncate">
+                                            {replyingTo.messageContent}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleCancelReply}
+                                        className="ml-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            )}
+                            
+
+                            {/* Typing Indicator */}
+                            {typingUsers.length > 0 && (
+                                <div className="text-xs text-gray-500 mb-2 px-2">
+                                    {typingUsers.map(user => user.name).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                                </div>
+                            )}
+                            
+
+                            <div className="flex items-center gap-2 relative">
+                                {/* Emoji Picker Button */}
+                                <button
+                                    onClick={toggleEmojiPicker}
+                                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
+                                    title="Add emoji"
+                                >
+                                    <Smile size={20} />
+                                </button>
+
+                                {/* Emoji Picker */}
+                                {showEmojiPicker && (
+                                    <div 
+                                        ref={emojiPickerRef}
+                                        className="absolute bottom-12 left-0 z-50"
+                                    >
+                                        <EmojiPicker 
+                                            onEmojiClick={handleEmojiClick}
+                                            theme={'light' as any}
+                                            emojiStyle={'native' as any}
+                                            searchPlaceholder="Search emoji..."
+                                            height={350}
+                                            width={300}
+                                        />
+                                    </div>
+                                )}
+                                
                                 <input
-                                    type="text"
                                     value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onChange={(e) => {
+                                        setNewMessage(e.target.value);
+                                        handleTypingStart();
+                                    }}
                                     onKeyPress={handleKeyPress}
+                                    onBlur={handleTypingStop}
                                     placeholder={`Message ${selectedContact.name}...`}
                                     disabled={sending}
                                     className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -767,12 +1183,9 @@ const ChatPage = () => {
                         </div>
                     </>
                 ) : (
-                    <div className="hidden md:flex flex-1 items-center justify-center text-gray-500">
-                        <div className="text-center">
-                            <MessageCircle className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-                            <p className="text-lg font-medium">Select a conversation</p>
-                            <p className="text-sm mt-1">Choose a contact to start messaging</p>
-                        </div>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                        <p className="text-lg font-medium">Select a conversation</p>
+                        <p className="text-sm mt-1">Choose a contact to start messaging</p>
                     </div>
                 )}
             </div>

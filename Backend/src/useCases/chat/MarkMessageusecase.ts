@@ -1,10 +1,16 @@
 import { MessageRepository } from "../../adapters/repository/Msg/MessageRepository";
-import { IMarkMessagesSeenUseCase } from "../../domain/interface/Chat/IMarkMesgusecase";
+import { ChatRepository } from "../../adapters/repository/Chat/ChatRepository";
 
-export class MarkMessagesSeenUseCase implements IMarkMessagesSeenUseCase{
-    constructor(private messageRepository: MessageRepository) { }
+export class MarkMessagesSeenUseCase {
+    constructor(
+        private messageRepository: MessageRepository,
+        private chatRepository: ChatRepository
+    ) { }
 
-    async execute(chatId: string, userId: string) {
-        return await this.messageRepository.markAsSeen(chatId, userId);
+    async execute(chatId: string, userId: string, userType: 'user' | 'vendor' = 'user') {
+  
+        await this.messageRepository.markAsSeen(chatId, userId);
+        // Reset unread count
+        await this.chatRepository.resetUnreadCount(chatId, userType);
     }
 }

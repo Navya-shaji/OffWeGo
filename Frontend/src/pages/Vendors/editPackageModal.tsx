@@ -10,7 +10,9 @@ import {
   ChevronDown,
   ChevronRight,
   Trash2,
-  Stars
+  Stars,
+  AlertCircle,
+  Info
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,6 +27,11 @@ interface ItineraryDay {
   day: number
   activities: ItineraryActivity[]
   isExpanded?: boolean
+}
+
+interface ValidationError {
+  field: string
+  message: string
 }
 
 interface EditPackageProps {
@@ -44,6 +51,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
 }) => {
   const [localData, setLocalData] = useState<Package | null>(pkg)
   const [enhancedItinerary, setEnhancedItinerary] = useState<ItineraryDay[]>([])
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([])
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setLocalData(pkg)
@@ -66,6 +75,110 @@ const EditPackage: React.FC<EditPackageProps> = ({
     }
   }, [pkg])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const validateField = (field: string, value: any): string | null => {
+    switch (field) {
+      case 'packageName':
+        if (!value || value.trim().length === 0) {
+          return 'Package name is required'
+        }
+        if (value.trim().length < 3) {
+          return 'Package name must be at least 3 characters long'
+        }
+        if (value.trim().length > 100) {
+          return 'Package name cannot exceed 100 characters'
+        }
+        break
+
+      case 'duration':
+        if (!value || value < 1) {
+          return 'Duration must be at least 1 day'
+        }
+        if (value > 30) {
+          return 'Duration cannot exceed 30 days'
+        }
+        break
+
+      case 'description':
+        if (!value || value.trim().length === 0) {
+          return 'Description is required'
+        }
+        if (value.trim().length < 10) {
+          return 'Description must be at least 10 characters long'
+        }
+        if (value.trim().length > 2000) {
+          return 'Description cannot exceed 2000 characters'
+        }
+        break
+
+      case 'price':
+        if (!value || value < 0) {
+          return 'Price must be a positive number'
+        }
+        if (value > 1000000) {
+          return 'Price cannot exceed ₹10,00,000'
+        }
+        break
+
+      case 'checkInTime':
+        if (value && !isValidTime(value)) {
+          return 'Please enter a valid time (e.g., 3:00 PM or 15:00)'
+        }
+        break
+
+      case 'checkOutTime':
+        if (value && !isValidTime(value)) {
+          return 'Please enter a valid time (e.g., 12:00 PM or 12:00)'
+        }
+        break
+
+      default:
+        return null
+    }
+    return null
+  }
+
+  const isValidTime = (time: string): boolean => {
+    const timeRegex = /^([1-9]|1[0-2]):([0-5][0-9])\s?(AM|PM)$/i
+    const militaryTimeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/
+    return timeRegex.test(time.trim()) || militaryTimeRegex.test(time.trim())
+  }
+
+  const validateForm = (): boolean => {
+    const errors: ValidationError[] = []
+
+    const fieldsToValidate = ['packageName', 'duration', 'description', 'price']
+    fieldsToValidate.forEach(field => {
+      const error = validateField(field, localData?.[field])
+      if (error) {
+        errors.push({ field, message: error })
+      }
+    })
+
+    const optionalFields = ['checkInTime', 'checkOutTime']
+    optionalFields.forEach(field => {
+      if (localData?.[field]) {
+        const error = validateField(field, localData[field])
+        if (error) {
+          errors.push({ field, message: error })
+        }
+      }
+    })
+
+    // Validate itinerary
+    if (enhancedItinerary.length === 0) {
+      errors.push({ field: 'itinerary', message: 'At least one day of itinerary is required' })
+    }
+
+    setValidationErrors(errors)
+    return errors.length === 0
+  }
+
+  const getFieldError = (field: string): string | null => {
+    const error = validationErrors.find(err => err.field === field)
+    return error ? error.message : null
+  }
+
   if (!localData) return null
 
   const handleInputChange = (
@@ -78,6 +191,34 @@ const EditPackage: React.FC<EditPackageProps> = ({
     }
     setLocalData(updated)
     onChange(updated)
+
+    // Validate field on change if it's been touched
+    if (touchedFields.has(name)) {
+      const error = validateField(name, value)
+      setValidationErrors(prev => 
+        prev.filter(err => err.field !== name).concat(error ? [{ field: name, message: error }] : [])
+      )
+    }
+  }
+
+  const handleFieldBlur = (field: string) => {
+    setTouchedFields(prev => new Set([...prev, field]))
+    const error = validateField(field, localData?.[field])
+    setValidationErrors(prev => 
+      prev.filter(err => err.field !== field).concat(error ? [{ field, message: error }] : [])
+    )
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Mark all fields as touched
+    const allFields = ['packageName', 'duration', 'description', 'price', 'checkInTime', 'checkOutTime']
+    setTouchedFields(new Set(allFields))
+    
+    if (validateForm()) {
+      onSubmit(e)
+    }
   }
 
   const handleArrayChange = (key: "inclusions" | "amenities", index: number, value: string) => {
@@ -284,7 +425,27 @@ const EditPackage: React.FC<EditPackageProps> = ({
           </div>
         </div>
 
-        <div className="p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+          {/* Validation Errors Summary */}
+          {validationErrors.length > 0 && (
+            <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-red-800 mb-2">Please fix the following errors:</h3>
+                  <ul className="space-y-1 text-sm text-red-700">
+                    {validationErrors.map((error, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-red-500 mt-1">•</span>
+                        <span>{error.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Basic Information */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-slate-50">
             <CardHeader className="bg-gradient-to-r from-slate-100 to-slate-200 rounded-t-lg">
@@ -293,67 +454,120 @@ const EditPackage: React.FC<EditPackageProps> = ({
                   <FileText className="h-5 w-5" />
                 </div>
                 <span>Basic Information</span>
+                <div className="ml-auto">
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Info className="h-4 w-4" />
+                    <span>* Required fields</span>
+                  </div>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                    Package Name
+                    Package Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="packageName"
                     value={localData.packageName}
                     onChange={handleInputChange}
-                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                    onBlur={() => handleFieldBlur('packageName')}
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${
+                      getFieldError('packageName') 
+                        ? 'border-red-500 focus:border-red-500' 
+                        : 'border-slate-200 focus:border-indigo-500'
+                    }`}
                     placeholder="Enter package name"
                   />
+                  {getFieldError('packageName') && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      {getFieldError('packageName')}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                    Duration (Days)
+                    Duration (Days) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     name="duration"
                     value={localData.duration}
                     onChange={handleInputChange}
+                    onBlur={() => handleFieldBlur('duration')}
                     min="1"
-                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                    max="30"
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${
+                      getFieldError('duration') 
+                        ? 'border-red-500 focus:border-red-500' 
+                        : 'border-slate-200 focus:border-indigo-500'
+                    }`}
                     placeholder="Number of days"
                   />
+                  {getFieldError('duration') && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      {getFieldError('duration')}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="space-y-3">
                 <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                  Description
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="description"
                   value={localData.description}
                   onChange={handleInputChange}
+                  onBlur={() => handleFieldBlur('description')}
                   rows={4}
-                  className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 resize-none font-medium"
+                  className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 resize-none font-medium ${
+                    getFieldError('description') 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : 'border-slate-200 focus:border-indigo-500'
+                  }`}
                   placeholder="Describe your amazing package..."
                 />
+                {getFieldError('description') && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {getFieldError('description')}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
-                    Base Price (₹)
+                    Base Price (₹) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     name="price"
                     value={localData.price}
                     onChange={handleInputChange}
-                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                    onBlur={() => handleFieldBlur('price')}
+                    min="0"
+                    max="1000000"
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${
+                      getFieldError('price') 
+                        ? 'border-red-500 focus:border-red-500' 
+                        : 'border-slate-200 focus:border-indigo-500'
+                    }`}
                     placeholder="Enter base price"
                   />
+                  {getFieldError('price') && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      {getFieldError('price')}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-slate-800 uppercase tracking-wide">
@@ -365,11 +579,22 @@ const EditPackage: React.FC<EditPackageProps> = ({
                       name="checkInTime"
                       value={localData.checkInTime || ""}
                       onChange={handleInputChange}
+                      onBlur={() => handleFieldBlur('checkInTime')}
                       placeholder="e.g., 3:00 PM"
-                      className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                      className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${
+                        getFieldError('checkInTime') 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-slate-200 focus:border-indigo-500'
+                      }`}
                     />
                     <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                   </div>
+                  {getFieldError('checkInTime') && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      {getFieldError('checkInTime')}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -383,11 +608,22 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     name="checkOutTime"
                     value={localData.checkOutTime || ""}
                     onChange={handleInputChange}
+                    onBlur={() => handleFieldBlur('checkOutTime')}
                     placeholder="e.g., 12:00 PM"
-                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-300 font-medium"
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${
+                      getFieldError('checkOutTime') 
+                        ? 'border-red-500 focus:border-red-500' 
+                        : 'border-slate-200 focus:border-indigo-500'
+                    }`}
                   />
                   <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                 </div>
+                {getFieldError('checkOutTime') && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {getFieldError('checkOutTime')}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -427,6 +663,15 @@ const EditPackage: React.FC<EditPackageProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
+              {validationErrors.some(err => err.field === 'itinerary') && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {validationErrors.find(err => err.field === 'itinerary')?.message}
+                  </p>
+                </div>
+              )}
+              
               <div className="space-y-4">
                 {enhancedItinerary.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
@@ -473,33 +718,63 @@ const EditPackage: React.FC<EditPackageProps> = ({
                       {day.isExpanded && (
                         <CardContent className="p-4">
                           <div className="space-y-3">
-                            {day.activities.map((activity, activityIndex) => (
-                              <div key={activityIndex} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg">
-                                <input
-                                  type="text"
-                                  placeholder="Time"
-                                  value={activity.time}
-                                  onChange={(e) => updateActivity(dayIndex, activityIndex, 'time', e.target.value)}
-                                  className="w-28 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Activity"
-                                  value={activity.activity}
-                                  onChange={(e) => updateActivity(dayIndex, activityIndex, 'activity', e.target.value)}
-                                  className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                />
-                                <Button
-                                  type="button"
-                                  onClick={() => removeActivityFromDay(dayIndex, activityIndex)}
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-red-600 border-red-200 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ))}
+                            {day.activities.map((activity, activityIndex) => {
+                              const timeError = validationErrors.find(err => 
+                                err.field === `itinerary.${dayIndex}.${activityIndex}.time`
+                              )
+                              const activityError = validationErrors.find(err => 
+                                err.field === `itinerary.${dayIndex}.${activityIndex}.activity`
+                              )
+                              
+                              return (
+                                <div key={activityIndex} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg">
+                                  <input
+                                    type="text"
+                                    placeholder="Time"
+                                    value={activity.time}
+                                    onChange={(e) => updateActivity(dayIndex, activityIndex, 'time', e.target.value)}
+                                    className={`w-28 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
+                                      timeError ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Activity"
+                                    value={activity.activity}
+                                    onChange={(e) => updateActivity(dayIndex, activityIndex, 'activity', e.target.value)}
+                                    className={`flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
+                                      activityError ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                  />
+                                  <Button
+                                    type="button"
+                                    onClick={() => removeActivityFromDay(dayIndex, activityIndex)}
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600 border-red-200 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )
+                            })}
+                            
+                            {(() => {
+                              const timeError = validationErrors.find(err => 
+                                err.field === `itinerary.${dayIndex}.${day.activities.length - 1}.time`
+                              )
+                              const activityError = validationErrors.find(err => 
+                                err.field === `itinerary.${dayIndex}.${day.activities.length - 1}.activity`
+                              )
+                              
+                              return (timeError || activityError) ? (
+                                <div className="p-2 bg-red-50 border border-red-200 rounded">
+                                  <p className="text-xs text-red-600">
+                                    {timeError?.message || activityError?.message}
+                                  </p>
+                                </div>
+                              ) : null
+                            })()}
                             
                             <Button
                               type="button"
@@ -552,7 +827,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
             </Card>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
             <Button 
               type="button" 
@@ -564,8 +838,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
               Cancel
             </Button>
             <Button 
-              type="button"
-              onClick={(e) => onSubmit(e)}
+              type="submit"
               disabled={isLoading}
               size="lg"
               className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -586,10 +859,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
               </div>
             </Button>
           </div>
-        </div>
+        </form>
       </div>
-    </div>
-  )
-}
-
+    </div>)}
 export default EditPackage

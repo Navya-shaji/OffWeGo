@@ -10,7 +10,6 @@ import {
   CalendarDays,
   CreditCard,
   Utensils,
-  Heart,
   Loader2,
   Star,
   CheckCircle,
@@ -49,9 +48,7 @@ export const PackageTimeline = () => {
 
 
   useEffect(() => {
-    if (selectedPackage) {
-      console.log("Selected package:", selectedPackage);
-    }
+    if (selectedPackage) { /* empty */ }
   }, [selectedPackage]);
 
   const toggleDay = (day: number) => {
@@ -114,7 +111,6 @@ export const PackageTimeline = () => {
   ) => {
     const basePackagePrice = selectedPackage.price;
     const flightPrice = selectedFlight ? selectedFlight.price : 0;
-    console.log(selectedDate,"Date")
     
     navigate("/travaler-details", {
       state: {
@@ -171,11 +167,7 @@ export const PackageTimeline = () => {
                 onClick={() => setIsLiked(!isLiked)}
                 className="bg-white/95 backdrop-blur-md border-0 text-gray-700 hover:bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
               >
-                <Heart
-                  className={`h-4 w-4 transition-all duration-300 ${
-                    isLiked ? "fill-rose-500 text-rose-500 scale-110" : "text-gray-700"
-                  }`}
-                />
+              
               </Button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import {
   CategorySchema,
   type CategoryFormData,
 } from "@/Types/Admin/category/categoryzodSchema";
-import { addCategory } from "@/services/category/categoryService";
+import { addCategory as addCategoryService } from "@/services/category/categoryService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import type { CategoryType } from "@/interface/categoryInterface";
 import { ToastContainer, toast } from "react-toastify";
@@ -16,7 +16,14 @@ import "react-toastify/dist/ReactToastify.css";
 import MainCategorySelect from "@/components/category/categorymapping";
 import SubCategory from "@/components/category/subCategory";
 
-export const CategoryForm = () => {
+import { useCategoryContext } from "@/contexts/CategoryContext";
+
+interface CategoryFormProps {
+  onCategoryCreated?: (newCategory: CategoryType) => void;
+}
+
+export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
+  const { addCategory } = useCategoryContext();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
 
@@ -59,6 +66,7 @@ export const CategoryForm = () => {
       const imageUrl = await uploadToCloudinary(data.image);
 
       const category: CategoryType = {
+        id: '', // Will be set by backend
         name: data.name,
         description: data.description,
         imageUrl,
@@ -68,8 +76,17 @@ export const CategoryForm = () => {
         },
       };
 
-      await addCategory(category);
+      const result = await addCategoryService(category);
       notify();
+
+      // Add the new category to the context state
+      const newCategory = { ...category, id: Date.now().toString() }; // Fallback ID
+      addCategory(newCategory);
+
+      // Call the callback if provided
+      if (onCategoryCreated) {
+        onCategoryCreated(newCategory);
+      }
 
       reset();
       setImagePreview("");

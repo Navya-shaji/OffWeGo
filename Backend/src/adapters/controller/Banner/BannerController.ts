@@ -1,10 +1,13 @@
+import { Request, Response } from "express";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IBannerActionUsecase } from "../../../domain/interface/Banner/IBannerActionUsecase";
 import { IBannerCreateUsecase } from "../../../domain/interface/Banner/IBannerCreateUsecase";
 import { IEditBannerUsecase } from "../../../domain/interface/Banner/IBannerEditUsecase";
 import { IDeleteBannerUsecase } from "../../../domain/interface/Banner/IDeleteBannerUSecase";
 import { IGetBannerUsecase } from "../../../domain/interface/Banner/IGetAllBannnersUsecase";
-import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { Request, Response } from "express";
+import { success } from "../../../domain/constants/Success";
+import { ErrorMessages } from "../../../domain/constants/Error";
+import { AppError } from "../../../domain/errors/AppError";
 
 export class BannerController {
   constructor(
@@ -18,12 +21,24 @@ export class BannerController {
   async createBanner(req: Request, res: Response): Promise<void> {
     try {
       const result = await this._createBannerUsecase.execute(req.body);
-      res.status(HttpStatus.OK).json({ success: true, data: result });
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: success.SUCCESS_MESSAGES.CREATED,
+        data: result,
+      });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to create banner",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -31,31 +46,63 @@ export class BannerController {
   async getBanners(req: Request, res: Response): Promise<void> {
     try {
       const result = await this._getbannerUsecase.execute();
-      res.status(HttpStatus.OK).json({ success: true, data: result });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: result,
+      });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to fetch banners",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
 
   async editBanner(req: Request, res: Response): Promise<void> {
     try {
-      const BannerId = req.params.id;
-      const BannerData = req.body;
-      const result = await this._editBannerUsecase.execute(BannerId, BannerData);
+      const bannerId = req.params.id?.trim();
+      const bannerData = req.body;
+
+      if (!bannerId) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: ErrorMessages.INVALID_ID,
+        });
+        return;
+      }
+
+      const result = await this._editBannerUsecase.execute(
+        bannerId,
+        bannerData
+      );
+
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Banner updated successfully",
+        message: success.SUCCESS_MESSAGES.UPDATED,
         data: result,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to update banner",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -63,17 +110,34 @@ export class BannerController {
   async bannerDelete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+
+      if (!id) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: ErrorMessages.INVALID_ID,
+        });
+        return;
+      }
+
       const result = await this._deleteBannerUsecase.execute(id);
+
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Banner deleted successfully",
+        message: success.SUCCESS_MESSAGES.DELETED,
         data: result,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to delete banner",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }
@@ -83,18 +147,33 @@ export class BannerController {
       const { id } = req.params;
       const { action } = req.body;
 
+      if (!id || !action) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: ErrorMessages.MISSING_REQUIRED_FIELDS,
+        });
+        return;
+      }
+
       const updatedBanner = await this._updateActionUsecase.execute(id, action);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Banner action updated successfully",
+        message: success.SUCCESS_MESSAGES.UPDATED,
         data: updatedBanner,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to update banner action",
-        error,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
       });
     }
   }

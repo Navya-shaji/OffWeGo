@@ -1,6 +1,6 @@
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 import { mapToVendor } from "../../../mappers/Vendor/vendorMapper";
-import { VendorDto } from "../../../domain/dto/Vendor/vendorDto";
+import { VendorDto } from "../../../domain/dto/Vendor/VendorDto";
 
 export class GetAllVendorsUseCase {
   constructor(private _vendorRepository: IVendorRepository) {}

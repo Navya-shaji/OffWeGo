@@ -1,3 +1,5 @@
+import { Role } from "../../constants/Roles";
+
 export interface ProfileDto {
   id: string;
   name: string;
@@ -5,6 +7,6 @@ export interface ProfileDto {
   phone: string;
   password:string;
   imageUrl?: string;
-  role: "user" | "vendor" | "admin";
+  role: Role;
   status?: string;
 }

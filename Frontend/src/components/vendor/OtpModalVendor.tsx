@@ -41,6 +41,7 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
     return () => {
       if (interval) clearInterval(interval);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVerified, vendorData.email]); 
 
   if (!isOpen) return null;

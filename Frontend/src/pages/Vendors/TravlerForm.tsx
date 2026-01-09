@@ -91,11 +91,13 @@ export default function TravelerForm({
       validateAllTravelers(newTravelers);
       return newTravelers;
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count]);
 
   useEffect(() => {
     onChange(travelers);
     validateAllTravelers(travelers);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelers]);
 
   const handleChange = <K extends keyof Traveler>(

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
 import { IUserProfileEditUsecase } from "../../../domain/interface/UsecaseInterface/IEditProfileOfUserUsecas";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { IChangePasswordUseCase } from "../../../domain/dto/User/changePassDto";
+import { IChangePasswordUseCase } from "../../../domain/dto/User/ChangePassDto";
 
 export class UserProfileController {
   constructor(
@@ -37,7 +37,6 @@ export class UserProfileController {
         });
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to fetch profile",
@@ -48,32 +47,16 @@ export class UserProfileController {
 
   async editProfileHandler(req: Request, res: Response) {
     try {
-      // Extract user ID from body, params, or token (in that order)
+   
       const userId = req.body.userId || req.params.userId || req.user?.id || req.user?.userId;
 
-      console.log("🔍 Edit Profile - User from token:", req.user);
-      console.log("🔍 Edit Profile - Request body:", req.body);
-      console.log("🔍 Edit Profile - Request params:", req.params);
-      console.log("🔍 Edit Profile - Extracted userId:", userId);
-
-      if (!userId) {
-        console.error("❌ Edit Profile - User ID not found. req.user:", req.user, "req.body:", req.body);
-        return res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: "User ID is required. Please provide userId in request body or params.",
-        });
-      }
-
-    
       const { userId: _, ...userData } = req.body;
+      console.log(_)
 
       const result = await this._editUserProfileUsecase.execute(
         userId,
         userData
       );
-      
-      console.log("✅ Profile updated in DB:", result);
-      
       if (!result) {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,

@@ -1,14 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function AboutUs() {
-  const [activeTimeline, setActiveTimeline] = useState(null);
-
-  const stats = [
-    { number: '2M+', label: 'Happy Travelers' },
-    { number: '150+', label: 'Countries Covered' },
-    { number: '50K+', label: 'Travel Destinations' },
-    { number: '4.9★', label: 'User Rating' }
-  ];
+  const [, setActiveTimeline] = useState<number | null>(null);
 
   const successStories = [
     {

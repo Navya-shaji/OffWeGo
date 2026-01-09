@@ -27,7 +27,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation with specific toast notifications
     if (!currentPassword) {
       toast.error("Please enter your current password");
       return;
@@ -67,11 +66,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       setLoading(true);
 
       await changePassword({
-        userId: user.id,
         oldPassword: currentPassword,
         newPassword: newPassword,
       });
-
 
       setCurrentPassword("");
       setNewPassword("");
@@ -84,6 +81,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         onClose();
       }, 1000);
       
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || err.message || "";
 

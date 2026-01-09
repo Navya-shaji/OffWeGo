@@ -16,6 +16,7 @@ import { SearchBar } from "@/components/Modular/searchbar";
 import type { Activity } from "@/interface/PackageInterface";
 import { getCoordinatesFromPlace } from "@/services/Location/locationService";
 
+
 const ActivitiesTable: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [originalActivities, setOriginalActivities] = useState<Activity[]>([]);
@@ -175,7 +176,14 @@ const ActivitiesTable: React.FC = () => {
   const getUrlFromImgTag = useCallback((html: string): string => {
     if (!html) return "";
     const match = html.match(/src="([^"]+)"/);
-    return match ? match[1] : html;
+    if (!match) return html;
+    
+    const imageUrl = match[1];
+    // Check if it's a relative path and needs the base URL
+    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+      return `${import.meta.env.VITE_IMAGE_URL}${imageUrl}`;
+    }
+    return imageUrl;
   }, []);
 
   const handleEdit = useCallback((activity: Activity) => {
@@ -221,6 +229,7 @@ const ActivitiesTable: React.FC = () => {
         },
       });
       toast.success("Coordinates fetched successfully!");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching coordinates:", error);
       toast.error(error?.message || "Failed to fetch coordinates");
@@ -473,8 +482,10 @@ const ActivitiesTable: React.FC = () => {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <ToastContainer position="top-right" autoClose={3000} />
+    <div className="min-h-screen bg-gray-50">
+     
+      <div className="max-w-7xl mx-auto p-6 pt-4 space-y-4">
+        <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -848,6 +859,7 @@ const ActivitiesTable: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

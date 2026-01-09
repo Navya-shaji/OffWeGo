@@ -3,6 +3,7 @@ import http from "http";
 import { ChatEventHandler } from "./framework/socketEventHandlers/chatEventHandler";
 
 export class SocketIoServer {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private userSockets: Map<string, any> = new Map();
     private ChatOnline: Map<string, boolean> = new Map();
     private io: SocketIOServer;
@@ -18,7 +19,7 @@ export class SocketIoServer {
 
     private setupSocket(): void {
         this.io.on("connection", (socket) => {
-            console.log(socket.id, "socket connected");
+        
             new ChatEventHandler(socket, this.io);
             socket.on("disconnect", () => {
                 this.userSockets.forEach((userSocket, userId) => {

@@ -164,7 +164,6 @@ export const getNearbyDestinations = async (
         radiusInKm,
       }
     );
-console.log(response,"ressssss")
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {

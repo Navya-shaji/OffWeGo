@@ -2,10 +2,9 @@ import Login from "@/pages/User/Auth/Login";
 import Signup from "@/pages/User/Auth/signup";
 import Home from "@/pages/User/Home/Home";
 import { Route, Routes } from "react-router-dom";
+import type { ReactNode } from "react";
+
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
-import Forgotpassword from "@/components/ForgotPassword/forgot-password";
-import VerifyResetOtp from "@/components/ForgotPassword/otp-verification ";
-import ResetPassword from "@/components/ForgotPassword/reset password";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
@@ -18,46 +17,118 @@ import AllDestinationsPage from "@/pages/User/Destination/AllDestinationPage";
 import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
 import AboutUs from "@/components/home/AboutUs/AboutUs";
 import WalletManagement from "@/pages/User/wallet/userWallet";
-import Travalbuddies from "@/components/home/Travalbuddies/Travalbuddies";
 import ChatPage from "@/pages/User/chat/chat";
-
 import NotFound from "@/components/Modular/NotFound";
+import Footer from "@/components/home/footer/Footer";
+import TravelPostListPage from "@/pages/User/TravelPosts/TravelPostListPage";
+import TravelPostCreatePage from "@/pages/User/TravelPosts/TravelPostCreatePage";
+import TravelPostDetailPage from "@/pages/User/TravelPosts/TravelPostDetailPage";
 
 const UserRoute = () => {
+  const withFooter = (element: ReactNode) => (
+    <>
+      {element}
+      <Footer />
+    </>
+  );
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/forgot-password" element={<Forgotpassword />} />
-      <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route
         path="/profile"
         element={
           <ProtectedRoute>
-            <Profile />
+            {withFooter(<Profile />)}
           </ProtectedRoute>
         }
       />
 
-      <Route path="/destinations" element={<AllDestinationsPage />} />
-      <Route path="/destination/:id" element={<DestinationDetail />} />
-      <Route path="/timeline" element={<PackageTimeline />} />
-      <Route path="/travaler-details" element={<TravelerDetails />} />
-      <Route path="/payment-checkout" element={<PaymentCheckout />} />
-      <Route path="/booking-success" element={<BookingSuccess />} />
-      <Route path="/bookings" element={<BookingDetailsPage />} />
-      <Route path="/review" element={<UserAddReview />} />
-      <Route path="/contact" element={<ExpandedContactUsPage />} />
-      <Route path="/about" element={<AboutUs />} />
-      <Route path="/wallet" element={<WalletManagement />} />
-      <Route path="/buddy-packages" element={<Travalbuddies />} />
-      <Route path="/payment-success" element={<BookingSuccess />} />
+      <Route path="/destinations" element={withFooter(<AllDestinationsPage />)} />
+      <Route path="/destination/:id" element={withFooter(<DestinationDetail />)} />
+      <Route path="/timeline" element={withFooter(<PackageTimeline />)} />
+      <Route
+        path="/travaler-details"
+        element={
+          <ProtectedRoute>
+            {withFooter(<TravelerDetails />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-checkout"
+        element={
+          <ProtectedRoute>
+            {withFooter(<PaymentCheckout />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/booking-success"
+        element={
+          <ProtectedRoute>
+            {withFooter(<BookingSuccess />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute>
+            {withFooter(<BookingDetailsPage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/review"
+        element={
+          <ProtectedRoute>
+            {withFooter(<UserAddReview />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/contact" element={withFooter(<ExpandedContactUsPage />)} />
+      <Route path="/about" element={withFooter(<AboutUs />)} />
+      <Route
+        path="/wallet"
+        element={
+          <ProtectedRoute>
+            {withFooter(<WalletManagement />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment-success"
+        element={
+          <ProtectedRoute>
+            {withFooter(<BookingSuccess />)}
+          </ProtectedRoute>
+        }
+      />
 
+      <Route path="/posts" element={withFooter(<TravelPostListPage />)} />
+      <Route
+        path="/posts/new"
+        element={
+          <ProtectedRoute>
+            {withFooter(<TravelPostCreatePage />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/posts/:slug" element={withFooter(<TravelPostDetailPage />)} />
 
-      <Route path='/chat/:chatId?' element={<ChatPage />} />
+      <Route
+        path='/chat/:chatId?'
+        element={
+          <ProtectedRoute>
+            {withFooter(<ChatPage />)}
+          </ProtectedRoute>
+        }
+      />
+
       <Route>
         <Route path="*" element={<NotFound />}></Route>
       </Route>

@@ -52,11 +52,10 @@ const HotelsTable: React.FC = () => {
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-const [destinationId, setDestinationId] = useState<string>("");
+const [destinationId, ] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-console.log(setDestinationId)
   const loadHotels = useCallback(async (pageNum: number = 1) => {
   if (isLoadingRef.current) return;
 
@@ -157,13 +156,12 @@ console.log(setDestinationId)
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, []); 
+  }, [loadHotels]); 
 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
-      return hotels; // Server handles pagination
+      return hotels; 
     } else {
-      // Client-side pagination for search
       const startIndex = (page - 1) * 5;
       const endIndex = startIndex + 5;
       return hotels.slice(startIndex, endIndex);
@@ -203,6 +201,7 @@ console.log(setDestinationId)
         },
       });
       toast.success("Coordinates fetched successfully!");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching coordinates:", error);
       toast.error(error?.message || "Failed to fetch coordinates");
@@ -222,18 +221,17 @@ console.log(setDestinationId)
     if (!hotelId) return;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatePayload: any = {
         name: formData.name,
         address: formData.address,
         rating: Math.min(5, formData.rating),
       };
 
-      // Only include destinationId if it exists
       if (selectedHotel.destinationId || destinationId) {
         updatePayload.destinationId = selectedHotel.destinationId || destinationId;
       }
 
-      // Only include coordinates if both lat and lng are provided
       if (formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined) {
         updatePayload.coordinates = {
           lat: formData.coordinates.lat,
@@ -274,7 +272,6 @@ console.log(setDestinationId)
       setError("Failed to update hotel. Please try again.");
       toast.error( "Failed to update hotel");
       
-      // Clear error after 3 seconds
       setTimeout(() => setError(""), 3000);
     }
   }, [selectedHotel, formData, isSearchMode, destinationId]);
@@ -286,7 +283,6 @@ console.log(setDestinationId)
       await deleteHotel(selectedHotel._id);
       toast.success("Hotel deleted successfully!");
 
-      // Update local state instead of refetching
       const updatedHotels = hotels.filter(h => h._id !== selectedHotel._id);
       const updatedOriginalHotels = originalHotels.filter(h => h._id !== selectedHotel._id);
 
@@ -310,7 +306,7 @@ console.log(setDestinationId)
       setSelectedHotel(null);
     }
   }, [selectedHotel, hotels, originalHotels, isSearchMode, totalHotels]);
-console.log(hotels,"hotels")
+
   const columns = useMemo<ColumnDef<Hotel>[]>(
     () => [
       { 

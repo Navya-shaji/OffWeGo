@@ -24,8 +24,47 @@ export const createWallet = async (
 export const getWallet = async (id: string): Promise<IWallet> => {
   try {
     const response = await axiosInstance.get(`/api/admin/wallet/${id}`);
-    console.log(response.data,"hjhhj")
-    return response.data;
+    
+    const wallet = response.data;
+    if (wallet.transactions && Array.isArray(wallet.transactions)) {
+      wallet.transactions = await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        wallet.transactions.map(async (transaction: any) => {
+          const enhancedTransaction = { ...transaction };
+          
+          if (transaction.vendorId) {
+            try {
+              const vendorResponse = await axiosInstance.get(`/api/vendor/${transaction.vendorId}`);
+              enhancedTransaction.vendorName = vendorResponse.data.name || vendorResponse.data.businessName || 'Unknown Vendor';
+            } catch  {
+              enhancedTransaction.vendorName = 'Unknown Vendor';
+            }
+          }
+          
+          if (transaction.bookingId) {
+            try {
+              const bookingResponse = await axiosInstance.get(`/api/booking/${transaction.bookingId}`);
+              const booking = bookingResponse.data;
+              enhancedTransaction.bookingDetails = {
+                packageName: booking.package?.name || booking.packageName || 'Unknown Package',
+                destinationName: booking.destination?.name || booking.destinationName || 'Unknown Destination',
+                tripDate: booking.tripDate || booking.date,
+                userName: booking.user?.name || booking.userName || 'Unknown User'
+              };
+            } catch  {
+              enhancedTransaction.bookingDetails = {
+                packageName: 'Unknown Package',
+                destinationName: 'Unknown Destination'
+              };
+            }
+          }
+         
+          return enhancedTransaction;
+        })
+      );
+    }
+    
+    return wallet;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Failed to get wallet");
@@ -33,19 +72,18 @@ export const getWallet = async (id: string): Promise<IWallet> => {
     throw new Error("An unexpected error occurred while fetching wallet");
   }
 };
+
 export const transferWalletAmount = async (
   adminId: string,
   vendorId: string,
   amount: number
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    console.log("Haii")
     const response = await axiosInstance.post("/api/admin/transfer-wallet", {
       adminId,
       vendorId,
       amount,
     });
-console.log(response,"res")
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -61,7 +99,6 @@ console.log(response,"res")
 export const getFinishedTrips = async (): Promise<Booking[]> => {
   try {
     const response = await axiosInstance.get("/api/admin/completed-bookings");
-    console.log(response.data, "Finished Trips Data");
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -74,35 +111,31 @@ export const getFinishedTrips = async (): Promise<Booking[]> => {
   }
 };
 
-// export const processFinishedTrips = async (
-//   adminId: string
-// ): Promise<void> => {
-//   try {
+export const processFinishedTrips = async (
+  adminId: string
+): Promise<void> => {
+  try {
    
-//     const completedTrips = await getFinishedTrips();
-//     console.log(completedTrips, "Completed Trips");
+    const completedTrips = await getFinishedTrips();
 
-//     for (const trip of completedTrips) {
-//       if (!trip.selectedPackage?.vendorId) continue;
+    for (const trip of completedTrips) {
+      if (!trip.selectedPackage?.vendorId) continue;
 
-//       const vendorId = trip.selectedPackage.vendorId;
-//       const bookingAmount = trip.totalAmount;
-//       const vendorShare = bookingAmount * 0.9; 
+      const vendorId = trip.selectedPackage.vendorId;
+      const bookingAmount = trip.totalAmount;
+      const vendorShare = bookingAmount * 0.9; 
 
-//       console.log(
-//         `Transferring ₹${vendorShare} to vendor ${vendorId} for booking ${trip._id}`
-//       );
 
    
-//       await transferWalletAmount(adminId, vendorId, vendorShare);
-//     }
-//   } catch (error) {
-//     console.error("Error processing finished trips:", error);
-//     throw new Error("Failed to process finished trips");
-//   }
-// };
+      await transferWalletAmount(adminId, vendorId, vendorShare);
+    }
+  } catch  {
+    throw new Error("Failed to process finished trips");
+  }
+};
 
-export const completeTripAndDistribute = async (payload) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const completeTripAndDistribute = async (payload: any) => {
   try {
     const { bookingId, adminId, vendorId, amount } = payload;
 
@@ -112,7 +145,7 @@ export const completeTripAndDistribute = async (payload) => {
       vendorId,
       amount
     });
-console.log(response,"res")
+
     return response.data;
   } catch (error:unknown) {
     return {

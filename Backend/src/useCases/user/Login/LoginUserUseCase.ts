@@ -50,7 +50,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       accessToken,
       refreshToken,
       fcmToken: savedFcmToken,
-      user: mapToLoginUserDto(user),
+      user: mapToLoginUserDto(user) ,
     };
   }
 

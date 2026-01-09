@@ -29,7 +29,7 @@ export function GoogleSignup() {
 
             try {
               const res = await registerGoogleUser(token);
-              console.log("Google signup response:", res);
+        
               
               if (!res || !res.data) {
                 toast.error("Invalid response from server");
@@ -37,15 +37,10 @@ export function GoogleSignup() {
               }
               
               const { user, accessToken } = res.data;
-              console.log("Google signup response data:", res.data);
-              console.log("User:", user);
-              console.log("AccessToken:", accessToken);
-              
+           
               if (user && accessToken) {
-                // Store token in token slice for axios interceptor
                 dispatch(setToken(accessToken));
                 
-                // Store user data in auth slice
                 dispatch(
                   login({
                     user: {
@@ -69,9 +64,9 @@ export function GoogleSignup() {
               } else {
                 toast.error("Signup failed");
               }
-            } catch (error: any) {
+            } catch (error) {
               console.error("Google signup error:", error);
-              const errorMessage = error?.message || error?.response?.data?.message || "Google signup failed. Please try again.";
+              const errorMessage =  "Google signup failed. Please try again.";
               toast.error(errorMessage);
             }
           }}

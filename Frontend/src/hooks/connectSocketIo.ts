@@ -14,9 +14,7 @@ const token = getToken();
 
 const socketUrl = url.endsWith('/') ? url.slice(0, -1) : url;
 
-console.log(" Initializing socket...");
-console.log(" Socket URL:", socketUrl);
-console.log(" Token available:", token ? "YES" : "NO");
+
 
 const socket = io(socketUrl, {
   withCredentials: true,
@@ -46,8 +44,5 @@ socket.on('disconnect', (reason) => {
 
 if (!token) {
   console.warn("No token found - socket will not auto-connect. SocketManager will handle connection when user logs in.");
-} else {
-  console.log(" Socket will auto-connect with token");
-}
-
+} 
 export default socket

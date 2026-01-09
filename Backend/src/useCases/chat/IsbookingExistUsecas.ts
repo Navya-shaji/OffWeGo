@@ -1,4 +1,4 @@
-import { IEnableChatOutputDto } from "../../domain/dto/Chat/chatDto";
+import { IEnableChatOutputDto } from "../../domain/dto/Chat/ChatDto";
 import { IBookingRepository } from "../../domain/interface/Booking/IBookingRepository";
 import { IEnableChatUsecase } from "../../domain/interface/Chat/IEnableChatUSecase";
 
@@ -29,8 +29,7 @@ export class EnableChatUsecase implements IEnableChatUsecase {
                 message: "Chat disabled — no active booking found between user and owner"
             };
 
-        } catch (error) {
-            console.error("Error checking booking:", error);
+        } catch {
             return {
                 canChat: false,
                 message: "An error occurred while checking booking status"

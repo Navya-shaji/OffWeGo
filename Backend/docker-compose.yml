@@ -1,23 +1,44 @@
+version: "3.8"
+
 services:
   app:
     build: .
-    container_name: otp-service
     restart: always
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
+
+      # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: offwegowebsite
-      NODEMAILER_EMAIL: navyaaaa303@gmail.com
-      NODEMAILER_PASSWORD: bghxhpcywvomzfoz
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+      # Mongo
+      MONGO_URI: ${MONGO_URI}
+
+      # Auth
+      JWT_ACCESSTOKENSECRETKEY: ${JWT_ACCESSTOKENSECRETKEY}
+      JWT_REFRESHTOKEN: ${JWT_REFRESHTOKEN}
+
+      # Stripe  REQUIRED
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+
+      # Others
+      NODEMAILER_EMAIL: ${NODEMAILER_EMAIL}
+      NODEMAILER_PASSWORD: ${NODEMAILER_PASSWORD}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      DOMAIN_URL: ${DOMAIN_URL}
+
     depends_on:
       - redis
 
+
   redis:
     image: redis:6.2-alpine
-    container_name: otp-redis
-    command: redis-server --requirepass offwegowebsite
+    command: redis-server --requirepass ${REDIS_PASSWORD:-offwegowebsite}
     ports:
       - "6379:6379"

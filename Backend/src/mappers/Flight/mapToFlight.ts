@@ -1,4 +1,4 @@
-import { Flight } from "../../domain/entities/flightEntity";
+import { Flight } from "../../domain/entities/FlightEntity";
 import { IFlightModel } from "../../framework/database/Models/flightModel";
 
 export const mapToFlightDto = (doc: IFlightModel): Flight => ({
