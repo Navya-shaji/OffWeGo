@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChatRepository } from "../../adapters/repository/Chat/chatRepository";
 import { mapToChatOut } from "../../mappers/Chat/mapTochat";
 
@@ -33,7 +34,6 @@ export class GetChatsOfUserUsecase {
                 : String(chat.vendorId);
             
           
-            const currentUserId = String(userId);
             
        
             const userIdValue = chatUserId;

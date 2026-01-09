@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { getMessages, findOrCreateChat, getChatsOfUser } from '@/services/chat/chatService';
 import { useSelector } from 'react-redux';
@@ -48,7 +50,7 @@ interface ChatContextType {
     triggerSidebarRefetch: () => void;
 }
 
-// @ts-ignore
+// @ts-expect-error
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -204,9 +206,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const sendMessage = async (content: string) => {
         if (!currentChat || !socket || !myId) return;
 
-        // Ensure other person ID is updated or available? 
-        // currentChat.userId / vendorId logic
-        // But we rely on socket to broadcast.
 
         const newMsg: Imessage = {
             _id: "",
@@ -220,12 +219,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         };
 
         socket.emit("send_message", { ...newMsg, senderName: user?.username || vendor?.name }, () => {
-            // Optimistic update handled by receive-message usually? 
-            // Or append local immediately? 
-            // ChatContainer might double append if we append here AND listen?
-            // Socket usually echoes back to sender?
-            // Backend chatHandler: _io.to(chatId).emit("receive-message", savedMessage);
-            // Yes it echoes. So we don't append here to avoid duplication, OR we check ID.
+          
         });
     };
 

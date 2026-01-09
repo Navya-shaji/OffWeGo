@@ -76,14 +76,11 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
         },
       };
 
-      const result = await addCategoryService(category);
       notify();
 
-      // Add the new category to the context state
-      const newCategory = { ...category, id: Date.now().toString() }; // Fallback ID
+      const newCategory = { ...category, id: Date.now().toString() }; 
       addCategory(newCategory);
 
-      // Call the callback if provided
       if (onCategoryCreated) {
         onCategoryCreated(newCategory);
       }

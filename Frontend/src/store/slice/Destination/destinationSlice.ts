@@ -17,15 +17,14 @@ const initialState: DestinationState = {
   error: null,
 };
 
-// ADD DESTINATION
+
 export const addDestination = createAsyncThunk<
-  DestinationInterface, // Return type
-  DestinationInterface, // Argument type
-  { rejectValue: string } // Reject value type
+  DestinationInterface, 
+  DestinationInterface, 
+  { rejectValue: string } 
 >("destination/add", async (data, { rejectWithValue }) => {
   try {
     const response = await addDestinationService(data);
-    // Ensure the response matches DestinationInterface
     return response as DestinationInterface;
   } catch (error: unknown) {
     if (error instanceof Error) return rejectWithValue(error.message);
@@ -62,7 +61,7 @@ export const destinationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ADD DESTINATION
+      
       .addCase(addDestination.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -76,7 +75,7 @@ export const destinationSlice = createSlice({
         state.error = action.payload ?? "Unknown error during add";
       })
 
-      // FETCH DESTINATIONS
+     
       .addCase(fetchDestinations.pending, (state) => {
         state.loading = true;
         state.error = null;

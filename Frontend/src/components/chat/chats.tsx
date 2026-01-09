@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef, useContext } from "react";
 import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, X, RotateCcw, Smile } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
@@ -627,7 +628,6 @@ const ChatPage = () => {
                         }
                     }
                     
-                    // Extract IDs for reference - Backend should now include userId and vendorId as strings
                     let vendorIdValue: string | null = null;
                     let userIdValue: string | null = null;
                     
@@ -691,7 +691,7 @@ const ChatPage = () => {
                 }
 
             } catch (err: any) {
-                console.error("❌ Failed to load contacts", err);
+                console.error(" Failed to load contacts", err);
                 console.error("Error details:", {
                     message: err?.message,
                     response: err?.response?.data,
@@ -765,7 +765,7 @@ const ChatPage = () => {
                 const currentUserType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
                 markMessagesAsSeen(selectedContact._id, senderId, currentUserType)
                     .then(() => {
-                        console.log("✅ Messages marked as seen in backend for chat:", selectedContact._id);
+                        console.log(" Messages marked as seen in backend for chat:", selectedContact._id);
                     })
                     .catch((error) => {
                         console.error("Error marking messages as seen:", error);
@@ -795,15 +795,10 @@ const ChatPage = () => {
             const prevScrollHeight = container?.scrollHeight || 0;
             const prevScrollTop = container?.scrollTop || 0;
 
-            // const oldestTime = messages[0]?.sendedTime;
-            // const before = oldestTime ? new Date(oldestTime) : undefined;
 
             const userType = (isVendorAuthenticated && vendor) ? 'vendor' : (isUserAuthenticated && user) ? 'user' : (vendor ? 'vendor' : 'user');
             const res = await getMessages(selectedContact._id, userType, 
-            //     {
-            //     limit: 30,
-            //     before: before,
-            // }
+           
         );
 
             const older: ChatMessage[] = (res && res.data && res.data.messages && Array.isArray(res.data.messages))

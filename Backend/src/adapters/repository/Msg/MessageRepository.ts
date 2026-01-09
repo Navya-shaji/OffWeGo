@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { messageModel } from "../../../framework/database/Models/MessageModel";
 import { IMessage } from "../../../domain/entities/MessageEntity";
 
@@ -7,14 +8,7 @@ export class MessageRepository {
     }
 
     async createMessage(data: any): Promise<IMessage> {
-        console.log('💾 MessageRepository.createMessage called with:', {
-            chatId: data.chatId,
-            senderId: data.senderId,
-            senderType: data.senderType,
-            messageContent: data.messageContent,
-            messageContentLength: data.messageContent?.length || 0,
-            charCodes: data.messageContent?.split('').map(char => char.charCodeAt(0))
-        });
+       
         const newMessage = new messageModel({
             chatId: data.chatId,
             senderId: data.senderId,
@@ -27,10 +21,7 @@ export class MessageRepository {
             replyTo: data.replyTo
         });
         const saved = await newMessage.save();
-        console.log('✅ Message saved to DB with ID:', saved._id);
-        console.log('✅ Saved message content:', saved.messageContent);
-        console.log('✅ Saved message content length:', saved.messageContent?.length || 0);
-        console.log('✅ Saved char codes:', saved.messageContent?.split('').map(char => char.charCodeAt(0)));
+      
         return saved.toObject();
     }
 

@@ -31,7 +31,8 @@ export const getAllUserBookings = async (vendorId:string) => {
 
 export const bookingdates=async(vendorId:string)=>{
   const response=await axiosInstance.get(`/api/vendor/bookings/date/${vendorId}`)
-  return response.data.booking_dates
+  console.log(response,"res")
+  return response.data.data
 }
 export const cancelBooking = async (bookingId: string, reason?: string) => {
   const response = await axiosInstance.patch(`/api/bookings/${bookingId}`, {

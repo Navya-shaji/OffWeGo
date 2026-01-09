@@ -15,6 +15,7 @@ export class ChatHandler {
         console.log("user connected", userId);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async handleSendMessage(data: any, senderName: string): Promise<string> {
       
 

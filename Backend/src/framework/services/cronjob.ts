@@ -25,6 +25,7 @@ export const autoSettleTrips = cron.schedule("*/1 * * * *", async () => {
   for (const booking of bookings) {
     try {
      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pkg = await packageRepo.getById(booking.selectedPackage as any);
       if (!pkg) {
         console.log("Package not found:", booking.selectedPackage);

@@ -16,6 +16,7 @@ export class FirebaseNotificationService implements INotificationService {
     token: string,
     title: string,
     body: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any
   ): Promise<void> {
     try {
@@ -52,13 +53,11 @@ export class FirebaseNotificationService implements INotificationService {
       };
 
       const response = await firebaseAdmin.messaging().send(message);
-      console.log('✅ FCM notification sent successfully:', response);
-    } catch (error: any) {
-      console.error('❌ Error sending FCM notification:', error);
-      // If token is invalid, we should handle it but not throw
+      console.log(' FCM notification sent successfully:', response);
+    } catch (error) {
       if (error.code === 'messaging/invalid-registration-token' || 
           error.code === 'messaging/registration-token-not-registered') {
-        console.warn('⚠️ Invalid FCM token, should be removed from database');
+        console.warn(' Invalid FCM token, should be removed from database');
       } else {
         throw error;
       }
