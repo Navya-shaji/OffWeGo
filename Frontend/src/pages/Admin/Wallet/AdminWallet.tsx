@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { Wallet, TrendingUp, Users, RefreshCw, AlertCircle, CheckCircle, ArrowDownRight, ArrowUpRight, Percent } from 'lucide-react';
+import { Wallet, TrendingUp, Users, RefreshCw, AlertCircle, CheckCircle, ArrowDownRight, ArrowUpRight, Percent, Loader2 } from 'lucide-react';
 import { getWallet } from '@/services/Wallet/AdminWalletService';
 import type { IWallet } from '@/interface/wallet';
 
@@ -14,6 +14,14 @@ export default function AdminWalletManagement() {
   const [error, setError] = useState<string | null>(null);
   const [success] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Infinite scroll states
+  const [displayedTransactions, setDisplayedTransactions] = useState<ITransaction[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
+  
+  const TRANSACTIONS_PER_PAGE = 10;
 
   useEffect(() => {
     if (Admin?.id) {
@@ -21,6 +29,19 @@ export default function AdminWalletManagement() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Admin]);
+
+  useEffect(() => {
+    if (adminWallet?.transactions) {
+      // Sort transactions by latest first (newest date first)
+      const sortedTransactions = [...adminWallet.transactions].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      
+      const initial = sortedTransactions.slice(0, TRANSACTIONS_PER_PAGE);
+      setDisplayedTransactions(initial);
+      setHasMore(sortedTransactions.length > TRANSACTIONS_PER_PAGE);
+    }
+  }, [adminWallet]);
 
   const fetchWalletData = async () => {
     if (!Admin?.id) return;
@@ -44,6 +65,58 @@ export default function AdminWalletManagement() {
     setRefreshing(true);
     await fetchWalletData();
   };
+
+  // Load more transactions
+  const loadMoreTransactions = useCallback(() => {
+    if (!adminWallet?.transactions || loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    
+    // Simulate network delay for smooth UX
+    setTimeout(() => {
+      const sortedTransactions = [...adminWallet.transactions].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      
+      const currentLength = displayedTransactions.length;
+      const nextTransactions = sortedTransactions.slice(
+        currentLength,
+        currentLength + TRANSACTIONS_PER_PAGE
+      );
+
+      if (nextTransactions.length > 0) {
+        setDisplayedTransactions(prev => [...prev, ...nextTransactions]);
+        setHasMore(currentLength + nextTransactions.length < sortedTransactions.length);
+      } else {
+        setHasMore(false);
+      }
+      
+      setLoadingMore(false);
+    }, 500);
+  }, [adminWallet, displayedTransactions, loadingMore, hasMore]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          loadMoreTransactions();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, loadingMore, loadMoreTransactions]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -257,37 +330,64 @@ export default function AdminWalletManagement() {
                 <p className="text-sm text-slate-400 mt-1">Transactions will appear here once bookings are made</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {adminWallet?.transactions?.slice(0, 20).map((tx: ITransaction, idx: number) => (
-                  <div
-                    key={idx}
-                    className={`flex items-center justify-between p-4 rounded-xl border ${getTransactionColor(tx.type)} hover:shadow-md transition-all duration-200 group`}
-                  >
-                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <div className={`p-2.5 rounded-lg ${tx.type === 'credit' ? 'bg-emerald-100' : 'bg-rose-100'} group-hover:scale-110 transition-transform duration-200`}>
-                        {getTransactionIcon(tx.type)}
+              <>
+                <div className="space-y-3">
+                  {displayedTransactions.map((tx: ITransaction, idx: number) => (
+                    <div
+                      key={idx}
+                      className={`flex items-center justify-between p-4 rounded-xl border ${getTransactionColor(tx.type)} hover:shadow-md transition-all duration-200 group`}
+                    >
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className={`p-2.5 rounded-lg ${tx.type === 'credit' ? 'bg-emerald-100' : 'bg-rose-100'} group-hover:scale-110 transition-transform duration-200`}>
+                          {getTransactionIcon(tx.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">{tx.description}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {new Date(tx.date).toLocaleString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 truncate">{tx.description}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {new Date(tx.date).toLocaleString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                      <div className="text-right ml-4">
+                        <p className={`text-lg font-bold ${tx.type === 'debit' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                          {tx.type === 'debit' ? '-' : '+'} {formatCurrency(tx.amount)}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right ml-4">
-                      <p className={`text-lg font-bold ${tx.type === 'debit' ? 'text-rose-600' : 'text-emerald-600'}`}>
-                        {tx.type === 'debit' ? '-' : '+'} {formatCurrency(tx.amount)}
-                      </p>
-                    </div>
+                  ))}
+                </div>
+
+                {/* Infinite Scroll Loading Indicator */}
+                {hasMore && (
+                  <div ref={observerTarget} className="flex justify-center py-8">
+                    {loadingMore && (
+                      <div className="flex items-center gap-3 text-indigo-600">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        <span className="font-medium">Loading more transactions...</span>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
+                )}
+
+                {/* End of List Indicator */}
+                {!hasMore && displayedTransactions.length > TRANSACTIONS_PER_PAGE && (
+                  <div className="text-center py-8">
+                    <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-100 to-purple-100 border border-indigo-200 rounded-xl text-indigo-700">
+                      <CheckCircle size={18} />
+                      <span className="font-medium">All transactions loaded</span>
+                    </div>
+                    <p className="text-slate-500 text-sm mt-3">
+                      Showing {displayedTransactions.length} of {adminWallet?.transactions.length || 0} transactions
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

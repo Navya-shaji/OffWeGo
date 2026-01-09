@@ -12,16 +12,12 @@ import { VendorRoute } from "./framework/routes/Vendor/vendorRoute";
 
 import { morganFileLogger } from "./framework/Logger/logger";
 import { errorMiddleware } from "./adapters/flowControl/ErrorMiddleware";
-import {
-  createAutoSettlementCron,
-} from "./framework/Services/cronjob";
-import { SocketIoServer } from "./Io";
-import { WalletRepository } from "./adapters/repository/Wallet/WalletRepository";
-import { BookingRepository } from "./adapters/repository/Booking/BookingRepository";
-import { PackageRepository } from "./adapters/repository/Package/PackageRepository";
 
-// Import all models to ensure they are registered with Mongoose
+import { SocketIoServer } from "./Io";
+
+
 import "./framework/database/Models";
+import { autoSettleTrips } from "./framework/Services/cronjob";
 
 export class App {
   private app: Express;
@@ -69,16 +65,11 @@ export class App {
     try {
       await this.database.connect();
       
-      const walletRepo = new WalletRepository();
-      const bookingRepo = new BookingRepository();
-      const packageRepo = new PackageRepository();
+    
       
-      const autoSettleTrips = createAutoSettlementCron(
-        walletRepo,
-        bookingRepo,
-        packageRepo
-      );
       autoSettleTrips.start();
+      console.log("⏱️ Auto Settlement Cron Started");
+
 
       this.server = http.createServer(this.app);
 

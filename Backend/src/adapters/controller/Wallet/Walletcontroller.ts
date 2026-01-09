@@ -141,6 +141,7 @@ export class WalletController {
         bookingId,
         vendorId,
         adminId,
+        totalAmount
       );
 
       res.status(HttpStatus.OK).json({

@@ -13,8 +13,9 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
     bookingRefId: string,
     vendorId: string,
     adminId: string,
-    
+    totalAmount: number
   ): Promise<void> {
+    console.log(bookingRefId, adminId,totalAmount, "booking refId in usecase");
 
     const bookings = await this._bookingRepository.findByRefId(bookingRefId);
 
@@ -28,6 +29,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
       const packageData = await this._packageRepository.getById(
         booking.selectedPackage._id
       );
+console.log(packageData,"packageData")
       if (!packageData) continue;
 
       const durationInDays = packageData.duration;
@@ -42,6 +44,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
       const existingTransaction =
         await this._walletRepository.getTransactionByRef(bookingRefId, adminId);
 
+      console.log(existingTransaction, "existing tx");
 
       if (!existingTransaction) continue;
 
@@ -55,9 +58,8 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
         "admin",
         vendorAmount,
         "debit",
-        `Settlement paid to vendor ${vendorId}`,
-        booking.bookingId,
-
+        `Settlement paid to vendor ${packageData.vendorId}`,
+        booking.bookingId
       );
 
       await this._walletRepository.updateBalance(

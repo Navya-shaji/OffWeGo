@@ -200,7 +200,10 @@ export class BookingRepository implements IBookingRepository {
   }
   async findCompletedTrips(): Promise<Booking[]> {
     return (BookingModel as any).find({
-      bookingStatus: "upcoming",
+      $or: [
+        { bookingStatus: "upcoming" },
+        { bookingStatus: "completed" }
+      ],
       settlementDone: false,
       paymentStatus: "succeeded",
       selectedDate: { $lt: new Date() }

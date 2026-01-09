@@ -3,5 +3,6 @@ export interface ICompleteTripUseCase {
     bookingId: string,
     vendorId: string,
     adminId: string,
+    totalAmount: number
   ): Promise<void>;
 }
