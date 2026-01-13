@@ -39,4 +39,6 @@ export interface BookingDataDto {
   payment_id?: string;
   bookingStatus: "upcoming" | "completed" | "cancelled";
   settlementDone:boolean
+  
+  
 }

@@ -1,15 +1,46 @@
 import { IOtpService } from "../../domain/interface/ServiceInterface/Iotpservice";
 import Redis from "ioredis";
 import nodemailer from "nodemailer";
+import NodeCache from "node-cache";
 
 export class OtpService implements IOtpService {
   private redis: Redis;
+  private localCache: NodeCache;
+  private useLocalCache: boolean = false;
 
   constructor() {
+    this.localCache = new NodeCache({ stdTTL: 60 }); // 60 seconds default TTL for OTP
+
     this.redis = new Redis({
       host: process.env.REDIS_HOST || "127.0.0.1",
       port: Number(process.env.REDIS_PORT) || 6379,
       password: process.env.REDIS_PASSWORD || undefined,
+      maxRetriesPerRequest: 1,
+      lazyConnect: true, // Don't connect until a command is sent
+      retryStrategy: (times) => {
+        if (times > 1) {
+          if (!this.useLocalCache) {
+            console.warn("⚠️ OtpService: Redis unavailable. Using In-Memory Cache (OTPs will still work).");
+            this.useLocalCache = true;
+          }
+          return null;
+        }
+        return 50;
+      }
+    });
+
+    this.redis.on("error", (err) => {
+      // Only log errors if we haven't switched to local cache yet
+      if (!this.useLocalCache) {
+        // Silencing the common "ECONNREFUSED" to keep logs clean for dev
+        if (err.message.includes("ECONNREFUSED")) return;
+        console.error("Redis error in OtpService:", err.message);
+      }
+    });
+
+    this.redis.on("connect", () => {
+      console.log("✅ Redis connected in OtpService");
+      this.useLocalCache = false;
     });
   }
 
@@ -23,14 +54,43 @@ export class OtpService implements IOtpService {
   }
 
   async storeOtp(email: string, otp: string): Promise<void> {
-    await this.redis.set(email, otp, "EX", 60);
+    if (this.useLocalCache) {
+      this.localCache.set(email, otp);
+      return;
+    }
+    try {
+      await this.redis.set(email, otp, "EX", 60);
+    } catch (err) {
+      this.useLocalCache = true;
+      this.localCache.set(email, otp);
+    }
   }
 
   async verifyOtp(email: string, otp: string): Promise<boolean> {
-    const storedOtp = await this.redis.get(email);
+    let storedOtp: string | undefined | null;
+
+    if (this.useLocalCache) {
+      storedOtp = this.localCache.get<string>(email);
+    } else {
+      try {
+        storedOtp = await this.redis.get(email);
+      } catch (err) {
+        this.useLocalCache = true;
+        storedOtp = this.localCache.get<string>(email);
+      }
+    }
+
     if (!storedOtp || storedOtp !== otp) return false;
 
-    await this.redis.del(email);
+    if (this.useLocalCache) {
+      this.localCache.del(email);
+    } else {
+      try {
+        await this.redis.del(email);
+      } catch (err) {
+        this.localCache.del(email);
+      }
+    }
     return true;
   }
 

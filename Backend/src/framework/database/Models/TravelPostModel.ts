@@ -19,6 +19,7 @@ export interface ITravelPostDocument extends Document {
     views: number;
     likes: number;
   };
+  viewedBy: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }

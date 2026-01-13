@@ -17,7 +17,7 @@ export class UserLoginController {
     private _resetPasswordUseCase: IResetPasswordUseCase,
     private _forgotPassUsecase: IForgotpassUsecase,
     private _createWalletUsecase: ICreateWalletUsecase
-  ) {}
+  ) { }
 
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
@@ -76,7 +76,16 @@ export class UserLoginController {
   async forgotPassword(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.body;
-      await this._forgotPassUsecase.execute(email);
+      const result = await this._forgotPassUsecase.execute(email);
+
+      // Check if email exists in the database
+      if (!result.success) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: result.message,
+        });
+        return;
+      }
 
       const otp = this._otpService.generateOtp();
       await this._otpService.storeOtp(email, otp);

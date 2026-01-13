@@ -6,7 +6,7 @@ export class StripeService implements IStripeService {
 
   constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-     apiVersion: "2025-09-30.clover",
+      apiVersion: "2025-09-30.clover",
     });
   }
 
@@ -20,35 +20,35 @@ export class StripeService implements IStripeService {
       });
 
       return paymentIntent.client_secret!;
-    } catch  {
+    } catch {
       throw new Error("Failed to create payment intent");
     }
   }
 
   async createSubscriptionCheckoutSession(
-  priceId: string,
-  domainUrl: string,
-  bookingId?: string
-): Promise<{ checkoutUrl: string; sessionId: string }> {
+    priceId: string,
+    domainUrl: string,
+    bookingId?: string
+  ): Promise<{ checkoutUrl: string; sessionId: string }> {
 
-  try {
-    const session = await this.stripe.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [{ price: priceId, quantity: 1 }],
-      metadata: { bookingId: bookingId ?? "N/A" },
-      success_url: `${domainUrl}/vendor/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domainUrl}/payment/cancel`,
-    });
+    try {
+      const session = await this.stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        line_items: [{ price: priceId, quantity: 1 }],
+        metadata: { bookingId: bookingId ?? "N/A" },
+        success_url: `${domainUrl}/vendor/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${domainUrl}/payment/cancel`,
+      });
 
-    return { 
-      checkoutUrl: session.url!, 
-      sessionId: session.id 
-    };
-  } catch {
-    throw new Error("Failed to create Stripe Checkout session");
+      return {
+        checkoutUrl: session.url!,
+        sessionId: session.id
+      };
+    } catch {
+      throw new Error("Failed to create Stripe Checkout session");
+    }
   }
-}
 
 
   async retrieveSession(sessionId: string) {

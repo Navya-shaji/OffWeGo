@@ -10,22 +10,23 @@ export const mapToVendor = (doc: IVendorModel): Vendor => ({
   documentUrl: doc.documentUrl,
   profileImage: doc.profileImage,
   status: doc.status,
+  rejectionReason: doc.rejectionReason,
   role: doc.role,
   isBlocked: doc.isBlocked,
   createdAt: doc.createdAt,
   lastLogin: doc.lastLogin,
   googleVerified: doc.googleVerified,
   isAdmin: doc.isAdmin,
-  fcmToken:doc.fcmToken,
+  fcmToken: doc.fcmToken,
 
 
   subscription: doc.subscription
     ? {
-        plan: doc.subscription.plan,
-        subscribedAt: doc.subscription.subscribedAt,
-        expiresAt: doc.subscription.expiresAt,
-        maxPackages: doc.subscription.maxPackages,
-      }
+      plan: doc.subscription.plan,
+      subscribedAt: doc.subscription.subscribedAt,
+      expiresAt: doc.subscription.expiresAt,
+      maxPackages: doc.subscription.maxPackages,
+    }
     : undefined,
 
 

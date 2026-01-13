@@ -13,14 +13,14 @@ export class ChatEventHandler {
     }
 
     private _setHandler(): void {
-      
+
         this._socket.on("register_user", ({ userId }: { userId: string }) => {
             chatHandler.handleConnect(userId);
-            const socketData = this._socket ;
+            const socketData = this._socket;
             socketData.data = socketData.data || {};
             socketData.data.role = 'user';
             socketData.data.userId = userId;
-            this._socket.join(`user_${userId}`); 
+            this._socket.join(`user_${userId}`);
             this._io.emit("user-status-changed", {
                 userId: userId,
                 isOnline: true,
@@ -29,7 +29,7 @@ export class ChatEventHandler {
             const onlineIds: string[] = [];
             for (const s of this._io.sockets.sockets.values()) {
                 const role = (s).data?.role;
-                const id = role === 'vendor' ? (s ).data?.vendorId : (s).data?.userId;
+                const id = role === 'vendor' ? (s).data?.vendorId : (s).data?.userId;
                 if (id) onlineIds.push(String(id));
             }
             this._socket.emit('online-users', { onlineIds });
@@ -38,10 +38,10 @@ export class ChatEventHandler {
         // Vendor registration
         this._socket.on("register_vendor", ({ vendorId }: { vendorId: string }) => {
             chatHandler.handleConnect(vendorId);
-            (this._socket ).data = (this._socket).data || {};
-            (this._socket ).data.role = 'vendor';
+            (this._socket).data = (this._socket).data || {};
+            (this._socket).data.role = 'vendor';
             (this._socket).data.vendorId = vendorId;
-            this._socket.join(`vendor_${vendorId}`); 
+            this._socket.join(`vendor_${vendorId}`);
             this._io.emit("vendor-status-changed", {
                 vendorId: vendorId,
                 isOnline: true,
@@ -61,7 +61,7 @@ export class ChatEventHandler {
         });
 
         this._socket.on("send_message", async (data, ack: (id: string) => void) => {
-           
+
 
             const senderName = data.senderName || 'Someone';
             const id = await chatHandler.handleSendMessage(data, senderName);
@@ -71,16 +71,24 @@ export class ChatEventHandler {
             this._io.to(data.chatId).emit("receive-message", {
                 ...data,
                 _id: id,
-                replyTo: data.replyTo 
+                replyTo: data.replyTo
             });
 
+            // Also notify the recipient's private room to update sidebar/unread counts
             if (data.receiverId) {
                 const normalizedSenderType = (data.senderType || '').toLowerCase();
                 const isVendorSender = normalizedSenderType === 'vendor';
-                const recipientRoom = isVendorSender 
-                    ? `user_${data.receiverId}` 
+                const recipientRoom = isVendorSender
+                    ? `user_${data.receiverId}`
                     : `vendor_${data.receiverId}`;
-                
+
+                // We emit receive-message to the private room as well so the sidebar can update
+                this._io.to(recipientRoom).emit("receive-message", {
+                    ...data,
+                    _id: id,
+                    replyTo: data.replyTo
+                });
+
                 this._io.to(recipientRoom).emit("new-message-notification", {
                     chatId: data.chatId,
                     senderId: data.senderId,

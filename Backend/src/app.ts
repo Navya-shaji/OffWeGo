@@ -1,5 +1,7 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import http from "http";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -17,7 +19,7 @@ import { SocketIoServer } from "./Io";
 
 
 import "./framework/database/Models";
-import { autoSettleTrips } from "./framework/Services/cronjob";
+import { startAutoSettlementJob } from "./framework/Services/cronjob";
 
 export class App {
   private app: Express;
@@ -26,7 +28,6 @@ export class App {
   private io!: SocketIOServer;
 
   constructor() {
-    dotenv.config();
     this.app = express();
     this.database = new ConnectDB();
 
@@ -64,16 +65,16 @@ export class App {
 
     try {
       await this.database.connect();
-      
-    
-      
-      autoSettleTrips.start();
+      console.log("✅ Database connected successfully");
+
+
+      startAutoSettlementJob();
       console.log("⏱️ Auto Settlement Cron Started");
 
 
       this.server = http.createServer(this.app);
 
-   
+
       this.io = new SocketIOServer(this.server, {
         cors: {
           origin: [
