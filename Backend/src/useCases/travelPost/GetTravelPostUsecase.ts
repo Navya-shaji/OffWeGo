@@ -4,7 +4,7 @@ import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
 
 export class GetTravelPostUsecase implements IGetTravelPostUsecase {
-  constructor(private  _travelPostRepository: ITravelPostRepository) {}
+  constructor(private _travelPostRepository: ITravelPostRepository) { }
 
   async execute(
     identifier: { id?: string; slug?: string },
@@ -30,13 +30,24 @@ export class GetTravelPostUsecase implements IGetTravelPostUsecase {
       throw new Error("Travel post is not available");
     }
 
-    await this._travelPostRepository.incrementViews(post.id!);
+    // Increment views only if it's a new viewer (if logged in)
+    const oldViews = post.metrics.views;
+    await this._travelPostRepository.incrementViews(post.id!, requesterId || undefined);
 
+    // We fetch the post again to get updated metric or we can manually adjust
+    // To be efficient, we only increment the DTO view if it's likely a new view
     const dto = mapTravelPostToDto(post);
-    dto.metrics = {
-      ...dto.metrics,
-      views: dto.metrics.views + 1,
-    };
+
+    // Simple heuristic for immediate UI feedback: 
+    // If not logged in, increment. 
+    // If logged in, check if user was already in viewedBy.
+    const alreadyViewed = requesterId && post.viewedBy?.includes(requesterId);
+    if (!requesterId || !alreadyViewed) {
+      dto.metrics = {
+        ...dto.metrics,
+        views: oldViews + 1,
+      };
+    }
 
     return dto;
   }

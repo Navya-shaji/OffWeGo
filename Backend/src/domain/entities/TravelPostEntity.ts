@@ -2,6 +2,7 @@ export interface TravelPost {
   id?: string;
   authorId: string;
   authorName?: string;
+  authorProfilePicture?: string;
   title: string;
   slug: string;
   categoryId: string;
@@ -20,6 +21,7 @@ export interface TravelPost {
     views: number;
     likes: number;
   };
+  viewedBy?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }

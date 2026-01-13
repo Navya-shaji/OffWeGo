@@ -45,7 +45,7 @@ export const fetchTravelPosts = async (
     const payload = response.data || {};
 
     const posts = (payload.data as TravelPost[]) ?? [];
-  
+
     const result = {
       data: posts,
       total: typeof payload.total === "number" ? payload.total : posts.length,
@@ -53,14 +53,14 @@ export const fetchTravelPosts = async (
       page: typeof payload.page === "number" ? payload.page : params.page ?? 1,
       limit: typeof payload.limit === "number" ? payload.limit : params.limit ?? 10,
     };
-    
+
     return result;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to load travel stories"
+        error.response?.data?.error ||
+        "Failed to load travel stories"
       );
     }
 
@@ -78,8 +78,8 @@ export const createTravelPost = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to submit travel story"
+        error.response?.data?.error ||
+        "Failed to submit travel story"
       );
     }
 
@@ -99,14 +99,14 @@ export const fetchTravelPostFilters = async (): Promise<TravelPostFilters> => {
       totalDestinations:
         payload.totalDestinations ?? (payload.destinations?.length ?? 0),
     };
-    
+
     return result;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to load travel story filters"
+        error.response?.data?.error ||
+        "Failed to load travel story filters"
       );
     }
 
@@ -135,8 +135,8 @@ export const fetchMyTravelPosts = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to load your travel stories"
+        error.response?.data?.error ||
+        "Failed to load your travel stories"
       );
     }
 
@@ -154,8 +154,8 @@ export const getPostBySlug = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to load travel post"
+        error.response?.data?.error ||
+        "Failed to load travel post"
       );
     }
 
@@ -173,8 +173,8 @@ export const trackPostView = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to track post view"
+        error.response?.data?.error ||
+        "Failed to track post view"
       );
     }
 
@@ -192,8 +192,8 @@ export const toggleSavePost = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to toggle save"
+        error.response?.data?.error ||
+        "Failed to toggle save"
       );
     }
 
@@ -222,8 +222,8 @@ export const getSavedTravelPosts = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to load saved travel stories"
+        error.response?.data?.error ||
+        "Failed to load saved travel stories"
       );
     }
 

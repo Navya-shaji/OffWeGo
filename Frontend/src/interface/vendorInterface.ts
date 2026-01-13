@@ -1,5 +1,5 @@
 export interface Vendor {
-  _id?:string,
+  _id?: string,
   id: string;
   name: string;
   email: string;
@@ -10,4 +10,5 @@ export interface Vendor {
   isBlocked: boolean;
   profileImage: string;
   fcmToken: string;
+  rejectionReason?: string;
 }

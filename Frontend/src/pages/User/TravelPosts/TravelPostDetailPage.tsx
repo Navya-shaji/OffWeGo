@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import type { TravelPost } from "../../../interface/TravelPost";
 import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "@/services/TravelPost/TravelPostService";
-import { 
-  Heart, 
-  ArrowLeft, 
-  Eye, 
-  Calendar, 
-  MapPin, 
-  Tag, 
+import {
+  Heart,
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Tag,
   User,
   Clock,
   Share2,
-  Bookmark
+  Bookmark,
+  ChevronRight,
+  TrendingUp,
+  Award,
+  X
 } from "lucide-react";
-import Header from "../../../components/home/navbar/Header";
+import Header from "@/components/home/navbar/Header";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -31,19 +35,21 @@ const TravelPostDetailPage = () => {
   const [savedPosts, setSavedPosts] = useState<TravelPost[]>([]);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLiking, setIsLiking] = useState(false);
 
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
-
-function setSavedPostsLoading(arg0: boolean) {
-  throw new Error("Function not implemented.");
-  return arg0
-}
   useEffect(() => {
     if (slug) {
       fetchPost();
     }
     fetchSavedPosts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const fetchPost = async () => {
@@ -53,7 +59,7 @@ function setSavedPostsLoading(arg0: boolean) {
       setPost(response.data);
       setLikesCount(response.data.metrics.likes);
       setIsSaved(response.data.isSaved || false);
-    } catch  {
+    } catch {
       setError("Failed to load post");
     } finally {
       setLoading(false);
@@ -61,32 +67,42 @@ function setSavedPostsLoading(arg0: boolean) {
   };
 
   const handleSaveToggle = async () => {
-    if (!post) return;
-    
+    if (!post || isLiking) return;
+
     try {
+      setIsLiking(true);
       const response = await toggleSavePost(post.id);
       setIsSaved(response.saved);
       setLikesCount(response.likes);
+
+      setPost(prev => prev ? {
+        ...prev,
+        metrics: {
+          ...prev.metrics,
+          likes: response.likes
+        }
+      } : null);
+
       fetchSavedPosts();
-    } catch  {
+    } catch {
       console.error("Failed to toggle save:");
+    } finally {
+      setIsLiking(false);
     }
   };
 
   const fetchSavedPosts = async () => {
     try {
-      setSavedPostsLoading(true);
       const response = await getSavedTravelPosts({ limit: 5 });
       setSavedPosts(response.data);
-    } catch  {
+    } catch {
       console.error("Failed to fetch saved posts:");
-    } finally {
-      setSavedPostsLoading(false);
     }
   };
 
   const handleSavedPostClick = (savedPostSlug: string) => {
     navigate(`/posts/${savedPostSlug}`);
+    window.scrollTo(0, 0);
   };
 
   const handleShare = () => {
@@ -112,13 +128,16 @@ function setSavedPostsLoading(arg0: boolean) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <Header />
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <div className="mx-auto mb-6 h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
-            <p className="text-lg font-medium text-gray-600">Loading your travel story...</p>
+      <div className="min-h-screen bg-white">
+        <Header forceSolid />
+        <div className="flex flex-col items-center justify-center min-h-[80vh]">
+          <div className="relative">
+            <div className="h-24 w-24 rounded-full border-4 border-gray-100 border-t-blue-600 animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full bg-blue-50"></div>
+            </div>
           </div>
+          <p className="mt-8 text-xl font-medium text-gray-400 animate-pulse">Gathering stories...</p>
         </div>
       </div>
     );
@@ -126,282 +145,232 @@ function setSavedPostsLoading(arg0: boolean) {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
-        <Header />
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <div className="mx-auto mb-6 h-24 w-24 rounded-full bg-red-100 flex items-center justify-center">
-              <div className="text-4xl">📝</div>
-            </div>
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">Story Not Found</h2>
-            <p className="mb-6 text-gray-600 max-w-md">{error || "This travel story couldn't be found or has been removed."}</p>
-            <Link
-              to="/posts"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Stories
-            </Link>
-          </div>
+      <div className="min-h-screen bg-gray-50 pt-20">
+        <Header forceSolid />
+        <div className="mx-auto max-w-xl px-6 py-24 text-center">
+          <div className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-red-50 text-3xl">😕</div>
+          <h2 className="mb-4 text-3xl font-bold text-gray-900 font-serif">Story Hidden or Lost</h2>
+          <p className="mb-10 text-lg text-gray-500">{error || "The wanderer who wrote this story might have moved it to a new location."}</p>
+          <Link to="/posts" className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-4 font-semibold text-white shadow-xl hover:bg-gray-800 transition-all hover:scale-105">
+            <ArrowLeft className="w-5 h-5" />
+            Explore Other Stories
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <Header />
-      
-      {/* Hero Section with Cover Image */}
-      <div className="relative h-96 overflow-hidden">
-        {post.coverImageUrl && (
-          <img
-            src={post.coverImageUrl}
-            alt={post.title}
-            className="h-full w-full object-cover"
-          />
+    <div className="min-h-screen bg-white selection:bg-blue-100 selection:text-blue-900">
+      <Header forceSolid />
+      <motion.div className="fixed top-0 left-0 right-0 h-1.5 bg-blue-600 z-[60] origin-left" style={{ scaleX }} />
+
+      <div className="relative">
+        {/* Floating Controls Overlay */}
+        <div className="sticky top-40 z-40 mx-auto max-w-7xl px-6 pointer-events-none">
+          <div className="flex items-center justify-between pointer-events-auto">
+            <button onClick={() => navigate("/posts")} className="flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-md px-5 py-2.5 text-sm font-bold text-gray-900 shadow-2xl hover:bg-white transition-all border border-white/20">
+              <ArrowLeft className="w-4 h-4" /> BACK
+            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={handleShare} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 backdrop-blur-md text-gray-900 shadow-2xl hover:bg-white transition-all border border-white/20" title="Share Story">
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button onClick={handleSaveToggle} className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold shadow-2xl transition-all border border-white/20 ${isSaved ? "bg-red-500 text-white hover:bg-red-600" : "bg-white/80 backdrop-blur-md text-gray-900 hover:bg-white"}`}>
+                {isSaved ? <Bookmark className="w-4 h-4 fill-current" /> : <Bookmark className="w-4 h-4" />}
+                {isSaved ? "SAVED" : "SAVE"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Hero Section */}
+        {(post.coverImageUrl || (post.galleryUrls?.length ?? 0) > 0) ? (
+          <div className="relative h-[75vh] w-full overflow-hidden bg-slate-900">
+            <motion.img initial={{ scale: 1.1 }} animate={{ scale: 1 }} transition={{ duration: 1.5 }} src={post.coverImageUrl || post.galleryUrls?.[0]} alt={post.title} className="h-full w-full object-cover opacity-70" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-black/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 py-20 px-6">
+              <div className="mx-auto max-w-7xl">
+                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold tracking-widest text-white uppercase border border-white/20">
+                    <Tag className="w-3 h-3" /> {post.categoryName || "TRAVEL LOG"}
+                  </div>
+                  {post.destinationName && (
+                    <div className="flex items-center gap-2 rounded-full bg-blue-600/30 backdrop-blur-md px-4 py-1.5 text-xs font-bold tracking-widest text-white uppercase border border-blue-400/30">
+                      <MapPin className="w-3 h-3" /> {post.destinationName}
+                    </div>
+                  )}
+                </motion.div>
+                <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }} className="mb-8 font-serif text-5xl font-medium leading-tight text-white md:text-8xl max-w-4xl">
+                  {post.title}
+                </motion.h1>
+                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex flex-wrap items-center gap-8 text-sm font-medium text-white/80">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-white/20">
+                      {post.authorProfilePicture ? <img src={post.authorProfilePicture} alt={post.authorName} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center bg-white/10"><User className="h-5 w-5" /></div>}
+                    </div>
+                    <span className="text-white font-bold">{post.authorName || "Explorer"}</span>
+                  </div>
+                  <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {dayjs(post.createdAt).format("MMM DD, YYYY")}</div>
+                  <div className="flex items-center gap-2"><Clock className="w-4 h-4" /> {dayjs(post.tripDate).format("MMMM YYYY")}</div>
+                  <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4" /> {post.metrics.views} views</div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="pt-32 pb-16 px-6 bg-gray-50 border-b border-gray-100">
+            <div className="mx-auto max-w-7xl">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-[10px] font-black tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 uppercase">{post.categoryName || "TRAVEL LOG"}</span>
+                <span className="text-[10px] font-bold text-gray-400">{dayjs(post.createdAt).format("MMM DD, YYYY")}</span>
+              </div>
+              <h1 className="font-serif text-4xl md:text-7xl font-normal text-gray-900 mb-8 leading-tight">{post.title}</h1>
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
+                  <img src={post.authorProfilePicture || "/default-avatar.png"} alt={post.authorName} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{post.authorName || "Explorer"}</p>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest">Post Author</p>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
-        
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-        
-        {/* Floating Action Buttons */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-          <Link
-            to="/posts"
-            className="flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-gray-800 hover:bg-white transition-all shadow-lg"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Link>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm px-4 py-2 text-sm font-medium text-gray-800 hover:bg-white transition-all shadow-lg"
-            >
-              <Share2 className="w-4 h-4" />
-              Share
-            </button>
-            
-            <button
-              onClick={handleSaveToggle}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all shadow-lg ${
-                isSaved 
-                  ? "bg-red-500 text-white hover:bg-red-600" 
-                  : "bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white"
-              }`}
-            >
-              {isSaved ? <Bookmark className="w-4 h-4 fill-current" /> : <Bookmark className="w-4 h-4" />}
-              {isSaved ? "Saved" : "Save"}
-            </button>
-          </div>
-        </div>
-        
-        {/* Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="mb-4 font-serif text-4xl font-bold leading-tight tracking-wide md:text-6xl">
-              {post.title}
-            </h1>
-            
-            {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-6 text-sm">
-              {post.authorName && (
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span>{post.authorName}</span>
-                </div>
-              )}
-              
-              {post.destinationName && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>{post.destinationName}</span>
-                </div>
-              )}
-              
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>{dayjs(post.createdAt).format("MMMM D, YYYY")}</span>
-              </div>
-              
-              {post.tripDate && (
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>Trip {dayjs(post.tripDate).format("MMMM YYYY")}</span>
-                </div>
-              )}
+
+        <div className="bg-white border-b border-gray-100 py-4 px-6 sticky top-24 z-30">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-gray-400 uppercase">
+              <Link to="/" className="hover:text-blue-600 transition-colors">HOME</Link>
+              <ChevronRight className="w-3 h-3" />
+              <Link to="/posts" className="hover:text-blue-600 transition-colors">TRAVEL STORIES</Link>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-gray-900 truncate max-w-[200px]">{post.title}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="grid gap-12 lg:grid-cols-3">
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Excerpt */}
-            {post.excerpt && (
-              <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 p-8 border border-blue-100">
-                <p className="text-lg leading-relaxed text-gray-800 italic">
-                  "{post.excerpt}"
-                </p>
-              </div>
-            )}
-
-            {/* Content */}
-            <article className="prose prose-lg prose-gray max-w-none prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-wide prose-headings:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-700 prose-a:text-blue-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl prose-img:shadow-lg">
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
-            </article>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="rounded-2xl bg-gray-50 p-6 border border-gray-200">
-                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <Tag className="w-5 h-5 text-gray-600" />
-                  Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-2 text-sm font-medium text-blue-800 border border-blue-200"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+        <div className="mx-auto max-w-7xl px-6 py-20">
+          <div className="grid grid-cols-1 gap-16 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              {post.excerpt && (
+                <div className="mb-16 relative">
+                  <div className="absolute -left-6 top-0 bottom-0 w-1 bg-blue-600/20"></div>
+                  <p className="font-serif text-3xl font-light italic leading-relaxed text-gray-500">{post.excerpt}</p>
                 </div>
-              </div>
-            )}
+              )}
+              <article className="prose prose-xl prose-gray max-w-none prose-headings:font-serif prose-headings:font-medium prose-p:text-gray-700 prose-p:leading-[1.8] prose-img:rounded-3xl prose-img:shadow-2xl">
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              </article>
 
-            {/* Engagement Stats */}
-            <div className="rounded-2xl bg-gradient-to-r from-purple-50 to-pink-50 p-6 border border-purple-200">
-              <div className="flex items-center justify-around">
-                <div className="text-center">
-                  <div className="mb-2 flex items-center justify-center">
-                    <Eye className="w-6 h-6 text-purple-600" />
+              {post.galleryUrls && post.galleryUrls.length > 0 && (
+                <div className="mt-20 pt-16 border-t border-gray-100">
+                  <h3 className="mb-10 font-serif text-3xl text-gray-900">Visual Journey</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {post.galleryUrls.map((url, index) => (
+                      <motion.div key={index} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative aspect-[4/3] cursor-zoom-in overflow-hidden rounded-[2rem] shadow-2xl" onClick={() => openImageModal(index)}>
+                        <img src={url} alt={`Moment ${index + 1}`} className="h-full w-full object-cover hover:scale-110 transition-transform duration-700" />
+                      </motion.div>
+                    ))}
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">{post.metrics.views}</p>
-                  <p className="text-sm text-gray-600">Views</p>
                 </div>
-                
-                <div className="text-center">
-                  <div className="mb-2 flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-pink-600" />
+              )}
+
+              {post.tags && post.tags.length > 0 && (
+                <div className="mt-20 pt-10 border-t border-gray-100">
+                  <h3 className="mb-6 flex items-center gap-2 text-xs font-black tracking-widest text-gray-400 uppercase"><Tag className="w-4 h-4" /> COLLECTED TAGS</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {post.tags.map((tag, index) => (
+                      <span key={index} className="rounded-full bg-gray-50 px-5 py-2 text-sm font-medium text-gray-600 border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all cursor-default">{tag}</span>
+                    ))}
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">{likesCount}</p>
-                  <p className="text-sm text-gray-600">Likes</p>
+                </div>
+              )}
+            </div>
+
+            <aside className="lg:col-span-4 space-y-12">
+              <div className="rounded-[2.5rem] bg-gray-900 p-10 text-white shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:scale-150"></div>
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="relative mb-6 h-32 w-32">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 animate-spin-slow p-1"><div className="h-full w-full rounded-full bg-gray-900"></div></div>
+                    <div className="absolute inset-2 rounded-full overflow-hidden border-2 border-white/10">
+                      {post.authorProfilePicture ? <img src={post.authorProfilePicture} alt={post.authorName} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center bg-gray-800"><User className="h-10 w-10 text-gray-500" /></div>}
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center border-4 border-gray-900 shadow-xl"><Award className="w-5 h-5 text-white" /></div>
+                  </div>
+                  <h3 className="text-2xl font-bold font-serif mb-2 tracking-wide">{post.authorName || "Traveler"}</h3>
+                  <p className="text-xs font-black tracking-[0.2em] text-blue-400 uppercase mb-8">VERIFIED AUTHOR</p>
+                  <div className="w-full grid grid-cols-2 gap-6 pt-8 border-t border-white/10">
+                    <div className="text-center"><p className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-1">LIKES GIVEN</p><p className="text-2xl font-bold">{likesCount}</p></div>
+                    <div className="text-center"><p className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-1">TOTAL VIEWS</p><p className="text-2xl font-bold">{post.metrics.views}</p></div>
+                  </div>
                 </div>
               </div>
+
+              {post.galleryUrls && post.galleryUrls.length > 0 && (
+                <div className="rounded-[2.5rem] bg-gray-50 p-8 border border-gray-200">
+                  <h3 className="text-xl font-bold font-serif text-gray-900 mb-8">Captured Moments</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {post.galleryUrls.map((url, index) => (
+                      <motion.div key={index} whileHover={{ scale: 1.05 }} className="relative aspect-square cursor-zoom-in overflow-hidden rounded-2xl shadow-lg" onClick={() => openImageModal(index)}>
+                        <img src={url} alt={`Gallery ${index + 1}`} className="h-full w-full object-cover" />
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {savedPosts.length > 0 && (
+                <div className="space-y-6">
+                  <h3 className="text-xs font-black tracking-[0.2em] text-gray-400 uppercase">CONTINUE READING</h3>
+                  <div className="space-y-4">
+                    {savedPosts.map((savedPost) => (
+                      <div key={savedPost.id} className="group flex gap-4 cursor-pointer items-start p-3 rounded-2xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all" onClick={() => handleSavedPostClick(savedPost.slug)}>
+                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl shadow-md">
+                          <img src={savedPost.coverImageUrl || "/default-post.jpg"} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">{savedPost.title}</h4>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">{savedPost.categoryName || "Travel"}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </aside>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 py-20 border-t border-gray-200 px-6">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="font-serif text-4xl font-medium text-gray-900 mb-6">Enjoyed this story?</h2>
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
+              <button onClick={handleSaveToggle} className={`flex items-center gap-3 px-10 py-5 rounded-full font-bold transition-all shadow-2xl ${isSaved ? "bg-red-500 text-white" : "bg-white text-gray-900 border"}`}>
+                <Heart className={`w-6 h-6 ${isSaved ? "fill-current" : ""}`} /> {isSaved ? "STORY SAVED" : "SAVE FOR LATER"}
+              </button>
+              <button onClick={handleShare} className="flex items-center gap-3 px-10 py-5 rounded-full bg-blue-600 text-white font-bold transition-all shadow-2xl">
+                <Share2 className="w-6 h-6" /> SPREAD THE WORD
+              </button>
             </div>
           </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Gallery */}
-            {post.galleryUrls && post.galleryUrls.length > 0 && (
-              <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-200">
-                <h3 className="mb-4 text-xl font-bold text-gray-900">Photo Gallery</h3>
-                <div className="grid gap-3">
-                  {post.galleryUrls.slice(0, 6).map((url, index) => (
-                    <div
-                      key={index}
-                      className="group cursor-pointer overflow-hidden rounded-lg"
-                      onClick={() => openImageModal(index)}
-                    >
-                      <div className="aspect-video overflow-hidden">
-                        <img
-                          src={url}
-                          alt={`${post.title} - Image ${index + 1}`}
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className="text-sm text-gray-600">Photo {index + 1}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Related Saved Posts */}
-            {savedPosts.length > 0 && (
-              <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-200">
-                <h3 className="mb-4 text-xl font-bold text-gray-900">Saved Stories</h3>
-                <div className="space-y-4">
-                  {savedPosts.map((savedPost) => (
-                    <div
-                      key={savedPost.id}
-                      className="group cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-lg hover:border-blue-300"
-                      onClick={() => handleSavedPostClick(savedPost.slug)}
-                    >
-                      {savedPost.coverImageUrl && (
-                        <div className="aspect-video overflow-hidden">
-                          <img
-                            src={savedPost.coverImageUrl}
-                            alt={savedPost.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-                      <div className="p-4">
-                        <h4 className="mb-2 font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                          {savedPost.title}
-                        </h4>
-                        <p className="mb-3 text-sm text-gray-600 line-clamp-2">
-                          {savedPost.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>{dayjs(savedPost.createdAt).format("MMM D, YYYY")}</span>
-                          <div className="flex items-center gap-3">
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-3 h-3" />
-                              {savedPost.metrics.views}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Heart className="w-3 h-3" />
-                              {savedPost.metrics.likes}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
         </div>
+
+        <AnimatePresence>
+          {isImageModalOpen && post.galleryUrls && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-10" onClick={closeModal}>
+              <button className="absolute top-10 right-10 text-white/50 hover:text-white" onClick={closeModal}><X className="w-8 h-8" /></button>
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative max-h-full max-w-full overflow-hidden rounded-2xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <img src={post.galleryUrls[selectedImageIndex]} alt="Enlarged view" className="max-h-[85vh] w-auto object-contain" />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-
-      {/* Image Modal */}
-      {isImageModalOpen && post.galleryUrls && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-          onClick={closeModal}
-        >
-          <div className="relative max-w-6xl max-h-[90vh] p-4">
-            <img
-              src={post.galleryUrls[selectedImageIndex]}
-              alt={`${post.title} - Image ${selectedImageIndex + 1}`}
-              className="max-h-[80vh] w-auto rounded-lg shadow-2xl"
-            />
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 rounded-full bg-white/90 p-2 text-gray-800 hover:bg-white transition-all"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 export default TravelPostDetailPage;
-
-

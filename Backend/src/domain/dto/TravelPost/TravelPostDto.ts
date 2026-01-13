@@ -2,6 +2,7 @@ export interface TravelPostDto {
   id: string;
   authorId: string;
   authorName?: string;
+  authorProfilePicture?: string;
   title: string;
   slug: string;
   categoryId: string;

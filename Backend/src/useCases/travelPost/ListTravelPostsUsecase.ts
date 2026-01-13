@@ -4,7 +4,7 @@ import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostsToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
 
 export class ListTravelPostsUsecase implements IListTravelPostsUsecase {
-  constructor(private readonly travelPostRepository: ITravelPostRepository) {}
+  constructor(private readonly travelPostRepository: ITravelPostRepository) { }
 
   async execute(query: ListTravelPostQuery): Promise<{
     data: TravelPostDto[];
@@ -22,6 +22,7 @@ export class ListTravelPostsUsecase implements IListTravelPostsUsecase {
         destinationId: query.destinationId,
         authorId: query.authorId,
         search: query.search,
+        sortBy: query.sortBy as any,
       },
       { page, limit }
     );
