@@ -7,7 +7,6 @@ import {
   CategorySchema,
   type CategoryFormData,
 } from "@/Types/Admin/category/categoryzodSchema";
-import { addCategory as addCategoryService } from "@/services/category/categoryService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import type { CategoryType } from "@/interface/categoryInterface";
 import { ToastContainer, toast } from "react-toastify";
@@ -78,7 +77,7 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
 
       notify();
 
-      const newCategory = { ...category, id: Date.now().toString() }; 
+      const newCategory = { ...category, id: Date.now().toString() };
       addCategory(newCategory);
 
       if (onCategoryCreated) {
@@ -107,7 +106,7 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
 
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
-              Category Name 
+              Category Name
             </label>
             <input
               type="text"
@@ -122,7 +121,7 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
 
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
-              Description 
+              Description
             </label>
             <textarea
               {...register("description")}
@@ -139,7 +138,7 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
 
           <div>
             <label className="block text-sm font-semibold text-black mb-1">
-              Category Image 
+              Category Image
             </label>
             {!imagePreview ? (
               <div className="relative border border-gray-300 rounded-md bg-gray-100 h-32 flex items-center justify-center text-gray-500 text-sm cursor-pointer">

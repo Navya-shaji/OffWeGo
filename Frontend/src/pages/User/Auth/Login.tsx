@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/Types/User/auth/loginZodSchema";
 import type { LoginFormData } from "@/Types/User/auth/loginZodSchema";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
@@ -13,6 +13,9 @@ import type { AxiosError } from "axios";
 import { GoogleSignup } from "@/components/signup/googleSignup";
 import { setToken } from "@/store/slice/Token/tokenSlice";
 import ForgotPasswordModal from "@/components/ForgotPassword/forgot-password";
+import AuthLayout from "@/components/vendor/AuthLayout";
+
+
 
 export default function UserLogin() {
   const dispatch = useAppDispatch();
@@ -29,10 +32,12 @@ export default function UserLogin() {
     resolver: zodResolver(loginSchema),
   });
 
+
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const response = await userLogin(data.email,data.password);
+      const response = await userLogin(data.email, data.password);
       dispatch(
         login({
           user: response.user,
@@ -41,13 +46,13 @@ export default function UserLogin() {
         })
       );
       dispatch(setToken(response.accessToken));
-      toast.success("Login successful!");
+      toast.success("Welcome back! Login successful.");
       navigate("/", { replace: true });
     } catch (err) {
       const axiosError = err as AxiosError<{ message?: string; error?: string }>;
       const backendMessage =
         axiosError.response?.data?.message || axiosError.response?.data?.error;
-      toast.error(backendMessage || "❌ Login failed. Please try again.");
+      toast.error(backendMessage || "Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }
@@ -55,135 +60,61 @@ export default function UserLogin() {
 
   return (
     <>
-      <div
-        className="min-h-screen flex items-center justify-center p-6"
-        style={{
-          backgroundImage: 'url("/images/loginBG2.jpg")',
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
+      <AuthLayout
+        quote="Access your global coordinates. The world is waiting for your next adventure."
+        title="Log In"
+        footerText="Don’t have an account?"
+        footerLink="Register Account"
+        footerLinkTo="/signup"
+        showForgotPassword={true}
+        onForgotPasswordClick={() => setShowForgotModal(true)}
+        backgroundImage="/images/girltravel.jpg"
       >
-        <div className="flex flex-col md:flex-row w-full max-w-5xl h-[60vh] shadow-2xl rounded-2xl overflow-hidden">
-        
-          <div className="md:w-1/2 h-64 md:h-full relative bg-cover bg-center">
-            <div className="absolute inset-0 bg-opacity-40" />
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-sm mx-auto w-full">
+          <input
+            {...register("email")}
+            placeholder="Email"
+            className="w-full border rounded px-3 py-2 font-serif backdrop-blur-sm focus:bg-white transition-all focus:outline-none focus:border-black"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.email.message}
+            </p>
+          )}
 
-          <div className="w-full md:w-1/2 px-8 py-12 flex flex-col justify-center bg-white/70 shadow-lg rounded-lg backdrop-blur-sm">
-            <div className="flex justify-center mb-4">
-              <Link to="/" className="select-none">
-                <img src="/images/logo.png" alt="OffWeGo" className="h-12 w-auto" />
-              </Link>
-            </div>
-
-            <h2 className="text-3xl font-quicksand text-center text-gray-900 mb-6 tracking-wide">
-              User Login
-            </h2>
-
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-5 max-w-sm mx-auto w-full"
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              placeholder="Password"
+              className="w-full border rounded px-3 py-2 pr-10 font-serif backdrop-blur-sm focus:bg-white transition-all focus:outline-none focus:border-black"
+            />
+            <span
+              className="absolute right-3 top-2.5 cursor-pointer text-gray-500 hover:text-black"
+              onClick={() => setShowPassword(!showPassword)}
             >
-              <div>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                  <input
-                    {...register("email")}
-                    placeholder="Email"
-                    disabled={isLoading}
-                    className="w-full border border-gray-300 rounded-md pl-11 pr-4 py-4 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <Lock className="absolute left-3 top-4 text-gray-500 w-5 h-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  {...register("password")}
-                  placeholder="Password"
-                  disabled={isLoading}
-                  className="w-full border border-gray-300 rounded-md pl-11 pr-10 py-4 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                />
-                <span
-                  className="absolute right-3 top-4 cursor-pointer text-gray-500 hover:text-gray-700 transition"
-                  onClick={() => !isLoading && setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </span>
-                {errors.password && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-amber-900 text-white font-medium py-2.5 rounded-md text-sm hover:bg-amber-800 active:bg-yellow-950 transition duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Logging in...
-                  </>
-                ) : (
-                  "Login"
-                )}
-              </button>
-            </form>
-
-            <p className="text-sm text-center text-gray-600 mt-5">
-              Don’t have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-blue-700 font-semibold hover:underline"
-              >
-                Sign up
-              </Link>
-            </p>
-
-            <div className="mt-4 flex justify-center">
-              <GoogleSignup />
-            </div>
-
-            <p className="text-sm text-center mt-3">
-              <button
-                onClick={() => setShowForgotModal(true)} // ✅ open modal
-                className="text-blue-600 hover:text-blue-800 hover:underline transition"
-              >
-                Forgot Password?
-              </button>
-            </p>
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </span>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
-        </div>
-      </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-transparent border border-black text-black font-semibold py-2 rounded text-sm hover:bg-black hover:text-white transition duration-200 shadow-md uppercase tracking-wider disabled:opacity-50"
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+
+          <div className="flex justify-center mt-4">
+            <div className="scale-90"><GoogleSignup /></div>
+          </div>
+        </form>
+      </AuthLayout>
 
       {showForgotModal && (
         <ForgotPasswordModal onClose={() => setShowForgotModal(false)} />

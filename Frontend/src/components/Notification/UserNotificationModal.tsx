@@ -13,10 +13,10 @@ interface UserNotificationModalProps {
   onUnreadCountChange?: (count: number) => void;
 }
 
-export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({ 
-  open, 
-  onClose, 
-  onUnreadCountChange 
+export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
+  open,
+  onClose,
+  onUnreadCountChange
 }) => {
   const [notifications, setNotifications] = useState<ServiceNotification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,11 +33,11 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
 
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await fetchNotifications();
-    
-      
+
+
       if (!Array.isArray(data)) {
         console.warn("⚠️ Data is not an array:", data);
         setNotifications([]);
@@ -48,7 +48,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
       }
 
       let userNotifications = data;
-      
+
       if (data.length > 0) {
         userNotifications = data.filter(n => {
           const isUserNotification = n.recipientType === "user";
@@ -58,7 +58,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
 
 
       setNotifications(userNotifications);
-      
+
       const unreadCount = userNotifications.filter(n => !n.read).length;
       if (onUnreadCountChange) {
         onUnreadCountChange(unreadCount);
@@ -80,22 +80,22 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
   const handleMarkAsRead = async (notificationId: string) => {
     try {
       await ReadNotification(notificationId);
-      
+
       setNotifications(prev => {
-        const updated = prev.map(n => 
-          (n._id === notificationId || n.id === notificationId) 
-            ? { ...n, read: true } 
+        const updated = prev.map(n =>
+          (n._id === notificationId || n.id === notificationId)
+            ? { ...n, read: true }
             : n
         );
-        
+
         const newUnreadCount = updated.filter(n => !n.read).length;
         if (onUnreadCountChange) {
           onUnreadCountChange(newUnreadCount);
         }
-        
+
         return updated;
       });
-      
+
       toast.success("Notification marked as read");
     } catch (err) {
       console.error("Error marking notification as read:", err);
@@ -110,7 +110,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
       await Promise.all(
         unreadNotifications.map(n => ReadNotification(n._id || n.id || ""))
       );
-      
+
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       if (onUnreadCountChange) {
         onUnreadCountChange(0);
@@ -131,7 +131,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
   const getNotificationIcon = (title: string, message: string) => {
     const lowerTitle = title.toLowerCase();
     const lowerMessage = message.toLowerCase();
-    
+
     if (lowerTitle.includes('new message') || lowerMessage.includes('message')) {
       return { icon: MessageCircle, color: 'text-blue-600', bgColor: 'bg-blue-100' };
     }
@@ -159,7 +159,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
     if (lowerTitle.includes('profile') || lowerMessage.includes('profile')) {
       return { icon: UserIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-100' };
     }
-    
+
     return { icon: Bell, color: 'text-gray-600', bgColor: 'bg-gray-100' };
   };
 
@@ -170,14 +170,14 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
-    
-    return date.toLocaleDateString(undefined, { 
-      month: 'short', 
+
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
       day: 'numeric',
       year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
     });
@@ -227,7 +227,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
 
   if (!open) return null;
 
- 
+
 
   return (
     <>
@@ -237,12 +237,11 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
       />
 
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-full sm:w-96 bg-white shadow-2xl border-l border-gray-200 transform transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 z-50 h-full w-full sm:w-96 bg-white shadow-2xl border-l border-gray-200 transform transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 bg-white">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Bell className="w-6 h-6 text-blue-600" />
@@ -277,7 +276,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto h-[calc(100vh-64px)]">
+        <div className="overflow-y-auto h-[calc(100vh-64px)] bg-white">
           {/* Loading State */}
           {loading && (
             <div className="flex flex-col items-center justify-center py-16">
@@ -323,7 +322,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
 
           {/* Notifications List */}
           {!loading && !error && notifications.length > 0 && (
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 bg-white">
               {notifications.map((n) => {
                 const notificationId = n._id || n.id || "";
                 if (!notificationId) return null;
@@ -334,24 +333,23 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
                 return (
                   <div
                     key={notificationId}
-                    className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg ${
-                      n.read
-                        ? "bg-white border-gray-100 hover:border-gray-200"
-                        : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-300"
-                    }`}
+                    className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg bg-white ${n.read
+                      ? "border-gray-100 hover:border-gray-200"
+                      : "border-blue-200 hover:border-blue-300"
+                      }`}
                   >
                     {/* Unread indicator bar */}
                     {!n.read && (
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-500" />
                     )}
-                    
+
                     <div className="p-5">
                       <div className="flex gap-4">
                         {/* Icon */}
                         <div className={`p-3 rounded-xl ${bgColor} ${!n.read ? 'ring-2 ring-white shadow-sm' : ''} transition-all duration-200`}>
                           <Icon className={`w-5 h-5 ${color}`} />
                         </div>
-                        
+
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-3 mb-2">
@@ -372,7 +370,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="flex items-center justify-between mt-4">
                             <div className="flex items-center gap-2">
                               <p className="text-xs text-gray-400 font-medium">

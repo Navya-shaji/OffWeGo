@@ -49,7 +49,7 @@ export const getFcmToken = async (): Promise<string | null> => {
       return null;
     }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(" Error retrieving FCM token:", err);
     if (err.code === 'messaging/permission-blocked') {
@@ -77,7 +77,7 @@ export const onMessageListener = (): Promise<MessagePayload> =>
 
 export const subscribeToTopic = async (token: string, topic: string) => {
   try {
-    const response = await axios.post(
+    await axios.post(
       `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
       {},
       {
