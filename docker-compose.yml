@@ -1,0 +1,63 @@
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: offwego-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:alpine
+    container_name: offwego-redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:-offwegowebsite}
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: offwego-backend
+    restart: always
+    ports:
+      - "1212:1212"
+    environment:
+      NODE_ENV: production
+      PORT: 1212
+      MONGO_URI: mongodb://mongo:27017/offwego
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
+    env_file:
+      - ./Backend/.env
+    depends_on:
+      - mongo
+      - redis
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_BASE_URL: ${VITE_BASE_URL:-/}
+        VITE_SOCKET_URL: ${VITE_SOCKET_URL:-/}
+        VITE_CLOUDINARY_CLOUD_NAME: ${VITE_CLOUDINARY_CLOUD_NAME}
+        VITE_CLOUDINARY_UPLOAD_PRESET: ${VITE_CLOUDINARY_UPLOAD_PRESET}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+        VITE_OPENCAGE_API_KEY: ${VITE_OPENCAGE_API_KEY}
+        VITE_IMAGE_URL: ${VITE_IMAGE_URL:-/}
+    container_name: offwego-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_BASE_URL=/
+      - VITE_SOCKET_URL=/
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
