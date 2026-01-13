@@ -49,6 +49,8 @@ export class VendorLoginController {
         accessToken,
         refreshToken,
         fcmToken,
+        status: vendor.status,
+        rejectionReason: vendor.rejectionReason || "",
       });
     } catch (error) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

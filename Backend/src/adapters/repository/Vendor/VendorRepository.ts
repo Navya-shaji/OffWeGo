@@ -9,8 +9,7 @@ import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class VendorRepository
   extends BaseRepository<IVendorModel>
-  implements IVendorRepository
-{
+  implements IVendorRepository {
   constructor() {
     super(VendorModel);
   }
@@ -45,21 +44,37 @@ export class VendorRepository
 
   async updateVendorStatus(
     id: string,
-    status: "approved" | "rejected"
+    status: "approved" | "rejected",
+    rejectionReason?: string
   ): Promise<IVendorModel | null> {
+    const update: any = { status };
+    if (status === "rejected") {
+      update.rejectionReason = rejectionReason || "";
+    } else if (status === "approved") {
+      update.rejectionReason = ""; // Clear reason on approval
+    }
+
     return this.model
-      .findByIdAndUpdate(id, { status }, { new: true })
+      .findByIdAndUpdate(id, update, { new: true })
       .exec();
   }
 
   async updateVendorStatusByEmail(
     email: string,
-    status: "approved" | "rejected"
+    status: "approved" | "rejected",
+    rejectionReason?: string
   ): Promise<IVendorModel | null> {
+    const update: any = { status };
+    if (status === "rejected") {
+      update.rejectionReason = rejectionReason || "";
+    } else if (status === "approved") {
+      update.rejectionReason = "";
+    }
+
     return this.model
       .findOneAndUpdate(
         { email },
-        { $set: { status } },
+        { $set: update },
         { new: true }
       )
       .exec();
@@ -78,10 +93,18 @@ export class VendorRepository
   }
 
   async rejectVendor(
-    id: string
+    id: string,
+    rejectionReason?: string
   ): Promise<IVendorModel | null> {
     return this.model
-      .findByIdAndUpdate(id, { status: "rejected" }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        {
+          status: "rejected",
+          rejectionReason: rejectionReason || ""
+        },
+        { new: true }
+      )
       .exec();
   }
 

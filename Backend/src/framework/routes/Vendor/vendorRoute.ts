@@ -9,6 +9,7 @@ import {
   vendorProfilecontroller,
   vendorsignupcontroller,
   vendorstatusCheckController,
+  vendorAuthStatusController,
   vendorVerifyOtpController,
 } from "../../Di/Vendor/VendorInjections";
 import { destinationController } from "../../Di/Admin/adminInjection";
@@ -62,6 +63,13 @@ export class VendorRoute {
     );
 
     this.vendorRouter.use(verifyTokenAndCheckBlackList(TokenService));
+
+    this.vendorRouter.get(
+      VendorRoutes.AUTH_STATUS,
+      checkRoleBasedcontrol([Role.VENDOR]),
+      (req: Request, res: Response) =>
+        vendorAuthStatusController.getAuthVendorStatus(req, res)
+    );
 
     this.vendorRouter.get(
       VendorRoutes.PROFILE,

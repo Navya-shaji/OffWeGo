@@ -17,6 +17,7 @@ export interface IVendorLoginUsecase {
       phone: string;
       isBlocked: boolean;
       profileImage: string;
+      rejectionReason?: string;
     };
   } | null>;
 }

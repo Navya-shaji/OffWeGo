@@ -2,6 +2,7 @@ export const VendorRoutes = {
   SIGNUP: "/signup",
   VERIFY_OTP: "/verify-otp",
   CHECK_STATUS: "/status",
+  AUTH_STATUS: "/auth-status",
   LOGIN: "/login",
   PROFILE: "/profile",
   GET_DESTINATIONS: "/destinations",

@@ -8,17 +8,19 @@ export interface IVendorRepository {
   findByPhone(phone: string): Promise<IVendorModel | null>;
   updateVendorStatus(
     id: string,
-    status: "approved" | "rejected"
+    status: "approved" | "rejected",
+    rejectionReason?: string
   ): Promise<IVendorModel | null>;
   updateVendorStatusByEmail(
     email: string,
-    status: "approved" | "rejected"
+    status: "approved" | "rejected",
+    rejectionReason?: string
   ): Promise<IVendorModel | null>;
   findByStatus(status: string): Promise<IVendorModel[]>;
   findById(id: string): Promise<IVendorModel | null>;
   findPendingVendors(): Promise<IVendorModel[]>;
   approveVendor(id: string): Promise<IVendorModel | null>;
-  rejectVendor(id: string): Promise<IVendorModel | null>;
+  rejectVendor(id: string, rejectionReason?: string): Promise<IVendorModel | null>;
   getAllVendors(
     skip: number,
     limit: number,
@@ -34,5 +36,5 @@ export interface IVendorRepository {
   updateFcmToken(id: string, token: string): Promise<IVendorModel | null>;
   getFcmTokenById(vendorId: string): Promise<string | null>;
   findAll(): Promise<IVendorModel[]>;
-
+  update(id: string, data: any): Promise<IVendorModel | null>;
 }

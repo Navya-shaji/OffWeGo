@@ -27,6 +27,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
       phone: string;
       isBlocked: boolean;
       profileImage: string;
+      rejectionReason?: string;
     };
   } | null> {
 
@@ -36,7 +37,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
       email.toLowerCase().trim()
     );
 
-    if (!vendor || vendor.status !== "approved") return null;
+    if (!vendor) return null;
 
     const isPasswordValid = await this._hashService.compare(
       password,
@@ -77,6 +78,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
         phone: vendor.phone,
         isBlocked: vendor.isBlocked ?? false,
         profileImage: vendor.profileImage?.toString() || "",
+        rejectionReason: vendor.rejectionReason || "",
       },
     };
   }

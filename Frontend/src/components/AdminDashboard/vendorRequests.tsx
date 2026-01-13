@@ -14,7 +14,10 @@ interface Props {
 const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null); 
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [pendingRejectVendorId, setPendingRejectVendorId] = useState<string | null>(null);
 
   const fetchVendors = () => {
     setLoading(true);
@@ -26,24 +29,36 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
 
   useEffect(() => {
     fetchVendors();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const handleStatusChange = async (
     vendorId: string,
-    newStatus: "approved" | "rejected"
+    newStatus: "approved" | "rejected",
+    reason?: string
   ) => {
     try {
-      await updateVendorStatus(vendorId, newStatus);
+      await updateVendorStatus(vendorId, newStatus, reason);
       toast.success(`Vendor ${newStatus}`);
       if (newStatus === "approved" && onTabChange) {
         onTabChange("Approved Requests");
       } else {
         setVendors((prev) => prev.filter((ven) => (ven._id || ven.id) !== vendorId));
       }
+
+      if (newStatus === "rejected") {
+        setIsRejectModalOpen(false);
+        setRejectionReason("");
+        setPendingRejectVendorId(null);
+      }
     } catch {
       toast.error("Failed to update status");
     }
+  };
+
+  const openRejectModal = (vendorId: string) => {
+    setPendingRejectVendorId(vendorId);
+    setIsRejectModalOpen(true);
   };
 
   return (
@@ -100,17 +115,21 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
                 <p className="text-lg">
                   <span className="font-semibold">Status:</span>{" "}
                   <span
-                    className={`capitalize font-semibold ${
-                      vendor.status === "approved"
+                    className={`capitalize font-semibold ${vendor.status === "approved"
                         ? "text-green-600"
                         : vendor.status === "rejected"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}
+                          ? "text-red-600"
+                          : "text-yellow-600"
+                      }`}
                   >
                     {vendor.status}
                   </span>
                 </p>
+                {vendor.status === "rejected" && vendor.rejectionReason && (
+                  <p className="text-sm text-red-500 italic">
+                    <span className="font-semibold">Reason:</span> {vendor.rejectionReason}
+                  </p>
+                )}
                 <p className="text-lg">
                   {vendor.documentUrl && (
                     <button
@@ -132,7 +151,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
                     Approve
                   </button>
                   <button
-                    onClick={() => handleStatusChange(vendor._id || vendor.id, "rejected")}
+                    onClick={() => openRejectModal(vendor._id || vendor.id)}
                     className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     Reject
@@ -144,7 +163,39 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
         </div>
       )}
 
-     
+      {/* Reject Reason Modal */}
+      {isRejectModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Reject Vendor Application</h3>
+            <p className="text-gray-600 mb-4 text-sm">Please provide a reason for rejecting this application. This will be visible to the vendor.</p>
+
+            <textarea
+              className="w-full h-32 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all resize-none"
+              placeholder="Enter rejection reason..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+            />
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setIsRejectModalOpen(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleStatusChange(pendingRejectVendorId!, "rejected", rejectionReason)}
+                disabled={!rejectionReason.trim()}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirm Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selectedDocument && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl overflow-hidden shadow-xl max-w-3xl w-full relative">
@@ -169,3 +220,4 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
 };
 
 export default VendorRequests;
+
