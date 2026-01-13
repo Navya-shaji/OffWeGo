@@ -1,17 +1,19 @@
 import Login from "@/pages/User/Auth/Login";
 import Signup from "@/pages/User/Auth/signup";
+import ChooseRolePage from "@/pages/Home/ChooseRole/ChooseRolePage";
 import Home from "@/pages/User/Home/Home";
 import { Route, Routes } from "react-router-dom";
 import type { ReactNode } from "react";
 
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
 import Profile from "@/pages/User/profile/profile";
-import { DestinationDetail } from "@/pages/Admin/Destination/destinationSinglePage";
+import { DestinationDetail } from "@/pages/User/Destination/destinationSinglePage";
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
 import TravelerDetails from "@/pages/Vendors/TravalersDetails";
 import PaymentCheckout from "@/pages/Vendors/Booking-confirmation";
 import BookingSuccess from "@/pages/Vendors/bookingSuccess";
 import BookingDetailsPage from "@/pages/User/Bookings/UserBookings";
+import BookingDetailView from "@/pages/User/Bookings/BookingDetailsPage";
 import UserAddReview from "@/pages/User/profile/AddReview";
 import AllDestinationsPage from "@/pages/User/Destination/AllDestinationPage";
 import ExpandedContactUsPage from "@/components/home/ContactUs/contactUs";
@@ -23,6 +25,7 @@ import Footer from "@/components/home/footer/Footer";
 import TravelPostListPage from "@/pages/User/TravelPosts/TravelPostListPage";
 import TravelPostCreatePage from "@/pages/User/TravelPosts/TravelPostCreatePage";
 import TravelPostDetailPage from "@/pages/User/TravelPosts/TravelPostDetailPage";
+import PaymentFailed from "@/pages/User/Bookings/PaymentFailed";
 
 const UserRoute = () => {
   const withFooter = (element: ReactNode) => (
@@ -35,8 +38,11 @@ const UserRoute = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/choose-role" element={withFooter(<ChooseRolePage />)} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+      {/* New explicit route for user login */}
+      <Route path="/user-login" element={<Login />} />
 
       <Route
         path="/profile"
@@ -83,6 +89,14 @@ const UserRoute = () => {
         }
       />
       <Route
+        path="/bookings/:id"
+        element={
+          <ProtectedRoute>
+            {withFooter(<BookingDetailView />)}
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/review"
         element={
           <ProtectedRoute>
@@ -121,16 +135,25 @@ const UserRoute = () => {
       <Route path="/posts/:slug" element={withFooter(<TravelPostDetailPage />)} />
 
       <Route
-        path='/chat/:chatId?'
+        path="/payment-failed"
         element={
           <ProtectedRoute>
-            {withFooter(<ChatPage />)}
+            {withFooter(<PaymentFailed />)}
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/chat/:chatId?"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
           </ProtectedRoute>
         }
       />
 
       <Route>
-        <Route path="*" element={<NotFound />}></Route>
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

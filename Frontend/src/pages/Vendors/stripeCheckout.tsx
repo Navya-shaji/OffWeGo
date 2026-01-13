@@ -29,110 +29,110 @@ function CheckoutForm({ amount }: { amount: number }) {
     }
   }, [bData, navigate]);
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!stripe || !elements) {
-    toast.error("Payment system not ready. Please wait a moment.");
-    return;
-  }
-
-  if (!bData) {
-    toast.error("Booking data not found. Please try again.");
-    return;
-  }
-
-  setIsProcessing(true);
-  setErrorMessage("");
-
-  try {
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      redirect: "if_required",
-    });
-
-
-    if (error) {
-      if (error.type === "card_error" || error.type === "validation_error") {
-        setErrorMessage(error.message || "Payment failed");
-        toast.error(error.message || "Payment failed");
-      } else {
-        setErrorMessage("An unexpected error occurred. Please try again.");
-        toast.error("An unexpected error occurred. Please try again.");
-      }
-      setIsProcessing(false);
+    if (!stripe || !elements) {
+      toast.error("Payment system not ready. Please wait a moment.");
       return;
     }
 
-    if (paymentIntent?.status === "succeeded") {
-      toast.success("Payment successful! Creating your booking...");
+    if (!bData) {
+      toast.error("Booking data not found. Please try again.");
+      return;
+    }
 
-      try {
-        const result = await createBooking(bData, paymentIntent.id);
+    setIsProcessing(true);
+    setErrorMessage("");
 
-        toast.success("Booking created successfully!");
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: "if_required",
+      });
 
-        navigate("/payment-success", {
-          state: {
-            booking: result.booking,
-            paymentIntentId: paymentIntent.id,
-          },
-        });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (bookingError: any) {
-        console.error("Booking creation failed:", bookingError);
 
-        const errorMsg =
-          bookingError.response?.data?.message ||
-          bookingError.response?.data?.error ||
-          bookingError.message ||
-          "Booking creation failed. Please contact support.";
+      if (error) {
+        if (error.type === "card_error" || error.type === "validation_error") {
+          setErrorMessage(error.message || "Payment failed");
+          toast.error(error.message || "Payment failed");
+        } else {
+          setErrorMessage("An unexpected error occurred. Please try again.");
+          toast.error("An unexpected error occurred. Please try again.");
+        }
+        setIsProcessing(false);
+        return;
+      }
 
-        toast.error(errorMsg);
+      if (paymentIntent?.status === "succeeded") {
+        toast.success("Payment successful! Creating your booking...");
 
+        try {
+          const result = await createBooking(bData, paymentIntent.id);
+
+          toast.success("Booking created successfully!");
+
+          navigate("/payment-success", {
+            state: {
+              booking: result.data || result,
+              paymentIntentId: paymentIntent.id,
+            },
+          });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (bookingError: any) {
+          console.error("Booking creation failed:", bookingError);
+
+          const errorMsg =
+            bookingError.response?.data?.message ||
+            bookingError.response?.data?.error ||
+            bookingError.message ||
+            "Booking creation failed. Please contact support.";
+
+          toast.error(errorMsg);
+
+          navigate("/payment-failed", {
+            state: {
+              booking: null,
+              paymentIntentId: paymentIntent.id,
+              error: errorMsg,
+            },
+          });
+        }
+      } else if (paymentIntent?.status === "processing") {
+        toast.info("Payment is processing. You'll receive confirmation shortly.");
+        navigate("/payment-processing");
+      } else if (paymentIntent?.status === "requires_payment_method") {
+        setErrorMessage("Payment failed. Please try a different payment method.");
+        toast.error("Payment failed. Please try a different payment method.");
         navigate("/payment-failed", {
           state: {
-            booking: null,
-            paymentIntentId: paymentIntent.id,
-            error: errorMsg,
+            paymentIntentId: paymentIntent?.id,
+            error: "Payment failed. Please try again.",
+          },
+        });
+      } else {
+        setErrorMessage(`Payment status: ${paymentIntent?.status || "unknown"}`);
+        toast.error("Payment could not be completed. Please try again.");
+        navigate("/payment-failed", {
+          state: {
+            paymentIntentId: paymentIntent?.id,
+            error: "Payment could not be completed. Please try again.",
           },
         });
       }
-    } else if (paymentIntent?.status === "processing") {
-      toast.info("Payment is processing. You'll receive confirmation shortly.");
-      navigate("/payment-processing");
-    } else if (paymentIntent?.status === "requires_payment_method") {
-      setErrorMessage("Payment failed. Please try a different payment method.");
-      toast.error("Payment failed. Please try a different payment method.");
+    } catch {
+      setErrorMessage("An error occurred during payment");
+      toast.error("An error occurred during payment");
       navigate("/payment-failed", {
         state: {
-          paymentIntentId: paymentIntent?.id,
-          error: "Payment failed. Please try again.",
+          paymentIntentId: null,
+          error: "An error occurred during payment",
         },
       });
-    } else {
-      setErrorMessage(`Payment status: ${paymentIntent?.status || "unknown"}`);
-      toast.error("Payment could not be completed. Please try again.");
-      navigate("/payment-failed", {
-        state: {
-          paymentIntentId: paymentIntent?.id,
-          error: "Payment could not be completed. Please try again.",
-        },
-      });
+    } finally {
+      setIsProcessing(false);
     }
-  } catch  {
-    setErrorMessage( "An error occurred during payment");
-    toast.error("An error occurred during payment");
-    navigate("/payment-failed", {
-      state: {
-        paymentIntentId: null,
-        error: "An error occurred during payment",
-      },
-    });
-  } finally {
-    setIsProcessing(false);
-  }
-};
+  };
 
 
   if (!elements) {

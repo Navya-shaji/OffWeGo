@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
-import { 
-  Plus, 
-  Clock, 
-  CheckCircle, 
-  Sparkles, 
-  X, 
+import {
+  Plus,
+  Clock,
+  CheckCircle,
+  Sparkles,
+  X,
   FileText,
   Calendar,
   ChevronDown,
@@ -64,13 +64,13 @@ const EditPackage: React.FC<EditPackageProps> = ({
         }
         groupedItinerary[item.day].push({ time: item.time, activity: item.activity })
       })
-      
+
       const enhanced = Object.keys(groupedItinerary).map(day => ({
         day: parseInt(day),
         activities: groupedItinerary[parseInt(day)],
         isExpanded: true
       }))
-      
+
       setEnhancedItinerary(enhanced)
     }
   }, [pkg])
@@ -149,7 +149,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
 
     const fieldsToValidate = ['packageName', 'duration', 'description', 'price']
     fieldsToValidate.forEach(field => {
-      const error = validateField(field, localData?.[field])
+      const error = validateField(field, (localData as any)?.[field])
       if (error) {
         errors.push({ field, message: error })
       }
@@ -157,8 +157,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
 
     const optionalFields = ['checkInTime', 'checkOutTime']
     optionalFields.forEach(field => {
-      if (localData?.[field]) {
-        const error = validateField(field, localData[field])
+      if ((localData as any)?.[field]) {
+        const error = validateField(field, (localData as any)[field])
         if (error) {
           errors.push({ field, message: error })
         }
@@ -185,9 +185,9 @@ const EditPackage: React.FC<EditPackageProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    const updated = { 
-      ...localData, 
-      [name]: name === "price" || name === "duration" ? Number(value) : value 
+    const updated = {
+      ...localData,
+      [name]: name === "price" || name === "duration" ? Number(value) : value
     }
     setLocalData(updated)
     onChange(updated)
@@ -195,7 +195,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
     // Validate field on change if it's been touched
     if (touchedFields.has(name)) {
       const error = validateField(name, value)
-      setValidationErrors(prev => 
+      setValidationErrors(prev =>
         prev.filter(err => err.field !== name).concat(error ? [{ field: name, message: error }] : [])
       )
     }
@@ -203,26 +203,26 @@ const EditPackage: React.FC<EditPackageProps> = ({
 
   const handleFieldBlur = (field: string) => {
     setTouchedFields(prev => new Set([...prev, field]))
-    const error = validateField(field, localData?.[field])
-    setValidationErrors(prev => 
+    const error = validateField(field, (localData as any)?.[field])
+    setValidationErrors(prev =>
       prev.filter(err => err.field !== field).concat(error ? [{ field, message: error }] : [])
     )
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Mark all fields as touched
     const allFields = ['packageName', 'duration', 'description', 'price', 'checkInTime', 'checkOutTime']
     setTouchedFields(new Set(allFields))
-    
+
     if (validateForm()) {
       onSubmit(e)
     }
   }
 
   const handleArrayChange = (key: "inclusions" | "amenities", index: number, value: string) => {
-    const updatedArray = [...(localData[key] || [])]
+    const updatedArray = [...((localData as any)[key] || [])]
     updatedArray[index] = value
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
@@ -230,14 +230,14 @@ const EditPackage: React.FC<EditPackageProps> = ({
   }
 
   const addArrayItem = (key: "inclusions" | "amenities") => {
-    const updatedArray = [...(localData[key] || []), ""]
+    const updatedArray = [...((localData as any)[key] || []), ""]
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
     onChange(updated)
   }
 
   const removeArrayItem = (key: "inclusions" | "amenities", index: number) => {
-    const updatedArray = [...(localData[key] || [])]
+    const updatedArray = [...((localData as any)[key] || [])]
     updatedArray.splice(index, 1)
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
@@ -294,11 +294,11 @@ const EditPackage: React.FC<EditPackageProps> = ({
     const updated = enhancedItinerary.map((day, dIndex) =>
       dIndex === dayIndex
         ? {
-            ...day,
-            activities: day.activities.map((activity, aIndex) =>
-              aIndex === activityIndex ? { ...activity, [field]: value } : activity
-            )
-          }
+          ...day,
+          activities: day.activities.map((activity, aIndex) =>
+            aIndex === activityIndex ? { ...activity, [field]: value } : activity
+          )
+        }
         : day
     )
     setEnhancedItinerary(updated)
@@ -321,10 +321,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
   const generateBasicItinerary = () => {
     if (!localData.duration) return;
     const basicItinerary: ItineraryDay[] = []
-    
+
     for (let i = 1; i <= localData.duration; i++) {
       let dayActivities: ItineraryActivity[] = []
-      
+
       if (i === 1) {
         dayActivities = [
           { time: localData.checkInTime || "3:00 PM", activity: "Check-in at hotel" },
@@ -351,25 +351,25 @@ const EditPackage: React.FC<EditPackageProps> = ({
           { time: "8:00 PM", activity: "Dinner" }
         ]
       }
-      
+
       basicItinerary.push({
         day: i,
         activities: dayActivities,
         isExpanded: true
       })
     }
-    
+
     setEnhancedItinerary(basicItinerary)
     updateItineraryInPackage(basicItinerary)
   }
 
   const renderList = (key: "inclusions" | "amenities") => {
-    const items = localData[key] || []
+    const items = (localData as any)[key] || []
     const isInclusions = key === "inclusions"
-    
+
     return (
       <div className="space-y-3">
-        {items.map((item, idx) => (
+        {items.map((item: string, idx: number) => (
           <div key={idx} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-all duration-200">
             <input
               type="text"
@@ -378,8 +378,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
               placeholder={isInclusions ? "e.g., Welcome drink, Breakfast" : "e.g., WiFi, Parking"}
               className="flex-1 border-0 focus:outline-none bg-transparent font-medium"
             />
-            <button 
-              onClick={() => removeArrayItem(key, idx)} 
+            <button
+              onClick={() => removeArrayItem(key, idx)}
               type="button"
               className="p-1 hover:bg-red-50 rounded-full transition-colors duration-200"
             >
@@ -394,7 +394,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
           size="sm"
           className="w-full border-dashed border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
         >
-          <Plus className="h-4 w-4 mr-2" /> 
+          <Plus className="h-4 w-4 mr-2" />
           Add {isInclusions ? "Inclusion" : "Amenity"}
         </Button>
       </div>
@@ -416,7 +416,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
                 <p className="text-indigo-100">Enhance your travel experience</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 hover:bg-white/20 rounded-lg transition-colors duration-200"
             >
@@ -474,11 +474,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     value={localData.packageName}
                     onChange={handleInputChange}
                     onBlur={() => handleFieldBlur('packageName')}
-                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${
-                      getFieldError('packageName') 
-                        ? 'border-red-500 focus:border-red-500' 
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${getFieldError('packageName')
+                        ? 'border-red-500 focus:border-red-500'
                         : 'border-slate-200 focus:border-indigo-500'
-                    }`}
+                      }`}
                     placeholder="Enter package name"
                   />
                   {getFieldError('packageName') && (
@@ -501,11 +500,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     onBlur={() => handleFieldBlur('duration')}
                     min="1"
                     max="30"
-                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${
-                      getFieldError('duration') 
-                        ? 'border-red-500 focus:border-red-500' 
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${getFieldError('duration')
+                        ? 'border-red-500 focus:border-red-500'
                         : 'border-slate-200 focus:border-indigo-500'
-                    }`}
+                      }`}
                     placeholder="Number of days"
                   />
                   {getFieldError('duration') && (
@@ -527,11 +525,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
                   onChange={handleInputChange}
                   onBlur={() => handleFieldBlur('description')}
                   rows={4}
-                  className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 resize-none font-medium ${
-                    getFieldError('description') 
-                      ? 'border-red-500 focus:border-red-500' 
+                  className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 resize-none font-medium ${getFieldError('description')
+                      ? 'border-red-500 focus:border-red-500'
                       : 'border-slate-200 focus:border-indigo-500'
-                  }`}
+                    }`}
                   placeholder="Describe your amazing package..."
                 />
                 {getFieldError('description') && (
@@ -555,11 +552,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     onBlur={() => handleFieldBlur('price')}
                     min="0"
                     max="1000000"
-                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${
-                      getFieldError('price') 
-                        ? 'border-red-500 focus:border-red-500' 
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${getFieldError('price')
+                        ? 'border-red-500 focus:border-red-500'
                         : 'border-slate-200 focus:border-indigo-500'
-                    }`}
+                      }`}
                     placeholder="Enter base price"
                   />
                   {getFieldError('price') && (
@@ -581,11 +577,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
                       onChange={handleInputChange}
                       onBlur={() => handleFieldBlur('checkInTime')}
                       placeholder="e.g., 3:00 PM"
-                      className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${
-                        getFieldError('checkInTime') 
-                          ? 'border-red-500 focus:border-red-500' 
+                      className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${getFieldError('checkInTime')
+                          ? 'border-red-500 focus:border-red-500'
                           : 'border-slate-200 focus:border-indigo-500'
-                      }`}
+                        }`}
                     />
                     <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                   </div>
@@ -610,11 +605,10 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     onChange={handleInputChange}
                     onBlur={() => handleFieldBlur('checkOutTime')}
                     placeholder="e.g., 12:00 PM"
-                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${
-                      getFieldError('checkOutTime') 
-                        ? 'border-red-500 focus:border-red-500' 
+                    className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${getFieldError('checkOutTime')
+                        ? 'border-red-500 focus:border-red-500'
                         : 'border-slate-200 focus:border-indigo-500'
-                    }`}
+                      }`}
                   />
                   <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
                 </div>
@@ -671,7 +665,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
                   </p>
                 </div>
               )}
-              
+
               <div className="space-y-4">
                 {enhancedItinerary.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
@@ -680,9 +674,9 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     <p>Click "Add Day" or "Auto-Generate" to start building your itinerary</p>
                   </div>
                 ) : (
-                  enhancedItinerary.map((day, dayIndex) => (
+                  enhancedItinerary.map((day: ItineraryDay, dayIndex: number) => (
                     <Card key={dayIndex} className="border-2 border-purple-200 shadow-md">
-                      <CardHeader 
+                      <CardHeader
                         className="bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer"
                         onClick={() => toggleDayExpansion(dayIndex)}
                       >
@@ -714,18 +708,18 @@ const EditPackage: React.FC<EditPackageProps> = ({
                           </Button>
                         </CardTitle>
                       </CardHeader>
-                      
+
                       {day.isExpanded && (
                         <CardContent className="p-4">
                           <div className="space-y-3">
-                            {day.activities.map((activity, activityIndex) => {
-                              const timeError = validationErrors.find(err => 
+                            {day.activities.map((activity: ItineraryActivity, activityIndex: number) => {
+                              const timeError = validationErrors.find(err =>
                                 err.field === `itinerary.${dayIndex}.${activityIndex}.time`
                               )
-                              const activityError = validationErrors.find(err => 
+                              const activityError = validationErrors.find(err =>
                                 err.field === `itinerary.${dayIndex}.${activityIndex}.activity`
                               )
-                              
+
                               return (
                                 <div key={activityIndex} className="flex gap-3 items-start bg-gray-50 p-3 rounded-lg">
                                   <input
@@ -733,18 +727,16 @@ const EditPackage: React.FC<EditPackageProps> = ({
                                     placeholder="Time"
                                     value={activity.time}
                                     onChange={(e) => updateActivity(dayIndex, activityIndex, 'time', e.target.value)}
-                                    className={`w-28 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
-                                      timeError ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className={`w-28 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${timeError ? 'border-red-500' : 'border-gray-300'
+                                      }`}
                                   />
                                   <input
                                     type="text"
                                     placeholder="Activity"
                                     value={activity.activity}
                                     onChange={(e) => updateActivity(dayIndex, activityIndex, 'activity', e.target.value)}
-                                    className={`flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${
-                                      activityError ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className={`flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${activityError ? 'border-red-500' : 'border-gray-300'
+                                      }`}
                                   />
                                   <Button
                                     type="button"
@@ -758,15 +750,15 @@ const EditPackage: React.FC<EditPackageProps> = ({
                                 </div>
                               )
                             })}
-                            
+
                             {(() => {
-                              const timeError = validationErrors.find(err => 
+                              const timeError = validationErrors.find(err =>
                                 err.field === `itinerary.${dayIndex}.${day.activities.length - 1}.time`
                               )
-                              const activityError = validationErrors.find(err => 
+                              const activityError = validationErrors.find(err =>
                                 err.field === `itinerary.${dayIndex}.${day.activities.length - 1}.activity`
                               )
-                              
+
                               return (timeError || activityError) ? (
                                 <div className="p-2 bg-red-50 border border-red-200 rounded">
                                   <p className="text-xs text-red-600">
@@ -775,7 +767,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
                                 </div>
                               ) : null
                             })()}
-                            
+
                             <Button
                               type="button"
                               onClick={() => addActivityToDay(dayIndex)}
@@ -828,16 +820,16 @@ const EditPackage: React.FC<EditPackageProps> = ({
           </div>
 
           <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
-            <Button 
-              type="button" 
-              onClick={onClose} 
-              variant="outline" 
+            <Button
+              type="button"
+              onClick={onClose}
+              variant="outline"
               size="lg"
               className="px-8 py-3 text-slate-600 border-slate-300 hover:bg-slate-50 hover:border-slate-400 transition-all duration-300"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               type="submit"
               disabled={isLoading}
               size="lg"
@@ -861,5 +853,6 @@ const EditPackage: React.FC<EditPackageProps> = ({
           </div>
         </form>
       </div>
-    </div>)}
+    </div>)
+}
 export default EditPackage

@@ -12,6 +12,7 @@ interface TravelerFormProps {
   count: number;
   onChange: (travelers: Traveler[]) => void;
   onValidationChange?: (isValid: boolean) => void;
+  showErrors?: boolean;
 }
 
 export default function TravelerForm({
@@ -19,13 +20,14 @@ export default function TravelerForm({
   count,
   onChange,
   onValidationChange,
+  showErrors = false,
 }: TravelerFormProps) {
   const [travelers, setTravelers] = useState<Traveler[]>(
     Array.from({ length: count }, () => ({ name: "", age: 0, gender: "" as "male" | "female" | "other" }))
   );
 
   const [errors, setErrors] = useState<Record<number, string[]>>({});
-
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const validateAge = (age: number): string | null => {
     if (travelerType === "Child") {
@@ -38,17 +40,14 @@ export default function TravelerForm({
     return null;
   };
 
-
   const validateTraveler = (traveler: Traveler): string[] => {
     const errors: string[] = [];
-
 
     if (!traveler.name.trim()) {
       errors.push("Full name is required");
     } else if (traveler.name.trim().length < 2) {
       errors.push("Name must be at least 2 characters long");
     }
-
 
     if (!traveler.age || traveler.age === 0) {
       errors.push("Age is required");
@@ -57,14 +56,12 @@ export default function TravelerForm({
       if (ageError) errors.push(ageError);
     }
 
-
     if (!traveler.gender) {
       errors.push("Please select a gender");
     }
 
     return errors;
   };
-
 
   const validateAllTravelers = (travelersToValidate: Traveler[]) => {
     const newErrors: Record<number, string[]> = {};
@@ -85,19 +82,19 @@ export default function TravelerForm({
 
   useEffect(() => {
     setTravelers((prev) => {
-      const newTravelers = Array.from({ length: count }, (_, i) => 
-        prev[i] || { name: "", age: 0, gender: "" as "male" | "female" | "other" } 
+      const newTravelers = Array.from({ length: count }, (_, i) =>
+        prev[i] || { name: "", age: 0, gender: "" as "male" | "female" | "other" }
       );
       validateAllTravelers(newTravelers);
       return newTravelers;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count]);
 
   useEffect(() => {
     onChange(travelers);
     validateAllTravelers(travelers);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelers]);
 
   const handleChange = <K extends keyof Traveler>(
@@ -110,28 +107,38 @@ export default function TravelerForm({
     setTravelers(newTravelers);
   };
 
+  const handleBlur = (index: number, field: string) => {
+    setTouched(prev => ({ ...prev, [`${index}-${field}`]: true }));
+  };
+
   const isAdult = travelerType === "Adult";
- 
-  const bgGradient = isAdult 
-    ? "from-purple-50 to-purple-100" 
-    : "from-fuchsia-50 to-fuchsia-100";
-  const iconBg = isAdult ? "bg-purple-100" : "bg-fuchsia-100";
-  const iconColor = isAdult ? "text-purple-600" : "text-fuchsia-600";
-  const borderColor = isAdult ? "border-purple-200" : "border-fuchsia-200";
-  const focusBorder = isAdult ? "focus:border-purple-500" : "focus:border-fuchsia-500";
-  const focusRing = isAdult ? "focus:ring-purple-200" : "focus:ring-fuchsia-200";
+
+  // Teal (Adult) & Rose (Child) Theme
+  const bgGradient = isAdult
+    ? "from-teal-50 to-teal-100/50"
+    : "from-rose-50 to-rose-100/50";
+  const iconBg = isAdult ? "bg-teal-100" : "bg-rose-100";
+  const iconColor = isAdult ? "text-teal-600" : "text-rose-600";
+  const borderColor = isAdult ? "border-teal-100" : "border-rose-100";
+  const focusBorder = isAdult ? "focus:border-teal-500" : "focus:border-rose-500";
+  const focusRing = isAdult ? "focus:ring-teal-100" : "focus:ring-rose-100";
+  const labelColor = "text-slate-500";
 
   // Error styling
   const errorBorder = "border-red-300";
   const errorFocusBorder = "focus:border-red-500";
-  const errorFocusRing = "focus:ring-red-200";
-  const errorIconColor = "text-red-500";
+  const errorFocusRing = "focus:ring-red-100";
+
 
   const getFieldError = (index: number, fieldName: string): string | undefined => {
+    // Show error if global 'showErrors' is true OR specific field was touched
+    const isTouched = touched[`${index}-${fieldName}`];
+    if (!showErrors && !isTouched) return undefined;
+
     const travelerErrors = errors[index];
     if (!travelerErrors) return undefined;
 
-    return travelerErrors.find(error => 
+    return travelerErrors.find(error =>
       error.toLowerCase().includes(fieldName.toLowerCase()) ||
       (fieldName === "age" && error.toLowerCase().includes("age")) ||
       (fieldName === "name" && error.toLowerCase().includes("name")) ||
@@ -139,10 +146,15 @@ export default function TravelerForm({
     );
   };
 
+  const hasAnyError = (index: number) => {
+    if (!showErrors) return false; // Optional: Only show global card error badge on submit
+    return errors[index] && errors[index].length > 0;
+  };
+
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className={`p-2 ${iconBg} rounded-lg`}>
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className={`p-2.5 ${iconBg} rounded-xl`}>
           {isAdult ? (
             <Users className={`w-5 h-5 ${iconColor}`} />
           ) : (
@@ -150,157 +162,135 @@ export default function TravelerForm({
           )}
         </div>
         <div>
-          <h3 className="text-gray-800 text-lg font-bold">
+          <h3 className="text-gray-900 text-lg font-bold">
             {travelerType} Details
-            <span className="text-gray-500 text-sm font-normal ml-2">
+            <span className="text-slate-400 text-sm font-medium ml-2">
               ({count} {count === 1 ? 'traveler' : 'travelers'})
             </span>
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
-            {isAdult ? "Ages 12 and above" : "Ages 1-11 years"}
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+            {isAdult ? "Ages 12+" : "Ages 1-11"}
           </p>
         </div>
       </div>
-      
+
       <div className="space-y-4">
         {travelers.map((traveler, idx) => {
-          const hasErrors = errors[idx] && errors[idx].length > 0;
           const nameError = getFieldError(idx, "name");
           const ageError = getFieldError(idx, "age");
           const genderError = getFieldError(idx, "gender");
+          const hasCardError = hasAnyError(idx);
 
           return (
             <div
               key={`${travelerType}-${idx}`}
-              className={`bg-gradient-to-br ${bgGradient} p-5 rounded-xl border-2 ${
-                hasErrors ? errorBorder : borderColor
-              } shadow-sm hover:shadow-md transition-all duration-300`}
+              className={`bg-gradient-to-br ${bgGradient} p-6 rounded-2xl border ${hasCardError ? errorBorder : borderColor
+                } shadow-sm transition-all duration-300`}
             >
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`w-8 h-8 ${iconBg} rounded-full flex items-center justify-center`}>
+              <div className="flex items-center gap-3 mb-6 border-b border-black/5 pb-4">
+                <div className={`w-8 h-8 ${iconBg} rounded-lg flex items-center justify-center`}>
                   <span className={`text-sm font-bold ${iconColor}`}>
                     {idx + 1}
                   </span>
                 </div>
-                <span className="text-gray-700 font-semibold">
+                <span className="text-gray-900 font-bold">
                   {travelerType} {idx + 1}
                 </span>
-                {hasErrors && (
-                  <div className="ml-auto flex items-center gap-1 text-red-500 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{errors[idx].length} error(s)</span>
+                {hasCardError && (
+                  <div className="ml-auto flex items-center gap-1 text-red-500 text-xs font-bold bg-red-50 px-2 py-1 rounded-full">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>Incomplete</span>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-3">
-                {/* Name Field */}
-                <div className="relative group">
-                  <label className="block text-gray-600 text-xs font-semibold mb-1.5 uppercase tracking-wide">
+              <div className="grid md:grid-cols-2 gap-5">
+                {/* Name Field - Full Width */}
+                <div className="md:col-span-2 relative group">
+                  <label className={`block ${labelColor} text-xs font-bold mb-2 uppercase tracking-wide`}>
                     Full Name
                   </label>
-                  <div className="relative">
-                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                      nameError ? errorIconColor : `text-gray-400 group-focus-within:${iconColor}`
-                    } transition-colors`}>
-                      <User className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Enter full name"
-                      value={traveler.name}
-                      onChange={(e) => handleChange(idx, "name", e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2.5 bg-white border-2 ${
-                        nameError ? errorBorder : "border-gray-200"
-                      } rounded-lg text-sm ${
-                        nameError ? errorFocusBorder : focusBorder
-                      } focus:ring-2 ${
-                        nameError ? errorFocusRing : focusRing
-                      } focus:outline-none transition-all duration-200 placeholder:text-gray-400`}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter full name as on ID"
+                    value={traveler.name}
+                    onChange={(e) => handleChange(idx, "name", e.target.value)}
+                    onBlur={() => handleBlur(idx, "name")}
+                    className={`w-full px-4 py-3 bg-white border ${nameError ? errorBorder : "border-slate-200"
+                      } rounded-xl text-sm font-medium ${nameError ? errorFocusBorder : focusBorder
+                      } focus:ring-4 ${nameError ? errorFocusRing : focusRing
+                      } focus:outline-none transition-all placeholder:text-slate-300 text-gray-900`}
+                  />
                   {nameError && (
-                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
                       {nameError}
                     </p>
                   )}
                 </div>
 
-                {/* Age and Gender Fields */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Age Field */}
-                  <div className="relative group">
-                    <label className="block text-gray-600 text-xs font-semibold mb-1.5 uppercase tracking-wide">
-                      Age
-                    </label>
-                    <div className="relative">
-                      <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                        ageError ? errorIconColor : `text-gray-400 group-focus-within:${iconColor}`
-                      } transition-colors`}>
-                        <Calendar className="w-4 h-4" />
-                      </div>
-                      <input
-                        type="number"
-                        placeholder="Age"
-                        value={traveler.age || ""}
-                        onChange={(e) => handleChange(idx, "age", Number(e.target.value))}
-                        min="1"
-                        max="90"
-                        className={`w-full pl-10 pr-4 py-2.5 bg-white border-2 ${
-                          ageError ? errorBorder : "border-gray-200"
-                        } rounded-lg text-sm ${
-                          ageError ? errorFocusBorder : focusBorder
-                        } focus:ring-2 ${
-                          ageError ? errorFocusRing : focusRing
-                        } focus:outline-none transition-all duration-200 placeholder:text-gray-400`}
-                      />
+                {/* Age Field */}
+                <div className="relative group">
+                  <label className={`block ${labelColor} text-xs font-bold mb-2 uppercase tracking-wide`}>
+                    Age
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      placeholder="Age"
+                      value={traveler.age || ""}
+                      onChange={(e) => handleChange(idx, "age", Number(e.target.value))}
+                      onBlur={() => handleBlur(idx, "age")}
+                      min="1"
+                      max="90"
+                      className={`w-full px-4 py-3 bg-white border ${ageError ? errorBorder : "border-slate-200"
+                        } rounded-xl text-sm font-medium ${ageError ? errorFocusBorder : focusBorder
+                        } focus:ring-4 ${ageError ? errorFocusRing : focusRing
+                        } focus:outline-none transition-all placeholder:text-slate-300 text-gray-900`}
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">
+                      <Calendar className="w-4 h-4" />
                     </div>
-                    {ageError && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {ageError}
-                      </p>
-                    )}
                   </div>
+                  {ageError && (
+                    <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {ageError}
+                    </p>
+                  )}
+                </div>
 
-                  {/* Gender Field */}
-                  <div className="relative group">
-                    <label className="block text-gray-600 text-xs font-semibold mb-1.5 uppercase tracking-wide">
-                      Gender
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={traveler.gender}
-                        onChange={(e) => handleChange(idx, "gender", e.target.value as "male" | "female" | "other")}
-                        className={`w-full px-4 py-2.5 bg-white border-2 ${
-                          genderError ? errorBorder : "border-gray-200"
-                        } rounded-lg text-sm ${
-                          genderError ? errorFocusBorder : focusBorder
-                        } focus:ring-2 ${
-                          genderError ? errorFocusRing : focusRing
-                        } focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${
-                          !traveler.gender ? "text-gray-400" : "text-gray-700"
+                {/* Gender Field */}
+                <div className="relative group">
+                  <label className={`block ${labelColor} text-xs font-bold mb-2 uppercase tracking-wide`}>
+                    Gender
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={traveler.gender}
+                      onChange={(e) => handleChange(idx, "gender", e.target.value as "male" | "female" | "other")}
+                      onBlur={() => handleBlur(idx, "gender")}
+                      className={`w-full px-4 py-3 bg-white border ${genderError ? errorBorder : "border-slate-200"
+                        } rounded-xl text-sm font-medium ${genderError ? errorFocusBorder : focusBorder
+                        } focus:ring-4 ${genderError ? errorFocusRing : focusRing
+                        } focus:outline-none transition-all appearance-none cursor-pointer ${!traveler.gender ? "text-slate-300" : "text-gray-900"
                         }`}
-                      >
-                        <option value="" disabled>Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
+                    >
+                      <option value="" disabled>Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
+                      <ChevronDownIcon />
                     </div>
-                    {genderError && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {genderError}
-                      </p>
-                    )}
                   </div>
+                  {genderError && (
+                    <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {genderError}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -310,3 +300,9 @@ export default function TravelerForm({
     </div>
   );
 }
+
+const ChevronDownIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+);

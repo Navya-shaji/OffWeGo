@@ -1,11 +1,11 @@
 import axiosInstance from "@/axios/instance";
 import type { TravelPost } from "@/interface/TravelPost";
-export const adminLogin=async(email:string,password:string)=>{
-    const response=await axiosInstance.post("/api/admin/login",{
-        email,
-        password
-    })
-    return response.data
+export const adminLogin = async (email: string, password: string) => {
+  const response = await axiosInstance.post("/api/admin/login", {
+    email,
+    password
+  })
+  return response.data
 }
 export const getVendorsByStatus = async (
   status: "pending" | "approved" | "rejected"
@@ -20,9 +20,10 @@ export const getPendingVendors = async () => {
   return response.data.data; // Backend returns vendors in 'data' field
 };
 
-export const updateVendorStatus = async (vendorId: string, status: "approved" | "rejected") => {
+export const updateVendorStatus = async (vendorId: string, status: "approved" | "rejected", rejectionReason?: string) => {
   const response = await axiosInstance.patch(`/api/admin/vendors/status/${vendorId}`, {
     status,
+    rejectionReason,
   });
   return response.data;
 };
