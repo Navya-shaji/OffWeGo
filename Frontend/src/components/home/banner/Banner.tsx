@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Slider from "react-slick";
 import { getBanner } from "@/services/Banner/bannerService";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { BannerInterface } from "@/interface/bannerInterface";
 import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";
@@ -9,6 +10,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const Banner: React.FC = () => {
+  const navigate = useNavigate();
   const [banners, setBanners] = useState<BannerInterface[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -50,9 +52,8 @@ const Banner: React.FC = () => {
     ),
     customPaging: (i: number) => (
       <button
-        className={`h-1 transition-all duration-300 ${
-          i === currentSlide ? 'w-12 bg-white' : 'w-6 bg-white/40'
-        }`}
+        className={`h-1 transition-all duration-300 ${i === currentSlide ? 'w-12 bg-white' : 'w-6 bg-white/40'
+          }`}
       />
     ),
   };
@@ -126,8 +127,8 @@ const Banner: React.FC = () => {
             </div>
           </div>
         )}
-        
-   
+
+
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
       </div>
 
@@ -136,28 +137,27 @@ const Banner: React.FC = () => {
         <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-4xl">
             <div
-              className={`transition-all duration-1000 delay-200 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
+              className={`transition-all duration-1000 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
             >
-         
+
               <div className="mb-6">
                 <span className="inline-block text-sm font-semibold tracking-[0.3em] text-white/80 uppercase border border-white/30 px-6 py-2 backdrop-blur-sm">
                   Discover the World
                 </span>
               </div>
 
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-light text-white mb-6 tracking-tight leading-none">
+              <h1 className="text-6xl md:text-8xl lg:text-9xl font-light text-white mb-8 tracking-[0.05em] leading-[1.1]">
                 Wander
-                <span className="block font-bold">Beyond</span>
+                <span className="block font-bold tracking-[0.1em]">Beyond</span>
               </h1>
 
               <p className="text-lg md:text-xl text-white/90 mb-12 max-w-2xl leading-relaxed font-light">
-                Embark on extraordinary journeys to breathtaking destinations. 
+                Embark on extraordinary journeys to breathtaking destinations.
                 Every adventure tells a story, every moment becomes a memory.
               </p>
 
-       
+
               <div className="flex flex-wrap gap-4">
                 <Button
                   onClick={() => scrollToSection("destinations", "/destinations")}
@@ -169,8 +169,16 @@ const Banner: React.FC = () => {
                     Explore Destinations
                   </span>
                 </Button>
-                
-      
+
+                <Button
+                  onClick={() => navigate("/choose-role")}
+                  variant="outline"
+                  className="px-8 py-6 bg-transparent border-white/40 text-white font-semibold hover:bg-white hover:text-black transition-all duration-300 rounded-none backdrop-blur-sm"
+                >
+                  Become a Partner
+                </Button>
+
+
               </div>
             </div>
           </div>

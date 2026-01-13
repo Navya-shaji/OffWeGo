@@ -1,31 +1,61 @@
-import React, { useEffect, useState } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Bell, MessageCircle, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
 import { logout } from "@/store/slice/user/authSlice";
+import { addNotification } from "@/store/slice/Notifications/notificationSlice";
+import { NotificationPanel } from "../../Notification/NotificationModal";
+import { useChatContext } from "@/context/chatContext";
+import { messaging } from "@/Firebase/firebase";
+import { onMessage } from "firebase/messaging";
 const logo = "/images/logo.png";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  forceSolid?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ forceSolid = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { unreadChatCount } = useChatContext();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Destinations", path: "/destinations" },
     { name: "Travel Stories", path: "/posts" },
     { name: "About Us", path: "/about" },
+    { name: "Partner with us", path: "/choose-role" },
   ];
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-   console.log(storedUser)
-  }, [dispatch]);
+    if (!user?.id) return;
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+      const title = payload.notification?.title || payload.data?.title || "New Notification";
+      const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
+
+      dispatch(addNotification({ title, body }));
+      setNotificationUnreadCount((prev) => prev + 1);
+    });
+
+    return () => unsubscribe();
+  }, [user?.id, dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -40,14 +70,14 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-slate-50 via-white to-gray-50 backdrop-blur-md shadow-lg sticky top-0 z-50 w-full border-b border-gray-100/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center p-4">
-            <img 
-              src={logo} 
-              alt="logo" 
-              className="w-35 h-10 mr-2 cursor-pointer hover:opacity-80 transition-opacity"
+    <header className={`fixed top-0 z-50 w-full transition-all duration-500 ${(isScrolled || forceSolid) ? "bg-white/80 backdrop-blur-xl shadow-lg border-b border-gray-100" : "bg-transparent border-b border-transparent"}`}>
+      <div className="w-full px-4 sm:px-6 lg:px-10">
+        <div className="flex justify-between items-center h-24">
+          <div className="flex items-center">
+            <img
+              src={logo}
+              alt="logo"
+              className={`h-12 w-auto cursor-pointer hover:scale-105 transition-all duration-300 ${!(isScrolled || forceSolid) ? "invert brightness-200" : ""}`}
               onClick={() => navigate("/")}
             />
           </div>
@@ -56,7 +86,7 @@ const Header: React.FC = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className="text-gray-700 hover:text-coral-500 font-medium transition-colors"
+                className={`font-semibold text-xs uppercase tracking-[0.2em] transition-all duration-300 ${(isScrolled || forceSolid) ? "text-slate-800 hover:text-emerald-600" : "text-white hover:text-emerald-400 drop-shadow-md"}`}
               >
                 {item.name}
               </Link>
@@ -68,7 +98,7 @@ const Header: React.FC = () => {
               <>
                 <Button
                   variant="ghost"
-                  className="text-gray-700 hover:text-coral-500 "
+                  className={`transition-all duration-300 ${(isScrolled || forceSolid) ? "text-slate-700 hover:text-emerald-600" : "text-white hover:text-white/80"}`}
                   asChild
                 >
                   <Link to="/login">Login</Link>
@@ -81,19 +111,46 @@ const Header: React.FC = () => {
                 </Button>
               </>
             ) : (
-              <>
-                <Button className="bg-black text-white hover:bg-indigo-600" asChild>
+              <div className="flex items-center space-x-3">
+                {/* Notifications Bell */}
+                <div
+                  className={`relative cursor-pointer p-2 rounded-lg transition-colors ${(isScrolled || forceSolid) ? "hover:bg-gray-100 text-slate-700" : "hover:bg-white/10 text-white"}`}
+                  onClick={() => setPanelOpen(true)}
+                >
+                  <Bell className="w-5 h-5" />
+                  {notificationUnreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 animate-pulse">
+                      {notificationUnreadCount > 99 ? "99+" : notificationUnreadCount}
+                    </span>
+                  )}
+                </div>
+
+                {/* Chat Icon */}
+                <button
+                  onClick={() => navigate("/chat")}
+                  className={`relative p-2 rounded-md transition-colors ${(isScrolled || forceSolid) ? "hover:bg-gray-100 text-slate-700" : "hover:bg-white/10 text-white"}`}
+                  title="Messages"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  {(unreadChatCount ?? 0) > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 animate-bounce">
+                      {(unreadChatCount ?? 0) > 99 ? "99+" : unreadChatCount}
+                    </span>
+                  )}
+                </button>
+
+                <Button className={`${(isScrolled || forceSolid) ? "bg-black text-white hover:bg-emerald-600" : "bg-transparent border border-white/40 text-white hover:bg-white hover:text-black"} transition-all duration-500 rounded-none uppercase text-[10px] tracking-[0.2em] font-bold`} asChild>
                   <Link to="/posts/new">Share story</Link>
                 </Button>
                 <div className="relative">
                   <div
-                    className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
+                    className={`flex items-center space-x-2 cursor-pointer px-3 py-2 rounded-md transition-colors ${(isScrolled || forceSolid) ? "hover:bg-gray-100 text-slate-700" : "hover:bg-white/10 text-white"}`}
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                   >
-                    <span className="text-gray-700 font-medium">
+                    <span className="font-medium">
                       Hello, {user?.username || "User"}
                     </span>
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                    <ChevronDown className={`w-4 h-4 transition-colors ${(isScrolled || forceSolid) ? "text-slate-500" : "text-slate-200"}`} />
                   </div>
 
                   {isUserDropdownOpen && (
@@ -113,12 +170,12 @@ const Header: React.FC = () => {
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </div>
 
           <button
-            className="md:hidden"
+            className={`md:hidden transition-colors ${(isScrolled || forceSolid) ? "text-slate-900" : "text-white"}`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -131,7 +188,7 @@ const Header: React.FC = () => {
         </div>
 
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200/50 bg-gradient-to-b from-white/95 to-gray-50/95 backdrop-blur-md">
+          <div className="md:hidden py-4 border-t border-white/10 bg-white/80 backdrop-blur-2xl">
             <nav className="flex flex-col space-y-2">
               {navLinks.map((item) => (
                 <Link
@@ -192,6 +249,11 @@ const Header: React.FC = () => {
           </div>
         )}
       </div>
+      <NotificationPanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        onUnreadCountChange={setNotificationUnreadCount}
+      />
     </header>
   );
 };

@@ -27,13 +27,13 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
   const user = useSelector((state: RootState) => state.auth.user);
 
-  
+
 
   const location = window.location.pathname;
   const isVendorRoute = location.startsWith('/vendor');
   const isAdminRoute = location.startsWith('/admin');
-  
- 
+
+
   const isVendor = isVendorRoute && !isAdminRoute;
 
 
@@ -42,27 +42,27 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
     setError(null);
     try {
       const data = await fetchNotifications();
-    
-      
+
+
       if (!Array.isArray(data)) {
-       
+
         setNotifications([]);
         if (onUnreadCountChange) {
           onUnreadCountChange(0);
         }
         return;
       }
-  
-      
+
+
       const currentUserId = isVendor ? vendor?.id : user?.id;
       const expectedRecipientType = isVendor ? "vendor" : "user";
-      
+
       let filteredData = data;
-      
+
       if (currentUserId) {
         filteredData = data.filter(n => {
           const matchesType = n.recipientType === expectedRecipientType;
-          
+
           if (!matchesType) {
             console.warn("Notification filtered out (wrong type):", {
               notificationId: n._id || n.id,
@@ -70,12 +70,12 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
               expectedRecipientType
             });
           }
-          
+
           return matchesType;
         });
       }
-      
-      
+
+
       const finalData = filteredData.length > 0 ? filteredData : data;
 
       const now = Date.now();
@@ -86,10 +86,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         if (!n.read) return true;
         return now - createdAtMs <= fifteenDaysMs;
       });
- 
-      
+
+
       setNotifications(finalDataAfterRetention);
-      
+
       const unreadCount = finalDataAfterRetention.filter(n => !n.read).length;
       if (onUnreadCountChange) {
         onUnreadCountChange(unreadCount);
@@ -102,10 +102,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   }, [isVendor, vendor?.id, user?.id, onUnreadCountChange]);
 
   useEffect(() => {
-    if (open) {
-      loadNotifications();
-    }
-  }, [open, loadNotifications]);
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, [loadNotifications]);
 
   useEffect(() => {
 
@@ -123,29 +123,29 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   const loadChatMessages = async (notification: ServiceNotification) => {
     const currentUserId = isVendor ? vendor?.id : user?.id;
     if (!currentUserId) return;
-    
+
     const notificationId = notification._id || (notification as any).id;
     if (!notificationId) return;
-    
+
     const senderName = extractSenderName(notification.title);
     if (!senderName) return;
 
     try {
-  
+
       const userType = isVendor ? 'vendor' : 'user';
       const chatsResponse = await getChatsOfUser(currentUserId, userType);
       const chats = chatsResponse?.data || chatsResponse || [];
-      
+
       const matchingChat = chats.find((chat: any) => {
         const chatName = chat.name || "";
         return chatName.toLowerCase().includes(senderName.toLowerCase()) ||
-               senderName.toLowerCase().includes(chatName.toLowerCase());
+          senderName.toLowerCase().includes(chatName.toLowerCase());
       });
 
       if (matchingChat?._id) {
         const chatId = matchingChat._id;
         setLoadingMessages(prev => new Set(prev).add(notificationId));
-        
+
         try {
           const messagesResponse = await getMessages(chatId, userType);
           const messages = messagesResponse?.data?.messages || messagesResponse?.messages || messagesResponse || [];
@@ -168,9 +168,9 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   const toggleChatExpansion = (notification: ServiceNotification) => {
     const notificationId = notification._id || (notification as any).id;
     if (!notificationId) return;
-    
+
     const isExpanded = expandedChats.has(notificationId);
-    
+
     if (isExpanded) {
       setExpandedChats(prev => {
         const newSet = new Set(prev);
@@ -189,7 +189,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
   const handleOpenChat = async (notification: ServiceNotification) => {
     const currentUserId = isVendor ? vendor?.id : user?.id;
     if (!currentUserId) return;
-    
+
     const senderName = extractSenderName(notification.title);
     if (!senderName) return;
 
@@ -197,11 +197,11 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
       const userType = isVendor ? 'vendor' : 'user';
       const chatsResponse = await getChatsOfUser(currentUserId, userType);
       const chats = chatsResponse?.data || chatsResponse || [];
-      
+
       const matchingChat = chats.find((chat: any) => {
         const chatName = chat.name || "";
         return chatName.toLowerCase().includes(senderName.toLowerCase()) ||
-               senderName.toLowerCase().includes(chatName.toLowerCase());
+          senderName.toLowerCase().includes(chatName.toLowerCase());
       });
 
       if (matchingChat?._id) {
@@ -223,7 +223,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
         return updated;
       });
       await ReadNotification(notificationId);
-      
+
       dispatch(markAsRead(notificationId));
     } catch (err) {
       console.error("Failed to mark as read:", err);
@@ -357,11 +357,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
                       return (
                         <div
                           key={n._id || (n as any).id}
-                          className={`p-4 rounded-lg shadow-sm border transition-all hover:shadow-md ${
-                            n.read
+                          className={`p-4 rounded-lg shadow-sm border transition-all hover:shadow-md ${n.read
                               ? "bg-white border-gray-200"
                               : "bg-blue-50 border-blue-300"
-                          }`}
+                            }`}
                         >
                           <div className="flex justify-between items-start mb-1">
                             <div className="flex items-center gap-2 flex-1">
@@ -389,11 +388,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
                                       {messages.slice(-5).map((msg: any) => (
                                         <div
                                           key={msg._id}
-                                          className={`p-2 rounded-lg text-xs ${
-                                            msg.senderId === vendor?.id
+                                          className={`p-2 rounded-lg text-xs ${msg.senderId === vendor?.id
                                               ? "bg-blue-100 ml-auto text-right"
                                               : "bg-gray-100 mr-auto text-left"
-                                          }`}
+                                            }`}
                                         >
                                           <p className="text-gray-800">{msg.messageContent}</p>
                                           <p className="text-gray-500 text-[10px] mt-1">
@@ -496,11 +494,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
                       return (
                         <div
                           key={n._id || (n as any).id}
-                          className={`p-4 rounded-lg shadow-sm border transition-all hover:shadow-md ${
-                            n.read
+                          className={`p-4 rounded-lg shadow-sm border transition-all hover:shadow-md ${n.read
                               ? "bg-white border-gray-200"
                               : "bg-blue-50 border-blue-300"
-                          }`}
+                            }`}
                         >
                           <div className="flex justify-between items-start mb-1">
                             <div className="flex items-center gap-2 flex-1">
@@ -526,11 +523,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ open, onCl
                                       {messages.slice(-5).map((msg: any) => (
                                         <div
                                           key={msg._id}
-                                          className={`p-2 rounded-lg text-xs ${
-                                            msg.senderId === vendor?.id
+                                          className={`p-2 rounded-lg text-xs ${msg.senderId === vendor?.id
                                               ? "bg-blue-100 ml-auto text-right"
                                               : "bg-gray-100 mr-auto text-left"
-                                          }`}
+                                            }`}
                                         >
                                           <p className="text-gray-800">{msg.messageContent}</p>
                                           <p className="text-gray-500 text-[10px] mt-1">

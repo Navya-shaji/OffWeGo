@@ -1,6 +1,6 @@
 import { setToken } from "@/store/slice/Token/tokenSlice";
 import store from "@/store/store";
-import axios, {  } from "axios";
+import axios, { } from "axios";
 
 const baseURL = import.meta.env.VITE_BASE_URL?.replace(/\/?$/, "/");
 
@@ -37,8 +37,10 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch {
         store.dispatch({ type: "token/removeToken" });
+        return Promise.reject(err);
       }
     }
+    return Promise.reject(err);
   }
 );
 

@@ -122,10 +122,10 @@ const UserList = () => {
     if (!selectedUser) return;
     const newStatus = selectedUser.status === "active" ? "blocked" : "active";
     const action = newStatus === "blocked" ? "block" : "unblock";
-    
+
     try {
       await handleActionChange(selectedUser.id, newStatus);
-      
+
       // Show success toast with blur background
       toast.success(
         `Successfully ${action}ed user "${selectedUser.name}"`,
@@ -138,7 +138,7 @@ const UserList = () => {
           },
         }
       );
-    } catch  {
+    } catch (error) {
       toast.error(
         `Failed to ${action} user "${selectedUser.name}". Please try again.`,
         {
@@ -151,7 +151,7 @@ const UserList = () => {
         }
       );
     }
-    
+
     setModalOpen(false);
     setSelectedUser(null);
   };
@@ -170,8 +170,8 @@ const UserList = () => {
       const updateUser = (list: User[]) =>
         list.map((u) => (u._id === userId ? { ...u, status: newStatus } : u));
 
-      setUsers(updateUser);
-      if (!isSearchMode) setOriginalUsers(updateUser);
+      setUsers(updateUser as any);
+      if (!isSearchMode) setOriginalUsers(updateUser as any);
 
       try {
         await updateUserStatus(userId, newStatus);
@@ -197,7 +197,7 @@ const UserList = () => {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -210,7 +210,7 @@ const UserList = () => {
 
   const columns: ColumnDef<User>[] = [
     {
-      header: "#",  
+      header: "#",
       cell: ({ row }) => (page - 1) * 10 + row.index + 1,
     },
 
@@ -332,11 +332,10 @@ const UserList = () => {
 
               <button
                 onClick={handleConfirmStatusChange}
-                className={`px-4 py-2 text-white rounded ${
-                  selectedUser.status === "active"
+                className={`px-4 py-2 text-white rounded ${selectedUser.status === "active"
                     ? "bg-red-600"
                     : "bg-green-600"
-                }`}
+                  }`}
               >
                 Confirm
               </button>

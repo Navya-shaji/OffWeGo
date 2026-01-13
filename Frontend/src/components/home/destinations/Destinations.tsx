@@ -64,9 +64,9 @@ const Destinations = () => {
 
           try {
             const response = await getNearbyDestinations(lat, lng, radiusInKm);
-        
+
             let destinationsData = [];
-            
+
             if (response?.data?.data && Array.isArray(response.data.data)) {
               destinationsData = response.data.data;
             } else if (response?.data && Array.isArray(response.data)) {
@@ -74,7 +74,7 @@ const Destinations = () => {
             } else if (Array.isArray(response)) {
               destinationsData = response;
             }
-            
+
             setDestinations(destinationsData);
           } catch (err) {
             console.error("Nearby fetch error:", err);
@@ -163,9 +163,9 @@ const Destinations = () => {
             <span className="inline-block text-xs font-semibold tracking-[0.3em] text-white/60 uppercase mb-6">
               Where to next
             </span>
-            <h2 className="text-5xl md:text-7xl font-light mb-6 tracking-tight">
+            <h2 className="text-5xl md:text-7xl font-light mb-6 tracking-normal">
               Featured
-              <span className="block font-bold">Destinations</span>
+              <span className="block font-bold tracking-[0.1em]">Destinations</span>
             </h2>
             <p className="text-xl text-white/70 max-w-2xl font-light">
               Handpicked destinations that inspire wanderlust and create unforgettable experiences
@@ -223,11 +223,11 @@ const Destinations = () => {
             <div className="flex items-center gap-3 mb-3">
               <MapPin className="w-5 h-5 text-black/40" />
               <span className="text-sm font-semibold tracking-wider text-black/60 uppercase">
-                {isNearbyMode 
-                  ? 'Nearby Destinations' 
-                  : isSearchMode 
-                  ? `Search Results` 
-                  : `${destinations.length} Destinations`}
+                {isNearbyMode
+                  ? 'Nearby Destinations'
+                  : isSearchMode
+                    ? `Search Results`
+                    : `${destinations.length} Destinations`}
               </span>
             </div>
             {isSearchMode && (
@@ -276,8 +276,8 @@ const Destinations = () => {
               {isNearbyMode
                 ? "No destinations found near your location. Try increasing the search radius or view all destinations."
                 : isSearchMode
-                ? `We couldn't find any destinations matching "${searchQuery}". Try a different search term.`
-                : "No destinations are available at the moment. Please check back later."}
+                  ? `We couldn't find any destinations matching "${searchQuery}". Try a different search term.`
+                  : "No destinations are available at the moment. Please check back later."}
             </p>
             {(isSearchMode || isNearbyMode) && (
               <button
