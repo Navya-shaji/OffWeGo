@@ -66,7 +66,7 @@ import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepos
 // import { ChatController } from "../../../adapters/controller/chat/ChatController";
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 
-import { TravelPostRepository } from "../../../adapters/repository/TravelPost/TravelPostRepository"; 
+import { TravelPostRepository } from "../../../adapters/repository/TravelPost/TravelPostRepository";
 import { CreateTravelPostUsecase } from "../../../useCases/travelPost/CreateTravelPostUsecase";
 import { ListTravelPostsUsecase } from "../../../useCases/travelPost/ListTravelPostsUsecase";
 import { GetTravelPostUsecase } from "../../../useCases/travelPost/GetTravelPostUsecase";
@@ -79,6 +79,7 @@ import { GetAllCategories } from "../../../useCases/category/getAllCategoryUseca
 import { GetAllDestinations } from "../../../useCases/destination/getAllDestinationUsecase";
 import { GetMessagesUseCase } from "../../../useCases/msg/getMessageUsecase";
 import { MarkMessagesSeenUseCase } from "../../../useCases/chat/MarkMessageusecase";
+import { EmailService } from "../../Services/EmailService";
 
 
 
@@ -98,13 +99,15 @@ const walletRepo = new WalletRepository()
 const notificationRepo = new NotificationRepository()
 const packageRepo = new PackageRepository()
 const notificationservice = new FirebaseNotificationService(notificationRepo, userRepository, vendorRepo,)
-const subscriptionbookingRepo = new SubscriptionBookingRepository()
+const emailService = new EmailService();
 const chatRepo = new ChatRepository()
 const msgRepo = new MessageRepository()
 const travelPostRepo = new TravelPostRepository()
 const travelPostCategoryRepo = new CategoryRepository()
 const travelPostDestinationRepo = new DestinationRepository()
 
+const subscriptionbookingRepo = new SubscriptionBookingRepository()
+// ...
 
 // Use Cases
 const registerUsecase = new RegisterUserUseCase(userRepository, otpService);
@@ -115,7 +118,7 @@ const resetPasswordUseCase = new ResetPasswordUseCase(userRepository, hashPasswo
 const userprofile = new UserProfileUsecase(userRepository);
 const resendotpusecase = new ResendOtpUsecase(otpService);
 const edituserProfile = new EditUserProfile()
-const createbookingusecase = new CreateBookingUseCase(bookingRepo, walletRepo, packageRepo, notificationservice)
+const createbookingusecase = new CreateBookingUseCase(bookingRepo, walletRepo, packageRepo, notificationservice, emailService) // Inject EmailService
 const createpaymentusecase = new CreatePaymentUsecase(paymentRepo)
 const userbookings = new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings = new GetVendorSideBookingUsecase(bookingRepo)

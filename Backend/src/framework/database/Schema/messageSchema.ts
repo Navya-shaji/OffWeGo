@@ -24,21 +24,20 @@ export const messageSchema = new Schema({
     },
     senderType: {
         type: String,
-        enum: ['User', 'user', 'vendor'],
+        enum: ['user', 'vendor'],
         required: true,
         set: function (value: string) {
-            // Normalize 'user' to 'User' on save
-            return value === 'user' ? 'User' : value;
+            // Normalize to lowercase to match model names
+            return value.toLowerCase();
         }
     },
     receiverId: {
         type: String,
-        refPath: 'senderType',
         required: false
     },
     messageType: {
         type: String,
-        enum: ['text', 'image', 'voice', 'file'],
+        enum: ['text', 'image', 'voice', 'file', 'video', 'location'],
         default: 'text'
     },
     deliveryStatus: {

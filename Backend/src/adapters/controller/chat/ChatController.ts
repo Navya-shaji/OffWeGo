@@ -12,7 +12,7 @@ export class ChatController {
     private _getChatsUsecase: GetChatsOfUserUsecase,
     private _getMessagesUsecase: IGetMessagesUsecase,
     private _markMessagesSeenUseCase: IMarkMessagesSeenUseCase
-  ) {}
+  ) { }
 
   async findOrCreateChat(req: Request, res: Response) {
     try {
@@ -38,7 +38,7 @@ export class ChatController {
   async getChats(req: Request, res: Response) {
     try {
       const userId = req.params.userId || req.params.vendorId;
-      const userType = (req.query.userType as Role.USER |Role.VENDOR) || Role.USER;
+      const userType = (req.query.userType as Role.USER | Role.VENDOR) || Role.USER;
 
       const chats = await this._getChatsUsecase.getChats(userId, userType);
       return res.status(HttpStatus.OK).json({
@@ -53,7 +53,7 @@ export class ChatController {
       });
     }
   }
-  
+
   async getMessages(req: Request, res: Response) {
     try {
       const { chatId } = req.params;
@@ -73,8 +73,8 @@ export class ChatController {
 
   async markMessagesSeen(req: Request, res: Response) {
     try {
-      const { chatId, userId } = req.body;
-      await this._markMessagesSeenUseCase.execute(chatId, userId);
+      const { chatId, userId, userType } = req.body;
+      await this._markMessagesSeenUseCase.execute(chatId, userId, userType);
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Messages marked as seen",

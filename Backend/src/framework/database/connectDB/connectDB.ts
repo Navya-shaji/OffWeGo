@@ -13,8 +13,9 @@ export class ConnectDB {
         bufferCommands: false,
       });
       console.log(" MongoDB connected successfully.");
-    } catch  {
-      process.exit(1); 
+    } catch (error) {
+      console.error("❌ MongoDB connection error:", error);
+      process.exit(1);
     }
   }
 }
