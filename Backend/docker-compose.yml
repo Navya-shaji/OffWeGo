@@ -1,44 +1,61 @@
-version: "3.8"
-
 services:
-  app:
-    build: .
+  mongo:
+    image: mongo:6.0
+    container_name: offwego-mongodb
     restart: always
     ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: production
-
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-
-      # Mongo
-      MONGO_URI: ${MONGO_URI}
-
-      # Auth
-      JWT_ACCESSTOKENSECRETKEY: ${JWT_ACCESSTOKENSECRETKEY}
-      JWT_REFRESHTOKEN: ${JWT_REFRESHTOKEN}
-
-      # Stripe  REQUIRED
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
-
-      # Others
-      NODEMAILER_EMAIL: ${NODEMAILER_EMAIL}
-      NODEMAILER_PASSWORD: ${NODEMAILER_PASSWORD}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-      DOMAIN_URL: ${DOMAIN_URL}
-
-    depends_on:
-      - redis
-
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
 
   redis:
-    image: redis:6.2-alpine
+    image: redis:alpine
+    container_name: offwego-redis
+    restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD:-offwegowebsite}
     ports:
       - "6379:6379"
+
+  app:
+    build: .
+    container_name: offwego-backend
+    restart: always
+    ports:
+      - "1212:1212"
+    environment:
+      NODE_ENV: production
+      PORT: 1212
+      
+      # Database and Cache
+      MONGO_URI: mongodb://mongo:27017/offwego
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
+
+      # Authentication
+      JWT_ACCESSTOKENSECRETKEY: ${JWT_ACCESSTOKENSECRETKEY}
+      JWT_REFRESHTOKEN: ${JWT_REFRESHTOKEN}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+
+      # Stripe
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+
+      # Cloudinary
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
+      # Email
+      NODEMAILER_EMAIL: ${NODEMAILER_EMAIL}
+      NODEMAILER_PASSWORD: ${NODEMAILER_PASSWORD}
+
+      # Domain
+      DOMAIN_URL: ${DOMAIN_URL:-http://localhost:1212}
+
+    depends_on:
+      - mongo
+      - redis
+
+volumes:
+  mongodb_data:

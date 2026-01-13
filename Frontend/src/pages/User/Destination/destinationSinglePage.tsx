@@ -6,7 +6,7 @@ import { getsingleDestination } from "@/services/Destination/destinationService"
 import { getPackagesByDestination } from "@/services/packages/packageService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { MapPin, ArrowLeft, Search, Loader2, Clock, Calendar, Star, Users } from "lucide-react";
-import Navbar from "@/components/profile/navbar";
+import Header from "@/components/home/navbar/Header";
 import { searchPackages } from "@/services/packages/packageService";
 import type { Package } from "@/interface/PackageInterface";
 
@@ -17,7 +17,7 @@ export const DestinationDetail = () => {
   const [searchResults, setSearchResults] = useState<Package[] | null>(null);
   const [packages, setPackages] = useState<Package[]>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
-  
+
   const navigate = useNavigate();
 
   const displayedPackages = useMemo(() => {
@@ -114,8 +114,8 @@ export const DestinationDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-20">
+      <Header forceSolid />
 
       {/* Hero Section with Full-Screen Background */}
       <div className="relative h-screen min-h-[600px] overflow-hidden">
@@ -129,10 +129,10 @@ export const DestinationDetail = () => {
         ) : (
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-400 to-blue-500" />
         )}
-        
+
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
-        
+
         {/* Content */}
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between py-12">
           {/* Top - Back Button */}
@@ -157,27 +157,27 @@ export const DestinationDetail = () => {
                 {packages.length} Tour Packages
               </div>
             </div>
-            
+
             <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight tracking-tight">
               {destination.name}
             </h1>
-            
+
             <p className="text-xl sm:text-2xl text-white/90 leading-relaxed max-w-3xl font-light">
               {destination.description}
             </p>
 
-           
+
           </div>
         </div>
 
-   
+
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
       </div>
 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 pb-16">
-        
-   
+
+
         <div className="bg-white rounded-2xl shadow-2xl p-6 mb-16">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1 w-full relative">
@@ -199,7 +199,7 @@ export const DestinationDetail = () => {
 
         {/* Section Header */}
         <div className="mb-10">
-      
+
           <p className="text-gray-600 text-lg">Discover curated experiences for your journey</p>
         </div>
 
@@ -214,9 +214,9 @@ export const DestinationDetail = () => {
               >
                 {/* Image */}
                 <div className="relative h-56 overflow-hidden">
-                  {destination.imageUrls && destination.imageUrls[0] ? (
-                    <img 
-                      src={destination.imageUrls[0]} 
+                  {(pkg.images && pkg.images.length > 0) || (destination.imageUrls && destination.imageUrls.length > 0) ? (
+                    <img
+                      src={pkg.images && pkg.images.length > 0 ? pkg.images[0] : destination.imageUrls[0]}
                       alt={pkg.packageName}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -224,7 +224,7 @@ export const DestinationDetail = () => {
                     <div className="w-full h-full bg-gradient-to-br from-indigo-200 to-blue-300" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-                  
+
                   {/* Price Badge */}
                   <div className="absolute top-4 right-4 px-4 py-2 bg-white rounded-full shadow-lg">
                     <span className="text-indigo-600 font-bold text-lg">₹{pkg.price.toLocaleString()}</span>
@@ -236,7 +236,7 @@ export const DestinationDetail = () => {
                     <span className="text-sm font-semibold text-gray-900">4.8</span>
                   </div>
                 </div>
-                
+
                 {/* Content */}
                 <div className="p-6">
                   <h3 className="font-bold text-xl mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
@@ -245,7 +245,7 @@ export const DestinationDetail = () => {
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
                     {pkg.description}
                   </p>
-                  
+
                   {/* Meta Info */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-1.5 text-gray-700">
@@ -286,7 +286,7 @@ export const DestinationDetail = () => {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Location Map</h2>
             <p className="text-gray-600 text-lg">Explore the destination on the map</p>
           </div>
-          
+
           <div className="h-96 rounded-2xl overflow-hidden shadow-2xl">
             {destination.coordinates?.lat && destination.coordinates?.lng ? (
               <MapContainer

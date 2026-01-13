@@ -1,5 +1,7 @@
 import VendorLogin from "@/pages/Vendors/Login";
 import VendorSignup from "@/pages/Vendors/signup";
+import VendorForgotPassword from "@/pages/Vendors/ForgotPassword";
+import VendorStatusPage from "@/pages/Vendors/VendorStatus/VendorStatusPage";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "@/pages/Vendors/Dashboard";
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
@@ -17,6 +19,8 @@ const VendorRoutes = () => {
     <Routes>
       <Route path="/signup" element={<VendorSignup />} />
       <Route path="/login" element={<VendorLogin />} />
+      <Route path="/forgot-password" element={<VendorForgotPassword />} />
+      <Route path="/status" element={<VendorStatusPage />} />
       <Route path="/subscriptionplans" element={<VendorSubscriptionPage />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-failed" element={<PaymentFailureModal />} />

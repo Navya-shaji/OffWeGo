@@ -21,7 +21,7 @@ const TravelPostListPage = () => {
   const [categoryId, setCategoryId] = useState("");
   const [destinationId, setDestinationId] = useState("");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("latest");
+  const [sortBy, setSortBy] = useState<SortOption>("latest");
   const [view, setView] = useState("all");
   const [myStatus, setMyStatus] = useState<"" | "PENDING" | "APPROVED" | "REJECTED">("");
 
@@ -139,7 +139,7 @@ const TravelPostListPage = () => {
   }, [loadMorePosts, hasMore, isLoadingMore]);
 
   const filteredPosts = useMemo(() => {
-  
+
     return displayedPosts;
   }, [displayedPosts]);
 
@@ -219,8 +219,8 @@ const TravelPostListPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <div className="min-h-screen bg-white pt-20">
+      <Header forceSolid />
 
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="mb-12 text-center">
@@ -237,21 +237,19 @@ const TravelPostListPage = () => {
           <div className="flex gap-3">
             <button
               onClick={() => setView("all")}
-              className={`rounded border px-5 py-2 text-sm font-medium transition-colors ${
-                view === "all"
-                  ? "border-gray-900 bg-gray-900 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-              }`}
+              className={`rounded border px-5 py-2 text-sm font-medium transition-colors ${view === "all"
+                ? "border-gray-900 bg-gray-900 text-white"
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
             >
               All stories
             </button>
             <button
               onClick={() => setView("mine")}
-              className={`rounded border px-5 py-2 text-sm font-medium transition-colors ${
-                view === "mine"
-                  ? "border-gray-900 bg-gray-900 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-              }`}
+              className={`rounded border px-5 py-2 text-sm font-medium transition-colors ${view === "mine"
+                ? "border-gray-900 bg-gray-900 text-white"
+                : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                }`}
             >
               My submissions
             </button>

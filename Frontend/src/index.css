@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -39,6 +41,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-plus-jakarta: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-outfit: "Roboto", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -114,15 +118,28 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-plus-jakarta);
   }
-    html, body {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-outfit);
+  }
+
+  html,
+  body {
     @apply m-0 p-0 w-full overflow-x-hidden;
   }
 }
+
 /* Tailwind's base can be extended like this */
 .input {
   @apply w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition;
 }
-

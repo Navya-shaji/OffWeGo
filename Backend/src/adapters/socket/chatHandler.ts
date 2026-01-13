@@ -1,5 +1,5 @@
 import { CreateMessageUseCase } from "../../useCases/msg/createMessageUsecase";
-import { ChatRepository } from "../repository/Chat/chatRepository";
+import { ChatRepository } from "../repository/Chat/ChatRepository";
 import { FirebaseNotificationService } from "../../framework/Services/FirebaseNotificationService";
 import { MessageRepository } from "../repository/Msg/MessageRepository";
 
@@ -17,12 +17,13 @@ export class ChatHandler {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async handleSendMessage(data: any, senderName: string): Promise<string> {
-      
+
 
         const message = await this._sendMessageUseCase.createMessage({
             chatId: data.chatId,
             messageContent: data.messageContent,
             messageType: data.messageType || 'text',
+            fileUrl: data.fileUrl,
             seen: data.seen,
             sendedTime: data.sendedTime,
             senderId: data.senderId,
@@ -31,10 +32,29 @@ export class ChatHandler {
             replyTo: data.replyTo,
         });
 
-      
+
         const normalizedSenderType = (data.senderType || '').toLowerCase();
         const isVendorSender = normalizedSenderType === 'vendor';
-        
+
+        // Update last message in chat
+        if (this._chatRepository && data.chatId) {
+            try {
+                const lastMessageText = data.messageType === 'location'
+                    ? '📍 Shared Location'
+                    : data.messageType === 'image'
+                        ? '📷 Image'
+                        : data.messageContent;
+
+                await this._chatRepository.updateLastMessage(
+                    data.chatId,
+                    lastMessageText,
+                    data.sendedTime || new Date()
+                );
+            } catch (error) {
+                console.error('Error updating last message:', error);
+            }
+        }
+
         // Increment unread count
         if (this._chatRepository && data.receiverId) {
             try {

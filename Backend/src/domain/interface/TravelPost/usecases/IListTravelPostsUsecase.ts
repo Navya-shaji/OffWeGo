@@ -6,6 +6,7 @@ export interface ListTravelPostQuery {
   destinationId?: string;
   authorId?: string;
   search?: string;
+  sortBy?: "newest" | "oldest" | "popular";
   page?: number;
   limit?: number;
 }

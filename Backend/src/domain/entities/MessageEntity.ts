@@ -5,7 +5,7 @@ export interface IMessage {
     chatId: string;
     senderId: string;
     messageContent: string;
-    messageType: "text" | "image" | "video" | "voice" | "file";
+    messageType: "text" | "image" | "video" | "voice" | "file" | "location";
     seen: boolean;
     sendedTime?: Date;
     senderType?: string;

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import Header from "@/components/home/navbar/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import TravelerForm from "./TravlerForm";
 import type { RootState } from "@/store/store";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import type { Traveler } from "@/interface/Boooking";
-import { Users, Baby, Mail, Phone, MapPin, Home, Ticket, CreditCard, ArrowLeft } from "lucide-react";
+import { Users, Baby, Mail, Phone, MapPin, Home, Ticket, CreditCard, ArrowLeft, CheckCircle, ShieldCheck } from "lucide-react";
 
 export default function TravelerDetails() {
   const { state } = useLocation();
@@ -16,13 +17,16 @@ export default function TravelerDetails() {
   const [adultCount, setAdultCount] = useState(0);
   const [childCount, setChildCount] = useState(0);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
-  
+
   const [adultTravelers, setAdultTravelers] = useState<Traveler[]>([]);
   const [childTravelers, setChildTravelers] = useState<Traveler[]>([]);
-  
+
   const [isAdultFormValid, setIsAdultFormValid] = useState(false);
   const [isChildFormValid, setIsChildFormValid] = useState(false);
   const [isStateLoaded, setIsStateLoaded] = useState(false);
+
+  // Controls validation visibility
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [contactInfo, setContactInfo] = useState({
     email: "",
@@ -65,7 +69,6 @@ export default function TravelerDetails() {
     }
   }, [selectedPackage?._id]);
 
-  // Save state on every change
   useEffect(() => {
     if (selectedPackage?._id && isStateLoaded) {
       const storageKey = `traveler-details:${selectedPackage._id}`;
@@ -92,13 +95,10 @@ export default function TravelerDetails() {
     isStateLoaded,
   ]);
 
-  // Clean up data when component unmounts or when navigating back
   useEffect(() => {
     return () => {
-      // Cleanup function - clear localStorage when navigating away
       if (selectedPackage?._id) {
         const storageKey = `traveler-details:${selectedPackage._id}`;
-        // Only clear if navigating back (not forward to payment)
         const currentPath = window.location.pathname;
         if (!currentPath.includes('payment-checkout')) {
           localStorage.removeItem(storageKey);
@@ -128,20 +128,16 @@ export default function TravelerDetails() {
 
   const validateContactInfo = () => {
     const { email, mobile, city, address } = contactInfo;
-    
-    if (!email.trim()) {
-      toast.error("Email is required");
-      return false;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address");
+
+    if (!email.trim() || !mobile.trim() || !city.trim() || !address.trim()) {
+      if (!isSubmitted) setIsSubmitted(true);
+      toast.error("Please fill in all contact details");
       return false;
     }
 
-    if (!mobile.trim()) {
-      toast.error("Mobile number is required");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
       return false;
     }
 
@@ -151,27 +147,19 @@ export default function TravelerDetails() {
       return false;
     }
 
-    if (!city.trim()) {
-      toast.error("City is required");
-      return false;
-    }
-
-    if (!address.trim()) {
-      toast.error("Address is required");
-      return false;
-    }
-
     return true;
   };
 
   const validateTravelerForms = () => {
     if (adultCount > 0 && !isAdultFormValid) {
-      toast.error("Please fill all adult traveler details correctly");
+      if (!isSubmitted) setIsSubmitted(true);
+      toast.error("Please check adult traveler details");
       return false;
     }
 
     if (childCount > 0 && !isChildFormValid) {
-      toast.error("Please fill all child traveler details correctly");
+      if (!isSubmitted) setIsSubmitted(true);
+      toast.error("Please check child traveler details");
       return false;
     }
 
@@ -179,6 +167,8 @@ export default function TravelerDetails() {
   };
 
   const handleNext = async () => {
+    setIsSubmitted(true); // Show errors now
+
     if (!userId) {
       toast.error("Please login before booking!");
       navigate("/login");
@@ -195,13 +185,8 @@ export default function TravelerDetails() {
       return;
     }
 
-    if (!validateContactInfo()) {
-      return;
-    }
-
-    if (!validateTravelerForms()) {
-      return;
-    }
+    if (!validateContactInfo()) return;
+    if (!validateTravelerForms()) return;
 
     try {
       const bookingData = {
@@ -235,7 +220,6 @@ export default function TravelerDetails() {
   };
 
   const handleBack = () => {
-    // Clear localStorage when going back
     if (selectedPackage?._id) {
       const storageKey = `traveler-details:${selectedPackage._id}`;
       localStorage.removeItem(storageKey);
@@ -250,74 +234,70 @@ export default function TravelerDetails() {
     { name: "address", icon: Home, type: "text", placeholder: "Complete address" },
   ];
 
-  const canProceedToPayment = 
-    (adultCount > 0 || childCount > 0) &&
-    (adultCount === 0 || isAdultFormValid) &&
-    (childCount === 0 || isChildFormValid) &&
-    contactInfo.email &&
-    contactInfo.mobile &&
-    contactInfo.city &&
-    contactInfo.address &&
-    !(adultCount === 0 && childCount >= 1);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 pt-32 font-sans selection:bg-teal-100">
+      <Header forceSolid />
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 hover:text-gray-900 font-medium border border-gray-200"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-200 text-slate-600 hover:text-teal-600 font-bold border border-slate-200 hover:border-teal-100 group"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             Back to Package
           </button>
         </div>
 
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Complete Your Booking
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-3 tracking-tight">
+            Finalize Your Trip
           </h1>
-          <p className="text-gray-600">Just a few more details to confirm your adventure</p>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">Almost there! We just need a few details to secure your spot.</p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 lg:p-10 border-r border-gray-200">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-gray-200 rounded-lg">
-                  <Ticket className="w-6 h-6 text-gray-800" />
+        <div className="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-slate-100">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+
+            {/* Left Column: Selections */}
+            <div className="lg:col-span-7 bg-white p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-slate-100">
+              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-50">
+                <div className="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 shadow-sm">
+                  <Ticket className="w-6 h-6" />
                 </div>
-                <h2 className="text-gray-900 text-2xl font-bold">Select Tickets</h2>
+                <div>
+                  <h2 className="text-gray-900 text-2xl font-black">Who is traveling?</h2>
+                  <p className="text-slate-400 text-sm font-medium">Select tickets for everyone</p>
+                </div>
               </div>
 
               {/* Adult Ticket */}
-              <div className="group bg-white p-6 rounded-2xl mb-5 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-400">
+              <div className="bg-slate-50 p-6 rounded-3xl mb-6 border border-slate-100 hover:border-teal-200 hover:shadow-lg transition-all duration-300 group">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-gray-200 transition-colors">
-                      <Users className="w-6 h-6 text-gray-800" />
+                  <div className="flex items-center gap-5 flex-1">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-teal-600 shadow-sm group-hover:scale-110 transition-transform">
+                      <Users className="w-6 h-6" />
                     </div>
                     <div>
-                      <div className="text-gray-600 text-sm font-medium mb-1">Adult Ticket</div>
-                      <div className="text-gray-900 text-xl font-bold">₹{adultPrice}</div>
-                      <div className="text-gray-500 text-xs">per person</div>
+                      <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Standard</div>
+                      <div className="text-gray-900 text-xl font-bold">Adult</div>
+                      <div className="text-teal-600 font-black mt-1">₹{adultPrice.toLocaleString()}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2 border border-gray-200">
+                  <div className="flex items-center gap-4 bg-white rounded-xl p-2 shadow-sm border border-slate-100">
                     <button
                       onClick={() => updateCount("adult", -1)}
-                      className="w-10 h-10 bg-white hover:bg-gray-200 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+                      className="w-10 h-10 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg font-bold transition-all disabled:opacity-30"
                       disabled={adultCount === 0}
                     >
                       −
                     </button>
-                    <span className="min-w-10 text-center text-lg font-bold text-gray-900">
+                    <span className="w-8 text-center text-xl font-bold text-gray-900">
                       {adultCount}
                     </span>
                     <button
                       onClick={() => updateCount("adult", 1)}
-                      className="w-10 h-10 bg-gray-900 hover:bg-black text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
+                      className="w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold shadow-teal-200 shadow-md transition-all active:scale-95"
                     >
                       +
                     </button>
@@ -326,32 +306,32 @@ export default function TravelerDetails() {
               </div>
 
               {/* Child Ticket */}
-              <div className="group bg-white p-6 rounded-2xl mb-8 shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-400">
+              <div className="bg-slate-50 p-6 rounded-3xl mb-10 border border-slate-100 hover:border-rose-200 hover:shadow-lg transition-all duration-300 group">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="p-3 bg-gray-100 rounded-xl group-hover:bg-gray-200 transition-colors">
-                      <Baby className="w-6 h-6 text-gray-800" />
+                  <div className="flex items-center gap-5 flex-1">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm group-hover:scale-110 transition-transform">
+                      <Baby className="w-6 h-6" />
                     </div>
                     <div>
-                      <div className="text-gray-600 text-sm font-medium mb-1">Child Ticket</div>
-                      <div className="text-gray-900 text-xl font-bold">₹{childPrice.toLocaleString()}</div>
-                      <div className="text-gray-500 text-xs">per person (20% off)</div>
+                      <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Under 12</div>
+                      <div className="text-gray-900 text-xl font-bold">Child</div>
+                      <div className="text-rose-500 font-bold mt-1">₹{childPrice.toLocaleString()} <span className="text-xs text-rose-300 ml-1 line-through">20% off</span></div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2 border border-gray-200">
+                  <div className="flex items-center gap-4 bg-white rounded-xl p-2 shadow-sm border border-slate-100">
                     <button
                       onClick={() => updateCount("child", -1)}
-                      className="w-10 h-10 bg-white hover:bg-gray-200 text-gray-700 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
+                      className="w-10 h-10 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg font-bold transition-all disabled:opacity-30"
                       disabled={childCount === 0}
                     >
                       −
                     </button>
-                    <span className="min-w-10 text-center text-lg font-bold text-gray-900">
+                    <span className="w-8 text-center text-xl font-bold text-gray-900">
                       {childCount}
                     </span>
                     <button
                       onClick={() => updateCount("child", 1)}
-                      className="w-10 h-10 bg-gray-900 hover:bg-black text-white rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow"
+                      className="w-10 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-bold shadow-rose-200 shadow-md transition-all active:scale-95"
                     >
                       +
                     </button>
@@ -360,130 +340,150 @@ export default function TravelerDetails() {
               </div>
 
               {/* Contact Info */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h3 className="text-gray-900 text-xl font-bold mb-6 flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-gray-800" />
-                  Contact Information
-                </h3>
-                <div className="space-y-4">
-                  {inputFields.map((field) => {
-                    const Icon = field.icon;
-                    return (
-                      <div key={field.name} className="relative group">
-                        <label className="block text-gray-600 text-xs uppercase font-semibold mb-2 tracking-wide">
-                          {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
-                        </label>
-                        <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-800 transition-colors">
-                            <Icon className="w-5 h-5" />
+              <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-teal-600" />
+                <div className="p-8">
+                  <h3 className="text-gray-900 text-xl font-bold mb-6 flex items-center gap-3">
+                    <div className="p-2 bg-teal-50 rounded-lg">
+                      <Mail className="w-5 h-5 text-teal-600" />
+                    </div>
+                    Contact Information
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {inputFields.map((field) => {
+                      const Icon = field.icon;
+                      const hasError = isSubmitted && !(contactInfo as any)[field.name];
+                      return (
+                        <div key={field.name} className={field.name === 'address' ? 'md:col-span-2' : ''}>
+                          <label className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wide ml-1">
+                            {field.name.charAt(0).toUpperCase() + field.name.slice(1)}
+                          </label>
+                          <div className="relative group">
+                            <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${hasError ? 'text-red-400' : 'text-slate-400 group-focus-within:text-teal-600'} transition-colors`}>
+                              <Icon className="w-5 h-5" />
+                            </div>
+                            <input
+                              type={field.type}
+                              name={field.name}
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              value={(contactInfo as any)[field.name]}
+                              onChange={handleInputChange}
+                              placeholder={field.placeholder}
+                              className={`w-full pl-12 pr-4 py-3.5 bg-slate-50 border ${hasError ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:ring-teal-100 focus:border-teal-500'} rounded-xl text-sm font-medium focus:outline-none focus:ring-4 transition-all duration-200 placeholder:text-slate-300 text-gray-900`}
+                            />
                           </div>
-                          <input
-                            type={field.type}
-                            name={field.name}
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            value={(contactInfo as any)[field.name]}
-                            onChange={handleInputChange}
-                            placeholder={field.placeholder}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-300 rounded-xl text-sm focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-300 transition-all duration-200 bg-white"
-                          />
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-8 lg:p-10 bg-white">
+            {/* Right Column: Forms & Summary */}
+            <div className="lg:col-span-5 bg-slate-50/50 p-8 lg:p-12">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-gray-900 text-2xl font-bold flex items-center gap-2">
-                  <Users className="w-6 h-6 text-gray-800" />
-                  Traveller Details
-                </h2>
-                <span className="text-red-500 text-xs font-semibold px-3 py-1 bg-red-50 rounded-full border border-red-200">
-                  *Mandatory
-                </span>
+                <h2 className="text-gray-900 text-2xl font-black">Guest Details</h2>
+                <div className="flex items-center gap-1 text-xs font-bold text-teal-700 bg-teal-100 px-3 py-1.5 rounded-full">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Secure
+                </div>
               </div>
 
-              <div className="space-y-6 mb-6">
+              <div className="space-y-4 mb-8">
                 {adultCount > 0 && (
-                  <div className="animate-slide-in">
-                    <TravelerForm
-                      travelerType="Adult"
-                      count={adultCount}
-                      onChange={setAdultTravelers}
-                      onValidationChange={setIsAdultFormValid}
-                    />
-                  </div>
+                  <TravelerForm
+                    travelerType="Adult"
+                    count={adultCount}
+                    onChange={setAdultTravelers}
+                    onValidationChange={setIsAdultFormValid}
+                    showErrors={isSubmitted}
+                  />
                 )}
                 {childCount > 0 && (
-                  <div className="animate-slide-in">
-                    <TravelerForm
-                      travelerType="Child"
-                      count={childCount}
-                      onChange={setChildTravelers}
-                      onValidationChange={setIsChildFormValid}
-                    />
+                  <TravelerForm
+                    travelerType="Child"
+                    count={childCount}
+                    onChange={setChildTravelers}
+                    onValidationChange={setIsChildFormValid}
+                    showErrors={isSubmitted}
+                  />
+                )}
+                {adultCount === 0 && childCount === 0 && (
+                  <div className="text-center py-10 bg-white rounded-3xl border border-dashed border-slate-300">
+                    <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-400 font-medium">Add travelers to continue</p>
                   </div>
                 )}
               </div>
 
-              <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-6 text-white shadow-lg mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-medium">Booking Summary</span>
-                  <CreditCard className="w-5 h-5 text-gray-400" />
-                </div>
-                <div className="space-y-2 mb-4 text-sm">
-                  {adultCount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Adults × {adultCount}</span>
-                      <span className="font-semibold">₹{(adultCount * adultPrice).toLocaleString()}</span>
+              <div className="sticky top-28">
+                <div className="bg-slate-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group">
+                  {/* Decorative glow */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-teal-600/20 rounded-full blur-[80px] -mr-20 -mt-20 group-hover:bg-teal-500/30 transition-all duration-1000" />
+
+                  <div className="relative z-10">
+                    <h3 className="font-bold text-xl mb-6 flex items-center gap-3">
+                      Price Breakdown
+                    </h3>
+
+                    <div className="space-y-4 mb-8">
+                      {adultCount > 0 && (
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span>Adults <span className="text-teal-400">× {adultCount}</span></span>
+                          <span className="font-bold text-white">₹{(adultCount * adultPrice).toLocaleString()}</span>
+                        </div>
+                      )}
+                      {childCount > 0 && (
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span>Children <span className="text-rose-400">× {childCount}</span></span>
+                          <span className="font-bold text-white">₹{(childCount * childPrice).toLocaleString()}</span>
+                        </div>
+                      )}
+                      {adultCount === 0 && childCount === 0 && (
+                        <p className="text-slate-500 italic text-sm">No tickets selected</p>
+                      )}
                     </div>
-                  )}
-                  {childCount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Children × {childCount}</span>
-                      <span className="font-semibold">₹{(childCount * childPrice).toLocaleString()}</span>
+
+                    <div className="border-t border-white/10 pt-6">
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Payble</p>
+                          <p className="text-3xl font-black text-white">₹{totalAmount.toLocaleString()}</p>
+                        </div>
+                        <CreditCard className="w-8 h-8 text-teal-400 opacity-50 mb-1" />
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="border-t border-gray-700 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-medium">Total Amount</span>
-                    <span className="text-3xl font-bold">₹{totalAmount.toLocaleString()}</span>
                   </div>
                 </div>
+
+                {/* Errors Summary */}
+                {isSubmitted && (
+                  <div className="mt-4 space-y-2 px-2">
+                    {(!contactInfo.email || !contactInfo.mobile) && (
+                      <p className="text-rose-500 text-xs font-bold flex items-center gap-2 animate-pulse">
+                        <CheckCircle className="w-4 h-4 text-rose-500" /> Missing Contact Info
+                      </p>
+                    )}
+                    {((adultCount > 0 && !isAdultFormValid) || (childCount > 0 && !isChildFormValid)) && (
+                      <p className="text-rose-500 text-xs font-bold flex items-center gap-2 animate-pulse">
+                        <CheckCircle className="w-4 h-4 text-rose-500" /> Check Traveler Details
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleNext}
+                  className="w-full mt-6 bg-teal-600 hover:bg-teal-500 text-white font-bold text-lg py-5 rounded-2xl shadow-xl shadow-teal-900/10 hover:shadow-teal-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 group"
+                >
+                  Confirm & Pay <ArrowLeft className="w-5 h-5 rotate-180 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <p className="text-center text-xs text-slate-400 font-medium mt-4">
+                  Secure 256-bit encrypted checkout
+                </p>
               </div>
 
-              <button
-                onClick={handleNext}
-                disabled={!canProceedToPayment}
-                className={`w-full px-6 py-4 text-lg font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 ${
-                  canProceedToPayment
-                    ? "bg-gray-900 hover:bg-black text-white cursor-pointer"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                {canProceedToPayment ? "Proceed to Payment" : "Please Complete All Details"}
-              </button>
-
-              <div className="mt-4 space-y-2 text-sm">
-                {adultCount > 0 && !isAdultFormValid && (
-                  <p className="text-red-500 flex items-center gap-2">
-                    <span>⚠</span> Please complete all adult traveler details
-                  </p>
-                )}
-                {childCount > 0 && !isChildFormValid && (
-                  <p className="text-red-500 flex items-center gap-2">
-                    <span>⚠</span> Please complete all child traveler details
-                  </p>
-                )}
-                {adultCount === 0 && childCount >= 1 && (
-                  <p className="text-red-500 flex items-center gap-2">
-                    <span>⚠</span> At least one adult is required when traveling with children
-                  </p>
-                )}
-              </div>
             </div>
           </div>
         </div>

@@ -10,18 +10,21 @@ import { Role } from "../../domain/constants/Roles";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
+import { IEmailService } from "../../domain/interface/ServiceInterface/IEmailService";
+
 export class CreateBookingUseCase implements ICreateBookingUseCase {
   constructor(
     private _bookingRepository: IBookingRepository,
     private _walletRepository: IWalletRepository,
-    private _packageRepository: IPackageRepository,  
-    private _notificationService: INotificationService 
-  ) {}
+    private _packageRepository: IPackageRepository,
+    private _notificationService: INotificationService,
+    private _emailService: IEmailService
+  ) { }
 
   async execute({
     data,
     payment_id,
-  }: CreateBookingDto): Promise<CreateBookingDto > {
+  }: CreateBookingDto): Promise<CreateBookingDto> {
 
     const completionDate = new Date(data.selectedDate);
 
@@ -54,15 +57,16 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       bookingId,
       paymentStatus: "succeeded",
       paymentIntentId: payment_id,
-      startDate: "",
-      packageId: packageData?.id,
-      vendorId: undefined,
-    
+      startDate: new Date().toISOString(),
+      packageId: packageData._id.toString(),
+      vendorId: packageData.vendorId.toString(),
+      settlementDone: false,
+      bookingStatus: "upcoming"
     };
 
     const result = await this._bookingRepository.createBooking(bookingData);
 
- 
+
     if (result.paymentStatus === "succeeded") {
       const adminId = process.env.ADMIN_ID || "";
 
@@ -72,7 +76,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         result.totalAmount,
         "credit",
         `Booking payment received. User`,
-        result.bookingId   
+        result.bookingId
       );
     }
     const vendorId = packageData.vendorId;
@@ -80,7 +84,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const formattedDate = new Date(data.selectedDate).toLocaleString();
 
-  
+
     await this._notificationService.send({
       recipientId: result.userId.toString(),
       recipientType: Role.USER,
@@ -90,7 +94,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       read: false
     });
 
- 
+
     await this._notificationService.send({
       recipientId: vendorId.toString(),
       recipientType: Role.VENDOR,
@@ -99,6 +103,20 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       createdAt: new Date(),
       read: false
     });
+
+    // Send Ticket Email
+    const targetEmail = data.contactInfo?.email;
+    if (targetEmail) {
+      try {
+        console.log(`Email service: Sending confirmation to ${targetEmail} for booking ${result._id}`);
+        await this._emailService.sendBookingConfirmation(targetEmail, result);
+        console.log(`✅ Email service: Confirmation sent for booking ${result._id}`);
+      } catch (error) {
+        console.error("❌ Email service: Failed to send confirmation:", error);
+      }
+    } else {
+      console.warn("Email service: No contact email provided. Skipping.");
+    }
 
     return mapBookingDto(result);
   }

@@ -18,7 +18,7 @@ export class AdminVendorController {
     private _updateVendorUseCase: IUpdateVendorUsecase,
     private _vendorRepository: IVendorRepository,
     private _searchvendorusecase: ISearchVendorUSecase
-  ) {}
+  ) { }
 
   async getVendorByEmail(req: Request, res: Response): Promise<void> {
     try {
@@ -133,7 +133,7 @@ export class AdminVendorController {
   async updateVendorApprovalStatus(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.params.id?.trim();
-      const { status } = req.body;
+      const { status, rejectionReason } = req.body;
 
       if (!vendorId) {
         res.status(HttpStatus.BAD_REQUEST).json({
@@ -153,7 +153,8 @@ export class AdminVendorController {
 
       const updated = await this._updateVendorStatusUseCase.executeById(
         vendorId,
-        status
+        status,
+        rejectionReason
       );
 
       if (!updated) {

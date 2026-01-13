@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Header from "@/components/home/navbar/Header";
 import { Wallet, CreditCard, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import StripeCheckout from "./stripeCheckout";
@@ -9,10 +10,10 @@ import type { RootState } from "@/store/store";
 export default function PaymentCheckout() {
   const { state } = useLocation();
   const totalAmount = state?.totalAmount || 0;
-  
-  
+
+
   const navigate = useNavigate();
-  
+
   const [selectedPayment, setSelectedPayment] = useState("stripe");
   const [showStripeCheckout, setShowStripeCheckout] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
@@ -29,7 +30,7 @@ export default function PaymentCheckout() {
     const fetchWallet = async () => {
       try {
         setUserId(UserId || '');
-        
+
         if (UserId) {
           const walletData = await getUserWallet(UserId);
           setWalletBalance(walletData.balance || 0);
@@ -57,20 +58,20 @@ export default function PaymentCheckout() {
     try {
       // Get booking data from state (passed from previous page)
       const bookingData = state?.bookingData;
-      
+
       if (!bookingData) {
         throw new Error("Booking data is missing. Please go back and try again.");
       }
 
- const response = await createBookingWithWallet(
-  userId,       
-  subtotal,   
-  bookingData,  
-  "Booking payment"
-);
+      const response = await createBookingWithWallet(
+        userId,
+        subtotal,
+        bookingData,
+        "Booking payment"
+      );
 
 
-   
+
 
       if (response.success) {
         setWalletBalance(prev => prev - subtotal);
@@ -91,8 +92,8 @@ export default function PaymentCheckout() {
     } catch (error) {
       console.error("Wallet payment failed:", error);
       setError(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : "Payment failed. Please try again or use another payment method."
       );
     } finally {
@@ -109,10 +110,11 @@ export default function PaymentCheckout() {
   };
 
   const hasInsufficientBalance = selectedPayment === "wallet" && walletBalance < subtotal;
-  
-  
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-20">
+      <Header forceSolid />
       <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Header */}
         <button
@@ -155,11 +157,10 @@ export default function PaymentCheckout() {
                     setSelectedPayment("stripe");
                     setError("");
                   }}
-                  className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 ${
-                    selectedPayment === "stripe"
+                  className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 ${selectedPayment === "stripe"
                       ? "border-black bg-gray-50 shadow-md scale-105"
                       : "border-gray-200 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center">
                     <CreditCard className="h-6 w-6" />
@@ -174,11 +175,10 @@ export default function PaymentCheckout() {
                     setError("");
                   }}
                   disabled={walletLoading}
-                  className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 relative ${
-                    selectedPayment === "wallet"
+                  className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 relative ${selectedPayment === "wallet"
                       ? "border-black bg-gray-50 shadow-md scale-105"
                       : "border-gray-200 hover:border-gray-300"
-                  } ${walletLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    } ${walletLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full flex items-center justify-center">
                     <Wallet className="h-6 w-6" />
@@ -220,9 +220,8 @@ export default function PaymentCheckout() {
                         </div>
                         <div className="flex justify-between text-sm mt-2 pt-2 border-t border-gray-300">
                           <span className="font-medium">After Payment:</span>
-                          <span className={`font-semibold ${
-                            walletBalance - subtotal < 0 ? "text-red-600" : "text-green-600"
-                          }`}>
+                          <span className={`font-semibold ${walletBalance - subtotal < 0 ? "text-red-600" : "text-green-600"
+                            }`}>
                             ₹{(walletBalance - subtotal).toFixed(2)}
                           </span>
                         </div>
@@ -278,17 +277,16 @@ export default function PaymentCheckout() {
               <button
                 onClick={handlePayment}
                 disabled={totalAmount === 0 || paymentLoading || hasInsufficientBalance}
-                className={`w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-white ${
-                  totalAmount === 0 || paymentLoading || hasInsufficientBalance
+                className={`w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-white ${totalAmount === 0 || paymentLoading || hasInsufficientBalance
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-black via-gray-800 to-gray-900 hover:from-gray-900 hover:to-black"
-                }`}
+                  }`}
               >
                 {paymentLoading ? (
                   <>
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     <span>Processing...</span>
                   </>

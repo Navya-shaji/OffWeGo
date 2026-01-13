@@ -44,7 +44,6 @@ function Dashboard() {
           <div className={`${activeTab === "Profile" ? "h-full flex items-center justify-center" : "p-6"}`}>
             {activeTab === "Profile" && <Profile />}
             {activeTab === "Add Package" && <AddPackage />}
-         
             {activeTab === "All Packages" && <PackageTable packages={packages} />}
             {activeTab === "All Destinations" && <DestinationTable />}
             {activeTab === "Add Destination" && <CreateDestination />}

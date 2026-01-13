@@ -8,20 +8,25 @@ export class MessageRepository {
     }
 
     async createMessage(data: any): Promise<IMessage> {
-       
+        console.log("Saving Message to DB:", JSON.stringify(data, null, 2));
+
         const newMessage = new messageModel({
             chatId: data.chatId,
             senderId: data.senderId,
-            senderType: data.senderType,
+            senderType: data.senderType?.toLowerCase(),
             receiverId: data.receiverId,
-            messageContent: data.messageContent,
+            messageContent: data.messageContent || (data.messageType === 'image' ? 'Sent an image' : (data.messageType === 'location' ? 'Shared Location' : '')),
             messageType: data.messageType || 'text',
+            fileUrl: data.fileUrl,
+            fileName: data.fileName,
+            fileSize: data.fileSize,
             seen: data.seen ?? false,
             sendedTime: data.sendedTime ?? new Date(),
             replyTo: data.replyTo
         });
         const saved = await newMessage.save();
-      
+        console.log("✅ Message Saved Successfully:", saved._id);
+
         return saved.toObject();
     }
 
@@ -68,9 +73,9 @@ export class MessageRepository {
         try {
             const result = await messageModel.findByIdAndUpdate(
                 messageId,
-                { 
-                    $set: { 
-                        isDeleted: true, 
+                {
+                    $set: {
+                        isDeleted: true,
                         deletedAt: new Date(),
                         messageContent: "This message was deleted"
                     }

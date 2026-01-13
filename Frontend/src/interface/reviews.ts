@@ -1,15 +1,16 @@
-interface User {
+export interface User {
   _id: string;
   name: string;
+  photo?: string;
 }
 
 export interface IReview {
-  userId: string|User;
+  userId: string | User;
   packageName: string;
   destination: string;
   description: string;
   rating: number;
   photo?: string;
   createdAt?: Date;
- 
+
 }

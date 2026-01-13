@@ -12,7 +12,11 @@ export const vendorSchema = new Schema(
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "active"],
-      default: "active",
+      default: "pending",
+    },
+    rejectionReason: {
+      type: String,
+      default: "",
     },
     role: {
       type: String,

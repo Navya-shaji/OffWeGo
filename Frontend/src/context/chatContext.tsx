@@ -50,7 +50,6 @@ interface ChatContextType {
     triggerSidebarRefetch: () => void;
 }
 
-// @ts-expect-error
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -102,11 +101,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         fetchChatsData();
     }, [myId, triggerState[0]]);
-    
+
     // Listen for socket events to update unread counts
     useEffect(() => {
         if (!socket) return;
-        
+
         const handleMessagesSeen = (data: { chatId: string; userId: string }) => {
             console.log("👁️ Context: Messages marked as seen for chat:", data.chatId);
             // Update the chat's unread count to 0
@@ -153,10 +152,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
                 return updated;
             });
         };
-        
+
         socket.on("messages-seen", handleMessagesSeen);
         socket.on("new-message-notification", handleNewMessageNotification);
-        
+
         return () => {
             socket.off("messages-seen", handleMessagesSeen);
             socket.off("new-message-notification", handleNewMessageNotification);
@@ -219,7 +218,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         };
 
         socket.emit("send_message", { ...newMsg, senderName: user?.username || vendor?.name }, () => {
-          
+
         });
     };
 

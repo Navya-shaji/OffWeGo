@@ -12,7 +12,7 @@ import {
   Activity as ActivityIcon,
   BookOpen,
   Wallet,
-
+  MessageSquare
 } from "lucide-react";
 import { useAppSelector } from "@/hooks";
 
@@ -37,7 +37,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
-   
+    { icon: MessageSquare, label: "Chat" },
   ];
 
   const handleSubTabClick = (label: string) => setActiveTab(label);
@@ -50,11 +50,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           <button
             key={index}
             onClick={() => setActiveTab(item.label)}
-            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-              item.label === activeTab
-                ? "bg-black text-white"
-                : "text-gray-700 hover:bg-gray-50"
-            }`}
+            className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${item.label === activeTab
+              ? "bg-black text-white"
+              : "text-gray-700 hover:bg-gray-50"
+              }`}
           >
             <item.icon className={`w-5 h-5 mr-3 ${item.label === activeTab ? "text-white" : "text-gray-600"}`} />
             <span className="text-sm font-medium">{item.label}</span>
@@ -64,11 +63,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         {/* Packages */}
         <button
           onClick={() => setShowPackageDropdown((prev) => !prev)}
-          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${
-            activeTab.includes("Package") || activeTab.includes("Buddy Travel")
-              ? "bg-black text-white"
-              : "text-gray-700 hover:bg-gray-50"
-          }`}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${activeTab.includes("Package") || activeTab.includes("Buddy Travel")
+            ? "bg-black text-white"
+            : "text-gray-700 hover:bg-gray-50"
+            }`}
         >
           <Package className={`w-5 h-5 mr-3 ${activeTab.includes("Package") || activeTab.includes("Buddy Travel") ? "text-white" : "text-gray-600"}`} />
           <span className="text-sm font-medium flex-1">Packages</span>
@@ -83,18 +81,17 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           <div className="ml-4 mt-1 space-y-1">
             {[
               "Add Package",
-            
+
               "All Packages",
-             
+
             ].map((label) => (
               <button
                 key={label}
                 onClick={() => handleSubTabClick(label)}
-                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${
-                  activeTab === label
-                    ? "bg-gray-200 text-black font-semibold"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === label
+                  ? "bg-gray-200 text-black font-semibold"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 {label}
@@ -106,11 +103,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         {/* Hotels */}
         <button
           onClick={() => setShowHotelDropdown((prev) => !prev)}
-          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${
-            activeTab.includes("Hotel")
-              ? "bg-black text-white"
-              : "text-gray-700 hover:bg-gray-50"
-          }`}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${activeTab.includes("Hotel")
+            ? "bg-black text-white"
+            : "text-gray-700 hover:bg-gray-50"
+            }`}
         >
           <Building2 className={`w-5 h-5 mr-3 ${activeTab.includes("Hotel") ? "text-white" : "text-gray-600"}`} />
           <span className="text-sm font-medium flex-1">Hotels</span>
@@ -127,11 +123,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               <button
                 key={label}
                 onClick={() => handleSubTabClick(label)}
-                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${
-                  activeTab === label
-                    ? "bg-gray-200 text-black font-semibold"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === label
+                  ? "bg-gray-200 text-black font-semibold"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 {label}
@@ -143,11 +138,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         {/* Activities */}
         <button
           onClick={() => setShowActivityDropdown((prev) => !prev)}
-          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${
-            activeTab.includes("Activity")
-              ? "bg-black text-white"
-              : "text-gray-700 hover:bg-gray-50"
-          }`}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${activeTab.includes("Activity")
+            ? "bg-black text-white"
+            : "text-gray-700 hover:bg-gray-50"
+            }`}
         >
           <ActivityIcon className={`w-5 h-5 mr-3 ${activeTab.includes("Activity") ? "text-white" : "text-gray-600"}`} />
           <span className="text-sm font-medium flex-1">Activities</span>
@@ -164,11 +158,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               <button
                 key={label}
                 onClick={() => handleSubTabClick(label)}
-                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${
-                  activeTab === label
-                    ? "bg-gray-200 text-black font-semibold"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === label
+                  ? "bg-gray-200 text-black font-semibold"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 {label}
@@ -180,11 +173,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         {/* Flights */}
         <button
           onClick={() => setShowFlightDropdown((prev) => !prev)}
-          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${
-            activeTab.includes("Flight")
-              ? "bg-black text-white"
-              : "text-gray-700 hover:bg-gray-50"
-          }`}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${activeTab.includes("Flight")
+            ? "bg-black text-white"
+            : "text-gray-700 hover:bg-gray-50"
+            }`}
         >
           <Package className={`w-5 h-5 mr-3 ${activeTab.includes("Flight") ? "text-white" : "text-gray-600"}`} />
           <span className="text-sm font-medium flex-1">Flights</span>
@@ -201,11 +193,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               <button
                 key={label}
                 onClick={() => handleSubTabClick(label)}
-                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${
-                  activeTab === label
-                    ? "bg-gray-200 text-black font-semibold"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === label
+                  ? "bg-gray-200 text-black font-semibold"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 {label}
@@ -217,11 +208,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         {/* Bookings */}
         <button
           onClick={() => setShowBookingDropdown((prev) => !prev)}
-          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${
-            activeTab.includes("Booking")
-              ? "bg-black text-white"
-              : "text-gray-700 hover:bg-gray-50"
-          }`}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${activeTab.includes("Booking")
+            ? "bg-black text-white"
+            : "text-gray-700 hover:bg-gray-50"
+            }`}
         >
           <BookOpen className={`w-5 h-5 mr-3 ${activeTab.includes("Booking") ? "text-white" : "text-gray-600"}`} />
           <span className="text-sm font-medium flex-1">Bookings</span>
@@ -238,11 +228,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               <button
                 key={label}
                 onClick={() => handleSubTabClick(label)}
-                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${
-                  activeTab === label
-                    ? "bg-gray-200 text-black font-semibold"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === label
+                  ? "bg-gray-200 text-black font-semibold"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 <List className="inline-block mr-2 w-4 h-4" />
                 {label}
@@ -254,11 +243,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         {/* Wallet */}
         <button
           onClick={() => setShowWalletDropdown((prev) => !prev)}
-          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${
-            activeTab.includes("Wallet")
-              ? "bg-black text-white"
-              : "text-gray-700 hover:bg-gray-50"
-          }`}
+          className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors mt-1 ${activeTab.includes("Wallet")
+            ? "bg-black text-white"
+            : "text-gray-700 hover:bg-gray-50"
+            }`}
         >
           <Wallet className={`w-5 h-5 mr-3 ${activeTab.includes("Wallet") ? "text-white" : "text-gray-600"}`} />
           <span className="text-sm font-medium flex-1">Wallet</span>
@@ -273,11 +261,10 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           <div className="ml-4 mt-1 space-y-1">
             <button
               onClick={() => handleSubTabClick("VendorWalletManagement")}
-              className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${
-                activeTab === "VendorWalletManagement"
-                  ? "bg-gray-200 text-black font-semibold"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === "VendorWalletManagement"
+                ? "bg-gray-200 text-black font-semibold"
+                : "text-gray-600 hover:bg-gray-100"
+                }`}
             >
               <List className="inline-block mr-2 w-4 h-4" />
               Vendor Wallet

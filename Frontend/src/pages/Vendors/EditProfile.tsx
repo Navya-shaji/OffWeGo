@@ -89,7 +89,7 @@ export default function EditVendorProfileModal({
         newImageUrl = await uploadToCloudinary(selectedFile);
       }
 
-      const updated = await editProfile(vendor.id, {
+      const updated = await editProfile({
         name,
         phone,
         profileImage: newImageUrl,
@@ -100,7 +100,7 @@ export default function EditVendorProfileModal({
         profileImage: updated.data.profileImage || "/placeholder-avatar.png",
         documentUrl: vendor.documentUrl,
       };
-     
+
       dispatch(
         login({
           vendor: mappedVendor,

@@ -112,9 +112,9 @@ const TravelPostCreatePage = () => {
 
       const tagsArray = values.tags
         ? values.tags
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean)
         : [];
 
       const payload = {
@@ -151,8 +151,8 @@ const TravelPostCreatePage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-      
+      <Header forceSolid />
+
       <div className="mx-auto max-w-7xl px-6 py-12">
         {/* Header Section */}
         <div className="mb-12 text-center">
@@ -339,7 +339,7 @@ const TravelPostCreatePage = () => {
                   <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-900"></span>
                   <span>Our editorial team reviews every submission to keep the community inspiring and safe.</span>
                 </li>
-             
+
                 <li className="flex gap-3">
                   <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-900"></span>
                   <span>Highlight practical tips, budgets, and lessons learned—these are the insights fellow travellers love.</span>

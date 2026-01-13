@@ -21,9 +21,19 @@ export class AuthRepository implements IAuthRepository {
     if (!process.env.GOOGLE_CLIENT_ID) {
       throw new Error("Google Client ID is not configured");
     }
-    
+
     try {
       const oauthClient = getOAuthClient();
+
+      // For debugging: decode without verification to see what's inside
+      const decodedToken = require('jsonwebtoken').decode(googleToken);
+      console.log('Google Auth Debug:', {
+        envClientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 10) + '...',
+        tokenAudience: decodedToken?.aud,
+        tokenIssuer: decodedToken?.iss,
+        match: decodedToken?.aud === process.env.GOOGLE_CLIENT_ID
+      });
+
       const ticket = await oauthClient.verifyIdToken({
         idToken: googleToken,
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -32,23 +42,38 @@ export class AuthRepository implements IAuthRepository {
       if (!payload || !payload.email) {
         throw new Error("Invalid Google token - missing email");
       }
-      
-      const userDoc = await (UserModel).findOneAndUpdate(
-      { email: payload.email },
-      {
-        $setOnInsert: {
+
+      // First, check if user already exists
+      const existingUser = await UserModel.findOne({ email: payload.email }).lean();
+
+      let userDoc;
+      if (existingUser) {
+        // User exists - only update isGoogleUser flag, don't overwrite their profile image
+        userDoc = await UserModel.findOneAndUpdate(
+          { email: payload.email },
+          {
+            $set: {
+              isGoogleUser: true,
+              // Only update imageUrl if user doesn't have one set
+              ...((!existingUser.imageUrl || existingUser.imageUrl === '') && payload.picture
+                ? { imageUrl: payload.picture }
+                : {})
+            }
+          },
+          { new: true }
+        ).lean();
+      } else {
+        // New user - create with Google profile picture
+        userDoc = await UserModel.create({
           name: payload.name || payload.email?.split('@')[0] || 'User',
           email: payload.email,
-          isGoogleUser: true,
           status: 'active',
           role: 'user',
-        },
-        $set: {
           imageUrl: payload.picture || '',
-        }
-      },
-      { new: true, upsert: true }
-    ).lean();
+          isGoogleUser: true,
+        });
+        userDoc = userDoc.toObject();
+      }
 
       if (!userDoc) {
         throw new Error("User creation or retrieval failed");

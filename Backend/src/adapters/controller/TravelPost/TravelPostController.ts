@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
-import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { ICreateTravelPostUsecase } from "../../../domain/interface/TravelPost/usecases/ICreateTravelPostUsecase";
 import { IListTravelPostsUsecase } from "../../../domain/interface/TravelPost/usecases/IListTravelPostsUsecase";
 import { IGetTravelPostUsecase } from "../../../domain/interface/TravelPost/usecases/IGetTravelPostUsecase";
 import { IToggleSaveTravelPostUsecase } from "../../../domain/interface/TravelPost/usecases/IToggleSaveTravelPostUsecase";
 import { IListSavedTravelPostsUsecase } from "../../../domain/interface/TravelPost/usecases/IListSavedTravelPostsUsecase";
-import { GetAllCategories } from "../../../useCases/category/getAllCategoryUsecase";
-import { GetAllDestinations } from "../../../useCases/destination/getAllDestinationUsecase";
+import { IGetCategoryUsecase } from "../../../domain/interface/Category/IGetAllCategoryUsecase";
+import { IGetAllDestinations } from "../../../domain/interface/Destination/IGetAllDestinations";
+import { HttpStatus } from "../../../domain/statusCode/Statuscode";
+import { SortOption } from "../../../domain/interface/TravelPost/ITravelPostRepository";
 
 export class TravelPostController {
   constructor(
@@ -15,34 +16,34 @@ export class TravelPostController {
     private _getTravelPostUsecase: IGetTravelPostUsecase,
     private _toggleSaveTravelPostUsecase: IToggleSaveTravelPostUsecase,
     private _listSavedTravelPostsUsecase: IListSavedTravelPostsUsecase,
-    private _getAllCategoriesUsecase: GetAllCategories,
-    private _getAllDestinationsUsecase: GetAllDestinations
-  ) {}
+    private _listCategoriesUsecase: IGetCategoryUsecase,
+    private _listDestinationsUsecase: IGetAllDestinations
+  ) { }
 
   async createTravelPost(req: Request, res: Response): Promise<void> {
     try {
-      const authorId = req.user?.userId || req.user?.id 
+      const authorId = req.user?.userId || req.user?.id;
+      if (!authorId) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "User not authenticated",
+        });
+        return;
+      }
 
-      const payload = {
+      const post = await this._createTravelPostUsecase.execute({
         ...req.body,
         authorId,
-        tags: Array.isArray(req.body.tags) ? req.body.tags : [],
-        tripDate: req.body.tripDate
-          ? new Date(req.body.tripDate)
-          : undefined,
-      };
-
-      const createdPost =
-        await this._createTravelPostUsecase.execute(payload);
+      });
 
       res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "Travel post submitted for approval.",
-        data: createdPost,
+        message: "Travel story submitted successfully and is pending approval.",
+        data: post,
       });
     } catch (error) {
       console.error("Error creating travel post:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: (error as Error).message || "Failed to create travel post",
       });
@@ -51,32 +52,26 @@ export class TravelPostController {
 
   async listTravelPosts(req: Request, res: Response): Promise<void> {
     try {
-      const { page, limit, categoryId, destinationId, search, status } =
-        req.query;
-
-      const parsedPage = page ? Number(page) : undefined;
-      const parsedLimit = limit ? Number(limit) : undefined;
-
-      const normalizedStatus =
-        typeof status === "string" &&
-        ["PENDING", "APPROVED", "REJECTED"].includes(status.toUpperCase())
-          ? (status.toUpperCase() as "PENDING" | "APPROVED" | "REJECTED")
-          : "APPROVED";
+      const {
+        status,
+        categoryId,
+        destinationId,
+        authorId,
+        search,
+        sortBy,
+        page,
+        limit,
+      } = req.query;
 
       const result = await this._listTravelPostsUsecase.execute({
-        page: Number.isNaN(parsedPage as number) ? undefined : parsedPage,
-        limit: Number.isNaN(parsedLimit as number) ? undefined : parsedLimit,
-        categoryId:
-          typeof categoryId === "string" && categoryId.trim()
-            ? categoryId
-            : undefined,
-        destinationId:
-          typeof destinationId === "string" && destinationId.trim()
-            ? destinationId
-            : undefined,
-        search:
-          typeof search === "string" && search.trim() ? search : undefined,
-        status: normalizedStatus,
+        status: (status as any) || "APPROVED",
+        categoryId: categoryId as string,
+        destinationId: destinationId as string,
+        authorId: authorId as string,
+        search: search as string,
+        sortBy: sortBy as SortOption,
+        page: parseInt(page as string) || 1,
+        limit: parseInt(limit as string) || 10,
       });
 
       res.status(HttpStatus.OK).json({
@@ -91,7 +86,7 @@ export class TravelPostController {
       console.error("Error listing travel posts:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: (error as Error).message || "Failed to load travel posts",
+        message: "Failed to fetch travel stories",
       });
     }
   }
@@ -99,42 +94,26 @@ export class TravelPostController {
   async listMyTravelPosts(req: Request, res: Response): Promise<void> {
     try {
       const authorId = req.user?.userId || req.user?.id;
+      const { status, categoryId, destinationId, search, sortBy, page, limit } =
+        req.query;
 
       if (!authorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: "User not authenticated",
         });
         return;
       }
 
-      const { page, limit, categoryId, destinationId, search, status } =
-        req.query;
-
-      const parsedPage = page ? Number(page) : undefined;
-      const parsedLimit = limit ? Number(limit) : undefined;
-
-      const normalizedStatus =
-        typeof status === "string" &&
-        ["PENDING", "APPROVED", "REJECTED"].includes(status.toUpperCase())
-          ? (status.toUpperCase() as "PENDING" | "APPROVED" | "REJECTED")
-          : undefined;
-
       const result = await this._listTravelPostsUsecase.execute({
-        page: Number.isNaN(parsedPage as number) ? undefined : parsedPage,
-        limit: Number.isNaN(parsedLimit as number) ? undefined : parsedLimit,
-        categoryId:
-          typeof categoryId === "string" && categoryId.trim()
-            ? categoryId
-            : undefined,
-        destinationId:
-          typeof destinationId === "string" && destinationId.trim()
-            ? destinationId
-            : undefined,
-        search:
-          typeof search === "string" && search.trim() ? search : undefined,
-        status: normalizedStatus,
         authorId,
+        status: status as any,
+        categoryId: categoryId as string,
+        destinationId: destinationId as string,
+        search: search as string,
+        sortBy: sortBy as SortOption,
+        page: parseInt(page as string) || 1,
+        limit: parseInt(limit as string) || 10,
       });
 
       res.status(HttpStatus.OK).json({
@@ -146,46 +125,10 @@ export class TravelPostController {
         limit: result.limit,
       });
     } catch (error) {
-      console.error("Error listing my travel posts:", error);
+      console.error("Error listing user travel posts:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: (error as Error).message || "Failed to load travel posts",
-      });
-    }
-  }
-
-  async listTravelPostFilters(req: Request, res: Response): Promise<void> {
-    try {
-      const [categoryResult, destinationResult] = await Promise.all([
-        this._getAllCategoriesUsecase.execute(1, 100),
-        this._getAllDestinationsUsecase.execute(1, 100),
-      ]);
-
-      const categories = categoryResult?.categories ?? [];
-      const destinations = (destinationResult)?.destinations ?? [];
-
-      const totalCategories =
-        categoryResult?.totalCategories ?? categories.length;
-      const totalDestinations =
-        (destinationResult )?.totalDestinations ??
-        destinations.length;
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Travel post filters fetched successfully.",
-        data: {
-          categories,
-          destinations,
-          totalCategories,
-          totalDestinations,
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching travel post filters:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message:
-          (error as Error).message || "Failed to load travel post filters",
+        message: "Failed to fetch your travel stories",
       });
     }
   }
@@ -214,7 +157,6 @@ export class TravelPostController {
         data: post,
       });
     } catch (error) {
-      console.error("Error fetching travel post:", error);
       res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: (error as Error).message || "Failed to load travel post",
@@ -225,26 +167,25 @@ export class TravelPostController {
   async toggleSaveTravelPost(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId || req.user?.id;
-      const { id: postId } = req.params;
+      const { id } = req.params;
 
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: "User not authenticated",
         });
         return;
       }
 
-      const result =
-        await this._toggleSaveTravelPostUsecase.execute(userId, postId);
+      const result = await this._toggleSaveTravelPostUsecase.execute(userId, id);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: result.saved ? "Post saved" : "Post unsaved",
+        message: result.saved ? "Story saved successfully" : "Story removed from saved",
         data: result,
       });
     } catch (error) {
-      console.error("Error toggling save:", error);
+      console.error("Error toggling travel post save:", error);
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: (error as Error).message || "Failed to toggle save",
@@ -255,28 +196,49 @@ export class TravelPostController {
   async listSavedTravelPosts(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId || req.user?.id;
-
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Unauthorized",
+          message: "User not authenticated",
         });
         return;
       }
 
-      const posts =
-        await this._listSavedTravelPostsUsecase.execute(userId);
+      const posts = await this._listSavedTravelPostsUsecase.execute(userId);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Saved travel posts fetched successfully.",
+        message: "Saved travel stories fetched successfully.",
         data: posts,
       });
     } catch (error) {
-      console.error("Error listing saved posts:", error);
+      console.error("Error listing saved travel posts:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: (error as Error).message || "Failed to load saved posts",
+        message: "Failed to fetch saved travel stories",
+      });
+    }
+  }
+
+  async listTravelPostFilters(req: Request, res: Response): Promise<void> {
+    try {
+      const [categoriesResult, destinationsResult] = await Promise.all([
+        this._listCategoriesUsecase.execute(1, 100),
+        this._listDestinationsUsecase.execute(1, 100),
+      ]);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: {
+          categories: categoriesResult.categories,
+          destinations: destinationsResult.destinations,
+        },
+      });
+    } catch (error) {
+      console.error("Error listing travel post filters:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch filters",
       });
     }
   }

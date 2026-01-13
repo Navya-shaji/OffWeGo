@@ -6,7 +6,7 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): CreateBooking
     return {
       data: {
         userId: b.userId,
-        bookingId:b.bookingId,
+        bookingId: b.bookingId,
         contactInfo: b.contactInfo,
         adults: b.adults || [],
         children: b.children || [],
@@ -14,11 +14,11 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): CreateBooking
         selectedDate: b.selectedDate,
         totalAmount: b.totalAmount,
         paymentIntentId: b.paymentIntentId,
-     
+        settlementDone: b.settlementDone,
+        bookingStatus: b.bookingStatus,
+        paymentStatus: b.paymentStatus,
       },
-      settlementDone:b.settlementDone,
       payment_id: b.paymentIntentId || "",
-      bookingStatus:b.bookingStatus,
       paymentStatus: b.paymentStatus,
     };
   });

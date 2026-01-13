@@ -8,6 +8,7 @@ import { VendorRegisterUseCase } from "../../../useCases/vendor/Signup/signupVen
 import { verifyOtpUsecase } from "../../../useCases/vendor/Signup/verifyOtpUsecase";
 import { VendorStatusCheckUseCase } from "../../../useCases/vendor/Signup/VendorStatusCheckUseCase"; 
 import { VendorStatusCheckController } from "../../../adapters/controller/Vendor/VendorStatusCheckController";
+import { VendorAuthStatusController } from "../../../adapters/controller/Vendor/VendorAuthStatusController";
 import { VendorLoginUsecase } from "../../../useCases/vendor/Login/VendorLoginUsecase";
 import { VendorLoginController } from "../../../adapters/controller/Vendor/VendorLoginController"; 
 import { VendorProfileController } from "../../../adapters/controller/Vendor/VendorProfileController";
@@ -104,6 +105,7 @@ const getVendorSubscriptionHistoryUseCase=new GetVendorSubscriptionHistoryUseCas
 export const vendorsignupcontroller = new VendorSignupController(vendorSignupUsecase);
 export const vendorVerifyOtpController = new VendorVerifyOtpController(vendorVerifyOtpUseCase);
 export const vendorstatusCheckController =new  VendorStatusCheckController(vendorStatusUseCase);
+export const vendorAuthStatusController = new VendorAuthStatusController(vendorRepository);
 export const vendorloginController=new VendorLoginController(vendorloginusecase);
 export const vendorProfilecontroller=new VendorProfileController(vendorProfileusecase,editvendorProfile);
 export const packagecontroller=new PackageController(getAllpackageByVendor,createPackageUsecase,editpackage,deletepackage,searchPackage,getPAckageByDestination);

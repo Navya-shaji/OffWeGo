@@ -10,6 +10,7 @@ export interface Vendor {
   documentUrl: string;
   createdAt?: Date;
   status?: "pending" | "approved" | "rejected" | "active";
+  rejectionReason?: string;
   role?: Role.VENDOR;
   lastLogin?: Date;
   isAdmin?: boolean;

@@ -88,7 +88,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
       } else {
         toast.error(response?.message || "You have already submitted a review for this package");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting review:", error);
       toast.error(error?.response?.data?.message || "Error while submitting review");
     } finally {
@@ -132,11 +132,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   className="focus:outline-none transition-transform hover:scale-125 active:scale-95"
                 >
                   <Star
-                    className={`w-10 h-10 transition-colors ${
-                      star <= (hoverRating || rating)
+                    className={`w-10 h-10 transition-colors ${star <= (hoverRating || rating)
                         ? "text-yellow-400 fill-yellow-400"
                         : "text-gray-300"
-                    }`}
+                      }`}
                   />
                 </button>
               ))}

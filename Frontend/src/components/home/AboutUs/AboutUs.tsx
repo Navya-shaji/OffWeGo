@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Header from "@/components/home/navbar/Header";
 
 export default function AboutUs() {
   const [, setActiveTimeline] = useState<number | null>(null);
@@ -98,14 +99,15 @@ export default function AboutUs() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-20">
+      <Header forceSolid />
       {/* Hero Section with 3D Illustration Style */}
       <div className="relative bg-gradient-to-b from-blue-100 via-blue-50 to-white overflow-hidden">
         {/* Decorative Elements */}
-        <div className="absolute top-10 left-10 text-6xl animate-bounce" style={{animationDuration: '3s'}}>🌴</div>
-        <div className="absolute top-20 right-20 text-4xl animate-bounce" style={{animationDuration: '4s', animationDelay: '0.5s'}}>✈️</div>
+        <div className="absolute top-10 left-10 text-6xl animate-bounce" style={{ animationDuration: '3s' }}>🌴</div>
+        <div className="absolute top-20 right-20 text-4xl animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }}>✈️</div>
         <div className="absolute bottom-10 left-1/4 text-5xl opacity-40">🏖️</div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 py-32 text-center">
           <h1 className="text-6xl font-bold mb-4 text-gray-900">About Us</h1>
           <p className="text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
@@ -224,7 +226,7 @@ export default function AboutUs() {
           <p className="text-center text-gray-600 text-lg mb-16 max-w-4xl mx-auto">
             We're on a mission to make travel planning effortless and inspire people to explore the world with confidence
           </p>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {values.map((value, index) => (
               <div key={index} className="bg-gray-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
@@ -243,11 +245,11 @@ export default function AboutUs() {
           <h2 className="text-5xl font-bold text-center mb-4">Our Journey</h2>
           <div className="w-32 h-1 bg-blue-600 mx-auto mb-8"></div>
           <p className="text-center text-gray-600 text-lg mb-16">From a startup to a global platform</p>
-          
+
           <div className="max-w-4xl mx-auto space-y-8">
             {timeline.map((item, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300"
                 onMouseEnter={() => setActiveTimeline(index)}
                 onMouseLeave={() => setActiveTimeline(null)}
@@ -270,7 +272,7 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-5xl font-bold text-center mb-4">Our Achievements</h2>
           <div className="w-32 h-1 bg-yellow-400 mx-auto mb-16"></div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {achievements.map((achievement, index) => (
               <div key={index} className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
@@ -288,7 +290,7 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-5xl font-bold text-center mb-4">Meet Our Team</h2>
           <div className="w-32 h-1 bg-blue-600 mx-auto mb-16"></div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, index) => (
               <div key={index} className="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all duration-300">

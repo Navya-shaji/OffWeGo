@@ -1,11 +1,14 @@
 import { TravelPost } from "../../entities/TravelPostEntity";
 
+export type SortOption = "newest" | "oldest" | "popular";
+
 export interface TravelPostFilter {
   status?: "PENDING" | "APPROVED" | "REJECTED";
   categoryId?: string;
   destinationId?: string;
   authorId?: string;
   search?: string;
+  sortBy?: SortOption;
 }
 
 export interface Pagination {
@@ -32,6 +35,6 @@ export interface ITravelPostRepository {
     status: "PENDING" | "APPROVED" | "REJECTED",
     rejectedReason?: string
   ): Promise<TravelPost | null>;
-  incrementViews(id: string): Promise<void>;
+  incrementViews(id: string, requesterId?: string): Promise<void>;
   adjustLikes(id: string, delta: number): Promise<void>;
 }
