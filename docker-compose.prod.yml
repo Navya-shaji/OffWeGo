@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mongo:
     image: mongo:6.0
@@ -17,9 +19,8 @@ services:
       - "6379:6379"
 
   backend:
-    build:
-      context: ./Backend
-      dockerfile: Dockerfile
+    # REPLACE <YOUR_GITHUB_USERNAME> with your actual GitHub username (lowercase)
+    image: ghcr.io/<YOUR_GITHUB_USERNAME>/offwego/backend:latest
     container_name: offwego-backend
     restart: always
     ports:
@@ -27,36 +28,22 @@ services:
     environment:
       NODE_ENV: production
       PORT: 1212
-      MONGO_URI: mongodb://host.docker.internal:27017/OffWeGo
-      # MONGO_URI: mongodb://mongo:27017/offwego
+      MONGO_URI: mongodb://mongo:27017/offwego
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
-    env_file:
-      - ./Backend/.env
+      # You might need to add other secrets here (CLOUDINARY, GOOGLE_AUTH, etc.)
     depends_on:
       - mongo
       - redis
 
   frontend:
-    build:
-      context: ./Frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_BASE_URL: /
-        VITE_SOCKET_URL: ${VITE_SOCKET_URL:-/}
-        VITE_CLOUDINARY_CLOUD_NAME: ${VITE_CLOUDINARY_CLOUD_NAME}
-        VITE_CLOUDINARY_UPLOAD_PRESET: ${VITE_CLOUDINARY_UPLOAD_PRESET}
-        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
-        VITE_OPENCAGE_API_KEY: ${VITE_OPENCAGE_API_KEY}
-        VITE_IMAGE_URL: ${VITE_IMAGE_URL:-/}
+    # REPLACE <YOUR_GITHUB_USERNAME> with your actual GitHub username (lowercase)
+    image: ghcr.io/<YOUR_GITHUB_USERNAME>/offwego/frontend:latest
     container_name: offwego-frontend
     restart: always
     ports:
-      - "5173:80"
-    environment:
-      - VITE_BASE_URL=/
-      - VITE_SOCKET_URL=/
+      - "80:80" # Standard HTTP port for production
     depends_on:
       - backend
 
