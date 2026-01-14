@@ -37,7 +37,7 @@ export class App {
           "http://localhost:5173",
           "http://localhost:4173",
           "http://localhost:1212",
-          "https://ktzc00t7-1212.inc1.devtunnels.ms/",
+          process.env.FRONTEND_URL || "*",
         ],
         credentials: true,
       })
@@ -81,7 +81,7 @@ export class App {
             "http://localhost:5173",
             "http://localhost:4173",
             "http://localhost:1212",
-            "https://jvm9v112-5173.inc1.devtunnels.ms/",
+            process.env.FRONTEND_URL || "*",
           ],
           credentials: true,
         },
