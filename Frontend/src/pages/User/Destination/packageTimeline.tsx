@@ -97,6 +97,16 @@ export const PackageTimeline = () => {
     });
   };
 
+
+  const groupedItinerary = useMemo(() => {
+    if (!selectedPackage?.itinerary) return {};
+    return (selectedPackage.itinerary as any[]).reduce((acc: Record<number, any[]>, item: any) => {
+      if (!acc[item.day]) acc[item.day] = [];
+      acc[item.day].push(item);
+      return acc;
+    }, {} as Record<number, any[]>);
+  }, [selectedPackage?.itinerary]);
+
   if (!selectedPackage) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-teal-50">
@@ -112,15 +122,6 @@ export const PackageTimeline = () => {
       </div>
     );
   }
-
-  const groupedItinerary = useMemo(() => {
-    if (!selectedPackage.itinerary) return {};
-    return selectedPackage.itinerary.reduce((acc, item) => {
-      if (!acc[item.day]) acc[item.day] = [];
-      acc[item.day].push(item);
-      return acc;
-    }, {} as Record<number, typeof selectedPackage.itinerary>);
-  }, [selectedPackage.itinerary]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-teal-100 pb-20">

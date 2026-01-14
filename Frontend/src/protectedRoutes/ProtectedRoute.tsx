@@ -27,12 +27,12 @@ export default function ProtectedRoute({ children }: Props) {
     redirectTo = "/admin/login";
   }
 
+  const vendorData = useAppSelector((state) => state.vendorAuth?.vendor);
   if (!isAuthenticated) {
     return <Navigate to={redirectTo} replace state={{ from: location }} />;
   }
 
   // Extra check for vendors: if authenticated but not approved, redirect to status page
-  const vendorData = useAppSelector((state) => state.vendorAuth?.vendor);
   if (isVendorRoute && vendorData && vendorData.status !== "approved" && location.pathname !== "/vendor/status") {
     return <Navigate to="/vendor/status" replace />;
   }

@@ -411,12 +411,12 @@ const ChatPage = () => {
         socket.on("receive-message", handleReceiveMessage);
         socket.on("user-status-changed", (data: any) => setOnlineUsers(prev => {
             const next = new Set(prev);
-            data.isOnline ? next.add(data.userId) : next.delete(data.userId);
+            if (data.isOnline) next.add(data.userId); else next.delete(data.userId);
             return next;
         }));
         socket.on("vendor-status-changed", (data: any) => setOnlineUsers(prev => {
             const next = new Set(prev);
-            data.isOnline ? next.add(data.vendorId) : next.delete(data.vendorId);
+            if (data.isOnline) next.add(data.vendorId); else next.delete(data.vendorId);
             return next;
         }));
         socket.on("online-users", (data: any) => setOnlineUsers(new Set(data.onlineIds || [])));
@@ -450,7 +450,7 @@ const ChatPage = () => {
             socket.off("message_deleted");
             socket.off("online-users");
         };
-    }, [senderId, selectedContact, globalSocket]);
+    }, [senderId, selectedContact, globalSocket, senderRole]);
 
     useEffect(() => {
         setContacts(prev => prev.map(contact => {
@@ -495,7 +495,7 @@ const ChatPage = () => {
             } catch (err) { setError("Failed to load contacts"); } finally { setLoading(false); }
         };
         fetchContacts();
-    }, [senderId, senderRole, chatId]);
+    }, [senderId, senderRole, chatId, navigate, onlineUsers, vendor]);
 
     useEffect(() => {
         if (!selectedContact || !senderId) return;
@@ -512,7 +512,7 @@ const ChatPage = () => {
             } catch (err) { setMessages([]); }
         };
         fetchMessages();
-    }, [selectedContact, senderId]);
+    }, [selectedContact, senderId, vendor]);
 
     const loadOlderMessages = async () => {
         if (!selectedContact || !senderId || loadingMoreMessages || !hasMoreMessages || messages.length === 0) return;

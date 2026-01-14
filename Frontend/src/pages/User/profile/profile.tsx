@@ -23,7 +23,6 @@ const Profile = () => {
   >("profile");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  if (!user) return null;
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -81,6 +80,8 @@ const Profile = () => {
       });
     return list.slice(-3); // Show the top 3 earned badges
   }, [bookingCount]);
+
+  if (!user) return null;
 
   const getSectionTitle = () => {
     switch (activeSection) {
