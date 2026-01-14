@@ -7,34 +7,34 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 // Cache API responses
 registerRoute(
-    ({ url }) => url.pathname.startsWith('/api/'),
-    new StaleWhileRevalidate({
-        cacheName: 'api-cache',
-        plugins: [
-            {
-                cacheKeyWillBeUsed: async ({ request }) => {
-                    return `${request.url}-${request.headers.get('Authorization') || 'anonymous'}`;
-                },
-            },
-        ],
-    })
+  ({ url }) => url.pathname.startsWith('/api/'),
+  new StaleWhileRevalidate({
+    cacheName: 'api-cache',
+    plugins: [
+      {
+        cacheKeyWillBeUsed: async ({ request }) => {
+          return `${request.url}-${request.headers.get('Authorization') || 'anonymous'}`;
+        },
+      },
+    ],
+  })
 );
 
 // Cache images and assets
 registerRoute(
-    ({ request }) => request.destination === 'image',
-    new StaleWhileRevalidate({
-        cacheName: 'images-cache',
-        cacheKeyWillBeUsed: async ({ request }) => request.url,
-    })
+  ({ request }) => request.destination === 'image',
+  new StaleWhileRevalidate({
+    cacheName: 'images-cache',
+    cacheKeyWillBeUsed: async ({ request }) => request.url,
+  })
 );
 
 // Offline fallback page
 registerRoute(
-    ({ url }) => url.pathname === '/offline',
-    () => {
-        return new Response(
-            `<!DOCTYPE html>
+  ({ url }) => url.pathname === '/offline',
+  () => {
+    return new Response(
+      `<!DOCTYPE html>
       <html lang="en">
         <head>
           <meta charset="UTF-8">
@@ -96,58 +96,60 @@ registerRoute(
           </div>
         </body>
       </html>`,
-            {
-                headers: { 'Content-Type': 'text/html' },
-                status: 200
-            }
-        );
-    }
+      {
+        headers: { 'Content-Type': 'text/html' },
+        status: 200
+      }
+    );
+  }
 );
 
 // Push notification handling
 self.addEventListener('push', (event) => {
-    if (event.data) {
-        const options = {
-            body: event.data.body,
-            icon: '/pwa-192x192.png',
-            badge: '/pwa-192x192.png',
-            vibrate: [100, 50, 100],
-            data: {
-                dateOfArrival: Date.now(),
-                primaryKey: 1
-            },
-            actions: [
-                {
-                    action: 'explore',
-                    title: 'Explore OffWeGo',
-                    icon: '/pwa-192x192.png'
-                }
-            ]
-        };
+  if (event.data) {
+    const options = {
+      body: event.data.body,
+      icon: '/pwa-192x192.png',
+      badge: '/pwa-192x192.png',
+      vibrate: [100, 50, 100],
+      data: {
+        dateOfArrival: Date.now(),
+        primaryKey: 1
+      },
+      actions: [
+        {
+          action: 'explore',
+          title: 'Explore OffWeGo',
+          icon: '/pwa-192x192.png'
+        }
+      ]
+    };
 
-        event.waitUntil(
-            self.registration.showNotification(event.data.title, options)
-        );
-    }
+    event.waitUntil(
+      self.registration.showNotification(event.data.title, options)
+    );
+  }
 });
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
-    if (event.tag === 'background-sync') {
-        event.waitUntil(
-            // Handle background sync here
-            console.log('Background sync triggered')
-        );
-    }
+  if (event.tag === 'background-sync') {
+    event.waitUntil(
+      // Handle background sync here
+      console.log('Background sync triggered')
+    );
+  }
 });
 
 // Install and activate events
 self.addEventListener('install', (event) => {
-    self.skipWaiting();
-    console.log('Service Worker installed');
+  self.skipWaiting();
+  console.log('Service Worker installed');
 });
 
 self.addEventListener('activate', (event) => {
-    event.clients.claim();
-    console.log('Service Worker activated');
+  if (self.clients && self.clients.claim) {
+    self.clients.claim();
+  }
+  console.log('Service Worker activated');
 });

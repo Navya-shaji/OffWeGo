@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>OffWeGo - Find Your Next Adventure</title>
+    <meta name="description" content="Discover amazing destinations and create unforgettable memories with OffWeGo - Your gateway to extraordinary travel experiences." />
+    <meta name="author" content="OffWeGo" />
+    <meta name="keywords" content="travel, booking, packages, destinations, adventure, vacation" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="OffWeGo" />
+    <meta name="application-name" content="OffWeGo" />
+    <meta name="msapplication-TileColor" content="#E50914" />
+    <meta name="msapplication-TileImage" content="/pwa-192x192.png" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="OffWeGo - Find Your Next Adventure" />
+    <meta property="og:description" content="Discover amazing destinations and create unforgettable memories with OffWeGo - Your gateway to extraordinary travel experiences." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/pwa-512x512.png" />
+    <meta property="og:url" content="https://offwego.com" />
+    <meta property="og:site_name" content="OffWeGo" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@offwego" />
+    <meta name="twitter:creator" content="@offwego" />
+    <meta name="twitter:image" content="/pwa-512x512.png" />
+    <meta name="twitter:title" content="OffWeGo - Find Your Next Adventure" />
+    <meta name="twitter:description" content="Discover amazing destinations and create unforgettable memories with OffWeGo" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#E50914" />
+    <meta name="msapplication-navbutton-color" content="#E50914" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Apple Splash Screen -->
+    <link rel="apple-touch-startup-image" href="/pwa-192x192.png" />
+    
+    <!-- Prevent zoom on iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <script type="module" crossorigin src="/assets/index-Ba2uFvKt.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BZljxqu3.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+
+  <body>
+    <div id="root"></div>
+    
+    <!-- PWA Install Prompt Script -->
+    <script>
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            .then(registration => {
+              console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
+      // PWA install prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('Install prompt ready');
+      });
+    </script>
+  </body>
+</html>
