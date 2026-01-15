@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { WalletRepository } from "../../adapters/repository/Wallet/WalletRepository";
 import { BookingRepository } from "../../adapters/repository/Booking/BookingRepository";
 import { PackageRepository } from "../../adapters/repository/Package/PackageRepository";
-import { CompleteTripUseCase } from "../../useCases/wallet/completedTripUsecase";
+import { CompleteTripUseCase } from "../../useCases/Wallet/completedTripUsecase";
 
 const walletRepo = new WalletRepository();
 const bookingRepo = new BookingRepository();

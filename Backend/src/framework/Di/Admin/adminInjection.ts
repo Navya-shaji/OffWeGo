@@ -49,9 +49,9 @@ import { FirebaseNotificationService } from "../../Services/FirebaseNotification
 import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
 import { GetSubscriptionBookingUseCase } from "../../../useCases/Subscription/GetAllSubscriptionBookingUsecase";
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/SubscriptionBookingRepo";
-import { ListTravelPostsUsecase } from "../../../useCases/travelPost/ListTravelPostsUsecase";
-import { ApproveTravelPostUsecase } from "../../../useCases/travelPost/ApproveTravelPostUsecase";
-import { RejectTravelPostUsecase } from "../../../useCases/travelPost/RejectTravelPostUsecase";
+import { ListTravelPostsUsecase } from "../../../useCases/TravelPost/ListTravelPostsUsecase";
+import { ApproveTravelPostUsecase } from "../../../useCases/TravelPost/ApproveTravelPostUsecase";
+import { RejectTravelPostUsecase } from "../../../useCases/TravelPost/RejectTravelPostUsecase";
 import { AdminTravelPostController } from "../../../adapters/controller/Admin/AdminTravelPostController";
 import { GetVendorSubscriptionHistoryUseCase } from "../../../useCases/Subscription/GetVendorSubscriptionUsecase";
 import { TravelPostRepository } from "../../../adapters/repository/TravelPost/TravelPostRepository";

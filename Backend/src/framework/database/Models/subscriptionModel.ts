@@ -1,11 +1,11 @@
 import { Document, model, ObjectId } from "mongoose";
-import { ISubscriptionPlan } from "../../../domain/entities/Subscriptionplan";
+import { ISubscriptionPlan } from "../../../domain/entities/SubscriptionPlan";
 import { SubscriptionPlanSchema } from "../Schema/subscriptionSchema";
 
 
 export interface ISubscriptionPlanModel
   extends Omit<ISubscriptionPlan, "id">,
-    Document {
+  Document {
   _id: ObjectId;
   stripePriceId: string;
 }
