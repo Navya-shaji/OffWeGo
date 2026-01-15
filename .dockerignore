@@ -39,3 +39,6 @@ coverage
 tmp
 temp
 *.tmp
+
+# Secrets
+**/serviceAccountKey.json

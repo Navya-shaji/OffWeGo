@@ -30,11 +30,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         const userId = user?.id || vendor?.id;
 
         if (userId && role) {
-            const socketUrl = import.meta.env.VITE_SOCKET_URL?.replace(/\/$/, '') || "http://localhost:1212";
+            const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+            console.log("🔌 Initializing socket connection to:", socketUrl);
+
             const newSocket = io(socketUrl, {
                 transports: ['websocket', 'polling'],
                 reconnection: true,
                 reconnectionDelay: 1000,
+                withCredentials: true,
+                forceNew: true,
             });
 
             newSocket.on("connect", () => {

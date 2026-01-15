@@ -12,13 +12,11 @@ const getToken = () => {
 const token = getToken();
 
 
-const socketUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-
-
+const socketUrl = (url && url !== 'http://localhost:5173') ? url : window.location.origin;
 
 const socket = io(socketUrl, {
   withCredentials: true,
-  autoConnect: !!token,
+  autoConnect: false, // Disable auto-connect to prevent double connections
   auth: {
     token: token || ""
   },
@@ -44,5 +42,5 @@ socket.on('disconnect', (reason) => {
 
 if (!token) {
   console.warn("No token found - socket will not auto-connect. SocketManager will handle connection when user logs in.");
-} 
+}
 export default socket

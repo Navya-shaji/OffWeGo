@@ -37,7 +37,7 @@ ENV VITE_IMAGE_URL=${VITE_IMAGE_URL}
 RUN npm run build
 
 # ==========================================
-# Stage 2: Build Backend
+# Stage 2: Build the Backend
 # ==========================================
 FROM node:20-alpine AS backend-builder
 
@@ -45,10 +45,8 @@ WORKDIR /app/backend
 
 # Copy backend package files
 COPY Backend/package*.json ./
-RUN npm config set fetch-retries 5 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm install
+# Use npm ci for faster, deterministic builds
+RUN npm ci
 
 # Copy backend source code
 COPY Backend/ ./
@@ -57,28 +55,27 @@ COPY Backend/ ./
 RUN npm run build
 
 # ==========================================
-# Stage 3: Production Image
+# Stage 3: Final Production Image
 # ==========================================
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy backend dependencies and built files
+# Copy package files and install only production dependencies
 COPY --from=backend-builder /app/backend/package*.json ./
-COPY --from=backend-builder /app/backend/node_modules ./node_modules
+RUN npm ci --omit=dev
+
+# Copy compiled backend
 COPY --from=backend-builder /app/backend/dist ./dist
 
-# Copy Firebase service account key (required at runtime)
-COPY --from=backend-builder /app/backend/src/serviceAccountKey.json ./src/serviceAccountKey.json
-
-# Copy frontend build to backend's public folder
+# Copy built frontend into the backend's public folder
 COPY --from=frontend-builder /app/frontend/dist ./public
 
-# Set production environment
+# Final environment settings
 ENV NODE_ENV=production
 
 # Expose backend port
 EXPOSE 1212
 
-# Start the backend server (which now also serves the frontend)
+# Use node to run the built application
 CMD ["npm", "start"]

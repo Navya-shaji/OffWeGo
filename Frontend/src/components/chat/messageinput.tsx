@@ -1,6 +1,6 @@
 // In messageinput.tsx
 import { Send, Paperclip } from "lucide-react";
-import socket from "@/hooks/connectSocketIo";
+import { useSocket } from "@/utilities/socket";
 
 interface MessageInputProps {
   message: string;
@@ -14,17 +14,24 @@ interface MessageInputProps {
 const MessageInput = ({
   message,
   setMessage,
-  onSend, // Changed from onSend
+  onSend,
   inputRef,
   disabled,
   roomId,
 }: MessageInputProps) => {
+  const socketContext = useSocket();
+  const socket = socketContext?.socket;
+
   const handleTyping = () => {
-    socket.emit("typing", { roomId });
+    if (socket) {
+      socket.emit("typing", { roomId });
+    }
   };
 
   const handleStopTyping = () => {
-    socket.emit("stop-typing", { roomId });
+    if (socket) {
+      socket.emit("stop-typing", { roomId });
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -73,8 +80,8 @@ const MessageInput = ({
           type="submit"
           disabled={disabled || !message.trim()}
           className={`p-2 rounded-full transition-all ${message.trim()
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+            ? "bg-green-500 text-white hover:bg-green-600"
+            : "bg-gray-100 text-gray-400 cursor-not-allowed"
             }`}
         >
           <Send size={20} />

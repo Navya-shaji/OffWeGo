@@ -61,12 +61,21 @@ export class App {
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
 
     // Serve static files from the public directory (frontend build)
-    const publicPath = path.join(__dirname, "..", "public");
+    const publicPath = path.resolve(process.cwd(), "public");
+    console.log(`📂 Serving static files from: ${publicPath}`);
     this.app.use(express.static(publicPath));
 
     // SPA fallback: serve index.html for all non-API routes
-    this.app.get("/", (req, res) => {
-      res.sendFile(path.join(publicPath, "index.html"));
+    this.app.get("*", (req, res) => {
+      console.log(`🌐 SPA fallback for route: ${req.url}`);
+      res.sendFile(path.join(publicPath, "index.html"), (err) => {
+        if (err) {
+          console.error(`❌ Error sending index.html: ${err.message}`);
+          if (!res.headersSent) {
+            res.status(500).send("Error loading application");
+          }
+        }
+      });
     });
   }
 

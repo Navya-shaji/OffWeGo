@@ -1,13 +1,4 @@
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: offwego-mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-
   redis:
     image: redis:alpine
     container_name: offwego-redis
@@ -35,15 +26,14 @@ services:
     environment:
       NODE_ENV: production
       PORT: 1212
-      MONGO_URI: mongodb://mongo:27017/offwego
+      MONGO_URI: mongodb://host.docker.internal:27017/OffWeGo
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
+      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
     env_file:
       - ./Backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
-      - mongo
       - redis
-
-volumes:
-  mongodb_data:

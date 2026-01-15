@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./Backend
-        run: npm i
+        run: npm ci
 
       - name: Run ESLint
         working-directory: ./Backend
@@ -59,7 +59,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./Backend
-        run: npm i
+        run: npm ci
 
       - name: Build TypeScript
         working-directory: ./Backend
@@ -91,7 +91,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./Frontend
-        run: npm i
+        run: npm ci
 
       - name: Run ESLint
         working-directory: ./Frontend
@@ -114,7 +114,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./Frontend
-        run: npm i
+        run: npm ci
 
       - name: Build Frontend
         working-directory: ./Frontend

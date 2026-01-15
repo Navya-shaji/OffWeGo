@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Send, Loader2, MessageCircle, ArrowLeft, Check, CheckCheck, X, Smile, Image as ImageIcon, MapPin } from "lucide-react";
 import { getMessages, getChatsOfUser, markMessagesAsSeen } from "@/services/chat/chatService";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import { io, Socket } from "socket.io-client";
-import { socketContext } from "@/utilities/socket";
+import { Socket } from "socket.io-client";
+import { useSocket } from "@/utilities/socket";
 import { toast } from "react-toastify";
 import { useChatContext } from "@/context/chatContext";
 import EmojiPicker from "emoji-picker-react";
@@ -365,18 +365,13 @@ const ChatPage = () => {
         initialScrollRef.current = false;
     }, [messages]);
 
-    const socketContextValue = useContext(socketContext);
-    const globalSocket = socketContextValue?.socket;
+    const { socket: globalSocket } = useSocket() || {};
 
     useEffect(() => {
-        if (!senderId) return;
-        const socketUrl = import.meta.env.VITE_SOCKET_URL?.replace(/\/$/, '') || "http://localhost:1212";
-        if (!globalSocket) {
-            socketRef.current = io(socketUrl, { transports: ['websocket', 'polling'], reconnection: true });
-        } else {
-            socketRef.current = globalSocket;
-        }
-        const socket = socketRef.current;
+        if (!senderId || !globalSocket) return;
+        socketRef.current = globalSocket;
+        const socket = globalSocket;
+
         if (senderRole === 'vendor') socket.emit("register_vendor", { vendorId: senderId });
         else socket.emit("register_user", { userId: senderId });
 
@@ -441,7 +436,7 @@ const ChatPage = () => {
         });
 
         return () => {
-            socket.off("receive-message");
+            socket.off("receive-message", handleReceiveMessage);
             socket.off("user-status-changed");
             socket.off("vendor-status-changed");
             socket.off("messages-seen");
