@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import http from "http";
+import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { Server as SocketIOServer } from "socket.io";
@@ -58,6 +59,15 @@ export class App {
     this.app.use("/api", new UserRoute().userRouter);
     this.app.use("/api/admin", new AdminRoute().adminRouter);
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
+
+    // Serve static files from the public directory (frontend build)
+    const publicPath = path.join(__dirname, "..", "public");
+    this.app.use(express.static(publicPath));
+
+    // SPA fallback: serve index.html for all non-API routes
+    this.app.get("/", (req, res) => {
+      res.sendFile(path.join(publicPath, "index.html"));
+    });
   }
 
   public async listen(): Promise<void> {

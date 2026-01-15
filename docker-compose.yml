@@ -18,8 +18,16 @@ services:
 
   backend:
     build:
-      context: ./Backend
+      context: .
       dockerfile: Dockerfile
+      args:
+        VITE_BASE_URL: ${VITE_BASE_URL:-/}
+        VITE_SOCKET_URL: ${VITE_SOCKET_URL:-/}
+        VITE_CLOUDINARY_CLOUD_NAME: ${VITE_CLOUDINARY_CLOUD_NAME}
+        VITE_CLOUDINARY_UPLOAD_PRESET: ${VITE_CLOUDINARY_UPLOAD_PRESET}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+        VITE_OPENCAGE_API_KEY: ${VITE_OPENCAGE_API_KEY}
+        VITE_IMAGE_URL: ${VITE_IMAGE_URL:-/}
     container_name: offwego-backend
     restart: always
     ports:
@@ -36,28 +44,6 @@ services:
     depends_on:
       - mongo
       - redis
-
-  frontend:
-    build:
-      context: ./Frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_BASE_URL: /
-        VITE_SOCKET_URL: ${VITE_SOCKET_URL:-/}
-        VITE_CLOUDINARY_CLOUD_NAME: ${VITE_CLOUDINARY_CLOUD_NAME}
-        VITE_CLOUDINARY_UPLOAD_PRESET: ${VITE_CLOUDINARY_UPLOAD_PRESET}
-        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
-        VITE_OPENCAGE_API_KEY: ${VITE_OPENCAGE_API_KEY}
-        VITE_IMAGE_URL: ${VITE_IMAGE_URL:-/}
-    container_name: offwego-frontend
-    restart: always
-    ports:
-      - "5173:80"
-    environment:
-      - VITE_BASE_URL=/
-      - VITE_SOCKET_URL=http://localhost:1212
-    depends_on:
-      - backend
 
 volumes:
   mongodb_data:
