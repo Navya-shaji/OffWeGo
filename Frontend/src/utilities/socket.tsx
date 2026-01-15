@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from "react";
 import type { ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
@@ -25,28 +25,34 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        const role = user ? "user" : vendor ? "vendor" : null;
-        const userId = user?.id || vendor?.id;
+    const userId = user?.id || vendor?.id;
+    const role = user ? "user" : vendor ? "vendor" : null;
 
+    useEffect(() => {
         if (userId && role) {
+            // Prevent redundant connections if already connecting/connected to the same ID
+            if (socketRef.current && (socketRef.current as any)._connectedUserId === userId) {
+                return;
+            }
+
             const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
-            console.log("🔌 Initializing socket connection to:", socketUrl);
+            console.log(`🔌 Initializing socket connection for ${role} (${userId}) to:`, socketUrl);
 
             const newSocket = io(socketUrl, {
                 transports: ['websocket', 'polling'],
                 reconnection: true,
                 reconnectionDelay: 1000,
                 withCredentials: true,
-                forceNew: true,
             });
+
+            (newSocket as any)._connectedUserId = userId;
 
             newSocket.on("connect", () => {
                 console.log("Socket connected:", newSocket.id);
                 // Register based on role
-                if (user) {
+                if (role === 'user') {
                     newSocket.emit("register_user", { userId });
-                } else if (vendor) {
+                } else {
                     newSocket.emit("register_vendor", { vendorId: userId });
                 }
             });
@@ -76,7 +82,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                 );
 
                 // Show toast only if not on the chat page
-                if (window.location.pathname !== `/chat/${data.chatId}`) {
+                if (window.location.pathname !== `/chat/${data.chatId}` &&
+                    window.location.pathname !== `/vendor/chat/${data.chatId}`) {
                     toast.info(`New message from ${data.senderName || 'Someone'}`);
                 }
             });
@@ -85,20 +92,25 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             socketRef.current = newSocket;
 
             return () => {
+                console.log("🔌 Disconnecting socket for:", userId);
                 newSocket.disconnect();
                 socketRef.current = null;
+                setSocket(null);
             };
         } else {
             if (socketRef.current) {
+                console.log("🔌 No user ID, disconnecting existing socket");
                 socketRef.current.disconnect();
                 socketRef.current = null;
                 setSocket(null);
             }
         }
-    }, [user, vendor, dispatch]);
+    }, [userId, role]);
+
+    const contextValue = useMemo(() => ({ socket }), [socket]);
 
     return (
-        <socketContext.Provider value={{ socket }}>
+        <socketContext.Provider value={contextValue}>
             {children}
         </socketContext.Provider>
     );

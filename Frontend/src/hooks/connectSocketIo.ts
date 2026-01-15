@@ -16,15 +16,12 @@ const socketUrl = (url && url !== 'http://localhost:5173') ? url : window.locati
 
 const socket = io(socketUrl, {
   withCredentials: true,
-  autoConnect: false, // Disable auto-connect to prevent double connections
-  auth: {
-    token: token || ""
-  },
-  timeout: 10000,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000
+  autoConnect: false,
 });
+
+// Legacy socket is disabled to prevent redundant connections.
+// All components should now use useSocket() from SocketProvider.
+console.warn("⚠️ Legacy socket singleton accessed. Use useSocket() instead.");
 
 socket.on('connect', () => {
   console.log(" Socket CONNECTED! ID:", socket.id);

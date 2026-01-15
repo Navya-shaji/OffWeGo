@@ -372,8 +372,8 @@ const ChatPage = () => {
         socketRef.current = globalSocket;
         const socket = globalSocket;
 
-        if (senderRole === 'vendor') socket.emit("register_vendor", { vendorId: senderId });
-        else socket.emit("register_user", { userId: senderId });
+        // Registration is now handled by SocketProvider on connect.
+        // We only need to set up listeners here.
 
         const handleReceiveMessage = (newMessage: ChatMessage) => {
             // Update messages list if it's the current chat
