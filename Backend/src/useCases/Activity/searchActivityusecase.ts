@@ -1,4 +1,4 @@
-import { ActivityDto } from "../../domain/dto/package/ActivityDto";
+import { ActivityDto } from "../../domain/dto/Package/ActivityDto";
 import { IActivityRepository } from "../../domain/interface/Vendor/IactivityRepository";
 import { IsearchActivityUsecase } from "../../domain/interface/Vendor/IsearchActivityUsecase";
 import { mapToActivityDtos } from "../../mappers/Activity/searchMapper";

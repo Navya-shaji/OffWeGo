@@ -30,7 +30,7 @@ export interface IVendorRepository {
     vendorId: string,
     status: "blocked" | "unblocked"
   ): Promise<void>;
-  getProfileByEmail(email: string): Promise<RegistervendorDto | null>;
+  getProfileByEmail(email: string): Promise<IVendorModel | null>;
   countVendors(filter?: Record<string, unknown>): Promise<number>;
   searchVendor(query: string): Promise<Vendor[]>;
   updateFcmToken(id: string, token: string): Promise<IVendorModel | null>;

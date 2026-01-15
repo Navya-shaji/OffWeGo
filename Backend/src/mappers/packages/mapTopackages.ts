@@ -1,4 +1,4 @@
-import { PackageDTO } from "../../domain/dto/package/PackageDto";
+import { PackageDTO } from "../../domain/dto/Package/PackageDto";
 import { IPackageModel } from "../../framework/database/Models/packageModel";
 
 export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
@@ -16,23 +16,23 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
 
   hotels: Array.isArray(doc.hotels)
     ? doc.hotels.map((hotel) => ({
-        name: hotel.name || "",
-        address: hotel.address || "",
-        rating: hotel.rating ?? 0,
-        destinationId: hotel.destinationId?.toString() || "",
-      }))
+      name: hotel.name || "",
+      address: hotel.address || "",
+      rating: hotel.rating ?? 0,
+      destinationId: hotel.destinationId?.toString() || "",
+    }))
     : [],
 
   activities: Array.isArray(doc.activities)
     ? doc.activities
-        .filter((activity) => activity)
-        .map((activity) => ({
-          id: activity._id?.toString() || "",
-          title: activity.title || "",
-          description: activity.description || "",
-          imageUrl: activity.imageUrl || "",
-          destinationId: activity.destinationId?.toString() || "",
-        }))
+      .filter((activity) => activity)
+      .map((activity) => ({
+        id: activity._id?.toString() || "",
+        title: activity.title || "",
+        description: activity.description || "",
+        imageUrl: activity.imageUrl || "",
+        destinationId: activity.destinationId?.toString() || "",
+      }))
     : [],
 
   checkInTime: doc.checkInTime || "",
@@ -40,10 +40,10 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
 
   itinerary: Array.isArray(doc.itinerary)
     ? doc.itinerary.map((item) => ({
-        day: item.day ?? 0,
-        time: item.time || "",
-        activity: item.activity || "",
-      }))
+      day: item.day ?? 0,
+      time: item.time || "",
+      activity: item.activity || "",
+    }))
     : [],
 
   inclusions: Array.isArray(doc.inclusions) ? doc.inclusions : [],
@@ -52,13 +52,13 @@ export const mapToPackageDTO = (doc: IPackageModel): PackageDTO => ({
   flightOption: doc.flightOption || false,
   flight: doc.flight
     ? {
-        id: doc.flight.id,
-        airLine: doc.flight.airLine || "",
-        price: {
-          economy: doc.flight.price.economy || 0,
-          premium: doc.flight.price.premium,
-          business: doc.flight.price.business,
-        },
-      }
+      id: doc.flight.id,
+      airLine: doc.flight.airLine || "",
+      price: {
+        economy: doc.flight.price.economy || 0,
+        premium: doc.flight.price.premium,
+        business: doc.flight.price.business,
+      },
+    }
     : null,
 });
