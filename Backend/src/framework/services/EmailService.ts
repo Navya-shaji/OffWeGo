@@ -17,12 +17,7 @@ export class EmailService implements IEmailService {
     console.log("Attempting to send booking email to:", to);
     console.log("Using SMTP User:", process.env.NODEMAILER_EMAIL);
 
-    const dateStr = new Date(booking.selectedDate).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+
 
     const guestCount = (Array.isArray(booking.adults) ? booking.adults.length : 0) +
       (Array.isArray(booking.children) ? booking.children.length : 0);
@@ -151,12 +146,13 @@ export class EmailService implements IEmailService {
     try {
       console.log("Sending mail with options...");
       const info = await transporter.sendMail(mailOptions);
-      console.log(`✅ Booking confirmation email sent successfully to ${to}. MessageId: ${info.messageId}`);
-    } catch (error: any) {
-      console.error("❌ Error sending booking email:", error);
-      if (error.code === 'EAUTH') {
+      console.log(`Booking confirmation email sent successfully to ${to}. MessageId: ${info.messageId}`);
+    } catch (error: unknown) {
+      console.error(" Error sending booking email:", error);
+      const mailError = error as { code?: string };
+      if (mailError.code === 'EAUTH') {
         console.error("Authentication failed. Please check your NODEMAILER_EMAIL and NODEMAILER_PASSWORD.");
-      } else if (error.code === 'ESOCKET') {
+      } else if (mailError.code === 'ESOCKET') {
         console.error("Network or port issue. Ensure port 465 is open or try port 587.");
       }
       throw error;

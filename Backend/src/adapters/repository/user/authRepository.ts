@@ -2,6 +2,7 @@ import { OAuth2Client } from "google-auth-library";
 import { UserModel } from "../../../framework/database/Models/userModel";
 import { IAuthRepository } from "../../../domain/interface/UserRepository/IauthRepository";
 import { User } from "../../../domain/entities/UserEntity";
+import jwt from 'jsonwebtoken';
 
 
 let client: OAuth2Client | null = null;
@@ -26,7 +27,7 @@ export class AuthRepository implements IAuthRepository {
       const oauthClient = getOAuthClient();
 
       // For debugging: decode without verification to see what's inside
-      const decodedToken = require('jsonwebtoken').decode(googleToken);
+      const decodedToken = jwt.decode(googleToken) as { aud?: string; iss?: string };
       console.log('Google Auth Debug:', {
         envClientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 10) + '...',
         tokenAudience: decodedToken?.aud,

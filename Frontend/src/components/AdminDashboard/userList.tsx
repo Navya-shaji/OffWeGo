@@ -138,7 +138,7 @@ const UserList = () => {
           },
         }
       );
-    } catch (error) {
+    } catch {
       toast.error(
         `Failed to ${action} user "${selectedUser.name}". Please try again.`,
         {
@@ -170,8 +170,8 @@ const UserList = () => {
       const updateUser = (list: User[]) =>
         list.map((u) => (u._id === userId ? { ...u, status: newStatus } : u));
 
-      setUsers(updateUser as any);
-      if (!isSearchMode) setOriginalUsers(updateUser as any);
+      setUsers((prev) => updateUser(prev));
+      if (!isSearchMode) setOriginalUsers((prev) => updateUser(prev));
 
       try {
         await updateUserStatus(userId, newStatus);
@@ -333,8 +333,8 @@ const UserList = () => {
               <button
                 onClick={handleConfirmStatusChange}
                 className={`px-4 py-2 text-white rounded ${selectedUser.status === "active"
-                    ? "bg-red-600"
-                    : "bg-green-600"
+                  ? "bg-red-600"
+                  : "bg-green-600"
                   }`}
               >
                 Confirm

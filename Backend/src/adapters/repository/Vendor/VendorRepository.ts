@@ -47,7 +47,7 @@ export class VendorRepository
     status: "approved" | "rejected",
     rejectionReason?: string
   ): Promise<IVendorModel | null> {
-    const update: any = { status };
+    const update: { status: "approved" | "rejected"; rejectionReason?: string } = { status };
     if (status === "rejected") {
       update.rejectionReason = rejectionReason || "";
     } else if (status === "approved") {
@@ -64,7 +64,7 @@ export class VendorRepository
     status: "approved" | "rejected",
     rejectionReason?: string
   ): Promise<IVendorModel | null> {
-    const update: any = { status };
+    const update: { status: "approved" | "rejected"; rejectionReason?: string } = { status };
     if (status === "rejected") {
       update.rejectionReason = rejectionReason || "";
     } else if (status === "approved") {

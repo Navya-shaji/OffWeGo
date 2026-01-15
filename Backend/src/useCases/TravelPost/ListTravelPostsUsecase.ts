@@ -1,5 +1,5 @@
 import { IListTravelPostsUsecase, ListTravelPostQuery } from "../../domain/interface/TravelPost/usecases/IListTravelPostsUsecase";
-import { ITravelPostRepository } from "../../domain/interface/TravelPost/ITravelPostRepository";
+import { ITravelPostRepository, SortOption } from "../../domain/interface/TravelPost/ITravelPostRepository";
 import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostsToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
 
@@ -22,7 +22,7 @@ export class ListTravelPostsUsecase implements IListTravelPostsUsecase {
         destinationId: query.destinationId,
         authorId: query.authorId,
         search: query.search,
-        sortBy: query.sortBy as any,
+        sortBy: query.sortBy as SortOption,
       },
       { page, limit }
     );

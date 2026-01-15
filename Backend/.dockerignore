@@ -3,7 +3,7 @@ node_modules
 npm-debug.log*
 
 # Build output
-dist
+# dist (removed so Docker can copy it)
 
 # Environment files
 .env

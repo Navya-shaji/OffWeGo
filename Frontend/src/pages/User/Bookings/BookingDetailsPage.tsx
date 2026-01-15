@@ -33,6 +33,34 @@ import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
 import { motion } from "framer-motion";
 
+import type { Booking, Traveler } from "@/interface/Boooking";
+
+interface ExtendedBooking extends Booking {
+    _id: string; // Required for this page
+    bookingStatus?: string;
+    paymentMethod?: string;
+    payment_method?: string;
+    paymentProvider?: string;
+    payment_provider?: string;
+    gateway?: string;
+    paymentGateway?: string;
+    usedWallet?: boolean;
+    walletTransactionId?: string;
+    walletTxnId?: string;
+    stripePaymentIntentId?: string;
+    stripeSessionId?: string;
+    payment_id?: string;
+    paymentId?: string;
+    razorpayPaymentId?: string;
+    selectedPackage: Booking["selectedPackage"] & {
+        duration?: number;
+        imageUrls?: string[];
+        packageName?: string;
+        destination?: string;
+        ownerId?: string;
+    };
+}
+
 const RescheduleModal = ({
     open,
     onClose,
@@ -84,9 +112,10 @@ const RescheduleModal = ({
             setNewDate("");
             onSuccess?.();
             onClose();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Reschedule error:", error);
-            setError(error?.response?.data?.message || error?.message || "Failed to reschedule. Please try again.");
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || (error as Error)?.message || "Failed to reschedule. Please try again.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -151,7 +180,7 @@ const BookingDetailsPage = () => {
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
 
-    const booking = location.state?.booking;
+    const booking = location.state?.booking as ExtendedBooking;
 
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
@@ -176,7 +205,7 @@ const BookingDetailsPage = () => {
         );
     }
 
-    const getBookingStatus = (booking: any) => {
+    const getBookingStatus = (booking: ExtendedBooking) => {
         if (booking.bookingStatus?.toLowerCase() === "cancelled") return "cancelled";
 
         const today = new Date();
@@ -184,7 +213,7 @@ const BookingDetailsPage = () => {
         const startDate = new Date(booking.selectedDate);
         startDate.setHours(0, 0, 0, 0);
 
-        const duration = booking.selectedPackage?.duration || 1;
+        const duration = booking.selectedPackage.duration || 1;
         const endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + duration - 1);
         endDate.setHours(23, 59, 59, 999);
@@ -195,7 +224,7 @@ const BookingDetailsPage = () => {
     };
 
     const getStatusBadge = (status: string) => {
-        const config: any = {
+        const config: Record<string, { bg: string; border: string; text: string; label: string }> = {
             upcoming: { bg: "bg-blue-50/50", border: 'border-blue-100', text: "text-blue-600", label: "Upcoming" },
             ongoing: { bg: "bg-green-50/50", border: 'border-green-100', text: "text-green-600", label: "Ongoing" },
             completed: { bg: "bg-gray-50/50", border: 'border-gray-100', text: "text-gray-600", label: "Completed" },
@@ -209,7 +238,7 @@ const BookingDetailsPage = () => {
         );
     };
 
-    const normalizePaymentMethodLabel = (booking: any) => {
+    const normalizePaymentMethodLabel = (booking: ExtendedBooking) => {
         const raw: string | undefined =
             booking.paymentMethod ||
             booking.payment_method ||
@@ -239,7 +268,7 @@ const BookingDetailsPage = () => {
         return "-";
     };
 
-    const startChatWithVendor = async (booking: any) => {
+    const startChatWithVendor = async (booking: ExtendedBooking) => {
         if (!user?.id) {
             toast.error("Please log in to start a chat.");
             return;
@@ -260,13 +289,13 @@ const BookingDetailsPage = () => {
 
             if (chatId) navigate(`/chat/${chatId}`);
             else toast.error("Failed to initiate chat.");
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error starting chat:", error);
-            toast.error(error.message || "Failed to start chat.");
+            toast.error((error as Error).message || "Failed to start chat.");
         }
     };
 
-    const shouldShowChatButton = (booking: any) => {
+    const shouldShowChatButton = (booking: ExtendedBooking) => {
         if (!booking) return false;
         const status = getBookingStatus(booking);
         return status === "upcoming" &&
@@ -285,8 +314,8 @@ const BookingDetailsPage = () => {
                 toast.success("Booking cancelled successfully");
                 navigate("/bookings");
             } else throw new Error(res?.message || "Failed");
-        } catch (err: any) {
-            toast.error(err.message || "Failed to cancel.");
+        } catch (err: unknown) {
+            toast.error((err as Error).message || "Failed to cancel.");
         }
     };
 
@@ -299,13 +328,13 @@ const BookingDetailsPage = () => {
         setTimeout(() => navigate("/bookings"), 1500);
     };
 
-    const openReviewModal = (booking: any) => {
+    const openReviewModal = (booking: ExtendedBooking) => {
         const pkg = booking.selectedPackage;
         if (pkg && pkg._id && pkg.packageName) {
             setReviewPackage({
                 packageId: pkg._id,
                 packageName: pkg.packageName,
-                destination: pkg.destination || pkg.destinationId || "Unknown Destination",
+                destination: pkg.destination || "Unknown Destination",
             });
             setIsReviewModalOpen(true);
         } else toast.error("Package information unavailable");
@@ -453,7 +482,7 @@ const BookingDetailsPage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {Array.isArray(booking.adults) && booking.adults.map((guest: any, idx: number) => (
+                                    {Array.isArray(booking.adults) && booking.adults.map((guest: Traveler, idx: number) => (
                                         <div key={idx} className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl hover:border-black transition-colors group">
                                             <div className="w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-colors">
                                                 <span className="text-xs font-black">{idx + 1}</span>
@@ -470,7 +499,7 @@ const BookingDetailsPage = () => {
                                             </div>
                                         </div>
                                     ))}
-                                    {Array.isArray(booking.children) && booking.children.map((guest: any, idx: number) => (
+                                    {Array.isArray(booking.children) && booking.children.map((guest: Traveler, idx: number) => (
                                         <div key={idx} className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl hover:border-black transition-colors group">
                                             <div className="w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-colors">
                                                 <span className="text-xs font-black">C{idx + 1}</span>
@@ -827,7 +856,7 @@ const BookingDetailsPage = () => {
             {
                 createPortal(
                     <>
-                        <RescheduleModal open={isRescheduleOpen} onClose={() => setIsRescheduleOpen(false)} bookingId={booking._id} currentDate={booking.selectedDate} onSuccess={handleRescheduleSuccess} />
+                        <RescheduleModal open={isRescheduleOpen} onClose={() => setIsRescheduleOpen(false)} bookingId={booking._id} currentDate={booking.selectedDate ? new Date(booking.selectedDate).toISOString() : undefined} onSuccess={handleRescheduleSuccess} />
                         <CancelBookingModal open={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} bookingId={booking._id} onConfirm={handleCancelBooking} />
                         {reviewPackage && <ReviewModal open={isReviewModalOpen} onClose={() => { setIsReviewModalOpen(false); setReviewPackage(null); }} packageName={reviewPackage.packageName} destination={reviewPackage.destination} onSuccess={() => navigate("/bookings")} />}
                     </>,

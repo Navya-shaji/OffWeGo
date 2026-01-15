@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any, react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import { getMessages, findOrCreateChat, getChatsOfUser } from '@/services/chat/chatService';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
@@ -16,7 +15,7 @@ interface Imessage {
     messageType: string;
     sendedTime: Date;
     seen: boolean;
-    senderType?: "User" | "vendor" | "user"; // Normalized later
+    senderType?: "User" | "vendor" | "user"
     senderName?: string;
     receiverId?: string;
 }
@@ -62,30 +61,28 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [vendors] = useState<any[]>([]);
     const [isTyping] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const triggerState = useState(0);
-    const setTrigger = triggerState[1];
+    const [trigger, setTrigger] = useState(0);
 
     const user = useSelector((state: RootState) => state.auth.user);
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
     const myId = user?.id || vendor?.id;
     const myType = user ? 'user' : 'vendor';
 
-    const fetchChatsData = async () => {
+    const fetchChatsData = useCallback(async () => {
         if (!myId) return;
         try {
             const res = await getChatsOfUser(myId, myType);
             const chatsList = res.data || [];
-            console.log("📊 Context: Fetched chats with unread counts:", chatsList.map((c: any) => ({ id: c._id, unreadCount: c.unreadCount })));
+            console.log(" Context: Fetched chats with unread counts:", chatsList.map((c: any) => ({ id: c._id, unreadCount: c.unreadCount })));
             setChats(chatsList);
         } catch (err) {
             console.error("Failed to fetch chats", err);
         }
-    };
+    }, [myId, myType]);
 
-    // Calculate total unread count - ensure we only count unread messages
     const totalUnreadCount = chats.reduce((sum, chat) => {
         const count = chat.unreadCount || 0;
-        return sum + (count > 0 ? count : 0); // Only add positive counts
+        return sum + (count > 0 ? count : 0);
     }, 0);
 
     const unreadChatCount = chats.reduce((sum, chat) => {
@@ -100,9 +97,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         fetchChatsData();
-    }, [myId, triggerState[0]]);
+    }, [fetchChatsData, trigger]);
 
-    // Listen for socket events to update unread counts
     useEffect(() => {
         if (!socket) return;
 
@@ -127,7 +123,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         }) => {
             if (!data?.chatId) return;
 
-            // If the user is currently viewing this chat, don't increment unread count.
             if (currentChat && currentChat._id === data.chatId) {
                 return;
             }
@@ -160,7 +155,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             socket.off("messages-seen", handleMessagesSeen);
             socket.off("new-message-notification", handleNewMessageNotification);
         };
-    }, [socket, currentChat]);
+    }, [socket, currentChat, setTrigger]);
 
     // Socket Listeners
     useEffect(() => {
@@ -179,7 +174,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             socket.off('receive-message', handleReceive);
         };
-    }, [socket, currentChat]);
+    }, [socket, currentChat, setTrigger]);
 
     const selectChat = async (myId: string, otherId: string) => {
         setLoading(true);
@@ -194,7 +189,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
             const msgs = await getMessages(chat._id);
             setMessages(msgs.data?.messages || msgs.messages || []);
-        } catch (err) {
+        } catch {
             setError("Failed to load chat");
             toast.error("Failed to load chat");
         } finally {

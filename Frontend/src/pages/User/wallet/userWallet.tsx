@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import type { IWallet } from "@/interface/wallet";
 import { getUserWallet } from "@/services/Wallet/UserWalletService";
 import type { RootState } from "@/store/store";

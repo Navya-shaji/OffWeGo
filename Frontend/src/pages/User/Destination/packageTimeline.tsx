@@ -8,7 +8,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/home/navbar/Header";
-import type { Package } from "@/interface/PackageInterface";
+import type { Package, Itinerary } from "@/interface/PackageInterface";
+import type { IReview } from "@/interface/reviews";
 import FlightSearchModal from "@/pages/Vendors/flightModal";
 import { PackageReviews } from "./PackageReviews";
 import type { Flight } from "@/interface/flightInterface";
@@ -41,7 +42,7 @@ export const PackageTimeline = () => {
         if (selectedPackage?.packageName) {
           const data = await allReviews(selectedPackage.packageName);
           if (Array.isArray(data) && data.length > 0) {
-            const sum = data.reduce((acc: number, r: any) => acc + r.rating, 0);
+            const sum = data.reduce((acc: number, r: IReview) => acc + r.rating, 0);
             setAvgRating((sum / data.length).toFixed(1));
             setReviewCount(data.length);
           }
@@ -100,11 +101,11 @@ export const PackageTimeline = () => {
 
   const groupedItinerary = useMemo(() => {
     if (!selectedPackage?.itinerary) return {};
-    return (selectedPackage.itinerary as any[]).reduce((acc: Record<number, any[]>, item: any) => {
+    return (selectedPackage.itinerary as Itinerary[]).reduce((acc: Record<number, Itinerary[]>, item: Itinerary) => {
       if (!acc[item.day]) acc[item.day] = [];
       acc[item.day].push(item);
       return acc;
-    }, {} as Record<number, any[]>);
+    }, {} as Record<number, Itinerary[]>);
   }, [selectedPackage?.itinerary]);
 
   if (!selectedPackage) {

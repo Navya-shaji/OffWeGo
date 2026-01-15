@@ -64,7 +64,7 @@ export class TravelPostController {
       } = req.query;
 
       const result = await this._listTravelPostsUsecase.execute({
-        status: (status as any) || "APPROVED",
+        status: (status as "PENDING" | "APPROVED" | "REJECTED") || "APPROVED",
         categoryId: categoryId as string,
         destinationId: destinationId as string,
         authorId: authorId as string,
@@ -107,7 +107,7 @@ export class TravelPostController {
 
       const result = await this._listTravelPostsUsecase.execute({
         authorId,
-        status: status as any,
+        status: status as "PENDING" | "APPROVED" | "REJECTED",
         categoryId: categoryId as string,
         destinationId: destinationId as string,
         search: search as string,
