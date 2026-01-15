@@ -1,5 +1,5 @@
-import { SubscriptionPlanDto } from "../../dto/Subscription/CreatesubscriptionDto";
+import { CreateSubscriptionDto } from "../../dto/Subscription/CreateSubscriptionDto";
 
-export interface IEditSubscriptionusecase{
-    execute(id:string,updatedData:SubscriptionPlanDto):Promise<SubscriptionPlanDto|null>
+export interface IEditSubscriptionusecase {
+    execute(id: string, updatedData: CreateSubscriptionDto): Promise<CreateSubscriptionDto | null>
 }

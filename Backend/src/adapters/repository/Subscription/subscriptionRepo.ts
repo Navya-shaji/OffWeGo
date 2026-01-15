@@ -1,5 +1,5 @@
 import { ISubscriptionPlanRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionplan";
-import { ISubscriptionPlan } from "../../../domain/entities/Subscriptionplan";
+import { ISubscriptionPlan } from "../../../domain/entities/SubscriptionPlan";
 import {
   subscriptionPlanModel,
   ISubscriptionPlanModel,
@@ -8,8 +8,7 @@ import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class SubscriptionPlanRepository
   extends BaseRepository<ISubscriptionPlanModel>
-  implements ISubscriptionPlanRepository
-{
+  implements ISubscriptionPlanRepository {
   constructor() {
     super(subscriptionPlanModel);
   }
@@ -42,8 +41,8 @@ export class SubscriptionPlanRepository
     return await this.model.findByIdAndDelete(id);
   }
   async getAllSubscriptions() {
-  return this.model.find().populate("vendorId").populate("planId");
-}
+    return this.model.find().populate("vendorId").populate("planId");
+  }
 
-  
+
 }

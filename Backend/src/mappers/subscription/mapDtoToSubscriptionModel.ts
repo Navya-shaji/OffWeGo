@@ -1,9 +1,9 @@
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
+import { CreateSubscriptionDto } from "../../domain/dto/Subscription/CreateSubscriptionDto";
 import { ISubscriptionPlanModel } from "../../framework/database/Models/subscriptionModel";
 
 export const mapModelToSubscriptionDto = (
   model: ISubscriptionPlanModel
-): SubscriptionPlanDto => ({
+): CreateSubscriptionDto => ({
   _id: model._id.toString(),
   name: model.name,
   price: model.price,

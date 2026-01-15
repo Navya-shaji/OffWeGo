@@ -1,9 +1,9 @@
-export interface SubscriptionPlanDto {
+export interface CreateSubscriptionDto {
   _id?: string;
   name: string;
   price: number;
-  duration: number;            
-  features: string[];         
+  duration: number;
+  features: string[];
   stripePriceId: string;
   isActive?: boolean;
 }

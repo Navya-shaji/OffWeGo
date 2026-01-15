@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { RefreshTokenUseCase } from "../../../useCases/auth/refreshtokenusecase";
+import { RefreshTokenUseCase } from "../../../useCases/Auth/refreshtokenusecase";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { success } from "../../../domain/constants/Success";
 import { ErrorMessages } from "../../../domain/constants/Error";
 import { AppError } from "../../../domain/errors/AppError";
 
 export class RefreshTokenController {
-  constructor(private _refreshTokenUseCase: RefreshTokenUseCase) {}
+  constructor(private _refreshTokenUseCase: RefreshTokenUseCase) { }
 
   async handle(req: Request, res: Response): Promise<void> {
     try {

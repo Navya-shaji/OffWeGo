@@ -1,4 +1,4 @@
-import { ICreateCategoryUsecase } from "../../../domain/interface/Category/IcategoryUsecase";
+import { ICreateCategoryUsecase } from "../../../domain/interface/Category/ICategoryUsecase";
 import { IDeleteCategorynUseCase } from "../../../domain/interface/Category/IDeleteCategory";
 import { IEditCategoryUsecase } from "../../../domain/interface/Category/IEditCategoryUsecase";
 import { IGetCategoryUsecase } from "../../../domain/interface/Category/IGetAllCategoryUsecase";
@@ -13,7 +13,7 @@ export class CreateCategoryController {
     private _editCategoryUsecase: IEditCategoryUsecase,
     private _deleteCategoryUsecase: IDeleteCategorynUseCase,
     private _searchCategoryUsecase: ISearchCategoryUsecase
-  ) {}
+  ) { }
 
   async createCategory(req: Request, res: Response) {
     try {
@@ -62,7 +62,7 @@ export class CreateCategoryController {
   async DeleteCategory(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      
+
       if (!id) {
         return res
           .status(HttpStatus.BAD_REQUEST)

@@ -3,7 +3,7 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IInitiateChatUsecase } from "../../../domain/interface/Chat/IsendChatUsecase";
 import { IGetMessagesUsecase } from "../../../domain/interface/Msg/IGetMsgUsecase";
 import { IMarkMessagesSeenUseCase } from "../../../domain/interface/Chat/IMarkMesgusecase";
-import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
+import { GetChatsOfUserUsecase } from "../../../useCases/Chat/GetChatUSecase";
 import { Role } from "../../../domain/constants/Roles";
 
 export class ChatController {

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { CreateSubscriptionUseCase } from "../../../useCases/subscription/createSubscriptionusecase";
+import { CreateSubscriptionUseCase } from "../../../useCases/Subscription/createSubscriptionusecase";
 import { IGetSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IGetSubscription";
 import { IEditSubscriptionusecase } from "../../../domain/interface/SubscriptionPlan/Ieditsubscriptionusecase";
-import { SubscriptionPlanDto } from "../../../domain/dto/Subscription/CreatesubscriptionDto";
+import { CreateSubscriptionDto } from "../../../domain/dto/Subscription/CreateSubscriptionDto";
 import { IDeleteSubscriptionUsecase } from "../../../domain/interface/SubscriptionPlan/IDeletesubscription";
 import { IGetSubscriptionBookingUseCase } from "../../../domain/interface/SubscriptionPlan/IGetAllSubscriptionBookingUsecase";
 import { IGetVendorSubscriptionHistoryUseCase } from "../../../domain/interface/SubscriptionPlan/IGetVendorHistory";
@@ -16,7 +16,7 @@ export class SubscriptionController {
     private _deleteSubscriptionUsecase: IDeleteSubscriptionUsecase,
     private _getSubscriptionBookingsUsecase: IGetSubscriptionBookingUseCase,
     private _getVendorSubscriptionHistoryUsecase: IGetVendorSubscriptionHistoryUseCase
-  ) {}
+  ) { }
 
   async createSubscription(req: Request, res: Response) {
     try {
@@ -64,7 +64,7 @@ export class SubscriptionController {
   async updateSubscription(req: Request, res: Response) {
     try {
       const id = req.params.id;
-      const updatedData: SubscriptionPlanDto = req.body;
+      const updatedData: CreateSubscriptionDto = req.body;
 
       const result = await this._editSubscriptionUsecase.execute(
         id,
@@ -133,7 +133,7 @@ export class SubscriptionController {
   async getVendorSubscriptionHistory(req: Request, res: Response) {
     try {
       const vendorId = req.user?.id || req.user?._id;
-      
+
       if (!vendorId) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,

@@ -1,4 +1,4 @@
-import { PackageDTO } from "../../../domain/dto/package/PackageDto";
+import { PackageDTO } from "../../../domain/dto/Package/PackageDto";
 import { PackageWiseGroup } from "../../../domain/entities/PackagewiseGroup";
 import { IPackageWiseGrouping } from "../../../domain/interface/Vendor/IPackagewiseGroupingRepository";
 import { PackageWiseGroupingModel } from "../../../framework/database/Models/PackageWiseGroupingModel";

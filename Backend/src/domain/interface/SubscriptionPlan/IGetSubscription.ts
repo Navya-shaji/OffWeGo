@@ -1,6 +1,6 @@
-import { SubscriptionPlanDto } from "../../dto/Subscription/CreatesubscriptionDto";
+import { CreateSubscriptionDto } from "../../dto/Subscription/CreateSubscriptionDto";
 
 
 export interface IGetSubscriptionUsecase {
-  execute(): Promise<SubscriptionPlanDto[] | null>;
+  execute(): Promise<CreateSubscriptionDto[] | null>;
 }

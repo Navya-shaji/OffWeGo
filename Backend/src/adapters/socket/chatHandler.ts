@@ -1,5 +1,5 @@
-import { CreateMessageUseCase } from "../../useCases/msg/createMessageUsecase";
-import { ChatRepository } from "../repository/Chat/ChatRepository";
+import { CreateMessageUseCase } from "../../useCases/Msg/createMessageUsecase";
+import { ChatRepository } from "../repository/Chat/chatRepository";
 import { FirebaseNotificationService } from "../../framework/Services/FirebaseNotificationService";
 import { MessageRepository } from "../repository/Msg/MessageRepository";
 

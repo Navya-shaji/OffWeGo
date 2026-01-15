@@ -2,14 +2,14 @@ import { Request, Response } from "express";
 import { IUserProfileUsecase } from "../../../domain/interface/UsecaseInterface/IUserProfileUsecase";
 import { IUserProfileEditUsecase } from "../../../domain/interface/UsecaseInterface/IEditProfileOfUserUsecas";
 import { HttpStatus } from "../../../domain/statusCode/Statuscode";
-import { IChangePasswordUseCase } from "../../../domain/dto/User/ChangePassDto";
+import { IChangePasswordUseCase } from "../../../domain/dto/User/changePassDto";
 
 export class UserProfileController {
   constructor(
     private _userProfileUsecase: IUserProfileUsecase,
     private _editUserProfileUsecase: IUserProfileEditUsecase,
     private _changePasswordUsecase: IChangePasswordUseCase
-  ) {}
+  ) { }
 
   async GetProfile(req: Request, res: Response): Promise<void> {
     try {
@@ -47,7 +47,7 @@ export class UserProfileController {
 
   async editProfileHandler(req: Request, res: Response) {
     try {
-   
+
       const userId = req.body.userId || req.params.userId || req.user?.id || req.user?.userId;
 
       const { userId: _, ...userData } = req.body;
@@ -63,15 +63,15 @@ export class UserProfileController {
           message: "Failed to update profile",
         });
       }
-      
- 
-      const phoneValue = result.phone !== undefined && result.phone !== null 
-        ? String(result.phone) 
+
+
+      const phoneValue = result.phone !== undefined && result.phone !== null
+        ? String(result.phone)
         : result.phone;
-      
+
 
       const userIdString = result._id?.toString() || userId;
-      
+
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "User profile updated successfully",
@@ -100,16 +100,16 @@ export class UserProfileController {
 
   async changePasswordHandler(req: Request, res: Response) {
     try {
-   
+
       const userId = req.user?.id || req.user?.userId;
-      
+
       if (!userId) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           message: "User ID not found in token",
         });
       }
-      
+
       const { oldPassword, newPassword } = req.body;
 
       const result = await this._changePasswordUsecase.execute({

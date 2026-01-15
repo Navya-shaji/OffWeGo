@@ -148,7 +148,7 @@ export class VendorRepository
 
   async getProfileByEmail(
     email: string
-  ): Promise<RegistervendorDto | null> {
+  ): Promise<IVendorModel | null> {
     return this.model.findOne({ email }).exec();
   }
 

@@ -1,20 +1,20 @@
 import Stripe from "stripe";
-import { SubscriptionPlanDto } from "../../domain/dto/Subscription/CreatesubscriptionDto";
-import { ICreateSubscriptionPlanUseCase } from "../../domain/interface/SubscriptionPlan/ICreateUsecase";
+import { CreateSubscriptionDto } from "../../domain/dto/Subscription/CreateSubscriptionDto";
+import { ICreateSubscriptionUseCase } from "../../domain/interface/SubscriptionPlan/ICreateUsecase";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { mapModelToSubscriptionDto } from "../../mappers/Subscription/mapDtoToSubscriptionModel";
 import { Role } from "../../domain/constants/Roles";
 
-export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase {
+export class CreateSubscriptionUseCase implements ICreateSubscriptionUseCase {
   constructor(
     private _subscriptionRepo: ISubscriptionPlanRepository,
     private _vendorRepo: IVendorRepository,
     private _notificationService: INotificationService
-  ) {}
+  ) { }
 
-  async execute(data: SubscriptionPlanDto): Promise<SubscriptionPlanDto> {
+  async execute(data: CreateSubscriptionDto): Promise<CreateSubscriptionDto> {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: "2025-09-30.clover",
     });
@@ -24,9 +24,9 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
     });
 
     const price = await stripe.prices.create({
-      unit_amount: data.price * 100, 
+      unit_amount: data.price * 100,
       currency: "inr",
-      recurring: { interval: "month" }, 
+      recurring: { interval: "month" },
       product: product.id,
     });
 
@@ -46,12 +46,12 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionPlanUseCase
         title: "New Subscription Plan Available",
         message: `A new subscription plan "${data.name}" is now available.`,
         createdAt: new Date(),
-        read:false
+        read: false
       })
     );
     await Promise.all(notificationPromises);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return mapModelToSubscriptionDto(createdPlan  as any);
+    return mapModelToSubscriptionDto(createdPlan as any);
   }
 }
