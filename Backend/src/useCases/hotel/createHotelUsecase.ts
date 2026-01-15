@@ -1,10 +1,10 @@
-import { HotelDto } from "../../domain/dto/package/HotelDto";
+import { HotelDto } from "../../domain/dto/Package/HotelDto";
 import { ICreateHotelUsecase } from "../../domain/interface/Vendor/IcreateHotelUsecase";
 import { IHotelRepository } from "../../domain/interface/Vendor/IHotelRepository";
 import { mapToHotelDto } from "../../mappers/Hotel/HotelMapper";
 
 export class CreateHotelUsecase implements ICreateHotelUsecase {
-  constructor(private _hotelRepo: IHotelRepository) {}
+  constructor(private _hotelRepo: IHotelRepository) { }
 
   async execute(data: HotelDto, destinationId: string): Promise<HotelDto> {
     if (!destinationId) {
