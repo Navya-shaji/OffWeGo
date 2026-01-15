@@ -3,12 +3,12 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { IVendorRepository } from "../../../domain/interface/Vendor/IVendorRepository";
 
 export class VendorAuthStatusController {
-  constructor(private _vendorRepository: IVendorRepository) {}
+  constructor(private _vendorRepository: IVendorRepository) { }
 
   async getAuthVendorStatus(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = (req as any).vendor?.id;
-      
+      const vendorId = (req as Request & { vendor?: { id: string } }).vendor?.id;
+
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
@@ -18,7 +18,7 @@ export class VendorAuthStatusController {
       }
 
       const vendor = await this._vendorRepository.findById(vendorId);
-      
+
       if (!vendor) {
         res.status(HttpStatus.NOT_FOUND).json({
           success: false,

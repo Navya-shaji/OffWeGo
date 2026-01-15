@@ -9,8 +9,7 @@ import {
 } from "../../../domain/interface/TravelPost/ITravelPostRepository";
 import { TravelPost } from "../../../domain/entities/TravelPostEntity";
 
-const toObjectIdString = (value: Types.ObjectId | undefined): string | undefined =>
-  value ? value.toString() : undefined;
+
 
 const mapDocumentToEntity = (doc: ITravelPostDocument): TravelPost => {
   // Handle populated or unpopulated authorId

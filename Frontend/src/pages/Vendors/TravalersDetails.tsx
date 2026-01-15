@@ -352,7 +352,8 @@ export default function TravelerDetails() {
                   <div className="grid md:grid-cols-2 gap-6">
                     {inputFields.map((field) => {
                       const Icon = field.icon;
-                      const hasError = isSubmitted && !(contactInfo as any)[field.name];
+                      const fieldName = field.name as keyof typeof contactInfo;
+                      const hasError = isSubmitted && !contactInfo[fieldName];
                       return (
                         <div key={field.name} className={field.name === 'address' ? 'md:col-span-2' : ''}>
                           <label className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wide ml-1">
@@ -365,8 +366,7 @@ export default function TravelerDetails() {
                             <input
                               type={field.type}
                               name={field.name}
-                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                              value={(contactInfo as any)[field.name]}
+                              value={contactInfo[fieldName]}
                               onChange={handleInputChange}
                               placeholder={field.placeholder}
                               className={`w-full pl-12 pr-4 py-3.5 bg-slate-50 border ${hasError ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:ring-teal-100 focus:border-teal-500'} rounded-xl text-sm font-medium focus:outline-none focus:ring-4 transition-all duration-200 placeholder:text-slate-300 text-gray-900`}

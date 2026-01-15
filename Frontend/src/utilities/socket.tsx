@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import type { ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
@@ -20,6 +20,7 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
+    const socketRef = useRef<Socket | null>(null);
     const user = useSelector((state: RootState) => state.auth.user);
     const vendor = useSelector((state: RootState) => state.vendorAuth.vendor);
     const dispatch = useDispatch();
@@ -55,9 +56,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             });
 
             // Enhanced notification handling
-            newSocket.on("new-message-notification", (data: any) => {
+            newSocket.on("new-message-notification", (data: {
+                chatId: string;
+                senderName?: string;
+                messagePreview?: string;
+            }) => {
                 console.log("📬 New message notification received:", data);
-                
+
                 // Add to Redux store
                 dispatch(
                     addNotification({
@@ -73,13 +78,16 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             });
 
             setSocket(newSocket);
+            socketRef.current = newSocket;
 
             return () => {
                 newSocket.disconnect();
+                socketRef.current = null;
             };
         } else {
-            if (socket) {
-                socket.disconnect();
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current = null;
                 setSocket(null);
             }
         }

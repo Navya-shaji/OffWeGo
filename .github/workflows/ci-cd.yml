@@ -226,13 +226,13 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
-            VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL }}
+            VITE_BASE_URL=${{ secrets.VITE_BASE_URL || '/' }}
+            VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL || '/' }}
             VITE_CLOUDINARY_CLOUD_NAME=${{ secrets.VITE_CLOUDINARY_CLOUD_NAME }}
             VITE_CLOUDINARY_UPLOAD_PRESET=${{ secrets.VITE_CLOUDINARY_UPLOAD_PRESET }}
             VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
             VITE_OPENCAGE_API_KEY=${{ secrets.VITE_OPENCAGE_API_KEY }}
-            VITE_IMAGE_URL=${{ secrets.VITE_IMAGE_URL }}
+            VITE_IMAGE_URL=${{ secrets.VITE_IMAGE_URL || '/' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -246,7 +246,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: ${{ vars.PRODUCTION_URL }}
+      url: ${{ vars.PRODUCTION_URL || 'https://offwego.com' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -259,34 +259,35 @@ jobs:
 
       # Uncomment and configure one of the deployment options below:
 
-      # Option 1: Deploy to a VPS/Server via SSH
-      # - name: Deploy to Server
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   with:
-      #     host: ${{ secrets.SERVER_HOST }}
-      #     username: ${{ secrets.SERVER_USER }}
-      #     key: ${{ secrets.SERVER_SSH_KEY }}
-      #     script: |
-      #       cd /path/to/your/app
-      #       docker compose pull
-      #       docker compose up -d
+      # Option 1: Deploy to AWS EC2 (via SSH)
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.AWS_EC2_USER }}/offwego
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
 
       # Option 2: Deploy to AWS ECS
+      # Note: Requires a task-definition.json file in the root
       # - name: Deploy to AWS ECS
       #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       #   with:
       #     task-definition: task-definition.json
-      #     service: your-service
-      #     cluster: your-cluster
+      #     service: offwego-service
+      #     cluster: offwego-cluster
 
-      # Option 3: Deploy to DigitalOcean App Platform
+      # Option 3: Deploy to DigitalOcean App Platform (Disabled)
       # - name: Deploy to DigitalOcean
       #   uses: digitalocean/app_action@v1.1.6
       #   with:
       #     app_name: offwego
       #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      # Option 4: Deploy to Railway
+      # Option 4: Deploy to Railway (Disabled)
       # - name: Deploy to Railway
       #   uses: bervProject/railway-deploy@main
       #   with:

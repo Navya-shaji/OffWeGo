@@ -60,7 +60,7 @@ export class OtpService implements IOtpService {
     }
     try {
       await this.redis.set(email, otp, "EX", 60);
-    } catch (err) {
+    } catch {
       this.useLocalCache = true;
       this.localCache.set(email, otp);
     }
@@ -74,7 +74,7 @@ export class OtpService implements IOtpService {
     } else {
       try {
         storedOtp = await this.redis.get(email);
-      } catch (err) {
+      } catch {
         this.useLocalCache = true;
         storedOtp = this.localCache.get<string>(email);
       }
@@ -87,7 +87,7 @@ export class OtpService implements IOtpService {
     } else {
       try {
         await this.redis.del(email);
-      } catch (err) {
+      } catch {
         this.localCache.del(email);
       }
     }

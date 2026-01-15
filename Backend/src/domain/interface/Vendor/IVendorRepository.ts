@@ -36,5 +36,5 @@ export interface IVendorRepository {
   updateFcmToken(id: string, token: string): Promise<IVendorModel | null>;
   getFcmTokenById(vendorId: string): Promise<string | null>;
   findAll(): Promise<IVendorModel[]>;
-  update(id: string, data: any): Promise<IVendorModel | null>;
+  update(id: string, data: Partial<IVendorModel>): Promise<IVendorModel | null>;
 }

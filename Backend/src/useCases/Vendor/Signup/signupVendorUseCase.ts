@@ -23,7 +23,6 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
         throw new Error("Vendor Already Exists");
       }
 
-      // If rejected, allow re-registration by updating existing record
       const hashedPassword = await this._hashService.hashPassword(password);
       const otp = this._otpService.generateOtp();
 
@@ -33,8 +32,8 @@ export class VendorRegisterUseCase implements IRegisterVendorUseCase {
         password: hashedPassword,
         documentUrl,
         status: "pending",
-        rejectionReason: "" // Clear the reason when they retry
-      } as any);
+        rejectionReason: "" 
+      });
 
       if (!updatedVendor) throw new Error("Failed to update vendor details");
 

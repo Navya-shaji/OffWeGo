@@ -46,7 +46,7 @@ export class CacheService implements ICacheService {
       if (this._redisClient.status === "wait" || !this._redisClient.status) {
         await this._redisClient.connect();
       }
-    } catch (err) {
+    } catch {
       this._useLocalCache = true;
     }
   }
@@ -58,7 +58,7 @@ export class CacheService implements ICacheService {
     }
     try {
       await this._redisClient.set(key, value);
-    } catch (err) {
+    } catch {
       this._useLocalCache = true;
       this._localCache.set(key, value);
     }
@@ -71,7 +71,7 @@ export class CacheService implements ICacheService {
     }
     try {
       await this._redisClient.setex(key, time, value);
-    } catch (err) {
+    } catch {
       this._useLocalCache = true;
       this._localCache.set(key, value, time);
     }
@@ -84,7 +84,7 @@ export class CacheService implements ICacheService {
     }
     try {
       return await this._redisClient.get(key);
-    } catch (err) {
+    } catch {
       this._useLocalCache = true;
       const val = this._localCache.get<string>(key);
       return val !== undefined ? val : null;
@@ -98,7 +98,7 @@ export class CacheService implements ICacheService {
     }
     try {
       await this._redisClient.del(key);
-    } catch (err) {
+    } catch {
       this._useLocalCache = true;
       this._localCache.del(key);
     }

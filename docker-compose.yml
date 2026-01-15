@@ -27,8 +27,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 1212
-      MONGO_URI: mongodb://host.docker.internal:27017/OffWeGo
-      # MONGO_URI: mongodb://mongo:27017/offwego
+      MONGO_URI: mongodb://mongo:27017/offwego
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
@@ -56,7 +55,7 @@ services:
       - "5173:80"
     environment:
       - VITE_BASE_URL=/
-      - VITE_SOCKET_URL=/
+      - VITE_SOCKET_URL=http://localhost:1212
     depends_on:
       - backend
 

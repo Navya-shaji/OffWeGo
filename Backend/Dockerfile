@@ -1,37 +1,20 @@
-# Stage 1: Build
-FROM node:20-alpine AS builder
+# Use a lightweight Node.js image
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install only production dependencies
 COPY package*.json ./
 RUN npm config set fetch-retries 5 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm install
-
-# Copy source code and build
-COPY . .
-RUN npm run build
-
-# Stage 2: Runtime
-FROM node:20-alpine AS runner
-
-WORKDIR /app
-
-# Copy only production dependencies
-COPY package*.json ./
-RUN npm config set fetch-retries 5 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 5 && \
     npm install --omit=dev
 
-# Copy compiled code from builder
-COPY --from=builder /app/dist ./dist
+# Copy the pre-built dist folder from your local machine
+COPY dist ./dist
 
-# Copy the serviceAccountKey.json since it's required at runtime
-# We copy it into the src/ directory relative to the WORKDIR to match the search path in the code
-COPY --from=builder /app/src/serviceAccountKey.json ./src/serviceAccountKey.json
+# Copy the src folder (specifically for serviceAccountKey.json if needed, or other static assets)
+# We only copy src if the app expects things from there at runtime
+COPY src ./src
 
 # Expose the application port
 EXPOSE 1212

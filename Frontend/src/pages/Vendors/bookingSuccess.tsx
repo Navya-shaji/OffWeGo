@@ -4,11 +4,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CheckCircle, Home, MapPin, Receipt, Calendar, ArrowRight, Plane } from "lucide-react";
 import { motion } from "framer-motion";
 
+import type { Booking, PackageInfo } from "@/interface/Boooking";
+
+interface ExtendedBookingSuccess extends Omit<Partial<Booking>, 'paymentStatus' | 'selectedPackage'> {
+  packageName?: string;
+  amount?: number;
+  paymentIntentId?: string;
+  paymentStatus?: string;
+  selectedPackage?: Partial<PackageInfo> & { name?: string };
+}
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [bookingDetails, setBookingDetails] = useState<any>(null); // Use explicit any for flexible booking structure
+  const [bookingDetails, setBookingDetails] = useState<ExtendedBookingSuccess | null>(null);
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
@@ -161,7 +170,7 @@ export default function BookingSuccess() {
                 <p className="font-bold text-gray-900">
                   Total {travelersCount || 1}
                   <span className="text-slate-400 text-sm font-normal ml-1">
-                    People  {(bookingDetails?.adults?.length || 0) > 0 ? `(${bookingDetails.adults.length} Adults)` : ''}
+                    People  {(bookingDetails?.adults?.length || 0) > 0 ? `(${bookingDetails?.adults?.length} Adults)` : ''}
                   </span>
                 </p>
               </div>

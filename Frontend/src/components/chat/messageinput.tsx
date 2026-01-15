@@ -30,8 +30,7 @@ const MessageInput = ({
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onSend(e as any); 
+      onSend(e as unknown as React.FormEvent);
     }
   };
 
@@ -73,11 +72,10 @@ const MessageInput = ({
         <button
           type="submit"
           disabled={disabled || !message.trim()}
-          className={`p-2 rounded-full transition-all ${
-            message.trim()
+          className={`p-2 rounded-full transition-all ${message.trim()
               ? "bg-green-500 text-white hover:bg-green-600"
               : "bg-gray-100 text-gray-400 cursor-not-allowed"
-          }`}
+            }`}
         >
           <Send size={20} />
         </button>

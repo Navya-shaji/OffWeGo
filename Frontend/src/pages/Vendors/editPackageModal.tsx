@@ -145,25 +145,26 @@ const EditPackage: React.FC<EditPackageProps> = ({
   }
 
   const validateForm = (): boolean => {
+    if (!localData) return false;
     const errors: ValidationError[] = []
 
-    const fieldsToValidate = ['packageName', 'duration', 'description', 'price']
+    const fieldsToValidate = ['packageName', 'duration', 'description', 'price'] as const;
     fieldsToValidate.forEach(field => {
-      const error = validateField(field, (localData as any)?.[field])
+      const error = validateField(field, localData[field as keyof Package]);
       if (error) {
-        errors.push({ field, message: error })
+        errors.push({ field, message: error });
       }
-    })
+    });
 
-    const optionalFields = ['checkInTime', 'checkOutTime']
+    const optionalFields = ['checkInTime', 'checkOutTime'] as const;
     optionalFields.forEach(field => {
-      if ((localData as any)?.[field]) {
-        const error = validateField(field, (localData as any)[field])
+      if (localData[field as keyof Package]) {
+        const error = validateField(field, localData[field as keyof Package]);
         if (error) {
-          errors.push({ field, message: error })
+          errors.push({ field, message: error });
         }
       }
-    })
+    });
 
     // Validate itinerary
     if (enhancedItinerary.length === 0) {
@@ -203,7 +204,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
 
   const handleFieldBlur = (field: string) => {
     setTouchedFields(prev => new Set([...prev, field]))
-    const error = validateField(field, (localData as any)?.[field])
+    const error = validateField(field, localData[field as keyof Package])
     setValidationErrors(prev =>
       prev.filter(err => err.field !== field).concat(error ? [{ field, message: error }] : [])
     )
@@ -222,7 +223,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
   }
 
   const handleArrayChange = (key: "inclusions" | "amenities", index: number, value: string) => {
-    const updatedArray = [...((localData as any)[key] || [])]
+    const updatedArray = [...(localData[key] || [])]
     updatedArray[index] = value
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
@@ -230,14 +231,14 @@ const EditPackage: React.FC<EditPackageProps> = ({
   }
 
   const addArrayItem = (key: "inclusions" | "amenities") => {
-    const updatedArray = [...((localData as any)[key] || []), ""]
+    const updatedArray = [...(localData[key] || []), ""]
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
     onChange(updated)
   }
 
   const removeArrayItem = (key: "inclusions" | "amenities", index: number) => {
-    const updatedArray = [...((localData as any)[key] || [])]
+    const updatedArray = [...(localData[key] || [])]
     updatedArray.splice(index, 1)
     const updated = { ...localData, [key]: updatedArray }
     setLocalData(updated)
@@ -364,7 +365,7 @@ const EditPackage: React.FC<EditPackageProps> = ({
   }
 
   const renderList = (key: "inclusions" | "amenities") => {
-    const items = (localData as any)[key] || []
+    const items = localData[key] || []
     const isInclusions = key === "inclusions"
 
     return (
@@ -475,8 +476,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     onChange={handleInputChange}
                     onBlur={() => handleFieldBlur('packageName')}
                     className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${getFieldError('packageName')
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-200 focus:border-indigo-500'
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-slate-200 focus:border-indigo-500'
                       }`}
                     placeholder="Enter package name"
                   />
@@ -501,8 +502,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     min="1"
                     max="30"
                     className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${getFieldError('duration')
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-200 focus:border-indigo-500'
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-slate-200 focus:border-indigo-500'
                       }`}
                     placeholder="Number of days"
                   />
@@ -526,8 +527,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
                   onBlur={() => handleFieldBlur('description')}
                   rows={4}
                   className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 resize-none font-medium ${getFieldError('description')
-                      ? 'border-red-500 focus:border-red-500'
-                      : 'border-slate-200 focus:border-indigo-500'
+                    ? 'border-red-500 focus:border-red-500'
+                    : 'border-slate-200 focus:border-indigo-500'
                     }`}
                   placeholder="Describe your amazing package..."
                 />
@@ -553,8 +554,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     min="0"
                     max="1000000"
                     className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium ${getFieldError('price')
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-200 focus:border-indigo-500'
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-slate-200 focus:border-indigo-500'
                       }`}
                     placeholder="Enter base price"
                   />
@@ -578,8 +579,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
                       onBlur={() => handleFieldBlur('checkInTime')}
                       placeholder="e.g., 3:00 PM"
                       className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${getFieldError('checkInTime')
-                          ? 'border-red-500 focus:border-red-500'
-                          : 'border-slate-200 focus:border-indigo-500'
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-slate-200 focus:border-indigo-500'
                         }`}
                     />
                     <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />
@@ -606,8 +607,8 @@ const EditPackage: React.FC<EditPackageProps> = ({
                     onBlur={() => handleFieldBlur('checkOutTime')}
                     placeholder="e.g., 12:00 PM"
                     className={`w-full p-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 font-medium pr-12 ${getFieldError('checkOutTime')
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-200 focus:border-indigo-500'
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'border-slate-200 focus:border-indigo-500'
                       }`}
                   />
                   <Clock className="absolute right-4 top-4 h-5 w-5 text-slate-400" />

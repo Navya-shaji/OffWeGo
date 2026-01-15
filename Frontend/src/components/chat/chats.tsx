@@ -411,12 +411,12 @@ const ChatPage = () => {
         socket.on("receive-message", handleReceiveMessage);
         socket.on("user-status-changed", (data: any) => setOnlineUsers(prev => {
             const next = new Set(prev);
-            data.isOnline ? next.add(data.userId) : next.delete(data.userId);
+            if (data.isOnline) next.add(data.userId); else next.delete(data.userId);
             return next;
         }));
         socket.on("vendor-status-changed", (data: any) => setOnlineUsers(prev => {
             const next = new Set(prev);
-            data.isOnline ? next.add(data.vendorId) : next.delete(data.vendorId);
+            if (data.isOnline) next.add(data.vendorId); else next.delete(data.vendorId);
             return next;
         }));
         socket.on("online-users", (data: any) => setOnlineUsers(new Set(data.onlineIds || [])));
@@ -433,8 +433,8 @@ const ChatPage = () => {
                 return [...prev, { userId: data.userId, name: selectedContact?.name || "", isTyping: true }];
             });
         });
-        socket.on("stop-typing", (data: any) => setTypingUsers(prev => prev.filter(u => u.userId !== data.userId)));
-        socket.on("message_deleted", (data: any) => {
+        socket.on("stop-typing", (data: { userId: string }) => setTypingUsers(prev => prev.filter(u => u.userId !== data.userId)));
+        socket.on("message_deleted", (data: { chatId: string, messageId: string }) => {
             if (data.chatId === selectedContact?._id) {
                 setMessages(prev => prev.map(m => m._id === data.messageId ? { ...m, isDeleted: true, messageContent: "This message was deleted" } : m));
             }
@@ -450,7 +450,7 @@ const ChatPage = () => {
             socket.off("message_deleted");
             socket.off("online-users");
         };
-    }, [senderId, selectedContact, globalSocket]);
+    }, [senderId, selectedContact, globalSocket, senderRole]);
 
     useEffect(() => {
         setContacts(prev => prev.map(contact => {
@@ -466,8 +466,8 @@ const ChatPage = () => {
                 setLoading(true);
                 const userType = vendor ? 'vendor' : 'user';
                 const res = await getChatsOfUser(senderId, userType);
-                const chats = res?.data?.chats || res?.data || res || [];
-                const formatted = chats.map((chat: any) => {
+                const chatsData = res?.data?.chats || res?.data || res || [];
+                const formatted = chatsData.map((chat: any) => {
                     const isUser = senderRole === 'user';
                     const target = isUser ? chat.vendorId : chat.userId;
                     const name = target?.name || target?.username || chat.name || "Unknown";
@@ -489,13 +489,13 @@ const ChatPage = () => {
                 });
                 setContacts(formatted);
                 if (chatId) {
-                    const found = formatted.find((c: any) => c._id === chatId);
+                    const found = formatted.find((c: Contact) => c._id === chatId);
                     if (found) { setSelectedContact(found); setShowContacts(false); }
                 }
-            } catch (err) { setError("Failed to load contacts"); } finally { setLoading(false); }
+            } catch { setError("Failed to load contacts"); } finally { setLoading(false); }
         };
         fetchContacts();
-    }, [senderId, senderRole, chatId]);
+    }, [senderId, senderRole, chatId, navigate, onlineUsers, vendor]);
 
     useEffect(() => {
         if (!selectedContact || !senderId) return;
@@ -509,10 +509,10 @@ const ChatPage = () => {
                 autoScrollRef.current = true;
                 if (socketRef.current) socketRef.current.emit("join_room", { roomId: selectedContact._id });
                 markMessagesAsSeen(selectedContact._id, senderId, userType).catch(() => { });
-            } catch (err) { setMessages([]); }
+            } catch { setMessages([]); }
         };
         fetchMessages();
-    }, [selectedContact, senderId]);
+    }, [selectedContact, senderId, vendor]);
 
     const loadOlderMessages = async () => {
         if (!selectedContact || !senderId || loadingMoreMessages || !hasMoreMessages || messages.length === 0) return;
