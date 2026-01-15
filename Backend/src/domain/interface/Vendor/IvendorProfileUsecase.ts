@@ -1,5 +1,5 @@
-import { RegistervendorDto } from "../../dto/Vendor/RegisterVendorDto";
+import { IVendorModel } from "../../../framework/database/Models/vendorModel";
 
-export interface IVendorProfileUseCase{
-    execute(email: string):Promise<RegistervendorDto|null>
+export interface IVendorProfileUseCase {
+    execute(email: string): Promise<IVendorModel | null>
 }

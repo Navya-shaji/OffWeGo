@@ -1,4 +1,4 @@
-import { PackageDTO } from "../../domain/dto/package/PackageDto";
+import { PackageDTO } from "../../domain/dto/Package/PackageDto";
 import { Package } from "../../domain/entities/PackageEntity";
 import { ICreatePackage } from "../../domain/interface/Vendor/IAddPackageUsecase";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
@@ -9,7 +9,7 @@ export class CreatePackagesUseCase implements ICreatePackage {
   constructor(
     private _packageRepo: IPackageRepository,
     private _subscriptionRepo: ISubscriptionBookingRepository
-  ) {}
+  ) { }
 
   async execute(data: Package, vendorId: string): Promise<PackageDTO> {
     const packageData: Package = { ...data, vendorId };

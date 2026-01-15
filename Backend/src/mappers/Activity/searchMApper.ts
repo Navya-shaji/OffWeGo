@@ -1,5 +1,5 @@
 import { Activity } from "../../domain/entities/ActivityEntity";
-import { ActivityDto } from "../../domain/dto/package/ActivityDto"; 
+import { ActivityDto } from "../../domain/dto/Package/ActivityDto";
 
 export const mapToActivityDtos = (docs: Activity[]): ActivityDto[] => {
   return docs.map(doc => ({

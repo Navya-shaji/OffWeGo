@@ -1,7 +1,7 @@
 import { ChatRepository } from "../../../adapters/repository/Chat/ChatRepository";
 import { GetChatsOfUserUsecase } from "../../../useCases/chat/GetChatUSecase";
 import { InitiateChatUsecase } from "../../../useCases/chat/SendChatUSecase";
-import { ChatController } from "../../../adapters/controller/Chat/ChatController";
+import { ChatController } from "../../../adapters/controller/chat/ChatController";
 import { BookingRepository } from "../../../adapters/repository/Booking/BookingRepository";
 import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
 import { CreateMessageUseCase } from "../../../useCases/msg/createMessageUsecase";
@@ -23,7 +23,7 @@ const getchatusecase = new GetChatsOfUserUsecase(chatRepo);
 const createchat = new InitiateChatUsecase(chatRepo, bookingRepo);
 const createmsg = new CreateMessageUseCase(messegeRepo);
 const getmsg = new GetMessagesUseCase(messegeRepo);
-const markMessagesSeenUseCase = new MarkMessagesSeenUseCase(messegeRepo,chatRepo);
+const markMessagesSeenUseCase = new MarkMessagesSeenUseCase(messegeRepo, chatRepo);
 
 const notificationService = new FirebaseNotificationService(notificationRepo, userRepo, vendorRepo);
 

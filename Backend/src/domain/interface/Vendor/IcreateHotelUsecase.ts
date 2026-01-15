@@ -1,5 +1,5 @@
-import { HotelDto } from "../../dto/package/HotelDto";
+import { HotelDto } from "../../dto/Package/HotelDto";
 
-export interface ICreateHotelUsecase{
-    execute(data:HotelDto,destinationId:string):Promise<HotelDto>
+export interface ICreateHotelUsecase {
+    execute(data: HotelDto, destinationId: string): Promise<HotelDto>
 }
