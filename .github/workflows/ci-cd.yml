@@ -377,7 +377,7 @@ jobs:
                 # Stop nginx if it's running to free up port 80 for standalone mode
                 sudo docker compose -f docker-compose.prod.yml stop nginx
                 
-                sudo docker compose -f docker-compose.prod.yml run --rm certbot certonly --standalone --preferred-challenges http --email navyaaaa303@gmail.com --agree-tos --no-eff-email -d $DOMAIN
+                sudo docker compose -f docker-compose.prod.yml run --rm --entrypoint certbot certbot certonly --standalone --non-interactive --preferred-challenges http --email navyaaaa303@gmail.com --agree-tos --no-eff-email -d $DOMAIN
                 
                 echo "♻️ Restarting services with new certificates..."
                 sudo docker compose -f docker-compose.prod.yml up -d nginx
