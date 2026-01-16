@@ -34,13 +34,11 @@ export class App {
 
     this.app.use(
       cors({
-        origin: [
-          "http://localhost:5173",
-          "http://localhost:4173",
-          "http://localhost:1212",
+        origin: process.env.ALLOWED_ORIGINS?.split(',') || [
           "https://offwego.online",
           "https://www.offwego.online",
-          process.env.FRONTEND_URL || "*",
+          "http://localhost:5173",
+          "http://localhost:4173",
         ],
         credentials: true,
       })
@@ -98,13 +96,11 @@ export class App {
 
       this.io = new SocketIOServer(this.server, {
         cors: {
-          origin: [
-            "http://localhost:5173",
-            "http://localhost:4173",
-            "http://localhost:1212",
+          origin: process.env.ALLOWED_ORIGINS?.split(',') || [
             "https://offwego.online",
             "https://www.offwego.online",
-            process.env.FRONTEND_URL || "*",
+            "http://localhost:5173",
+            "http://localhost:1212",
           ],
           credentials: true,
         },

@@ -41,12 +41,11 @@ let socketIOServer: SocketIoServer | null = null;
 export const createSocketIOServer = (server: http.Server): SocketIoServer => {
     const io = new SocketIOServer(server, {
         cors: {
-            origin: process.env.ORIGIN?.split(',') || [
-                "http://localhost:5173",
-                "http://localhost:4173",
-                "http://localhost:1212",
+            origin: process.env.ALLOWED_ORIGINS?.split(',') || [
                 "https://offwego.online",
                 "https://www.offwego.online",
+                "http://localhost:5173",
+                "http://localhost:4173",
             ],
             credentials: true,
         },

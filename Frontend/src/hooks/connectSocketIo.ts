@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 
-const url = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5173'
-
+const url = import.meta.env.VITE_SOCKET_URL;
+const socketUrl = (url && !url.includes('localhost')) ? url : (window.location.origin + "/");
 
 const getToken = () => {
   const userToken = localStorage.getItem('userToken');
@@ -10,9 +10,6 @@ const getToken = () => {
 };
 
 const token = getToken();
-
-
-const socketUrl = (url && url !== 'http://localhost:5173') ? url : window.location.origin;
 
 const socket = io(socketUrl, {
   withCredentials: true,

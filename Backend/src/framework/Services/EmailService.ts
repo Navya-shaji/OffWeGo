@@ -128,7 +128,7 @@ export class EmailService implements IEmailService {
           </div>
           
           <div style="text-align: center; padding: 20px;">
-             <a href="http://localhost:5173/bookings" class="btn">View My Bookings</a>
+             <a href="${process.env.FRONTEND_URL || 'https://offwego.online'}/bookings" class="btn">View My Bookings</a>
              <p style="color: #999; font-size: 11px;">&copy; ${new Date().getFullYear()} OffWeGo. Sent with ❤️</p>
           </div>
         </div>
