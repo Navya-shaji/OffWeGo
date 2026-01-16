@@ -197,6 +197,15 @@ jobs:
     needs: docker-build-unified
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+      - name: Copy Files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "~/offwego"
+
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -204,8 +213,6 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           script: |
-            # Create app directory if it doesn't exist
-            mkdir -p ~/offwego
             cd ~/offwego
             
             # Log in to Docker Hub
