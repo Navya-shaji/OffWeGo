@@ -19,7 +19,7 @@ export class SocketIoServer {
 
     private setupSocket(): void {
         this.io.on("connection", (socket) => {
-        
+
             new ChatEventHandler(socket, this.io);
             socket.on("disconnect", () => {
                 this.userSockets.forEach((userSocket, userId) => {
@@ -45,6 +45,8 @@ export const createSocketIOServer = (server: http.Server): SocketIoServer => {
                 "http://localhost:5173",
                 "http://localhost:4173",
                 "http://localhost:1212",
+                "https://offwego.online",
+                "https://www.offwego.online",
             ],
             credentials: true,
         },
