@@ -192,24 +192,7 @@ jobs:
   # Deploy Job (Optional - Configure as needed)
   # ============================================
   deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: docker-build-unified
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: ${{ vars.PRODUCTION_URL || 'https://offwego.com' }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy notification
-        run: |
-          echo "🚀 Deployment triggered for commit ${{ github.sha }}"
-          echo "📦 Unified image: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-
-      # Uncomment and configure one of the deployment options below:
-
+    
       # Option 1: Deploy to AWS EC2 (via SSH)
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.0.0
