@@ -207,15 +207,48 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           port: 22
+          envs: >-
+            MONGO_URI,REDIS_PASSWORD,JWT_ACCESSTOKENSECRETKEY,STRIPE_SECRET_KEY,
+            CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,
+            DOMAIN_URL,FIREBASE_SERVICE_ACCOUNT,GOOGLE_CLIENT_ID,PROD_DOMAIN
+          env:
+            MONGO_URI: ${{ secrets.MONGO_URI }}
+            REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+            JWT_ACCESSTOKENSECRETKEY: ${{ secrets.JWT_ACCESSTOKENSECRETKEY }}
+            STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+            CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+            DOMAIN_URL: ${{ secrets.DOMAIN_URL }}
+            FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+            GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+            PROD_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
           script: |
             mkdir -p ~/offwego/nginx
             cd ~/offwego
             
-            # Ensure .env exists to prevent docker-compose warnings/errors
-            touch .env
+            # Construct .env file from individual environment variables
+            cat <<EOF > .env
+            PORT=1212
+            NODE_ENV=production
+            MONGO_URI=$MONGO_URI
+            REDIS_HOST=redis
+            REDIS_PORT=6379
+            REDIS_PASSWORD=$REDIS_PASSWORD
+            JWT_ACCESSTOKENSECRETKEY=$JWT_ACCESSTOKENSECRETKEY
+            STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
+            CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
+            CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY
+            CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET
+            DOMAIN_URL=$DOMAIN_URL
+            FIREBASE_SERVICE_ACCOUNT=$FIREBASE_SERVICE_ACCOUNT
+            GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+            EOF
             
-            # Use the PRODUCTION_DOMAIN secret if provided, otherwise fallback
-            DOMAIN="${{ secrets.PRODUCTION_DOMAIN || 'localhost' }}"
+            echo "✅ .env file generated from GitHub Secrets."
+            
+            # Use the PROD_DOMAIN secret if provided, otherwise fallback
+            DOMAIN="${PROD_DOMAIN:-localhost}"
             echo "Deployment Domain: $DOMAIN"
             
             # Write the Nginx config using a LITERAL heredoc (cat <<'EOF') to prevent mangling
