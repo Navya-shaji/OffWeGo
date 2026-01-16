@@ -14,8 +14,8 @@ services:
     container_name: offwego-prod
     env_file: .env
     restart: always
-    ports:
-      - "1212:1212"
+    expose:
+      - "1212"
     environment:
       NODE_ENV: production
       PORT: 1212
@@ -33,3 +33,25 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     depends_on:
       - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: offwego-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - OffWeGo
+
+  certbot:
+    image: certbot/certbot
+    container_name: offwego-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"

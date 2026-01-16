@@ -208,9 +208,56 @@ jobs:
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           port: 22
           script: |
-            mkdir -p ~/offwego
+            mkdir -p ~/offwego/nginx
             cd ~/offwego
             
+            # Use the PRODUCTION_DOMAIN secret if provided, otherwise fallback
+            DOMAIN="${{ secrets.PRODUCTION_DOMAIN || 'localhost' }}"
+            
+            # Write the Nginx config with domain injection
+            cat <<EOF > nginx/nginx.conf
+            events {
+                worker_connections 1024;
+            }
+
+            http {
+                include       /etc/nginx/mime.types;
+                default_type  application/octet-stream;
+                gzip on;
+                gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+                server {
+                    listen 80;
+                    server_name \$DOMAIN;
+                    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+                    location / { return 301 https://\$host\$request_uri; }
+                }
+
+                server {
+                    listen 443 ssl;
+                    server_name \$DOMAIN;
+                    ssl_certificate /etc/letsencrypt/live/\$DOMAIN/fullchain.pem;
+                    ssl_certificate_key /etc/letsencrypt/live/\$DOMAIN/privkey.pem;
+                    ssl_protocols TLSv1.2 TLSv1.3;
+                    ssl_ciphers HIGH:!aNULL:!MD5;
+
+                    location / {
+                        proxy_pass http://offwego-prod:1212;
+                        proxy_set_header Host \$host;
+                        proxy_set_header X-Real-IP \$remote_addr;
+                        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                        proxy_set_header X-Forwarded-Proto \$scheme;
+                        proxy_http_version 1.1;
+                        proxy_set_header Upgrade \$http_upgrade;
+                        proxy_set_header Connection "upgrade";
+                    }
+                }
+            }
+            EOF
+            
+            # Substitute the DOMAIN variable in the nginx.conf
+            sed -i "s/\$DOMAIN/$DOMAIN/g" nginx/nginx.conf
+
             # Write the docker-compose file directly
             cat <<EOF > docker-compose.prod.yml
             version: '3.8'
@@ -229,8 +276,8 @@ jobs:
                 container_name: offwego-prod
                 env_file: .env
                 restart: always
-                ports:
-                  - "1212:1212"
+                expose:
+                  - "1212"
                 environment:
                   NODE_ENV: production
                   PORT: 1212
@@ -248,16 +295,46 @@ jobs:
                   GOOGLE_CLIENT_ID: \${GOOGLE_CLIENT_ID}
                 depends_on:
                   - redis
+              
+              nginx:
+                image: nginx:alpine
+                container_name: offwego-nginx
+                restart: always
+                ports:
+                  - "80:80"
+                  - "443:443"
+                volumes:
+                  - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+                  - ./certbot/conf:/etc/letsencrypt:ro
+                  - ./certbot/www:/var/www/certbot:ro
+                depends_on:
+                  - OffWeGo
+
+              certbot:
+                image: certbot/certbot
+                container_name: offwego-certbot
+                volumes:
+                  - ./certbot/conf:/etc/letsencrypt
+                  - ./certbot/www:/var/www/certbot
+                entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait \$\${!}; done;'"
             EOF
             
             # Log in to Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             
-            # Pull latest image
+            # Pull latest images
             docker compose -f docker-compose.prod.yml pull
             
             # Restart services
             docker compose -f docker-compose.prod.yml up -d
+            
+            # Initial SSL generation if certificate doesn't exist
+            if [ ! -d "certbot/conf/live/$DOMAIN" ]; then
+                echo "🚀 Certificates not found. Requesting initial SSL certificates for $DOMAIN..."
+                docker compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email navyaaaa303@gmail.com --agree-tos --no-eff-email -d $DOMAIN
+                echo "♻️ Reloading Nginx to use new certificates..."
+                docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
+            fi
 
       # Option 2: Deploy to AWS ECS
       # Note: Requires a task-definition.json file in the root
