@@ -168,6 +168,20 @@
 ```
 
 
+###  MongoDB Atlas Setup
+
+To avoid storage issues on AWS free tier, this project uses MongoDB Atlas.
+
+1.  **Create a Cluster**: Sign up at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free tier cluster.
+2.  **Get Connection String**:
+    - Click **Connect** on your cluster.
+    - Choose **Drivers**.
+    - Copy the connection string (e.g., `mongodb+srv://<username>:<password>@cluster0...`).
+3.  **Update Configuration**:
+    - Update `MONGO_URI` in `.env` (root) and `Backend/.env` with your string.
+    - Replace `<password>` with your database user password.
+4.  **Network Access**: Ensure your IP or `0.0.0.0/0` (for testing) is added to the **Network Access** tab in Atlas.
+
 ###  Prerequisites
 
 Before getting started with OffWeGo, ensure your runtime environment meets the following requirements:

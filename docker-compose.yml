@@ -26,14 +26,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: 1212
-      MONGO_URI: mongodb://host.docker.internal:27017/OffWeGo
+      MONGO_URI: ${MONGO_URI}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
       FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
     env_file:
-      - ./Backend/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - .env
     depends_on:
       - redis
