@@ -373,9 +373,14 @@ jobs:
             # Initial SSL generation if certificate doesn't exist
             if [ "$DOMAIN" != "localhost" ] && [ ! -d "certbot/conf/live/$DOMAIN" ]; then
                 echo "🚀 Certificates not found for $DOMAIN. Requesting initial SSL certificates..."
-                sudo docker compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email navyaaaa303@gmail.com --agree-tos --no-eff-email -d $DOMAIN
-                echo "♻️ Reloading Nginx to use new certificates..."
-                sudo docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
+                
+                # Stop nginx if it's running to free up port 80 for standalone mode
+                sudo docker compose -f docker-compose.prod.yml stop nginx
+                
+                sudo docker compose -f docker-compose.prod.yml run --rm certbot certonly --standalone --preferred-challenges http --email navyaaaa303@gmail.com --agree-tos --no-eff-email -d $DOMAIN
+                
+                echo "♻️ Restarting services with new certificates..."
+                sudo docker compose -f docker-compose.prod.yml up -d nginx
             fi
 
       # Option 2: Deploy to AWS ECS
