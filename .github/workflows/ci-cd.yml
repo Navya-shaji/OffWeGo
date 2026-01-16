@@ -206,8 +206,10 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          port: 22
           source: "docker-compose.prod.yml"
-          target: "~/offwego"
+          target: "/home/${{ secrets.AWS_EC2_USER }}/offwego"
+          strip_components: 0
 
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.0.0
@@ -215,8 +217,9 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          port: 22
           script: |
-            cd ~/offwego
+            cd /home/${{ secrets.AWS_EC2_USER }}/offwego
             
             # Log in to Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
