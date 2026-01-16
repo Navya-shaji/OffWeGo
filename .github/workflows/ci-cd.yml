@@ -197,6 +197,9 @@ jobs:
     needs: docker-build-unified
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Copy Files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
