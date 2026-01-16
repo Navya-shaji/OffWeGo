@@ -38,6 +38,8 @@ export class App {
           "http://localhost:5173",
           "http://localhost:4173",
           "http://localhost:1212",
+          "https://offwego.online",
+          "https://www.offwego.online",
           process.env.FRONTEND_URL || "*",
         ],
         credentials: true,

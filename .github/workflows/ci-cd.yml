@@ -231,18 +231,19 @@ jobs:
             cat <<EOF > .env
             PORT=1212
             NODE_ENV=production
-            MONGO_URI=$MONGO_URI
+            FRONTEND_URL="https://offwego.online"
+            MONGO_URI="$MONGO_URI"
             REDIS_HOST=redis
             REDIS_PORT=6379
-            REDIS_PASSWORD=$REDIS_PASSWORD
-            JWT_ACCESSTOKENSECRETKEY=$JWT_ACCESSTOKENSECRETKEY
-            STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
-            CLOUDINARY_CLOUD_NAME=$CLOUDINARY_CLOUD_NAME
-            CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY
-            CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET
-            DOMAIN_URL=$DOMAIN_URL
-            FIREBASE_SERVICE_ACCOUNT=$FIREBASE_SERVICE_ACCOUNT
-            GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+            REDIS_PASSWORD="$REDIS_PASSWORD"
+            JWT_ACCESSTOKENSECRETKEY="$JWT_ACCESSTOKENSECRETKEY"
+            STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY"
+            CLOUDINARY_CLOUD_NAME="$CLOUDINARY_CLOUD_NAME"
+            CLOUDINARY_API_KEY="$CLOUDINARY_API_KEY"
+            CLOUDINARY_API_SECRET="$CLOUDINARY_API_SECRET"
+            DOMAIN_URL="$DOMAIN_URL"
+            FIREBASE_SERVICE_ACCOUNT='$FIREBASE_SERVICE_ACCOUNT'
+            GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
             EOF
             
             echo "✅ .env file generated from GitHub Secrets."
@@ -382,6 +383,11 @@ jobs:
                 echo "♻️ Restarting services with new certificates..."
                 sudo docker compose -f docker-compose.prod.yml up -d nginx
             fi
+
+            # Check logs to ensure everything started correctly
+            echo "📋 Checking backend logs for errors..."
+            sleep 10
+            sudo docker logs offwego-prod --tail 50
 
       # Option 2: Deploy to AWS ECS
       # Note: Requires a task-definition.json file in the root
