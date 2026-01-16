@@ -15,6 +15,9 @@ RUN npm config set fetch-retries 5 && \
 # Copy frontend source code
 COPY Frontend/ ./
 
+# Delete any local .env files to ensure build-args are used
+RUN rm -f .env*
+
 # Build arguments for Vite environment variables
 ARG VITE_BASE_URL
 ARG VITE_SOCKET_URL

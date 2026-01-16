@@ -22,11 +22,12 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
     if (isVerified) {
       interval = setInterval(async () => {
         try {
+          const baseURL = import.meta.env.VITE_BASE_URL?.replace(/\/?$/, "/");
           const response = await fetch(
-            `http://localhost:1212/vendor/status?email=${vendorData.email}`
+            `${baseURL}vendor/status?email=${vendorData.email}`
           );
           const data = await response.json();
-        
+
           if (data.status === "approved") {
             clearInterval(interval);
             toast.success("Your account has been approved!");
@@ -41,8 +42,8 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isVerified, vendorData.email]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVerified, vendorData.email]);
 
   if (!isOpen) return null;
 
