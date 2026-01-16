@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: offwego-mongodb-prod
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-
   redis:
     image: redis:alpine
     container_name: offwego-redis-prod
@@ -21,9 +9,10 @@ services:
     ports:
       - "6379:6379"
 
-  backend:
-    image: ghcr.io/navya-shaji/offwego:latest
-    container_name: offwego-backend-prod
+  OffWeGo:
+    image: navyacs/offwego:latest
+    container_name: offwego-prod
+    env_file: .env
     restart: always
     ports:
       - "1212:1212"
@@ -34,16 +23,13 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESSTOKENSECRETKEY: ${JWT_ACCESSTOKENSECRETKEY}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-      FRONTEND_URL: ${FRONTEND_URL}
+      DOMAIN_URL: ${DOMAIN_URL}
       FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     depends_on:
-      - mongo
       - redis
-
-volumes:
-  mongodb_data:

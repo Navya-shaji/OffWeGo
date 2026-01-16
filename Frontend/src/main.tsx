@@ -12,7 +12,7 @@ import { SocketProvider } from "./utilities/socket";
 import { ChatProvider } from '@/context/chatContext';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const CLIENT_ID =
-  "486377046092-u6cngi8odi8ae7b5tc6jms049v9a70mo.apps.googleusercontent.com";
+  import.meta.env.VITE_GOOGLE_CLIENT_ID || "486377046092-u6cngi8odi8ae7b5tc6jms049v9a70mo.apps.googleusercontent.com";
 
 
 // eslint-disable-next-line react-refresh/only-export-components
