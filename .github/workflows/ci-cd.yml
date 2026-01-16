@@ -178,13 +178,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_BASE_URL=${{ secrets.VITE_BASE_URL || '/' }}
-            VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL || '/' }}
+            VITE_BASE_URL=${{ secrets.VITE_BASE_URL || (format('https://{0}/', secrets.PRODUCTION_DOMAIN) != 'https:///' && format('https://{0}/', secrets.PRODUCTION_DOMAIN) || '/') }}
+            VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL || (format('https://{0}/', secrets.PRODUCTION_DOMAIN) != 'https:///' && format('https://{0}/', secrets.PRODUCTION_DOMAIN) || '/') }}
             VITE_CLOUDINARY_CLOUD_NAME=${{ secrets.VITE_CLOUDINARY_CLOUD_NAME }}
             VITE_CLOUDINARY_UPLOAD_PRESET=${{ secrets.VITE_CLOUDINARY_UPLOAD_PRESET }}
             VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
             VITE_OPENCAGE_API_KEY=${{ secrets.VITE_OPENCAGE_API_KEY }}
             VITE_IMAGE_URL=${{ secrets.VITE_IMAGE_URL || '/' }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
