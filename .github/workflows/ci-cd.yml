@@ -192,15 +192,13 @@ jobs:
   # Deploy Job (Optional - Configure as needed)
   # ============================================
   deploy:
-    
-      # Option 1: Deploy to AWS EC2 (via SSH)
-      - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.AWS_EC2_HOST }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          script: |
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.AWS_EC2_HOST }}
+        username: ${{ secrets.AWS_EC2_USER }}
+        key: ${{ secrets.AWS_EC2_SSH_KEY }}
+        script: |
             # Create app directory if it doesn't exist
             mkdir -p ~/offwego
             cd ~/offwego
