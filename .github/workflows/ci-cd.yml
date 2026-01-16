@@ -200,6 +200,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create Target Directory
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          port: 22
+          script: mkdir -p ~/offwego
+
       - name: Copy Files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -208,7 +217,7 @@ jobs:
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           port: 22
           source: "docker-compose.prod.yml"
-          target: "/home/${{ secrets.AWS_EC2_USER }}/offwego"
+          target: "offwego" # Relative to home folder
           strip_components: 0
 
       - name: Deploy to AWS EC2
