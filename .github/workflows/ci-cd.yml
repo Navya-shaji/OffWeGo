@@ -202,6 +202,18 @@ jobs:
 
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          JWT_ACCESSTOKENSECRETKEY: ${{ secrets.JWT_ACCESSTOKENSECRETKEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          DOMAIN_URL: ${{ secrets.DOMAIN_URL }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          PROD_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
@@ -211,18 +223,6 @@ jobs:
             MONGO_URI,REDIS_PASSWORD,JWT_ACCESSTOKENSECRETKEY,STRIPE_SECRET_KEY,
             CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,
             DOMAIN_URL,FIREBASE_SERVICE_ACCOUNT,GOOGLE_CLIENT_ID,PROD_DOMAIN
-          env:
-            MONGO_URI: ${{ secrets.MONGO_URI }}
-            REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-            JWT_ACCESSTOKENSECRETKEY: ${{ secrets.JWT_ACCESSTOKENSECRETKEY }}
-            STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-            CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-            CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-            CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-            DOMAIN_URL: ${{ secrets.DOMAIN_URL }}
-            FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-            GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-            PROD_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
           script: |
             mkdir -p ~/offwego/nginx
             cd ~/offwego
