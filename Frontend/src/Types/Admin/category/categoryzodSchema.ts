@@ -5,7 +5,7 @@ export const CategorySchema = z.object({
     .string()
     .min(1, { message: "Category name is required" })
     .max(15, { message: "Category name must not exceed 15 letters" })
-    .regex(/^[A-Za-z]+$/, { message: "Category name must contain only letters" }),
+    .regex(/^[A-Za-z\s]+$/, { message: "Category name must contain only letters and spaces" }),
   description: z.string().min(1, { message: "Description is required" }),
   image: z
     .instanceof(File)

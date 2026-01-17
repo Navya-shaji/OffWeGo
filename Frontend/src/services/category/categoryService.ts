@@ -3,11 +3,13 @@ import axiosInstance from "@/axios/instance";
 import type { CategoryType } from "@/interface/categoryInterface";
 
 export const addCategory = async (data: CategoryType) => {
+  console.log("addCategory service triggered with data:", data);
   try {
     const res = await axiosInstance.post("/api/admin/create-categories", data);
+    console.log("addCategory service response:", res.data);
     return res.data;
   } catch (error) {
-    console.error("error adding category", error);
+    console.error("error adding category in service:", error);
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "failed to add Category");
     }
@@ -37,7 +39,7 @@ export const getCategory = async (
 
   } catch (error) {
     if (isAxiosError(error)) {
-      
+
       throw new Error(
         error.response?.data?.error || "Failed to fetch categories"
       );
@@ -49,7 +51,7 @@ export const getCategory = async (
 export const editCategory = async (id: string, updatedData: CategoryType) => {
   try {
     const res = await axiosInstance.put(`/api/admin/category/${id}`, updatedData);
-   
+
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -74,7 +76,7 @@ export const searchCategory = async (query: string) => {
     const response = await axiosInstance.get("/api/admin/category/search", {
       params: { q: query },
     });
-   
+
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {

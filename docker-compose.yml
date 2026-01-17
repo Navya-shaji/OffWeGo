@@ -8,7 +8,18 @@ services:
       - "6379:6379"
 
   backend:
-    image: navyacs/offwego:latest
+    build:
+      context: .
+      args:
+        - VITE_BASE_URL=${VITE_BASE_URL:-/}
+        - VITE_SOCKET_URL=${VITE_SOCKET_URL:-/}
+        - VITE_IMAGE_URL=${VITE_IMAGE_URL:-/}
+        - VITE_CLOUDINARY_CLOUD_NAME=${VITE_CLOUDINARY_CLOUD_NAME}
+        - VITE_CLOUDINARY_UPLOAD_PRESET=${VITE_CLOUDINARY_UPLOAD_PRESET}
+        - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+        - VITE_OPENCAGE_API_KEY=${VITE_OPENCAGE_API_KEY}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+    image: offwego-backend:local
     container_name: offwego-backend
     restart: always
     ports:

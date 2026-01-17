@@ -8,8 +8,7 @@ import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class CategoryRepository
   extends BaseRepository<ICategoryModel>
-  implements ICategoryRepository
-{
+  implements ICategoryRepository {
   constructor() {
     super(CategoryModel);
   }
@@ -22,7 +21,7 @@ export class CategoryRepository
     skip: number,
     limit: number
   ): Promise<ICategoryModel[]> {
-    return this.model.find().skip(skip).limit(limit);
+    return this.model.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
   }
 
   async edit(category: ICategoryModel): Promise<ICategoryModel | null> {

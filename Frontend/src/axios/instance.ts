@@ -25,19 +25,21 @@ axiosInstance.interceptors.response.use(
   async (err) => {
     const originalRequest = err.config;
     if (
+      err.response &&
       err.response.status === 401 &&
-      err.response.data.message === "Unauthorized" &&
+      err.response.data?.message === "Unauthorized" &&
       !originalRequest.retry
     ) {
       try {
-        originalRequest.retry = true
+        originalRequest.retry = true;
         const response = await axiosInstance.post("/api/refresh-token");
-        store.dispatch(setToken(response.data.accessToken));
-        originalRequest.headers.Authorization = `Bearer : ${response.data.accessToken}`;
+        const newAccessToken = response.data.accessToken;
+        store.dispatch(setToken(newAccessToken));
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
-      } catch {
+      } catch (refreshErr) {
         store.dispatch({ type: "token/removeToken" });
-        return Promise.reject(err);
+        return Promise.reject(refreshErr);
       }
     }
     return Promise.reject(err);

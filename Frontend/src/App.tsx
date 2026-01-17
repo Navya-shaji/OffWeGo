@@ -61,7 +61,7 @@ function App() {
   }, [loggedUser, loggedVendor]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/">
       <Routes>
         <Route path="/*" element={<UserRoute />} />
         <Route path="/admin/*" element={<AdminRoute />} />
