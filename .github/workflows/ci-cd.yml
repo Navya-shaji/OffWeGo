@@ -214,6 +214,8 @@ jobs:
           DOMAIN_URL: ${{ secrets.DOMAIN_URL }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          NODEMAILER_EMAIL: ${{ secrets.NODEMAILER_EMAIL }}
+          NODEMAILER_PASSWORD: ${{ secrets.NODEMAILER_PASSWORD }}
           PROD_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
@@ -223,7 +225,7 @@ jobs:
           envs: >-
             MONGO_URI,REDIS_PASSWORD,JWT_ACCESSTOKENSECRETKEY,STRIPE_SECRET_KEY,
             CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,
-            DOMAIN_URL,FIREBASE_SERVICE_ACCOUNT,GOOGLE_CLIENT_ID,PROD_DOMAIN
+            DOMAIN_URL,FIREBASE_SERVICE_ACCOUNT,GOOGLE_CLIENT_ID,NODEMAILER_EMAIL,NODEMAILER_PASSWORD,PROD_DOMAIN
           script: |
             mkdir -p ~/offwego/nginx
             cd ~/offwego
@@ -245,6 +247,8 @@ jobs:
             DOMAIN_URL="$DOMAIN_URL"
             FIREBASE_SERVICE_ACCOUNT='$FIREBASE_SERVICE_ACCOUNT'
             GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
+            NODEMAILER_EMAIL="$NODEMAILER_EMAIL"
+            NODEMAILER_PASSWORD="$NODEMAILER_PASSWORD"
             EOF
             
             echo "✅ .env file generated from GitHub Secrets."
