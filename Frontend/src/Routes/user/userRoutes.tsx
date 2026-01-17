@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import type { ReactNode } from "react";
 
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
+import PublicRoute from "@/protectedRoutes/PublicRoute";
 import Profile from "@/pages/User/profile/profile";
 import { DestinationDetail } from "@/pages/User/Destination/destinationSinglePage";
 import { PackageTimeline } from "@/pages/User/Destination/packageTimeline";
@@ -39,10 +40,10 @@ const UserRoute = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/choose-role" element={withFooter(<ChooseRolePage />)} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       {/* New explicit route for user login */}
-      <Route path="/user-login" element={<Login />} />
+      <Route path="/user-login" element={<PublicRoute><Login /></PublicRoute>} />
 
       <Route
         path="/profile"

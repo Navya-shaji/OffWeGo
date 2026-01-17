@@ -5,6 +5,7 @@ import VendorStatusPage from "@/pages/Vendors/VendorStatus/VendorStatusPage";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "@/pages/Vendors/Dashboard";
 import ProtectedRoute from "@/protectedRoutes/ProtectedRoute";
+import PublicRoute from "@/protectedRoutes/PublicRoute";
 import VendorSubscriptionPage from "@/pages/Vendors/Bookings/SubscriptionPlans";
 import PaymentFailureModal from "@/pages/Vendors/Bookings/BookingFailed";
 import NotFound from "@/components/Modular/NotFound";
@@ -17,8 +18,8 @@ import VendorSubscriptionHistory from "@/pages/Vendors/Subscription/Subscription
 const VendorRoutes = () => {
   return (
     <Routes>
-      <Route path="/signup" element={<VendorSignup />} />
-      <Route path="/login" element={<VendorLogin />} />
+      <Route path="/signup" element={<PublicRoute><VendorSignup /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><VendorLogin /></PublicRoute>} />
       <Route path="/forgot-password" element={<VendorForgotPassword />} />
       <Route path="/status" element={<VendorStatusPage />} />
       <Route path="/subscriptionplans" element={<VendorSubscriptionPage />} />
