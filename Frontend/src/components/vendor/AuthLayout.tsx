@@ -37,7 +37,7 @@ export default function AuthLayout({
         >
             {/* Logo in top-left corner of entire page */}
             <div className="absolute top-8 left-8 z-30">
-                <Link to="/">
+                <Link to="/vendor/login">
                     <img
                         src="/images/logo.png"
                         alt="OffWeGo"

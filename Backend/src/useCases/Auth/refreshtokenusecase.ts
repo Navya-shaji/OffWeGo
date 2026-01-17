@@ -24,9 +24,9 @@ export class RefreshTokenUseCase {
     if (!decoded) {
       throw new Error("Invalid or expired refresh token");
     }
-    const { userId, role } = decoded as JwtPayload;
+    const { userId, id, role } = decoded as JwtPayload;
 
-    const payload: JwtPayload = { userId, role };
+    const payload: JwtPayload = { id: userId || id, role };
     const newAccessToken = this._tokenService.generateAccessToken(payload);
     const newRefreshToken = this._tokenService.generateRefreshToken(payload);
 

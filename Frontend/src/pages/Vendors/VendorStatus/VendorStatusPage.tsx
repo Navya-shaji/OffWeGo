@@ -13,9 +13,11 @@ interface VendorStatusData {
 }
 
 import axiosInstance from "@/axios/instance";
-import { useAppSelector } from "@/hooks";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { logout as vendorLogoutAction } from "@/store/slice/vendor/authSlice";
 
 export default function VendorStatusPage() {
+  const dispatch = useAppDispatch();
   const vendor = useAppSelector((state) => state.vendorAuth.vendor);
   const [statusData, setStatusData] = useState<VendorStatusData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +68,7 @@ export default function VendorStatusPage() {
   };
 
   const handleLogout = () => {
+    dispatch(vendorLogoutAction());
     localStorage.removeItem("vendorToken");
     localStorage.removeItem("vendorData");
     window.location.href = "/vendor/login";
@@ -141,7 +144,7 @@ export default function VendorStatusPage() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center">
+          <Link to="/vendor/login" className="flex items-center">
             <img src="/images/logo.png" alt="OffWeGo" className="h-10 w-auto" />
           </Link>
 
@@ -274,12 +277,12 @@ export default function VendorStatusPage() {
                   Check Status Again
                 </button>
 
-                <Link
-                  to="/"
+                <button
+                  onClick={handleLogout}
                   className="bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-center"
                 >
-                  Back to Home
-                </Link>
+                  Back to Login
+                </button>
               </>
             )}
           </div>

@@ -25,15 +25,15 @@ const rootReducer = combineReducers({
   otp: otpReducer,
   package: packageReducer,
   subscription: subscriptionreducer,
-  token:tokenSlice,
-  notifications:notificationreducer
+  token: tokenSlice,
+  notifications: notificationreducer
 });
 
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "adminAuth", "vendorAuth"], 
+  whitelist: ["auth", "adminAuth", "vendorAuth", "token"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

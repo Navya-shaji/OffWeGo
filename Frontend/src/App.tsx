@@ -10,11 +10,11 @@ import "react-toastify/dist/ReactToastify.css";
 import type { RootState } from "./store/store";
 
 function App() {
-  
+
   const loggedUser = useSelector((state: RootState) => state.auth.user);
   const loggedVendor = useSelector((state: RootState) => state.vendorAuth.vendor);
 
- useEffect(() => {
+  useEffect(() => {
     const registerNotifications = async () => {
       let userId: string | undefined;
       let role: "user" | "vendor" | undefined;
@@ -30,7 +30,7 @@ function App() {
       if (!userId || !role) return;
 
       try {
-       
+
         if ('Notification' in window && Notification.permission === 'default') {
           await Notification.requestPermission();
         }
@@ -42,7 +42,7 @@ function App() {
         }
 
 
- 
+
         await subscribeToTopic(token, `${role}_${userId}`);
 
         onMessageListener()
@@ -63,9 +63,9 @@ function App() {
   return (
     <BrowserRouter basename="/">
       <Routes>
-        <Route path="/*" element={<UserRoute />} />
         <Route path="/admin/*" element={<AdminRoute />} />
         <Route path="/vendor/*" element={<VendorRoute />} />
+        <Route path="/*" element={<UserRoute />} />
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
     </BrowserRouter>

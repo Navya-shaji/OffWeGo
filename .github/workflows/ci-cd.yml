@@ -201,6 +201,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Copy config files to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          port: 22
+          source: "nginx/nginx.conf.template,docker-compose.prod.yml"
+          target: "~/offwego"
+
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.0.0
         env:
@@ -253,147 +263,27 @@ jobs:
             NODEMAILER_PASSWORD="$NODEMAILER_PASSWORD"
             EOF
             
-            echo "✅ .env file generated from GitHub Secrets."
+            echo "✅ .env file generated."
             
-            # Use the PROD_DOMAIN secret if provided, otherwise fallback
             DOMAIN="${PROD_DOMAIN:-localhost}"
-            echo "Deployment Domain: $DOMAIN"
             
-            # Write the Nginx config using a LITERAL heredoc (cat <<'EOF') to prevent mangling
-            cat <<'NGINX_EOF' > nginx/nginx.conf
-            events {
-                worker_connections 1024;
-            }
-
-            http {
-                include       /etc/nginx/mime.types;
-                default_type  application/octet-stream;
-                gzip on;
-                gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-                server {
-                    listen 80;
-                    server_name REPLACE_WITH_DOMAIN;
-                    location /.well-known/acme-challenge/ { root /var/www/certbot; }
-                    location / { return 301 https://$host$request_uri; }
-                }
-
-                server {
-                    listen 443 ssl;
-                    server_name REPLACE_WITH_DOMAIN;
-                    ssl_certificate /etc/letsencrypt/live/REPLACE_WITH_DOMAIN/fullchain.pem;
-                    ssl_certificate_key /etc/letsencrypt/live/REPLACE_WITH_DOMAIN/privkey.pem;
-                    ssl_protocols TLSv1.2 TLSv1.3;
-                    ssl_ciphers HIGH:!aNULL:!MD5;
-                    ssl_prefer_server_ciphers on;
-
-                    location / {
-                        proxy_pass http://offwego-prod:1212;
-                        proxy_set_header Host $host;
-                        proxy_set_header X-Real-IP $remote_addr;
-                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                        proxy_set_header X-Forwarded-Proto $scheme;
-                    }
-
-                    location /socket.io/ {
-                        proxy_pass http://offwego-prod:1212/socket.io/;
-                        proxy_http_version 1.1;
-                        proxy_set_header Upgrade $http_upgrade;
-                        proxy_set_header Connection "upgrade";
-                        proxy_set_header Host $host;
-                        proxy_cache_bypass $http_upgrade;
-                    }
-                }
-            }
-            NGINX_EOF
-            
-            # Replace placeholder with actual domain
+            # Prepare Nginx config from template
+            cp nginx/nginx.conf.template nginx/nginx.conf
             sed -i "s/REPLACE_WITH_DOMAIN/$DOMAIN/g" nginx/nginx.conf
 
-            # Write the docker-compose file directly
-            cat <<'COMPOSE_EOF' > docker-compose.prod.yml
-            services:
-              redis:
-                image: redis:alpine
-                container_name: offwego-redis-prod
-                restart: always
-                command: redis-server --requirepass ${REDIS_PASSWORD}
-                ports:
-                  - "6379:6379"
-            
-              OffWeGo:
-                image: navyacs/offwego:latest
-                container_name: offwego-prod
-                env_file: .env
-                restart: always
-                expose:
-                  - "1212"
-                environment:
-                  NODE_ENV: production
-                  PORT: 1212
-                  MONGO_URI: ${MONGO_URI}
-                  REDIS_HOST: redis
-                  REDIS_PORT: 6379
-                  REDIS_PASSWORD: ${REDIS_PASSWORD}
-                  JWT_ACCESSTOKENSECRETKEY: ${JWT_ACCESSTOKENSECRETKEY}
-                  STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-                  CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-                  CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-                  CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-                  DOMAIN_URL: ${DOMAIN_URL}
-                  FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
-                  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-                depends_on:
-                  - redis
-              
-              nginx:
-                image: nginx:alpine
-                container_name: offwego-nginx
-                restart: always
-                ports:
-                  - "80:80"
-                  - "443:443"
-                volumes:
-                  - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-                  - ./certbot/conf:/etc/letsencrypt:ro
-                  - ./certbot/www:/var/www/certbot:ro
-                depends_on:
-                  - OffWeGo
-
-              certbot:
-                image: certbot/certbot
-                container_name: offwego-certbot
-                volumes:
-                  - ./certbot/conf:/etc/letsencrypt
-                  - ./certbot/www:/var/www/certbot
-                entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-            COMPOSE_EOF
-            
-            # Log in to Docker Hub (using sudo for permissions)
+            # Log in and update services
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-            
-            # Pull latest images
             sudo docker compose -f docker-compose.prod.yml pull
-            
-            # Restart services
             sudo docker compose -f docker-compose.prod.yml up -d
             
             # Initial SSL generation if certificate doesn't exist
             if [ "$DOMAIN" != "localhost" ] && [ ! -d "certbot/conf/live/$DOMAIN" ]; then
-                echo "🚀 Certificates not found for $DOMAIN. Requesting initial SSL certificates..."
-                
-                # Stop nginx if it's running to free up port 80 for standalone mode
+                echo "🚀 Requesting initial SSL certificates..."
                 sudo docker compose -f docker-compose.prod.yml stop nginx
-                
                 sudo docker compose -f docker-compose.prod.yml run --rm -p 80:80 --entrypoint certbot certbot certonly --standalone --non-interactive --preferred-challenges http --email navyaaaa303@gmail.com --agree-tos --no-eff-email -d $DOMAIN
-                
-                echo "♻️ Restarting services with new certificates..."
                 sudo docker compose -f docker-compose.prod.yml up -d nginx
             fi
 
-            # Check logs to ensure everything started correctly
-            echo "📋 Checking backend logs for errors..."
-            sleep 10
             sudo docker logs offwego-prod --tail 50
 
       # Option 2: Deploy to AWS ECS

@@ -9,14 +9,13 @@ import { Role } from "../../domain/constants/Roles";
 import QRCode from "qrcode";
 
 export class CreateBookingSubscriptionUseCase
-  implements ICreateBookingSubscriptionUseCase
-{
+  implements ICreateBookingSubscriptionUseCase {
   constructor(
     private _subscriptionBookingRepo: SubscriptionBookingRepository,
     private _subscriptionPlanRepo: SubscriptionPlanRepository,
     private _walletRepository: IWalletRepository,
     private _stripeService: StripeService
-  ) {}
+  ) { }
 
   async execute(
     data: ICreateBookingSubscriptionRequest
@@ -80,6 +79,17 @@ export class CreateBookingSubscriptionUseCase
     const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
 
     const adminId = process.env.ADMIN_ID || "";
+
+    const adminWallet = await this._walletRepository.findByOwnerId(adminId);
+    if (!adminWallet) {
+      await this._walletRepository.createWallet({
+        ownerId: adminId,
+        ownerType: Role.ADMIN,
+        balance: 0,
+        transactions: [],
+      });
+    }
+
     await this._walletRepository.updateBalance(
       adminId,
       Role.ADMIN,

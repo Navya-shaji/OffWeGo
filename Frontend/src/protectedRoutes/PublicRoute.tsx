@@ -21,13 +21,20 @@ export default function PublicRoute({ children, redirectTo }: Props) {
     const isVendorRoute = location.pathname.startsWith("/vendor");
     const isAdminRoute = location.pathname.startsWith("/admin");
 
+    const vendorData = useAppSelector((state) => state.vendorAuth?.vendor);
+
     // Determine if user is authenticated and where to redirect
     let isAuthenticated = false;
     let defaultRedirect = "/";
 
     if (isVendorRoute) {
         isAuthenticated = !!vendorAuth;
-        defaultRedirect = "/vendor/dashboard";
+        // Direct to status page if authenticated but not approved
+        if (isAuthenticated && vendorData && vendorData.status !== "approved") {
+            defaultRedirect = "/vendor/status";
+        } else {
+            defaultRedirect = "/vendor/profile";
+        }
     } else if (isAdminRoute) {
         isAuthenticated = !!adminAuth;
         defaultRedirect = "/admin/dashboard";

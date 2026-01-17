@@ -6,7 +6,7 @@ export class StripeService implements IStripeService {
 
   constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-      apiVersion: "2025-09-30.clover",
+      apiVersion: "2024-06-20" as any,
     });
   }
 

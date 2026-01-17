@@ -33,7 +33,11 @@ export default function ProtectedRoute({ children }: Props) {
   }
 
   // Extra check for vendors: if authenticated but not approved, redirect to status page
-  if (isVendorRoute && vendorData && vendorData.status !== "approved" && location.pathname !== "/vendor/status") {
+  const isPending = vendorData && (vendorData.status === "pending" || vendorData.status === "rejected");
+  const isAtStatusPage = location.pathname === "/vendor/status";
+
+  if (isVendorRoute && isPending && !isAtStatusPage) {
+    console.log("Pending vendor detected on protected route, redirecting to status page");
     return <Navigate to="/vendor/status" replace />;
   }
 

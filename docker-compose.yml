@@ -10,14 +10,15 @@ services:
   backend:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         - VITE_BASE_URL=${VITE_BASE_URL:-/}
         - VITE_SOCKET_URL=${VITE_SOCKET_URL:-/}
-        - VITE_IMAGE_URL=${VITE_IMAGE_URL:-/}
         - VITE_CLOUDINARY_CLOUD_NAME=${VITE_CLOUDINARY_CLOUD_NAME}
         - VITE_CLOUDINARY_UPLOAD_PRESET=${VITE_CLOUDINARY_UPLOAD_PRESET}
         - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
         - VITE_OPENCAGE_API_KEY=${VITE_OPENCAGE_API_KEY}
+        - VITE_IMAGE_URL=${VITE_IMAGE_URL:-/}
         - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
     image: offwego-backend:local
     container_name: offwego-backend
@@ -25,13 +26,24 @@ services:
     ports:
       - "1212:1212"
     environment:
-      NODE_ENV: production
-      PORT: 1212
-      MONGO_URI: ${MONGO_URI}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-offwegowebsite}
-      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
+      - NODE_ENV=production
+      - PORT=1212
+      - MONGO_URI=${MONGO_URI}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-offwegowebsite}
+      - JWT_ACCESSTOKENSECRETKEY=${JWT_ACCESSTOKENSECRETKEY}
+      - JWT_REFRESHTOKEN=${JWT_REFRESHTOKEN}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - DOMAIN_URL=${DOMAIN_URL}
+      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
+      - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
+      - ADMIN_ID=${ADMIN_ID}
     env_file:
       - .env
     depends_on:

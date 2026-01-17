@@ -60,6 +60,10 @@ import { TravelPostRepository } from "../../../adapters/repository/TravelPost/Tr
 // import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
 // import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
 
+import { WalletRepository } from "../../../adapters/repository/Wallet/WalletRepository";
+
+// ... existing imports ...
+
 // Repositories
 const adminRepository = new AdminRepository();
 const vendorRepository = new VendorRepository();
@@ -74,17 +78,17 @@ const notitifiactionRepo = new NotificationRepository()
 const notificationRepo = new FirebaseNotificationService(notitifiactionRepo, userRepo, vendorRepo)
 const subscriptionbookingRepo = new SubscriptionBookingRepository()
 const travelPostRepo = new TravelPostRepository()
+const walletRepo = new WalletRepository();
 
 // Services
 const hashPassword = new HashPassword();
 const jwtService = new JwtService();
-// const sendnotification=new SendNotificationUseCase(notificationRepo)
-
 
 // Use Cases
 const adminLoginuseCase = new AdminLoginuseCase(adminRepository, hashPassword, jwtService);
 const adminvendorfindByemailUsecase = new GetVendorByEmailUseCase(vendorRepository);
-const updateVendorStatusUseCase = new UpdateVendorstatusUseCase(vendorRepository);
+const updateVendorStatusUseCase = new UpdateVendorstatusUseCase(vendorRepository, walletRepo);
+// ... existing instantiations ...
 const getallusers = new GetAllUsersUsecase(userRepository)
 const getAllVendorsUseCase = new GetAllVendorsUseCase(vendorRepository)
 const updateUserusecase = new UpdateUserUseCase(userRepository)
