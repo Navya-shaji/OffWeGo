@@ -10,7 +10,7 @@ export class FirebaseNotificationService implements INotificationService {
     private notificationRepo: NotificationRepository,
     private userRepo: UserRepository,
     private vendorRepo: VendorRepository
-  ) {}
+  ) { }
 
   private async sendNotification(
     token: string,
@@ -22,9 +22,9 @@ export class FirebaseNotificationService implements INotificationService {
     try {
       const message = {
         token,
-        notification: { 
-          title, 
-          body 
+        notification: {
+          title,
+          body
         },
         data: data || {},
         android: {
@@ -54,12 +54,14 @@ export class FirebaseNotificationService implements INotificationService {
 
       const response = await firebaseAdmin.messaging().send(message);
       console.log(' FCM notification sent successfully:', response);
-    } catch (error) {
-      if (error.code === 'messaging/invalid-registration-token' || 
-          error.code === 'messaging/registration-token-not-registered') {
-        console.warn(' Invalid FCM token, should be removed from database');
+    } catch (error: unknown) {
+      const fcmError = error as { code?: string; message?: string };
+      if (fcmError.code === 'messaging/invalid-registration-token' ||
+        fcmError.code === 'messaging/registration-token-not-registered') {
+        console.warn('⚠️ Invalid FCM token, should be removed from database');
       } else {
-        throw error;
+        // Log the error but don't throw - FCM failures shouldn't break the main flow
+        console.error('❌ FCM notification failed:', fcmError.message || fcmError);
       }
     }
   }
@@ -67,7 +69,7 @@ export class FirebaseNotificationService implements INotificationService {
   async send(notification: NotificationDto): Promise<INotificationEntity[]> {
     const { recipientId, recipientType, title, message } = notification;
 
-  
+
     let token: string | null = null;
     if (recipientType === "user") {
       token = await this.userRepo.getFcmTokenById(recipientId);
@@ -86,7 +88,7 @@ export class FirebaseNotificationService implements INotificationService {
         title: String(title),
         message: String(message),
       };
-      
+
       await this.sendNotification(token, title, message, notificationData);
       console.log(`📱 FCM notification sent to ${recipientType} (${recipientId})`);
     } else {
@@ -94,13 +96,13 @@ export class FirebaseNotificationService implements INotificationService {
     }
 
     await this.notificationRepo.create({
-    
+
       recipientId,
       recipientType,
       title,
       message,
       createdAt: new Date(),
-      read:false
+      read: false
     });
 
     return this.notificationRepo.getByRecipient(recipientId, recipientType);

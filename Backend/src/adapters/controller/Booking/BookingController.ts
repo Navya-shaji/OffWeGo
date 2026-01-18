@@ -19,7 +19,7 @@ export class BookingController {
     private _bookingDatesUsecase: IBookingDatesUsecase,
     private _cancelBookingUsecase: ICancelBookingUsecase,
     private _rescheduleBookingUsecase: IBookingRescheduleUseCase
-  ) {}
+  ) { }
 
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
@@ -37,6 +37,8 @@ export class BookingController {
         data: result,
       });
     } catch (error) {
+      console.error("Create booking error:", error);
+
       if (error instanceof AppError) {
         res.status(error.statusCode).json({
           success: false,
@@ -44,8 +46,10 @@ export class BookingController {
         });
         return;
       }
-      if (error instanceof AppError) {
-        res.status(error.statusCode).json({
+
+      // Handle generic Error with message
+      if (error instanceof Error) {
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: error.message,
         });

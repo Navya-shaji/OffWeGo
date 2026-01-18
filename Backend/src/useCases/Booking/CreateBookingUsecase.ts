@@ -11,6 +11,8 @@ import { INotificationService } from "../../domain/interface/Notification/ISendN
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 
 import { IEmailService } from "../../domain/interface/ServiceInterface/IEmailService";
+import { AppError } from "../../domain/errors/AppError";
+import { HttpStatus } from "../../domain/statusCode/Statuscode";
 
 export class CreateBookingUseCase implements ICreateBookingUseCase {
   constructor(
@@ -41,14 +43,14 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     );
 
     if (existingBooking) {
-      throw new Error("This package is already booked for the selected date.");
+      throw new AppError("This package is already booked for the selected date.", HttpStatus.CONFLICT);
     }
 
     const packageData = await this._packageRepository.findOne({
       _id: data.selectedPackage._id,
     });
 
-    if (!packageData) throw new Error("Package not found");
+    if (!packageData) throw new AppError("Package not found", HttpStatus.NOT_FOUND);
 
     const bookingId = generateBookingId();
 
@@ -66,43 +68,59 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const result = await this._bookingRepository.createBooking(bookingData);
 
+    // Booking is saved successfully. Now perform secondary operations.
+    // These should not cause the booking to fail, so we wrap them in try-catch.
 
+    // Update admin wallet balance
     if (result.paymentStatus === "succeeded") {
-      const adminId = process.env.ADMIN_ID || "";
-
-      await this._walletRepository.updateBalance(
-        adminId,
-        Role.ADMIN,
-        result.totalAmount,
-        "credit",
-        `Booking payment received. User`,
-        result.bookingId
-      );
+      try {
+        const adminId = process.env.ADMIN_ID || "";
+        await this._walletRepository.updateBalance(
+          adminId,
+          Role.ADMIN,
+          result.totalAmount,
+          "credit",
+          `Booking payment received. User`,
+          result.bookingId
+        );
+      } catch (walletError) {
+        console.error("❌ Wallet update failed:", walletError);
+        // Don't throw - booking is already saved
+      }
     }
-    const vendorId = packageData.vendorId;
-    if (!vendorId) throw new Error("Vendor not found");
 
+    const vendorId = packageData.vendorId;
     const formattedDate = new Date(data.selectedDate).toLocaleString();
 
+    // Send notification to user
+    try {
+      await this._notificationService.send({
+        recipientId: result.userId.toString(),
+        recipientType: Role.USER,
+        title: "Booking Confirmed",
+        message: `Your booking for package "${packageData.packageName}" has been confirmed for ${formattedDate}.`,
+        createdAt: new Date(),
+        read: false
+      });
+    } catch (notifError) {
+      console.error("❌ User notification failed:", notifError);
+    }
 
-    await this._notificationService.send({
-      recipientId: result.userId.toString(),
-      recipientType: Role.USER,
-      title: "Booking Confirmed",
-      message: `Your booking for package "${packageData.packageName}" has been confirmed for ${formattedDate}.`,
-      createdAt: new Date(),
-      read: false
-    });
-
-
-    await this._notificationService.send({
-      recipientId: vendorId.toString(),
-      recipientType: Role.VENDOR,
-      title: "New Booking Received",
-      message: `Booking ${result.bookingId} for package "${packageData.packageName}" has been made by user ${result.userId} for ${formattedDate}.`,
-      createdAt: new Date(),
-      read: false
-    });
+    // Send notification to vendor
+    if (vendorId) {
+      try {
+        await this._notificationService.send({
+          recipientId: vendorId.toString(),
+          recipientType: Role.VENDOR,
+          title: "New Booking Received",
+          message: `Booking ${result.bookingId} for package "${packageData.packageName}" has been made by user ${result.userId} for ${formattedDate}.`,
+          createdAt: new Date(),
+          read: false
+        });
+      } catch (notifError) {
+        console.error("❌ Vendor notification failed:", notifError);
+      }
+    }
 
     // Send Ticket Email
     const targetEmail = data.contactInfo?.email;

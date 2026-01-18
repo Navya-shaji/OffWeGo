@@ -2,7 +2,7 @@
 import { Booking } from "../../../domain/entities/BookingEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
 import { BookingModel } from "../../../framework/database/Models/BookingModel";
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, Types } from "mongoose";
 
 export class BookingRepository implements IBookingRepository {
   async createBooking(booking: Booking): Promise<Booking> {
@@ -82,7 +82,7 @@ export class BookingRepository implements IBookingRepository {
     return updated;
   }
   async findOne(bookingId: string): Promise<Booking | null> {
-    
+
 
     let booking: Booking | null = null;
 
@@ -95,7 +95,7 @@ export class BookingRepository implements IBookingRepository {
         .lean()
         .exec();
     }
-  
+
     return booking;
   }
 
@@ -109,9 +109,13 @@ export class BookingRepository implements IBookingRepository {
     const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
+    // Convert packageId to ObjectId for proper matching
+    const packageObjectId = isValidObjectId(packageId) ? new Types.ObjectId(packageId) : packageId;
+
     const booking = await (BookingModel as any).findOne({
-      selectedPackage: packageId,
+      selectedPackage: packageObjectId,
       selectedDate: { $gte: startOfDay, $lte: endOfDay },
+      bookingStatus: { $ne: "cancelled" } // Don't count cancelled bookings
     })
       .lean()
       .exec();
@@ -149,14 +153,14 @@ export class BookingRepository implements IBookingRepository {
       endDate: new Date(
         new Date(booking.selectedDate).setDate(
           new Date(booking.selectedDate).getDate() +
-            booking.selectedPackage.duration
+          booking.selectedPackage.duration
         )
       ),
       paymentStatus: booking.paymentStatus,
       bookingStatus: booking.bookingStatus,
     }));
 
-    
+
     return formattedTrips as unknown as Booking[];
   }
 

@@ -13,7 +13,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
     private _walletRepo: IWalletRepository,
     private _packageRepository: IPackageRepository,
     private _notificationService: INotificationService
-  ) {}
+  ) { }
 
   async execute(bookingId: string): Promise<BookingDataDto> {
     const booking = await this._bookingRepo.findOne(bookingId);
@@ -37,7 +37,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
 
     const timeDifference = bookingDate.getTime() - now.getTime();
     const daysUntilTrip = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-    
+
     const adminId = process.env.ADMIN_ID || "";
     if (!adminId) throw new Error("Admin ID not configured");
 
@@ -51,25 +51,32 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
       adminDebitAmount = booking.totalAmount;
       refundMessage = `Full refund of ₹${booking.totalAmount} has been processed to your wallet.`;
     } else {
-  
-      userRefundAmount = Math.round(booking.totalAmount * 0.5); 
-      vendorRefundAmount = Math.round(booking.totalAmount * 0.4); 
-      const adminFeeAmount = booking.totalAmount - userRefundAmount - vendorRefundAmount; 
-      adminDebitAmount = userRefundAmount + vendorRefundAmount; 
-      
-      
+
+      userRefundAmount = Math.round(booking.totalAmount * 0.5);
+      vendorRefundAmount = Math.round(booking.totalAmount * 0.4);
+      const adminFeeAmount = booking.totalAmount - userRefundAmount - vendorRefundAmount;
+      adminDebitAmount = userRefundAmount + vendorRefundAmount;
+
+
       refundMessage = `Partial refund of ₹${userRefundAmount} (50%) has been processed to your wallet. ₹${vendorRefundAmount} (40%) has been credited to the vendor. A cancellation fee of ₹${adminFeeAmount} (10%) applies.`;
     }
 
     if (userRefundAmount > 0) {
-      await this._walletRepo.updateBalance(
-        booking.userId.toString(),
-        "user",
-        userRefundAmount,
-        "credit",
-        `Refund for cancelled booking (${booking.bookingId}) - ${daysUntilTrip > 3 ? 'Full' : '50%'} refund`,
-        bookingId
-      );
+      console.log(`[CancelBooking] Crediting user wallet: ownerId=${booking.userId.toString()}, ownerType=user, amount=${userRefundAmount}`);
+      try {
+        await this._walletRepo.updateBalance(
+          booking.userId.toString(),
+          "user",
+          userRefundAmount,
+          "credit",
+          `Refund for cancelled booking (${booking.bookingId}) - ${daysUntilTrip > 3 ? 'Full' : '50%'} refund`,
+          bookingId
+        );
+        console.log(`[CancelBooking] User wallet credit successful`);
+      } catch (walletError) {
+        console.error(`[CancelBooking] User wallet credit FAILED:`, walletError);
+        throw walletError;
+      }
     }
 
     if (vendorRefundAmount > 0) {
@@ -89,7 +96,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
       const adminDescription = daysUntilTrip > 3
         ? `Full refund processed for cancelled booking (${booking.bookingId}) - User refund: ₹${userRefundAmount}`
         : `Refund processed for cancelled booking (${booking.bookingId}) - User: ₹${userRefundAmount} (50%), Vendor: ₹${vendorRefundAmount} (40%), Admin fee retained: ₹${adminFeeAmount} (10%)`;
-      
+
       await this._walletRepo.updateBalance(
         adminId,
         Role.ADMIN,
@@ -111,7 +118,7 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
       read: false
     });
 
-   
+
     const vendorMessage = daysUntilTrip > 3
       ? `Booking ${booking.bookingId} for package "${packageData.packageName}" scheduled on ${formattedDate} has been cancelled by the user. Full refund processed.`
       : `Booking ${booking.bookingId} for package "${packageData.packageName}" scheduled on ${formattedDate} has been cancelled by the user. Compensation of ₹${vendorRefundAmount} (40%) has been credited to your wallet.`;
