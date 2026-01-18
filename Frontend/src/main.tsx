@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import store, { persistor } from "./store/store";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
-import { Toaster } from "react-hot-toast";
+
 
 import { SocketProvider } from "./utilities/socket";
 import { ChatProvider } from '@/context/chatContext';
@@ -43,7 +43,6 @@ createRoot(document.getElementById("root")!).render(
             <SocketProvider>
               <ChatProvider>
                 <Root />
-                <Toaster position="top-center" />
               </ChatProvider>
             </SocketProvider>
           </QueryClientProvider>

@@ -12,7 +12,7 @@ import {
   Activity as ActivityIcon,
   BookOpen,
   Wallet,
-  MessageSquare
+  
 } from "lucide-react";
 import { useAppSelector } from "@/hooks";
 
@@ -37,7 +37,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
-    { icon: MessageSquare, label: "Chat" },
+    
   ];
 
   const handleSubTabClick = (label: string) => setActiveTab(label);
@@ -257,7 +257,24 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           )}
         </button>
 
-       
+        {showWalletDropdown && (
+          <div className="ml-4 mt-1 space-y-1">
+            {["My Wallet"].map((label) => (
+              <button
+                key={label}
+                onClick={() => handleSubTabClick(label)}
+                className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === label
+                  ? "bg-gray-200 text-black font-semibold"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
+              >
+                <Wallet className="inline-block mr-2 w-4 h-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
       </nav>
 
       {/* User Profile Section at Bottom */}

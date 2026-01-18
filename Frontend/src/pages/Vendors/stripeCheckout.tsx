@@ -9,7 +9,7 @@ import {
 import { createPayment } from "@/services/Payment/PaymentService";
 import { createBooking } from "@/services/Booking/bookingService";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -99,7 +99,7 @@ function CheckoutForm({ amount }: { amount: number }) {
           });
         }
       } else if (paymentIntent?.status === "processing") {
-        toast.info("Payment is processing. You'll receive confirmation shortly.");
+        toast("Payment is processing. You'll receive confirmation shortly.", { icon: "ℹ️" });
         navigate("/payment-processing");
       } else if (paymentIntent?.status === "requires_payment_method") {
         setErrorMessage("Payment failed. Please try a different payment method.");

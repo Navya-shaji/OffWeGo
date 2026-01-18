@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { loginAdmin } from "@/store/slice/Admin/adminAuthSlice";
 import {
@@ -38,10 +38,7 @@ export default function AdminLogin() {
   const onSubmit = async (data: AdminLoginFormData) => {
     // Validate form before submission
     if (!data.email || !data.password) {
-      toast.error("Please fill in all fields", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error("Please fill in all fields");
       return;
     }
 
@@ -51,23 +48,17 @@ export default function AdminLogin() {
 
       if (response?.accessToken) {
         dispatch(setToken(response.accessToken));
-        toast.success(`Welcome back! Admin login successful`, {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.success(`Welcome back! Admin login successful`);
         navigate("/admin/dashboard");
       } else {
-        toast.error("Login failed: No access token received", {
-          position: "top-right",
-          autoClose: 5000,
-        });
+        toast.error("Login failed: No access token received");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Admin login error:", err);
-      
+
       let errorMessage = "Invalid email or password";
-      
+
       if (err?.message) {
         if (err.message.includes("401") || err.message.includes("unauthorized")) {
           errorMessage = "Invalid credentials. Please check your email and password.";
@@ -81,11 +72,8 @@ export default function AdminLogin() {
           errorMessage = err.message;
         }
       }
-      
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 5000,
-      });
+
+      toast.error(errorMessage);
     }
   };
 

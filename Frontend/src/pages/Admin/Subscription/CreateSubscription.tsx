@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { X } from "lucide-react";
 
@@ -109,8 +109,7 @@ export default function AddSubscriptionForm() {
         </div>
 
         {/* Form with enhanced styling */}
-        <div className="p-8 space-y-5 bg-white flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}>
-          <ToastContainer position="top-right" autoClose={3000} />
+        <div className="p-8 space-y-5 bg-white flex-1 overflow-y-auto custom-scrollbar">
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Name */}
@@ -192,7 +191,7 @@ export default function AddSubscriptionForm() {
               <span className="w-1.5 h-1.5 bg-black rounded-full"></span>
               Features
             </Label>
-            
+
             {/* Feature Input */}
             <div className="flex gap-2">
               <Input

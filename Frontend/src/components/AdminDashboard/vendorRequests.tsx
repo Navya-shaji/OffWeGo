@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   getVendorsByStatus,
   updateVendorStatus,
 } from "@/services/admin/adminService";
 import toast from "react-hot-toast";
 import type { Vendor } from "@/interface/vendorInterface";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Props {
   filter: "pending" | "approved" | "rejected";
@@ -12,17 +13,37 @@ interface Props {
 }
 
 const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
-  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [allVendors, setAllVendors] = useState<Vendor[]>([]);
+  const [displayedVendors, setDisplayedVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [pendingRejectVendorId, setPendingRejectVendorId] = useState<string | null>(null);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
+  const ITEMS_PER_PAGE = 9;
+
   const fetchVendors = () => {
     setLoading(true);
     getVendorsByStatus(filter)
-      .then((data) => setVendors(data))
+      .then((data) => {
+        // Sort by createdAt descending (newest first)
+        const sortedData = [...data].sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+        setAllVendors(sortedData);
+        // Reset pagination
+        setPage(1);
+        setDisplayedVendors(sortedData.slice(0, ITEMS_PER_PAGE));
+        setHasMore(sortedData.length > ITEMS_PER_PAGE);
+      })
       .catch(() => toast.error("Failed to fetch vendors"))
       .finally(() => setLoading(false));
   };
@@ -31,6 +52,41 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
     fetchVendors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
+
+  // Load more vendors from local sorted array
+  const loadMoreVendors = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    // Simulate finding next batch
+    setTimeout(() => {
+      const nextEndIndex = (page + 1) * ITEMS_PER_PAGE;
+      const nextBatch = allVendors.slice(0, nextEndIndex);
+
+      setDisplayedVendors(nextBatch);
+      setPage(prev => prev + 1);
+      setHasMore(allVendors.length > nextEndIndex);
+      setLoadingMore(false);
+    }, 500);
+  }, [allVendors, page, loadingMore, hasMore]);
+
+  // Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          loadMoreVendors();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loadMoreVendors]);
 
   const handleStatusChange = async (
     vendorId: string,
@@ -43,7 +99,9 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
       if (newStatus === "approved" && onTabChange) {
         onTabChange("Approved Requests");
       } else {
-        setVendors((prev) => prev.filter((ven) => (ven._id || ven.id) !== vendorId));
+        // Update both allVendors and displayedVendors
+        setAllVendors((prev) => prev.filter((ven) => (ven._id || ven.id) !== vendorId));
+        setDisplayedVendors((prev) => prev.filter((ven) => (ven._id || ven.id) !== vendorId));
       }
 
       if (newStatus === "rejected") {
@@ -68,99 +126,90 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
       </h2>
 
       {loading ? (
-        <div className="flex justify-center items-center">
-          <svg
-            className="animate-spin h-8 w-8 text-blue-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
-          <span className="ml-2 text-gray-600 text-lg">Loading...</span>
+        <div className="flex justify-center items-center py-20">
+          <LoadingSpinner size="lg" color="#3B82F6" />
         </div>
-      ) : vendors.length === 0 ? (
-        <p className="text-gray-500 text-lg italic text-center">
-          No {filter} vendors found.
-        </p>
+      ) : allVendors.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-gray-500 text-lg italic">
+            No {filter} vendors found for your review.
+          </p>
+        </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {vendors.map((vendor) => (
-            <div
-              key={vendor._id || vendor.id}
-              className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
-            >
-              <div className="space-y-3 text-gray-700">
-                <p className="text-lg">
-                  <span className="font-semibold">Name:</span> {vendor.name}
-                </p>
-                <p className="text-lg">
-                  <span className="font-semibold">Email:</span> {vendor.email}
-                </p>
-                <p className="text-lg">
-                  <span className="font-semibold">Phone:</span> {vendor.phone}
-                </p>
-                <p className="text-lg">
-                  <span className="font-semibold">Status:</span>{" "}
-                  <span
-                    className={`capitalize font-semibold ${vendor.status === "approved"
+        <>
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {displayedVendors.map((vendor) => (
+              <div
+                key={vendor._id || vendor.id}
+                className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
+              >
+                <div className="space-y-3 text-gray-700">
+                  <p className="text-lg">
+                    <span className="font-semibold">Name:</span> {vendor.name}
+                  </p>
+                  <p className="text-lg">
+                    <span className="font-semibold">Email:</span> {vendor.email}
+                  </p>
+                  <p className="text-lg">
+                    <span className="font-semibold">Phone:</span> {vendor.phone}
+                  </p>
+                  <p className="text-lg">
+                    <span className="font-semibold">Status:</span>{" "}
+                    <span
+                      className={`capitalize font-semibold ${vendor.status === "approved"
                         ? "text-green-600"
                         : vendor.status === "rejected"
                           ? "text-red-600"
                           : "text-yellow-600"
-                      }`}
-                  >
-                    {vendor.status}
-                  </span>
-                </p>
-                {vendor.status === "rejected" && vendor.rejectionReason && (
-                  <p className="text-sm text-red-500 italic">
-                    <span className="font-semibold">Reason:</span> {vendor.rejectionReason}
-                  </p>
-                )}
-                <p className="text-lg">
-                  {vendor.documentUrl && (
-                    <button
-                      onClick={() => setSelectedDocument(vendor.documentUrl)}
-                      className="bg-black text-white px-2 py-2 rounded-lg font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300"
+                        }`}
                     >
-                      View Document
-                    </button>
+                      {vendor.status}
+                    </span>
+                  </p>
+                  {vendor.status === "rejected" && vendor.rejectionReason && (
+                    <p className="text-sm text-red-500 italic">
+                      <span className="font-semibold">Reason:</span> {vendor.rejectionReason}
+                    </p>
                   )}
-                </p>
-              </div>
-
-              {filter === "pending" && (
-                <div className="mt-6 flex gap-4">
-                  <button
-                    onClick={() => handleStatusChange(vendor._id || vendor.id, "approved")}
-                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => openRejectModal(vendor._id || vendor.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-                  >
-                    Reject
-                  </button>
+                  <p className="text-lg">
+                    {vendor.documentUrl && (
+                      <button
+                        onClick={() => setSelectedDocument(vendor.documentUrl)}
+                        className="bg-black text-white px-2 py-2 rounded-lg font-semibold shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300"
+                      >
+                        View Document
+                      </button>
+                    )}
+                  </p>
                 </div>
-              )}
+
+                {filter === "pending" && (
+                  <div className="mt-6 flex gap-4">
+                    <button
+                      onClick={() => handleStatusChange(vendor._id || vendor.id, "approved")}
+                      className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => openRejectModal(vendor._id || vendor.id)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Infinite Scroll & Loader */}
+          {hasMore && (
+            <div ref={observerTarget} className="flex justify-center py-8">
+              <LoadingSpinner size="md" color="#6B7280" />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* Reject Reason Modal */}

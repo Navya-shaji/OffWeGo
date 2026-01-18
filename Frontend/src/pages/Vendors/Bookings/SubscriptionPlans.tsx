@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import { createSubscriptionBooking } from "@/services/Payment/stripecheckoutservice";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type { Subscription } from "@/interface/subscription";
 
 interface SubscriptionPlan extends Subscription {
@@ -149,16 +149,16 @@ export default function VendorSubscriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="relative w-20 h-20 mx-auto mb-6">
-            <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-gray-700 font-semibold text-lg">
+          <p className="text-slate-700 font-semibold text-lg">
             Loading subscription plans...
           </p>
-          <p className="text-gray-500 text-sm mt-2">Please wait a moment</p>
+          <p className="text-slate-500 text-sm mt-2">Please wait a moment</p>
         </div>
       </div>
     );
@@ -166,19 +166,19 @@ export default function VendorSubscriptionPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="p-8 bg-white border-2 border-red-200 rounded-2xl max-w-md shadow-xl">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-8 h-8 text-red-600" />
+          <div className="p-8 bg-white border border-red-200 rounded-3xl max-w-md shadow-xl">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <X className="w-8 h-8 text-red-500" />
             </div>
-            <p className="text-2xl font-black text-red-600 mb-3">
+            <p className="text-2xl font-black text-slate-800 mb-3">
               Oops! Something went wrong
             </p>
-            <p className="text-sm text-gray-600 mb-6">{error}</p>
+            <p className="text-sm text-slate-500 mb-6">{error}</p>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold shadow-md"
+              className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl"
             >
               Try Again
             </Button>
@@ -202,7 +202,7 @@ export default function VendorSubscriptionPage() {
               Back to Home
             </span>
           </button>
-          
+
           <button
             onClick={() => navigate("/vendor/subscription/history")}
             className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
@@ -221,7 +221,7 @@ export default function VendorSubscriptionPage() {
               SUBSCRIPTION MANAGEMENT
             </span>
           </div>
-        
+
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-medium">
             Choose the perfect plan to scale your vendor operations and unlock
             unlimited potential
@@ -270,22 +270,20 @@ export default function VendorSubscriptionPage() {
                   )}
 
                   <div
-                    className={`relative bg-white border-2 ${
-                      plan.popular
-                        ? "border-black shadow-xl"
-                        : "border-gray-200 shadow-md"
-                    } rounded-3xl p-8 h-full transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2`}
+                    className={`relative bg-white border-2 ${plan.popular
+                      ? "border-black shadow-xl"
+                      : "border-gray-200 shadow-md"
+                      } rounded-3xl p-8 h-full transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2`}
                   >
                     <div className="relative z-10">
                       <div className="flex items-center justify-between mb-6">
                         <div
-                          className={`p-4 rounded-2xl shadow-lg ${
-                            index === 0
-                              ? "bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600"
-                              : index === 1
+                          className={`p-4 rounded-2xl shadow-lg ${index === 0
+                            ? "bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600"
+                            : index === 1
                               ? "bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600"
                               : "bg-gradient-to-br from-pink-100 to-pink-200 text-pink-600"
-                          }`}
+                            }`}
                         >
                           {index === 0 ? (
                             <Rocket className="w-7 h-7" />
@@ -316,8 +314,8 @@ export default function VendorSubscriptionPage() {
 
                       <div className="space-y-4 mb-8">
                         <div className="flex items-center gap-3">
-                        
-                          
+
+
                         </div>
                         {plan.features.map((feature, idx) => (
                           <div key={idx} className="flex items-center gap-3">
@@ -332,13 +330,12 @@ export default function VendorSubscriptionPage() {
                       </div>
 
                       <Button
-                        className={`w-full font-bold text-white shadow-lg transition-all duration-300 hover:shadow-xl py-6 text-base ${
-                          index === 0
-                            ? "bg-gradient-to-r bg-black"
-                            : index === 1
+                        className={`w-full font-bold text-white shadow-lg transition-all duration-300 hover:shadow-xl py-6 text-base ${index === 0
+                          ? "bg-gradient-to-r bg-black"
+                          : index === 1
                             ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                             : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                        } hover:scale-105`}
+                          } hover:scale-105`}
                         onClick={() => handleBookPlan(plan)}
                       >
                         Book Now →

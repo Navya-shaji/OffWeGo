@@ -55,10 +55,10 @@ function Dashboard() {
             {activeTab === "All Flights" && <GetAllFlight />}
             {activeTab === "All Bookings" && <AllBookings />}
             {activeTab === "Dashboard" && <VendorDashboard />}
-            {activeTab === "VendorWalletManagement" && (
+            {(activeTab === "VendorWalletManagement" || activeTab === "My Wallet" || activeTab === "Wallet") && (
               <VendorWalletManagement />
             )}
-            
+
             {activeTab === "Booking Slots" && (
               <TravelCalendar vendorId={vendorId || ""} />
             )}

@@ -7,10 +7,9 @@ import {
   updateActivity,
   searchActivity,
 } from "@/services/Activity/ActivityService";
-import { uploadToCloudinary } from "@/utilities/cloudinaryUpload"; 
-import { toast, ToastContainer } from "react-toastify";
+import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
+import { toast } from "react-hot-toast";
 import { Edit, Trash, X, Upload, MapPin, Loader2 } from "lucide-react";
-import "react-toastify/dist/ReactToastify.css";
 import Pagination from "@/components/pagination/pagination";
 import { SearchBar } from "@/components/Modular/searchbar";
 import type { Activity } from "@/interface/PackageInterface";
@@ -51,22 +50,22 @@ const ActivitiesTable: React.FC = () => {
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
 
-  const normalizeActivity = useCallback((activity:Activity): Activity => ({
+  const normalizeActivity = useCallback((activity: Activity): Activity => ({
     ...activity,
-    id:  activity.id || activity.activityId,
+    id: activity.id || activity.activityId,
     imageUrl: activity.imageUrl || "",
   }), []);
 
   const loadActivities = useCallback(async (pageNum: number = 1) => {
     if (isLoadingRef.current) return;
-    
+
     try {
       isLoadingRef.current = true;
       setLoading(true);
       setError("");
-      
+
       const response = await getActivities(pageNum, limit);
-      
+
       if (!response || typeof response !== 'object') {
         throw new Error('Invalid response from server');
       }
@@ -79,10 +78,10 @@ const ActivitiesTable: React.FC = () => {
       setTotalPages(Math.max(response.totalPages || 1, 1));
       setTotalActivities(response.totalActivities || normalized.length);
       setPage(pageNum);
-      
+
     } catch (err) {
       console.error("Error loading activities:", err);
-      const  errorMessage = "Failed to load activities";
+      const errorMessage = "Failed to load activities";
       setError(errorMessage);
       setActivities([]);
       setOriginalActivities([]);
@@ -113,21 +112,21 @@ const ActivitiesTable: React.FC = () => {
       try {
         setLoading(true);
         const response = await searchActivity(query);
-        
+
         if (!response || typeof response !== 'object') {
           throw new Error('Invalid search response');
         }
 
         const searchResults = Array.isArray(response.activities) ? response.activities : [];
         const normalized = searchResults.map(normalizeActivity);
-        
+
         setActivities(normalized);
         setTotalPages(Math.max(Math.ceil(normalized.length / limit), 1));
         setPage(1);
-        
+
       } catch (err) {
-       if (err instanceof Error)
-        console.error("Search error:", err);
+        if (err instanceof Error)
+          console.error("Search error:", err);
         const errorMessage = "Search failed";
         setError(errorMessage);
         setActivities([]);
@@ -142,9 +141,9 @@ const ActivitiesTable: React.FC = () => {
 
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage === page || newPage < 1 || newPage > totalPages) return;
-    
+
     setPage(newPage);
-    
+
     if (!isSearchMode) {
       loadActivities(newPage);
     }
@@ -177,7 +176,7 @@ const ActivitiesTable: React.FC = () => {
     if (!html) return "";
     const match = html.match(/src="([^"]+)"/);
     if (!match) return html;
-    
+
     const imageUrl = match[1];
     // Check if it's a relative path and needs the base URL
     if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
@@ -193,7 +192,7 @@ const ActivitiesTable: React.FC = () => {
     }
 
     const normalizedActivity = normalizeActivity(activity);
-    
+
     setSelectedActivity(normalizedActivity);
     setFormData({
       title: normalizedActivity.title || "",
@@ -204,7 +203,7 @@ const ActivitiesTable: React.FC = () => {
         lng: normalizedActivity.coordinates?.lng,
       },
     });
-    
+
     const imageUrl = getUrlFromImgTag(normalizedActivity.imageUrl || "");
     setImagePreview(imageUrl);
     setNewImageFile(null);
@@ -229,7 +228,7 @@ const ActivitiesTable: React.FC = () => {
         },
       });
       toast.success("Coordinates fetched successfully!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching coordinates:", error);
       toast.error(error?.message || "Failed to fetch coordinates");
@@ -265,7 +264,7 @@ const ActivitiesTable: React.FC = () => {
 
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedActivity?.id) {
       toast.error("Invalid activity ID");
       return;
@@ -279,11 +278,11 @@ const ActivitiesTable: React.FC = () => {
     setIsUpdating(true);
     try {
       let finalImageUrl = formData.imageUrl;
-      
+
       if (newImageFile) {
         try {
           finalImageUrl = await uploadToCloudinary(newImageFile);
-        } catch  {
+        } catch {
           toast.error("Failed to upload image. Please try again.");
           setIsUpdating(false);
           return;
@@ -294,15 +293,15 @@ const ActivitiesTable: React.FC = () => {
         title: formData.title.trim(),
         description: formData.description.trim(),
         imageUrl: finalImageUrl,
-        coordinates: formData.coordinates.lat && formData.coordinates.lng 
+        coordinates: formData.coordinates.lat && formData.coordinates.lng
           ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
           : undefined,
       };
 
       const response = await updateActivity(selectedActivity.id, updateData);
-      
+
       const updatedActivity = response?.data ? normalizeActivity(response.data) : { ...selectedActivity, ...updateData };
-      
+
       toast.success("Activity updated successfully");
 
       const updateActivityInList = (list: Activity[]) =>
@@ -320,18 +319,18 @@ const ActivitiesTable: React.FC = () => {
       setNewImageFile(null);
       setImagePreview("");
       setLocationInput("");
-      setFormData({ 
-        title: "", 
-        description: "", 
+      setFormData({
+        title: "",
+        description: "",
         imageUrl: "",
         coordinates: { lat: undefined, lng: undefined },
       });
-      
+
     } catch (err) {
       if (err instanceof Error)
-      console.error("Update error:", err);
-      
-      const  errorMessage = "Failed to update activity";
+        console.error("Update error:", err);
+
+      const errorMessage = "Failed to update activity";
       setError(errorMessage);
       toast.error(errorMessage);
       setTimeout(() => setError(""), 3000);
@@ -372,24 +371,24 @@ const ActivitiesTable: React.FC = () => {
         setOriginalActivities(updatedOriginalActivities);
         setTotalActivities(prev => Math.max(prev - 1, 0));
         setTotalPages(Math.max(Math.ceil((totalActivities - 1) / limit), 1));
-        
+
         if (updatedActivities.length === 0 && page > 1) {
           setPage(page - 1);
           loadActivities(page - 1);
         }
       } else {
         setTotalPages(Math.max(Math.ceil(updatedActivities.length / limit), 1));
-        
+
         if (updatedActivities.length > 0 && Math.ceil(updatedActivities.length / limit) < page) {
           setPage(Math.ceil(updatedActivities.length / limit));
         }
       }
-      
+
     } catch (err) {
       if (err instanceof Error)
-      console.error("Delete error:", err);
-      
-      const  errorMessage = "Failed to delete activity";  
+        console.error("Delete error:", err);
+
+      const errorMessage = "Failed to delete activity";
       setError(errorMessage);
       toast.error(errorMessage);
       setTimeout(() => setError(""), 3000);
@@ -401,15 +400,15 @@ const ActivitiesTable: React.FC = () => {
 
   const columns: ColumnDef<Activity>[] = useMemo(
     () => [
-      { 
-        header: "#", 
+      {
+        header: "#",
         cell: ({ row }) => {
           const baseIndex = (page - 1) * limit;
           return baseIndex + row.index + 1;
         }
       },
-      { 
-        accessorKey: "title", 
+      {
+        accessorKey: "title",
         header: "Title",
         cell: ({ row }) => (
           <div className="font-medium text-gray-900" title={row.original.title}>
@@ -417,8 +416,8 @@ const ActivitiesTable: React.FC = () => {
           </div>
         )
       },
-      { 
-        accessorKey: "description", 
+      {
+        accessorKey: "description",
         header: "Description",
         cell: ({ row }) => (
           <div className="max-w-xs truncate text-gray-600" title={row.original.description}>
@@ -483,382 +482,380 @@ const ActivitiesTable: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-     
+
       <div className="max-w-7xl mx-auto p-6 pt-4 space-y-4">
-        <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Activities List</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
-              ? `Found ${activities.length} activit${activities.length !== 1 ? 'ies' : 'y'} for "${searchQuery}"`
-              : `${totalActivities} total activities`
-            }
-          </p>
-        </div>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Activities List</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {isSearchMode
+                ? `Found ${activities.length} activit${activities.length !== 1 ? 'ies' : 'y'} for "${searchQuery}"`
+                : `${totalActivities} total activities`
+              }
+            </p>
+          </div>
 
-        <div className="w-full sm:w-60">
-          <SearchBar
-            placeholder="Search Activities..."
-            onSearch={handleSearch}
+          <div className="w-full sm:w-60">
+            <SearchBar
+              placeholder="Search Activities..."
+              onSearch={handleSearch}
             // value={searchQuery}
-          />
-        </div>
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          <div className="flex justify-between items-center">
-            <span>{error}</span>
-            <button
-              onClick={() => setError("")}
-              className="text-red-800 hover:text-red-900 ml-2"
-            >
-              ✕
-            </button>
+            />
           </div>
         </div>
-      )}
 
-
-      {getCurrentPageData.length > 0 ? (
-        <>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <ReusableTable data={getCurrentPageData} columns={columns} />
-          </div>
-
-       
-          {totalPages > 1 && (
-            <div className="flex justify-center">
-              <Pagination 
-                total={totalPages} 
-                current={page} 
-                setPage={handlePageChange}
-              />
-            </div>
-          )}
-
- 
-          <div className="text-center text-sm text-gray-500">
-            {isSearchMode 
-              ? `Showing ${Math.min((page - 1) * limit + 1, activities.length)}-${Math.min(page * limit, activities.length)} of ${activities.length} search results`
-              : `Showing ${Math.min((page - 1) * limit + 1, totalActivities)}-${Math.min(page * limit, totalActivities)} of ${totalActivities} activities`
-            }
-          </div>
-        </>
-      ) : (
-        <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="w-16 h-16 mx-auto mb-4 text-gray-300 text-6xl">
-            🎯
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            No Activities Found
-          </h3>
-          <p className="text-gray-600">
-            {searchQuery 
-              ? `No activities match your search for "${searchQuery}"`
-              : "No activities are available at the moment"
-            }
-          </p>
-          {searchQuery && (
-            <button
-              onClick={() => handleSearch("")}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Clear Search
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Enhanced Edit Modal */}
-      {isEditModalOpen && selectedActivity && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900">
-                Edit Activity
-              </h3>
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span>{error}</span>
               <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-                disabled={isUpdating}
+                onClick={() => setError("")}
+                className="text-red-800 hover:text-red-900 ml-2"
               >
-                <X size={24} />
+                ✕
               </button>
             </div>
+          </div>
+        )}
 
-            {/* Form */}
-            <form onSubmit={handleUpdate} className="p-6 space-y-4">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="Activity title"
-                  required
-                  disabled={isUpdating}
+
+        {getCurrentPageData.length > 0 ? (
+          <>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <ReusableTable data={getCurrentPageData} columns={columns} />
+            </div>
+
+
+            {totalPages > 1 && (
+              <div className="flex justify-center">
+                <Pagination
+                  total={totalPages}
+                  current={page}
+                  setPage={handlePageChange}
                 />
               </div>
+            )}
 
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description *
-                </label>
-                <textarea
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Activity description"
-                  required
+
+            <div className="text-center text-sm text-gray-500">
+              {isSearchMode
+                ? `Showing ${Math.min((page - 1) * limit + 1, activities.length)}-${Math.min(page * limit, activities.length)} of ${activities.length} search results`
+                : `Showing ${Math.min((page - 1) * limit + 1, totalActivities)}-${Math.min(page * limit, totalActivities)} of ${totalActivities} activities`
+              }
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="w-16 h-16 mx-auto mb-4 text-gray-300 text-6xl">
+              🎯
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              No Activities Found
+            </h3>
+            <p className="text-gray-600">
+              {searchQuery
+                ? `No activities match your search for "${searchQuery}"`
+                : "No activities are available at the moment"
+              }
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => handleSearch("")}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Clear Search
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Enhanced Edit Modal */}
+        {isEditModalOpen && selectedActivity && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Edit Activity
+                </h3>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                   disabled={isUpdating}
-                />
+                >
+                  <X size={24} />
+                </button>
               </div>
 
-              {/* Image */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image
-                </label>
-                
-                {/* Current/Preview Image */}
-                {imagePreview && (
-                  <div className="mb-3">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-24 h-24 object-cover rounded-lg border border-gray-200"
-                    />
-                  </div>
-                )}
-
-                {/* File Input */}
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="file"
-                    id="image-upload"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    disabled={isUpdating}
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className={`flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${
-                      isUpdating ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    <Upload size={16} />
-                    Choose New Image
+              {/* Form */}
+              <form onSubmit={handleUpdate} className="p-6 space-y-4">
+                {/* Title */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Title *
                   </label>
-                  {newImageFile && (
-                    <span className="text-sm text-green-600">
-                      New image selected: {newImageFile.name}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
-                </p>
-              </div>
-
-              {/* Location for Coordinates */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location (for coordinates) <span className="text-gray-500 text-xs">(Optional)</span>
-                </label>
-                <div className="flex gap-2">
                   <input
                     type="text"
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={locationInput}
-                    onChange={(e) => setLocationInput(e.target.value)}
-                    placeholder="Enter activity location/address"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                    placeholder="Activity title"
+                    required
                     disabled={isUpdating}
                   />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description *
+                  </label>
+                  <textarea
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    placeholder="Activity description"
+                    required
+                    disabled={isUpdating}
+                  />
+                </div>
+
+                {/* Image */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Image
+                  </label>
+
+                  {/* Current/Preview Image */}
+                  {imagePreview && (
+                    <div className="mb-3">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-24 h-24 object-cover rounded-lg border border-gray-200"
+                      />
+                    </div>
+                  )}
+
+                  {/* File Input */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      id="image-upload"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      disabled={isUpdating}
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className={`flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                    >
+                      <Upload size={16} />
+                      Choose New Image
+                    </label>
+                    {newImageFile && (
+                      <span className="text-sm text-green-600">
+                        New image selected: {newImageFile.name}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                  </p>
+                </div>
+
+                {/* Location for Coordinates */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location (for coordinates) <span className="text-gray-500 text-xs">(Optional)</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={locationInput}
+                      onChange={(e) => setLocationInput(e.target.value)}
+                      placeholder="Enter activity location/address"
+                      disabled={isUpdating}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleGetCoordinates}
+                      disabled={isGettingCoordinates || isUpdating}
+                      className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {isGettingCoordinates ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Getting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <MapPin className="w-4 h-4" />
+                          <span>Get Coords</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter the location/address to automatically fetch coordinates
+                  </p>
+                </div>
+
+                {/* Coordinates */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-gray-600" />
+                    <label className="text-sm font-semibold text-gray-700">
+                      Geographic Coordinates
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        Latitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        value={formData.coordinates.lat ?? ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            coordinates: {
+                              ...formData.coordinates,
+                              lat: e.target.value ? parseFloat(e.target.value) : undefined,
+                            },
+                          })
+                        }
+                        placeholder="e.g., 28.6139"
+                        disabled={isUpdating}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        Longitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        value={formData.coordinates.lng ?? ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            coordinates: {
+                              ...formData.coordinates,
+                              lng: e.target.value ? parseFloat(e.target.value) : undefined,
+                            },
+                          })
+                        }
+                        placeholder="e.g., 77.2090"
+                        disabled={isUpdating}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Click "Get Coords" to automatically fetch coordinates from the location
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                   <button
                     type="button"
-                    onClick={handleGetCoordinates}
-                    disabled={isGettingCoordinates || isUpdating}
-                    className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                    onClick={() => setIsEditModalOpen(false)}
+                    disabled={isUpdating}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
                   >
-                    {isGettingCoordinates ? (
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdating || !formData.title.trim() || !formData.description.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isUpdating ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Getting...</span>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Updating...
                       </>
                     ) : (
-                      <>
-                        <MapPin className="w-4 h-4" />
-                        <span>Get Coords</span>
-                      </>
+                      'Save Changes'
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Enter the location/address to automatically fetch coordinates
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Modal */}
+        {isDeleteModalOpen && activityToDelete && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+            <div className="relative bg-white rounded-2xl shadow-2xl w-96 p-6">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+              >
+                ✕
+              </button>
+
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash className="w-8 h-8 text-red-600" />
+                </div>
+
+                <h3 className="text-xl font-bold mb-2 text-gray-800">
+                  Confirm Delete
+                </h3>
+
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to delete this activity?
+                </p>
+
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+                  <p className="font-semibold text-red-800 text-lg">
+                    {activityToDelete.title}
+                  </p>
+                  <p className="text-red-600 text-sm mt-1">
+                    {activityToDelete.description}
+                  </p>
+                </div>
+
+                <p className="text-sm text-gray-500 mb-6">
+                  This action cannot be undone.
                 </p>
               </div>
 
-              {/* Coordinates */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-gray-600" />
-                  <label className="text-sm font-semibold text-gray-700">
-                    Geographic Coordinates
-                  </label>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">
-                      Latitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                      value={formData.coordinates.lat ?? ""}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          coordinates: {
-                            ...formData.coordinates,
-                            lat: e.target.value ? parseFloat(e.target.value) : undefined,
-                          },
-                        })
-                      }
-                      placeholder="e.g., 28.6139"
-                      disabled={isUpdating}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">
-                      Longitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                      value={formData.coordinates.lng ?? ""}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          coordinates: {
-                            ...formData.coordinates,
-                            lng: e.target.value ? parseFloat(e.target.value) : undefined,
-                          },
-                        })
-                      }
-                      placeholder="e.g., 77.2090"
-                      disabled={isUpdating}
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Click "Get Coords" to automatically fetch coordinates from the location
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="flex justify-center gap-4">
                 <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  disabled={isUpdating}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  disabled={isUpdating || !formData.title.trim() || !formData.description.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  onClick={confirmDelete}
+                  className="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
                 >
-                  {isUpdating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    'Save Changes'
-                  )}
+                  Delete Activity
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Modal */}
-      {isDeleteModalOpen && activityToDelete && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-          <div className="relative bg-white rounded-2xl shadow-2xl w-96 p-6">
-            <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
-            >
-              ✕
-            </button>
-
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash className="w-8 h-8 text-red-600" />
-              </div>
-
-              <h3 className="text-xl font-bold mb-2 text-gray-800">
-                Confirm Delete
-              </h3>
-              
-              <p className="text-gray-600 mb-4">
-                Are you sure you want to delete this activity?
-              </p>
-              
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
-                <p className="font-semibold text-red-800 text-lg">
-                  {activityToDelete.title}
-                </p>
-                <p className="text-red-600 text-sm mt-1">
-                  {activityToDelete.description}
-                </p>
-              </div>
-
-              <p className="text-sm text-gray-500 mb-6">
-                This action cannot be undone.
-              </p>
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
-              >
-                Delete Activity
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );

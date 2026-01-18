@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserRoute from "./Routes/user/userRoutes";
 import AdminRoute from "./Routes/Admin/adminRoutes";
 import VendorRoute from "./Routes/Vendor/vendorRoutes";
 import { getFcmToken, onMessageListener, subscribeToTopic } from "./Firebase/firebase";
-import "react-toastify/dist/ReactToastify.css";
 import type { RootState } from "./store/store";
 
 function App() {
@@ -67,7 +66,7 @@ function App() {
         <Route path="/vendor/*" element={<VendorRoute />} />
         <Route path="/*" element={<UserRoute />} />
       </Routes>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-right" reverseOrder={false} />
     </BrowserRouter>
   );
 }

@@ -3,7 +3,7 @@ import Header from "@/components/home/navbar/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import TravelerForm from "./TravlerForm";
 import type { RootState } from "@/store/store";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import type { Traveler } from "@/interface/Boooking";
 import { Users, Baby, Mail, Phone, MapPin, Home, Ticket, CreditCard, ArrowLeft, CheckCircle, ShieldCheck } from "lucide-react";

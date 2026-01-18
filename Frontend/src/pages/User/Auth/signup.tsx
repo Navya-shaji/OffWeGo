@@ -6,8 +6,7 @@ import { UserRegister } from "@/services/user/userService";
 import OtpModal from "@/components/signup/OtpModal";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 import { GoogleSignup } from "@/components/signup/googleSignup";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { setOtpData, closeOtpModal } from "@/store/slice/user/otpSlice";
@@ -25,11 +24,15 @@ export default function Signup() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
+    mode: "onChange",
   });
+
+  const emailValue = watch("email");
+  const isEmailValid = !!emailValue && !errors.email && !!dirtyFields.email;
 
 
 
@@ -79,8 +82,16 @@ export default function Signup() {
           </div>
 
           <div className="space-y-1">
-            <input {...register("email")} placeholder="Email Address" className="w-full border border-gray-300 rounded px-3 py-2 font-serif bg-white/50 focus:bg-white focus:border-black focus:outline-none transition-all placeholder:text-gray-500" />
+            <input
+              {...register("email")}
+              placeholder="Email Address"
+              className={`w-full border rounded px-3 py-2 font-serif bg-white/50 focus:bg-white focus:outline-none transition-all placeholder:text-gray-500 ${errors.email ? 'border-red-500 focus:border-red-500' :
+                isEmailValid ? 'border-green-500 focus:border-green-500' :
+                  'border-gray-300 focus:border-black'
+                }`}
+            />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            {isEmailValid && <p className="text-green-600 text-[10px] uppercase font-bold tracking-widest mt-1">Email format is valid</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -113,7 +124,6 @@ export default function Signup() {
         </form>
       </AuthLayout>
       <OtpModal isOpen={isOpen} onClose={() => dispatch(closeOtpModal())} userData={watch()} />
-      <ToastContainer />
     </>
   );
 }

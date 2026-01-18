@@ -8,7 +8,7 @@ import {
   Plus,
   Trash2,
   Calendar,
- 
+
   Sparkles,
   CheckCircle2,
   AlertCircle,
@@ -16,7 +16,7 @@ import {
   Camera,
   Hotel,
   Activity,
- 
+
   Clock,
 
   Star,
@@ -32,7 +32,7 @@ import { usePackageValidation } from "@/Types/vendor/Package/package";
 import type { Package } from "@/interface/PackageInterface";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { SubscriptionRequiredModal } from "../Modular/subscriptionRequiredModal"; 
+import { SubscriptionRequiredModal } from "../Modular/subscriptionRequiredModal";
 import { getSubscriptions, getVendorActiveSubscription } from "@/services/subscription/subscriptionservice";
 
 
@@ -67,7 +67,7 @@ interface Activity {
 interface EnhancedPackageFormData {
   packageName: string;
   description: string;
-  price: number; 
+  price: number;
   duration: number;
   selectedHotels: Hotel[];
   selectedActivities: Activity[];
@@ -78,55 +78,55 @@ interface EnhancedPackageFormData {
   itinerary: ItineraryDay[];
   inclusions: string[];
   amenities: string[];
-  flightOption: boolean; 
-  flightPrice?: number; 
+  flightOption: boolean;
+  flightPrice?: number;
 }
 
 const AddPackage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const vendor = useSelector((state: RootState) => state.vendorAuth?.vendor);
   const vendorId = vendor?.id;
   const packages = useSelector((state: RootState) => state.package.packages);
-  
+
   useEffect(() => {
   }, [vendorId, vendor]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [, setPackageLimitError] = useState<boolean>(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null);
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
-    const { loading, error } = useSelector((state: RootState) => state.package);
+  const { loading, error } = useSelector((state: RootState) => state.package);
 
   const isSubscriptionExpired = () => {
     if (!subscriptionData?.vendorSubscription) {
       return false;
     }
     const subscription = subscriptionData.vendorSubscription;
-    return (subscription.endDate && new Date(subscription.endDate) <= new Date()) || 
-           subscription.status === "expired";
+    return (subscription.endDate && new Date(subscription.endDate) <= new Date()) ||
+      subscription.status === "expired";
   };
 
   const getSubscriptionMessage = () => {
     if (!subscriptionData?.vendorSubscription) {
       return "You do not have an active subscription. Please purchase a subscription plan to add packages.";
     }
-    
+
     const subscription = subscriptionData.vendorSubscription;
     const isExpired = subscription.endDate && new Date(subscription.endDate) <= new Date();
-    
+
     if (isExpired || subscription.status === "expired") {
       return "Your subscription has expired. Please renew your subscription plan to continue adding packages.";
     }
-    
+
     if (subscription.status !== "active") {
       return "Your subscription is not active. Please purchase a subscription plan to add packages.";
     }
-    
+
     return "You do not have an active subscription. Please purchase a subscription plan to add packages.";
   };
 
@@ -134,7 +134,7 @@ const AddPackage: React.FC = () => {
     errors,
     touched,
     validateField,
-   
+
     markFieldTouched,
     resetValidation,
     getFieldError,
@@ -152,7 +152,7 @@ const AddPackage: React.FC = () => {
   const checkSubscription = useCallback(async () => {
     try {
       setIsCheckingSubscription(true);
-      
+
       if (!vendorId) {
         console.warn("⚠️ No vendor ID found, cannot check subscription");
         setHasActiveSubscription(false);
@@ -161,20 +161,20 @@ const AddPackage: React.FC = () => {
         return;
       }
 
-      
+
       const result = await getVendorActiveSubscription(vendorId);
-      
-      
+
+
       if (result.hasActiveSubscription && result.vendorSubscription) {
         const subscription = result.vendorSubscription;
-        
+
         const endDate = subscription.endDate ? new Date(subscription.endDate) : null;
         const currentDate = new Date();
         const isExpired = endDate ? endDate < currentDate : true;
         const isActive = subscription.status === "active" && !isExpired && endDate && endDate >= currentDate;
-        
-      
-        
+
+
+
         if (isActive) {
           setHasActiveSubscription(true);
           setShowSubscriptionModal(false);
@@ -191,7 +191,7 @@ const AddPackage: React.FC = () => {
       }
     } catch (error) {
       console.error(" Error checking subscription:", error);
-     
+
       setHasActiveSubscription(false);
       setShowSubscriptionModal(true);
     } finally {
@@ -249,7 +249,7 @@ const AddPackage: React.FC = () => {
   const [formData, setFormData] = useState<EnhancedPackageFormData>({
     packageName: "",
     description: "",
-    price: 0, 
+    price: 0,
     duration: 1,
     selectedHotels: [],
     selectedActivities: [],
@@ -261,7 +261,7 @@ const AddPackage: React.FC = () => {
     inclusions: [],
     amenities: [],
     flightOption: false,
-    flightPrice: 0, 
+    flightPrice: 0,
   });
 
   const handleChange = (
@@ -285,42 +285,42 @@ const AddPackage: React.FC = () => {
       selectedHotels: [],
       selectedActivities: [],
     }));
-    
+
 
     markFieldTouched("destinationId");
     validateField("destinationId", newValue);
   };
 
-const handleHotelSelection = (hotelIds: string[]) => {
-  const selectedHotelObjects = allHotels
-    .filter((hotel) => hotelIds.includes(hotel.hotelId || hotel.id || ""))
-    .map((hotel) => ({
-      ...hotel,
-      hotelId: hotel.hotelId || hotel.id || "", 
+  const handleHotelSelection = (hotelIds: string[]) => {
+    const selectedHotelObjects = allHotels
+      .filter((hotel) => hotelIds.includes(hotel.hotelId || hotel.id || ""))
+      .map((hotel) => ({
+        ...hotel,
+        hotelId: hotel.hotelId || hotel.id || "",
+      }));
+
+    setFormData((prev) => ({
+      ...prev,
+      selectedHotels: selectedHotelObjects,
+    }));
+  };
+
+
+  const handleActivitySelection = (activityIds: string[]) => {
+    const selectedActivityObjects = allActivities
+      .filter((activity) => activityIds.includes(activity.id || ""))
+      .map((activity) => ({
+        ...activity,
+        id: activity.id || "",
+      }));
+
+    setFormData((prev) => ({
+      ...prev,
+      selectedActivities: selectedActivityObjects,
     }));
 
-  setFormData((prev) => ({
-    ...prev,
-    selectedHotels: selectedHotelObjects,
-  }));
-};
 
-
-const handleActivitySelection = (activityIds: string[]) => {
-  const selectedActivityObjects = allActivities
-    .filter((activity) => activityIds.includes(activity.id || ""))
-    .map((activity) => ({
-      ...activity,
-      id: activity.id || "", 
-    }));
-
-  setFormData((prev) => ({
-    ...prev,
-    selectedActivities: selectedActivityObjects,
-  }));
-
-
-};
+  };
 
 
   const addDay = () => {
@@ -361,9 +361,9 @@ const handleActivitySelection = (activityIds: string[]) => {
     const newItinerary = formData.itinerary.map((day, index) =>
       index === dayIndex
         ? {
-            ...day,
-            activities: [...day.activities, { time: "", activity: "" }],
-          }
+          ...day,
+          activities: [...day.activities, { time: "", activity: "" }],
+        }
         : day
     );
 
@@ -381,11 +381,11 @@ const handleActivitySelection = (activityIds: string[]) => {
     const newItinerary = formData.itinerary.map((day, index) =>
       index === dayIndex
         ? {
-            ...day,
-            activities: day.activities.filter(
-              (_, aIndex) => aIndex !== activityIndex
-            ),
-          }
+          ...day,
+          activities: day.activities.filter(
+            (_, aIndex) => aIndex !== activityIndex
+          ),
+        }
         : day
     );
 
@@ -408,13 +408,13 @@ const handleActivitySelection = (activityIds: string[]) => {
     const newItinerary = formData.itinerary.map((day, dIndex) =>
       dIndex === dayIndex
         ? {
-            ...day,
-            activities: day.activities.map((activity, aIndex) =>
-              aIndex === activityIndex
-                ? { ...activity, [field]: value }
-                : activity
-            ),
-          }
+          ...day,
+          activities: day.activities.map((activity, aIndex) =>
+            aIndex === activityIndex
+              ? { ...activity, [field]: value }
+              : activity
+          ),
+        }
         : day
     );
 
@@ -477,164 +477,73 @@ const handleActivitySelection = (activityIds: string[]) => {
   };
 
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setShowValidationErrors(true);
-  setPackageLimitError(false); 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowValidationErrors(true);
+    setPackageLimitError(false);
 
- 
-  
-  if (hasActiveSubscription === false && !isCheckingSubscription) {
-  
-    setShowSubscriptionModal(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-  
-  if (hasActiveSubscription === true) {
-    setShowSubscriptionModal(false);
-  }
 
-  const vendorPackageCount = packages.length;
 
-  
-  if (vendorPackageCount >= 3) {
-    setPackageLimitError(true);
-    toast.error("Package limit reached! You can only create up to 3 packages on the free tier.", {
-      position: "top-center",
-      autoClose: 5000,
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
+    if (hasActiveSubscription === false && !isCheckingSubscription) {
 
-  const simpleItinerary = (formData.itinerary || []).flatMap((day) =>
-    (day.activities || []).map((activity) => ({
-      day: day.day || 1,
-      time: activity.time || "",
-      activity: activity.activity || "",
-    }))
-  );
-
-  const hasFlight = formData.flightOption === true;
-
-  const completePackage: Package = {
-    id: crypto.randomUUID(),
-    destinationId: formData.destinationId || "",
-    packageName: formData.packageName || "",
-    description: formData.description || "",
-    price: Number(formData.price || 0),
-    flightPrice: undefined, 
-    duration: formData.duration || 1,
-    startDate: new Date(),
-    endDate: new Date(Date.now() + (formData.duration || 1) * 24 * 60 * 60 * 1000),
-    images: formData.images || [],
-    hotels: formData.selectedHotels || [],
-    activities: formData.selectedActivities || [],
-    checkOutTime: formData.checkOutTime || "",
-    checkInTime: formData.checkInTime || "",
-    itinerary: simpleItinerary,
-    inclusions: formData.inclusions || [],
-    amenities: formData.amenities || [],
-    flightOption: hasFlight,
-    flight: null,
-  };
-
-  try {
-    const result = await dispatch(addPackage(completePackage));
-    
-    if (addPackage.fulfilled.match(result)) {
-      toast.success(
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-green-800">Package Created Successfully!</p>
-            <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
-          </div>
-        </div>,
-        {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          className: "border-l-4 border-green-500 bg-white shadow-lg",
-          icon: false,
-        }
-      );
-
-      setIsSubmitted(true);
-      setShowValidationErrors(false);
-      resetValidation();
-
-      setFormData({
-        packageName: "",
-        description: "",
-        price: 0,
-        duration: 1,
-        selectedHotels: [],
-        selectedActivities: [],
-        images: [],
-        destinationId: "",
-        checkInTime: "",
-        checkOutTime: "",
-        itinerary: [],
-        inclusions: [],
-        amenities: [],
-        flightOption: false,
-        flightPrice: 0,
-      });
+      setShowSubscriptionModal(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    
-    if (addPackage.rejected.match(result)) {
-      const errorPayload = result.payload as string | undefined;
-      const errorMessage = errorPayload || "An error occurred";
+
+    if (hasActiveSubscription === true) {
+      setShowSubscriptionModal(false);
+    }
+
+    const vendorPackageCount = packages.length;
 
 
-      if (
-        errorMessage.includes("You do not have an active subscription") ||
-        errorMessage.includes("subscription") ||
-        errorMessage.includes("not active") ||
-        errorMessage.includes("expired") ||
-        errorMessage.includes("Subscription expired")
-      ) {
-        try {
-          const subData = await getSubscriptions();
-          setSubscriptionData(subData);
-          if (subData.vendorSubscription) {
-            const subscription = subData.vendorSubscription as any;
-            const isExpired = subscription.endDate && new Date(subscription.endDate) <= new Date();
-            setHasActiveSubscription(!isExpired && subscription.status === "active");
-          } else {
-            setHasActiveSubscription(false);
-          }
-        } catch (err) {
-          console.error("Error re-checking subscription:", err);
-        }
-        
-        setShowSubscriptionModal(true);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
+    if (vendorPackageCount >= 3) {
+      setPackageLimitError(true);
+      toast.error("Package limit reached! You can only create up to 3 packages on the free tier.", {
+        position: "top-center",
+        autoClose: 5000,
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
-      if (errorMessage.includes("limit")) {
-        setPackageLimitError(true);
-        toast.error(errorMessage, {
-          position: "top-center",
-          autoClose: 5000,
-        });
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
+    const simpleItinerary = (formData.itinerary || []).flatMap((day) =>
+      (day.activities || []).map((activity) => ({
+        day: day.day || 1,
+        time: activity.time || "",
+        activity: activity.activity || "",
+      }))
+    );
 
-      if (errorMessage.includes("Cannot read properties of undefined") || 
-          errorMessage.includes("reading '0'")) {
+    const hasFlight = formData.flightOption === true;
+
+    const completePackage: Package = {
+      id: crypto.randomUUID(),
+      destinationId: formData.destinationId || "",
+      packageName: formData.packageName || "",
+      description: formData.description || "",
+      price: Number(formData.price || 0),
+      flightPrice: undefined,
+      duration: formData.duration || 1,
+      startDate: new Date(),
+      endDate: new Date(Date.now() + (formData.duration || 1) * 24 * 60 * 60 * 1000),
+      images: formData.images || [],
+      hotels: formData.selectedHotels || [],
+      activities: formData.selectedActivities || [],
+      checkOutTime: formData.checkOutTime || "",
+      checkInTime: formData.checkInTime || "",
+      itinerary: simpleItinerary,
+      inclusions: formData.inclusions || [],
+      amenities: formData.amenities || [],
+      flightOption: hasFlight,
+      flight: null,
+    };
+
+    try {
+      const result = await dispatch(addPackage(completePackage));
+
+      if (addPackage.fulfilled.match(result)) {
         toast.success(
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -658,7 +567,162 @@ const handleSubmit = async (e: React.FormEvent) => {
             icon: false,
           }
         );
-        
+
+        setIsSubmitted(true);
+        setShowValidationErrors(false);
+        resetValidation();
+
+        setFormData({
+          packageName: "",
+          description: "",
+          price: 0,
+          duration: 1,
+          selectedHotels: [],
+          selectedActivities: [],
+          images: [],
+          destinationId: "",
+          checkInTime: "",
+          checkOutTime: "",
+          itinerary: [],
+          inclusions: [],
+          amenities: [],
+          flightOption: false,
+          flightPrice: 0,
+        });
+        return;
+      }
+
+      if (addPackage.rejected.match(result)) {
+        const errorPayload = result.payload as string | undefined;
+        const errorMessage = errorPayload || "An error occurred";
+
+
+        if (
+          errorMessage.includes("You do not have an active subscription") ||
+          errorMessage.includes("subscription") ||
+          errorMessage.includes("not active") ||
+          errorMessage.includes("expired") ||
+          errorMessage.includes("Subscription expired")
+        ) {
+          try {
+            const subData = await getSubscriptions();
+            setSubscriptionData(subData);
+            if (subData.vendorSubscription) {
+              const subscription = subData.vendorSubscription as any;
+              const isExpired = subscription.endDate && new Date(subscription.endDate) <= new Date();
+              setHasActiveSubscription(!isExpired && subscription.status === "active");
+            } else {
+              setHasActiveSubscription(false);
+            }
+          } catch (err) {
+            console.error("Error re-checking subscription:", err);
+          }
+
+          setShowSubscriptionModal(true);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (errorMessage.includes("limit")) {
+          setPackageLimitError(true);
+          toast.error(errorMessage, {
+            position: "top-center",
+            autoClose: 5000,
+          });
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (errorMessage.includes("Cannot read properties of undefined") ||
+          errorMessage.includes("reading '0'")) {
+          toast.success(
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-green-800">Package Created Successfully!</p>
+                <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
+              </div>
+            </div>,
+            {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              className: "border-l-4 border-green-500 bg-white shadow-lg",
+              icon: false,
+            }
+          );
+
+          setIsSubmitted(true);
+          setShowValidationErrors(false);
+          resetValidation();
+          setFormData({
+            packageName: "",
+            description: "",
+            price: 0,
+            duration: 1,
+            selectedHotels: [],
+            selectedActivities: [],
+            images: [],
+            destinationId: "",
+            checkInTime: "",
+            checkOutTime: "",
+            itinerary: [],
+            inclusions: [],
+            amenities: [],
+            flightOption: false,
+            flightPrice: 0,
+          });
+          return;
+        }
+
+
+        toast.error(errorMessage, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+    } catch (error) {
+      console.error("Error creating package:", error);
+
+
+      if (error instanceof Error &&
+        (error.message.includes("Cannot read properties of undefined") ||
+          error.message.includes("reading '0'"))) {
+
+        toast.success(
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-green-800">Package Created Successfully!</p>
+              <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
+            </div>
+          </div>,
+          {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            className: "border-l-4 border-green-500 bg-white shadow-lg",
+            icon: false,
+          }
+        );
+
+
         setIsSubmitted(true);
         setShowValidationErrors(false);
         resetValidation();
@@ -682,76 +746,12 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
-    
-      toast.error(errorMessage, {
+      toast.error("An unexpected error occurred. Please try again.", {
         position: "top-center",
         autoClose: 5000,
       });
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
     }
-  } catch (error) {
-    console.error("Error creating package:", error);
-    
-
-    if (error instanceof Error && 
-        (error.message.includes("Cannot read properties of undefined") || 
-         error.message.includes("reading '0'"))) {
-    
-      toast.success(
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-green-800">Package Created Successfully!</p>
-            <p className="text-sm text-green-600">{formData.packageName || "New package"} has been added to your listings</p>
-          </div>
-        </div>,
-        {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          className: "border-l-4 border-green-500 bg-white shadow-lg",
-          icon: false,
-        }
-      );
-      
-   
-      setIsSubmitted(true);
-      setShowValidationErrors(false);
-      resetValidation();
-      setFormData({
-        packageName: "",
-        description: "",
-        price: 0,
-        duration: 1,
-        selectedHotels: [],
-        selectedActivities: [],
-        images: [],
-        destinationId: "",
-        checkInTime: "",
-        checkOutTime: "",
-        itinerary: [],
-        inclusions: [],
-        amenities: [],
-        flightOption: false,
-        flightPrice: 0,
-      });
-      return;
-    }
- 
-    toast.error("An unexpected error occurred. Please try again.", {
-      position: "top-center",
-      autoClose: 5000,
-    });
-  }
-};
+  };
   const selectedDestination = destinations.find(
     (dest) => dest.id === formData.destinationId
   );
@@ -791,13 +791,13 @@ const handleSubmit = async (e: React.FormEvent) => {
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
-    
+
         <div className="text-center mb-12">
-        
+
           <h1 className="text-5xl font-bold bg-gradient-to-r bg-black bg-clip-text text-transparent mb-4">
             Create Amazing Travel Package
           </h1>
-         
+
         </div>
         <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-xl overflow-hidden">
           <CardHeader className="bg-gradient-to-r bg-black text-white">
@@ -808,10 +808,10 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
                 <span>Package Details</span>
               </div>
-             
+
             </CardTitle>
           </CardHeader>
-          
+
           <CardContent className="p-8">
             {isSubmitted && (
               <Alert className="mb-8 border-0 bg-gradient-to-r from-emerald-50 to-green-50">
@@ -843,7 +843,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 {/* Basic Information Section */}
                 <div className="relative">
 
-                  
+
                   <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
                     <PackageBasicInfo
                       formData={{
@@ -881,7 +881,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <p className="text-sm text-gray-600">Upload high-quality images to showcase your package</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
                     <ImageUploadSection
                       images={formData.images}
@@ -906,7 +906,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <p className="text-sm text-gray-600">Select accommodations and activities for your package</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
                     <HotelsActivitiesSection
                       destinationId={formData.destinationId}
@@ -940,7 +940,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <p className="text-sm text-gray-600">Set check-in and check-out times</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div>
@@ -986,7 +986,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <p className="text-sm text-gray-600">Plan day-by-day activities for your travelers</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
                     <div className="flex gap-3 mb-6">
                       <Button
@@ -1010,7 +1010,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         Add Day
                       </Button>
                     </div>
-                    
+
                     {formData.itinerary.length === 0 ? (
                       <div className="text-center py-12 text-gray-500">
                         <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
@@ -1035,7 +1035,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
-                              
+
                               <div className="space-y-3">
                                 {day.activities.map((activity, actIndex) => (
                                   <div key={actIndex} className="flex items-center gap-3">
@@ -1112,7 +1112,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <p className="text-sm text-gray-600">Add inclusions, amenities, and flight options</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-100 space-y-6">
                     <div>
                       <label className="block text-sm font-bold mb-2">

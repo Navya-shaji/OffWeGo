@@ -33,21 +33,61 @@ export default function OtpModal({
     return () => clearInterval(timer);
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.getElementById("otp-0")?.focus();
+    }
+  }, [isOpen]);
+
   const handleChange = (index: number, value: string) => {
     if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
+
       if (value && index < 5) {
         document.getElementById(`otp-${index + 1}`)?.focus();
+      } else if (value && index === 5) {
+        // Auto-submit when the last digit is entered
+        handleSubmit(newOtp.join(""));
       }
     }
   };
 
-  const handleSubmit = async () => {
-    const fullOtp = otp.join("");
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData("text").slice(0, 6);
+    if (/^\d+$/.test(pasteData)) {
+      const newOtp = [...otp];
+      pasteData.split("").forEach((digit, i) => {
+        if (i < 6) newOtp[i] = digit;
+      });
+      setOtp(newOtp);
+
+      if (pasteData.length === 6) {
+        handleSubmit(pasteData);
+      } else {
+        const nextIndex = Math.min(pasteData.length, 5);
+        document.getElementById(`otp-${nextIndex}`)?.focus();
+      }
+    }
+  };
+
+  const handleSubmit = async (fullOtp?: string) => {
+    const code = typeof fullOtp === "string" ? fullOtp : otp.join("");
+    if (code.length < 6) {
+      toast.error("Please enter the full 6-digit code");
+      return;
+    }
+
     try {
-      const res = await VerifyOtp(userData, fullOtp);
+      const res = await VerifyOtp(userData, code);
       if (res.data.success) {
         toast.success("OTP Verified");
         navigate("/login");
@@ -107,12 +147,14 @@ export default function OtpModal({
                 inputMode="numeric"
                 value={digit}
                 onChange={(e) => handleChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                onPaste={handlePaste}
                 className="w-12 h-14 text-center text-lg border rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             ))}
           </div>
           <button
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
             className="w-full bg-black text-white py-3 rounded-lg"
             disabled={timeLeft === 0}
           >
@@ -124,9 +166,8 @@ export default function OtpModal({
           <p className="text-xs text-center mt-2 text-gray-500">
             Didn’t receive the code?{" "}
             <span
-              className={`cursor-pointer ${
-                timeLeft === 0 ? "text-black hover:underline" : "text-gray-400"
-              }`}
+              className={`cursor-pointer ${timeLeft === 0 ? "text-black hover:underline" : "text-gray-400"
+                }`}
               onClick={timeLeft === 0 ? handleResend : undefined}
             >
               Resend

@@ -1,4 +1,4 @@
-import  { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   editCategory,
   getCategory,
@@ -10,8 +10,7 @@ import ReusableTable from "@/components/Modular/Table";
 import { Edit, Trash } from "lucide-react";
 import Pagination from "@/components/pagination/pagination";
 import EditCategory from "./EditCategory";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast from "react-hot-toast";
 import { SearchBar } from "@/components/Modular/searchbar";
 import { DeleteConfirmationModal } from "./DeleteConfirmation";
 import { useCategoryContext } from "@/contexts/CategoryContext";
@@ -203,8 +202,8 @@ export const CategoryTable = () => {
           const subTypes = Array.isArray(sub)
             ? sub.join(", ")
             : typeof sub === "string"
-            ? sub
-            : "";
+              ? sub
+              : "";
 
           return (
             <span className="text-sm text-gray-600 max-w-xs truncate block">
@@ -247,7 +246,6 @@ export const CategoryTable = () => {
 
   return (
     <div className="p-4">
-      <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold">Category Listing</h1>

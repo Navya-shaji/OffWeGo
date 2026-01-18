@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { login } from "@/store/slice/vendor/authSlice";
 import { vendorLogin } from "@/services/vendor/VendorLoginService";
 import type { AxiosError } from "axios";

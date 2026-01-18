@@ -27,13 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
 }) => {
-  const [showRequestsDropdown, setShowRequestsDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showBannerDropdown, setShowBannerDropdown] = useState(false);
   const [showSubscriptionDropdown, setShowSubscriptionDropdown] =
     useState(false);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
- 
+
 
   const menuItems = [
     { icon: Grid3x3, label: "Dashboard" },
@@ -42,10 +41,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     { icon: MapPin, label: "Destinations" },
     { icon: List, label: "Travel Posts" },
   ];
-
-  const handleRequestClick = () => {
-    setShowRequestsDropdown((prev) => !prev);
-  };
 
   const handleCategoryClick = () => {
     setShowCategoryDropdown((prev) => !prev);
@@ -105,76 +100,33 @@ const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={index}
               onClick={() => handleMainTabClick(item.label)}
-              className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-                item.label === activeTab
-                  ? "bg-gray-100 border-r-4 border-black"
-                  : ""
-              }`}
+              className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${item.label === activeTab
+                ? "bg-gray-100 border-r-4 border-black"
+                : ""
+                }`}
             >
               <item.icon className="w-5 h-5 mr-3 text-gray-600" />
               <span className="text-gray-700">{item.label}</span>
             </button>
           ))}
-      
+
           <button
-            onClick={handleRequestClick}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab.includes("Request")
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
+            onClick={() => handleMainTabClick("Vendor Requests")}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${activeTab === "Vendor Requests"
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+              }`}
           >
             <FileText className="w-5 h-5 mr-3 text-gray-600" />
-            <span className="text-gray-700 flex-1">Requests</span>
-            {showRequestsDropdown ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
+            <span className="text-gray-700">Requests</span>
           </button>
-
-          {showRequestsDropdown && (
-            <div className="ml-10">
-              <button
-                onClick={() => handleSubTabClick("Pending Requests")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Pending Requests"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Pending
-              </button>
-              <button
-                onClick={() => handleSubTabClick("Approved Requests")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Approved Requests"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Approved
-              </button>
-              <button
-                onClick={() => handleSubTabClick("Rejected Requests")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Rejected Requests"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Rejected
-              </button>
-            </div>
-          )}
 
           <button
             onClick={handleCategoryClick}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab.includes("Category")
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${activeTab.includes("Category")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+              }`}
           >
             <Grid3x3 className="w-5 h-5 mr-3 text-gray-600" />
             <span className="text-gray-700 flex-1">Category</span>
@@ -189,22 +141,20 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="ml-10">
               <button
                 onClick={() => handleSubTabClick("Create Category")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Create Category"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "Create Category"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 Create Category
               </button>
               <button
                 onClick={() => handleSubTabClick("All Categories")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "All Categories"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "All Categories"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <List className="inline-block mr-2 w-4 h-4" />
                 All Categories
@@ -214,11 +164,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={handleBannerClick}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab.includes("Banner")
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${activeTab.includes("Banner")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+              }`}
           >
             <FileText className="w-5 h-5 mr-3 text-gray-600" />
             <span className="text-gray-700 flex-1">Banner</span>
@@ -233,22 +182,20 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="ml-10">
               <button
                 onClick={() => handleSubTabClick("Add Banner")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Add Banner"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "Add Banner"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 Add Banner
               </button>
               <button
                 onClick={() => handleSubTabClick("All Banners")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "All Banners"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "All Banners"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <List className="inline-block mr-2 w-4 h-4" />
                 All Banners
@@ -258,11 +205,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={handleSubscriptionClick}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab.includes("Subscription")
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${activeTab.includes("Subscription")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+              }`}
           >
             <UserCheck className="w-5 h-5 mr-3 text-gray-600" />
             <span className="text-gray-700 flex-1">Subscriptions</span>
@@ -277,11 +223,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="ml-10">
               <button
                 onClick={() => handleSubTabClick("Create Subscription")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Create Subscription"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "Create Subscription"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <FolderPlus className="inline-block mr-2 w-4 h-4" />
                 Create Subscription
@@ -289,11 +234,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
               <button
                 onClick={() => handleSubTabClick("All Subscriptions")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "All Subscriptions"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "All Subscriptions"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <List className="inline-block mr-2 w-4 h-4" />
                 All Subscriptions
@@ -301,11 +245,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
               <button
                 onClick={() => handleSubTabClick("Booked Subscriptions")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Booked Subscriptions"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "Booked Subscriptions"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 <List className="inline-block mr-2 w-4 h-4" />
                 Booked Subscriptions
@@ -315,11 +258,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => setShowWalletDropdown((prev) => !prev)}
-            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-              activeTab.includes("Wallet")
-                ? "bg-gray-100 border-r-4 border-black"
-                : ""
-            }`}
+            className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${activeTab.includes("Wallet")
+              ? "bg-gray-100 border-r-4 border-black"
+              : ""
+              }`}
           >
             <Wallet className="w-5 h-5 mr-3 text-gray-600" />
             <span className="text-gray-700 flex-1">Wallet</span>
@@ -334,23 +276,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="ml-10">
               <button
                 onClick={() => handleSubTabClick("Wallet-Transactions")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Admin Wallet"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${activeTab === "Admin Wallet"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
+                  }`}
               >
                 Admin Wallet
-              </button>
-              <button
-                onClick={() => handleSubTabClick("Vendor Wallet")}
-                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                  activeTab === "Vendor Wallet"
-                    ? "text-black font-semibold"
-                    : "text-gray-600"
-                }`}
-              >
-                Vendor Wallet
               </button>
             </div>
           )}

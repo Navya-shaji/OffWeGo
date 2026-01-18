@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Trash2, MapPin, Loader2 } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -52,40 +52,40 @@ const HotelsTable: React.FC = () => {
   const [totalHotels, setTotalHotels] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
-const [destinationId, ] = useState<string>("");
+  const [destinationId,] = useState<string>("");
   const hasInitialized = useRef(false);
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout>(null);
   const loadHotels = useCallback(async (pageNum: number = 1) => {
-  if (isLoadingRef.current) return;
+    if (isLoadingRef.current) return;
 
-  try {
-    isLoadingRef.current = true;
-    setLoading(true);
-    setError("");
+    try {
+      isLoadingRef.current = true;
+      setLoading(true);
+      setError("");
 
-    const response = await getAllHotel(pageNum, 5);
+      const response = await getAllHotel(pageNum, 5);
 
-    const hotelsWithId = response.hotels.map((hotel) => ({
-      ...hotel,
-      _id: hotel.hotelId || "",
-    }));
+      const hotelsWithId = response.hotels.map((hotel) => ({
+        ...hotel,
+        _id: hotel.hotelId || "",
+      }));
 
-    setHotels(hotelsWithId);
-    setOriginalHotels(hotelsWithId); // ✅ Preserve original data
-    setTotalPages(response.totalPages || 1);
-    setTotalHotels(response.totalHotels || hotelsWithId.length);
-    setPage(pageNum);
-  } catch (err) {
-    console.error("Error loading hotels:", err);
-    setError("Failed to load hotels. Please try again.");
-    setHotels([]);
-    toast.error("Failed to load hotels");
-  } finally {
-    isLoadingRef.current = false;
-    setLoading(false);
-  }
-}, []);
+      setHotels(hotelsWithId);
+      setOriginalHotels(hotelsWithId); // ✅ Preserve original data
+      setTotalPages(response.totalPages || 1);
+      setTotalHotels(response.totalHotels || hotelsWithId.length);
+      setPage(pageNum);
+    } catch (err) {
+      console.error("Error loading hotels:", err);
+      setError("Failed to load hotels. Please try again.");
+      setHotels([]);
+      toast.error("Failed to load hotels");
+    } finally {
+      isLoadingRef.current = false;
+      setLoading(false);
+    }
+  }, []);
 
 
   const handleSearch = useCallback(async (query: string) => {
@@ -110,23 +110,23 @@ const [destinationId, ] = useState<string>("");
       try {
         const response = await searchHotel(query);
         const searchResults = Array.isArray(response) ? response : [];
-        
+
         const hotelsWithId = searchResults.map((hotel) => ({
           ...hotel,
           _id: hotel.hotelId || hotel._id,
         }));
-        
+
         setHotels(hotelsWithId);
         setTotalPages(Math.ceil(hotelsWithId.length / 5));
         setPage(1);
-        
+
       } catch (err) {
         console.error("Search error:", err);
         setError("Search failed. Please try again.");
         setHotels([]);
         setTotalPages(1);
         toast.error("Failed to search hotels");
-       
+
         setTimeout(() => setError(""), 3000);
       }
     }, 400);
@@ -135,9 +135,9 @@ const [destinationId, ] = useState<string>("");
   // Handle page change
   const handlePageChange = useCallback((newPage: number) => {
     if (newPage === page) return; // Prevent unnecessary calls
-    
+
     setPage(newPage);
-    
+
     if (!isSearchMode) {
       // Only fetch from server in normal mode
       loadHotels(newPage);
@@ -156,11 +156,11 @@ const [destinationId, ] = useState<string>("");
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [loadHotels]); 
+  }, [loadHotels]);
 
   const getCurrentPageData = () => {
     if (!isSearchMode) {
-      return hotels; 
+      return hotels;
     } else {
       const startIndex = (page - 1) * 5;
       const endIndex = startIndex + 5;
@@ -184,7 +184,7 @@ const [destinationId, ] = useState<string>("");
 
   const handleGetCoordinates = async () => {
     const currentAddress = formData.address;
-    
+
     if (!currentAddress || currentAddress.trim().length < 3) {
       toast.error("Please enter an address first");
       return;
@@ -201,7 +201,7 @@ const [destinationId, ] = useState<string>("");
         },
       });
       toast.success("Coordinates fetched successfully!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching coordinates:", error);
       toast.error(error?.message || "Failed to fetch coordinates");
@@ -216,7 +216,7 @@ const [destinationId, ] = useState<string>("");
       toast.error("Hotel ID is missing");
       return;
     }
-    
+
     const hotelId = selectedHotel._id || selectedHotel.hotelId;
     if (!hotelId) return;
 
@@ -239,7 +239,7 @@ const [destinationId, ] = useState<string>("");
         };
       }
 
-     await updateHotel(hotelId, updatePayload);
+      await updateHotel(hotelId, updatePayload);
       toast.success("Hotel updated successfully!");
 
       const updateHotelInList = (list: Hotel[]) =>
@@ -248,14 +248,14 @@ const [destinationId, ] = useState<string>("");
           const selectedId = selectedHotel._id || selectedHotel.hotelId;
           return currentId === selectedId
             ? {
-                ...h,
-                name: formData.name,
-                address: formData.address,
-                rating: Math.min(5, formData.rating),
-                coordinates: formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined
-                  ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
-                  : h.coordinates,
-              }
+              ...h,
+              name: formData.name,
+              address: formData.address,
+              rating: Math.min(5, formData.rating),
+              coordinates: formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined
+                ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
+                : h.coordinates,
+            }
             : h;
         });
 
@@ -266,19 +266,19 @@ const [destinationId, ] = useState<string>("");
 
       setIsEditModalOpen(false);
       setSelectedHotel(null);
-      
+
     } catch (err) {
       console.error("Error while editing hotel", err);
       setError("Failed to update hotel. Please try again.");
-      toast.error( "Failed to update hotel");
-      
+      toast.error("Failed to update hotel");
+
       setTimeout(() => setError(""), 3000);
     }
   }, [selectedHotel, formData, isSearchMode, destinationId]);
 
   const confirmDelete = useCallback(async () => {
     if (!selectedHotel?._id) return;
-    
+
     try {
       await deleteHotel(selectedHotel._id);
       toast.success("Hotel deleted successfully!");
@@ -294,12 +294,12 @@ const [destinationId, ] = useState<string>("");
       } else {
         setTotalPages(Math.ceil(updatedHotels.length / 5));
       }
-      
+
     } catch (err) {
       console.error("Delete error:", err);
       setError("Failed to delete hotel. Please try again.");
       toast.error("Failed to delete hotel");
-      
+
       setTimeout(() => setError(""), 3000);
     } finally {
       setIsDeleteModalOpen(false);
@@ -309,8 +309,8 @@ const [destinationId, ] = useState<string>("");
 
   const columns = useMemo<ColumnDef<Hotel>[]>(
     () => [
-      { 
-        header: "#", 
+      {
+        header: "#",
         cell: ({ row }) => {
           const baseIndex = (page - 1) * 5;
           return baseIndex + row.index + 1;
@@ -371,7 +371,6 @@ const [destinationId, ] = useState<string>("");
 
   return (
     <div className="space-y-4">
-      <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -380,7 +379,7 @@ const [destinationId, ] = useState<string>("");
             <MapPin className="w-5 h-5" /> Hotels List
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            {isSearchMode 
+            {isSearchMode
               ? `Found ${hotels.length} hotel${hotels.length !== 1 ? 's' : ''} for "${searchQuery}"`
               : `${totalHotels} total hotels`
             }
@@ -389,10 +388,10 @@ const [destinationId, ] = useState<string>("");
 
         <div className="flex items-center gap-4">
           <div className="w-60">
-            <SearchBar 
-              placeholder="Search hotels..." 
+            <SearchBar
+              placeholder="Search hotels..."
               onSearch={handleSearch}
-              // value={searchQuery}
+            // value={searchQuery}
             />
           </div>
           <span className="bg-slate-800 text-white px-3 py-1 rounded-full text-sm">
@@ -415,27 +414,27 @@ const [destinationId, ] = useState<string>("");
         </div>
       )}
 
-  
+
       {hotels.length > 0 ? (
         <>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable data={getCurrentPageData()} columns={columns} />
           </div>
 
-        
+
           {totalPages > 1 && (
             <div className="flex justify-center">
-              <Pagination 
-                total={totalPages} 
-                current={page} 
+              <Pagination
+                total={totalPages}
+                current={page}
                 setPage={handlePageChange}
               />
             </div>
           )}
 
-       
+
           <div className="text-center text-sm text-gray-500">
-            {isSearchMode 
+            {isSearchMode
               ? `Showing ${Math.min((page - 1) * 5 + 1, hotels.length)}-${Math.min(page * 5, hotels.length)} of ${hotels.length} search results`
               : `Showing ${((page - 1) * 5) + 1}-${Math.min(page * 5, totalHotels)} of ${totalHotels} hotels`
             }
@@ -448,7 +447,7 @@ const [destinationId, ] = useState<string>("");
             No Hotels Found
           </h3>
           <p className="text-gray-600">
-            {searchQuery 
+            {searchQuery
               ? `No hotels match your search for "${searchQuery}"`
               : "No hotels are available at the moment"
             }
@@ -640,11 +639,11 @@ const [destinationId, ] = useState<string>("");
               <h3 className="text-xl font-bold mb-2 text-gray-800">
                 Confirm Delete
               </h3>
-              
+
               <p className="text-gray-600 mb-2">
                 Are you sure you want to delete this hotel?
               </p>
-              
+
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
                 <p className="font-semibold text-red-800 text-lg">
                   {selectedHotel.name}

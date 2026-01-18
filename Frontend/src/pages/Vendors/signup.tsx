@@ -2,8 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { vendorRegister } from "@/services/vendor/vendorService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 import { vendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 import OtpVendorModal from "@/components/vendor/OtpModalVendor";
@@ -22,11 +21,14 @@ export default function VendorSignup() {
         handleSubmit,
         setValue,
         watch,
-        formState: { errors },
+        formState: { errors, dirtyFields },
     } = useForm<VendorSignupSchema>({
         resolver: zodResolver(vendorSignupSchema),
         mode: "onChange",
     });
+
+    const emailValue = watch("email");
+    const isEmailValid = !!emailValue && !errors.email && !!dirtyFields.email;
 
     const watchedDocument = watch("document");
 
@@ -112,9 +114,13 @@ export default function VendorSignup() {
                         <input
                             {...register("email")}
                             placeholder="Email Address"
-                            className={`w-full border rounded px-3 py-2 font-serif bg-white/50 focus:bg-white focus:border-black focus:outline-none transition-all placeholder:text-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-3 py-2 font-serif bg-white/50 focus:bg-white focus:outline-none transition-all placeholder:text-gray-500 ${errors.email ? 'border-red-500 focus:border-red-500' :
+                                isEmailValid ? 'border-green-500 focus:border-green-500' :
+                                    'border-gray-300 focus:border-black'
+                                }`}
                         />
                         {errors.email?.message && <p className="text-red-500 text-[10px] uppercase font-bold tracking-tighter">{errors.email?.message}</p>}
+                        {isEmailValid && <p className="text-green-600 text-[10px] uppercase font-bold tracking-widest mt-1">Email format is valid</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -184,7 +190,6 @@ export default function VendorSignup() {
                 </form>
             </AuthLayout>
 
-            <ToastContainer position="bottom-right" theme="dark" />
             {showOtpModal && vendorData && (
                 <OtpVendorModal
                     isOpen={showOtpModal}

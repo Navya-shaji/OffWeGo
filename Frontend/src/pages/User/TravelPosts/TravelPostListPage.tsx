@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -29,7 +30,6 @@ const TravelPostListPage = () => {
   const [displayedPosts, setDisplayedPosts] = useState<TravelPost[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -89,41 +89,49 @@ const TravelPostListPage = () => {
   useEffect(() => {
     if (activeQuery.data?.data) {
       const newPosts = activeQuery.data.data;
+      const totalPosts = activeQuery.data.totalPosts || 0;
 
       if (page === 1) {
         setDisplayedPosts(newPosts);
       } else {
-        setDisplayedPosts((prev) => [...prev, ...newPosts]);
+        // Prevent duplicate appending if strict mode renders twice
+        setDisplayedPosts((prev) => {
+          // simple check to avoid duplicates (safeguard)
+          const existingIds = new Set(prev.map(p => p.id));
+          const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id));
+          return [...prev, ...uniqueNewPosts];
+        });
       }
 
       // Check if there are more posts to load
-      setHasMore(newPosts.length === POSTS_PER_PAGE && (activeQuery.data.totalPosts > page * POSTS_PER_PAGE || newPosts.length >= POSTS_PER_PAGE));
+      // hasMore is true if the total fetched so far is less than total available
+      // Note: newPosts.length < POSTS_PER_PAGE also indicates end
+      const isLastPage = newPosts.length < POSTS_PER_PAGE;
+      const allLoaded = (page * POSTS_PER_PAGE) >= totalPosts;
+
+      setHasMore(!isLastPage && !allLoaded);
     }
   }, [activeQuery.data, page]);
 
   // Infinite scroll observer
   const loadMorePosts = useCallback(() => {
-    if (!hasMore || isLoadingMore || activeQuery.isLoading) return;
+    if (!hasMore || activeQuery.isFetching) return;
 
-    setIsLoadingMore(true);
     setPage((prev) => prev + 1);
-
-    // Reset loading state after a short delay to prevent multiple calls
-    setTimeout(() => setIsLoadingMore(false), 500);
-  }, [hasMore, isLoadingMore, activeQuery.isLoading]);
+  }, [hasMore, activeQuery.isFetching]);
 
   useEffect(() => {
     if (loadMoreRef.current) {
       observerRef.current = new IntersectionObserver(
         (entries) => {
           const target = entries[0];
-          if (target.isIntersecting && hasMore && !isLoadingMore) {
+          if (target.isIntersecting && hasMore && !activeQuery.isFetching) {
             loadMorePosts();
           }
         },
         {
           threshold: 0.1,
-          rootMargin: "100px", // Start loading 100px before element comes into view
+          rootMargin: "100px",
         }
       );
 
@@ -136,10 +144,9 @@ const TravelPostListPage = () => {
         observerRef.current.unobserve(loadMoreRef.current);
       }
     };
-  }, [loadMorePosts, hasMore, isLoadingMore]);
+  }, [loadMorePosts, hasMore, activeQuery.isFetching]);
 
   const filteredPosts = useMemo(() => {
-
     return displayedPosts;
   }, [displayedPosts]);
 
@@ -217,6 +224,8 @@ const TravelPostListPage = () => {
       </Link>
     );
   };
+
+  const isInitialLoading = activeQuery.isLoading && page === 1;
 
   return (
     <div className="min-h-screen bg-white pt-20">
@@ -404,9 +413,9 @@ const TravelPostListPage = () => {
               Go to login
             </Link>
           </div>
-        ) : activeQuery.isLoading ? (
+        ) : isInitialLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900"></div>
+            <LoadingSpinner size="lg" color="#111827" />
           </div>
         ) : activeQuery.isError ? (
           <div className="rounded-lg bg-gray-50 p-12 text-center">
@@ -446,15 +455,15 @@ const TravelPostListPage = () => {
             </div>
 
             {/* Load More Indicator */}
-            <div ref={loadMoreRef} className="py-8">
-              {isLoadingMore && (
-                <div className="flex items-center justify-center">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900"></div>
-                  <span className="ml-3 text-sm text-gray-600">Loading more stories...</span>
+            <div ref={loadMoreRef} className="py-8 min-h-[50px]">
+              {activeQuery.isFetching && page > 1 && (
+                <div className="flex items-center justify-center gap-3">
+                  <LoadingSpinner size="sm" color="#4b5563" />
+                  <span className="text-sm text-gray-600">Loading more stories...</span>
                 </div>
               )}
 
-              {!hasMore && filteredPosts.length > 0 && (
+              {!hasMore && filteredPosts.length > 0 && !activeQuery.isFetching && (
                 <div className="text-center py-8">
                   <p className="text-sm text-gray-500">
                     {filteredPosts.length === 1 ? "That's all the stories for now!" : `You've reached the end! ${filteredPosts.length} amazing stories loaded.`}

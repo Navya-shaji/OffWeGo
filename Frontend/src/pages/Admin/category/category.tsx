@@ -9,8 +9,7 @@ import {
 } from "@/Types/Admin/category/categoryzodSchema";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import type { CategoryType } from "@/interface/categoryInterface";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 
 import MainCategorySelect from "@/components/category/categorymapping";
 import SubCategory from "@/components/category/subCategory";
@@ -114,7 +113,6 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
           onSubmit={handleSubmit(onSubmit, (errs) => console.log("Form Errors:", errs))}
           className="p-6 space-y-6"
         >
-          <ToastContainer position="top-right" autoClose={3000} />
 
           {/* Name Field */}
           <div>

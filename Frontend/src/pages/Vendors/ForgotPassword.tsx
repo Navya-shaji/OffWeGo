@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
+import { forgotPassword } from "@/services/vendor/VendorLoginService";
 
 export default function VendorForgotPassword() {
     const [email, setEmail] = useState("");
@@ -25,12 +26,16 @@ export default function VendorForgotPassword() {
 
         setLoading(true);
 
-        // Simulate API call - Replace with actual vendor forgot password API when available
-        setTimeout(() => {
+        try {
+            await forgotPassword(trimmedEmail);
             setLoading(false);
             setSubmitted(true);
-            toast.success("If your email is registered, you will receive password reset instructions.");
-        }, 1500);
+            toast.success("Password reset instructions sent to your email.");
+        } catch (error: any) {
+            setLoading(false);
+            console.error(error);
+            toast.error(error.message || "Failed to process request. Please check if the email is correct.");
+        }
     };
 
     return (
@@ -86,7 +91,7 @@ export default function VendorForgotPassword() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full bg-purple-600 text-white font-medium py-3 rounded-lg hover:bg-purple-700 transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full bg-gray-900 text-white font-medium py-3 rounded-lg hover:bg-black transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {loading ? (
                                         <>

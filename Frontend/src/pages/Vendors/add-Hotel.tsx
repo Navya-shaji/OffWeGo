@@ -3,12 +3,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { hotelSchema, type HotelFormData } from "@/Types/vendor/Package/Hotel";
 import { createHotel } from "@/services/Hotel/HotelService";
-import { fetchAllDestinations } from "@/services/Destination/destinationService"; 
+import { fetchAllDestinations } from "@/services/Destination/destinationService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 import { Star, MapPin, Loader2 } from "lucide-react";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import type { Hotel } from "@/interface/PackageInterface";
@@ -45,7 +44,7 @@ const CreateHotel: React.FC = () => {
 
   const handleGetCoordinates = async () => {
     const currentAddress = address || getValues("address");
-    
+
     if (!currentAddress || currentAddress.trim().length < 3) {
       toast.error("Please enter an address first");
       return;
@@ -58,17 +57,17 @@ const CreateHotel: React.FC = () => {
       setValue("coordinates.lng", parseFloat(coords.lng.toFixed(6)));
       toast.success("Coordinates fetched successfully!");
     } catch {
-      toast.error( "Failed to fetch coordinates");
+      toast.error("Failed to fetch coordinates");
     } finally {
       setIsGettingCoordinates(false);
     }
   };
 
-  
+
   useEffect(() => {
     const loadDestinations = async () => {
       try {
-        const res = await fetchAllDestinations(1, 50); 
+        const res = await fetchAllDestinations(1, 50);
         setDestinations(res.destinations);
       } catch (error) {
         console.error("Failed to load destinations:", error);
@@ -78,33 +77,33 @@ const CreateHotel: React.FC = () => {
     loadDestinations();
   }, []);
 
-const onSubmit = async (data: HotelFormData) => {
-  if (!destinationId) {
-    notifyError("Please select a destination");
-    return;
-  }
+  const onSubmit = async (data: HotelFormData) => {
+    if (!destinationId) {
+      notifyError("Please select a destination");
+      return;
+    }
 
-  const hotelData: Hotel = { 
-    ...data, 
-    destinationId,
-    coordinates: data.coordinates?.lat && data.coordinates?.lng 
-      ? { lat: data.coordinates.lat, lng: data.coordinates.lng }
-      : undefined
-  }; 
+    const hotelData: Hotel = {
+      ...data,
+      destinationId,
+      coordinates: data.coordinates?.lat && data.coordinates?.lng
+        ? { lat: data.coordinates.lat, lng: data.coordinates.lng }
+        : undefined
+    };
 
-  try {
-    setLoading(true);
-    await createHotel(hotelData, destinationId); 
-    notifySuccess();
-    reset();
-    setDestinationId("");
-  } catch (error) {
-    console.error("Error creating hotel:", error);
-    notifyError("Failed to create hotel");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      await createHotel(hotelData, destinationId);
+      notifySuccess();
+      reset();
+      setDestinationId("");
+    } catch (error) {
+      console.error("Error creating hotel:", error);
+      notifyError("Failed to create hotel");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
@@ -118,7 +117,6 @@ const onSubmit = async (data: HotelFormData) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-          <ToastContainer position="top-right" autoClose={3000} />
 
           <div>
             <Label htmlFor="destination">Select Destination <span className="text-red-500">*</span></Label>
@@ -150,11 +148,11 @@ const onSubmit = async (data: HotelFormData) => {
           <div>
             <Label htmlFor="address">Address <span className="text-red-500">*</span></Label>
             <div className="flex gap-2 mt-2">
-              <Input 
-                id="address" 
-                placeholder="Enter hotel address" 
+              <Input
+                id="address"
+                placeholder="Enter hotel address"
                 className="flex-1"
-                {...register("address")} 
+                {...register("address")}
               />
               <Button
                 type="button"
@@ -230,9 +228,8 @@ const onSubmit = async (data: HotelFormData) => {
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`w-6 h-6 cursor-pointer ${
-                    star <= rating ? "text-yellow-500 fill-yellow-500" : "text-gray-400"
-                  }`}
+                  className={`w-6 h-6 cursor-pointer ${star <= rating ? "text-yellow-500 fill-yellow-500" : "text-gray-400"
+                    }`}
                   onClick={() => handleRatingClick(star)}
                 />
               ))}

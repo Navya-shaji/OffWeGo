@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { onMessageListener } from "@/Firebase/firebase"; 
+import { onMessageListener } from "@/Firebase/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -20,10 +20,10 @@ const FirebaseNotification = () => {
 
   return (
     <>
-    
+
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
- 
+
       {notification && (
         <div className="notification-banner">
           <h4>{notification.notification?.title}</h4>
@@ -34,4 +34,4 @@ const FirebaseNotification = () => {
   );
 };
 
-export default FirebaseNotification;
+ export default FirebaseNotification;

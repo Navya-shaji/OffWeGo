@@ -5,7 +5,7 @@ import { io, Socket } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/store/store";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 interface SocketContextType {
     socket: Socket | null;
@@ -84,7 +84,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                 // Show toast only if not on the chat page
                 if (window.location.pathname !== `/chat/${data.chatId}` &&
                     window.location.pathname !== `/vendor/chat/${data.chatId}`) {
-                    toast.info(`New message from ${data.senderName || 'Someone'}`);
+                    toast(`New message from ${data.senderName || 'Someone'}`, { icon: 'ℹ️' });
                 }
             });
 

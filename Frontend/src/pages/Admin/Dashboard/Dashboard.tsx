@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { Users, Building2, MapPin, CreditCard, Activity, BarChart3, PieChart, Package, TrendingUp, DollarSign, Calendar, BookOpen } from "lucide-react";
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
 import { getAllUsers } from "@/services/admin/adminUserService";
@@ -110,7 +111,7 @@ const AdminDashboard: React.FC = () => {
         totalUsers: usersData.totalUsers || 0,
         totalVendors: vendorsData.totalvendors || 0,
         totalDestinations: destinationsData.totalDestinations || 0,
-        totalSubscriptions: Array.isArray(subscriptionsData) ? subscriptionsData.length : 0,
+        totalSubscriptions: Array.isArray(subscriptionsData) ? subscriptionsData.length : (Array.isArray(subscriptionsData?.data) ? subscriptionsData.data.length : 0),
         totalBookings,
         totalPackages: packagesData?.totalPackages || 0,
         totalRevenue,
@@ -240,14 +241,10 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300"></div>
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-900 border-t-transparent absolute top-0 left-0"></div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="xl" color="#111827" />
+          <p className="mt-4 text-gray-600 font-medium font-serif italic">Loading Dashboard Metrics...</p>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Plane,
@@ -74,7 +75,7 @@ export default function VendorDashboard() {
       try {
         setLoading(true);
         if (!vendorId) return;
-        
+
         const [pkgRes, hotelRes, actRes, flightRes, bookingRes, walletRes] =
           await Promise.all([
             fetchAllPackages(1, 1000),
@@ -149,14 +150,11 @@ export default function VendorDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-r-gray-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-gray-700 font-semibold text-lg">Loading your dashboard</p>
-            <p className="text-gray-500 text-sm">Preparing your business insights...</p>
+        <div className="text-center">
+          <LoadingSpinner size="xl" color="#374151" />
+          <div className="mt-6 space-y-2">
+            <p className="text-gray-900 font-bold text-xl font-serif">Loading your dashboard</p>
+            <p className="text-gray-500 text-sm italic">Preparing your business insights...</p>
           </div>
         </div>
       </div>
@@ -197,7 +195,7 @@ export default function VendorDashboard() {
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
       const monthName = monthlyData[currentMonth]?.month || currentDate.toLocaleString("default", { month: "long" });
-      
+
       invoiceData.dateRange = `${monthName} ${currentYear}`;
       invoiceData.totalRevenue = monthlyData[currentMonth]?.revenue || 0;
       invoiceData.totalBookings = monthlyData[currentMonth]?.bookings || 0;
@@ -219,16 +217,16 @@ export default function VendorDashboard() {
     // Header Section with Border
     pdf.setFillColor(0, 0, 0);
     pdf.rect(20, yPosition - 5, pageWidth - 40, 25, 'F');
-    
+
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(24);
     pdf.setFont("helvetica", "bold");
     pdf.text("INVOICE", pageWidth / 2, yPosition + 8, { align: "center" });
-    
+
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "normal");
     pdf.text(`${invoiceData.period.toUpperCase()} REPORT`, pageWidth / 2, yPosition + 15, { align: "center" });
-    
+
     pdf.setTextColor(0, 0, 0);
     yPosition += 35;
 
@@ -236,17 +234,17 @@ export default function VendorDashboard() {
     pdf.setDrawColor(200, 200, 200);
     pdf.setLineWidth(0.5);
     pdf.rect(20, yPosition, pageWidth - 40, 30);
-    
+
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "bold");
     pdf.text("Vendor Details", 25, yPosition + 8);
-    
+
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
     pdf.text(`Name: ${invoiceData.vendorName}`, 25, yPosition + 15);
     pdf.text(`Email: ${invoiceData.vendorEmail}`, 25, yPosition + 21);
     pdf.text(`Period: ${invoiceData.dateRange}`, 25, yPosition + 27);
-    
+
     // Invoice Details (Right side)
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
@@ -257,28 +255,28 @@ export default function VendorDashboard() {
       month: "long",
       day: "numeric",
     })}`, pageWidth - 25, yPosition + 14, { align: "right" });
-    
+
     yPosition += 40;
 
     // Summary Section with Box
     pdf.setFillColor(245, 245, 245);
     pdf.rect(20, yPosition, pageWidth - 40, 25, 'F');
-    
+
     pdf.setFontSize(14);
     pdf.setFont("helvetica", "bold");
     pdf.text("Summary", 25, yPosition + 10);
-    
+
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "normal");
     pdf.text(`Total Revenue:`, 25, yPosition + 18);
     pdf.setFont("helvetica", "bold");
     pdf.text(`₹${invoiceData.totalRevenue.toLocaleString("en-IN")}`, 80, yPosition + 18);
-    
+
     pdf.setFont("helvetica", "normal");
     pdf.text(`Total Bookings:`, 120, yPosition + 18);
     pdf.setFont("helvetica", "bold");
     pdf.text(`${invoiceData.totalBookings}`, 170, yPosition + 18);
-    
+
     yPosition += 35;
 
     // Monthly Breakdown Table
@@ -291,7 +289,7 @@ export default function VendorDashboard() {
       // Table Header with background
       pdf.setFillColor(240, 240, 240);
       pdf.rect(20, yPosition - 5, pageWidth - 40, 8, 'F');
-      
+
       pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");
       pdf.text("Month", 25, yPosition);
@@ -322,29 +320,29 @@ export default function VendorDashboard() {
           pdf.text("Avg/Booking", 170, yPosition);
           yPosition += 8;
         }
-        
+
         // Alternate row colors
         if (rowCount % 2 === 0) {
           pdf.setFillColor(250, 250, 250);
           pdf.rect(20, yPosition - 4, pageWidth - 40, 6, 'F');
         }
-        
+
         const avgBooking = data.bookings > 0 ? (data.revenue / data.bookings) : 0;
-        
+
         pdf.setFont("helvetica", "normal");
         pdf.text(data.month, 25, yPosition);
         pdf.text(data.bookings.toString(), 80, yPosition);
         pdf.text(`₹${data.revenue.toLocaleString("en-IN")}`, 130, yPosition);
         pdf.text(`₹${avgBooking.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, 170, yPosition);
-        
+
         // Draw row separator
         pdf.setDrawColor(230, 230, 230);
         pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2);
-        
+
         yPosition += 6;
         rowCount++;
       });
-      
+
       // Draw bottom border
       pdf.setDrawColor(200, 200, 200);
       pdf.line(20, yPosition - 2, pageWidth - 20, yPosition - 2);
@@ -356,18 +354,18 @@ export default function VendorDashboard() {
       pdf.addPage();
       yPosition = 20;
     }
-    
+
     pdf.setFillColor(245, 245, 245);
     pdf.rect(pageWidth - 80, yPosition, 60, 15, 'F');
-    
+
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "bold");
     pdf.text("TOTAL:", pageWidth - 75, yPosition + 7);
     pdf.text(`₹${invoiceData.totalRevenue.toLocaleString("en-IN")}`, pageWidth - 25, yPosition + 7, { align: "right" });
-    
+
     pdf.setFont("helvetica", "normal");
     pdf.text(`Bookings: ${invoiceData.totalBookings}`, pageWidth - 75, yPosition + 13);
-    
+
     yPosition += 25;
 
     // Footer
@@ -377,10 +375,10 @@ export default function VendorDashboard() {
     } else {
       yPosition = pageHeight - 20;
     }
-    
+
     pdf.setDrawColor(200, 200, 200);
     pdf.line(20, yPosition - 5, pageWidth - 20, yPosition - 5);
-    
+
     pdf.setFontSize(8);
     pdf.setFont("helvetica", "italic");
     pdf.setTextColor(128, 128, 128);
@@ -396,7 +394,7 @@ export default function VendorDashboard() {
       yPosition,
       { align: "center" }
     );
-    
+
     pdf.setTextColor(0, 0, 0);
 
     // Save PDF
@@ -488,7 +486,7 @@ export default function VendorDashboard() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Invoice Download Button */}
               <div className="relative invoice-dropdown-container">
                 <button
@@ -498,7 +496,7 @@ export default function VendorDashboard() {
                   <Download className="w-4 h-4" />
                   Download Invoice
                 </button>
-                
+
                 {showInvoiceDropdown && (
                   <div className="absolute right-0 top-12 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                     <button
@@ -544,8 +542,8 @@ export default function VendorDashboard() {
                     ₹{stats.totalRevenue.toLocaleString("en-IN")}
                   </span>
                   <span className={`text-sm font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg ${isPositiveGrowth
-                      ? "text-emerald-700 bg-emerald-50"
-                      : "text-red-700 bg-red-50"
+                    ? "text-emerald-700 bg-emerald-50"
+                    : "text-red-700 bg-red-50"
                     }`}>
                     {isPositiveGrowth ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                     {isPositiveGrowth ? "+" : ""}{growthPercentage}%
@@ -590,18 +588,18 @@ export default function VendorDashboard() {
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                    <XAxis 
-                      dataKey="month" 
+                    <XAxis
+                      dataKey="month"
                       stroke="#6b7280"
                       style={{ fontSize: '11px' }}
                       tick={{ fill: '#6b7280' }}
                     />
-                    <YAxis 
+                    <YAxis
                       stroke="#6b7280"
                       style={{ fontSize: '11px' }}
                       tick={{ fill: '#6b7280' }}
                     />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
                         backgroundColor: '#fff',
                         border: '1px solid #e5e7eb',
@@ -616,15 +614,15 @@ export default function VendorDashboard() {
                         return [`₹${value.toLocaleString('en-IN')}`, 'Revenue'];
                       }}
                     />
-                    <Bar 
-                      dataKey="bookings" 
-                      fill="#374151" 
+                    <Bar
+                      dataKey="bookings"
+                      fill="#374151"
                       radius={[4, 4, 0, 0]}
                       name="Bookings"
                     />
-                    <Bar 
-                      dataKey="revenue" 
-                      fill="#9ca3af" 
+                    <Bar
+                      dataKey="revenue"
+                      fill="#9ca3af"
                       radius={[4, 4, 0, 0]}
                       name="Revenue"
                     />
@@ -679,11 +677,11 @@ export default function VendorDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                  <div className="flex items-end gap-2">
+                <div className="flex items-end gap-2">
                   <span className="text-5xl font-bold text-gray-900">{stats.bookings}</span>
                   <span className={`text-sm font-bold mb-2 px-3 py-1 rounded-lg flex items-center gap-1 ${isPositiveGrowth
-                      ? "text-emerald-700 bg-emerald-50"
-                      : "text-red-700 bg-red-50"
+                    ? "text-emerald-700 bg-emerald-50"
+                    : "text-red-700 bg-red-50"
                     }`}>
                     {isPositiveGrowth ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {isPositiveGrowth ? "+" : ""}{growthPercentage}%
@@ -795,16 +793,16 @@ export default function VendorDashboard() {
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis 
-                      dataKey="month" 
+                    <XAxis
+                      dataKey="month"
                       stroke="#6b7280"
                       style={{ fontSize: '12px' }}
                     />
-                    <YAxis 
+                    <YAxis
                       stroke="#6b7280"
                       style={{ fontSize: '12px' }}
                     />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
                         backgroundColor: '#fff',
                         border: '1px solid #e5e7eb',
@@ -818,7 +816,7 @@ export default function VendorDashboard() {
                         return [`₹${value.toLocaleString('en-IN')}`, 'Revenue'];
                       }}
                     />
-                    <Legend 
+                    <Legend
                       wrapperStyle={{ paddingTop: '20px' }}
                       formatter={(value) => {
                         if (value === 'bookings') return 'Bookings';
@@ -826,15 +824,15 @@ export default function VendorDashboard() {
                         return value;
                       }}
                     />
-                    <Bar 
-                      dataKey="bookings" 
-                      fill="#374151" 
+                    <Bar
+                      dataKey="bookings"
+                      fill="#374151"
                       radius={[4, 4, 0, 0]}
                       name="bookings"
                     />
-                    <Bar 
-                      dataKey="revenue" 
-                      fill="#9ca3af" 
+                    <Bar
+                      dataKey="revenue"
+                      fill="#9ca3af"
                       radius={[4, 4, 0, 0]}
                       name="revenue"
                     />
@@ -850,16 +848,16 @@ export default function VendorDashboard() {
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis 
-                      dataKey="month" 
+                    <XAxis
+                      dataKey="month"
                       stroke="#6b7280"
                       style={{ fontSize: '12px' }}
                     />
-                    <YAxis 
+                    <YAxis
                       stroke="#6b7280"
                       style={{ fontSize: '12px' }}
                     />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
                         backgroundColor: '#fff',
                         border: '1px solid #e5e7eb',
@@ -873,22 +871,22 @@ export default function VendorDashboard() {
                         return [`₹${value.toLocaleString('en-IN')}`, 'Revenue'];
                       }}
                     />
-                    <Legend 
+                    <Legend
                       wrapperStyle={{ paddingTop: '10px' }}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="bookings" 
-                      stroke="#374151" 
+                    <Line
+                      type="monotone"
+                      dataKey="bookings"
+                      stroke="#374151"
                       strokeWidth={3}
                       dot={{ fill: '#374151', r: 4 }}
                       activeDot={{ r: 6 }}
                       name="Bookings Trend"
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#9ca3af" 
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#9ca3af"
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       dot={{ fill: '#9ca3af', r: 4 }}
@@ -897,7 +895,7 @@ export default function VendorDashboard() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              
+
               {/* Summary Stats */}
               <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -938,8 +936,8 @@ export default function VendorDashboard() {
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
             <p className="text-sm text-gray-600 mb-2 font-medium">Growth Rate</p>
             <p className={`text-3xl font-bold flex items-center gap-2 ${isPositiveGrowth
-                ? "text-emerald-600"
-                : "text-red-600"
+              ? "text-emerald-600"
+              : "text-red-600"
               }`}>
               {isPositiveGrowth ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
               {isPositiveGrowth ? "+" : ""}{growthPercentage}%

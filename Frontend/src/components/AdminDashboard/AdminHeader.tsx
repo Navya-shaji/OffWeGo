@@ -52,12 +52,9 @@ export function AdminHeader({ onMenuToggle, onLogout }: AdminHeaderProps) {
               </div>
             </div>
 
-            {/* Right side */}
+          
             <div className="flex items-center space-x-4">
-              {/* Notifications */}
-              {/* <NotificationBell /> */}
-              
-              {/* User menu */}
+           
               <div className="relative">
                 <button className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 transition-colors">
                   <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import type { TravelPost } from "../../../interface/TravelPost";
 import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "@/services/TravelPost/TravelPostService";
 import {
- 
+
   ArrowLeft,
   Calendar,
   MapPin,
@@ -121,13 +122,8 @@ const TravelPostDetailPage = () => {
       <div className="min-h-screen bg-white">
         <Header forceSolid />
         <div className="flex flex-col items-center justify-center min-h-[80vh]">
-          <div className="relative">
-            <div className="h-24 w-24 rounded-full border-4 border-gray-100 border-t-blue-600 animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-12 w-12 rounded-full bg-blue-50"></div>
-            </div>
-          </div>
-          <p className="mt-8 text-xl font-medium text-gray-400 animate-pulse">Gathering stories...</p>
+          <LoadingSpinner size="xl" color="#2563eb" />
+          <p className="mt-8 text-xl font-medium text-gray-400 animate-pulse font-serif italic">Gathering stories...</p>
         </div>
       </div>
     );

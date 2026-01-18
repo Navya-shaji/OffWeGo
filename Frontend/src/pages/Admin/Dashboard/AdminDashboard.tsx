@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import Sidebar from "@/components/AdminDashboard/sidebar";
-import VendorRequests from "@/components/AdminDashboard/vendorRequests";
+import VendorRequestsMain from "@/components/AdminDashboard/VendorRequestsMain";
 import Navbar from "@/components/AdminDashboard/navbar";
 import UserList from "@/components/AdminDashboard/userList";
 import { VendorList } from "@/components/AdminDashboard/vendorDetails";
@@ -70,17 +70,7 @@ const AdminLayout = () => {
             <div className="p-4 sm:p-6">
               {activeTab === "Dashboard" && <DashboardContent />}
 
-              {activeTab === "Pending Requests" && (
-                <VendorRequests filter="pending" />
-              )}
-
-              {activeTab === "Approved Requests" && (
-                <VendorRequests filter="approved" />
-              )}
-
-              {activeTab === "Rejected Requests" && (
-                <VendorRequests filter="rejected" />
-              )}
+              {activeTab === "Vendor Requests" && <VendorRequestsMain />}
 
               {activeTab === "Users" && <UserList />}
               {activeTab === "Vendors" && <VendorList />}
@@ -95,7 +85,7 @@ const AdminLayout = () => {
               {activeTab === "All Subscriptions" && <SubscriptionList />}
               {activeTab === "Wallet-Transactions" && <AdminWalletManagement />}
               {activeTab === "Booked Subscriptions" && <BookedSubscriptions />}
-               
+
             </div>
           </div>
         </div>

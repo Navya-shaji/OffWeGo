@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import ReusableTable from "@/components/Modular/Table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Trash, X } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 import { SearchBar } from "@/components/Modular/searchbar";
 import type { Flight } from "@/interface/flightInterface";
 import {
@@ -43,13 +42,13 @@ const FlightsPage: React.FC = () => {
       setLoading(true);
       setError("");
       const response = await fetchAllFlights();
-     
-      
+
+
       // Ensure response is an array
       const flightsArray = Array.isArray(response) ? response : [];
       setFlights(flightsArray);
       setOriginalFlights(flightsArray);
-      
+
       if (flightsArray.length === 0) {
         console.warn("No flights returned from API");
       }
@@ -89,7 +88,7 @@ const FlightsPage: React.FC = () => {
     [originalFlights]
   );
 
- 
+
   const handleEdit = useCallback((flight: Flight) => {
     setSelectedFlight(flight);
     setFormData({
@@ -124,17 +123,17 @@ const FlightsPage: React.FC = () => {
         };
 
         const updatedFlightResponse = await updateFlight(selectedFlight.id, updatedFlightData);
-        
+
         // Handle different response structures
         const updatedFlight = updatedFlightResponse?.data || updatedFlightResponse || updatedFlightData;
-        
+
         // Update both the displayed flights and original flights
         const updateFlightsList = (list: Flight[]) =>
           list.map((f) => (f.id === selectedFlight.id ? updatedFlight : f));
-        
+
         setFlights(updateFlightsList);
         setOriginalFlights(updateFlightsList);
-        
+
         toast.success("Flight updated successfully");
         setIsEditModalOpen(false);
         setSelectedFlight(null);
@@ -165,14 +164,14 @@ const FlightsPage: React.FC = () => {
     setIsDeleting(true);
     try {
       await deleteFlight(flightToDelete.id);
-      
+
       // Remove the deleted flight from both lists
       const removeFromList = (list: Flight[]) =>
         list.filter((f) => f.id !== flightToDelete.id);
-      
+
       setFlights(removeFromList);
       setOriginalFlights(removeFromList);
-      
+
       toast.success("Flight deleted successfully");
       setIsDeleteModalOpen(false);
       setFlightToDelete(null);
@@ -207,7 +206,7 @@ const FlightsPage: React.FC = () => {
         header: "Business Price (₹)",
         cell: ({ row }) => row.original.price?.business ?? "-",
       },
-  
+
       {
         header: "Actions",
         cell: ({ row }) => (
@@ -245,7 +244,6 @@ const FlightsPage: React.FC = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-xl font-bold text-gray-900">Flights List</h2>

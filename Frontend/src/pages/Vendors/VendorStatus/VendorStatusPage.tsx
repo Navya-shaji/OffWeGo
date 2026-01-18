@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle, XCircle, Clock, RefreshCw, LogOut } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 
 interface VendorStatusData {
   status: "pending" | "approved" | "rejected";
@@ -139,7 +138,7 @@ export default function VendorStatusPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ToastContainer />
+
 
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
@@ -258,13 +257,6 @@ export default function VendorStatusPage() {
                 >
                   Apply Again
                 </Link>
-
-                <button
-                  onClick={() => window.location.href = "mailto:support@offwego.com"}
-                  className="bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors duration-200"
-                >
-                  Contact Support
-                </button>
               </>
             )}
 
@@ -286,16 +278,6 @@ export default function VendorStatusPage() {
               </>
             )}
           </div>
-        </div>
-
-        {/* Additional Information */}
-        <div className="mt-8 text-center text-gray-600">
-          <p className="text-sm">
-            Need help? Contact us at{" "}
-            <a href="mailto:support@offwego.com" className="text-amber-600 hover:underline">
-              support@offwego.com
-            </a>
-          </p>
         </div>
       </div>
     </div>

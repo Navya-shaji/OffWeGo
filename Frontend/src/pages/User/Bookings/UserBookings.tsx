@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 import Header from "@/components/home/navbar/Header";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { createPortal } from "react-dom";
 import {
   Calendar,
@@ -434,8 +435,8 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
     return (
       <div className={embedded ? "flex items-center justify-center py-14" : "flex items-center justify-center min-h-screen bg-white"}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-100 border-t-black mx-auto mb-3"></div>
-          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">Loading Records...</p>
+          <LoadingSpinner size="lg" color="#000000" />
+          <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-3">Loading Trip Records...</p>
         </div>
       </div>
     );

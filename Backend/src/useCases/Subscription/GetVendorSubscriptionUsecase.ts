@@ -4,14 +4,14 @@ import { ISubscriptionBookingRepository } from "../../domain/interface/Subscript
 import { VendorModel } from "../../framework/database/Models/vendorModel";
 
 export class GetVendorSubscriptionHistoryUseCase implements IGetVendorSubscriptionHistoryUseCase {
-  constructor(private _subscriptionBookingRepo: ISubscriptionBookingRepository) {}
+  constructor(private _subscriptionBookingRepo: ISubscriptionBookingRepository) { }
 
   async execute(vendorId: string): Promise<any[]> {
     try {
       const bookings = await this._subscriptionBookingRepo.findByVendorId(vendorId);
-      
+
       const vendor = await VendorModel.findById(vendorId);
-      
+
       return bookings.map((booking: any) => {
         const bookingObj = booking.toObject ? booking.toObject() : booking;
         return {
@@ -23,7 +23,7 @@ export class GetVendorSubscriptionHistoryUseCase implements IGetVendorSubscripti
         };
       });
     } catch (error) {
-      throw new error;
+      throw error;
     }
   }
 }

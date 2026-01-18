@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Pencil, Trash2, Package } from "lucide-react";
 import * as subscriptionService from "@/services/subscription/subscriptionservice";
 import type { Subscription } from "@/interface/subscription";
@@ -31,7 +31,7 @@ export default function SubscriptionList() {
 
   useEffect(() => {
     fetchSubscriptions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchSubscriptions = async () => {
@@ -74,7 +74,6 @@ export default function SubscriptionList() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 p-6">
-      <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
@@ -172,8 +171,8 @@ export default function SubscriptionList() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {subscriptions.map((subscription, index) => (
-                    <tr 
-                      key={subscription._id} 
+                    <tr
+                      key={subscription._id}
                       className="hover:bg-gray-50 transition-colors duration-150"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
