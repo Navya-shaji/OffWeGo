@@ -22,6 +22,7 @@ import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInject
 import {
   packagecontroller,
 } from "../../Di/Vendor/VendorInjections";
+import { Role } from "../../../domain/constants/Roles";
 const TokenService = new JwtService();
 
 export class UserRoute {
@@ -212,7 +213,7 @@ export class UserRoute {
     this.userRouter.get(
       UserRoutes.TRAVEL_POSTS_MY,
       verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["user"]),
+      checkRoleBasedcontrol([Role.USER]),
       (req: Request, res: Response) => {
         travelPostController.listMyTravelPosts(req, res);
       }
@@ -226,7 +227,6 @@ export class UserRoute {
     this.userRouter.post(
       UserRoutes.TRAVEL_POSTS,
       verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["user"]),
       (req: Request, res: Response) => {
         travelPostController.createTravelPost(req, res);
       }
@@ -242,7 +242,7 @@ export class UserRoute {
     this.userRouter.post(
       UserRouteConstants.TRAVEL_POST_TOGGLE_SAVE,
       verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["user"]),
+      checkRoleBasedcontrol([Role.USER]),
       (req: Request, res: Response) => {
         travelPostController.toggleSaveTravelPost(req, res);
       }
@@ -251,7 +251,7 @@ export class UserRoute {
     this.userRouter.get(
       UserRouteConstants.TRAVEL_POST_SAVED,
       verifyTokenAndCheckBlackList(TokenService),
-      checkRoleBasedcontrol(["user"]),
+      checkRoleBasedcontrol([Role.USER]),
       (req: Request, res: Response) => {
         travelPostController.listSavedTravelPosts(req, res);
       }
