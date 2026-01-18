@@ -6,8 +6,8 @@ import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, BarCh
 import { getAllUsers } from "@/services/admin/adminUserService";
 import { getAllVendors } from "@/services/admin/adminVendorService";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
-import { getSubscriptions } from "@/services/subscription/subscriptionservice";
-import { getUserBookings } from "@/services/Booking/bookingService";
+import { getSubscriptions, getAllSubscriptionBookings } from "@/services/subscription/subscriptionservice";
+import { getAllBookingsAdmin } from "@/services/Booking/bookingService";
 import { fetchAllPackages } from "@/services/packages/packageService";
 import { getWallet } from "@/services/Wallet/AdminWalletService";
 import { useSelector } from "react-redux";
@@ -21,9 +21,13 @@ interface DashboardStats {
   totalBookings: number;
   totalPackages: number;
   totalRevenue: number;
-  activeBookings: number;
-  completedBookings: number;
-  pendingBookings: number;
+  totalSubscriptionRevenue: number;
+  activeSubscriptionsCount: number;
+  bookingsByStatus: {
+    active: number;
+    completed: number;
+    pending: number;
+  };
 }
 
 interface MonthlyData {
@@ -34,7 +38,7 @@ interface MonthlyData {
 
 const AdminDashboard: React.FC = () => {
   const admin = useSelector((state: RootState) => state.adminAuth?.admin);
-  const adminId = admin?.id 
+  const adminId = admin?.id
 
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -44,9 +48,13 @@ const AdminDashboard: React.FC = () => {
     totalBookings: 0,
     totalPackages: 0,
     totalRevenue: 0,
-    activeBookings: 0,
-    completedBookings: 0,
-    pendingBookings: 0,
+    totalSubscriptionRevenue: 0,
+    activeSubscriptionsCount: 0,
+    bookingsByStatus: {
+      active: 0,
+      completed: 0,
+      pending: 0,
+    },
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,30 +69,39 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const [usersData, vendorsData, destinationsData, subscriptionsData, bookingsData, packagesData, walletData] =
+      const [usersData, vendorsData, destinationsData, subscriptionsData, bookingsData, packagesData, walletData, subHistory] =
         await Promise.all([
           getAllUsers(1, 1),
           getAllVendors(1, 1),
           fetchAllDestinations(1, 1),
           getSubscriptions(),
-          getUserBookings().catch(() => []),
+          getAllBookingsAdmin().catch(() => []),
           fetchAllPackages(1, 1).catch(() => ({ totalPackages: 0 })),
           adminId ? getWallet(adminId).catch(() => null) : Promise.resolve(null),
+          getAllSubscriptionBookings().catch(() => ({ data: [] })),
         ]);
 
       const bookings = Array.isArray(bookingsData) ? bookingsData : [];
       const totalBookings = bookings.length;
-      const activeBookings = bookings.filter((b: any) => 
+      const activeBookings = bookings.filter((b: any) =>
         b.bookingStatus === "ongoing" || b.status === "ongoing"
       ).length;
-      const completedBookings = bookings.filter((b: any) => 
+      const completedBookings = bookings.filter((b: any) =>
         b.bookingStatus === "completed" || b.status === "completed"
       ).length;
-      const pendingBookings = bookings.filter((b: any) => 
+      const pendingBookings = bookings.filter((b: any) =>
         b.bookingStatus === "pending" || b.status === "pending" || b.paymentStatus === "pending"
       ).length;
 
-      const totalRevenue = walletData?.balance || bookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0);
+      const subBookings = Array.isArray(subHistory?.data) ? subHistory.data : [];
+
+      const totalSubscriptionRevenue = subBookings.reduce((sum: number, sub: any) =>
+        sub.status === 'active' ? sum + (sub.amount || 0) : sum, 0);
+
+      const activeSubscriptionsCount = subBookings.filter((sub: any) =>
+        sub.status === 'active').length;
+
+      const totalRevenue = (walletData?.balance || 0) + totalSubscriptionRevenue;
 
       // Process monthly data
       const monthlyStats = processMonthlyData(bookings);
@@ -97,9 +114,13 @@ const AdminDashboard: React.FC = () => {
         totalBookings,
         totalPackages: packagesData?.totalPackages || 0,
         totalRevenue,
-        activeBookings,
-        completedBookings,
-        pendingBookings,
+        totalSubscriptionRevenue,
+        activeSubscriptionsCount,
+        bookingsByStatus: {
+          active: activeBookings,
+          completed: completedBookings,
+          pending: pendingBookings,
+        },
       });
 
       setMonthlyData(monthlyStats);
@@ -195,7 +216,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: "Active Bookings",
-      value: stats.activeBookings,
+      value: stats.bookingsByStatus.active,
       icon: Activity,
       bgColor: "bg-gray-100",
       iconColor: "text-gray-800",
@@ -203,7 +224,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: "Completed Bookings",
-      value: stats.completedBookings,
+      value: stats.bookingsByStatus.completed,
       icon: Calendar,
       bgColor: "bg-gray-200",
       iconColor: "text-gray-900",
@@ -212,9 +233,9 @@ const AdminDashboard: React.FC = () => {
   ];
 
   const bookingStatusData = [
-    { name: 'Active', value: stats.activeBookings, color: '#6b7280' },
-    { name: 'Completed', value: stats.completedBookings, color: '#9ca3af' },
-    { name: 'Pending', value: stats.pendingBookings, color: '#d1d5db' },
+    { name: 'Active', value: stats.bookingsByStatus.active, color: '#6b7280' },
+    { name: 'Completed', value: stats.bookingsByStatus.completed, color: '#9ca3af' },
+    { name: 'Pending', value: stats.bookingsByStatus.pending, color: '#d1d5db' },
   ];
 
   if (loading) {
@@ -318,7 +339,7 @@ const AdminDashboard: React.FC = () => {
                       <Icon className={`w-6 h-6 ${card.iconColor}`} />
                     </div>
                   </div>
-                  
+
                   <div>
                     <p className="text-gray-600 text-sm font-medium mb-2">
                       {card.title}
@@ -348,7 +369,7 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-sm text-gray-600">Users, Vendors, Destinations & Subscriptions</p>
               </div>
             </div>
-            
+
             <ResponsiveContainer width="100%" height={300}>
               <RechartsPie>
                 <Pie
@@ -365,13 +386,13 @@ const AdminDashboard: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }} 
+                  }}
                 />
               </RechartsPie>
             </ResponsiveContainer>
@@ -388,7 +409,7 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-sm text-gray-600">Active, Completed & Pending</p>
               </div>
             </div>
-            
+
             <ResponsiveContainer width="100%" height={300}>
               <RechartsPie>
                 <Pie
@@ -405,13 +426,13 @@ const AdminDashboard: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: '12px',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }} 
+                  }}
                 />
               </RechartsPie>
             </ResponsiveContainer>
@@ -429,20 +450,20 @@ const AdminDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">Revenue and booking trends for the current year</p>
             </div>
           </div>
-          
+
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" stroke="#6b7280" />
               <YAxis yAxisId="left" stroke="#6b7280" />
               <YAxis yAxisId="right" orientation="right" stroke="#6b7280" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'white',
                   border: '1px solid #e5e7eb',
                   borderRadius: '12px',
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }} 
+                }}
               />
               <Legend />
               <Bar yAxisId="left" dataKey="bookings" fill="#6b7280" name="Bookings" radius={[8, 8, 0, 0]} />
@@ -457,7 +478,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium mb-2">Pending Bookings</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.pendingBookings}</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.bookingsByStatus.pending}</p>
               </div>
               <div className="p-3 bg-gray-100 rounded-xl">
                 <Calendar className="w-6 h-6 text-gray-800" />
@@ -469,7 +490,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium mb-2">Active Bookings</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.activeBookings}</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.bookingsByStatus.active}</p>
               </div>
               <div className="p-3 bg-gray-100 rounded-xl">
                 <Activity className="w-6 h-6 text-gray-800" />
@@ -481,7 +502,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium mb-2">Completed Bookings</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.completedBookings}</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.bookingsByStatus.completed}</p>
               </div>
               <div className="p-3 bg-gray-100 rounded-xl">
                 <BookOpen className="w-6 h-6 text-gray-800" />

@@ -6,6 +6,7 @@ import { IGetVendorSideBookingUsecase } from "../../../domain/interface/Booking/
 import { IBookingDatesUsecase } from "../../../domain/interface/Booking/IBookingDatesUsecase";
 import { ICancelBookingUsecase } from "../../../domain/interface/Booking/ICancelBookingUSecase";
 import { IBookingRescheduleUseCase } from "../../../domain/interface/Booking/IBookingRescheduleUseCase";
+import { GetAllBookingsUsecase } from "../../../useCases/Booking/GetAllBookingsUsecase";
 import { Traveler } from "../../../domain/entities/BookingEntity";
 import { success } from "../../../domain/constants/Success";
 import { ErrorMessages } from "../../../domain/constants/Error";
@@ -18,7 +19,8 @@ export class BookingController {
     private _vendorsidebookingUsecase: IGetVendorSideBookingUsecase,
     private _bookingDatesUsecase: IBookingDatesUsecase,
     private _cancelBookingUsecase: ICancelBookingUsecase,
-    private _rescheduleBookingUsecase: IBookingRescheduleUseCase
+    private _rescheduleBookingUsecase: IBookingRescheduleUseCase,
+    private _getAllBookingsUsecase: GetAllBookingsUsecase
   ) { }
 
   async createBooking(req: Request, res: Response): Promise<void> {
@@ -251,6 +253,22 @@ export class BookingController {
         return;
       }
 
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  async getAllBookings(req: Request, res: Response): Promise<void> {
+    try {
+      const bookings = await this._getAllBookingsUsecase.execute();
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: success.SUCCESS_MESSAGES.FETCHED,
+        data: bookings,
+      });
+    } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: ErrorMessages.INTERNAL_SERVER_ERROR,

@@ -12,6 +12,7 @@ import {
 import type { TravelPostFilters } from "@/interface/TravelPost";
 import { uploadToCloudinary } from "@/utilities/cloudinaryUpload";
 import Header from "@/components/home/navbar/Header";
+import { motion } from "framer-motion";
 
 const travelPostSchema = z.object({
   title: z.string().min(5, "Add a descriptive title (min. 5 characters)").max(120),
@@ -153,24 +154,52 @@ const TravelPostCreatePage = () => {
     <div className="min-h-screen bg-white">
       <Header forceSolid />
 
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="mx-auto max-w-7xl px-6 pt-32 pb-12"
+      >
         {/* Header Section */}
         <div className="mb-12 text-center">
-          <p className="mb-2 text-sm uppercase tracking-widest text-gray-500">Share your journey</p>
-          <h1 className="mb-4 font-serif text-4xl font-normal tracking-wide text-gray-900 md:text-5xl">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mb-2 text-sm uppercase tracking-[0.3em] text-orange-500 font-bold"
+          >
+            Share your journey
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-6 font-serif text-5xl font-medium tracking-tight text-gray-900 md:text-7xl"
+          >
             CREATE YOUR TRAVEL STORY
-          </h1>
-          <p className="mx-auto max-w-3xl text-base leading-relaxed text-gray-600">
+          </motion.h1>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: "80px" }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="h-1 bg-orange-500 mx-auto mb-8 rounded-full"
+          />
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-500 font-light"
+          >
             Upload your highlights, tag the destinations you uncovered and help fellow travellers plan their
             adventures. Submitted stories are reviewed by our editorial team before going live.
-          </p>
+          </motion.p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
           {/* Form Section */}
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-8 rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
+            className="space-y-10 rounded-[2rem] border border-gray-100 bg-white p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]"
           >
             {/* Title */}
             <div className="space-y-2">
@@ -276,13 +305,21 @@ const TravelPostCreatePage = () => {
             {/* Cover Image */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-900">Cover Image *</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleCoverChange}
-                className="block w-full cursor-pointer rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 focus:outline-none"
-              />
-              <p className="text-xs text-gray-500">Choose a hero image that sets the scene for your story.</p>
+              <div className="relative group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 px-6 py-10 text-center transition-all group-hover:border-orange-400 group-hover:bg-orange-50/10">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-orange-600">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900">Drop your primary photo here</p>
+                  <p className="mt-2 text-xs text-gray-500 uppercase tracking-widest font-bold">Recommended: Landscape orientation</p>
+                </div>
+              </div>
               {coverPreview && (
                 <img
                   src={coverPreview}
@@ -295,14 +332,22 @@ const TravelPostCreatePage = () => {
             {/* Gallery */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-900">Gallery (optional)</label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleGalleryChange}
-                className="block w-full cursor-pointer rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 focus:outline-none"
-              />
-              <p className="text-xs text-gray-500">Add up to 6 supporting photos that bring your journey to life.</p>
+              <div className="relative group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleGalleryChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 px-6 py-10 text-center transition-all group-hover:border-blue-400 group-hover:bg-blue-50/10">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900">Add supporting photos</p>
+                  <p className="mt-2 text-xs text-gray-500 uppercase tracking-widest font-bold">Up to 6 images</p>
+                </div>
+              </div>
               {Boolean(galleryPreviews.length) && (
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {galleryPreviews.map((preview, index) => (
@@ -321,7 +366,7 @@ const TravelPostCreatePage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded border border-gray-900 bg-gray-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-2xl bg-gray-900 px-8 py-5 text-sm uppercase tracking-[0.2em] font-bold text-white transition-all hover:bg-orange-600 hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? "Submitting your story..." : "Submit for Review"}
             </button>
@@ -330,18 +375,18 @@ const TravelPostCreatePage = () => {
           {/* Sidebar */}
           <aside className="space-y-6">
             {/* What Happens Next */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 font-serif text-lg font-normal tracking-wide text-gray-900">
+            <div className="rounded-[2.5rem] border border-gray-100 bg-white p-10 shadow-2xl">
+              <h2 className="mb-6 font-serif text-2xl font-medium tracking-wide text-gray-900">
                 What happens next?
               </h2>
-              <ul className="space-y-3 text-sm text-gray-600">
-                <li className="flex gap-3">
-                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-900"></span>
+              <ul className="space-y-6 text-sm text-gray-500 leading-relaxed">
+                <li className="flex gap-4">
+                  <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-orange-500"></span>
                   <span>Our editorial team reviews every submission to keep the community inspiring and safe.</span>
                 </li>
 
-                <li className="flex gap-3">
-                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-900"></span>
+                <li className="flex gap-4">
+                  <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></span>
                   <span>Highlight practical tips, budgets, and lessons learned—these are the insights fellow travellers love.</span>
                 </li>
               </ul>
@@ -387,7 +432,7 @@ const TravelPostCreatePage = () => {
             )}
           </aside>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

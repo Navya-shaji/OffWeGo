@@ -3,7 +3,7 @@ import { Bell, CreditCard, User, LogOut, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { logout } from "@/store/slice/vendor/authSlice";
-import {NotificationPanel} from "../Notification/NotificationModal";
+import { NotificationPanel } from "../Notification/NotificationModal";
 import { useChatContext } from "@/context/chatContext";
 import { addNotification } from "@/store/slice/Notifications/notificationSlice";
 import { messaging } from "@/Firebase/firebase";
@@ -36,7 +36,7 @@ const VendorNavbar: React.FC = () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const unsubscribe = onMessage(messaging, (payload: any) => {
-      
+
       const title = payload.notification?.title || payload.data?.title || "New Notification";
       const body = payload.notification?.body || payload.data?.body || payload.data?.message || "";
 
@@ -60,14 +60,14 @@ const VendorNavbar: React.FC = () => {
         <div className="flex items-center justify-between w-full px-6 h-full">
           {/* Logo Section */}
           <div className="flex items-center">
-            <img 
-              src={logo} 
-              alt="OffWeGo" 
+            <img
+              src={logo}
+              alt="OffWeGo"
               className="w-32 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate("/vendor/login")}
+              onClick={() => navigate("/vendor/profile")}
             />
           </div>
-          
+
           {/* Right Section */}
           <div className="flex items-center gap-4 relative">
             {/* 💬 Chat Button */}
@@ -104,9 +104,9 @@ const VendorNavbar: React.FC = () => {
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               {vendor?.profileImage ? (
-                <img 
+                <img
                   src={vendor.profileImage.startsWith('http') ? vendor.profileImage : `${import.meta.env.VITE_IMAGE_URL}${vendor.profileImage}`}
-                  alt={vendor?.name || "Vendor"} 
+                  alt={vendor?.name || "Vendor"}
                   className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                   onError={(e) => {
                     const target = e.currentTarget;
@@ -119,7 +119,7 @@ const VendorNavbar: React.FC = () => {
                   }}
                 />
               ) : null}
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center" style={{display: vendor?.profileImage ? 'none' : 'flex'}}>
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center" style={{ display: vendor?.profileImage ? 'none' : 'flex' }}>
                 <User className="w-5 h-5 text-gray-700" />
               </div>
 

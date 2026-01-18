@@ -46,6 +46,7 @@ import { ForgotPassUsecase } from "../../../useCases/User/Login/forgotPassUSecas
 import { TransferAmountUseCase } from "../../../useCases/Wallet/transferWalletUsecase";
 import { GetCompletedBookingsForTransfer } from "../../../useCases/Wallet/getcompletedBookingUSecase";
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/SubscriptionBookingRepo";
+import { GetAllBookingsUsecase } from "../../../useCases/Booking/GetAllBookingsUsecase";
 
 import { SubscriptionPaymentController } from "../../../adapters/controller/Subscriptionplan/SubscriptionPaymentController";
 import { BookingRescheduleUseCase } from "../../../useCases/Booking/BookingRescheduleUseCase";
@@ -148,6 +149,7 @@ const reshedulebookingusecase = new BookingRescheduleUseCase(bookingRepo, packag
 const walletpaymentusecase = new WalletPaymentUseCase(walletRepo)
 const readnotificationusecase = new ReadNotificationusecase(notificationRepo)
 const completedTripusecase = new CompleteTripUseCase(walletRepo, bookingRepo, packageRepo)
+const getAllBookingsUseCase = new GetAllBookingsUsecase(bookingRepo)
 // const walletpaymentusecase=new walletpaymentusecase()
 const createTravelPostUsecase = new CreateTravelPostUsecase(travelPostRepo)
 const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo)
@@ -173,7 +175,7 @@ export const googleSignupController = new GoogleSignupController(
   createwalletusecase
 );
 export const userprofileController = new UserProfileController(userprofile, edituserProfile, changepasswordusecase);
-export const bookingcontroller = new BookingController(createbookingusecase, userbookings, vendorsidebookings, bookingdateusecase, cancelbookingusecase, reshedulebookingusecase)
+export const bookingcontroller = new BookingController(createbookingusecase, userbookings, vendorsidebookings, bookingdateusecase, cancelbookingusecase, reshedulebookingusecase, getAllBookingsUseCase)
 export const paymentcontroller = new PaymentController(createpaymentusecase)
 export const reviewcontroller = new ReviewController(createReviewusecase, getReviewsUsecase)
 export const subscriptionpaymentcontroller = new SubscriptionPaymentController(verifypaymentusecase)

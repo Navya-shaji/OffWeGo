@@ -560,9 +560,21 @@ const ChatPage = () => {
                     w-full md:w-80 bg-white border-r flex flex-col shadow-sm transition-transform duration-300 ease-in-out
                 `}>
                     <div className="px-5 py-5 border-b border-slate-100 bg-slate-50/50">
-                        <div className="flex items-center justify-between mb-5">
-                            <img src={logo} alt="OffWeGo" className="w-24 h-auto cursor-pointer" onClick={() => navigate("/")} />
-                            <div className="h-5 w-5 rounded-md bg-blue-600/10 text-blue-600 flex items-center justify-center text-[10px] font-bold">{contacts.length}</div>
+                        <div className="flex items-center gap-3 mb-5">
+                            <button
+                                onClick={() => navigate(senderRole === "vendor" ? "/vendor/profile" : "/")}
+                                className="p-2 hover:bg-slate-200 rounded-lg text-slate-500 transition-colors flex items-center justify-center"
+                                title="Back to Dashboard"
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                            <img
+                                src={logo}
+                                alt="OffWeGo"
+                                className="w-24 h-auto cursor-pointer"
+                                onClick={() => navigate(senderRole === "vendor" ? "/vendor/profile" : "/")}
+                            />
+                            <div className="ml-auto h-5 w-5 rounded-md bg-blue-600/10 text-blue-600 flex items-center justify-center text-[10px] font-bold">{contacts.length}</div>
                         </div>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><MapPin className="w-4 h-4 text-slate-400" /></div>

@@ -17,7 +17,7 @@ import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedCo
 import { CommonRoutes } from "../Constants/commonRoutes";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import { Role } from "../../../domain/constants/Roles";
-import { walletcontroller } from "../../Di/User/userInjections";
+import { walletcontroller, bookingcontroller } from "../../Di/User/userInjections";
 
 
 const TokenService = new JwtService();
@@ -50,7 +50,7 @@ export class AdminRoute {
     this.adminRouter.get(AdminRoutes.GET_ALL_BANNERS, (req, res) =>
       bannerController.getBanners(req, res)
     );
-   
+
 
     // -------------------- TOKEN MIDDLEWARE --------------------
 
@@ -80,10 +80,10 @@ export class AdminRoute {
     );
 
     this.adminRouter.patch(
-  AdminRoutes.ADMIN_VENDOR_APPROVAL,  
-  adminOnly,
-  (req, res) => adminVendorController.updateVendorApprovalStatus(req, res)
-);
+      AdminRoutes.ADMIN_VENDOR_APPROVAL,
+      adminOnly,
+      (req, res) => adminVendorController.updateVendorApprovalStatus(req, res)
+    );
     this.adminRouter.get(
       AdminRoutes.GET_VENDOR_BY_STATUS,
       adminOnly,
@@ -140,12 +140,12 @@ export class AdminRoute {
     );
 
     this.adminRouter.get(
-      AdminRoutes.SEARCH_DESTINATION, 
+      AdminRoutes.SEARCH_DESTINATION,
       (req, res) => destinationController.searchDestination(req, res)
     );
-     this.adminRouter.post(AdminRoutes.NEARBY_LOCATIONS,(req,res)=>{
-           
-      destinationController.getNearByDestination(req,res)
+    this.adminRouter.post(AdminRoutes.NEARBY_LOCATIONS, (req, res) => {
+
+      destinationController.getNearByDestination(req, res)
     })
 
     this.adminRouter.delete(
@@ -226,6 +226,11 @@ export class AdminRoute {
       adminOnly,
       (req, res) => subscriptionController.getAllSubscriptionBookings(req, res)
     );
+    this.adminRouter.get(
+      AdminRoutes.GET_ALL_BOOKINGS,
+      adminOnly,
+      (req, res) => bookingcontroller.getAllBookings(req, res)
+    );
 
     // -------------------- WALLET MANAGEMENT --------------------
 
@@ -250,7 +255,7 @@ export class AdminRoute {
     );
 
     this.adminRouter.post(
-      AdminRoutes. COMPLETED_TRIP,(req,res)=>walletcontroller.completeTripAndDistribute(req,res)
+      AdminRoutes.COMPLETED_TRIP, (req, res) => walletcontroller.completeTripAndDistribute(req, res)
     )
 
   }

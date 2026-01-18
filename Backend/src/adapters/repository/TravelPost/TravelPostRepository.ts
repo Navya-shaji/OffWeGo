@@ -238,10 +238,7 @@ export class TravelPostRepository implements ITravelPostRepository {
 
   async incrementViews(id: string, requesterId?: string): Promise<void> {
     if (!requesterId) {
-      // For guests, we still increment view count
-      await (TravelPostModel as any).findByIdAndUpdate(id, {
-        $inc: { "metrics.views": 1 },
-      });
+      // We no longer increment views for guest users
       return;
     }
 

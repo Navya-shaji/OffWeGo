@@ -4,14 +4,14 @@ import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import type { TravelPost } from "../../../interface/TravelPost";
 import { getPostBySlug, toggleSavePost, getSavedTravelPosts } from "@/services/TravelPost/TravelPostService";
 import {
-  Heart,
+ 
   ArrowLeft,
   Calendar,
   MapPin,
   Tag,
   User,
   Clock,
-  Share2,
+
   Bookmark,
   ChevronRight,
   TrendingUp,
@@ -105,17 +105,7 @@ const TravelPostDetailPage = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleShare = () => {
-    if (navigator.share && post) {
-      navigator.share({
-        title: post.title,
-        text: post.excerpt,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
+
 
   const openImageModal = (index: number) => {
     setSelectedImageIndex(index);
@@ -173,9 +163,6 @@ const TravelPostDetailPage = () => {
               <ArrowLeft className="w-4 h-4" /> BACK
             </button>
             <div className="flex items-center gap-3">
-              <button onClick={handleShare} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 backdrop-blur-md text-gray-900 shadow-2xl hover:bg-white transition-all border border-white/20" title="Share Story">
-                <Share2 className="w-5 h-5" />
-              </button>
               <button onClick={handleSaveToggle} className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold shadow-2xl transition-all border border-white/20 ${isSaved ? "bg-red-500 text-white hover:bg-red-600" : "bg-white/80 backdrop-blur-md text-gray-900 hover:bg-white"}`}>
                 {isSaved ? <Bookmark className="w-4 h-4 fill-current" /> : <Bookmark className="w-4 h-4" />}
                 {isSaved ? "SAVED" : "SAVE"}
@@ -344,19 +331,7 @@ const TravelPostDetailPage = () => {
           </div>
         </div>
 
-        <div className="bg-gray-50 py-20 border-t border-gray-200 px-6">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="font-serif text-4xl font-medium text-gray-900 mb-6">Enjoyed this story?</h2>
-            <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
-              <button onClick={handleSaveToggle} className={`flex items-center gap-3 px-10 py-5 rounded-full font-bold transition-all shadow-2xl ${isSaved ? "bg-red-500 text-white" : "bg-white text-gray-900 border"}`}>
-                <Heart className={`w-6 h-6 ${isSaved ? "fill-current" : ""}`} /> {isSaved ? "STORY SAVED" : "SAVE FOR LATER"}
-              </button>
-              <button onClick={handleShare} className="flex items-center gap-3 px-10 py-5 rounded-full bg-blue-600 text-white font-bold transition-all shadow-2xl">
-                <Share2 className="w-6 h-6" /> SPREAD THE WORD
-              </button>
-            </div>
-          </div>
-        </div>
+
 
         <AnimatePresence>
           {isImageModalOpen && post.galleryUrls && (

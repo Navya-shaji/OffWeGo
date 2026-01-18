@@ -29,4 +29,5 @@ export interface IBookingRepository {
   ): Promise<Booking>;
   findByRefId(refId: string): Promise<Booking[]>;
   findCompletedTrips(): Promise<Booking[]>;
+  findAll(): Promise<Booking[]>;
 }

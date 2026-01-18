@@ -1,5 +1,5 @@
-import { CreateCheckoutSessionDTO } from "../../dto/Subscription/CreateCheckoutSessionDto";
+import { SubscriptionBookingDto } from "../../dto/Subscription/SubscriptionBookingDto";
 
 export interface IGetSubscriptionBookingUseCase {
-  execute(): Promise<CreateCheckoutSessionDTO[]>;
+  execute(): Promise<SubscriptionBookingDto[]>;
 }

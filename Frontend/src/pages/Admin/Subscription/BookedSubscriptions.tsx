@@ -8,12 +8,14 @@ import type { Subscription } from "@/interface/subscription";
 interface SubscriptionBooking {
   _id: string;
   vendorId: string;
-  planId: string; // Changed from object to string
+  vendorName?: string;
+  vendorEmail?: string;
+  planId: string;
   planName: string;
   amount: number;
   duration: number;
-  features: string[]; // Added features array
-  domainUrl: string; // Added domainUrl
+  features: string[];
+  domainUrl: string;
   status: 'active' | 'expired' | 'pending';
   startDate: string;
   endDate: string;
@@ -33,14 +35,14 @@ export default function BookedSubscriptions() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch both bookings and subscription plans
         const [bookingsRes, plansRes] = await Promise.all([
           getAllSubscriptionBookings(),
           getSubscriptions()
         ]);
-       
-        
+
+
         setBookings(bookingsRes.data || []);
         setSubscriptionPlans(Array.isArray(plansRes?.data) ? plansRes.data : []);
       } catch (error) {
@@ -49,7 +51,7 @@ export default function BookedSubscriptions() {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
@@ -59,7 +61,9 @@ export default function BookedSubscriptions() {
       filtered = filtered.filter(
         (booking) =>
           booking.planName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          booking.vendorId?.toLowerCase().includes(searchQuery.toLowerCase())
+          booking.vendorId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          booking.vendorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          booking.vendorEmail?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     if (statusFilter !== "all") {
@@ -116,14 +120,15 @@ export default function BookedSubscriptions() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   };
-   console.log(filteredBookings," console.log(filteredBookings)")
+  console.log(filteredBookings, " console.log(filteredBookings)")
 
   if (loading) {
     return (
@@ -157,7 +162,7 @@ export default function BookedSubscriptions() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
           <div className="flex items-center">
             <div className="p-3 bg-green-100 rounded-full">
@@ -210,10 +215,10 @@ export default function BookedSubscriptions() {
         {subscriptionPlans.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {subscriptionPlans.map((plan) => {
-              const activeBookingsForPlan = bookings.filter(b => 
+              const activeBookingsForPlan = bookings.filter(b =>
                 b.planId === plan._id && b.status === 'active'
               ).length;
-              
+
               return (
                 <div key={plan._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-3">
@@ -225,7 +230,7 @@ export default function BookedSubscriptions() {
                       {plan.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </div>
-                  
+
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Duration:</span>
@@ -263,7 +268,7 @@ export default function BookedSubscriptions() {
               />
             </div>
           </div>
-          
+
           <div className="flex gap-3">
             <select
               value={statusFilter}
@@ -275,7 +280,7 @@ export default function BookedSubscriptions() {
               <option value="pending">Pending</option>
               <option value="expired">Expired</option>
             </select>
-            
+
             <button
               onClick={handleExport}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -316,17 +321,17 @@ export default function BookedSubscriptions() {
                 </th>
               </tr>
             </thead>
-           
+
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredBookings.map((booking) => (
                 <tr key={booking._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        Vendor ID: {booking.vendorId?.slice(0, 8)}...
+                        {booking.vendorName || `Vendor ID: ${booking.vendorId?.slice(0, 8)}...`}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {booking.domainUrl || 'No domain'}
+                        {booking.vendorEmail || booking.domainUrl || 'No contact info'}
                       </div>
                     </div>
                   </td>
@@ -373,8 +378,8 @@ export default function BookedSubscriptions() {
             <Crown className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No subscription bookings found</h3>
             <p className="text-gray-600">
-              {searchQuery || statusFilter !== "all" 
-                ? "Try adjusting your filters or search query" 
+              {searchQuery || statusFilter !== "all"
+                ? "Try adjusting your filters or search query"
                 : "No subscription bookings have been created yet"}
             </p>
           </div>

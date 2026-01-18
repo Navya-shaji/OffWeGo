@@ -39,10 +39,9 @@ export class GetTravelPostUsecase implements IGetTravelPostUsecase {
     const dto = mapTravelPostToDto(post);
 
     // Simple heuristic for immediate UI feedback: 
-    // If not logged in, increment. 
-    // If logged in, check if user was already in viewedBy.
+    // Only increment view count in DTO if a logged-in user is viewing for the first time.
     const alreadyViewed = requesterId && post.viewedBy?.includes(requesterId);
-    if (!requesterId || !alreadyViewed) {
+    if (requesterId && !alreadyViewed) {
       dto.metrics = {
         ...dto.metrics,
         views: oldViews + 1,
