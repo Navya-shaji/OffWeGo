@@ -10,7 +10,7 @@ export class GetChatsOfUserUsecase {
     }
 
     async getChats(userId: string, userType: 'user' | 'vendor' = 'user') {
-        const result = await this.chatRepository.findChatsOfUser(userId, userType);
+        const result = await this.chatRepository.findChatsOfUser(userId);
         const chats = result?.chats || [];
 
         if (!Array.isArray(chats)) {

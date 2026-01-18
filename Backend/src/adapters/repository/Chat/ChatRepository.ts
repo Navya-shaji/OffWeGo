@@ -38,7 +38,7 @@ export class ChatRepository {
         }).sort({ updatedAt: -1 });
     }
 
-    async findChatsOfUser(userId: string, userType?: 'user' | 'vendor'): Promise<{ chats: any[] }> {
+    async findChatsOfUser(userId: string): Promise<{ chats: any[] }> {
         const userObjectId = isValidObjectId(userId) ? new Types.ObjectId(userId) : userId;
         const query: any = {
             $or: [

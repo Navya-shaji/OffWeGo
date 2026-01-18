@@ -268,7 +268,7 @@ export class BookingController {
         message: success.SUCCESS_MESSAGES.FETCHED,
         data: bookings,
       });
-    } catch (error) {
+    } catch {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: ErrorMessages.INTERNAL_SERVER_ERROR,
