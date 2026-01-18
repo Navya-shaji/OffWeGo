@@ -4,7 +4,7 @@ import { Booking } from "../../domain/entities/BookingEntity";
 export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDto[] => {
   return bookings.map((b): BookingDataDto => ({
     _id: b._id ?? "",
-    bookingId:b.bookingId,
+    bookingId: b.bookingId,
     userId: b.userId,
     contactInfo: b.contactInfo,
     adults: b.adults || [],
@@ -15,7 +15,7 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDt
     paymentIntentId: b.paymentIntentId,
     paymentStatus: b.paymentStatus,
     payment_id: b.paymentIntentId || "",
-    bookingStatus:b.bookingStatus,
-    settlementDone:b.settlementDone
+    bookingStatus: b.bookingStatus,
+    settlementDone: b.settlementDone
   }));
 };

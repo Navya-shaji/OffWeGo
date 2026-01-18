@@ -13,112 +13,42 @@ export class GetChatsOfUserUsecase {
         const result = await this.chatRepository.findChatsOfUser(userId, userType);
         const chats = result?.chats || [];
 
-
         if (!Array.isArray(chats)) {
-
             return [];
         }
 
         const formattedChats = chats.map((chat: any) => {
-            if (!chat.userId || !chat.vendorId) {
+            // Robustly extract IDs as strings
+            const chatUserId = chat.userId?._id?.toString() || chat.userId?.toString() || "";
+            const chatVendorId = chat.vendorId?._id?.toString() || chat.vendorId?.toString() || "";
 
+            if (!chatUserId || !chatVendorId) {
                 return null;
             }
 
-            const chatUserId = typeof chat.userId === 'object'
-                ? (chat.userId._id?.toString() || chat.userId.toString() || String(chat.userId))
-                : String(chat.userId);
-
-            const chatVendorId = typeof chat.vendorId === 'object'
-                ? (chat.vendorId._id?.toString() || chat.vendorId.toString() || String(chat.vendorId))
-                : String(chat.vendorId);
-
-
-
-
-            const userIdValue = chatUserId;
-            const vendorIdValue = chatVendorId;
-
-            // Verify which participant is the current user
-            const isCurrentUserTheUser = userId === chatUserId;
-            const isCurrentUserTheVendor = userId === chatVendorId;
-
-
+            // identify the "other" person in the conversation
             let otherUser;
-            let otherUserName = "Unknown";
-            let otherUserImage = "";
-
-            if (userType === 'user') {
-
-                if (isCurrentUserTheUser) {
-                    otherUser = chat.vendorId;
-                    // Other user is a vendor - use name field
-                    if (otherUser) {
-                        otherUserName = otherUser.name || "Unknown Vendor";
-                        otherUserImage = otherUser.profileImage || "";
-
-                    }
-                } else if (isCurrentUserTheVendor) {
-
-                    otherUser = chat.userId;
-                    if (otherUser) {
-                        otherUserName = otherUser.name || otherUser.username || "Unknown User";
-                        otherUserImage = otherUser.imageUrl || otherUser.profileImage || "";
-                    }
-                } else {
-
-                    otherUser = chat.vendorId;
-                    if (otherUser) {
-                        otherUserName = otherUser.name || "Unknown Vendor";
-                        otherUserImage = otherUser.profileImage || "";
-                    }
-                }
+            if (chatUserId === userId) {
+                otherUser = chat.vendorId;
+            } else if (chatVendorId === userId) {
+                otherUser = chat.userId;
             } else {
-
-                if (isCurrentUserTheVendor) {
-                    otherUser = chat.userId;
-                    if (otherUser) {
-                        otherUserName = otherUser.name || otherUser.username || "Unknown User";
-                        otherUserImage = otherUser.imageUrl || otherUser.profileImage || "";
-
-                    }
-                } else if (isCurrentUserTheUser) {
-                    otherUser = chat.vendorId;
-                    if (otherUser) {
-                        otherUserName = otherUser.name || "Unknown Vendor";
-                        otherUserImage = otherUser.profileImage || "";
-                    }
-                } else {
-
-                    otherUser = chat.userId;
-                    if (otherUser) {
-                        otherUserName = otherUser.name || otherUser.username || "Unknown User";
-                        otherUserImage = otherUser.imageUrl || otherUser.profileImage || "";
-                    }
-                }
+                // Default fallback if current user is neither
+                otherUser = userType === 'user' ? chat.vendorId : chat.userId;
             }
 
             if (!otherUser) {
                 return null;
             }
 
+            let otherUserName = "Unknown";
+            let otherUserImage = "";
 
-            if (userType === 'user') {
-                if (!isCurrentUserTheUser) {
-                    return null;
-                }
-                if (otherUser === chat.userId) {
-                    return null;
-                }
-            }
-
-            if (userType === 'vendor') {
-                if (!isCurrentUserTheVendor) {
-                    return null;
-                }
-                if (otherUser === chat.vendorId) {
-                    return null;
-                }
+            if (typeof otherUser === 'object' && otherUser !== null) {
+                // If populated
+                otherUserName = otherUser.name || otherUser.username || "Unknown";
+                // Vendor object usually has profileImage, User object usually has imageUrl
+                otherUserImage = otherUser.profileImage || otherUser.imageUrl || "";
             }
 
             const unreadCount = userType === 'user'
@@ -126,14 +56,14 @@ export class GetChatsOfUserUsecase {
                 : (chat.unreadCountVendor || 0);
 
             return {
-                _id: chat._id,
+                _id: chat._id.toString(),
                 name: otherUserName,
                 profile_image: otherUserImage,
                 isOnline: true,
                 lastMessage: chat.lastMessage || "",
-                lastMessageAt: chat.lastMessageAt || new Date(),
-                userId: userIdValue,
-                vendorId: vendorIdValue,
+                lastMessageAt: chat.lastMessageAt || chat.updatedAt || new Date(),
+                userId: chatUserId,
+                vendorId: chatVendorId,
                 unreadCount: unreadCount,
             };
         }).filter((chat: any) => chat !== null);

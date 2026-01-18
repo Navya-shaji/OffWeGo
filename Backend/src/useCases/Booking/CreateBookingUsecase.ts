@@ -68,10 +68,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const result = await this._bookingRepository.createBooking(bookingData);
 
-    // Booking is saved successfully. Now perform secondary operations.
-    // These should not cause the booking to fail, so we wrap them in try-catch.
-
-    // Update admin wallet balance
+ 
     if (result.paymentStatus === "succeeded") {
       try {
         const adminId = process.env.ADMIN_ID || "";

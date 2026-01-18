@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { isValidObjectId, Types } from "mongoose";
 import { chatModel } from "../../../framework/database/Models/chatModel";
 import { IChat } from "../../../domain/entities/ChatEntity";
 
@@ -8,7 +9,7 @@ export class ChatRepository {
     }
 
     async createChat(data: IChat): Promise<any> {
-   
+
         const createdChat = await (chatModel as any).create(data);
         const populatedChat = await (chatModel as any).findById(createdChat._id)
             .populate({
@@ -28,7 +29,7 @@ export class ChatRepository {
     }
 
     async findChatByUserId(userId: string): Promise<IChat[]> {
-  
+
         return await (chatModel as any).find({
             $or: [
                 { userId: userId },
@@ -38,63 +39,50 @@ export class ChatRepository {
     }
 
     async findChatsOfUser(userId: string, userType?: 'user' | 'vendor'): Promise<{ chats: any[] }> {
-     
+        const userObjectId = isValidObjectId(userId) ? new Types.ObjectId(userId) : userId;
         const query: any = {
-            $and: [
-                { userId: { $ne: null } },
-                { vendorId: { $ne: null } }
+            $or: [
+                { userId: userObjectId },
+                { vendorId: userObjectId }
             ]
         };
 
-        if (userType === 'vendor') {
-            query.$and.push({ vendorId: userId });
-        } else if (userType === 'user') {
-            query.$and.push({ userId: userId });
-        } else {
-            query.$and.push({
-                $or: [
-                    { userId: userId },
-                    { vendorId: userId }
-                ]
-            });
-        }
-
         const chats = await (chatModel as any).find(query)
-        .sort({ lastMessageAt: -1 })
-        .populate('userId', 'name username imageUrl')
-        .populate('vendorId', 'name profileImage')
-        .lean();
-        
+            .sort({ lastMessageAt: -1 })
+            .populate('userId', 'name username imageUrl')
+            .populate('vendorId', 'name profileImage')
+            .lean();
+
         return { chats };
     }
 
     async getchatOfUser(userId: string, ownerId: string): Promise<any> {
-        const userObjectId = userId;
-        const ownerObjectId = ownerId;
-        
+        if (!isValidObjectId(userId) || !isValidObjectId(ownerId)) return null;
+
+        const userObjectId = new Types.ObjectId(userId);
+        const ownerObjectId = new Types.ObjectId(ownerId);
+
         const chat = await (chatModel as any).findOne({
             $and: [
                 {
                     $or: [
                         { userId: userObjectId, vendorId: ownerObjectId },
-                        { userId: ownerObjectId, vendorId: userObjectId },
-                        { userId: userId, vendorId: ownerId },
-                        { userId: ownerId, vendorId: userId }
+                        { userId: ownerObjectId, vendorId: userObjectId }
                     ]
                 },
                 { userId: { $ne: null } },
                 { vendorId: { $ne: null } }
             ]
         })
-        .populate({
-            path: 'userId',
-            select: 'name username imageUrl'
-        })
-        .populate({
-            path: 'vendorId',
-            select: 'name profileImage'
-        });
-        
+            .populate({
+                path: 'userId',
+                select: 'name username imageUrl'
+            })
+            .populate({
+                path: 'vendorId',
+                select: 'name profileImage'
+            });
+
         return chat;
     }
 

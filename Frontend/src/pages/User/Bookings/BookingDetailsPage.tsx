@@ -297,9 +297,7 @@ const BookingDetailsPage = () => {
 
     const shouldShowChatButton = (booking: ExtendedBooking) => {
         if (!booking) return false;
-        const status = getBookingStatus(booking);
-        return status === "upcoming" &&
-            booking.bookingStatus?.toLowerCase() !== "cancelled" &&
+        return booking.bookingStatus?.toLowerCase() !== "cancelled" &&
             booking.bookingStatus?.toLowerCase() !== "rejected";
     };
 

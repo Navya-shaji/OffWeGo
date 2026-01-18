@@ -257,20 +257,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           )}
         </button>
 
-        {showWalletDropdown && (
-          <div className="ml-4 mt-1 space-y-1">
-            <button
-              onClick={() => handleSubTabClick("VendorWalletManagement")}
-              className={`block w-full text-left px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === "VendorWalletManagement"
-                ? "bg-gray-200 text-black font-semibold"
-                : "text-gray-600 hover:bg-gray-100"
-                }`}
-            >
-              <List className="inline-block mr-2 w-4 h-4" />
-              Vendor Wallet
-            </button>
-          </div>
-        )}
+       
       </nav>
 
       {/* User Profile Section at Bottom */}

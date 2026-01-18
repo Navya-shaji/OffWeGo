@@ -32,6 +32,6 @@ export const BookingSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   paymentStatus: { type: String, default: "pending" },
   paymentIntentId: { type: String },
-  bookingStatus:{type:String,default:"upcoming"},
+  bookingStatus: { type: String, default: "upcoming" },
   settlementDone: { type: Boolean, default: false },
 });
