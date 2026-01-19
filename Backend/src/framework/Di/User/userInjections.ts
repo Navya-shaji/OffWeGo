@@ -38,11 +38,6 @@ import { WalletController } from "../../../adapters/controller/Wallet/Walletcont
 import { WalletRepository } from "../../../adapters/repository/Wallet/WalletRepository";
 import { GetUserWalletUsecase } from "../../../useCases/Wallet/getusewalletUsecase";
 import { ForgotPassUsecase } from "../../../useCases/User/Login/forgotPassUSecase";
-// import { SendNotificationUseCase } from "../../../useCases/notifications/SendNotificationUsecase";
-// import { FirebaseNotificationService } from "../../Services/FirebaseNotificationService";
-// import { NotificationController } from "../../../adapters/controller/Notifications/NotificationController";
-// import { NotificationRepository } from "../../../adapters/repository/Notification/NotificationRepo";
-// import { ChatRepository } from "../../../adapters/repository/Chat/chatRepository";
 import { TransferAmountUseCase } from "../../../useCases/Wallet/transferWalletUsecase";
 import { GetCompletedBookingsForTransfer } from "../../../useCases/Wallet/getcompletedBookingUSecase";
 import { SubscriptionBookingRepository } from "../../../adapters/repository/Booking/SubscriptionBookingRepo";
@@ -65,9 +60,6 @@ import { PackageRepository } from "../../../adapters/repository/Package/PackageR
 import { ReadNotificationusecase } from "../../../useCases/Notifications/ReadNotificationusecase";
 import { CompleteTripUseCase } from "../../../useCases/Wallet/completedTripUsecase";
 import { MessageRepository } from "../../../adapters/repository/Msg/MessageRepository";
-// import { ChatController } from "../../../adapters/controller/chat/ChatController";
-// import { GetNotificationUseCase } from "../../../useCases/notifications/GetNotificationusecase";
-
 import { TravelPostRepository } from "../../../adapters/repository/TravelPost/TravelPostRepository";
 import { CreateTravelPostUsecase } from "../../../useCases/TravelPost/CreateTravelPostUsecase";
 import { ListTravelPostsUsecase } from "../../../useCases/TravelPost/ListTravelPostsUsecase";
@@ -85,7 +77,6 @@ import { EmailService } from "../../Services/EmailService";
 
 
 
-// Setup Repos and Services
 const userRepository = new UserRepository();
 const authRepository = new AuthRepository()
 const vendorRepo = new VendorRepository()
@@ -109,9 +100,8 @@ const travelPostCategoryRepo = new CategoryRepository()
 const travelPostDestinationRepo = new DestinationRepository()
 
 const subscriptionbookingRepo = new SubscriptionBookingRepository()
-// ...
 
-// Use Cases
+
 const registerUsecase = new RegisterUserUseCase(userRepository, otpService);
 const googleSignupUseCase = new GoogleSignupUseCase(authRepository, userRepository);
 const verifyOtpUsecase = new VerifyOtpUseCase(otpService, hashPassword, userRepository);
@@ -120,7 +110,7 @@ const resetPasswordUseCase = new ResetPasswordUseCase(userRepository, hashPasswo
 const userprofile = new UserProfileUsecase(userRepository);
 const resendotpusecase = new ResendOtpUsecase(otpService);
 const edituserProfile = new EditUserProfile()
-const createbookingusecase = new CreateBookingUseCase(bookingRepo, walletRepo, packageRepo, travelPostDestinationRepo, notificationservice, emailService) // Inject EmailService
+const createbookingusecase = new CreateBookingUseCase(bookingRepo, walletRepo, packageRepo, travelPostDestinationRepo, notificationservice, emailService)
 const createpaymentusecase = new CreatePaymentUsecase(paymentRepo)
 const userbookings = new GetUserBookingUsecase(bookingRepo)
 const vendorsidebookings = new GetVendorSideBookingUsecase(bookingRepo)
@@ -150,7 +140,6 @@ const walletpaymentusecase = new WalletPaymentUseCase(walletRepo)
 const readnotificationusecase = new ReadNotificationusecase(notificationRepo)
 const completedTripusecase = new CompleteTripUseCase(walletRepo, bookingRepo, packageRepo)
 const getAllBookingsUseCase = new GetAllBookingsUsecase(bookingRepo)
-// const walletpaymentusecase=new walletpaymentusecase()
 const createTravelPostUsecase = new CreateTravelPostUsecase(travelPostRepo)
 const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo, userRepository)
 const getTravelPostUsecase = new GetTravelPostUsecase(travelPostRepo, userRepository)
@@ -159,7 +148,6 @@ const listSavedTravelPostsUsecase = new ListSavedTravelPostsUsecase(userReposito
 const travelPostCategoriesUsecase = new GetAllCategories(travelPostCategoryRepo)
 const travelPostDestinationsUsecase = new GetAllDestinations(travelPostDestinationRepo)
 
-// Controllers
 export const userRegisterController = new UserRegisterController(registerUsecase, verifyOtpUsecase, resendotpusecase, jwtService);
 export const userLoginController = new UserLoginController(
   loginUserUseCase,
