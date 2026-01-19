@@ -7,6 +7,8 @@ import AdminRoute from "./Routes/Admin/adminRoutes";
 import VendorRoute from "./Routes/Vendor/vendorRoutes";
 import { getFcmToken, onMessageListener, subscribeToTopic } from "./Firebase/firebase";
 import type { RootState } from "./store/store";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 
@@ -67,6 +69,7 @@ function App() {
         <Route path="/*" element={<UserRoute />} />
       </Routes>
       <Toaster position="top-right" reverseOrder={false} />
+      <ToastContainer position="top-right" autoClose={3000} />
     </BrowserRouter>
   );
 }

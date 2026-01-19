@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks";
 import { login } from "@/store/slice/user/authSlice";
 import { userLogin } from "@/services/user/userService";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type { AxiosError } from "axios";
 import { GoogleSignup } from "@/components/signup/googleSignup";
 import { setToken } from "@/store/slice/Token/tokenSlice";
