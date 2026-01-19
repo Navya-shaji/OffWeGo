@@ -70,7 +70,7 @@ export class App {
       console.log(`🌐 SPA fallback for route: ${req.url}`);
       res.sendFile(path.join(publicPath, "index.html"), (err) => {
         if (err) {
-          console.error(`❌ Error sending index.html: ${err.message}`);
+          console.error(`Error sending index.html: ${err.message}`);
           if (!res.headersSent) {
             res.status(500).send("Error loading application");
           }
