@@ -43,13 +43,7 @@ export const createSubscriptionBooking = async (
   try {
     const response = await axiosInstance.post(
       '/api/vendor/subscription-booking',
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
+      payload
     );
 
     return response.data;
@@ -57,7 +51,7 @@ export const createSubscriptionBooking = async (
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to create subscription booking"
+        "Failed to create subscription booking"
       );
     }
     throw error;

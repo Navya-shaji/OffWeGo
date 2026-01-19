@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  Plane,
-  Building2,
-  Mountain,
   PackageSearch,
   Users,
   TrendingUp,
@@ -19,19 +16,13 @@ import {
   Sparkles,
   Target,
   BarChart3,
-  Download,
-  FileText,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { fetchAllPackages } from "@/services/packages/packageService";
-import { getAllHotel } from "@/services/Hotel/HotelService";
-import { getActivities } from "@/services/Activity/ActivityService";
-import { fetchAllFlights } from "@/services/Flight/FlightService";
 import { getAllUserBookings } from "@/services/Booking/bookingService";
 import { getVendorWallet } from "@/services/Wallet/VendorWalletService";
 import type { RootState } from "@/store/store";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
-import jsPDF from "jspdf";
 
 interface MonthlyData {
   month: string;
@@ -54,19 +45,6 @@ export default function VendorDashboard() {
 
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showInvoiceDropdown, setShowInvoiceDropdown] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (showInvoiceDropdown && !target.closest('.invoice-dropdown-container')) {
-        setShowInvoiceDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showInvoiceDropdown]);
 
   useEffect(() => {
     if (!vendorId) return;
@@ -76,20 +54,14 @@ export default function VendorDashboard() {
         setLoading(true);
         if (!vendorId) return;
 
-        const [pkgRes, hotelRes, actRes, flightRes, bookingRes, walletRes] =
+        const [pkgRes, bookingRes, walletRes] =
           await Promise.all([
             fetchAllPackages(1, 1000),
-            getAllHotel(1, 1000),
-            getActivities(1, 1000),
-            fetchAllFlights(),
             getAllUserBookings(vendorId),
             getVendorWallet(vendorId).catch(() => null), // Fetch wallet, but don't fail if it doesn't exist
           ]);
 
         const packageCount = pkgRes?.totalPackages || pkgRes?.packages?.length || 0;
-        const hotelCount = hotelRes?.totalHotels || hotelRes?.hotels?.length || 0;
-        const activityCount = actRes?.totalActivities || actRes?.activities?.length || 0;
-        const flightCount = Array.isArray(flightRes) ? flightRes.length : 0;
         const bookings = Array.isArray(bookingRes) ? bookingRes : [];
         const bookingCount = bookings.length;
 
@@ -102,9 +74,9 @@ export default function VendorDashboard() {
 
         setStats({
           packages: packageCount,
-          hotels: hotelCount,
-          activities: activityCount,
-          flights: flightCount,
+          hotels: 0,
+          activities: 0,
+          flights: 0,
           bookings: bookingCount,
           totalRevenue: totalRevenue,
         });
@@ -161,7 +133,7 @@ export default function VendorDashboard() {
     );
   }
 
-  const totalOfferings = stats.packages + stats.hotels + stats.activities + stats.flights;
+
   const bookingRate = stats.packages > 0
     ? ((stats.bookings / stats.packages) * 100).toFixed(1)
     : "0";
@@ -179,228 +151,7 @@ export default function VendorDashboard() {
 
   const isPositiveGrowth = parseFloat(growthPercentage) >= 0;
 
-  const handleDownloadInvoice = (period: "monthly" | "yearly") => {
-    const currentDate = new Date();
-    const invoiceData = {
-      vendorName: vendor?.name || "Vendor",
-      vendorEmail: vendor?.email || "",
-      period: period,
-      dateRange: "",
-      totalRevenue: 0,
-      totalBookings: 0,
-      monthlyBreakdown: [] as MonthlyData[],
-    };
 
-    if (period === "monthly") {
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
-      const monthName = monthlyData[currentMonth]?.month || currentDate.toLocaleString("default", { month: "long" });
-
-      invoiceData.dateRange = `${monthName} ${currentYear}`;
-      invoiceData.totalRevenue = monthlyData[currentMonth]?.revenue || 0;
-      invoiceData.totalBookings = monthlyData[currentMonth]?.bookings || 0;
-      invoiceData.monthlyBreakdown = [monthlyData[currentMonth]];
-    } else {
-      const currentYear = currentDate.getFullYear();
-      invoiceData.dateRange = `${currentYear}`;
-      invoiceData.totalRevenue = stats.totalRevenue;
-      invoiceData.totalBookings = stats.bookings;
-      invoiceData.monthlyBreakdown = monthlyData;
-    }
-
-    // Create PDF with professional formatting
-    const pdf = new jsPDF();
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    let yPosition = 20;
-
-    // Header Section with Border
-    pdf.setFillColor(0, 0, 0);
-    pdf.rect(20, yPosition - 5, pageWidth - 40, 25, 'F');
-
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(24);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("INVOICE", pageWidth / 2, yPosition + 8, { align: "center" });
-
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`${invoiceData.period.toUpperCase()} REPORT`, pageWidth / 2, yPosition + 15, { align: "center" });
-
-    pdf.setTextColor(0, 0, 0);
-    yPosition += 35;
-
-    // Company/Vendor Information Box
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.5);
-    pdf.rect(20, yPosition, pageWidth - 40, 30);
-
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Vendor Details", 25, yPosition + 8);
-
-    pdf.setFontSize(10);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Name: ${invoiceData.vendorName}`, 25, yPosition + 15);
-    pdf.text(`Email: ${invoiceData.vendorEmail}`, 25, yPosition + 21);
-    pdf.text(`Period: ${invoiceData.dateRange}`, 25, yPosition + 27);
-
-    // Invoice Details (Right side)
-    pdf.setFontSize(10);
-    pdf.setFont("helvetica", "normal");
-    const invoiceNumber = `INV-${new Date().getTime().toString().slice(-6)}`;
-    pdf.text(`Invoice #: ${invoiceNumber}`, pageWidth - 25, yPosition + 8, { align: "right" });
-    pdf.text(`Date: ${new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })}`, pageWidth - 25, yPosition + 14, { align: "right" });
-
-    yPosition += 40;
-
-    // Summary Section with Box
-    pdf.setFillColor(245, 245, 245);
-    pdf.rect(20, yPosition, pageWidth - 40, 25, 'F');
-
-    pdf.setFontSize(14);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Summary", 25, yPosition + 10);
-
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Total Revenue:`, 25, yPosition + 18);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(`₹${invoiceData.totalRevenue.toLocaleString("en-IN")}`, 80, yPosition + 18);
-
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Total Bookings:`, 120, yPosition + 18);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(`${invoiceData.totalBookings}`, 170, yPosition + 18);
-
-    yPosition += 35;
-
-    // Monthly Breakdown Table
-    if (invoiceData.monthlyBreakdown.length > 0) {
-      pdf.setFontSize(14);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Monthly Breakdown", 20, yPosition);
-      yPosition += 8;
-
-      // Table Header with background
-      pdf.setFillColor(240, 240, 240);
-      pdf.rect(20, yPosition - 5, pageWidth - 40, 8, 'F');
-
-      pdf.setFontSize(10);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Month", 25, yPosition);
-      pdf.text("Bookings", 80, yPosition);
-      pdf.text("Revenue (₹)", 130, yPosition);
-      pdf.text("Avg/Booking", 170, yPosition);
-      yPosition += 3;
-
-      // Draw line under header
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(20, yPosition, pageWidth - 20, yPosition);
-      yPosition += 5;
-
-      // Table rows
-      pdf.setFont("helvetica", "normal");
-      let rowCount = 0;
-      invoiceData.monthlyBreakdown.forEach((data) => {
-        if (yPosition > pageHeight - 30) {
-          pdf.addPage();
-          yPosition = 20;
-          // Redraw header on new page
-          pdf.setFillColor(240, 240, 240);
-          pdf.rect(20, yPosition - 5, pageWidth - 40, 8, 'F');
-          pdf.setFont("helvetica", "bold");
-          pdf.text("Month", 25, yPosition);
-          pdf.text("Bookings", 80, yPosition);
-          pdf.text("Revenue (₹)", 130, yPosition);
-          pdf.text("Avg/Booking", 170, yPosition);
-          yPosition += 8;
-        }
-
-        // Alternate row colors
-        if (rowCount % 2 === 0) {
-          pdf.setFillColor(250, 250, 250);
-          pdf.rect(20, yPosition - 4, pageWidth - 40, 6, 'F');
-        }
-
-        const avgBooking = data.bookings > 0 ? (data.revenue / data.bookings) : 0;
-
-        pdf.setFont("helvetica", "normal");
-        pdf.text(data.month, 25, yPosition);
-        pdf.text(data.bookings.toString(), 80, yPosition);
-        pdf.text(`₹${data.revenue.toLocaleString("en-IN")}`, 130, yPosition);
-        pdf.text(`₹${avgBooking.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`, 170, yPosition);
-
-        // Draw row separator
-        pdf.setDrawColor(230, 230, 230);
-        pdf.line(20, yPosition + 2, pageWidth - 20, yPosition + 2);
-
-        yPosition += 6;
-        rowCount++;
-      });
-
-      // Draw bottom border
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(20, yPosition - 2, pageWidth - 20, yPosition - 2);
-      yPosition += 5;
-    }
-
-    // Total Section
-    if (yPosition > pageHeight - 40) {
-      pdf.addPage();
-      yPosition = 20;
-    }
-
-    pdf.setFillColor(245, 245, 245);
-    pdf.rect(pageWidth - 80, yPosition, 60, 15, 'F');
-
-    pdf.setFontSize(11);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("TOTAL:", pageWidth - 75, yPosition + 7);
-    pdf.text(`₹${invoiceData.totalRevenue.toLocaleString("en-IN")}`, pageWidth - 25, yPosition + 7, { align: "right" });
-
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Bookings: ${invoiceData.totalBookings}`, pageWidth - 75, yPosition + 13);
-
-    yPosition += 25;
-
-    // Footer
-    if (yPosition > pageHeight - 30) {
-      pdf.addPage();
-      yPosition = pageHeight - 20;
-    } else {
-      yPosition = pageHeight - 20;
-    }
-
-    pdf.setDrawColor(200, 200, 200);
-    pdf.line(20, yPosition - 5, pageWidth - 20, yPosition - 5);
-
-    pdf.setFontSize(8);
-    pdf.setFont("helvetica", "italic");
-    pdf.setTextColor(128, 128, 128);
-    pdf.text(
-      `This is a computer-generated invoice. Generated on ${new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      })}`,
-      pageWidth / 2,
-      yPosition,
-      { align: "center" }
-    );
-
-    pdf.setTextColor(0, 0, 0);
-
-    // Save PDF
-    pdf.save(`invoice_${invoiceData.period}_${new Date().getTime()}.pdf`);
-    setShowInvoiceDropdown(false);
-  };
 
   const statCards = [
     {
@@ -414,46 +165,36 @@ export default function VendorDashboard() {
       change: "+12%",
     },
     {
-      title: "Hotels",
-      value: stats.hotels,
-      description: "Listed properties",
-      icon: Building2,
+      title: "Total Bookings",
+      value: stats.bookings,
+      description: "Bookings on packages",
+      icon: Users,
       gradient: "from-blue-500 to-cyan-600",
       bgGradient: "from-blue-50 to-cyan-50",
       iconColor: "text-white",
-      change: "+8%",
+      change: `${isPositiveGrowth ? '+' : ''}${growthPercentage}%`,
     },
     {
-      title: "Activities",
-      value: stats.activities,
-      description: "Available experiences",
-      icon: Mountain,
+      title: "Wallet Balance",
+      value: `₹${stats.totalRevenue.toLocaleString("en-IN")}`,
+      description: "Available earnings",
+      icon: DollarSign,
       gradient: "from-emerald-500 to-teal-600",
       bgGradient: "from-emerald-50 to-teal-50",
       iconColor: "text-white",
-      change: "+15%",
+      change: "Active",
     },
     {
-      title: "Flights",
-      value: stats.flights,
-      description: "Flight connections",
-      icon: Plane,
+      title: "Avg Revenue",
+      value: `₹${stats.bookings > 0 ? Math.round(stats.totalRevenue / stats.bookings).toLocaleString("en-IN") : "0"}`,
+      description: "Revenue per booking",
+      icon: TrendingUp,
       gradient: "from-orange-500 to-red-600",
       bgGradient: "from-orange-50 to-red-50",
       iconColor: "text-white",
-      change: "+5%",
+      change: "Stable",
     },
   ];
-
-  // Get most active category
-  const getMostActiveCategory = () => {
-    const max = Math.max(stats.packages, stats.hotels, stats.activities, stats.flights);
-    if (max === 0) return "None";
-    if (stats.packages === max) return "Packages";
-    if (stats.hotels === max) return "Hotels";
-    if (stats.activities === max) return "Activities";
-    return "Flights";
-  };
 
   return (
     <div className="w-full bg-transparent">
@@ -487,41 +228,6 @@ export default function VendorDashboard() {
                 </div>
               </div>
 
-              {/* Invoice Download Button */}
-              <div className="relative invoice-dropdown-container">
-                <button
-                  onClick={() => setShowInvoiceDropdown(!showInvoiceDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
-                >
-                  <Download className="w-4 h-4" />
-                  Download Invoice
-                </button>
-
-                {showInvoiceDropdown && (
-                  <div className="absolute right-0 top-12 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                    <button
-                      onClick={() => handleDownloadInvoice("monthly")}
-                      className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-sm"
-                    >
-                      <FileText className="w-4 h-4 text-gray-600" />
-                      <div>
-                        <p className="font-medium text-gray-900">Monthly Invoice</p>
-                        <p className="text-xs text-gray-500">Current month</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => handleDownloadInvoice("yearly")}
-                      className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-sm border-t border-gray-100"
-                    >
-                      <FileText className="w-4 h-4 text-gray-600" />
-                      <div>
-                        <p className="font-medium text-gray-900">Yearly Invoice</p>
-                        <p className="text-xs text-gray-500">Full year</p>
-                      </div>
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -716,8 +422,8 @@ export default function VendorDashboard() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <span className="text-sm font-medium text-gray-700">Total Offerings</span>
-                <span className="text-2xl font-bold text-gray-900">{totalOfferings}</span>
+                <span className="text-sm font-medium text-gray-700">Vendor Status</span>
+                <span className="text-lg font-bold text-emerald-600 uppercase tracking-wider">{vendor?.status || "Active"}</span>
               </div>
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <span className="text-sm font-medium text-gray-700">Booking Rate</span>
@@ -744,8 +450,8 @@ export default function VendorDashboard() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-500 mb-1">Most Active Category</p>
-                <p className="text-xl font-bold text-gray-900">{getMostActiveCategory()}</p>
+                <p className="text-xs text-gray-500 mb-1">Top Performing</p>
+                <p className="text-xl font-bold text-gray-900">Packages</p>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <p className="text-xs text-gray-500 mb-1">This Month</p>
@@ -919,31 +625,6 @@ export default function VendorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Bottom Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Total Revenue</p>
-            <p className="text-3xl font-bold text-gray-900">
-              ₹{stats.totalRevenue.toLocaleString("en-IN")}
-            </p>
-          </div>
-          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Total Bookings</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {stats.bookings}
-            </p>
-          </div>
-          <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Growth Rate</p>
-            <p className={`text-3xl font-bold flex items-center gap-2 ${isPositiveGrowth
-              ? "text-emerald-600"
-              : "text-red-600"
-              }`}>
-              {isPositiveGrowth ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
-              {isPositiveGrowth ? "+" : ""}{growthPercentage}%
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

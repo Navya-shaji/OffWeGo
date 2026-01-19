@@ -73,6 +73,13 @@ export default function VendorStatusPage() {
     window.location.href = "/vendor/login";
   };
 
+  const handleApplyAgain = () => {
+    dispatch(vendorLogoutAction());
+    localStorage.removeItem("vendorToken");
+    localStorage.removeItem("vendorData");
+    window.location.href = "/vendor/signup";
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -251,12 +258,12 @@ export default function VendorStatusPage() {
 
             {statusData?.status === "rejected" && (
               <>
-                <Link
-                  to="/vendor/signup"
+                <button
+                  onClick={handleApplyAgain}
                   className="bg-amber-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors duration-200 text-center"
                 >
                   Apply Again
-                </Link>
+                </button>
               </>
             )}
 

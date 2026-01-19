@@ -121,7 +121,8 @@ const changepasswordusecase = new ChangePasswordUseCase(userRepository)
 const verifypaymentusecase = new VerifyPaymentUseCase(
   stripeService,
   subscriptionRepo,
-  subscriptionbookingRepo
+  subscriptionbookingRepo,
+  walletRepo
 );
 const cancelbookingusecase = new cancelBookingUsecase(bookingRepo, walletRepo, packageRepo, notificationservice)
 const createwalletusecase = new CreateUserWalletUsecase(walletRepo)

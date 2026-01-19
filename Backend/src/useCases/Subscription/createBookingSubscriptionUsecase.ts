@@ -78,26 +78,6 @@ export class CreateBookingSubscriptionUseCase
 
     const qrCodeUrl = await QRCode.toDataURL(session.checkoutUrl);
 
-    const adminId = process.env.ADMIN_ID || "";
-
-    const adminWallet = await this._walletRepository.findByOwnerId(adminId);
-    if (!adminWallet) {
-      await this._walletRepository.createWallet({
-        ownerId: adminId,
-        ownerType: Role.ADMIN,
-        balance: 0,
-        transactions: [],
-      });
-    }
-
-    await this._walletRepository.updateBalance(
-      adminId,
-      Role.ADMIN,
-      plan.price,
-      "credit",
-      `Subscription purchased by vendor `
-    );
-
     return {
       bookingId: booking._id.toString(),
       checkoutUrl: session.checkoutUrl,

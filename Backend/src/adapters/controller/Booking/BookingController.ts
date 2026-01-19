@@ -93,7 +93,7 @@ export class BookingController {
 
   async getVendorsideBookings(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.vendorId;
+      const vendorId = req.params.id;
 
       const bookings = await this._vendorsidebookingUsecase.execute(vendorId);
 
@@ -119,7 +119,7 @@ export class BookingController {
 
   async bookingDates(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.vendorId;
+      const vendorId = req.params.id;
 
       const bookingDates = await this._bookingDatesUsecase.execute(vendorId);
 

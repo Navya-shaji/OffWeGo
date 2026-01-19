@@ -3,6 +3,8 @@ import { IStripeService } from "../../domain/interface/Payment/IStripeservice";
 import { ISubscriptionPlanRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionplan";
 import { ISubscriptionBookingRepository } from "../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
 import { IVerifyPaymentUseCase } from "../../domain/interface/SubscriptionPlan/IVerifyPaymentUsecase";
+import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
+import { Role } from "../../domain/constants/Roles";
 import { mapSubscriptionBookingToDto } from "../../mappers/Booking/mapToSubscriptionDto";
 import type { ISubscriptionBookingModel } from "../../framework/database/Models/SubscriptionBookingModel";
 
@@ -10,15 +12,16 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
   constructor(
     private _stripeService: IStripeService,
     private _planRepository: ISubscriptionPlanRepository,
-    private _bookingRepository: ISubscriptionBookingRepository
-  ) {}
+    private _bookingRepository: ISubscriptionBookingRepository,
+    private _walletRepository: IWalletRepository
+  ) { }
 
   async execute(data: VerifyPaymentDTO) {
     const { sessionId, vendorId, planId } = data;
 
     try {
       const session = await this._stripeService.retrieveSession(sessionId);
-    
+
       if (!session) {
         throw new Error("Stripe session not found");
       }
@@ -43,8 +46,8 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       // If still not found, check all bookings for this vendor
       if (!existingBooking) {
         const allVendorBookings = await this._bookingRepository.findByVendor(vendorId);
-        const foundBooking = allVendorBookings.find(b => 
-          b.planId?.toString() === planId || 
+        const foundBooking = allVendorBookings.find(b =>
+          b.planId?.toString() === planId ||
           b.stripeSessionId === sessionId
         );
         existingBooking = foundBooking || null;
@@ -75,7 +78,7 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       }
 
       if (!existingBooking) {
-       
+
         throw new Error(
           "Subscription booking not found. Please create a new subscription booking and try again."
         );
@@ -102,6 +105,28 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       if (!updatedBooking) {
         throw new Error("Failed to update booking status");
       }
+
+      // Credit Admin Wallet upon successful subscription
+      const adminId = process.env.ADMIN_ID || "";
+      const adminWallet = await this._walletRepository.findByOwnerId(adminId);
+
+      if (!adminWallet) {
+        await this._walletRepository.createWallet({
+          ownerId: adminId,
+          ownerType: Role.ADMIN,
+          balance: 0,
+          transactions: [],
+        });
+      }
+
+      await this._walletRepository.updateBalance(
+        adminId,
+        Role.ADMIN,
+        plan.price,
+        "credit",
+        `Subscription "${plan.name}" purchased by vendor ${vendorId}`,
+        updatedBooking._id.toString()
+      );
 
       return {
         success: true,
