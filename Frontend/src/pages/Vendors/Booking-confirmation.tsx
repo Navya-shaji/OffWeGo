@@ -6,6 +6,7 @@ import StripeCheckout from "./stripeCheckout";
 import { getUserWallet, createBookingWithWallet } from "@/services/Wallet/UserWalletService";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
+import { toast } from "react-hot-toast";
 
 export default function PaymentCheckout() {
   const { state } = useLocation();
@@ -75,8 +76,7 @@ export default function PaymentCheckout() {
 
       if (response.success) {
         setWalletBalance(prev => prev - subtotal);
-
-        alert("Payment successful! Your booking is confirmed.");
+        toast.success("Payment successful! Your booking is confirmed.");
 
         navigate("/booking-success", {
           state: {
@@ -158,8 +158,8 @@ export default function PaymentCheckout() {
                     setError("");
                   }}
                   className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 ${selectedPayment === "stripe"
-                      ? "border-black bg-gray-50 shadow-md scale-105"
-                      : "border-gray-200 hover:border-gray-300"
+                    ? "border-black bg-gray-50 shadow-md scale-105"
+                    : "border-gray-200 hover:border-gray-300"
                     }`}
                 >
                   <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center">
@@ -176,8 +176,8 @@ export default function PaymentCheckout() {
                   }}
                   disabled={walletLoading}
                   className={`flex flex-col items-center justify-center gap-3 py-6 px-4 rounded-2xl border-2 text-center font-medium transition-all duration-300 relative ${selectedPayment === "wallet"
-                      ? "border-black bg-gray-50 shadow-md scale-105"
-                      : "border-gray-200 hover:border-gray-300"
+                    ? "border-black bg-gray-50 shadow-md scale-105"
+                    : "border-gray-200 hover:border-gray-300"
                     } ${walletLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-full flex items-center justify-center">
@@ -278,8 +278,8 @@ export default function PaymentCheckout() {
                 onClick={handlePayment}
                 disabled={totalAmount === 0 || paymentLoading || hasInsufficientBalance}
                 className={`w-full py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-white ${totalAmount === 0 || paymentLoading || hasInsufficientBalance
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-black via-gray-800 to-gray-900 hover:from-gray-900 hover:to-black"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-black via-gray-800 to-gray-900 hover:from-gray-900 hover:to-black"
                   }`}
               >
                 {paymentLoading ? (

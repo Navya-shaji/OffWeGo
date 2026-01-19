@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
-import { rescheduleBooking } from "@/services/Booking/bookingService"; 
+import { rescheduleBooking } from "@/services/Booking/bookingService";
 
 interface RescheduleModalProps {
   open: boolean;
@@ -16,7 +17,7 @@ const RescheduleModal = ({ open, onClose, bookingId, onSuccess }: RescheduleModa
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!newDate) return alert("Please select a new date");
+    if (!newDate) return toast.error("Please select a new date");
 
     try {
       setLoading(true);
@@ -26,7 +27,7 @@ const RescheduleModal = ({ open, onClose, bookingId, onSuccess }: RescheduleModa
       onClose();
     } catch (error) {
       console.error("Reschedule error:", error);
-      alert("Failed to reschedule. Try again.");
+      toast.error("Failed to reschedule. Try again.");
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VendorNavbar from "@/components/vendor/navbar";
+import { toast } from "react-hot-toast";
 
 interface SubscriptionHistory {
   _id: string;
@@ -256,11 +257,11 @@ export default function VendorSubscriptionHistory() {
       await cancelSubscription(subscription._id);
       // Refresh history to show updated status
       await fetchHistory();
-      alert("Subscription cancelled successfully");
+      toast.success("Subscription cancelled successfully");
     } catch (error: unknown) {
       console.error("Error cancelling subscription:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to cancel subscription";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setCancellingId(null);
     }
@@ -283,7 +284,7 @@ export default function VendorSubscriptionHistory() {
     } catch (error: unknown) {
       console.error("Error retrying payment:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to retry payment";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setRetryingId(null);
     }
