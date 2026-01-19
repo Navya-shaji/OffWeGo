@@ -57,6 +57,8 @@ interface ExtendedBooking extends Booking {
         imageUrls?: string[];
         packageName?: string;
         destination?: string;
+        destinationName?: string;
+        packageImage?: string;
         ownerId?: string;
     };
 }
@@ -431,7 +433,7 @@ const BookingDetailsPage = () => {
                             {/* Hero Section */}
                             <div className="relative h-80 rounded-[2.5rem] overflow-hidden group">
                                 <img
-                                    src={resolveCloudinaryUrl(booking.selectedPackage?.imageUrls?.[0], "image") || booking.selectedPackage?.imageUrls?.[0] || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800"}
+                                    src={resolveCloudinaryUrl(booking.selectedPackage?.packageImage || booking.selectedPackage?.imageUrls?.[0], "image") || booking.selectedPackage?.packageImage || booking.selectedPackage?.imageUrls?.[0] || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800"}
                                     alt={booking.selectedPackage?.packageName || "Package"}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     onError={(e) => {
@@ -444,7 +446,7 @@ const BookingDetailsPage = () => {
                                     <h1 className="text-4xl font-black mb-2 tracking-tight">{booking.selectedPackage?.packageName}</h1>
                                     <div className="flex items-center gap-2 text-sm font-medium">
                                         <MapPin className="w-4 h-4" />
-                                        <span>{booking.selectedPackage?.destination || "Adventure Destination"}</span>
+                                        <span>{booking.selectedPackage?.destinationName || booking.selectedPackage?.destination || "Adventure Destination"}</span>
                                     </div>
                                 </div>
                             </div>

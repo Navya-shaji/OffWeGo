@@ -9,6 +9,7 @@ import { Role } from "../../domain/constants/Roles";
 
 import { INotificationService } from "../../domain/interface/Notification/ISendNotification";
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
+import { IDestinationRepository } from "../../domain/interface/Admin/IDestinationInterface";
 
 import { IEmailService } from "../../domain/interface/ServiceInterface/IEmailService";
 import { AppError } from "../../domain/errors/AppError";
@@ -19,6 +20,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     private _bookingRepository: IBookingRepository,
     private _walletRepository: IWalletRepository,
     private _packageRepository: IPackageRepository,
+    private _destinationRepository: IDestinationRepository,
     private _notificationService: INotificationService,
     private _emailService: IEmailService
   ) { }
@@ -46,11 +48,24 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
       throw new AppError("This package is already booked for the selected date.", HttpStatus.CONFLICT);
     }
 
+    // Get Package and Destination details for embedding
     const packageData = await this._packageRepository.findOne({
       _id: data.selectedPackage._id,
     });
 
     if (!packageData) throw new AppError("Package not found", HttpStatus.NOT_FOUND);
+
+    let destinationName = "N/A";
+    try {
+      if (packageData.destinationId) {
+        const destination = await this._destinationRepository.getDestination(packageData.destinationId.toString());
+        if (destination) {
+          destinationName = destination.name || "N/A";
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching destination for booking:", error);
+    }
 
     const bookingId = generateBookingId();
 
@@ -61,12 +76,20 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         packageName: packageData.packageName,
         price: packageData.price,
         duration: packageData.duration,
+        destinationName: destinationName, // Added destinationName
+        packageImage: packageData.images?.[0] || "" // Added packageImage
       },
       bookingId,
       paymentStatus: "succeeded",
       paymentIntentId: payment_id,
       startDate: new Date().toISOString(),
       packageId: packageData._id.toString(),
+      totalAmount: data.totalAmount,
+      contactInfo: data.contactInfo,
+      adults: data.adults,
+      children: data.children,
+      userId: data.userId,
+      selectedDate: new Date(data.selectedDate),
       vendorId: packageData.vendorId.toString(),
       settlementDone: false,
       bookingStatus: "upcoming"

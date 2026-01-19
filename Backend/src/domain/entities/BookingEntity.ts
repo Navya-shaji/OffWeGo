@@ -17,6 +17,8 @@ export interface PackageInfo {
   price: number;
   description?: string;
   duration?: number;
+  destinationName?: string;
+  packageImage?: string;
 }
 
 export interface Booking {

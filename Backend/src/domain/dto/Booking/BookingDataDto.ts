@@ -21,11 +21,12 @@ export interface PackageDto {
   price: number;
   description?: string;
   duration?: number;
+  packageImage?: string;
 }
 
 export interface BookingDataDto {
   _id: string;
-   bookingId: string;
+  bookingId: string;
   userId: string;
   vendorId?: string;
   contactInfo: ContactInfo;
@@ -38,7 +39,6 @@ export interface BookingDataDto {
   paymentStatus?: "pending" | "succeeded" | "failed";
   payment_id?: string;
   bookingStatus: "upcoming" | "completed" | "cancelled";
-  settlementDone:boolean
-  
-  
+  settlementDone: boolean;
+  createdAt?: Date;
 }

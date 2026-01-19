@@ -1,4 +1,4 @@
- 
+
 import type { IWallet } from "@/interface/wallet";
 import { getUserWallet } from "@/services/Wallet/UserWalletService";
 import type { RootState } from "@/store/store";
@@ -16,7 +16,7 @@ import {
   TrendingUp
 } from "lucide-react";
 
-export default function WalletManagement({ embedded = false }: { embedded?: boolean }) {
+export default function WalletManagement({ embedded = false, refreshTrigger }: { embedded?: boolean, refreshTrigger?: number }) {
   const user = useSelector((state: RootState) => state.auth.user);
   const [wallet, setWallet] = useState<IWallet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function WalletManagement({ embedded = false }: { embedded?: bool
     };
 
     fetchWallet();
-  }, [user]);
+  }, [user, refreshTrigger]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {

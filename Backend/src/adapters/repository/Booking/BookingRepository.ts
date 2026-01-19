@@ -34,6 +34,7 @@ export class BookingRepository implements IBookingRepository {
   async findByUserId(userId: string): Promise<Booking[]> {
     return (BookingModel as any).find({ userId })
       .populate("selectedPackage")
+      .sort({ createdAt: -1 })
       .lean()
       .exec();
   }
@@ -41,6 +42,7 @@ export class BookingRepository implements IBookingRepository {
   async findByVendorId(vendorId: string): Promise<Booking[]> {
     return (BookingModel as any).find({ vendorId })
       .populate("selectedPackage")
+      .sort({ createdAt: -1 })
       .lean()
       .exec();
   }

@@ -171,7 +171,7 @@ const RescheduleModal = ({
   );
 };
 
-const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => {
+const BookingDetailsSection = ({ embedded = false, onAction }: { embedded?: boolean, onAction?: () => void }) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
@@ -385,7 +385,7 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
       if (res?.success === true || res?.data) {
         toast.success("Booking cancelled successfully");
         setBookings(prev => prev.map(b => b._id === bookingToCancel ? { ...b, bookingStatus: 'cancelled' } : b));
-
+        onAction?.();
       } else throw new Error(res?.message || "Failed");
     } catch (err: any) {
       toast.error(err.message || "Failed to cancel.");
@@ -501,7 +501,8 @@ const BookingDetailsSection = ({ embedded = false }: { embedded?: boolean }) => 
                         // Extract Destination logic
                         const destObj = booking.selectedPackage?.destination;
                         const destId = (typeof destObj === "object" && destObj?._id) || booking.selectedPackage?.destinationId;
-                        const destination = (typeof destObj === "object" && (destObj?.name || destObj?.destinationName)) ||
+                        const destination = booking.selectedPackage?.destinationName ||
+                          (typeof destObj === "object" && (destObj?.name || destObj?.destinationName)) ||
                           (typeof destId === "string" && destinationNameById[destId]) || "N/A";
 
                         return (

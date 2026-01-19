@@ -16,6 +16,7 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDt
     paymentStatus: b.paymentStatus,
     payment_id: b.paymentIntentId || "",
     bookingStatus: b.bookingStatus,
-    settlementDone: b.settlementDone
+    settlementDone: b.settlementDone,
+    createdAt: b.createdAt
   }));
 };

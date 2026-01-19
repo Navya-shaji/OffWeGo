@@ -22,6 +22,11 @@ const Profile = () => {
     "profile" | "bookings" | "wallet"
   >("profile");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleAction = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
 
   useEffect(() => {
@@ -433,7 +438,7 @@ const Profile = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="bg-white rounded-[2rem] p-4 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100"
                 >
-                  <BookingDetailsSection embedded />
+                  <BookingDetailsSection embedded onAction={handleAction} />
                 </motion.div>
               ) : (
                 <motion.div
@@ -443,7 +448,7 @@ const Profile = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="bg-white rounded-[2rem] p-4 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100"
                 >
-                  <WalletManagement embedded />
+                  <WalletManagement embedded refreshTrigger={refreshTrigger} />
                 </motion.div>
               )}
             </AnimatePresence>
