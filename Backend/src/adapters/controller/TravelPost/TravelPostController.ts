@@ -63,6 +63,8 @@ export class TravelPostController {
         limit,
       } = req.query;
 
+      const requesterId = req.user?.userId || req.user?.id || undefined;
+
       const result = await this._listTravelPostsUsecase.execute({
         status: (status as "PENDING" | "APPROVED" | "REJECTED") || "APPROVED",
         categoryId: categoryId as string,
@@ -72,6 +74,7 @@ export class TravelPostController {
         sortBy: sortBy as SortOption,
         page: parseInt(page as string) || 1,
         limit: parseInt(limit as string) || 10,
+        requesterId,
       });
 
       res.status(HttpStatus.OK).json({
@@ -114,6 +117,7 @@ export class TravelPostController {
         sortBy: sortBy as SortOption,
         page: parseInt(page as string) || 1,
         limit: parseInt(limit as string) || 10,
+        requesterId: authorId,
       });
 
       res.status(HttpStatus.OK).json({

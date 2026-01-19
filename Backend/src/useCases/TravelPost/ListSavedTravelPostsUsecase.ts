@@ -6,9 +6,9 @@ import { mapTravelPostsToDto } from "../../mappers/TravelPost/mapTravelPostToDto
 
 export class ListSavedTravelPostsUsecase implements IListSavedTravelPostsUsecase {
   constructor(
-    private  _userRepository: IUserRepository,
-    private  _travelPostRepository: ITravelPostRepository
-  ) {}
+    private _userRepository: IUserRepository,
+    private _travelPostRepository: ITravelPostRepository
+  ) { }
 
   async execute(userId: string): Promise<TravelPostDto[]> {
     if (!userId) {
@@ -22,6 +22,7 @@ export class ListSavedTravelPostsUsecase implements IListSavedTravelPostsUsecase
     }
 
     const posts = await this._travelPostRepository.findByIds(ids);
-    return mapTravelPostsToDto(posts);
+    const dtos = mapTravelPostsToDto(posts);
+    return dtos.map(dto => ({ ...dto, isSaved: true }));
   }
 }

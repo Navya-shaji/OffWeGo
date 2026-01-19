@@ -2,9 +2,13 @@ import { ITravelPostRepository } from "../../domain/interface/TravelPost/ITravel
 import { IGetTravelPostUsecase } from "../../domain/interface/TravelPost/usecases/IGetTravelPostUsecase";
 import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
+import { IUserRepository } from "../../domain/interface/UserRepository/IuserRepository";
 
 export class GetTravelPostUsecase implements IGetTravelPostUsecase {
-  constructor(private _travelPostRepository: ITravelPostRepository) { }
+  constructor(
+    private _travelPostRepository: ITravelPostRepository,
+    private _userRepository: IUserRepository
+  ) { }
 
   async execute(
     identifier: { id?: string; slug?: string },
@@ -37,6 +41,11 @@ export class GetTravelPostUsecase implements IGetTravelPostUsecase {
     // We fetch the post again to get updated metric or we can manually adjust
     // To be efficient, we only increment the DTO view if it's likely a new view
     const dto = mapTravelPostToDto(post);
+
+    if (requesterId) {
+      const savedIds = await this._userRepository.getSavedTravelPostIds(requesterId);
+      dto.isSaved = savedIds.includes(post.id!);
+    }
 
     // Simple heuristic for immediate UI feedback: 
     // Only increment view count in DTO if a logged-in user is viewing for the first time.

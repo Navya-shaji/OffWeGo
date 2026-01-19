@@ -2,9 +2,13 @@ import { IListTravelPostsUsecase, ListTravelPostQuery } from "../../domain/inter
 import { ITravelPostRepository, SortOption } from "../../domain/interface/TravelPost/ITravelPostRepository";
 import { TravelPostDto } from "../../domain/dto/TravelPost/TravelPostDto";
 import { mapTravelPostsToDto } from "../../mappers/TravelPost/mapTravelPostToDto";
+import { IUserRepository } from "../../domain/interface/UserRepository/IuserRepository";
 
 export class ListTravelPostsUsecase implements IListTravelPostsUsecase {
-  constructor(private readonly travelPostRepository: ITravelPostRepository) { }
+  constructor(
+    private readonly travelPostRepository: ITravelPostRepository,
+    private readonly userRepository: IUserRepository
+  ) { }
 
   async execute(query: ListTravelPostQuery): Promise<{
     data: TravelPostDto[];
@@ -27,8 +31,17 @@ export class ListTravelPostsUsecase implements IListTravelPostsUsecase {
       { page, limit }
     );
 
+    const dtos = mapTravelPostsToDto(result.data);
+
+    if (query.requesterId) {
+      const savedIds = await this.userRepository.getSavedTravelPostIds(query.requesterId);
+      dtos.forEach(dto => {
+        dto.isSaved = savedIds.includes(dto.id);
+      });
+    }
+
     return {
-      data: mapTravelPostsToDto(result.data),
+      data: dtos,
       total: result.total,
       page: result.page,
       limit: result.limit,

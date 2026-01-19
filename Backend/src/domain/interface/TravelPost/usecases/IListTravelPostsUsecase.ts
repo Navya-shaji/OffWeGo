@@ -9,6 +9,7 @@ export interface ListTravelPostQuery {
   sortBy?: "newest" | "oldest" | "popular";
   page?: number;
   limit?: number;
+  requesterId?: string;
 }
 
 export interface IListTravelPostsUsecase {

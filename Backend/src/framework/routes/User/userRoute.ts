@@ -16,7 +16,7 @@ import { JwtService } from "../../Services/jwtService";
 import { destinationController } from "../../Di/Admin/adminInjection";
 import { UserRoutes, UserRouteConstants } from "../Constants/UserRouteConstants";
 import { CommonRoutes } from "../Constants/commonRoutes";
-import { verifyTokenAndCheckBlackList } from "../../../adapters/flowControl/TokenValidationControl";
+import { verifyTokenAndCheckBlackList, verifyTokenOptional } from "../../../adapters/flowControl/TokenValidationControl";
 import { checkRoleBasedcontrol } from "../../../adapters/flowControl/RoleBasedControl";
 import { refreshTokenController } from "../../Di/RefreshToken/refreshtokenInjection";
 import {
@@ -207,9 +207,13 @@ export class UserRoute {
       }
     );
 
-    this.userRouter.get(UserRoutes.TRAVEL_POSTS, (req: Request, res: Response) => {
-      travelPostController.listTravelPosts(req, res);
-    });
+    this.userRouter.get(
+      UserRoutes.TRAVEL_POSTS,
+      verifyTokenOptional(TokenService),
+      (req: Request, res: Response) => {
+        travelPostController.listTravelPosts(req, res);
+      }
+    );
     this.userRouter.get(
       UserRoutes.TRAVEL_POSTS_MY,
       verifyTokenAndCheckBlackList(TokenService),
@@ -234,6 +238,7 @@ export class UserRoute {
 
     this.userRouter.get(
       UserRouteConstants.TRAVEL_POST_BY_SLUG,
+      verifyTokenOptional(TokenService),
       (req: Request, res: Response) => {
         travelPostController.getTravelPostBySlug(req, res);
       }

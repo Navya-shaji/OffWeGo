@@ -36,5 +36,5 @@ export interface ITravelPostRepository {
     rejectedReason?: string
   ): Promise<TravelPost | null>;
   incrementViews(id: string, requesterId?: string): Promise<void>;
-  adjustLikes(id: string, delta: number): Promise<void>;
+  adjustLikes(id: string, delta: number): Promise<number>;
 }

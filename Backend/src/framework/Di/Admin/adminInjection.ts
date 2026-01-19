@@ -121,7 +121,7 @@ const getVendorSubscriptionHistoryUseCase = new GetVendorSubscriptionHistoryUseC
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 const getbookedsubscriptionusecase = new GetSubscriptionBookingUseCase(subscriptionbookingRepo)
 
-const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo)
+const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo,userRepo)
 const approveTravelPostUsecase = new ApproveTravelPostUsecase(travelPostRepo)
 const rejectTravelPostUsecase = new RejectTravelPostUsecase(travelPostRepo)
 

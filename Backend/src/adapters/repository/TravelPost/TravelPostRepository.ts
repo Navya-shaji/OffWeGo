@@ -256,18 +256,25 @@ export class TravelPostRepository implements ITravelPostRepository {
     );
   }
 
-  async adjustLikes(id: string, delta: number): Promise<void> {
-    if (!delta) return;
-
-    await (TravelPostModel as any).findByIdAndUpdate(id, {
-      $inc: { "metrics.likes": delta },
-    });
-
-    if (delta < 0) {
-      await (TravelPostModel as any).findOneAndUpdate(
-        { _id: id, "metrics.likes": { $lt: 0 } },
-        { $set: { "metrics.likes": 0 } }
-      );
+  async adjustLikes(id: string, delta: number): Promise<number> {
+    if (!delta) {
+      const post = await this.findById(id);
+      return post?.metrics.likes || 0;
     }
+
+    const updated = await (TravelPostModel as any).findByIdAndUpdate(
+      id,
+      { $inc: { "metrics.likes": delta } },
+      { new: true }
+    );
+
+    if (updated && updated.metrics.likes < 0) {
+      await (TravelPostModel as any).findByIdAndUpdate(id, {
+        $set: { "metrics.likes": 0 }
+      });
+      return 0;
+    }
+
+    return updated ? updated.metrics.likes : 0;
   }
 }

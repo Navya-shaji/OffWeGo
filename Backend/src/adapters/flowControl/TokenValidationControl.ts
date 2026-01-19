@@ -35,3 +35,28 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
     }
   };
 };
+
+export const verifyTokenOptional = (tokenService: ITokenService) => {
+  return async (req: Request, _res: Response, next: NextFunction) => {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next();
+    }
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = await tokenService.verifyToken(token, "access");
+      if (decoded) {
+        req.user = decoded as JwtPayload & {
+          id: string;
+          email?: string;
+          role: string;
+        };
+      }
+      next();
+    } catch {
+      // For optional auth, we just continue without user if token is invalid
+      next();
+    }
+  };
+};

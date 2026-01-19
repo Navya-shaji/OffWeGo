@@ -6,7 +6,7 @@ export class ToggleSaveTravelPostUsecase implements IToggleSaveTravelPostUsecase
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly travelPostRepository: ITravelPostRepository
-  ) {}
+  ) { }
 
   async execute(
     userId: string,
@@ -25,16 +25,15 @@ export class ToggleSaveTravelPostUsecase implements IToggleSaveTravelPostUsecase
       throw new Error("Travel post not found");
     }
 
-    if (post.status !== "APPROVED") {
+    // If it's not approved, only the author should be able to save it
+    if (post.status !== "APPROVED" && post.authorId !== userId) {
       throw new Error("Only approved travel posts can be saved");
     }
 
     const saved = await this.userRepository.toggleSaveTravelPost(userId, postId);
 
     const delta = saved ? 1 : -1;
-    const nextLikes = Math.max(0, post.metrics.likes + delta);
-
-    await this.travelPostRepository.adjustLikes(postId, delta);
+    const nextLikes = await this.travelPostRepository.adjustLikes(postId, delta);
 
     return { saved, likes: nextLikes };
   }

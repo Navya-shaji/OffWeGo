@@ -23,4 +23,5 @@ export interface TravelPostDto {
     views: number;
     likes: number;
   };
+  isSaved?: boolean;
 }
