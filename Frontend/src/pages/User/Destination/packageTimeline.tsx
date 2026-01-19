@@ -21,6 +21,11 @@ export const PackageTimeline = () => {
   const navigate = useNavigate();
   const selectedPackage = state?.selectedPackage as Package;
 
+  // Calculate tomorrow's date to disable today in the date picker
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isBookingLoading] = useState(false);
@@ -390,7 +395,7 @@ export const PackageTimeline = () => {
                         type="date"
                         className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl focus:border-teal-500 focus:ring-0 font-bold text-gray-700 outline-none transition-all"
                         onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                        min={new Date().toISOString().split("T")[0]}
+                        min={minDate}
                       />
                     </div>
                   </div>

@@ -78,6 +78,11 @@ const TravelPostCreatePage = () => {
   const categoryOptions = useMemo(() => filters?.categories ?? [], [filters]);
   const destinationOptions = useMemo(() => filters?.destinations ?? [], [filters]);
 
+  // Calculate yesterday's date to disable today and future dates
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const maxDate = yesterday.toISOString().split("T")[0];
+
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -263,6 +268,7 @@ const TravelPostCreatePage = () => {
                   type="date"
                   {...register("tripDate")}
                   className="w-full rounded border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
+                  max={maxDate}
                 />
               </div>
               <div className="space-y-2">
