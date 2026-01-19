@@ -8,8 +8,7 @@ import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class DestinationRepository
   extends BaseRepository<IDestinationModel>
-  implements IDestinationRepository
-{
+  implements IDestinationRepository {
   constructor() {
     super(DestinationModel);
   }
@@ -24,7 +23,7 @@ export class DestinationRepository
     skip: number,
     limit: number
   ): Promise<IDestinationModel[]> {
-    return this.model.find().skip(skip).limit(limit).exec();
+    return this.model.find().sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
   }
 
   async edit(

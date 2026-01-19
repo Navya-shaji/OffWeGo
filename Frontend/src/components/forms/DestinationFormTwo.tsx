@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Loader2 } from "lucide-react";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import type { DestinationFormData } from "@/Types/Admin/Destination/DestinationSchema";
 import { motion } from "framer-motion";
@@ -24,7 +24,7 @@ interface Props {
 
 export const DestinationFormTwo = ({
   files,
- 
+
 
   imagePreviews,
   imageError,
@@ -37,12 +37,13 @@ export const DestinationFormTwo = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isCropping, setIsCropping] = useState(false);
 
 
-const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
-  setCroppedAreaPixels(croppedAreaPixels);
-};
+  const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
   const handleImageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -52,15 +53,23 @@ const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
 
   const handleCropConfirm = async () => {
     if (!selectedFile || !croppedAreaPixels) return;
-    const croppedBlob = await getCroppedImg(URL.createObjectURL(selectedFile), croppedAreaPixels);
-    const croppedFile = new File([croppedBlob], selectedFile.name, { type: selectedFile.type });
 
-    const previewUrl = URL.createObjectURL(croppedFile);
-    setFiles([...files, croppedFile]);
-    setImagePreviews([...imagePreviews, previewUrl]);
+    try {
+      setIsCropping(true);
+      const croppedBlob = await getCroppedImg(URL.createObjectURL(selectedFile), croppedAreaPixels);
+      const croppedFile = new File([croppedBlob], selectedFile.name, { type: selectedFile.type });
 
-    setIsCropOpen(false);
-    setSelectedFile(null);
+      const previewUrl = URL.createObjectURL(croppedFile);
+      setFiles([...files, croppedFile]);
+      setImagePreviews([...imagePreviews, previewUrl]);
+
+      setIsCropOpen(false);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("Failed to crop image", error);
+    } finally {
+      setIsCropping(false);
+    }
   };
 
   const handleRemoveImage = (index: number) => {
@@ -155,9 +164,11 @@ const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
               </button>
               <button
                 onClick={handleCropConfirm}
-                className="px-4 py-2 bg-black text-white rounded"
+                disabled={isCropping}
+                className="px-4 py-2 bg-black text-white rounded flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirm Crop
+                {isCropping ? <Loader2 className="animate-spin w-4 h-4" /> : null}
+                {isCropping ? "Processing..." : "Confirm Crop"}
               </button>
             </div>
           </Dialog.Panel>

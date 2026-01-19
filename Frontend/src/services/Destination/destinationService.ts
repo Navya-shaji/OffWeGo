@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import type { Package } from "@/interface/PackageInterface";
+
 import store from "@/store/store";
 
 export const addDestination = async (data: DestinationInterface) => {
@@ -93,23 +93,7 @@ export const getsingleDestination = async (id: string) => {
   }
 };
 
-export const getPackagesByDestination = async (
-  destinationId: string
-): Promise<Package[]> => {
-  try {
-    const response = await axiosInstance.get(
-      `/api/destination/${destinationId}`
-    );
-    return response.data;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      throw new Error(
-        error.response?.data?.error || "Failed to update destination"
-      );
-    }
-    throw new Error("An unexpected error occurred while updating destination");
-  }
-};
+
 
 export const deleteDestination = async (id: string): Promise<void> => {
   try {
