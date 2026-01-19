@@ -107,7 +107,11 @@ export class VerifyPaymentUseCase implements IVerifyPaymentUseCase {
       }
 
       // Credit Admin Wallet upon successful subscription
-      const adminId = process.env.ADMIN_ID || "";
+      const adminId = process.env.ADMIN_ID;
+      if (!adminId) {
+        console.error("ADMIN_ID is not configured in environment variables");
+        throw new Error("Admin wallet configuration error. Please contact support.");
+      }
       const adminWallet = await this._walletRepository.findByOwnerId(adminId);
 
       if (!adminWallet) {

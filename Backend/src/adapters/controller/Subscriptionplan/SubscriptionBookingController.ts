@@ -11,12 +11,12 @@ export class SubscriptionBookingController {
     private _createBookingSubscriptionUsecase: ICreateBookingSubscriptionUseCase,
     private _subscriptionBookingRepository: ISubscriptionBookingRepository,
     private _getVendorSubscriptionHistoryUsecase: IGetVendorSubscriptionHistoryUseCase
-  ) {}
+  ) { }
 
   async createSubscriptionBooking(req: Request, res: Response): Promise<void> {
     try {
       const { vendorId, planId, date, time } = req.body;
-      const domainUrl = process.env.DOMAIN_URL || "https://yourdomain.com";
+      const domainUrl = process.env.FRONTEND_URL || (process.env.DOMAIN_URL ? `https://${process.env.DOMAIN_URL}` : "https://offwego.online");
 
       const result = await this._createBookingSubscriptionUsecase.execute({
         vendorId,
@@ -28,7 +28,7 @@ export class SubscriptionBookingController {
 
       res.status(HttpStatus.CREATED).json(result);
     } catch (error) {
-    
+      console.error("Subscription Booking Error:", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, error: (error as Error).message });
@@ -37,9 +37,9 @@ export class SubscriptionBookingController {
 
   async getVendorSubscription(req: Request, res: Response): Promise<void> {
     try {
-  
+
       const vendorId = req.user?.id || req.user?.userId;
-      
+
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
@@ -80,7 +80,7 @@ export class SubscriptionBookingController {
   async getVendorSubscriptionHistory(req: Request, res: Response): Promise<void> {
     try {
       const vendorId = req.user?.id || req.user?._id;
-      
+
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
@@ -145,7 +145,7 @@ export class SubscriptionBookingController {
         data: cancelledBooking,
       });
     } catch (error) {
- 
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to cancel subscription",
@@ -158,7 +158,7 @@ export class SubscriptionBookingController {
     try {
       const { bookingId } = req.params;
       const vendorId = req.user?.id || req.user?.userId;
-      const domainUrl = process.env.DOMAIN_URL || "https://yourdomain.com";
+      const domainUrl = process.env.FRONTEND_URL || (process.env.DOMAIN_URL ? `https://${process.env.DOMAIN_URL}` : "https://offwego.online");
 
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -203,7 +203,7 @@ export class SubscriptionBookingController {
         data: retryResult,
       });
     } catch (error) {
-    
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Failed to retry payment",

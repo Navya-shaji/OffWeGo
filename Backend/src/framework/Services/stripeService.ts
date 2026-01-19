@@ -20,7 +20,8 @@ export class StripeService implements IStripeService {
       });
 
       return paymentIntent.client_secret!;
-    } catch {
+    } catch (error) {
+      console.error("Stripe Payment Intent Error:", error);
       throw new Error("Failed to create payment intent");
     }
   }
@@ -45,7 +46,8 @@ export class StripeService implements IStripeService {
         checkoutUrl: session.url!,
         sessionId: session.id
       };
-    } catch {
+    } catch (error) {
+      console.error("Stripe Checkout Error:", error);
       throw new Error("Failed to create Stripe Checkout session");
     }
   }
