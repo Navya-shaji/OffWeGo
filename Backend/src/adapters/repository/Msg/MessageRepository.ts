@@ -47,6 +47,9 @@ export class MessageRepository {
             .limit(limit + 1)
             .populate('replyTo.messageId');
 
+        console.log(`[DEBUG] getMessages for chatId: ${chatId}. Query:`, JSON.stringify(query));
+        console.log(`[DEBUG] Found ${docs.length} docs`);
+
         const hasMore = docs.length > limit;
         const slice = hasMore ? docs.slice(0, limit) : docs;
         const messages = slice.reverse().map((d) => (d as any).toObject?.() ?? d);

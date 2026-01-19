@@ -40,7 +40,11 @@ export class ChatController {
       const userId = req.params.userId || req.params.vendorId;
       const userType = (req.query.userType as Role.USER | Role.VENDOR) || Role.USER;
 
+      console.log(`[DEBUG] ChatController.getChats called. UserId: ${userId}, UserType: ${userType}`);
+
       const chats = await this._getChatsUsecase.getChats(userId, userType);
+      console.log(`[DEBUG] ChatController.getChats returning ${chats?.length} chats`);
+
       return res.status(HttpStatus.OK).json({
         success: true,
         data: chats,
@@ -57,7 +61,9 @@ export class ChatController {
   async getMessages(req: Request, res: Response) {
     try {
       const { chatId } = req.params;
+      console.log(`[DEBUG] ChatController.getMessages called. ChatId: ${chatId}`);
       const messages = await this._getMessagesUsecase.execute(chatId);
+      console.log(`[DEBUG] ChatController.getMessages returning ${messages?.messages?.length} messages`);
       return res.status(HttpStatus.OK).json({
         success: true,
         data: messages,

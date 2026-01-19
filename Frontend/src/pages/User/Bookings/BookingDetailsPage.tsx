@@ -780,7 +780,7 @@ const BookingDetailsPage = () => {
                                     </button>
                                 )}
 
-                                {booking.bookingStatus?.toLowerCase() !== "cancelled" && (
+                                {getBookingStatus(booking) === "upcoming" && (
                                     <>
                                         <button
                                             onClick={openRescheduleModal}

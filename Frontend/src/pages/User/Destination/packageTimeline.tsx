@@ -15,6 +15,12 @@ import { PackageReviews } from "./PackageReviews";
 import type { Flight } from "@/interface/flightInterface";
 import { motion, AnimatePresence } from "framer-motion";
 import { allReviews } from "@/services/Reviews/reviewService";
+import { getUserBookings } from "@/services/Booking/bookingService";
+import { toast } from "react-toastify";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export const PackageTimeline = () => {
   const { state } = useLocation();
@@ -24,7 +30,6 @@ export const PackageTimeline = () => {
   // Calculate tomorrow's date to disable today in the date picker
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split("T")[0];
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -32,6 +37,19 @@ export const PackageTimeline = () => {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [showFlightModal, setShowFlightModal] = useState(false);
   const [expandedDays, setExpandedDays] = useState<Record<number, boolean>>({});
+  const [userBookings, setUserBookings] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const bookings = await getUserBookings();
+        setUserBookings(bookings || []);
+      } catch (error) {
+        console.error("Failed to fetch bookings", error);
+      }
+    };
+    fetchBookings();
+  }, []);
 
   // Review Stats
   const [avgRating, setAvgRating] = useState<string>("0.0");
@@ -78,6 +96,20 @@ export const PackageTimeline = () => {
       setBookingError("Please select a travel date.");
       return;
     }
+
+    // Double check for duplicate booking
+    const isBooked = userBookings.some((booking: any) =>
+      booking.selectedPackage?._id === selectedPackage._id &&
+      new Date(booking.selectedDate).toDateString() === selectedDate.toDateString() &&
+      booking.bookingStatus !== 'cancelled'
+    );
+
+    if (isBooked) {
+      toast.error("You have already booked this package for this date!");
+      setBookingError("You have already booked this package for this date!");
+      return;
+    }
+
     if (selectedPackage.flightOption) {
       setShowFlightModal(true);
     } else {
@@ -390,13 +422,44 @@ export const PackageTimeline = () => {
                   <div>
                     <label className="text-xs font-bold text-gray-700 uppercase mb-2 block">Travel Date</label>
                     <div className="relative">
-                      <CalendarDays className="absolute left-4 top-3 text-teal-500 w-5 h-5" />
-                      <input
-                        type="date"
-                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-xl focus:border-teal-500 focus:ring-0 font-bold text-gray-700 outline-none transition-all"
-                        onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                        min={minDate}
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-12 pr-4 py-6 bg-white border-2 border-slate-100 rounded-xl focus:border-teal-500 hover:bg-slate-50 text-left font-bold text-gray-700 justify-start h-auto",
+                              !selectedDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500 w-5 h-5" />
+                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate || undefined}
+                            onSelect={(date) => {
+                              setSelectedDate(date || null);
+                              setBookingError(null);
+                            }}
+                            disabled={(date) => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              // Disable past dates and today (so limit is tomorrow)
+                              if (date <= today) return true;
+
+                              // Disable booked dates
+                              return userBookings.some((booking: any) =>
+                                booking.selectedPackage?._id === selectedPackage._id &&
+                                new Date(booking.selectedDate).toDateString() === date.toDateString() &&
+                                booking.bookingStatus !== 'cancelled'
+                              );
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 </div>
