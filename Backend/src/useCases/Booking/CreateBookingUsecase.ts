@@ -56,6 +56,12 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const bookingData: Booking = {
       ...data,
+      selectedPackage: {
+        _id: packageData._id.toString(),
+        packageName: packageData.packageName,
+        price: packageData.price,
+        duration: packageData.duration,
+      },
       bookingId,
       paymentStatus: "succeeded",
       paymentIntentId: payment_id,
@@ -68,7 +74,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
 
     const result = await this._bookingRepository.createBooking(bookingData);
 
- 
+
     if (result.paymentStatus === "succeeded") {
       try {
         const adminId = process.env.ADMIN_ID || "";

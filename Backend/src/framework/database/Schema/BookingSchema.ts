@@ -26,7 +26,7 @@ export const BookingSchema = new Schema({
   contactInfo: { type: ContactInfoSchema, required: true },
   adults: { type: [TravelerSchema], default: [] },
   children: { type: [TravelerSchema], default: [] },
-  selectedPackage: { type: Schema.Types.ObjectId, ref: "Package" },
+  selectedPackage: { type: SelectedPackageSchema, required: true },
   selectedDate: { type: Date, required: true },
   totalAmount: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },

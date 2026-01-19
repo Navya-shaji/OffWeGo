@@ -17,8 +17,11 @@ export class cancelBookingUsecase implements ICancelBookingUsecase {
 
   async execute(bookingId: string): Promise<BookingDataDto> {
     const booking = await this._bookingRepo.findOne(bookingId);
-
     if (!booking) throw new Error("Booking not Found");
+
+    if (booking.bookingStatus === "cancelled") {
+      throw new Error("Booking is already cancelled");
+    }
 
     const bookingDate = new Date(booking.selectedDate);
     const now = new Date();
