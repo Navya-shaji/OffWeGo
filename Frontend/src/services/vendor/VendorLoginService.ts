@@ -1,13 +1,14 @@
 import axiosInstance from "@/axios/instance";
 import { getFcmToken } from "@/Firebase/firebase";
 import { isAxiosError } from "axios";
+import { VendorRoutes, VENDOR_BASE } from "@/constants/apiRoutes";
 
 export const vendorLogin = async (email: string, password: string) => {
   try {
 
     const fcmToken = await getFcmToken();
 
-    const res = await axiosInstance.post("/api/vendor/login", {
+    const res = await axiosInstance.post(`${VENDOR_BASE}${VendorRoutes.LOGIN}`, {
       email,
       password,
       fcmToken: fcmToken || null
@@ -27,7 +28,7 @@ export const vendorLogin = async (email: string, password: string) => {
 
 export const forgotPassword = async (email: string) => {
   try {
-    const res = await axiosInstance.post("/api/vendor/forgot-password", { email });
+    const res = await axiosInstance.post(`${VENDOR_BASE}${VendorRoutes.FORGOT_PASSWORD}`, { email });
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

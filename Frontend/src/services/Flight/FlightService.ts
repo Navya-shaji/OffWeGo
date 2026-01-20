@@ -1,10 +1,11 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { Flight } from "@/interface/flightInterface";
+import { VendorRoutes, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const addFlight = async (data: Flight) => {
   try {
-    const res = await axiosInstance.post("/api/vendor/create-flight", data);
+    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_FLIGHT}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -15,8 +16,8 @@ export const addFlight = async (data: Flight) => {
 };
 export const fetchAllFlights = async (): Promise<Flight[]> => {
   try {
-    const res = await axiosInstance.get("/api/vendor/flights");
-   
+    const res = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.ALL_FLIGHTS}`);
+
     if (res.data?.data?.flights && Array.isArray(res.data.data.flights)) {
       return res.data.data.flights;
     }
@@ -51,8 +52,8 @@ export const fetchAllFlights = async (): Promise<Flight[]> => {
 
 export const updateFlight = async (id: string, data: Flight) => {
   try {
-    const res = await axiosInstance.put(`/api/vendor/flights/${id}`, data);
-   
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_FLIGHT.replace(":id", id)}`, data);
+
     return res.data?.data || res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -64,7 +65,7 @@ export const updateFlight = async (id: string, data: Flight) => {
 
 export const deleteFlight = async (id: string): Promise<void> => {
   try {
-    const res = await axiosInstance.delete(`/api/vendor/flights/${id}`);
+    const res = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_FLIGHT.replace(":id", id)}`);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

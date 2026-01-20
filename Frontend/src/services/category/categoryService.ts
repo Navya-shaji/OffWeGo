@@ -1,11 +1,12 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { CategoryType } from "@/interface/categoryInterface";
+import { AdminRoutes, ADMIN_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const addCategory = async (data: CategoryType) => {
   console.log("addCategory service triggered with data:", data);
   try {
-    const res = await axiosInstance.post("/api/admin/create-categories", data);
+    const res = await axiosInstance.post(`${ADMIN_ROUTES_BASE}${AdminRoutes.CREATE_CATEGORY}`, data);
     console.log("addCategory service response:", res.data);
     return res.data;
   } catch (error) {
@@ -27,7 +28,7 @@ export const getCategory = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/api/admin/categories", {
+    const res = await axiosInstance.get(`${ADMIN_ROUTES_BASE}${AdminRoutes.GET_ALL_CATEGORIES}`, {
       params: { page, limit },
     });
     return {
@@ -50,7 +51,7 @@ export const getCategory = async (
 
 export const editCategory = async (id: string, updatedData: CategoryType) => {
   try {
-    const res = await axiosInstance.put(`/api/admin/category/${id}`, updatedData);
+    const res = await axiosInstance.put(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_CATEGORY.replace(":id", id)}`, updatedData);
 
     return res.data;
   } catch (error) {
@@ -62,7 +63,7 @@ export const editCategory = async (id: string, updatedData: CategoryType) => {
 };
 export const deleteCategory = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`/api/admin/category/${id}`);
+    const response = await axiosInstance.delete(`${ADMIN_ROUTES_BASE}${AdminRoutes.DELETE_CATEGORY.replace(":id", id)}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -73,7 +74,7 @@ export const deleteCategory = async (id: string) => {
 };
 export const searchCategory = async (query: string) => {
   try {
-    const response = await axiosInstance.get("/api/admin/category/search", {
+    const response = await axiosInstance.get(`${ADMIN_ROUTES_BASE}${AdminRoutes.SEARCH_CATEGORY}`, {
       params: { q: query },
     });
 

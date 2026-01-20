@@ -1,11 +1,12 @@
 import axiosInstance from "@/axios/instance";
 import type { Hotel } from "@/interface/PackageInterface";
 import { isAxiosError } from "axios";
+import { VendorRoutes, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const createHotel = async (data: Hotel, destinationId: string) => {
   try {
     const res = await axiosInstance.post(
-      `/api/vendor/add-hotel/${destinationId}`,
+      `${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_HOTEL.replace(":id", destinationId)}`,
       data
     );
     return res;
@@ -28,7 +29,7 @@ export const getAllHotel = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/api/vendor/hotels", {
+    const res = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.HOTELS}`, {
       params: { page, limit },
     });
 
@@ -59,7 +60,7 @@ export const getAllHotel = async (
 
 export const updateHotel = async (id: string, data: Hotel) => {
   try {
-    const res = await axiosInstance.put(`/api/vendor/hotels/${id}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_HOTEL.replace(":id", id)}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -71,7 +72,7 @@ export const updateHotel = async (id: string, data: Hotel) => {
 
 export const deleteHotel = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`/api/vendor/hotels/${id}`);
+    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_HOTEL.replace(":id", id)}`);
 
     return response.data;
   } catch (error) {
@@ -85,7 +86,7 @@ export const deleteHotel = async (id: string) => {
 };
 
 export const searchHotel = async (query: string) => {
-  const response = await axiosInstance.get("/api/vendor/hotels/search", {
+  const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.SEARCH_HOTEL}`, {
     params: { q: query },
   });
 

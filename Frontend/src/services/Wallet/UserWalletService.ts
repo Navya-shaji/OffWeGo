@@ -1,13 +1,14 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { IWallet } from "@/interface/wallet";
+import { UserRoutes, USER_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const createUserWallet = async (
   ownerId: string,
   ownerType: string
 ): Promise<IWallet> => {
   try {
-    const response = await axiosInstance.post("/api/wallet", {
+    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.USER_WALLET}`, {
       ownerId,
       ownerType,
     });
@@ -23,7 +24,7 @@ export const createUserWallet = async (
 
 export const getUserWallet = async (id: string): Promise<IWallet> => {
   try {
-    const response = await axiosInstance.get(`/api/wallet/${id}`);
+    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_USER_WALLET.replace(":id", id)}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -39,7 +40,7 @@ export const walletPayment = async (
   description?: string
 ) => {
   try {
-    const res = await axiosInstance.post("/api/wallet/payment", {
+    const res = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.WALLET_PAYMENT}`, {
       userId,
       amount,
       description,
@@ -64,7 +65,7 @@ export const createBookingWithWallet = async (
   description?: string
 ) => {
   try {
-    const walletRes = await axiosInstance.post("/api/wallet/payment", {
+    const walletRes = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.WALLET_PAYMENT}`, {
       userId,
       amount,
       description: description || "Booking Payment",
@@ -74,7 +75,7 @@ export const createBookingWithWallet = async (
       throw new Error("Wallet payment failed");
     }
 
-    const bookingRes = await axiosInstance.post("/api/wallet/booking", {
+    const bookingRes = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.WALLET_BOOKING}`, {
       data: bookingData,
       payment_id: walletRes.data.transactionId,
       paymentStatus: "success",
@@ -85,8 +86,8 @@ export const createBookingWithWallet = async (
     if (isAxiosError(error)) {
       throw new Error(
         error.response?.data?.error ||
-          error.response?.data?.message ||
-          "Failed to create booking with wallet"
+        error.response?.data?.message ||
+        "Failed to create booking with wallet"
       );
     }
 

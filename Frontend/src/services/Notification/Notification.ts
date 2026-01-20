@@ -1,6 +1,7 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import store from "@/store/store";
+import { UserRoutes, VendorRoutes, USER_ROUTES_BASE, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export interface Notification {
   _id?: string;
@@ -192,8 +193,8 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
 
     const endpoint =
       recipientType === "vendor"
-        ? "/api/vendor/notification/notify"
-        : "/api/notification/notify";
+        ? `${VENDOR_ROUTES_BASE}${VendorRoutes.NOTIFY}`
+        : `${USER_ROUTES_BASE}${UserRoutes.NOTIFY}`;
 
     if (finalIsUserRoute && endpoint.includes("/vendor/")) {
       return [];
@@ -318,8 +319,8 @@ export const ReadNotification = async (id: string): Promise<Notification> => {
 
     const endpoint =
       recipientType === "vendor"
-        ? `/api/vendor/notification/read/${id}`
-        : `/api/notification/read/${id}`;
+        ? `${VENDOR_ROUTES_BASE}${VendorRoutes.READ_NOTIFICATION.replace(":id", id)}`
+        : `${USER_ROUTES_BASE}${UserRoutes.READ_NOTIFICATION.replace(":id", id)}`;
 
     const res = await axiosInstance.patch(endpoint);
 

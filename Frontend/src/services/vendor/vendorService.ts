@@ -1,11 +1,12 @@
 import { isAxiosError } from "axios";
-import axiosInstance from "@/axios/instance";  
+import axiosInstance from "@/axios/instance";
 import type { VendorSignupSchema } from "@/Types/vendor/auth/Tsignup";
 import type { Vendor } from "@/interface/vendorInterface";
+import { VendorRoutes, VENDOR_BASE } from "@/constants/apiRoutes";
 
 export const vendorRegister = async (data: VendorSignupSchema & { document: string }) => {
   try {
-    const res = await axiosInstance.post("/api/vendor/signup", data); 
+    const res = await axiosInstance.post(`${VENDOR_BASE}${VendorRoutes.SIGNUP}`, data);
     return res;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -18,13 +19,13 @@ export const vendorRegister = async (data: VendorSignupSchema & { document: stri
 
 export const VerifyOtp = async (vendorData: VendorSignupSchema, otp: string) => {
   try {
-    const res = await axiosInstance.post("/api/vendor/verify-otp", {
+    const res = await axiosInstance.post(`${VENDOR_BASE}${VendorRoutes.VERIFY_OTP}`, {
       email: vendorData.email,
       otp,
     });
     return res;
   } catch (error) {
-  
+
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "OTP verification failed");
     }
@@ -34,7 +35,7 @@ export const VerifyOtp = async (vendorData: VendorSignupSchema, otp: string) => 
 
 export const getAllVendorsForUsers = async (): Promise<Vendor[]> => {
   try {
-    const response = await axiosInstance.get("/api/vendor/list");
+    const response = await axiosInstance.get(`${VENDOR_BASE}${VendorRoutes.LIST}`);
     return response.data.vendors || response.data;
   } catch (error) {
     if (isAxiosError(error)) {

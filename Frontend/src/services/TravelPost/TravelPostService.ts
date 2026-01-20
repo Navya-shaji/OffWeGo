@@ -6,6 +6,7 @@ import type {
   TravelPostFilters,
   TravelPostListResponse,
 } from "@/interface/TravelPost";
+import { UserRoutes, USER_ROUTES_BASE } from "@/constants/apiRoutes";
 
 type FetchTravelPostsParams = {
   page?: number;
@@ -38,7 +39,7 @@ export const fetchTravelPosts = async (
   params: FetchTravelPostsParams = {}
 ): Promise<TravelPostListResponse> => {
   try {
-    const response = await axiosInstance.get("/api/posts", {
+    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POSTS}`, {
       params,
     });
 
@@ -72,7 +73,7 @@ export const createTravelPost = async (
   payload: CreateTravelPostPayload
 ): Promise<TravelPost> => {
   try {
-    const response = await axiosInstance.post("/api/posts", payload);
+    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POSTS}`, payload);
     return response.data?.data ?? response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -89,7 +90,7 @@ export const createTravelPost = async (
 
 export const fetchTravelPostFilters = async (): Promise<TravelPostFilters> => {
   try {
-    const response = await axiosInstance.get("/api/posts/categories");
+    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_CATEGORIES}`);
     const payload = response.data?.data ?? {};
 
     const result = {
@@ -118,7 +119,7 @@ export const fetchMyTravelPosts = async (
   params: FetchMyTravelPostsParams = {}
 ): Promise<TravelPostListResponse> => {
   try {
-    const response = await axiosInstance.get("/api/posts/my", {
+    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POSTS_MY}`, {
       params,
     });
 
@@ -148,7 +149,7 @@ export const getPostBySlug = async (
   slug: string
 ): Promise<{ data: TravelPost & { isSaved?: boolean } }> => {
   try {
-    const response = await axiosInstance.get(`/api/posts/${slug}`);
+    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_BY_SLUG.replace(":slug", slug)}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -167,7 +168,7 @@ export const trackPostView = async (
   postId: string
 ): Promise<{ views: number }> => {
   try {
-    const response = await axiosInstance.post(`/api/posts/${postId}/view`);
+    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_TRACK_VIEW.replace(":id", postId)}`);
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -186,7 +187,7 @@ export const toggleSavePost = async (
   postId: string
 ): Promise<{ saved: boolean; likes: number }> => {
   try {
-    const response = await axiosInstance.post(`/api/posts/${postId}/save`);
+    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_SAVE_TOGGLE.replace(":id", postId)}`);
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -205,7 +206,7 @@ export const getSavedTravelPosts = async (
   params: GetSavedTravelPostsParams = {}
 ): Promise<TravelPostListResponse> => {
   try {
-    const response = await axiosInstance.get("/api/posts/saved", {
+    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_SAVED}`, {
       params,
     });
 

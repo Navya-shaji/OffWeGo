@@ -1,14 +1,15 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
+import { UserRoutes, USER_ROUTES_BASE } from "@/constants/apiRoutes";
 
 // ================== USER PAYMENT ==================
 
 export const createPayment = async (amount: number, currency: string) => {
   try {
-    const res = await axiosInstance.post("/api/create-payment", { amount, currency });
+    const res = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.CREATE_PAYMENT}`, { amount, currency });
 
 
-    return res.data; 
+    return res.data;
   } catch (error) {
 
     if (isAxiosError(error)) {

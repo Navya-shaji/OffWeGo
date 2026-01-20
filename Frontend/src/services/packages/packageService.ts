@@ -2,6 +2,7 @@ import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { Package } from "@/interface/PackageInterface";
 import store from "@/store/store";
+import { UserRoutes, VendorRoutes, VENDOR_ROUTES_BASE, USER_ROUTES_BASE } from "@/constants/apiRoutes";
 
 // ================== VENDOR-SIDE ==================
 
@@ -18,12 +19,12 @@ export const addPackage = async (data: Package) => {
     };
 
 
-    const res = await axiosInstance.post("/api/vendor/add-Package", payload);
+    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.ADD_PACKAGE}`, payload);
 
 
     return res.data.packages;
   } catch (error) {
-    
+
     if (isAxiosError(error)) {
       const msg =
         error.response?.data?.message ||
@@ -49,7 +50,7 @@ export const fetchAllPackages = async (
   try {
     const state = store.getState();
     const vendorId = state.vendorAuth?.vendor?.id;
-    const res = await axiosInstance.post("/api/vendor/packages", {
+    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.ALL_PACKAGES}`, {
       params: { page, limit },
       vendorId,
     });
@@ -83,7 +84,7 @@ export const fetchAllPackages = async (
 
 export const editPackage = async (id: string, data: Package) => {
   try {
-    const res = await axiosInstance.put(`/api/vendor/packages/${id}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_PACKAGE.replace(":id", id)}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -97,7 +98,7 @@ export const editPackage = async (id: string, data: Package) => {
 
 export const deletePackage = async (id: string): Promise<void> => {
   try {
-    const response = await axiosInstance.delete(`/api/vendor/packages/${id}`);
+    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELET_PACKAGE.replace(":id", id)}`);
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -114,7 +115,7 @@ export const searchPackages = async (query: string) => {
   const isVendor = Boolean(state.vendorAuth?.vendor);
 
   const response = await axiosInstance.get(
-    isVendor ? "/api/vendor/packages/search" : "/api/packages/search",
+    isVendor ? `${VENDOR_ROUTES_BASE}${VendorRoutes.SEARCH_PACKAGE}` : `${USER_ROUTES_BASE}${UserRoutes.SEARCH_PACKAGES}`,
     {
       params: { q: query },
     }
@@ -130,7 +131,7 @@ export const getPackagesByDestination = async (
   packages: Package[];
 }> => {
   try {
-    const res = await axiosInstance.get(`/api/package/${destinationId}`);
+    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_ALL_PACKAGES.replace(":id", destinationId)}`);
 
     return res.data;
   } catch (error) {

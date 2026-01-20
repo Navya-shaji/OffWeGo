@@ -1,10 +1,11 @@
 import axiosInstance from "@/axios/instance";
 import type { Activity } from "@/interface/PackageInterface";
 import { isAxiosError } from "axios";
+import { VendorRoutes, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
-export const createActivity = async (data: Activity,destinationId:string) => {
+export const createActivity = async (data: Activity, destinationId: string) => {
   try {
-    const res = await axiosInstance.post(`/api/vendor/add-activity/${destinationId}`, data);
+    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_ACTIVITY.replace(":id", destinationId)}`, data);
     return res;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -23,7 +24,7 @@ export const getActivities = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/api/vendor/activities", {
+    const res = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.ACTIVITIES}`, {
       params: { page, limit },
     });
 
@@ -56,7 +57,7 @@ export const getActivities = async (
 
 export const updateActivity = async (id: string, data: Activity) => {
   try {
-    const res = await axiosInstance.put(`/api/vendor/activities/${id}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_ACTIVITY.replace(":id", id)}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -70,7 +71,7 @@ export const updateActivity = async (id: string, data: Activity) => {
 
 export const deleteActivity = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`/api/vendor/activities/${id}`);
+    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_ACTIVITY.replace(":id", id)}`);
 
     return response.data.data;
   } catch (error) {
@@ -81,7 +82,7 @@ export const deleteActivity = async (id: string) => {
 
 export const searchActivity = async (query: string) => {
   try {
-    const res = await axiosInstance.get("/api/vendor/activities/search", {
+    const res = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.SEARCH_ACTIVITY}`, {
       params: { q: query },
     });
 

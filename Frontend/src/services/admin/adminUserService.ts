@@ -1,5 +1,6 @@
 import axiosInstance from "@/axios/instance";
 import type { User } from "@/interface/userInterface";
+import { AdminRoutes, ADMIN_BASE } from "@/constants/apiRoutes";
 
 
 export const getAllUsers = async (
@@ -11,7 +12,7 @@ export const getAllUsers = async (
   totalPages: number;
   currentPage: number;
 }> => {
-  const response = await axiosInstance.get("/api/admin/users", {
+  const response = await axiosInstance.get(`${ADMIN_BASE}${AdminRoutes.GET_ALL_USERS}`, {
     params: { page, limit },
   });
 
@@ -25,13 +26,13 @@ export const getAllUsers = async (
 export const updateUserStatus = async (
   userId: string,
   status: "active" | "blocked") => {
-  const response = await axiosInstance.patch(`/api/admin/user/status/${userId}`, {
+  const response = await axiosInstance.patch(`${ADMIN_BASE}${AdminRoutes.UPDATE_USER_STATUS.replace(":id", userId)}`, {
     status,
   });
   return response.data;
 };
-export const searchUser=async(query:string)=>{
-  const response=await axiosInstance.get('/api/admin/user/search',{
+export const searchUser = async (query: string) => {
+  const response = await axiosInstance.get(`${ADMIN_BASE}${AdminRoutes.SEARCH_USER}`, {
     params: { q: query }
   })
   return response.data.data // Backend returns users in 'data' field

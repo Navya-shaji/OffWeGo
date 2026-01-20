@@ -2,13 +2,14 @@ import axiosInstance from "@/axios/instance";
 import { getFcmToken } from "@/Firebase/firebase";
 import type { SignupSchema } from "@/Types/User/auth/Tsignup";
 import { isAxiosError } from "axios";
+import { UserRoutes, API_BASE } from "@/constants/apiRoutes";
 
 export const UserRegister = async (formData: SignupSchema) => {
   try {
-    const res = await axiosInstance.post("/api/signup",  formData );
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.SIGNUP}`, formData);
     return res;
   } catch (error) {
-   
+
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error);
     }
@@ -17,12 +18,12 @@ export const UserRegister = async (formData: SignupSchema) => {
 };
 
 
-export const VerifyOtp = async (userData:SignupSchema,otp:string) => {
+export const VerifyOtp = async (userData: SignupSchema, otp: string) => {
   try {
-    const res = await axiosInstance.post("/api/verify-otp", { userData,otp} );
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.VERIFY_OTP}`, { userData, otp });
     return res;
   } catch (error) {
-   
+
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error);
     }
@@ -31,11 +32,11 @@ export const VerifyOtp = async (userData:SignupSchema,otp:string) => {
 };
 
 
-export const userLogin = async (email:string,password:string,) => {
+export const userLogin = async (email: string, password: string,) => {
   try {
-     const fcmToken = await getFcmToken();
-    const res = await axiosInstance.post("/api/login", {email,password, fcmToken: fcmToken || null  });
-    return res.data; 
+    const fcmToken = await getFcmToken();
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.LOGIN}`, { email, password, fcmToken: fcmToken || null });
+    return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error || "Invalid login credentials");
@@ -45,12 +46,12 @@ export const userLogin = async (email:string,password:string,) => {
 };
 
 
-export const registerGoogleUser=async (token: string)=>{
-  try{
-     const fcmToken = await getFcmToken();
-    const res=await axiosInstance.post("/api/google-signup",{ token ,fcmToken: fcmToken || null })
+export const registerGoogleUser = async (token: string) => {
+  try {
+    const fcmToken = await getFcmToken();
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.GOOGLE_SIGNUP}`, { token, fcmToken: fcmToken || null })
     return res
-  }catch(error){
+  } catch (error) {
     if (isAxiosError(error)) {
       const errorMessage = error.response?.data?.message || error.response?.data?.error || "Google signup failed";
       throw new Error(errorMessage);
@@ -60,13 +61,13 @@ export const registerGoogleUser=async (token: string)=>{
 }
 
 
-export const resendOtp=async(email:string)=>{
+export const resendOtp = async (email: string) => {
   try {
-    const res=await axiosInstance.post("/api/resend-otp",{email})
- 
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.RESEND_OTP}`, { email })
+
     return res.data
-  }catch (error) {
-    
+  } catch (error) {
+
     if (isAxiosError(error)) {
       throw new Error(error.response?.data?.error);
     }

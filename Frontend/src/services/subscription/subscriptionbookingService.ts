@@ -1,7 +1,8 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
+import { VendorRoutes, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
-const SUBSCRIPTION_BOOKING = "api/vendor/subscription-booking";
+const SUBSCRIPTION_BOOKING = `${VENDOR_ROUTES_BASE}${VendorRoutes.SUBSCRIPTION_BOOKING}`;
 
 export interface SubscriptionBookingPayload {
   vendorId: string;
@@ -28,9 +29,9 @@ export const createSubscriptionBooking = async (data: SubscriptionBookingPayload
   }
 };
 
-export const verifyPayment = async (paymentData:unknown) => {
+export const verifyPayment = async (paymentData: unknown) => {
   try {
-    const res = await axiosInstance.post("api/vendor/payment-success", paymentData);
+    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.VERIFY_PAYMENT}`, paymentData);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

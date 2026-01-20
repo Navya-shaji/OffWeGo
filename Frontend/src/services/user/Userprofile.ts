@@ -1,9 +1,10 @@
 import axiosInstance from "@/axios/instance";
 import { isAxiosError } from "axios";
+import { UserRoutes, API_BASE } from "@/constants/apiRoutes";
 
 export const getProfile = async () => {
   try {
-    const res = await axiosInstance.get("/api/profile");
+    const res = await axiosInstance.get(`${API_BASE}${UserRoutes.PROFILE}`);
     return res.data;
   } catch (error) {
     console.error("Error while getting profile page ");
@@ -20,10 +21,10 @@ export const editProfile = async (updatedData: {
   name: string;
   phone?: string;
   imageUrl?: string;
-  userId?: string; 
+  userId?: string;
 }) => {
   try {
-    const res = await axiosInstance.patch("/api/profile", updatedData);
+    const res = await axiosInstance.patch(`${API_BASE}${UserRoutes.EDIT_PROFILE}`, updatedData);
 
     return res.data;
   } catch (error) {
@@ -42,7 +43,7 @@ export const changePassword = async (data: {
   newPassword: string;
 }) => {
   try {
-    const res = await axiosInstance.put(`/api/password`, data);
+    const res = await axiosInstance.put(`${API_BASE}${UserRoutes.PASSWORD}`, data);
 
     return res.data.data;
   } catch (error) {

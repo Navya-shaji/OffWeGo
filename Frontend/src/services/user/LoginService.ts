@@ -1,9 +1,10 @@
 import axiosInstance from "@/axios/instance";
 import { isAxiosError } from "axios";
+import { UserRoutes, API_BASE } from "@/constants/apiRoutes";
 
 export const sendOtpForReset = async (email: string) => {
   try {
-    const res = await axiosInstance.post("/api/forgot-password", { email })
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.FORGOT_PASSWORD}`, { email })
     return res.data
   } catch (error) {
     if (isAxiosError(error) && error.response?.data) {
@@ -16,7 +17,7 @@ export const sendOtpForReset = async (email: string) => {
 
 export const verifyOtpForReset = async (email: string, otp: string) => {
   try {
-    const res = await axiosInstance.post("/api/verify-reset-otp", { email, otp })
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.VERIFY_REESET_OTP}`, { email, otp })
     return res.data
   } catch (error) {
     if (isAxiosError(error)) {
@@ -29,7 +30,7 @@ export const verifyOtpForReset = async (email: string, otp: string) => {
 export const resetPassword = async (email: string, password: string) => {
   try {
 
-    const res = await axiosInstance.post("/api/reset-password", {
+    const res = await axiosInstance.post(`${API_BASE}${UserRoutes.RESET_PASSWORD}`, {
       email,
       newPassword: password,
     });

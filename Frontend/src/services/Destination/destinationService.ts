@@ -1,16 +1,21 @@
 import { isAxiosError } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { DestinationInterface } from "@/interface/destinationInterface";
+import { AdminRoutes, UserRoutes, VendorRoutes, ADMIN_ROUTES_BASE, VENDOR_ROUTES_BASE, USER_ROUTES_BASE } from "@/constants/apiRoutes";
 
 import store from "@/store/store";
 
 export const addDestination = async (data: DestinationInterface) => {
   try {
     const state = store.getState();
-    let base = "/api";
-    if (state.adminAuth.token) base = "/api/admin";
-    else if (state.vendorAuth.token) base = "/api/vendor";
-    const res = await axiosInstance.post(`${base}/create-destination`, data);
+    let base = USER_ROUTES_BASE;
+    let endpoint = AdminRoutes.CREATE_DESTINATION; // Same for vendor in this case
+    if (state.adminAuth.token) base = ADMIN_ROUTES_BASE;
+    else if (state.vendorAuth.token) {
+      base = VENDOR_ROUTES_BASE;
+      endpoint = VendorRoutes.CREATE_DESTINATION;
+    }
+    const res = await axiosInstance.post(`${base}${endpoint}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -32,7 +37,7 @@ export const fetchAllDestinations = async (
   currentPage: number;
 }> => {
   try {
-    const res = await axiosInstance.get("/api/admin/destinations", {
+    const res = await axiosInstance.get(`${ADMIN_ROUTES_BASE}${AdminRoutes.GET_DESTINATIONS}`, {
       params: { page, limit },
     });
 
@@ -65,7 +70,7 @@ export const updateDestination = async (
   data: DestinationInterface
 ) => {
   try {
-    const res = await axiosInstance.put(`/api/admin/edit/${id}`, data);
+    const res = await axiosInstance.put(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_DESTINATION.replace(":id", id)}`, data);
 
     return res.data;
   } catch (error) {
@@ -80,7 +85,7 @@ export const updateDestination = async (
 
 export const getsingleDestination = async (id: string) => {
   try {
-    const res = await axiosInstance.get(`/api/destination/${id}`);
+    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_SINGLE_DESTINATION.replace(":id", id)}`);
 
     return res.data;
   } catch (error) {
@@ -98,12 +103,16 @@ export const getsingleDestination = async (id: string) => {
 export const deleteDestination = async (id: string): Promise<void> => {
   try {
     const state = store.getState();
-    let base = "/api";
+    let base = USER_ROUTES_BASE;
+    let endpoint = AdminRoutes.DELETE_DESTINATION;
 
-    if (state.adminAuth.token) base = "/api/admin";
-    else if (state.vendorAuth.token) base = "/api/vendor";
+    if (state.adminAuth.token) base = ADMIN_ROUTES_BASE;
+    else if (state.vendorAuth.token) {
+      base = VENDOR_ROUTES_BASE;
+      endpoint = VendorRoutes.DELETE_DESTINATION;
+    }
 
-    const response = await axiosInstance.delete(`${base}/destination/${id}`);
+    const response = await axiosInstance.delete(`${base}${endpoint.replace(":id", id)}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -119,7 +128,7 @@ export const deleteDestination = async (id: string): Promise<void> => {
 
 export const searchDestination = async (query: string) => {
   try {
-    const response = await axiosInstance.get("/api/admin/destination/search", {
+    const response = await axiosInstance.get(`${ADMIN_ROUTES_BASE}${AdminRoutes.SEARCH_DESTINATION}`, {
       params: { q: query },
     });
 
@@ -141,7 +150,7 @@ export const getNearbyDestinations = async (
 ) => {
   try {
     const response = await axiosInstance.post(
-      "/api/admin/destination/nearby",
+      `${ADMIN_ROUTES_BASE}${AdminRoutes.NEARBY_LOCATIONS}`,
       {
         lat,
         lng,

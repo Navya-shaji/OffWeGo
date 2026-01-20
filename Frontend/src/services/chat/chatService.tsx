@@ -1,5 +1,6 @@
 import axiosInstance from "@/axios/instance";
 import { isAxiosError } from "axios";
+import { UserRoutes, VendorRoutes, USER_ROUTES_BASE, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const getMessages = async (
   chatId: string,
@@ -8,9 +9,9 @@ export const getMessages = async (
 ) => {
   try {
     // Use different endpoints for user vs vendor
-    const endpoint = userType === 'vendor' 
-      ? `/api/vendor/chat/messages/${chatId}`
-      : `/api/chat/messages/${chatId}`;
+    const endpoint = userType === 'vendor'
+      ? `${VENDOR_ROUTES_BASE}${VendorRoutes.CHAT_MESSAGES.replace(":chatId", chatId)}`
+      : `${USER_ROUTES_BASE}${UserRoutes.CHAT_MESSAGES.replace(":chatId", chatId)}`;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {};
@@ -33,9 +34,9 @@ export const getMessages = async (
 export const findOrCreateChat = async (userId: string, otherId: string, userType: 'user' | 'vendor' = 'user') => {
   try {
     // Use different endpoints for user vs vendor
-    const endpoint = userType === 'vendor' 
-      ? "/api/vendor/chat/send"
-      : "/api/chat/send";
+    const endpoint = userType === 'vendor'
+      ? `${VENDOR_ROUTES_BASE}${VendorRoutes.CHAT_SEND}`
+      : `${USER_ROUTES_BASE}${UserRoutes.CHAT_SEND}`;
     const res = await axiosInstance.post(endpoint, {
       userId,
       ownerId: otherId,
@@ -56,9 +57,9 @@ export const findOrCreateChat = async (userId: string, otherId: string, userType
 export const getChatsOfUser = async (userId: string, userType: 'user' | 'vendor' = 'user') => {
   try {
     // Use different endpoints for user vs vendor
-    const endpoint = userType === 'vendor' 
-      ? `/api/vendor/chat/${userId}?userType=vendor`
-      : `/api/chat/${userId}?userType=user`;
+    const endpoint = userType === 'vendor'
+      ? `${VENDOR_ROUTES_BASE}${VendorRoutes.CHAT_LIST.replace(":vendorId", userId)}?userType=vendor`
+      : `${USER_ROUTES_BASE}${UserRoutes.CHAT_LIST.replace(":userId", userId)}?userType=user`;
     const res = await axiosInstance.get(endpoint);
     return res.data;
   } catch (error) {
@@ -73,9 +74,9 @@ export const getChatsOfUser = async (userId: string, userType: 'user' | 'vendor'
 export const markMessagesAsSeen = async (chatId: string, userId: string, userType: 'user' | 'vendor' = 'user') => {
   try {
     // Use different endpoints for user vs vendor
-    const endpoint = userType === 'vendor' 
-      ? "/api/vendor/chat/messages/mark-seen"
-      : "/api/chat/messages/mark-seen";
+    const endpoint = userType === 'vendor'
+      ? `${VENDOR_ROUTES_BASE}${VendorRoutes.CHAT_MARK_SEEN}`
+      : `${USER_ROUTES_BASE}${UserRoutes.CHAT_MARK_SEEN}`;
     const res = await axiosInstance.post(endpoint, {
       chatId,
       userId,
