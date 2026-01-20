@@ -193,66 +193,109 @@ const TravelPostModeration = () => {
             {displayedPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
+                className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 flex flex-col"
               >
-                <div className="space-y-3 text-gray-700">
-                  <p className="text-lg">
-                    <span className="font-semibold">Title:</span> {post.title}
-                  </p>
-                  <p className="text-sm text-gray-500 break-words">{post.excerpt}</p>
-                  <p className="text-sm">
-                    <span className="font-semibold">Author:</span> {post.authorName || post.authorId}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-semibold">Category:</span> {post.categoryName || post.categoryId}
-                  </p>
-                  {post.destinationName && (
-                    <p className="text-sm">
-                      <span className="font-semibold">Destination:</span> {post.destinationName}
-                    </p>
+                {/* Image Section */}
+                <div className="relative h-48 bg-gray-100 group">
+                  {post.coverImageUrl ? (
+                    <img
+                      src={post.coverImageUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                      <svg className="w-12 h-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-xs font-medium">No cover image</span>
+                    </div>
                   )}
-                  <p className="text-sm">
-                    <span className="font-semibold">Created:</span> {formatDate(post.createdAt)}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-semibold">Status:</span>{" "}
-                    <span
-                      className={`font-semibold ${post.status === "APPROVED"
-                        ? "text-green-600"
-                        : post.status === "REJECTED"
-                          ? "text-red-600"
-                          : "text-yellow-600"
-                        }`}
-                    >
+                  <div className="absolute top-3 right-3">
+                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm ${post.status === "APPROVED"
+                      ? "bg-green-100 text-green-800"
+                      : post.status === "REJECTED"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                      }`}>
                       {post.status}
                     </span>
-                  </p>
-
-                  {post.status === "REJECTED" && post.rejectedReason && (
-                    <p className="text-sm text-red-600">
-                      <span className="font-semibold">Reason:</span> {post.rejectedReason}
-                    </p>
-                  )}
+                  </div>
                 </div>
 
-                {status === "PENDING" && (
-                  <div className="mt-6 flex gap-4">
-                    <button
-                      disabled={submitting}
-                      onClick={() => handleApprove(post.id)}
-                      className="bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      disabled={submitting}
-                      onClick={() => openRejectModal(post.id)}
-                      className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-                    >
-                      Reject
-                    </button>
+                {/* Gallery Preview */}
+                {post.galleryUrls && post.galleryUrls.length > 0 && (
+                  <div className="px-6 py-2 bg-gray-50 border-b border-gray-100">
+                    <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                      {post.galleryUrls.map((url, idx) => (
+                        <div key={idx} className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border border-white shadow-sm hover:border-black transition-colors cursor-zoom-in">
+                          <img src={url} className="w-full h-full object-cover" alt={`Gallery ${idx + 1}`} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="space-y-3 text-gray-700 flex-1">
+                    <p className="text-lg">
+                      <span className="font-semibold">Title:</span> {post.title}
+                    </p>
+                    <p className="text-sm text-gray-500 break-words">{post.excerpt}</p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Author:</span> {post.authorName || post.authorId}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Category:</span> {post.categoryName || post.categoryId}
+                    </p>
+                    {post.destinationName && (
+                      <p className="text-sm">
+                        <span className="font-semibold">Destination:</span> {post.destinationName}
+                      </p>
+                    )}
+                    <p className="text-sm">
+                      <span className="font-semibold">Created:</span> {formatDate(post.createdAt)}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Status:</span>{" "}
+                      <span
+                        className={`font-semibold ${post.status === "APPROVED"
+                          ? "text-green-600"
+                          : post.status === "REJECTED"
+                            ? "text-red-600"
+                            : "text-yellow-600"
+                          }`}
+                      >
+                        {post.status}
+                      </span>
+                    </p>
+
+                    {post.status === "REJECTED" && post.rejectedReason && (
+                      <p className="text-sm text-red-600">
+                        <span className="font-semibold">Reason:</span> {post.rejectedReason}
+                      </p>
+                    )}
+                  </div>
+
+                  {status === "PENDING" && (
+                    <div className="mt-6 flex gap-4">
+                      <button
+                        disabled={submitting}
+                        onClick={() => handleApprove(post.id)}
+                        className="bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        disabled={submitting}
+                        onClick={() => openRejectModal(post.id)}
+                        className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

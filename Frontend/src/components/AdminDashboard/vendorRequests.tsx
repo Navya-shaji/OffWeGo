@@ -102,11 +102,7 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold text-gray-900 mb-8 capitalize">
-        {filter} Vendors
-      </h2>
-
+    <div className="py-2">
       {loading ? (
         <div className="flex justify-center items-center py-20">
           <LoadingSpinner size="lg" color="#3B82F6" />

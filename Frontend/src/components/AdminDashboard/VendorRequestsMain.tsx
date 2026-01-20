@@ -18,8 +18,8 @@ const VendorRequestsMain = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${activeTab === tab
-                                    ? "bg-gray-900 text-white shadow-md"
-                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                                ? "bg-gray-900 text-white shadow-md"
+                                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                                 }`}
                         >
                             {tab}
@@ -28,7 +28,7 @@ const VendorRequestsMain = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="mt-4">
                 <VendorRequests filter={activeTab} />
             </div>
         </div>
