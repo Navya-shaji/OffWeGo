@@ -227,6 +227,7 @@ jobs:
           NODEMAILER_EMAIL: ${{ secrets.NODEMAILER_EMAIL }}
           NODEMAILER_PASSWORD: ${{ secrets.NODEMAILER_PASSWORD }}
           PROD_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
+          ADMIN_ID: ${{ secrets.ADMIN_ID }}
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
@@ -235,7 +236,7 @@ jobs:
           envs: >-
             MONGO_URI,REDIS_PASSWORD,JWT_ACCESSTOKENSECRETKEY,JWT_REFRESHTOKEN,STRIPE_SECRET_KEY,
             CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,
-            DOMAIN_URL,FIREBASE_SERVICE_ACCOUNT,GOOGLE_CLIENT_ID,NODEMAILER_EMAIL,NODEMAILER_PASSWORD,PROD_DOMAIN
+            DOMAIN_URL,FIREBASE_SERVICE_ACCOUNT,GOOGLE_CLIENT_ID,NODEMAILER_EMAIL,NODEMAILER_PASSWORD,PROD_DOMAIN,ADMIN_ID
           script: |
             mkdir -p ~/offwego/nginx
             cd ~/offwego
@@ -260,6 +261,7 @@ jobs:
             GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
             NODEMAILER_EMAIL="$NODEMAILER_EMAIL"
             NODEMAILER_PASSWORD="$NODEMAILER_PASSWORD"
+            ADMIN_ID="$ADMIN_ID"
             EOF
             
             echo "✅ .env file generated."
@@ -273,7 +275,7 @@ jobs:
             # Log in and update services
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             sudo docker compose -f docker-compose.prod.yml pull
-            sudo docker compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml up -d --force-recreate
             
             # Initial SSL generation if certificate doesn't exist
             if [ "$DOMAIN" != "localhost" ] && [ ! -d "certbot/conf/live/$DOMAIN" ]; then
