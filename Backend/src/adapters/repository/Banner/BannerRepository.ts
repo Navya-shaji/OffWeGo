@@ -8,8 +8,7 @@ import { BaseRepository } from "../BaseRepo/BaseRepo";
 
 export class BannerRepository
   extends BaseRepository<IBannerModel>
-  implements IBannerRepository
-{
+  implements IBannerRepository {
   constructor() {
     super(bannerModel);
   }
@@ -19,7 +18,7 @@ export class BannerRepository
   }
 
   async getAllBanner(): Promise<IBannerModel[]> {
-    return this.findAll();
+    return this.model.find().sort({ createdAt: -1 });
   }
 
   async updateBannerStatus(

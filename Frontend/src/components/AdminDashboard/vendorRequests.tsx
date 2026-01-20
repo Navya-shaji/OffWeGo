@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   getVendorsByStatus,
   updateVendorStatus,
@@ -25,7 +25,6 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const observerTarget = useRef<HTMLDivElement>(null);
   const ITEMS_PER_PAGE = 9;
 
   const fetchVendors = () => {
@@ -70,23 +69,6 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
     }, 500);
   }, [allVendors, page, loadingMore, hasMore]);
 
-  // Intersection Observer
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          loadMoreVendors();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasMore, loadingMore, loadMoreVendors]);
 
   const handleStatusChange = async (
     vendorId: string,
@@ -203,10 +185,36 @@ const VendorRequests: React.FC<Props> = ({ filter, onTabChange }) => {
             ))}
           </div>
 
-          {/* Infinite Scroll & Loader */}
-          {hasMore && (
-            <div ref={observerTarget} className="flex justify-center py-8">
-              <LoadingSpinner size="md" color="#6B7280" />
+          {/* Load More Button */}
+          {hasMore && displayedVendors.length > 0 && !loading && (
+            <div className="py-12 px-4 text-center">
+              <button
+                onClick={loadMoreVendors}
+                disabled={loadingMore}
+                className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+                  }`}
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                    <span>Fetching Vendors...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load More Vendors</span>
+                    <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* End of list message */}
+          {!hasMore && displayedVendors.length > 0 && (
+            <div className="p-8 text-center text-sm text-gray-500 italic">
+              You've reached the end of the vendor list
             </div>
           )}
         </>

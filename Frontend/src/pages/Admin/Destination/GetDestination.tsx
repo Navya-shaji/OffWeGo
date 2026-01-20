@@ -41,7 +41,11 @@ export const DestinationTable = () => {
 
     try {
       isLoadingRef.current = true;
-      setLoading(true);
+      if (pageNum === 1) {
+        setLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
       setError("");
 
       const data = await fetchAllDestinations(pageNum, 5);
@@ -77,6 +81,7 @@ export const DestinationTable = () => {
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
+      setIsLoadingMore(false);
     }
   }, []);
 
@@ -139,20 +144,12 @@ export const DestinationTable = () => {
     [originalDestinations, totalDestinations]
   );
 
-  const handleLoadMore = useCallback(async () => {
-    if (isLoadingMore || !hasMore || isSearchMode) return;
-
-    setIsLoadingMore(true);
-    try {
-      const nextPage = page + 1;
-      await fetchData(nextPage);
-    } catch (err) {
-      console.error("Failed to load more destinations:", err);
-      setError("Failed to load more destinations.");
-    } finally {
-      setIsLoadingMore(false);
+  const loadMoreDestinations = useCallback(() => {
+    if (!isSearchMode && hasMore && !isLoadingRef.current) {
+      fetchData(page + 1);
     }
-  }, [page, hasMore, isSearchMode, isLoadingMore, fetchData]);
+  }, [page, hasMore, isSearchMode, fetchData]);
+
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -283,9 +280,8 @@ export const DestinationTable = () => {
             </h2>
             <p className="text-sm text-gray-600 mt-1">
               {isSearchMode
-                ? `Found ${destinations.length} destination${
-                    destinations.length !== 1 ? "s" : ""
-                  } for "${searchQuery}"`
+                ? `Found ${destinations.length} destination${destinations.length !== 1 ? "s" : ""
+                } for "${searchQuery}"`
                 : `Showing ${displayedDestinations.length} of ${totalDestinations} destinations`}
             </p>
           </div>
@@ -313,153 +309,157 @@ export const DestinationTable = () => {
         )}
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Image
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Array.isArray(destinations) &&
-              getCurrentPageData().length > 0 ? (
-                getCurrentPageData().map((dest, idx) => {
-                  const destinationId = dest.id ?? dest._id;
-                  return (
-                    <tr
-                      key={destinationId ?? `destination-${idx}`}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-16 w-16">
-                        {Array.isArray(dest.imageUrls) &&
-                        dest.imageUrls.length > 0 ? (
-                          <img
-                            src={dest.imageUrls[0]}
-                            alt={dest.name}
-                            className="h-16 w-16 object-cover rounded-lg border border-white"
-                            onError={(e) => {
-                              const target = e.currentTarget;
-                              target.style.display = "none";
-                              target.nextElementSibling?.classList.remove(
-                                "hidden"
-                              );
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400 border border-gray-200 ${
-                            Array.isArray(dest.imageUrls) &&
-                            dest.imageUrls.length > 0
-                              ? "hidden"
-                              : ""
-                          }`}
-                        >
-                          No Image
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {dest.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600 font-medium">
-                        {dest.location}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div
-                        className="text-sm text-gray-600 max-w-xs truncate"
-                        title={dest.description}
-                      >
-                        {dest.description || "No description"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleEdit(dest)}
-                          className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all hover:scale-110 active:scale-95"
-                          title="Edit destination"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (destinationId) confirmDelete(destinationId);
-                          }}
-                          className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-all hover:scale-110 active:scale-95"
-                          title="Delete destination"
-                        >
-                          <Trash size={18} />
-                        </button>
-                      </div>
-                    </td>
-                    </tr>
-                  );
-                })
-              ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
-                    <div className="text-gray-400 text-6xl mb-4">🗺️</div>
-                    <h3 className="text-lg font-medium text-gray-600 mb-2">
-                      No destinations found
-                    </h3>
-                    <p className="text-gray-500">
-                      {searchQuery
-                        ? `No destinations match your search for "${searchQuery}"`
-                        : "No destinations are available at the moment"}
-                    </p>
-                  </td>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Image
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Description
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Array.isArray(destinations) &&
+                  getCurrentPageData().length > 0 ? (
+                  getCurrentPageData().map((dest, idx) => {
+                    const destinationId = dest.id ?? dest._id;
+                    return (
+                      <tr
+                        key={destinationId ?? `destination-${idx}`}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="h-16 w-16">
+                            {Array.isArray(dest.imageUrls) &&
+                              dest.imageUrls.length > 0 ? (
+                              <img
+                                src={dest.imageUrls[0]}
+                                alt={dest.name}
+                                className="h-16 w-16 object-cover rounded-lg border border-white"
+                                onError={(e) => {
+                                  const target = e.currentTarget;
+                                  target.style.display = "none";
+                                  target.nextElementSibling?.classList.remove(
+                                    "hidden"
+                                  );
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className={`h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400 border border-gray-200 ${Array.isArray(dest.imageUrls) &&
+                                dest.imageUrls.length > 0
+                                ? "hidden"
+                                : ""
+                                }`}
+                            >
+                              No Image
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-semibold text-gray-900">
+                            {dest.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-600 font-medium">
+                            {dest.location}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div
+                            className="text-sm text-gray-600 max-w-xs truncate"
+                            title={dest.description}
+                          >
+                            {dest.description || "No description"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(dest)}
+                              className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all hover:scale-110 active:scale-95"
+                              title="Edit destination"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (destinationId) confirmDelete(destinationId);
+                              }}
+                              className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-all hover:scale-110 active:scale-95"
+                              title="Delete destination"
+                            >
+                              <Trash size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center">
+                      <div className="text-gray-400 text-6xl mb-4">🗺️</div>
+                      <h3 className="text-lg font-medium text-gray-600 mb-2">
+                        No destinations found
+                      </h3>
+                      <p className="text-gray-500">
+                        {searchQuery
+                          ? `No destinations match your search for "${searchQuery}"`
+                          : "No destinations are available at the moment"}
+                      </p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-      </div>
 
-      {!isSearchMode && hasMore && (
-        <div className="flex justify-center pt-4">
+      {/* Load More Button */}
+      {!isSearchMode && hasMore && displayedDestinations.length > 0 && !loading && (
+        <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
           <button
-            onClick={handleLoadMore}
+            onClick={loadMoreDestinations}
             disabled={isLoadingMore}
-            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+            className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${isLoadingMore ? "opacity-80 cursor-not-allowed" : ""
+              }`}
           >
             {isLoadingMore ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>Loading...</span>
+                <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                <span>Fetching Destinations...</span>
               </>
             ) : (
               <>
-                <span>Load More</span>
-                <span className="text-xs opacity-90">({totalDestinations - displayedDestinations.length} remaining)</span>
+                <span>Load More Destinations</span>
+                <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </>
             )}
           </button>
         </div>
       )}
 
-      {!isSearchMode && !hasMore && displayedDestinations.length > 0 && (
-        <div className="text-center text-sm text-gray-500 py-4">
-          <p>You've reached the end. Showing all {displayedDestinations.length} destinations.</p>
+      {/* End of list message */}
+      {!hasMore && displayedDestinations.length > 0 && !isSearchMode && (
+        <div className="p-8 text-center text-sm text-gray-500 bg-gray-50/30 border-t border-gray-100 italic">
+          You've reached the end of the destination list
         </div>
       )}
 

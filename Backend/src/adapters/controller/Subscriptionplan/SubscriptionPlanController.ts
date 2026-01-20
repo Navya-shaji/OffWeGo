@@ -114,12 +114,18 @@ export class SubscriptionController {
 
   async getAllSubscriptionBookings(req: Request, res: Response) {
     try {
-      const result = await this._getSubscriptionBookingsUsecase.execute();
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const { bookings, total } = await this._getSubscriptionBookingsUsecase.execute(page, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Subscription bookings fetched successfully",
-        data: result,
+        data: bookings,
+        total,
+        page,
+        limit
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

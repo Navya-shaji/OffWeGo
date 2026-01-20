@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { getAllSubscriptionBookings, getSubscriptions } from "@/services/subscription/subscriptionservice";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, Crown, CheckCircle, AlertCircle, Clock, Users, TrendingUp } from "lucide-react";
@@ -31,28 +31,62 @@ export default function BookedSubscriptions() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [filteredBookings, setFilteredBookings] = useState<SubscriptionBooking[]>([]);
 
+  const [displayedBookings, setDisplayedBookings] = useState<SubscriptionBooking[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const isLoadingRef = useRef(false);
+  const ITEMS_PER_PAGE = 10;
+
+  const fetchBookings = useCallback(async (pageNum: number, isInitial: boolean = false) => {
+    if (isLoadingRef.current && !isInitial) return;
+    isLoadingRef.current = true;
+
+    if (isInitial) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      const bookingsRes = await getAllSubscriptionBookings(pageNum, ITEMS_PER_PAGE);
+      const newBookings = bookingsRes.data || [];
+      const total = bookingsRes.total || 0;
+
+      if (isInitial) {
+        setBookings(newBookings);
+        setDisplayedBookings(newBookings);
+      } else {
+        setBookings(prev => [...prev, ...newBookings]);
+        setDisplayedBookings(prev => [...prev, ...newBookings]);
+      }
+
+      setHasMore(bookings.length + newBookings.length < total);
+      setPage(pageNum);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+      isLoadingRef.current = false;
+    }
+  }, [bookings.length]);
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true);
-
-        // Fetch both bookings and subscription plans
-        const [bookingsRes, plansRes] = await Promise.all([
-          getAllSubscriptionBookings(),
-          getSubscriptions()
-        ]);
-
-
-        setBookings(bookingsRes.data || []);
+        const plansRes = await getSubscriptions();
         setSubscriptionPlans(Array.isArray(plansRes?.data) ? plansRes.data : []);
+        await fetchBookings(1, true);
       } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
+        console.error("Error fetching initial data:", error);
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
@@ -70,7 +104,18 @@ export default function BookedSubscriptions() {
       filtered = filtered.filter((booking) => booking.status === statusFilter);
     }
     setFilteredBookings(filtered);
+
+    // Reset infinite scroll when filters change
+    setDisplayedBookings(filtered.slice(0, ITEMS_PER_PAGE));
+    setHasMore(filtered.length > ITEMS_PER_PAGE);
+    setPage(1);
   }, [bookings, searchQuery, statusFilter]);
+
+  const loadMoreBookings = useCallback(() => {
+    if (loadingMore || !hasMore || isLoadingRef.current) return;
+    fetchBookings(page + 1);
+  }, [page, loadingMore, hasMore, fetchBookings]);
+
 
   const handleExport = () => {
     const csvContent = [
@@ -323,7 +368,7 @@ export default function BookedSubscriptions() {
             </thead>
 
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredBookings.map((booking) => (
+              {displayedBookings.map((booking) => (
                 <tr key={booking._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div>
@@ -371,6 +416,39 @@ export default function BookedSubscriptions() {
             </tbody>
           </table>
         </div>
+
+        {/* Load More Button */}
+        {hasMore && displayedBookings.length > 0 && !loading && (
+          <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
+            <button
+              onClick={loadMoreBookings}
+              disabled={loadingMore}
+              className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+                }`}
+            >
+              {loadingMore ? (
+                <>
+                  <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                  <span>Fetching History...</span>
+                </>
+              ) : (
+                <>
+                  <span>Load More History</span>
+                  <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* End of list message */}
+        {!hasMore && displayedBookings.length > 0 && (
+          <div className="p-8 text-center text-sm text-gray-500 bg-gray-50/30 border-t border-gray-100 italic">
+            You've reached the end of the history
+          </div>
+        )}
 
         {/* Empty State */}
         {filteredBookings.length === 0 && (

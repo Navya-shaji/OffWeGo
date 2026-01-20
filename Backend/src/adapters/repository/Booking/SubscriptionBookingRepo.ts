@@ -11,8 +11,7 @@ import { VendorModel } from "../../../framework/database/Models/vendorModel";
 
 export class SubscriptionBookingRepository
   extends BaseRepository<ISubscriptionBookingModel>
-  implements ISubscriptionBookingRepository
-{
+  implements ISubscriptionBookingRepository {
   constructor() {
     super(subscriptionBookingModel);
   }
@@ -75,7 +74,7 @@ export class SubscriptionBookingRepository
   async findPendingBooking(vendorId: string, planId: string) {
     return this.model.findOne({
       vendorId,
-      planId, 
+      planId,
       status: "pending"
     });
   }
@@ -92,8 +91,8 @@ export class SubscriptionBookingRepository
 
   async cancelBooking(id: string) {
     return this.model.findByIdAndUpdate(
-      id, 
-      { status: "cancelled" }, 
+      id,
+      { status: "cancelled" },
       { new: true }
     );
   }
@@ -131,26 +130,33 @@ export class SubscriptionBookingRepository
       throw error;
     }
   }
-   async getAllSubscriptions() {
-    const bookings = await this.model.find()
-      .populate("planId")
-      .sort({ createdAt: -1 });
-    
+  async getAllSubscriptions(skip: number, limit: number) {
+    const [bookings, total] = await Promise.all([
+      this.model.find()
+        .populate("planId")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      this.model.countDocuments()
+    ]);
+
     const vendorIds = Array.from(new Set(bookings.map((b: any) => b.vendorId).filter(Boolean)));
     const vendors = await VendorModel.find({ _id: { $in: vendorIds } });
-    
+
     const vendorMap = vendors.reduce((map: any, vendor: any) => {
       map[vendor._id.toString()] = vendor;
       return map;
     }, {});
-    
-    return bookings.map((booking: any) => {
+
+    const mappedBookings = bookings.map((booking: any) => {
       const bookingObj = booking.toObject();
       return {
         ...bookingObj,
         vendorDetails: vendorMap[booking.vendorId] || null
       };
     });
+
+    return { bookings: mappedBookings, total };
   }
 
   async findByVendorId(vendorId: string) {
@@ -171,5 +177,5 @@ export class SubscriptionBookingRepository
       };
     });
   }
-  
+
 }

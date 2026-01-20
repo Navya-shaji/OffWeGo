@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { toast } from "react-hot-toast";
 import { Pencil, Trash2, Package } from "lucide-react";
@@ -29,6 +29,14 @@ export default function SubscriptionList() {
   const [subscriptionToDelete, setSubscriptionToDelete] =
     useState<Subscription | null>(null);
 
+  const [displayedSubscriptions, setDisplayedSubscriptions] = useState<Subscription[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const isLoadingRef = useRef(false);
+  const ITEMS_PER_PAGE = 10;
+
   useEffect(() => {
     fetchSubscriptions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -39,12 +47,37 @@ export default function SubscriptionList() {
       dispatch(getSubscriptionsStart());
       const response = await subscriptionService.getSubscriptions();
       const data = response?.data || response;
-      dispatch(getSubscriptionsSuccess(Array.isArray(data) ? data : []));
+      const allSubscriptions = Array.isArray(data) ? data : [];
+      dispatch(getSubscriptionsSuccess(allSubscriptions));
+
+      setDisplayedSubscriptions(allSubscriptions.slice(0, ITEMS_PER_PAGE));
+      setHasMore(allSubscriptions.length > ITEMS_PER_PAGE);
+      setPage(1);
     } catch {
       dispatch(getSubscriptionsFailure("Failed to fetch subscriptions"));
       toast.error("Failed to fetch subscriptions");
     }
   };
+
+  const loadMoreSubscriptions = useCallback(() => {
+    if (loadingMore || !hasMore || isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    setLoadingMore(true);
+
+    // Simulate small delay for UX
+    setTimeout(() => {
+      const nextEndIndex = (page + 1) * ITEMS_PER_PAGE;
+      const nextBatch = subscriptions.slice(0, nextEndIndex);
+
+      setDisplayedSubscriptions(nextBatch);
+      setPage(prev => prev + 1);
+      setHasMore(subscriptions.length > nextEndIndex);
+      setLoadingMore(false);
+      isLoadingRef.current = false;
+    }, 300);
+  }, [subscriptions, page, loadingMore, hasMore]);
+
 
   const handleEdit = (subscription: Subscription) => {
     setEditingSubscription(subscription);
@@ -170,7 +203,7 @@ export default function SubscriptionList() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {subscriptions.map((subscription, index) => (
+                  {displayedSubscriptions.map((subscription, index) => (
                     <tr
                       key={subscription._id}
                       className="hover:bg-gray-50 transition-colors duration-150"
@@ -247,11 +280,44 @@ export default function SubscriptionList() {
             </div>
           )}
 
+          {/* Load More Button */}
+          {hasMore && displayedSubscriptions.length > 0 && !loading && (
+            <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
+              <button
+                onClick={loadMoreSubscriptions}
+                disabled={loadingMore}
+                className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+                  }`}
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                    <span>Fetching Plans...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load More Plans</span>
+                    <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* End of list message */}
+          {!hasMore && displayedSubscriptions.length > 0 && (
+            <div className="p-8 text-center text-sm text-gray-500 bg-gray-50/30 border-t border-gray-100 italic">
+              You've viewed all available subscription plans
+            </div>
+          )}
+
           {/* Footer Stats */}
           {!loading && subscriptions.length > 0 && (
-            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 text-center">
-                Total Plans: <span className="font-bold text-gray-900">{subscriptions.length}</span>
+            <div className="bg-gray-50 px-6 py-6 border-t border-gray-200">
+              <p className="text-sm text-gray-500 text-center font-medium">
+                Showing <span className="text-gray-900 font-bold">{displayedSubscriptions.length}</span> of <span className="text-gray-900 font-bold">{subscriptions.length}</span> active plans
               </p>
             </div>
           )}

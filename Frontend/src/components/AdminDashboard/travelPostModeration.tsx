@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import toast from "react-hot-toast";
 import type { TravelPost } from "@/interface/TravelPost";
 import {
@@ -11,7 +11,14 @@ type Status = "PENDING" | "APPROVED" | "REJECTED";
 const TravelPostModeration = () => {
   const [status, setStatus] = useState<Status>("PENDING");
   const [posts, setPosts] = useState<TravelPost[]>([]);
+  const [displayedPosts, setDisplayedPosts] = useState<TravelPost[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const isLoadingRef = useRef(false);
+  const ITEMS_PER_PAGE = 9;
 
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectPostId, setRejectPostId] = useState<string | null>(null);
@@ -29,12 +36,34 @@ const TravelPostModeration = () => {
     try {
       const data = await getTravelPostsByStatus(nextStatus);
       setPosts(data);
+      setDisplayedPosts(data.slice(0, ITEMS_PER_PAGE));
+      setHasMore(data.length > ITEMS_PER_PAGE);
+      setPage(1);
     } catch {
       toast.error("Failed to fetch travel posts");
     } finally {
       setLoading(false);
     }
   };
+
+  const loadMorePosts = useCallback(() => {
+    if (loadingMore || !hasMore || isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    setLoadingMore(true);
+
+    setTimeout(() => {
+      const nextEndIndex = (page + 1) * ITEMS_PER_PAGE;
+      const nextBatch = posts.slice(0, nextEndIndex);
+
+      setDisplayedPosts(nextBatch);
+      setPage(prev => prev + 1);
+      setHasMore(posts.length > nextEndIndex);
+      setLoadingMore(false);
+      isLoadingRef.current = false;
+    }, 300);
+  }, [posts, page, loadingMore, hasMore]);
+
 
   useEffect(() => {
     fetchPosts(status);
@@ -45,7 +74,10 @@ const TravelPostModeration = () => {
     try {
       await updateTravelPostStatus(postId, "APPROVED");
       toast.success("Post approved");
-      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      const updatedPosts = posts.filter((p) => p.id !== postId);
+      setPosts(updatedPosts);
+      setDisplayedPosts(updatedPosts.slice(0, page * ITEMS_PER_PAGE));
+      setHasMore(updatedPosts.length > page * ITEMS_PER_PAGE);
     } catch {
       toast.error("Failed to approve post");
     } finally {
@@ -71,7 +103,10 @@ const TravelPostModeration = () => {
     try {
       await updateTravelPostStatus(rejectPostId, "REJECTED", rejectReason.trim());
       toast.success("Post rejected");
-      setPosts((prev) => prev.filter((p) => p.id !== rejectPostId));
+      const updatedPosts = posts.filter((p) => p.id !== rejectPostId);
+      setPosts(updatedPosts);
+      setDisplayedPosts(updatedPosts.slice(0, page * ITEMS_PER_PAGE));
+      setHasMore(updatedPosts.length > page * ITEMS_PER_PAGE);
       setRejectModalOpen(false);
       setRejectPostId(null);
       setRejectReason("");
@@ -96,31 +131,28 @@ const TravelPostModeration = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setStatus("PENDING")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              status === "PENDING"
-                ? "bg-black text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${status === "PENDING"
+              ? "bg-black text-white"
+              : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
           >
             Pending
           </button>
           <button
             onClick={() => setStatus("APPROVED")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              status === "APPROVED"
-                ? "bg-black text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${status === "APPROVED"
+              ? "bg-black text-white"
+              : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
           >
             Approved
           </button>
           <button
             onClick={() => setStatus("REJECTED")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              status === "REJECTED"
-                ? "bg-black text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${status === "REJECTED"
+              ? "bg-black text-white"
+              : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
           >
             Rejected
           </button>
@@ -151,79 +183,113 @@ const TravelPostModeration = () => {
           </svg>
           <span className="ml-2 text-gray-600 text-lg">Loading...</span>
         </div>
-      ) : posts.length === 0 ? (
+      ) : displayedPosts.length === 0 ? (
         <p className="text-gray-500 text-lg italic text-center">
           No {status.toLowerCase()} posts found.
         </p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
-            >
-              <div className="space-y-3 text-gray-700">
-                <p className="text-lg">
-                  <span className="font-semibold">Title:</span> {post.title}
-                </p>
-                <p className="text-sm text-gray-500 break-words">{post.excerpt}</p>
-                <p className="text-sm">
-                  <span className="font-semibold">Author:</span> {post.authorName || post.authorId}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Category:</span> {post.categoryName || post.categoryId}
-                </p>
-                {post.destinationName && (
-                  <p className="text-sm">
-                    <span className="font-semibold">Destination:</span> {post.destinationName}
+        <>
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {displayedPosts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl"
+              >
+                <div className="space-y-3 text-gray-700">
+                  <p className="text-lg">
+                    <span className="font-semibold">Title:</span> {post.title}
                   </p>
-                )}
-                <p className="text-sm">
-                  <span className="font-semibold">Created:</span> {formatDate(post.createdAt)}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Status:</span>{" "}
-                  <span
-                    className={`font-semibold ${
-                      post.status === "APPROVED"
+                  <p className="text-sm text-gray-500 break-words">{post.excerpt}</p>
+                  <p className="text-sm">
+                    <span className="font-semibold">Author:</span> {post.authorName || post.authorId}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-semibold">Category:</span> {post.categoryName || post.categoryId}
+                  </p>
+                  {post.destinationName && (
+                    <p className="text-sm">
+                      <span className="font-semibold">Destination:</span> {post.destinationName}
+                    </p>
+                  )}
+                  <p className="text-sm">
+                    <span className="font-semibold">Created:</span> {formatDate(post.createdAt)}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-semibold">Status:</span>{" "}
+                    <span
+                      className={`font-semibold ${post.status === "APPROVED"
                         ? "text-green-600"
                         : post.status === "REJECTED"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}
-                  >
-                    {post.status}
-                  </span>
-                </p>
-
-                {post.status === "REJECTED" && post.rejectedReason && (
-                  <p className="text-sm text-red-600">
-                    <span className="font-semibold">Reason:</span> {post.rejectedReason}
+                          ? "text-red-600"
+                          : "text-yellow-600"
+                        }`}
+                    >
+                      {post.status}
+                    </span>
                   </p>
+
+                  {post.status === "REJECTED" && post.rejectedReason && (
+                    <p className="text-sm text-red-600">
+                      <span className="font-semibold">Reason:</span> {post.rejectedReason}
+                    </p>
+                  )}
+                </div>
+
+                {status === "PENDING" && (
+                  <div className="mt-6 flex gap-4">
+                    <button
+                      disabled={submitting}
+                      onClick={() => handleApprove(post.id)}
+                      className="bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      disabled={submitting}
+                      onClick={() => openRejectModal(post.id)}
+                      className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
+                    >
+                      Reject
+                    </button>
+                  </div>
                 )}
               </div>
+            ))}
+          </div>
 
-              {status === "PENDING" && (
-                <div className="mt-6 flex gap-4">
-                  <button
-                    disabled={submitting}
-                    onClick={() => handleApprove(post.id)}
-                    className="bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    disabled={submitting}
-                    onClick={() => openRejectModal(post.id)}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
+          {/* Load More Button */}
+          {hasMore && displayedPosts.length > 0 && !loading && (
+            <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
+              <button
+                onClick={loadMorePosts}
+                disabled={loadingMore}
+                className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+                  }`}
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                    <span>Fetching Posts...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load More Posts</span>
+                    <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
+                )}
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+
+          {/* End of list message */}
+          {!hasMore && displayedPosts.length > 0 && (
+            <div className="p-8 text-center text-sm text-gray-500 bg-gray-50/30 border-t border-gray-100 italic">
+              You've reached the end of the post list
+            </div>
+          )}
+        </>
       )}
 
       {rejectModalOpen && (

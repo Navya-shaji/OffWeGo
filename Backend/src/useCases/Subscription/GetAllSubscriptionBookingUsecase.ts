@@ -10,9 +10,13 @@ export class GetSubscriptionBookingUseCase
     private _subscriptionBookingRepo: ISubscriptionBookingRepository
   ) { }
 
-  async execute(): Promise<SubscriptionBookingDto[]> {
-    const bookings = await this._subscriptionBookingRepo.getAllSubscriptions();
+  async execute(page: number, limit: number): Promise<{ bookings: SubscriptionBookingDto[]; total: number }> {
+    const skip = (page - 1) * limit;
+    const { bookings, total } = await this._subscriptionBookingRepo.getAllSubscriptions(skip, limit);
 
-    return bookings.map(mapBookingToSubscriptionBookingDto);
+    return {
+      bookings: bookings.map(mapBookingToSubscriptionBookingDto),
+      total
+    };
   }
 }

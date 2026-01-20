@@ -36,19 +36,19 @@ export interface ISubscriptionBookingRepository {
     id: string,
     data: Partial<ISubscriptionBookingModel>
   ): Promise<ISubscriptionBookingModel | null>;
-  
+
   cancelBooking(
     id: string
   ): Promise<ISubscriptionBookingModel | null>;
-  
+
   retryPayment(
     id: string,
     domainUrl: string
   ): Promise<{ checkoutUrl: string; qrCode: string } | null>;
-  
+
   expireOldSubscriptions(vendorId: string): Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getAllSubscriptions(): Promise<any[]>;
+  getAllSubscriptions(skip: number, limit: number): Promise<{ bookings: any[]; total: number }>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   findByVendorId(vendorId: string): Promise<any[]>;
 }

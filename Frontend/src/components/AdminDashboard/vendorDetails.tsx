@@ -7,16 +7,16 @@ import {
 } from "@/services/admin/adminVendorService";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Vendor } from "@/interface/vendorInterface";
-import Pagination from "../pagination/pagination";
 import { SearchBar } from "../Modular/searchbar";
 
 export const VendorList = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [originalVendors, setOriginalVendors] = useState<Vendor[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalVendors, setTotalVendors] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [totalVendors, setTotalVendors] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
@@ -31,30 +31,48 @@ export const VendorList = () => {
   const isLoadingRef = useRef(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchVendors = useCallback(async (pageNum: number = 1) => {
+  const fetchVendors = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     if (isLoadingRef.current) return;
 
     try {
       isLoadingRef.current = true;
-      setLoading(true);
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
       setError("");
 
       const response = await getAllVendors(pageNum, 10);
+      const newVendors = response.vendors || [];
 
-      setVendors(response.vendors);
-      setOriginalVendors(response.vendors);
-      setTotalPages(Math.ceil(response.totalvendors / 10));
+      if (append) {
+        setVendors((prev) => [...prev, ...newVendors]);
+        setOriginalVendors((prev) => [...prev, ...newVendors]);
+      } else {
+        setVendors(newVendors);
+        setOriginalVendors(newVendors);
+      }
+
       setTotalVendors(response.totalvendors);
       setPage(pageNum);
+      setHasMore(newVendors.length === 10);
     } catch (error) {
       console.error("Error fetching vendors:", error);
       setError("Failed to fetch vendors.");
-      setVendors([]);
+      if (!append) setVendors([]);
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
+      setLoadingMore(false);
     }
   }, []);
+
+  const loadMoreVendors = useCallback(() => {
+    if (!isSearchMode && hasMore && !isLoadingRef.current) {
+      fetchVendors(page + 1, true);
+    }
+  }, [page, hasMore, isSearchMode, fetchVendors]);
 
   const handleSearch = useCallback(
     async (query: string) => {
@@ -68,8 +86,8 @@ export const VendorList = () => {
         if (!query.trim()) {
           setIsSearchMode(false);
           setVendors(originalVendors);
-          setTotalPages(Math.ceil(totalVendors / 10));
           setPage(1);
+          setHasMore(originalVendors.length >= 10);
           return;
         }
 
@@ -79,30 +97,18 @@ export const VendorList = () => {
           const searchResults = Array.isArray(response) ? response : [];
 
           setVendors(searchResults);
-          setTotalPages(Math.ceil(searchResults.length / 10));
           setPage(1);
+          setHasMore(false); // Disable load more in search mode for now or implement backend search pagination
         } catch (error) {
           console.error("Error during search:", error);
           setVendors([]);
-          setTotalPages(1);
+          setPage(1);
         }
       }, 300);
     },
-    [originalVendors, totalVendors]
+    [originalVendors]
   );
 
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      if (newPage === page) return;
-
-      setPage(newPage);
-
-      if (!isSearchMode) {
-        fetchVendors(newPage);
-      }
-    },
-    [page, isSearchMode, fetchVendors]
-  );
 
   const handleConfirmBlock = async () => {
     if (!selectedVendor) return;
@@ -166,18 +172,8 @@ export const VendorList = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getCurrentPageData = () => {
-    if (!isSearchMode) {
-      return vendors;
-    } else {
-      const startIndex = (page - 1) * 10;
-      const endIndex = startIndex + 10;
-      return vendors.slice(startIndex, endIndex);
-    }
-  };
 
   const columns: ColumnDef<Vendor>[] = [
     {
@@ -240,8 +236,8 @@ export const VendorList = () => {
           status === "approved"
             ? "bg-green-100 text-green-800"
             : status === "rejected"
-            ? "bg-red-100 text-red-800"
-            : "bg-yellow-100 text-yellow-800";
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800";
 
         return (
           <span
@@ -258,11 +254,10 @@ export const VendorList = () => {
         const blocked = row.original.isBlocked;
         return (
           <span
-            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-              blocked
-                ? "bg-red-100 text-red-800"
-                : "bg-green-100 text-green-800"
-            }`}
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${blocked
+              ? "bg-red-100 text-red-800"
+              : "bg-green-100 text-green-800"
+              }`}
           >
             {blocked ? "Blocked" : "Unblocked"}
           </span>
@@ -339,9 +334,8 @@ export const VendorList = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 transform transition-all scale-100 animate-in">
             <div className="flex items-start mb-4">
               <div
-                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                  selectedVendor?.isBlocked ? "bg-green-100" : "bg-red-100"
-                }`}
+                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${selectedVendor?.isBlocked ? "bg-green-100" : "bg-red-100"
+                  }`}
               >
                 <span className="text-2xl">
                   {selectedVendor?.isBlocked ? "✓" : "⚠"}
@@ -375,11 +369,10 @@ export const VendorList = () => {
               </button>
               <button
                 onClick={handleConfirmBlock}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
-                  selectedVendor?.isBlocked
-                    ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
-                    : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
-                }`}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${selectedVendor?.isBlocked
+                  ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                  : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                  }`}
               >
                 {selectedVendor?.isBlocked ? "Unblock" : "Block"}
               </button>
@@ -394,9 +387,8 @@ export const VendorList = () => {
           <h1 className="text-2xl font-bold text-gray-900">All Vendors</h1>
           <p className="text-sm text-gray-600 mt-1">
             {isSearchMode
-              ? `Found ${vendors.length} vendor${
-                  vendors.length !== 1 ? "s" : ""
-                } for "${searchQuery}"`
+              ? `Found ${vendors.length} vendor${vendors.length !== 1 ? "s" : ""
+              } for "${searchQuery}"`
               : `${totalVendors} total vendors`}
           </p>
         </div>
@@ -438,38 +430,52 @@ export const VendorList = () => {
         </div>
       ) : (
         <>
-          {/* Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ReusableTable<Vendor>
-              data={getCurrentPageData()}
+              data={vendors}
               columns={columns}
+              loading={false}
             />
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center">
-              <Pagination
-                total={totalPages}
-                current={page}
-                setPage={handlePageChange}
-              />
+          {/* Load More Button */}
+          {!isSearchMode && hasMore && vendors.length > 0 && !loading && (
+            <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
+              <button
+                onClick={loadMoreVendors}
+                disabled={loadingMore}
+                className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+                  }`}
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                    <span>Fetching Vendors...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load More Vendors</span>
+                    <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* End of list message */}
+          {!hasMore && vendors.length > 0 && !isSearchMode && (
+            <div className="p-8 text-center text-sm text-gray-500 bg-gray-50/30 border-t border-gray-100 italic">
+              You've reached the end of the vendor list
             </div>
           )}
 
           {/* Results Info */}
-          <div className="text-center text-sm text-gray-500">
+          <div className="text-center text-sm text-gray-400 py-4">
             {isSearchMode
-              ? `Showing ${Math.min(
-                  (page - 1) * 10 + 1,
-                  vendors.length
-                )}-${Math.min(page * 10, vendors.length)} of ${
-                  vendors.length
-                } search results`
-              : `Showing ${(page - 1) * 10 + 1}-${Math.min(
-                  page * 10,
-                  totalVendors
-                )} of ${totalVendors} vendors`}
+              ? `Showing all ${vendors.length} search results`
+              : `Showing ${vendors.length} of ${totalVendors} total vendors`}
           </div>
         </>
       )}

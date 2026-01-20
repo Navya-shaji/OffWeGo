@@ -1,5 +1,5 @@
 import { SubscriptionBookingDto } from "../../dto/Subscription/SubscriptionBookingDto";
 
 export interface IGetSubscriptionBookingUseCase {
-  execute(): Promise<SubscriptionBookingDto[]>;
+  execute(page: number, limit: number): Promise<{ bookings: SubscriptionBookingDto[]; total: number }>;
 }

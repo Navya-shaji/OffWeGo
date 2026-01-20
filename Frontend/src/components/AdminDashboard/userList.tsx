@@ -7,19 +7,18 @@ import {
 } from "@/services/admin/adminUserService";
 import type { User } from "@/interface/userInterface";
 import ReusableTable from "../Modular/Table";
-import Pagination from "../pagination/pagination";
 import type { ColumnDef } from "@tanstack/react-table";
 import { SearchBar } from "../Modular/searchbar";
 
 const UserList = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [originalUsers, setOriginalUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
-  const [, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{
@@ -33,30 +32,50 @@ const UserList = () => {
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /* ---------------- Fetch Users ---------------- */
-  const fetchUsers = useCallback(async (pageNum: number = 1) => {
+  const fetchUsers = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     if (isLoadingRef.current) return;
 
     try {
       isLoadingRef.current = true;
-      setLoading(true);
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
       setError("");
 
       const response = await getAllUsers(pageNum, 10);
 
-      setUsers(response.users);
-      setOriginalUsers(response.users);
-      setTotalPages(response.totalPages);
+      if (append) {
+        setUsers((prev) => [...prev, ...response.users]);
+      } else {
+        setUsers(response.users);
+      }
+
       setTotalUsers(response.totalUsers);
+      setHasMore(pageNum < response.totalPages);
       setPage(pageNum);
     } catch (error) {
       console.error("Error fetching users:", error);
       setError("Failed to fetch users.");
-      setUsers([]);
+      if (!append) {
+        setUsers([]);
+      }
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
+      setLoadingMore(false);
     }
   }, []);
+
+  /* ---------------- Load More Users ---------------- */
+  const loadMoreUsers = useCallback(() => {
+    if (!isSearchMode && hasMore && !isLoadingRef.current) {
+      fetchUsers(page + 1, true);
+    }
+  }, [page, hasMore, isSearchMode, fetchUsers]);
+
+
 
   /* ---------------- Search Users ---------------- */
   const handleSearch = useCallback(
@@ -70,42 +89,29 @@ const UserList = () => {
       searchTimeoutRef.current = setTimeout(async () => {
         if (!query.trim()) {
           setIsSearchMode(false);
-          setUsers(originalUsers);
-          setTotalPages(Math.ceil(totalUsers / 10));
           setPage(1);
+          setHasMore(true);
+          fetchUsers(1, false);
           return;
         }
 
         setIsSearchMode(true);
+        setLoading(true);
         try {
           const response = await searchUser(query);
           const searchResults = Array.isArray(response) ? response : [];
 
           setUsers(searchResults);
-          setTotalPages(Math.ceil(searchResults.length / 10));
-          setPage(1);
+          setHasMore(false);
         } catch (error) {
           console.error("Error during search:", error);
           setUsers([]);
-          setTotalPages(1);
+        } finally {
+          setLoading(false);
         }
       }, 300);
     },
-    [originalUsers, totalUsers]
-  );
-
-  /* ---------------- Page Change ---------------- */
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      if (newPage === page) return;
-
-      setPage(newPage);
-
-      if (!isSearchMode) {
-        fetchUsers(newPage);
-      }
-    },
-    [page, isSearchMode, fetchUsers]
+    [fetchUsers]
   );
 
   /* ---------------- Status Modal ---------------- */
@@ -126,7 +132,6 @@ const UserList = () => {
     try {
       await handleActionChange(selectedUser.id, newStatus);
 
-      // Show success toast with blur background
       toast.success(
         `Successfully ${action}ed user "${selectedUser.name}"`,
         {
@@ -165,28 +170,23 @@ const UserList = () => {
   const handleActionChange = useCallback(
     async (userId: string, newStatus: "active" | "blocked") => {
       const prevUsers = [...users];
-      const prevOriginal = [...originalUsers];
 
       const updateUser = (list: User[]) =>
         list.map((u) => (u._id === userId ? { ...u, status: newStatus } : u));
 
       setUsers((prev) => updateUser(prev));
-      if (!isSearchMode) setOriginalUsers((prev) => updateUser(prev));
 
       try {
         await updateUserStatus(userId, newStatus);
       } catch (err) {
         setUsers(prevUsers);
-        setOriginalUsers(prevOriginal);
         setError("Failed to update status");
         setTimeout(() => setError(""), 3000);
-        // Re-throw the error so it can be caught by the calling function
         throw err;
       }
     },
-    [users, originalUsers, isSearchMode]
+    [users]
   );
-
 
   useEffect(() => {
     if (!hasInitialized.current) {
@@ -200,18 +200,10 @@ const UserList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-  const getCurrentPageData = () => {
-    if (!isSearchMode) return users;
-    const start = (page - 1) * 10;
-    return users.slice(start, start + 10);
-  };
-
-
   const columns: ColumnDef<User>[] = [
     {
       header: "#",
-      cell: ({ row }) => (page - 1) * 10 + row.index + 1,
+      cell: ({ row }) => row.index + 1,
     },
 
     {
@@ -298,7 +290,7 @@ const UserList = () => {
     },
   ];
 
-  if (loading) {
+  if (loading && users.length === 0) {
     return (
       <div className="p-6 text-center">
         <div className="animate-spin h-8 w-8 border-b-2 border-blue-600 rounded-full mx-auto" />
@@ -311,7 +303,7 @@ const UserList = () => {
     <div className="p-4 space-y-4">
       {/* ---------------- Modal ---------------- */}
       {modalOpen && selectedUser && (
-        <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h3 className="text-lg font-semibold">
               {selectedUser.status === "active" ? "Block User" : "Unblock User"}
@@ -325,16 +317,16 @@ const UserList = () => {
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 rounded border"
+                className="px-4 py-2 rounded border hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleConfirmStatusChange}
-                className={`px-4 py-2 text-white rounded ${selectedUser.status === "active"
-                  ? "bg-red-600"
-                  : "bg-green-600"
+                className={`px-4 py-2 text-white rounded transition ${selectedUser.status === "active"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-green-600 hover:bg-green-700"
                   }`}
               >
                 Confirm
@@ -351,7 +343,7 @@ const UserList = () => {
           <p className="text-sm text-gray-500">
             {isSearchMode
               ? `Found ${users.length} results`
-              : `${totalUsers} total users`}
+              : `Showing ${users.length} of ${totalUsers} total users`}
           </p>
         </div>
 
@@ -368,24 +360,54 @@ const UserList = () => {
       )}
 
       {/* ---------------- Table ---------------- */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <ReusableTable
-          data={getCurrentPageData()}
+          data={users}
           columns={columns}
-          loading={loading}
+          loading={false}
         />
-      </div>
 
-      {/* ---------------- Pagination ---------------- */}
-      {totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
-            total={totalPages}
-            current={page}
-            setPage={handlePageChange}
-          />
-        </div>
-      )}
+
+        {/* Load More Button */}
+        {!isSearchMode && hasMore && users.length > 0 && !loading && (
+          <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
+            <button
+              onClick={loadMoreUsers}
+              disabled={loadingMore}
+              className={`group relative px-8 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+                }`}
+            >
+              {loadingMore ? (
+                <>
+                  <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                  <span>Fetching Users...</span>
+                </>
+              ) : (
+                <>
+                  <span>Load More Users</span>
+                  <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* End of list message */}
+        {!hasMore && users.length > 0 && !isSearchMode && (
+          <div className="p-6 text-center text-sm text-gray-500 bg-gray-50 border-t border-gray-100 italic">
+            You've reached the end of the list
+          </div>
+        )}
+
+        {/* No results message */}
+        {users.length === 0 && !loading && (
+          <div className="p-8 text-center text-gray-500">
+            {searchQuery ? "No users found matching your search" : "No users available"}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

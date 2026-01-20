@@ -1,12 +1,19 @@
 import { getBanner, actionBannerupdate, BannerDelete } from "@/services/Banner/bannerService";
 import type { BannerInterface } from "@/interface/bannerInterface";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Trash } from "lucide-react";
 import { ConfirmModal } from "@/components/Modular/ConfirmModal";
 
 export const BannerForm = () => {
   const [banner, setBanner] = useState<BannerInterface[]>([]);
+  const [displayedBanners, setDisplayedBanners] = useState<BannerInterface[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const isLoadingRef = useRef(false);
+  const ITEMS_PER_PAGE = 10;
 
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
@@ -22,14 +29,37 @@ export const BannerForm = () => {
     try {
       const response = await getBanner();
       const data = response?.data || response;
-      setBanner(Array.isArray(data) ? data : []);
+      const allBanners = Array.isArray(data) ? data : [];
+      setBanner(allBanners);
+      setDisplayedBanners(allBanners.slice(0, ITEMS_PER_PAGE));
+      setHasMore(allBanners.length > ITEMS_PER_PAGE);
     } catch (error) {
       console.error("Failed to fetch banners", error);
       setBanner([]);
+      setDisplayedBanners([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const loadMoreBanners = useCallback(() => {
+    if (loadingMore || !hasMore || isLoadingRef.current) return;
+
+    isLoadingRef.current = true;
+    setLoadingMore(true);
+
+    setTimeout(() => {
+      const nextEndIndex = (page + 1) * ITEMS_PER_PAGE;
+      const nextBatch = banner.slice(0, nextEndIndex);
+
+      setDisplayedBanners(nextBatch);
+      setPage(prev => prev + 1);
+      setHasMore(banner.length > nextEndIndex);
+      setLoadingMore(false);
+      isLoadingRef.current = false;
+    }, 300);
+  }, [banner, page, loadingMore, hasMore]);
+
 
   const handleToggle = async (index: number) => {
     try {
@@ -52,7 +82,10 @@ export const BannerForm = () => {
     if (!confirmModal.id) return;
     try {
       await BannerDelete(confirmModal.id);
-      setBanner((prev) => prev.filter((b) => b.id !== confirmModal.id));
+      const updatedBanners = banner.filter((b) => b.id !== confirmModal.id);
+      setBanner(updatedBanners);
+      setDisplayedBanners(updatedBanners.slice(0, page * ITEMS_PER_PAGE));
+      setHasMore(updatedBanners.length > page * ITEMS_PER_PAGE);
       setConfirmModal({ open: false, id: null, title: null });
     } catch (error) {
       console.error("Failed to delete banner", error);
@@ -80,7 +113,7 @@ export const BannerForm = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white">
-            {banner.map((ban, index) => (
+            {displayedBanners.map((ban, index) => (
               <tr key={ban.id || index} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4">
                   {ban.Banner_video_url ? (
@@ -138,6 +171,39 @@ export const BannerForm = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Load More Button */}
+      {hasMore && displayedBanners.length > 0 && !loading && (
+        <div className="py-8 px-4 text-center border-t border-gray-100 bg-gray-50/30">
+          <button
+            onClick={loadMoreBanners}
+            disabled={loadingMore}
+            className={`group relative px-10 py-3 bg-black text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 font-semibold flex items-center gap-3 mx-auto overflow-hidden ${loadingMore ? "opacity-80 cursor-not-allowed" : ""
+              }`}
+          >
+            {loadingMore ? (
+              <>
+                <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
+                <span>Fetching Banners...</span>
+              </>
+            ) : (
+              <>
+                <span>Load More Banners</span>
+                <svg className="w-4 h-4 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* End of list message */}
+      {!hasMore && displayedBanners.length > 0 && (
+        <div className="p-8 text-center text-sm text-gray-500 bg-gray-50/30 border-t border-gray-100 italic">
+          You've reached the end of the banner list
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={confirmModal.open}

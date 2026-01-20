@@ -10,8 +10,7 @@ import { Types } from "mongoose";
 
 export class UserRepository
   extends BaseRepository<IUserModel>
-  implements IUserRepository
-{
+  implements IUserRepository {
   constructor() {
     super(UserModel);
   }
@@ -54,7 +53,11 @@ export class UserRepository
     limit: number,
     filter: Record<string, unknown> = {}
   ): Promise<IUserModel[]> {
-    return (this.model as any).find(filter).skip(skip).limit(limit);
+    return (this.model as any)
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
   }
 
   async countUsers(filter: Record<string, unknown> = {}): Promise<number> {
@@ -88,10 +91,10 @@ export class UserRepository
     await UserModel.findByIdAndUpdate(userId, { $inc: { walletBalance: amount } });
   }
 
-async getFcmTokenById(userId: string): Promise<string | null> {
-  const user = await this.model.findById(userId).select("fcmToken");
-  return user?.fcmToken || null;
-}
+  async getFcmTokenById(userId: string): Promise<string | null> {
+    const user = await this.model.findById(userId).select("fcmToken");
+    return user?.fcmToken || null;
+  }
 
 
 

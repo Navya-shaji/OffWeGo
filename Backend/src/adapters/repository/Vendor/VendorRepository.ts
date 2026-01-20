@@ -130,6 +130,7 @@ export class VendorRepository
   ): Promise<IVendorModel[]> {
     return this.model
       .find(filter)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .exec();

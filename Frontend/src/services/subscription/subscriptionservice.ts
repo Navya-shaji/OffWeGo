@@ -112,15 +112,17 @@ export const retrySubscriptionPayment = async (bookingId: string) => {
   }
 };
 
-export const getAllSubscriptionBookings = async () => {
+export const getAllSubscriptionBookings = async (page?: number, limit?: number) => {
   try {
-    const res = await axiosInstance.get("/api/admin/booked-subscription");
+    const res = await axiosInstance.get("/api/admin/booked-subscription", {
+      params: { page, limit }
+    });
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         "Failed to fetch subscription bookings"
       );
     }
@@ -149,10 +151,10 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
         throw adminError;
       }
     }
-    
-   
-    
- 
+
+
+
+
     if (!res || !res.data) {
       console.error(" No response data received from API");
       return {
@@ -161,18 +163,18 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
         hasActiveSubscription: false
       };
     }
-    
+
 
     if (res.data?.data && !Array.isArray(res.data.data) && res.data.data !== null) {
       const singleSubscription = res.data.data;
-      
-    
+
+
       const now = new Date();
       const endDate = singleSubscription.endDate ? new Date(singleSubscription.endDate) : null;
-      const isActive = singleSubscription.status === "active" && 
-                       endDate && 
-                       endDate >= now;
-      
+      const isActive = singleSubscription.status === "active" &&
+        endDate &&
+        endDate >= now;
+
       if (isActive) {
         return {
           success: true,
@@ -187,9 +189,9 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
         };
       }
     }
-    
+
     let subscriptionsArray: any[] = [];
-    
+
     if (res.data?.data && Array.isArray(res.data.data)) {
       subscriptionsArray = res.data.data;
     } else if (Array.isArray(res.data)) {
@@ -206,42 +208,42 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
         hasActiveSubscription: false
       };
     }
-    
+
     if (subscriptionsArray.length > 0) {
       const now = new Date();
-      
 
-      
+
+
       const vendorSubscriptions = subscriptionsArray.filter((sub: any) => {
         const subVendorId = sub.vendorId?.toString() || sub.vendorId;
         const currentVendorId = vendorId.toString();
         const matches = subVendorId === currentVendorId;
-    
+
         return matches;
       });
-      
- 
-  
+
+
+
       const activeSubscription = vendorSubscriptions.find((sub: any) => {
-   
+
         if (sub.status !== "active") {
           return false;
         }
-        
+
         const endDate = sub.endDate ? new Date(sub.endDate) : null;
         if (!endDate) {
-          return false; 
+          return false;
         }
-        
+
         const isNotExpired = endDate >= now;
-        
-        
-        
+
+
+
         return isNotExpired;
       });
-      
+
       if (activeSubscription) {
- 
+
         return {
           success: true,
           vendorSubscription: activeSubscription,
@@ -251,32 +253,32 @@ export const getVendorActiveSubscription = async (vendorId?: string) => {
     } else {
       console.log(" Unexpected API response structure:", res.data);
     }
-    
+
     return {
       success: true,
       vendorSubscription: null,
       hasActiveSubscription: false
     };
   } catch (error) {
-    
+
     if (isAxiosError(error)) {
       console.error("API Error Response:", {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data
       });
-      
+
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.warn(" Authentication error - vendor may not be authenticated");
       }
-      
+
       return {
         success: false,
         vendorSubscription: null,
         hasActiveSubscription: false
       };
     }
-    
+
     return {
       success: false,
       vendorSubscription: null,
@@ -301,9 +303,9 @@ export const getVendorSubscriptionLegacy = async (vendorId?: string) => {
           return {
             ...res.data,
             data: vendorSubscriptions,
-            vendorSubscription: vendorSubscriptions.find((sub: any) => 
-              sub.status === "active" && 
-              sub.endDate && 
+            vendorSubscription: vendorSubscriptions.find((sub: any) =>
+              sub.status === "active" &&
+              sub.endDate &&
               new Date(sub.endDate) > new Date()
             )
           };
@@ -312,8 +314,8 @@ export const getVendorSubscriptionLegacy = async (vendorId?: string) => {
       } catch (fallbackError) {
         if (isAxiosError(fallbackError)) {
           throw new Error(
-            fallbackError.response?.data?.message || 
-            fallbackError.response?.data?.error || 
+            fallbackError.response?.data?.message ||
+            fallbackError.response?.data?.error ||
             "Failed to fetch vendor subscription"
           );
         }
@@ -322,8 +324,8 @@ export const getVendorSubscriptionLegacy = async (vendorId?: string) => {
     }
     if (isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         "Failed to fetch vendor subscription"
       );
     }
