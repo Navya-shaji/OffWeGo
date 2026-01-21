@@ -3,6 +3,7 @@ import { HttpStatus } from "../../../domain/statusCode/Statuscode";
 import { ICreateBookingSubscriptionUseCase } from "../../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionUsecase";
 import { ISubscriptionBookingRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
 import { IGetVendorSubscriptionHistoryUseCase } from "../../../domain/interface/SubscriptionPlan/IGetVendorHistory";
+import { logErrorToFile } from "../../../framework/Logger/errorLogger";
 
 
 
@@ -16,7 +17,12 @@ export class SubscriptionBookingController {
   async createSubscriptionBooking(req: Request, res: Response): Promise<void> {
     try {
       const { vendorId, planId, date, time } = req.body;
-      const domainUrl = process.env.FRONTEND_URL || (process.env.DOMAIN_URL ? `https://${process.env.DOMAIN_URL}` : "https://offwego.online");
+
+      let baseDomain = process.env.FRONTEND_URL || process.env.DOMAIN_URL || "https://offwego.online";
+      if (baseDomain && !baseDomain.startsWith("http")) {
+        baseDomain = `https://${baseDomain}`;
+      }
+      const domainUrl = baseDomain.replace(/\/$/, ""); // Remove trailing slash if any
 
       const result = await this._createBookingSubscriptionUsecase.execute({
         vendorId,
@@ -29,9 +35,23 @@ export class SubscriptionBookingController {
       res.status(HttpStatus.CREATED).json(result);
     } catch (error) {
       console.error("Subscription Booking Error:", error);
+
+      logErrorToFile({
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+        path: req.originalUrl,
+        method: req.method,
+        body: req.body,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR
+      });
+
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: (error as Error).message });
+        .json({
+          success: false,
+          message: (error as Error).message, // Frontend looks for 'message' or 'error'
+          error: (error as Error).message
+        });
     }
   }
 
@@ -89,12 +109,21 @@ export class SubscriptionBookingController {
         return;
       }
 
-      const result = await this._getVendorSubscriptionHistoryUsecase.execute(vendorId);
+      const search = req.query.search as string;
+      const status = req.query.status as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 3;
+      const skip = (page - 1) * limit;
+
+      const result = await this._getVendorSubscriptionHistoryUsecase.execute(vendorId, search, status, skip, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Vendor subscription history fetched successfully",
-        data: result,
+        data: result.bookings,
+        total: result.total,
+        page,
+        limit
       });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

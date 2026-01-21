@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react";
+import { jsPDF } from "jspdf";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, History, Search, Filter, ArrowLeft, X, RefreshCw } from "lucide-react";
-import { getVendorSubscriptionHistory, cancelSubscription, retrySubscriptionPayment } from "@/services/subscription/subscriptionservice";
+import {
+  X,
+  CheckCircle2,
+  Sparkles,
+  Calendar,
+  History,
+  Search,
+  ArrowLeft,
+  RefreshCw,
+} from "lucide-react";
+import { getVendorSubscriptionHistory, retrySubscriptionPayment } from "@/services/subscription/subscriptionservice";
 import { format, parseISO } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VendorNavbar from "@/components/vendor/navbar";
 import { toast } from "react-hot-toast";
 
@@ -40,93 +49,13 @@ export default function VendorSubscriptionHistory() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("date");
   const [selectedSubscription, setSelectedSubscription] = useState<SubscriptionHistory | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 3;
+
   const [retryingId, setRetryingId] = useState<string | null>(null);
-
-  const fetchHistory = async () => {
-    try {
-      const response = await getVendorSubscriptionHistory();
-      console.log("Full Subscription History API Response:", JSON.stringify(response, null, 2));
-
-
-      let historyData = [];
-
-      if (response?.data && Array.isArray(response.data)) {
-        historyData = response.data;
-      } else if (response?.subscriptions && Array.isArray(response.subscriptions)) {
-        historyData = response.subscriptions;
-      } else if (response?.bookings && Array.isArray(response.bookings)) {
-        historyData = response.bookings;
-      } else if (response?.history && Array.isArray(response.history)) {
-        historyData = response.history;
-      } else if (Array.isArray(response)) {
-        historyData = response;
-      } else {
-        console.warn("⚠️ Unexpected response structure:", response);
-        // Fallback: check if the response itself is an object that looks like a subscription
-        if (response && (response._id || response.id)) {
-          historyData = [response];
-        } else {
-          historyData = [];
-        }
-      }
-
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const normalizedData = historyData.map((item: any) => {
-        const normalized: SubscriptionHistory = {
-          _id: item._id || item.id || item.subscriptionId || '',
-          planName: item.planName || item.name || item.plan_name || item.subscriptionName || 'Unknown Plan',
-          amount: item.amount || item.price || item.total || 0,
-          currency: item.currency || item.currency_code || 'USD',
-          duration: item.duration || item.plan_duration || item.validity || undefined,
-          status: (item.status || item.subscriptionStatus || item.plan_status || 'unknown').toLowerCase(),
-          startDate: item.startDate || item.start_date || item.createdAt || item.created_at || new Date().toISOString(),
-          endDate: item.endDate || item.end_date || item.expiresAt || item.expires_at || '',
-          transactionId: item.transactionId || item.transaction_id || item.paymentId || item.payment_id || '',
-          stripeSessionId: item.stripeSessionId || item.stripe_session_id || item.sessionId || '',
-          paymentStatus: item.paymentStatus || item.payment_status || item.paymentState || 'unknown',
-          packageLimit: item.packageLimit || item.limit || item.max_packages || item.package_limit || 0,
-          usedSlots: item.usedSlots || item.used || item.booked || item.used_packages || item.used_count || 0,
-          features: item.features || item.plan_features || item.benefits || [],
-          vendorDetails: item.vendorDetails || item.vendor || {}
-        };
-
-        return normalized;
-      });
-
-
-
-      setHistory(normalizedData);
-    } catch (error) {
-      console.error(" Error fetching subscription history:", error);
-      console.error(" Failed to load subscription history");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "active":
-        return "default";
-      case "expired":
-        return "destructive";
-      case "cancelled":
-        return "secondary";
-      case "pending":
-        return "outline";
-      default:
-        return "default";
-    }
-  };
 
   const getStatusBadgeProps = (status: string) => {
     switch (status) {
@@ -143,58 +72,69 @@ export default function VendorSubscriptionHistory() {
     }
   };
 
-  const getPaymentStatusVariant = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "default";
-      case "pending":
-        return "outline";
-      case "failed":
-        return "destructive";
-      default:
-        return "default";
+  const fetchHistory = async (isLoadMore = false) => {
+    try {
+      if (!isLoadMore) setLoading(true);
+
+      const currentPage = isLoadMore ? page + 1 : 1;
+      const response = await getVendorSubscriptionHistory(searchQuery, activeTab, currentPage, limit);
+
+      let historyData = [];
+      const incomingData = response?.data || response?.bookings || [];
+      historyData = Array.isArray(incomingData) ? incomingData : [];
+
+      const normalizedData = historyData.map((item: any) => ({
+        _id: item._id || item.id || '',
+        planName: item.planName || 'Unknown Plan',
+        amount: item.amount || 0,
+        currency: item.currency || 'INR',
+        duration: item.duration || 0,
+        status: (item.status || 'unknown').toLowerCase(),
+        startDate: item.startDate || new Date().toISOString(),
+        endDate: item.endDate || '',
+        transactionId: item.transactionId || '',
+        stripeSessionId: item.stripeSessionId || '',
+        paymentStatus: item.paymentStatus || 'paid',
+        packageLimit: item.packageLimit || 0,
+        usedSlots: item.usedSlots || 0,
+        features: item.features || [],
+        vendorDetails: item.vendorDetails || {}
+      }));
+
+      if (isLoadMore) {
+        setHistory(prev => [...prev, ...normalizedData]);
+        setPage(currentPage);
+      } else {
+        setHistory(normalizedData);
+        setPage(1);
+      }
+
+      setTotal(response.total || 0);
+    } catch (error) {
+      console.error("Error fetching history:", error);
+    } finally {
+      if (!isLoadMore) setLoading(false);
     }
   };
 
-  const filteredAndSortedHistory = history
-    .filter(sub => {
-      if (!sub) return false;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchHistory();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, activeTab]);
 
-      const matchesTab = activeTab === "all" || sub.status === activeTab;
-      const matchesSearch = searchQuery === "" ||
-        (sub.planName && sub.planName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (sub.transactionId && sub.transactionId.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesTab && matchesSearch;
-    })
-    .sort((a, b) => {
-      // Handle null/undefined values safely
-      if (!a || !b) return 0;
+  const handleLoadMore = () => {
+    fetchHistory(true);
+  };
 
-      switch (sortBy) {
-        case "date":
-          {
-            const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
-            const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-            return dateB - dateA;
-          }
-        case "name":
-          {
-            const nameA = a.planName || "";
-            const nameB = b.planName || "";
-            return nameA.localeCompare(nameB);
-          }
-        case "amount":
-          return (b.amount || 0) - (a.amount || 0);
-        case "status":
-          {
-            const statusA = a.status || "";
-            const statusB = b.status || "";
-            return statusA.localeCompare(statusB);
-          }
-        default:
-          return 0;
-      }
-    });
+  const handleShowLess = () => {
+    setPage(1);
+    setHistory(prev => prev.slice(0, limit));
+  };
+
+  const hasMore = history.length < total;
+  const showingAll = !hasMore && history.length > limit;
 
   const formatDate = (dateString: string) => {
     try {
@@ -211,28 +151,80 @@ export default function VendorSubscriptionHistory() {
   };
 
   const handleDownloadInvoice = (subscription: SubscriptionHistory) => {
-    // Create invoice data
-    const invoiceData = {
-      subscriptionId: subscription._id,
-      planName: subscription.planName,
-      amount: subscription.amount,
-      currency: subscription.currency || 'USD',
-      date: subscription.startDate,
-      status: subscription.status,
-      transactionId: subscription.transactionId,
-      vendorDetails: subscription.vendorDetails
-    };
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Generate and download invoice as JSON (in a real app, this would be PDF)
-    const dataStr = JSON.stringify(invoiceData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    // Premium Invoice Header
+    doc.setFillColor(17, 24, 39); // Tailwind gray-900
+    doc.rect(0, 0, pageWidth, 40, 'F');
 
-    const exportFileDefaultName = `invoice_${subscription.planName}_${subscription._id}.json`;
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.text("OffWeGo", 20, 25);
 
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("INVOICE / RECEIPT", pageWidth - 20, 25, { align: "right" });
+
+    // Vendor & Customer Info
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Billed To:", 20, 60);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(subscription.vendorDetails?.name || "Premium Vendor", 20, 68);
+    doc.text(subscription.vendorDetails?.email || "", 20, 75);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Transaction Details:", pageWidth - 20, 60, { align: "right" });
+    doc.setFont("helvetica", "normal");
+    doc.text(`ID: ${subscription.transactionId || subscription._id.slice(-12)}`, pageWidth - 20, 68, { align: "right" });
+    doc.text(`Date: ${formatDate(subscription.startDate)}`, pageWidth - 20, 75, { align: "right" });
+
+    // Invoice Table Header
+    doc.setFillColor(243, 244, 246); // Tailwind gray-100
+    doc.rect(20, 95, pageWidth - 40, 10, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.text("Description", 25, 102);
+    doc.text("Status", pageWidth / 2, 102, { align: "center" });
+    doc.text("Total", pageWidth - 25, 102, { align: "right" });
+
+    // Table content
+    doc.setFont("helvetica", "normal");
+    doc.text(`Subscription Plan: ${subscription.planName}`, 25, 115);
+    doc.text(subscription.status.toUpperCase(), pageWidth / 2, 115, { align: "center" });
+    doc.text(`INR ${subscription.amount.toLocaleString()}`, pageWidth - 25, 115, { align: "right" });
+
+    // Divider
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 125, pageWidth - 20, 125);
+
+    // Summary
+    doc.setFont("helvetica", "bold");
+    doc.text("Final Amount Paid:", pageWidth - 60, 140, { align: "right" });
+    doc.setFontSize(14);
+    doc.text(`INR ${subscription.amount.toLocaleString()}`, pageWidth - 25, 140, { align: "right" });
+
+    // Features Section
+    if (subscription.features && subscription.features.length > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(107, 114, 128);
+      doc.text("INCLUDED FEATURES:", 20, 160);
+      subscription.features.slice(0, 5).forEach((feature, index) => {
+        doc.text(`• ${feature}`, 25, 168 + (index * 6));
+      });
+    }
+
+    // Footer
+    doc.setFontSize(9);
+    doc.setTextColor(156, 163, 175);
+    const footerText = "Thank you for partnering with OffWeGo. This is a computer-generated receipt.";
+    doc.text(footerText, pageWidth / 2, 280, { align: "center" });
+
+    doc.save(`Invoice_${subscription.planName}_${subscription._id.slice(-6)}.pdf`);
   };
 
   const handleBackToDashboard = () => {
@@ -243,29 +235,7 @@ export default function VendorSubscriptionHistory() {
     navigate("/vendor/subscriptionplans");
   };
 
-  const handleManageSubscription = (subscription: SubscriptionHistory) => {
-    navigate(`/vendor/subscriptions/manage/${subscription._id}`);
-  };
 
-  const handleCancelSubscription = async (subscription: SubscriptionHistory) => {
-    if (!window.confirm(`Are you sure you want to cancel "${subscription.planName}" subscription?`)) {
-      return;
-    }
-
-    setCancellingId(subscription._id);
-    try {
-      await cancelSubscription(subscription._id);
-      // Refresh history to show updated status
-      await fetchHistory();
-      toast.success("Subscription cancelled successfully");
-    } catch (error: unknown) {
-      console.error("Error cancelling subscription:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to cancel subscription";
-      toast.error(errorMessage);
-    } finally {
-      setCancellingId(null);
-    }
-  };
 
   const handleRetryPayment = async (subscription: SubscriptionHistory) => {
     setRetryingId(subscription._id);
@@ -314,60 +284,51 @@ export default function VendorSubscriptionHistory() {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50/50 font-['Outfit']">
       <VendorNavbar />
-      <div className="max-w-6xl mx-auto p-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToDashboard}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
+      <div className="max-w-6xl mx-auto p-6 md:p-8">
+        {/* Modern Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+              Payment History
+            </h1>
+            <p className="text-gray-500 text-sm font-medium">
+              Track and manage all your subscription transactions
+            </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <History className="h-6 w-6 text-gray-700" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Subscription History</h1>
-              <p className="text-gray-500">Track and manage your subscription plans</p>
-            </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBackToDashboard}
+              className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Dashboard
+            </button>
+            <button
+              onClick={handleViewPlans}
+              className="px-4 py-2.5 bg-gray-900 text-white rounded-xl font-semibold text-sm hover:bg-gray-800 transition-all shadow-md flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Upgrade Plan
+            </button>
           </div>
         </div>
 
-        {/* Filters and Search */}
+
         <div className="mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by plan name or transaction ID..."
+                  placeholder="Search by plan name..."
                   className="pl-10 border-gray-200 focus:border-gray-400 focus:ring-0"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[150px] border-gray-200 focus:border-gray-400 focus:ring-0">
-                  <Filter className="h-4 w-4 mr-2 text-gray-500" />
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="amount">Amount</SelectItem>
-                  <SelectItem value="status">Status</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </div>
@@ -418,306 +379,204 @@ export default function VendorSubscriptionHistory() {
           </div>
         </div>
 
-        {loading ? (
+        {loading && history.length === 0 ? (
           <LoadingSkeleton />
-        ) : filteredAndSortedHistory.length === 0 ? (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <History className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-medium mb-2">No subscription history found</h3>
-              <p className="text-muted-foreground mb-6">
-                {activeTab === "all"
-                  ? "You don't have any subscription history yet."
-                  : `No ${activeTab} subscriptions found.`}
-              </p>
-              <Button onClick={handleViewPlans}>
-                View Available Plans
-              </Button>
-            </CardContent>
-          </Card>
+        ) : history.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-[2rem] p-16 text-center shadow-sm">
+            <div className="mx-auto w-20 h-20 rounded-3xl bg-gray-50 flex items-center justify-center mb-6">
+              <History className="h-10 w-10 text-gray-300" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">No Transactions Found</h3>
+            <p className="text-gray-500 max-w-sm mx-auto mb-10 font-medium">
+              {activeTab === "all"
+                ? "You haven't made any subscription purchases yet. Enhance your reach today!"
+                : `We couldn't find any ${activeTab} subscriptions in your records.`}
+            </p>
+            <Button
+              onClick={handleViewPlans}
+              className="px-8 py-6 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-bold"
+            >
+              Explore Growth Plans
+            </Button>
+          </div>
         ) : (
           <div className="space-y-4">
-            {filteredAndSortedHistory.map((subscription) => (
+            {history.map((subscription) => (
               <div
                 key={subscription._id}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow"
+                className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-xl hover:border-blue-100 transition-all duration-300 group"
               >
-                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {subscription.planName || "Unknown Plan"}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {formatDate(subscription.startDate)} —{" "}
-                            {subscription.endDate
-                              ? formatDate(subscription.endDate)
-                              : "Ongoing"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-gray-900">
-                          ₹{(subscription.amount || 0).toLocaleString()}
-                        </p>
-                      </div>
+                    <div className="flex items-center gap-4 mb-4">
+                      <Badge
+                        variant={getStatusBadgeProps(subscription.status || "unknown").variant}
+                        className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 ${getStatusBadgeProps(subscription.status || "unknown").className}`}
+                      >
+                        {subscription.status}
+                      </Badge>
+                      <span className="text-gray-300 flex-shrink-0">•</span>
+                      <span className="text-gray-500 text-xs font-bold uppercase tracking-wider">
+                        ID: {subscription.transactionId || subscription._id.slice(-8)}
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">Status</p>
-                        <Badge
-                          variant={getStatusBadgeProps(subscription.status || "unknown").variant}
-                          className={`text-xs ${getStatusBadgeProps(subscription.status || "unknown").className}`}
-                        >
-                          {(subscription.status || "unknown").charAt(0).toUpperCase() + (subscription.status || "unknown").slice(1)}
-                        </Badge>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">Duration</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {subscription.duration ? `${subscription.duration} days` : "N/A"}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">Usage</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">
-                            {subscription.usedSlots || 0} / {subscription.packageLimit || 0}
-                          </span>
-                          <div className="w-16 bg-gray-200 rounded-full h-1.5">
-                            <div
-                              className="bg-gray-600 h-1.5 rounded-full"
-                              style={{
-                                width: `${Math.min(
-                                  100,
-                                  ((subscription.usedSlots || 0) / Math.max(1, subscription.packageLimit || 1)) * 100
-                                )}%`,
-                              }}
-                            ></div>
-                          </div>
-                        </div>
+                    <div className="flex flex-col md:flex-row md:items-baseline gap-3 md:gap-6">
+                      <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {subscription.planName}
+                      </h3>
+                      <div className="flex items-center gap-2 text-gray-400 font-bold text-xs uppercase tracking-tighter">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formatDate(subscription.startDate)}
+                        {subscription.endDate && (
+                          <>
+                            <span className="mx-1">→</span>
+                            {formatDate(subscription.endDate)}
+                          </>
+                        )}
                       </div>
                     </div>
-
-                    {subscription.features && Array.isArray(subscription.features) && subscription.features.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="flex flex-wrap gap-2">
-                          {subscription.features.slice(0, 3).map((feature, i) => (
-                            <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                              {feature}
-                            </span>
-                          ))}
-                          {subscription.features.length > 3 && (
-                            <span className="text-xs text-gray-500">
-                              +{subscription.features.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  <div className="flex flex-col gap-2 lg:ml-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-200 text-gray-700 hover:bg-gray-50"
-                      onClick={() => handleViewDetails(subscription)}
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-200 text-gray-700 hover:bg-gray-50"
-                      onClick={() => handleDownloadInvoice(subscription)}
-                    >
-                      Download Invoice
-                    </Button>
+                  <div className="flex flex-row lg:flex-row items-center justify-between lg:justify-end gap-8 bg-gray-50/50 lg:bg-transparent p-4 lg:p-0 rounded-xl">
+                    <div className="text-right">
+                      <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Total Paid</p>
+                      <p className="text-3xl font-black text-gray-900">
+                        ₹{(subscription.amount || 0).toLocaleString()}
+                      </p>
+                    </div>
 
-                    {/* Show Cancel and Retry buttons for pending subscriptions */}
-                    {subscription.status === "pending" && (
-                      <>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="w-11 h-11 rounded-xl border-gray-200 hover:bg-gray-900 hover:text-white transition-all shadow-sm"
+                        onClick={() => handleViewDetails(subscription)}
+                        title="View Details"
+                      >
+                        <Search className="h-4 w-4" />
+                      </Button>
+
+                      {subscription.status === "pending" && (
                         <Button
-                          variant="destructive"
-                          size="sm"
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                          onClick={() => handleCancelSubscription(subscription)}
-                          disabled={cancellingId === subscription._id}
-                        >
-                          {cancellingId === subscription._id ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Cancelling...
-                            </>
-                          ) : (
-                            <>
-                              <X className="h-4 w-4 mr-2" />
-                              Cancel
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          size="icon"
+                          className="w-11 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg transition-all"
                           onClick={() => handleRetryPayment(subscription)}
                           disabled={retryingId === subscription._id}
                         >
                           {retryingId === subscription._id ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Processing...
-                            </>
+                            <RefreshCw className="h-4 w-4 animate-spin" />
                           ) : (
-                            <>
-                              <RefreshCw className="h-4 w-4 mr-2" />
-                              Try Again
-                            </>
+                            <RefreshCw className="h-4 w-4" />
                           )}
                         </Button>
-                      </>
-                    )}
-
-                    {/* Show Manage button for active subscriptions */}
-                    {subscription.status === "active" && (
-                      <Button
-                        size="sm"
-                        className="bg-gray-900 hover:bg-gray-800 text-white"
-                        onClick={() => handleManageSubscription(subscription)}
-                      >
-                        Manage
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Details Modal */}
-        {showDetailsModal && selectedSubscription && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">Subscription Details</h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowDetailsModal(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    ×
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-3">Plan Information</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Plan Name:</span>
-                        <span className="font-medium">{selectedSubscription.planName || "Unknown Plan"}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Status:</span>
-                        <Badge
-                          variant={getStatusVariant(selectedSubscription.status || "unknown")}
-                          className="text-xs"
-                        >
-                          {(selectedSubscription.status || "unknown").charAt(0).toUpperCase() + (selectedSubscription.status || "unknown").slice(1)}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Duration:</span>
-                        <span className="font-medium">{selectedSubscription.duration ? `${selectedSubscription.duration} days` : 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-3">Payment Information</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Amount:</span>
-                        <span className="font-medium">{selectedSubscription.currency || '$'}{(selectedSubscription.amount || 0).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Payment Status:</span>
-                        <Badge
-                          variant={getPaymentStatusVariant(selectedSubscription.paymentStatus || "unknown")}
-                          className="text-xs"
-                        >
-                          {selectedSubscription.paymentStatus || "unknown"}
-                        </Badge>
-                      </div>
-                      {selectedSubscription.transactionId && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Transaction ID:</span>
-                          <span className="font-medium text-sm">{selectedSubscription.transactionId}</span>
-                        </div>
                       )}
                     </div>
                   </div>
                 </div>
+              </div>
+            ))}
 
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-3">Subscription Period</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Start Date:</span>
-                      <span className="font-medium">{formatDate(selectedSubscription.startDate)}</span>
+            {history.length > 0 && (
+              <div className="flex justify-center pt-8 pb-12">
+                {hasMore ? (
+                  <Button
+                    onClick={handleLoadMore}
+                    className="px-10 py-6 bg-white border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-lg hover:shadow-gray-200"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+                        Loading...
+                      </div>
+                    ) : (
+                      "Load More History"
+                    )}
+                  </Button>
+                ) : showingAll ? (
+                  <Button
+                    onClick={handleShowLess}
+                    variant="outline"
+                    className="px-10 py-6 border-2 border-gray-200 text-gray-400 hover:border-gray-900 hover:text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300"
+                  >
+                    Show Less
+                  </Button>
+                ) : null}
+              </div>
+            )}
+          </div>
+        )}
+
+
+        {/* Details Modal */}
+        {showDetailsModal && selectedSubscription && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 z-50 transition-all duration-300">
+            <div className="bg-white rounded-[2rem] shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-in fade-in zoom-in duration-200">
+              <div className="p-8 border-b border-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-black text-gray-900 leading-none">Subscription Details</h2>
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Transaction Summary</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowDetailsModal(false)}
+                    className="rounded-full hover:bg-gray-100 text-gray-400"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-8 space-y-8">
+                {/* Essential Info Grid */}
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Plan Selected</p>
+                      <p className="text-xl font-black text-gray-900">{selectedSubscription.planName}</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">End Date:</span>
-                      <span className="font-medium">{selectedSubscription.endDate ? formatDate(selectedSubscription.endDate) : 'Ongoing'}</span>
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Status</p>
+                      <Badge
+                        variant={getStatusBadgeProps(selectedSubscription.status).variant}
+                        className={`text-[10px] font-black uppercase tracking-tighter px-2 py-0.5 ${getStatusBadgeProps(selectedSubscription.status).className}`}
+                      >
+                        {selectedSubscription.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 text-right">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Amount Paid</p>
+                      <p className="text-2xl font-black text-gray-900 italic">₹{(selectedSubscription.amount || 0).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Valid Until</p>
+                      <p className="text-sm font-bold text-gray-600">
+                        {selectedSubscription.endDate ? formatDate(selectedSubscription.endDate) : 'Ongoing'}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-3">Package Usage</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Used Slots:</span>
-                      <span className="font-medium">{selectedSubscription.usedSlots || 0}/{selectedSubscription.packageLimit || 0}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gray-700 h-2 rounded-full"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            ((selectedSubscription.usedSlots || 0) / Math.max(1, selectedSubscription.packageLimit || 1)) * 100
-                          )}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
+                {/* Included Details / Features */}
                 {selectedSubscription.features && Array.isArray(selectedSubscription.features) && selectedSubscription.features.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-3">Plan Features</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100">
+                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                      <Sparkles className="w-3 h-3 text-blue-500" />
+                      Included in your plan
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3">
                       {selectedSubscription.features.map((feature, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
-                            <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-5 h-5 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <CheckCircle2 className="w-3 h-3 text-blue-600" />
                           </div>
-                          <span className="text-sm text-gray-700">{feature}</span>
+                          <span className="text-sm font-bold text-gray-700">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -725,15 +584,18 @@ export default function VendorSubscriptionHistory() {
                 )}
               </div>
 
-              <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+              <div className="p-8 border-t border-gray-50 bg-gray-50/30 flex items-center justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => handleDownloadInvoice(selectedSubscription)}
-                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                  className="rounded-xl border-gray-200 font-bold text-gray-600 hover:bg-white hover:text-gray-900 transition-all shadow-sm"
                 >
                   Download Invoice
                 </Button>
-                <Button onClick={() => setShowDetailsModal(false)}>
+                <Button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="px-8 bg-gray-900 hover:bg-black text-white rounded-xl font-bold shadow-lg transition-all"
+                >
                   Close
                 </Button>
               </div>

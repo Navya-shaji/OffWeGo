@@ -159,14 +159,29 @@ export class SubscriptionBookingRepository
     return { bookings: mappedBookings, total };
   }
 
-  async findByVendorId(vendorId: string) {
-    const bookings = await this.model.find({ vendorId })
-      .populate("planId")
-      .sort({ createdAt: -1 });
+  async findByVendorId(vendorId: string, search?: string, status?: string, skip?: number, limit?: number) {
+    const query: any = { vendorId };
+
+    if (search) {
+      query.planName = { $regex: search, $options: "i" };
+    }
+
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    const [bookings, total] = await Promise.all([
+      this.model.find(query)
+        .populate("planId")
+        .sort({ createdAt: -1 })
+        .skip(skip || 0)
+        .limit(limit || 0),
+      this.model.countDocuments(query)
+    ]);
 
     const vendor = await VendorModel.findById(vendorId);
 
-    return bookings.map((booking: any) => {
+    const mappedBookings = bookings.map((booking: any) => {
       const bookingObj = booking.toObject();
       return {
         ...bookingObj,
@@ -176,6 +191,8 @@ export class SubscriptionBookingRepository
         } : null
       };
     });
+
+    return { bookings: mappedBookings, total };
   }
 
 }

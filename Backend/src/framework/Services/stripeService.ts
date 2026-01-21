@@ -5,7 +5,11 @@ export class StripeService implements IStripeService {
   private stripe: Stripe;
 
   constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      console.warn("⚠️ STRIPE_SECRET_KEY is not defined in environment variables!");
+    }
+    this.stripe = new Stripe(secretKey || "", {
       apiVersion: "2024-06-20" as any,
     });
   }

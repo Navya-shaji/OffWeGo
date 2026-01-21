@@ -40,16 +40,16 @@ const PaymentFailedPage = () => {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all duration-300 font-bold"
           >
             Try Again
           </button>
 
           <button
-            onClick={() => navigate("/")}
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+            onClick={() => navigate("/vendor/profile")}
+            className="px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-bold"
           >
-            Go Home
+            Dashboard
           </button>
         </div>
       </div>

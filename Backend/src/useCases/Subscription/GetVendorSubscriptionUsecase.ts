@@ -6,20 +6,7 @@ import { VendorModel } from "../../framework/database/Models/vendorModel";
 export class GetVendorSubscriptionHistoryUseCase implements IGetVendorSubscriptionHistoryUseCase {
   constructor(private _subscriptionBookingRepo: ISubscriptionBookingRepository) { }
 
-  async execute(vendorId: string): Promise<any[]> {
-    const bookings = await this._subscriptionBookingRepo.findByVendorId(vendorId);
-
-    const vendor = await VendorModel.findById(vendorId);
-
-    return bookings.map((booking: any) => {
-      const bookingObj = booking.toObject ? booking.toObject() : booking;
-      return {
-        ...bookingObj,
-        vendorDetails: vendor ? {
-          name: vendor.name,
-          email: vendor.email
-        } : null
-      };
-    });
+  async execute(vendorId: string, search?: string, status?: string, skip?: number, limit?: number): Promise<{ bookings: any[]; total: number }> {
+    return this._subscriptionBookingRepo.findByVendorId(vendorId, search, status, skip, limit);
   }
 }

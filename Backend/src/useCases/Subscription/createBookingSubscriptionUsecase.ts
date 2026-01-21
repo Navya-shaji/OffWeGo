@@ -30,8 +30,14 @@ export class CreateBookingSubscriptionUseCase
       );
 
     if (activeSub) {
+      const formattedDate = new Date(activeSub.endDate).toLocaleDateString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
       throw new Error(
-        `You already have an active subscription until ${activeSub.endDate}. You cannot purchase a new plan until it expires.`
+        `You already have an active subscription until ${formattedDate}. You cannot purchase a new plan until it expires.`
       );
     }
 

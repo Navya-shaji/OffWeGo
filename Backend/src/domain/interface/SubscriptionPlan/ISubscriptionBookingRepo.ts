@@ -50,5 +50,5 @@ export interface ISubscriptionBookingRepository {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getAllSubscriptions(skip: number, limit: number): Promise<{ bookings: any[]; total: number }>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  findByVendorId(vendorId: string): Promise<any[]>;
+  findByVendorId(vendorId: string, search?: string, status?: string, skip?: number, limit?: number): Promise<{ bookings: any[]; total: number }>;
 }

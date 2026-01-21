@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Package,
+
   Sparkles,
   Crown,
   CheckCircle2,
   X,
   Shield,
   Home,
-  Calendar,
-  Clock,
-  CreditCard,
   ChevronDown,
   History,
-  Star,
   Rocket,
 } from "lucide-react";
 import { getSubscriptions } from "@/services/subscription/subscriptionservice";
@@ -34,11 +30,11 @@ export default function VendorSubscriptionPage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
-  const [displayCount, setDisplayCount] = useState(3);
+
   const navigate = useNavigate();
 
   const vendorId = useSelector(
@@ -49,7 +45,7 @@ export default function VendorSubscriptionPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+
 
         const subData = await getSubscriptions();
 
@@ -59,9 +55,10 @@ export default function VendorSubscriptionPage() {
         }));
 
         setSubscriptions(transformedSubscriptions);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching data:", err);
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        const errorMessage = err.message || "Failed to load subscription plans";
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -78,6 +75,12 @@ export default function VendorSubscriptionPage() {
   }, []);
 
   const handleBookPlan = (plan: SubscriptionPlan) => {
+    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    setBookingDate(today);
+    setBookingTime(`${hours}:${minutes}`);
     setSelectedPlan(plan);
     setShowBookingModal(true);
   };
@@ -118,7 +121,6 @@ export default function VendorSubscriptionPage() {
       });
 
 
-      // Handle the actual response format from backend
       if (response.checkoutUrl) {
         window.location.href = response.checkoutUrl;
       } else if (response.success && response.url) {
@@ -127,25 +129,15 @@ export default function VendorSubscriptionPage() {
         console.error('Invalid response:', response);
         throw new Error("No payment URL provided in response");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Payment error:", err);
-      toast.error(`Subscription Error: Failed to initiate payment`);
+      // Only show the message from the backend, without extra prefixes
+      const errorMessage = err.message || "Failed to initiate payment";
+      toast.error(errorMessage);
       setBookingLoading(false);
     }
   };
 
-  const handleLoadMore = () => {
-    setDisplayCount((prev) => prev + 3);
-  };
-
-  const handleShowLess = () => {
-    setDisplayCount(3);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const displayedSubscriptions = subscriptions.slice(0, displayCount);
-  const hasMore = subscriptions.length > displayCount;
-  const showingAll = displayCount >= subscriptions.length;
 
   if (loading) {
     return (
@@ -164,341 +156,225 @@ export default function VendorSubscriptionPage() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="p-8 bg-white border border-red-200 rounded-3xl max-w-md shadow-xl">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-8 h-8 text-red-500" />
-            </div>
-            <p className="text-2xl font-black text-slate-800 mb-3">
-              Oops! Something went wrong
-            </p>
-            <p className="text-sm text-slate-500 mb-6">{error}</p>
-            <Button
-              onClick={() => window.location.reload()}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl"
-            >
-              Try Again
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gray-50/50 font-['Outfit']">
       <VendorNavbar />
+
       <div className="max-w-7xl mx-auto p-6 md:p-8">
-        <div className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => navigate("/vendor/profile")}
-            className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
-          >
-            <Home className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
-            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-              Back to Home
-            </span>
-          </button>
-
-          <button
-            onClick={() => navigate("/vendor/subscription/history")}
-            className="group flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
-          >
-            <History className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
-            <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-              Subscription History
-            </span>
-          </button>
-        </div>
-
-        <div className="text-center mb-12 mt-8">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-blue-200 rounded-full mb-6 shadow-md">
-            <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
-            <span className="text-sm font-bold text-blue-600 tracking-wide">
-              SUBSCRIPTION MANAGEMENT
-            </span>
-          </div>
-
-          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto font-medium">
-            Choose the perfect plan to scale your vendor operations and unlock
-            unlimited potential
-          </p>
-        </div>
-
-        <div className="mb-10">
-          <h2 className="text-4xl md:text-5xl font-black text-center text-gray-900 mb-4">
-            Choose Your Plan
-          </h2>
-          <p className="text-center text-gray-600 text-lg mb-12 font-medium">
-            Unlock more features as you grow • Flexible pricing for every stage
-          </p>
-        </div>
-
-        {subscriptions.length === 0 ? (
-          <div className="text-center py-16 bg-white border-2 border-gray-200 rounded-3xl shadow-lg">
-            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg font-medium">
-              No subscription plans available at the moment.
-            </p>
-            <p className="text-gray-400 text-sm mt-2">
-              Check back soon for exciting offers!
+        {/* Breadcrumb/Navigation Area */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+              Subscription Plans
+            </h1>
+            <p className="text-gray-500 text-sm font-medium">
+              Manage your premium partner status and features
             </p>
           </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-              {displayedSubscriptions.map((plan, index) => (
-                <div
-                  key={plan._id}
-                  className={`relative group ${plan.popular ? "lg:-mt-4" : ""}`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-md opacity-50"></div>
-                        <div className="relative px-5 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg">
-                          <span className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
-                            <Sparkles className="w-3 h-3" />
-                            Most Popular
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
-                  <div
-                    className={`relative bg-white border-2 ${plan.popular
-                      ? "border-black shadow-xl"
-                      : "border-gray-200 shadow-md"
-                      } rounded-3xl p-8 h-full transition-all duration-500 hover:shadow-2xl hover:scale-105 hover:-translate-y-2`}
-                  >
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-6">
-                        <div
-                          className={`p-4 rounded-2xl shadow-lg ${index === 0
-                            ? "bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600"
-                            : index === 1
-                              ? "bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600"
-                              : "bg-gradient-to-br from-pink-100 to-pink-200 text-pink-600"
-                            }`}
-                        >
-                          {index === 0 ? (
-                            <Rocket className="w-7 h-7" />
-                          ) : index === 1 ? (
-                            <Shield className="w-7 h-7" />
-                          ) : (
-                            <Crown className="w-7 h-7" />
-                          )}
-                        </div>
-                        {index === 2 && (
-                          <Star className="w-7 h-7 text-amber-500 animate-pulse" />
-                        )}
-                      </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/vendor/profile")}
+              className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2"
+            >
+              <Home className="w-4 h-4" />
+              Dashboard
+            </button>
+            <button
+              onClick={() => navigate("/vendor/subscription/history")}
+              className="px-4 py-2.5 bg-gray-900 text-white rounded-xl font-semibold text-sm hover:bg-gray-800 transition-all shadow-md flex items-center gap-2"
+            >
+              <History className="w-4 h-4" />
+              Payment History
+            </button>
+          </div>
+        </div>
 
-                      <h4 className="text-3xl font-black text-gray-900 mb-3">
-                        {plan.name}
-                      </h4>
-                      <div className="mb-8">
-                        <div className="flex items-baseline gap-2 mb-1">
-                          <span className="text-6xl font-black bg-gradient-to-r bg-black bg-clip-text text-transparent">
-                            ₹{plan.price}
-                          </span>
-                          <span className="text-gray-500 text-base font-bold">
-                            /{plan.duration} days
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4 mb-8">
-                        <div className="flex items-center gap-3">
-
-
-                        </div>
-                        {plan.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-gray to-black flex items-center justify-center shadow-md">
-                              <CheckCircle2 className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="text-gray-700 font-semibold">
-                              {feature}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Button
-                        className={`w-full font-bold text-white shadow-lg transition-all duration-300 hover:shadow-xl py-6 text-base ${index === 0
-                          ? "bg-gradient-to-r bg-black"
-                          : index === 1
-                            ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                            : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                          } hover:scale-105`}
-                        onClick={() => handleBookPlan(plan)}
-                      >
-                        Book Now →
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {subscriptions.length > 3 && (
-              <div className="flex justify-center mt-10">
-                {!showingAll ? (
-                  <button
-                    onClick={handleLoadMore}
-                    className="group relative px-8 py-4 bg-white border-2 border-gray-200 rounded-2xl hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-base font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
-                        Load More Plans
-                      </span>
-                      <ChevronDown className="w-5 h-5 text-gray-500 group-hover:text-blue-600 group-hover:animate-bounce transition-colors" />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Showing {displayCount} of {subscriptions.length} plans
-                    </p>
-                  </button>
-                ) : (
-                  hasMore === false &&
-                  displayCount > 3 && (
-                    <button
-                      onClick={handleShowLess}
-                      className="group relative px-8 py-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-base font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
-                          Show Less
-                        </span>
-                        <ChevronDown className="w-5 h-5 text-gray-500 group-hover:text-blue-600 rotate-180 transition-colors" />
-                      </div>
-                    </button>
-                  )
-                )}
+        {/* Welcome/Promo Banner Section (Dashboard Style) */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-12 shadow-sm">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="max-w-xl text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full mb-4">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Premium Growth</span>
               </div>
-            )}
-          </>
-        )}
+              <h2 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+                Unlock higher booking limits & premium visibility
+              </h2>
+              <p className="text-gray-600 font-medium">
+                Our subscription plans are designed to help you scale your travel business
+                faster with prioritized search results and advanced analytics.
+              </p>
+            </div>
+          </div>
+        </div>
 
-        {showBookingModal && selectedPlan && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4 animate-in fade-in duration-300">
-            <div className="relative bg-white border-2 border-gray-200 rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in slide-in-from-bottom-4 duration-500">
-              <button
-                onClick={() => setShowBookingModal(false)}
-                className="absolute top-6 right-6 p-2.5 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-110 hover:rotate-90 z-10"
-                disabled={bookingLoading}
-              >
-                <X className="w-6 h-6 text-gray-600" />
-              </button>
-
-              <div className="p-10">
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-full mb-6 shadow-md">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-bold text-blue-600 tracking-wide">
-                      SECURE PAYMENT VIA STRIPE
-                    </span>
-                  </div>
-                  <h3 className="text-4xl font-black text-gray-900 mb-3">
-                    {selectedPlan.name}
-                  </h3>
-                  <p className="text-gray-600 font-medium">
-                    Select your preferred date and time
-                  </p>
+        {/* Plans Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {subscriptions.map((plan, index) => (
+            <div
+              key={plan._id}
+              className={`relative ${plan.popular ? "transform lg:-translate-y-2" : ""}`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                  <span className="px-4 py-1.5 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                    Best Value
+                  </span>
                 </div>
+              )}
 
-                <div className="space-y-5 mb-8">
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                      <Calendar className="w-5 h-5 text-blue-600" />
-                      Booking Date
-                    </label>
-                    <input
-                      type="date"
-                      value={bookingDate}
-                      onChange={(e) => setBookingDate(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium"
-                      disabled={bookingLoading}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-3">
-                      <Clock className="w-5 h-5 text-blue-600" />
-                      Booking Time
-                    </label>
-                    <input
-                      type="time"
-                      value={bookingTime}
-                      onChange={(e) => setBookingTime(e.target.value)}
-                      className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium"
-                      disabled={bookingLoading}
-                    />
+              <div className={`h-full bg-white border ${plan.popular ? "border-emerald-500 ring-4 ring-emerald-50" : "border-gray-200"} rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col`}>
+                <div className="flex items-center justify-between mb-8">
+                  <div className={`p-4 rounded-2xl ${index === 1 ? "bg-emerald-50 text-emerald-600" :
+                    index === 2 ? "bg-gray-100 text-gray-700" :
+                      "bg-blue-50 text-blue-600"
+                    }`}>
+                    {index === 0 ? <Rocket className="w-8 h-8" /> :
+                      index === 1 ? <Shield className="w-8 h-8" /> :
+                        <Crown className="w-8 h-8" />}
                   </div>
                 </div>
 
-                <div className="p-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 rounded-2xl mb-8 shadow-inner">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-gray-700 font-bold">
-                      Total Amount:
-                    </span>
-                    <span className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      ₹{selectedPlan.price}
-                    </span>
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-5xl font-black text-gray-900">₹{plan.price}</span>
+                    <span className="text-gray-400 text-sm font-bold uppercase tracking-tighter">/{plan.duration} Days</span>
                   </div>
-                  <div className="flex justify-between items-center text-sm border-t border-gray-300 pt-3 mt-3">
-                    <span className="text-gray-600 font-semibold">
-                      Duration:
-                    </span>
-                    <span className="text-gray-900 font-bold">
-                      {selectedPlan.duration} days
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm mt-2">
-                    <span className="text-gray-600 font-semibold">
-                      Package Slots:
-                    </span>
-                    <span className="text-gray-900 font-bold">
-                      Premium Access
-                    </span>
-                  </div>
+                </div>
+
+                <div className="space-y-4 mb-10 flex-grow">
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      </div>
+                      <span className="text-gray-600 text-sm font-semibold leading-relaxed">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
                 <Button
-                  className="w-full mb-4 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-600 hover:from-blue-600 hover:via-purple-700 hover:to-pink-700 font-bold text-white text-base shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 py-6 hover:scale-105"
-                  onClick={handleProceedToPayment}
-                  disabled={bookingLoading || !bookingDate || !bookingTime}
+                  className={`w-full py-6 rounded-xl font-bold text-base transition-all duration-200 ${plan.popular
+                    ? "bg-gray-900 text-white hover:bg-gray-800 shadow-lg"
+                    : "bg-white border-2 border-gray-100 text-gray-900 hover:bg-gray-50"
+                    }`}
+                  onClick={() => handleBookPlan(plan)}
                 >
-                  {bookingLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Redirecting to Stripe...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-5 h-5" />
-                      Proceed to Payment →
-                    </>
-                  )}
+                  Get Started
                 </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Modern Dashboard Modal */}
+      {showBookingModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 z-50 transition-all duration-300">
+          <div className="bg-white rounded-[2rem] shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-in fade-in zoom-in duration-200">
+            <div className="p-8 border-b border-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-black text-gray-900 leading-none">Checkout Details</h2>
+                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Plan Activation</p>
+                </div>
                 <Button
-                  variant="outline"
-                  className="w-full border-2 border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-bold py-6 rounded-xl transition-all duration-300 hover:scale-105"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowBookingModal(false)}
+                  className="rounded-full hover:bg-gray-100 text-gray-400"
                   disabled={bookingLoading}
                 >
-                  Cancel
+                  <X className="h-5 w-5" />
                 </Button>
               </div>
             </div>
+
+            <div className="p-8 space-y-8">
+              {/* Plan Summary */}
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Selected Plan</p>
+                    <p className="text-xl font-black text-gray-900">{selectedPlan.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Validity</p>
+                    <p className="text-sm font-bold text-gray-700">{selectedPlan.duration} Days</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 text-right">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Total Amount</p>
+                    <p className="text-3xl font-black text-gray-900 italic">₹{selectedPlan.price.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Status</p>
+                    <p className="text-emerald-600 text-xs font-black uppercase tracking-tighter flex items-center justify-end gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Ready for Payment
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Included features details */}
+              {selectedPlan.features && selectedPlan.features.length > 0 && (
+                <div className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Sparkles className="w-3 h-3 text-blue-500" />
+                    Included Features
+                  </h3>
+                  <div className="grid grid-cols-1 gap-3">
+                    {selectedPlan.features.map((feature, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-5 h-5 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="w-3 h-3 text-blue-600" />
+                        </div>
+                        <span className="text-sm font-bold text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-8 border-t border-gray-50 bg-gray-50/30 flex items-center justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowBookingModal(false)}
+                className="rounded-xl border-gray-200 font-bold text-gray-600 hover:bg-white hover:text-gray-900 transition-all shadow-sm"
+                disabled={bookingLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleProceedToPayment}
+                className="px-8 bg-gray-900 hover:bg-black text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2"
+                disabled={bookingLoading}
+              >
+                {bookingLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Confirm & Pay
+                    <ChevronDown className="w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -242,28 +242,26 @@ jobs:
             mkdir -p ~/offwego/nginx
             cd ~/offwego
             
-            # Construct .env file from individual environment variables
-            cat <<EOF > .env
-            PORT=1212
-            NODE_ENV=production
-            FRONTEND_URL="https://offwego.online"
-            MONGO_URI="$MONGO_URI"
-            REDIS_HOST=redis
-            REDIS_PORT=6379
-            REDIS_PASSWORD="$REDIS_PASSWORD"
-            JWT_ACCESSTOKENSECRETKEY="$JWT_ACCESSTOKENSECRETKEY"
-            JWT_REFRESHTOKEN="$JWT_REFRESHTOKEN"
-            STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY"
-            CLOUDINARY_CLOUD_NAME="$CLOUDINARY_CLOUD_NAME"
-            CLOUDINARY_API_KEY="$CLOUDINARY_API_KEY"
-            CLOUDINARY_API_SECRET="$CLOUDINARY_API_SECRET"
-            DOMAIN_URL="$DOMAIN_URL"
-            FIREBASE_SERVICE_ACCOUNT='$FIREBASE_SERVICE_ACCOUNT'
-            GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
-            NODEMAILER_EMAIL="$NODEMAILER_EMAIL"
-            NODEMAILER_PASSWORD="$NODEMAILER_PASSWORD"
-            ADMIN_ID="$ADMIN_ID"
-            EOF
+            # Construct .env file safely
+            echo "PORT=1212" > .env
+            echo "NODE_ENV=production" >> .env
+            echo "FRONTEND_URL=https://offwego.online" >> .env
+            echo "MONGO_URI=${MONGO_URI}" >> .env
+            echo "REDIS_HOST=redis" >> .env
+            echo "REDIS_PORT=6379" >> .env
+            echo "REDIS_PASSWORD=${REDIS_PASSWORD}" >> .env
+            echo "JWT_ACCESSTOKENSECRETKEY=${JWT_ACCESSTOKENSECRETKEY}" >> .env
+            echo "JWT_REFRESHTOKEN=${JWT_REFRESHTOKEN}" >> .env
+            echo "STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}" >> .env
+            echo "CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}" >> .env
+            echo "CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}" >> .env
+            echo "CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}" >> .env
+            echo "DOMAIN_URL=${DOMAIN_URL}" >> .env
+            echo "FIREBASE_SERVICE_ACCOUNT='${FIREBASE_SERVICE_ACCOUNT}'" >> .env
+            echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> .env
+            echo "NODEMAILER_EMAIL=${NODEMAILER_EMAIL}" >> .env
+            echo "NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}" >> .env
+            echo "ADMIN_ID=${ADMIN_ID}" >> .env
             
             echo "✅ .env file generated."
             

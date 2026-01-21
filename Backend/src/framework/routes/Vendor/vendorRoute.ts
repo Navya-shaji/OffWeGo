@@ -202,7 +202,7 @@ export class VendorRoute {
     );
     this.vendorRouter.get(
       VendorRoutes.ALL_FLIGHTS,
-      checkRoleBasedcontrol([Role.VENDOR,Role.USER]),
+      checkRoleBasedcontrol([Role.VENDOR, Role.USER]),
       (req: Request, res: Response) => flightcontroller.getAllFlight(req, res)
     );
     this.vendorRouter.put(
@@ -237,11 +237,12 @@ export class VendorRoute {
 
     this.vendorRouter.get(
       "/subscription/history",
+      verifyTokenAndCheckBlackList(TokenService),
       checkRoleBasedcontrol([Role.VENDOR]),
       (req: Request, res: Response) =>
         subscriptionBookingController.getVendorSubscriptionHistory(req, res)
     );
-    
+
     this.vendorRouter.delete(
       "/subscription/:bookingId/cancel",
       verifyTokenAndCheckBlackList(TokenService),
@@ -249,7 +250,7 @@ export class VendorRoute {
       (req: Request, res: Response) =>
         subscriptionBookingController.cancelSubscription(req, res)
     );
-    
+
     this.vendorRouter.post(
       "/subscription/:bookingId/retry",
       verifyTokenAndCheckBlackList(TokenService),
@@ -271,7 +272,7 @@ export class VendorRoute {
       chatcontroller.getMessages(req, res);
     });
     this.vendorRouter.get("/chat/:vendorId", (req: Request, res: Response) => {
-  
+
       req.query.userType = 'vendor';
       chatcontroller.getChats(req, res);
     });
@@ -280,19 +281,19 @@ export class VendorRoute {
     });
     this.vendorRouter.post(
       VendorRoutes.VENDOR_WALLET,
-      (req:Request,res:Response)=>{
-        walletcontroller.createWallet(req,res)
+      (req: Request, res: Response) => {
+        walletcontroller.createWallet(req, res)
       }
     )
     this.vendorRouter.get(
       VendorRoutes.GET_VENDOR_WALLET,
-      checkRoleBasedcontrol([Role.VENDOR,Role.ADMIN]),
-      (req:Request,res:Response)=>{
-        walletcontroller.GetWallet(req,res)
+      checkRoleBasedcontrol([Role.VENDOR, Role.ADMIN]),
+      (req: Request, res: Response) => {
+        walletcontroller.GetWallet(req, res)
       }
     )
-    
- 
+
+
     this.vendorRouter.post(
       "/notification/notify",
       checkRoleBasedcontrol([Role.VENDOR]),
@@ -307,6 +308,6 @@ export class VendorRoute {
         notificationcontroller.readNotifications(req, res);
       }
     );
-  
+
   }
 }

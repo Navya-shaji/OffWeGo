@@ -70,9 +70,11 @@ export const getVendorSubscription = async (vendorId?: string) => {
   }
 };
 
-export const getVendorSubscriptionHistory = async () => {
+export const getVendorSubscriptionHistory = async (search?: string, status?: string, page?: number, limit?: number) => {
   try {
-    const res = await axiosInstance.get('/api/vendor/subscription/history');
+    const res = await axiosInstance.get('/api/vendor/subscription/history', {
+      params: { search, status, page, limit }
+    });
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

@@ -37,10 +37,10 @@ const PaymentSuccess = () => {
           setStatus("success");
           setMessage("Payment verified successfully! Redirecting to dashboard...");
           toast.success("Subscription activated successfully!");
-          
+
           localStorage.removeItem("vendorId");
           localStorage.removeItem("selectedPlanId");
-          
+
           setTimeout(() => {
             navigate("/vendor/profile");
           }, 2000);
@@ -49,13 +49,12 @@ const PaymentSuccess = () => {
           setMessage(response.message || "Payment verification failed");
           toast.error(response.message || "Payment verification failed");
         }
-      } catch  {
-       
+      } catch (error: unknown) {
         setStatus("error");
-        const errorMessage ="Error verifying payment";
+        const errorMessage = error instanceof Error ? error.message : "Error verifying payment";
         setMessage(errorMessage);
         toast.error(errorMessage);
-        
+
         setTimeout(() => {
           navigate("/vendor/subscriptionplans");
         }, 3000);
@@ -75,7 +74,7 @@ const PaymentSuccess = () => {
             <p className="text-gray-600">{message}</p>
           </>
         )}
-        
+
         {status === "success" && (
           <>
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -87,7 +86,7 @@ const PaymentSuccess = () => {
             <p className="text-gray-600">{message}</p>
           </>
         )}
-        
+
         {status === "error" && (
           <>
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -99,7 +98,7 @@ const PaymentSuccess = () => {
             <p className="text-gray-600 mb-4">{message}</p>
             <button
               onClick={() => navigate("/vendor/subscriptionplans")}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all duration-300 font-bold"
             >
               Back to Subscription Plans
             </button>

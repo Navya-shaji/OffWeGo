@@ -1,5 +1,4 @@
 export const UserRoutes = {
-  TEST: "/test",
   SIGNUP: "/signup",
   VERIFY_OTP: "/verify-otp",
   LOGIN: "/login",
