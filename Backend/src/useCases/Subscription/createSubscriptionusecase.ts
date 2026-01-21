@@ -15,6 +15,23 @@ export class CreateSubscriptionUseCase implements ICreateSubscriptionUseCase {
   ) { }
 
   async execute(data: CreateSubscriptionDto): Promise<CreateSubscriptionDto> {
+    if (!data.name || data.name.trim() === "") {
+      throw new Error("Subscription plan name cannot be empty");
+    }
+
+    if (!data.features || data.features.length === 0) {
+      throw new Error("Subscription plan must have at least one feature");
+    }
+
+    const existingPlan = await this._subscriptionRepo.findByName(data.name);
+    if (existingPlan) {
+      throw new Error("Subscription plan with this name already exists");
+    }
+
+    if (data.price < 0 || data.duration < 0) {
+      throw new Error("Price and duration cannot be negative");
+    }
+
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: "2025-09-30.clover",
     });

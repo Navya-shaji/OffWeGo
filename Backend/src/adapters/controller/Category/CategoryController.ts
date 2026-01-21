@@ -22,7 +22,7 @@ export class CreateCategoryController {
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error });
+        .json({ success: false, error: (error as Error).message });
     }
   }
 
@@ -53,9 +53,16 @@ export class CreateCategoryController {
         data: result,
       });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error });
+      const errorMessage = (error as Error).message;
+      if (errorMessage.includes("already exists") || errorMessage.includes("cannot be empty")) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, error: errorMessage });
+      } else {
+        res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false, error: "Server error. Please try again later." });
+      }
     }
   }
 

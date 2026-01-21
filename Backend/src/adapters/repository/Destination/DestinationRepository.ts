@@ -83,4 +83,7 @@ export class DestinationRepository
       },
     }).exec();
   }
+  async findByName(name: string): Promise<IDestinationModel | null> {
+    return this.model.findOne({ name }).exec();
+  }
 }

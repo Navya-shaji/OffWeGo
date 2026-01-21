@@ -7,6 +7,8 @@ import { logErrorToFile } from "../../../framework/Logger/errorLogger";
 
 
 
+import { ERROR_MESSAGES } from "../../../constants/messages";
+
 export class SubscriptionBookingController {
   constructor(
     private _createBookingSubscriptionUsecase: ICreateBookingSubscriptionUseCase,
@@ -63,7 +65,7 @@ export class SubscriptionBookingController {
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Vendor ID not found in token",
+          message: ERROR_MESSAGES.VENDOR_NOT_FOUND_TOKEN,
         });
         return;
       }
@@ -104,7 +106,7 @@ export class SubscriptionBookingController {
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Vendor ID not found in authentication token",
+          message: ERROR_MESSAGES.VENDOR_NOT_FOUND_TOKEN,
         });
         return;
       }
@@ -142,7 +144,7 @@ export class SubscriptionBookingController {
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Vendor ID not found in token",
+          message: ERROR_MESSAGES.VENDOR_NOT_FOUND_TOKEN,
         });
         return;
       }
@@ -192,7 +194,7 @@ export class SubscriptionBookingController {
       if (!vendorId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
-          message: "Vendor ID not found in token",
+          message: ERROR_MESSAGES.VENDOR_NOT_FOUND_TOKEN,
         });
         return;
       }
@@ -235,7 +237,7 @@ export class SubscriptionBookingController {
 
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to retry payment",
+        message: ERROR_MESSAGES.SUBSCRIPTION_ERROR,
         error: (error as Error).message,
       });
     }

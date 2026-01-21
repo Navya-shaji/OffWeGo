@@ -1,6 +1,6 @@
 import { Hotel } from "./HotelEntity";
 import { Activity } from "./ActivityEntity";
-import { Flight } from "./FlightEntity"; 
+import { Flight } from "./FlightEntity";
 
 export interface Package {
   id?: string;
@@ -24,7 +24,8 @@ export interface Package {
   }[];
   inclusions: string[];
   amenities: string[];
+  maxGuests: number;
 
-  includeFlight: boolean;  
-  flight?: Flight | null;  
+  includeFlight: boolean;
+  flight?: Flight | null;
 }

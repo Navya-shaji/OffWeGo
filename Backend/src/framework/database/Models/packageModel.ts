@@ -4,16 +4,17 @@ import { packageSchema } from "../Schema/packageSchema";
 
 export interface IPackageModel extends Omit<Package, "id">, Document {
   _id: ObjectId;
+  maxGuests: number;
 
   flightOption: boolean;
   flight?: {
     id: string;
     airLine: string;
-   
+
     price: {
-      economy:number
-      premium:number
-      business:number
+      economy: number
+      premium: number
+      business: number
     }
   } | null;
 }

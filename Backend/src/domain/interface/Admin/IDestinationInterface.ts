@@ -15,4 +15,5 @@ export interface IDestinationRepository {
     lng: number,
     radiusInKm: number
   ): Promise<Destination[]>;
+  findByName(name: string): Promise<IDestinationModel | null>;
 }

@@ -1,6 +1,9 @@
 import { setToken } from "@/store/slice/Token/tokenSlice";
 import store from "@/store/store";
 import axios, { } from "axios";
+import { toast } from "react-hot-toast";
+
+import { ERROR_MESSAGES } from "@/constants/messages";
 
 const baseURL = import.meta.env.VITE_BASE_URL?.replace(/\/?$/, "/");
 
@@ -24,10 +27,11 @@ axiosInstance.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config;
+
     if (
       err.response &&
       err.response.status === 401 &&
-      err.response.data?.message === "Unauthorized" &&
+      err.response.data?.message === ERROR_MESSAGES.UNAUTHORIZED &&
       !originalRequest.retry
     ) {
       try {
@@ -39,9 +43,28 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshErr) {
         store.dispatch({ type: "token/removeToken" });
+        toast.error(ERROR_MESSAGES.SESSION_EXPIRED);
         return Promise.reject(refreshErr);
       }
     }
+
+    if (err.response) {
+      const status = err.response.status;
+      const errorMessage = err.response.data?.message || err.response.data?.error || ERROR_MESSAGES.UNEXPECTED_ERROR;
+
+      if (status !== 401) {
+        if (status === 403) {
+          toast.error(ERROR_MESSAGES.PERMISSION_DENIED);
+        } else if (status >= 500) {
+          toast.error(ERROR_MESSAGES.SERVER_ERROR);
+        } else {
+          toast.error(errorMessage);
+        }
+      }
+    } else {
+      toast.error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+
     return Promise.reject(err);
   }
 );

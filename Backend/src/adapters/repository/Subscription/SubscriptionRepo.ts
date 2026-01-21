@@ -45,4 +45,7 @@ export class SubscriptionPlanRepository
   }
 
 
+  async findByName(name: string): Promise<ISubscriptionPlanModel | null> {
+    return this.model.findOne({ name }).exec();
+  }
 }

@@ -14,6 +14,10 @@ export interface IBookingRepository {
     packageId: string,
     selectedDate: Date
   ): Promise<Booking | null>;
+  countBookingsByPackageAndDate(
+    packageId: string,
+    selectedDate: Date
+  ): Promise<number>;
   findCompletedBookingsForTransfer(): Promise<Booking[]>;
   checkBookingExistsBetweenUserAndOwner(
     userId: string,

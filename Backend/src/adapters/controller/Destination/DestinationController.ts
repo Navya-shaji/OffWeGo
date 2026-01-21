@@ -17,7 +17,7 @@ export class DestinationController {
     private _deleteDestinationUsecase: IDeleteDestinationUseCase,
     private _searchDestinationUsecase: IsearchDestination,
     private _getNearbyDestinationUsecase: IGetNearbyDestinationUsecase
-  ) {}
+  ) { }
 
   async addDestination(req: Request, res: Response) {
     try {
@@ -48,11 +48,18 @@ export class DestinationController {
         data: result,
       });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Failed to update destination",
-        error: (error as Error).message,
-      });
+      const errorMessage = (error as Error).message;
+      if (errorMessage.includes("already exists") || errorMessage.includes("cannot be empty")) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, error: errorMessage });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to update destination",
+          error: (error as Error).message,
+        });
+      }
     }
   }
 

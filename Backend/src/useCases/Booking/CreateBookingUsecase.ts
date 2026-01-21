@@ -39,21 +39,24 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     }
 
 
-    const existingBooking = await this._bookingRepository.findByPackageAndDate(
-      data.selectedPackage._id,
-      data.selectedDate
-    );
-
-    if (existingBooking) {
-      throw new AppError("This package is already booked for the selected date.", HttpStatus.CONFLICT);
-    }
-
-    // Get Package and Destination details for embedding
+    // Get Package details first to check capacity
     const packageData = await this._packageRepository.findOne({
       _id: data.selectedPackage._id,
     });
 
     if (!packageData) throw new AppError("Package not found", HttpStatus.NOT_FOUND);
+
+    const currentBookingsCount = await this._bookingRepository.countBookingsByPackageAndDate(
+      data.selectedPackage._id,
+      data.selectedDate
+    );
+
+    const maxCapacity = packageData.maxGuests || 10;
+    const requestedSlots = 1; 
+
+    if (currentBookingsCount >= maxCapacity) {
+      throw new AppError("This package is fully booked for the selected date.", HttpStatus.CONFLICT);
+    }
 
     let destinationName = "N/A";
     try {
@@ -76,8 +79,8 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         packageName: packageData.packageName,
         price: packageData.price,
         duration: packageData.duration,
-        destinationName: destinationName, // Added destinationName
-        packageImage: packageData.images?.[0] || "" // Added packageImage
+        destinationName: destinationName,
+        packageImage: packageData.images?.[0] || "" 
       },
       bookingId,
       paymentStatus: "succeeded",
@@ -110,15 +113,14 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
           result.bookingId
         );
       } catch (walletError) {
-        console.error("❌ Wallet update failed:", walletError);
-        // Don't throw - booking is already saved
+        console.error(" Wallet update failed:", walletError);
+       
       }
     }
 
     const vendorId = packageData.vendorId;
     const formattedDate = new Date(data.selectedDate).toLocaleString();
 
-    // Send notification to user
     try {
       await this._notificationService.send({
         recipientId: result.userId.toString(),
@@ -129,10 +131,9 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         read: false
       });
     } catch (notifError) {
-      console.error("❌ User notification failed:", notifError);
+      console.error("User notification failed:", notifError);
     }
 
-    // Send notification to vendor
     if (vendorId) {
       try {
         await this._notificationService.send({
@@ -144,19 +145,18 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
           read: false
         });
       } catch (notifError) {
-        console.error("❌ Vendor notification failed:", notifError);
+        console.error(" Vendor notification failed:", notifError);
       }
     }
 
-    // Send Ticket Email
     const targetEmail = data.contactInfo?.email;
     if (targetEmail) {
       try {
         console.log(`Email service: Sending confirmation to ${targetEmail} for booking ${result._id}`);
         await this._emailService.sendBookingConfirmation(targetEmail, result);
-        console.log(`✅ Email service: Confirmation sent for booking ${result._id}`);
+        console.log(` Email service: Confirmation sent for booking ${result._id}`);
       } catch (error) {
-        console.error("❌ Email service: Failed to send confirmation:", error);
+        console.error(" Email service: Failed to send confirmation:", error);
       }
     } else {
       console.warn("Email service: No contact email provided. Skipping.");

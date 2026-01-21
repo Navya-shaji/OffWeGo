@@ -15,6 +15,10 @@ export class CreateCategory {
   ) { }
 
   async execute(data: CreateCategoryDto): Promise<CategoryDto> {
+    if (!data.name || data.name.trim() === "") {
+      throw new Error("Category name cannot be empty");
+    }
+
     const existingCategory = await this._categoryRepo.findByName(data.name);
     if (existingCategory) {
       throw new Error("Category already exists");

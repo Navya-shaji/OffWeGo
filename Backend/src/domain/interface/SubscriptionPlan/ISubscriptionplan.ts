@@ -10,4 +10,5 @@ export interface ISubscriptionPlanRepository {
     updateData: Partial<ISubscriptionPlan>
   ): Promise<ISubscriptionPlan | null>;
   delete(id: string): Promise<ISubscriptionPlanModel | null>;
+  findByName(name: string): Promise<ISubscriptionPlanModel | null>;
 }

@@ -124,6 +124,27 @@ export class BookingRepository implements IBookingRepository {
 
     return booking;
   }
+
+  async countBookingsByPackageAndDate(
+    packageId: string,
+    selectedDate: Date
+  ): Promise<number> {
+    const startOfDay = new Date(selectedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(selectedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const packageObjectId = isValidObjectId(packageId) ? new Types.ObjectId(packageId) : packageId;
+
+    const count = await (BookingModel as any).countDocuments({
+      selectedPackage: packageObjectId,
+      selectedDate: { $gte: startOfDay, $lte: endOfDay },
+      bookingStatus: { $ne: "cancelled" }
+    });
+
+    return count;
+  }
   async findCompletedBookingsForTransfer(): Promise<Booking[]> {
     const today = new Date();
 

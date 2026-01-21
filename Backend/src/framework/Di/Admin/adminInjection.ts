@@ -94,7 +94,7 @@ const getAllVendorsUseCase = new GetAllVendorsUseCase(vendorRepository)
 const updateUserusecase = new UpdateUserUseCase(userRepository)
 const createdestinationusecase = new CreateDestination(destinationRepository)
 const getallDestinations = new GetAllDestinations(destinationRepository)
-const editDestination = new EditDestination()
+const editDestination = new EditDestination(destinationRepository)
 const vendorblockUnblockUsecase = new UpdateVendorUsecase(vendorRepository, notificationRepo)
 const createcategoryUsecase = new CreateCategory(catogoryRepo, vendorRepo, notificationRepo)
 const getAllcategoryUsecase = new GetAllCategories(catogoryRepo)
@@ -121,7 +121,7 @@ const getVendorSubscriptionHistoryUseCase = new GetVendorSubscriptionHistoryUseC
 // const getNotificationusecase=new GetNotificationUseCase(notificationRepo)
 const getbookedsubscriptionusecase = new GetSubscriptionBookingUseCase(subscriptionbookingRepo)
 
-const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo,userRepo)
+const listTravelPostsUsecase = new ListTravelPostsUsecase(travelPostRepo, userRepo)
 const approveTravelPostUsecase = new ApproveTravelPostUsecase(travelPostRepo)
 const rejectTravelPostUsecase = new RejectTravelPostUsecase(travelPostRepo)
 

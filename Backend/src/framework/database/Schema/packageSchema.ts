@@ -9,7 +9,7 @@ export const packageSchema = new Schema(
     },
     packageName: { type: String, required: true },
     description: { type: String },
-    price: { type: Number, required: true }, 
+    price: { type: Number, required: true },
     duration: { type: Number, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
@@ -29,9 +29,10 @@ export const packageSchema = new Schema(
     inclusions: [{ type: String }],
     amenities: [{ type: String }],
     vendorId: { type: String },
+    maxGuests: { type: Number, default: 10 },
 
-    flightOption: { type: Boolean, default: false }, 
-    flight: { type: Schema.Types.ObjectId, ref: "Flight", default: null }, 
+    flightOption: { type: Boolean, default: false },
+    flight: { type: Schema.Types.ObjectId, ref: "Flight", default: null },
   },
   { timestamps: true }
 );

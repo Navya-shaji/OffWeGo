@@ -36,10 +36,16 @@ export class SubscriptionController {
         data: result,
       });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      const errorMessage = (error as Error).message;
+      const isValidationError = errorMessage.includes("already exists") ||
+        errorMessage.includes("cannot be empty") ||
+        errorMessage.includes("cannot be negative") ||
+        errorMessage.includes("at least one feature");
+
+      res.status(isValidationError ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to create subscription plan",
-        error,
+        message: isValidationError ? errorMessage : "Failed to create subscription plan",
+        error: isValidationError ? undefined : error,
       });
     }
   }
@@ -84,10 +90,16 @@ export class SubscriptionController {
         data: result,
       });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      const errorMessage = (error as Error).message;
+      const isValidationError = errorMessage.includes("already exists") ||
+        errorMessage.includes("cannot be empty") ||
+        errorMessage.includes("cannot be negative") ||
+        errorMessage.includes("at least one feature");
+
+      res.status(isValidationError ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to update subscription plan",
-        error,
+        message: isValidationError ? errorMessage : "Failed to update subscription plan",
+        error: isValidationError ? undefined : error,
       });
     }
   }
