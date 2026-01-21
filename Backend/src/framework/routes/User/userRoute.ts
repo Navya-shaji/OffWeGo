@@ -38,6 +38,11 @@ export class UserRoute {
       userRegisterController.registerUser(req, res);
     });
 
+
+    this.userRouter.get(UserRoutes.TEST, (req: Request, res: Response) => {
+      res.send("your request is successful");
+    });
+
     this.userRouter.get(
       UserRoutes.GET_ALL_DESTINATIONS,
       (req: Request, res: Response) => {
