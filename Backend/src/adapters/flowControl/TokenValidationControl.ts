@@ -55,7 +55,6 @@ export const verifyTokenOptional = (tokenService: ITokenService) => {
       }
       next();
     } catch {
-      // For optional auth, we just continue without user if token is invalid
       next();
     }
   };

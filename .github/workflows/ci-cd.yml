@@ -226,6 +226,7 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           NODEMAILER_EMAIL: ${{ secrets.NODEMAILER_EMAIL }}
           NODEMAILER_PASSWORD: ${{ secrets.NODEMAILER_PASSWORD }}
+          DOMAIN_URL: ${{ secrets.VITE_BASE_URL || format('https://{0}/', secrets.PRODUCTION_DOMAIN) }}
           PROD_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
         with:
@@ -274,8 +275,16 @@ jobs:
 
             # Log in and update services
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            
+            echo "📥 Pulling latest images..."
             sudo docker compose -f docker-compose.prod.yml pull
-            sudo docker compose -f docker-compose.prod.yml up -d --force-recreate
+            
+            echo "🔄 Restarting containers..."
+            sudo docker compose -f docker-compose.prod.yml down
+            sudo docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            
+            # Clean up dangling images to save space
+            sudo docker image prune -f
             
             # Initial SSL generation if certificate doesn't exist
             if [ "$DOMAIN" != "localhost" ] && [ ! -d "certbot/conf/live/$DOMAIN" ]; then
@@ -285,6 +294,8 @@ jobs:
                 sudo docker compose -f docker-compose.prod.yml up -d nginx
             fi
 
+            echo "📊 Current container status:"
+            sudo docker compose -f docker-compose.prod.yml ps
             sudo docker logs offwego-prod --tail 50
 
       # Option 2: Deploy to AWS ECS
