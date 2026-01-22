@@ -12,38 +12,10 @@ export class SubscriptionPlanRepository
   constructor() {
     super(subscriptionPlanModel);
   }
-  async create(
-    plan: Partial<ISubscriptionPlanModel>
-  ): Promise<ISubscriptionPlanModel> {
-    const createdPlan = await this.model.create(plan);
-    return createdPlan;
-  }
 
-  async findById(id: string): Promise<ISubscriptionPlanModel | null> {
-    const plan = await this.model.findById(id).exec();
-    return plan;
-  }
-
-  async findAll(): Promise<ISubscriptionPlanModel[]> {
-    return this.model.find().exec();
-  }
-
-  async update(
-    id: string,
-    updateData: Partial<ISubscriptionPlan>
-  ): Promise<ISubscriptionPlanModel | null> {
-    return subscriptionPlanModel
-      .findByIdAndUpdate(id, updateData, { new: true })
-      .exec();
-  }
-
-  async delete(id: string): Promise<ISubscriptionPlanModel | null> {
-    return await this.model.findByIdAndDelete(id);
-  }
   async getAllSubscriptions() {
     return this.model.find().populate("vendorId").populate("planId");
   }
-
 
   async findByName(name: string): Promise<ISubscriptionPlanModel | null> {
     return this.model.findOne({ name }).exec();

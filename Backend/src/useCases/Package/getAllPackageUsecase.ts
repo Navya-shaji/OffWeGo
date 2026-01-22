@@ -4,7 +4,7 @@ import { IPackageRepository } from "../../domain/interface/Vendor/iPackageReposi
 import { IPackageModel } from "../../framework/database/Models/packageModel";
 
 export class GetPackages implements IGetPackagesUsecase {
-  constructor(private _packageRepo: IPackageRepository) {}
+  constructor(private _packageRepo: IPackageRepository) { }
 
   async execute({
     page,
@@ -37,7 +37,7 @@ export class GetPackages implements IGetPackagesUsecase {
       packages = result.packages;
       totalPackages = result.totalPackages;
     } else if (role === Role.USER && destinationId) {
-      
+
       const result = await this._packageRepo.getPackagesByDestination(
         destinationId,
         skip,

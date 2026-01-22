@@ -1,12 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Booking } from "../../../domain/entities/BookingEntity";
 import { IBookingRepository } from "../../../domain/interface/Booking/IBookingRepository";
-import { BookingModel } from "../../../framework/database/Models/BookingModel";
+import { BookingModel, IBookingDocument } from "../../../framework/database/Models/BookingModel";
 import { isValidObjectId, Types } from "mongoose";
+import { BaseRepository } from "../BaseRepo/BaseRepo";
 
-export class BookingRepository implements IBookingRepository {
+export class BookingRepository
+  extends BaseRepository<IBookingDocument>
+  implements IBookingRepository {
+  constructor() {
+    super(BookingModel);
+  }
+
   async createBooking(booking: Booking): Promise<Booking> {
-    const createdBooking = new BookingModel({
+    const createdBooking = new this.model({
       ...booking,
       bookingStatus: booking.bookingStatus || "upcoming",
       bookingId: booking.bookingId,
@@ -15,8 +21,8 @@ export class BookingRepository implements IBookingRepository {
     return createdBooking.toObject();
   }
 
-  async findById(id: string): Promise<Booking | null> {
-    return (BookingModel as any).findById(id).lean().exec();
+  override async findById(id: string): Promise<Booking | null> {
+    return (this.model as any).findById(id).lean().exec();
   }
 
   async update(id: string, updateData: Partial<Booking>): Promise<Booking> {

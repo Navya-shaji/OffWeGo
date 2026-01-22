@@ -12,7 +12,7 @@ import {
   Activity as ActivityIcon,
   BookOpen,
   Wallet,
-  
+
 } from "lucide-react";
 import { useAppSelector } from "@/hooks";
 
@@ -37,7 +37,7 @@ const VendorSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     { icon: User, label: "Profile" },
     { icon: Plus, label: "Add Destination" },
     { icon: MapPin, label: "All Destinations" },
-    
+
   ];
 
   const handleSubTabClick = (label: string) => setActiveTab(label);

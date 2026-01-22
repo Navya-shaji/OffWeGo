@@ -7,7 +7,7 @@ export class PackageWiseGroupingController {
   constructor(
     private _createGroupUsecase: ICreateGroupUseCase,
     private _getgroupsusecase: IGetPackageWiseGroupUsecase
-  ) {}
+  ) { }
 
   async CreatePackageWiseGrouping(req: Request, res: Response) {
     try {

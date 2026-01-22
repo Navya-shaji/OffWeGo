@@ -17,7 +17,7 @@ export class PackageController {
     private _deletePackageUsecase: IDeletePackagenUseCase,
     private _searchPackageUsecase: ISearchPackageUsecase,
     private _getPackageByDestinationUsecase: IGetDestinationBasedPackage
-  ) {}
+  ) { }
 
   async getAllPackage(req: Request, res: Response) {
     try {
@@ -84,7 +84,7 @@ export class PackageController {
     try {
       // Extract vendorId from JWT token for security
       const vendorId = req.user?.id;
-      
+
       if (!vendorId) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
@@ -125,16 +125,16 @@ export class PackageController {
     } catch (err) {
       const error = err as Error;
       const errorMessage = error.message || "Failed to create package";
-      
+
       // Check if error is related to subscription
-      const isSubscriptionError = 
-        errorMessage.includes("subscription") || 
+      const isSubscriptionError =
+        errorMessage.includes("subscription") ||
         errorMessage.includes("active subscription") ||
         errorMessage.includes("expired") ||
         errorMessage.includes("not active");
 
-      const statusCode = isSubscriptionError 
-        ? HttpStatus.FORBIDDEN 
+      const statusCode = isSubscriptionError
+        ? HttpStatus.FORBIDDEN
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
       res.status(statusCode).json({
