@@ -47,6 +47,7 @@ interface ChatMessage {
         messageContent: string;
         senderName: string;
     };
+    tempId?: string;
 }
 
 interface TypingUser {
@@ -228,6 +229,7 @@ const ChatPage = () => {
             fileUrl: fileUrl || '',
             messageType: messageType,
             replyTo: replyPayload,
+            tempId: tempId,
         };
 
         if (messageType === 'text') {
@@ -380,7 +382,21 @@ const ChatPage = () => {
             if (String(newMessage.chatId) === String(selectedContact?._id)) {
                 autoScrollRef.current = true;
                 setMessages((prev) => {
+                    // Check if we already have this message by Real ID
                     if (prev.some(msg => String(msg._id) === String(newMessage._id))) return prev;
+
+                    // Check if we have this message by Temp ID (optimistically added)
+                    // If so, replace the optimistic message with the real one from server
+                    if (newMessage.tempId) {
+                        const tempIndex = prev.findIndex(msg => msg._id === newMessage.tempId);
+                        if (tempIndex !== -1) {
+                            const updated = [...prev];
+                            // Ensure delivery status is 'sent' as it came back from server
+                            updated[tempIndex] = { ...newMessage, deliveryStatus: 'sent' };
+                            return updated;
+                        }
+                    }
+
                     return [...prev, newMessage];
                 });
             }

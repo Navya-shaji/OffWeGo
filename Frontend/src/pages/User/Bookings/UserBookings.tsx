@@ -342,9 +342,9 @@ const BookingDetailsSection = ({ embedded = false, onAction }: { embedded?: bool
       toast.error("Please log in to start a chat.");
       return;
     }
-    const vendorId = booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
+    const vendorId = booking.vendorId || booking.selectedPackage?.vendorId || booking.selectedPackage?.ownerId;
     if (!vendorId) {
-      toast.error("Vendor not found.");
+      toast.error("Vendor information missing. Cannot start chat.");
       return;
     }
     try {

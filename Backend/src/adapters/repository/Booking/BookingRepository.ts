@@ -33,7 +33,7 @@ export class BookingRepository implements IBookingRepository {
   }
   async findByUserId(userId: string): Promise<Booking[]> {
     return (BookingModel as any).find({ userId })
-      .populate("selectedPackage")
+      .populate("selectedPackage._id")
       .sort({ createdAt: -1 })
       .lean()
       .exec();
