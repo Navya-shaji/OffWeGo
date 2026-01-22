@@ -40,11 +40,36 @@ export class BookingRepository implements IBookingRepository {
   }
 
   async findByVendorId(vendorId: string): Promise<Booking[]> {
-    return (BookingModel as any).find({ vendorId })
-      .populate("selectedPackage")
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    const results = await (BookingModel as any).aggregate([
+      {
+        $lookup: {
+          from: "packages",
+          localField: "selectedPackage._id",
+          foreignField: "_id",
+          as: "packageData",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { vendorId: new Types.ObjectId(vendorId) },
+            { "packageData.vendorId": vendorId },
+          ],
+        },
+      },
+      {
+        $project: {
+          packageData: 0,
+        },
+      },
+      {
+        $sort: { createdAt: -1 }
+      }
+    ]);
+
+    // Populate manual if needed, but aggregation wipes populate. 
+    // We can re-populate using BookingModel.populate
+    return (BookingModel as any).populate(results, { path: "selectedPackage" });
   }
   async getBookedDatesByVendor(vendorId: string): Promise<Date[]> {
     const bookings = await (BookingModel as any).find({ vendorId })

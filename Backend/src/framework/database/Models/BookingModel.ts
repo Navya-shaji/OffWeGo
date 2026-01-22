@@ -3,6 +3,7 @@ import { BookingSchema } from "../Schema/BookingSchema";
 
 export interface IBookingDocument extends Document {
   userId: ObjectId;
+  vendorId: ObjectId;
   contactInfo: {
     email: string;
     mobile: string;

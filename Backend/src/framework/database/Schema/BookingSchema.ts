@@ -36,4 +36,5 @@ export const BookingSchema = new Schema({
   paymentIntentId: { type: String },
   bookingStatus: { type: String, default: "upcoming" },
   settlementDone: { type: Boolean, default: false },
+  vendorId: { type: Schema.Types.ObjectId, ref: "Vendor", required: false },
 });
