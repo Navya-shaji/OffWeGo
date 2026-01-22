@@ -60,8 +60,9 @@ const TravelPostDetailPage = () => {
       setPost(response.data);
       setLikesCount(response.data.metrics.likes);
       setIsSaved(response.data.isSaved || false);
-    } catch {
-      setError("Failed to load post");
+    } catch (err) {
+      const errorMessage = (err as Error).message || "Failed to load post";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
