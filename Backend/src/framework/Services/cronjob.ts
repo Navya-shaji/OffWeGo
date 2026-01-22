@@ -43,7 +43,7 @@ export const startAutoSettlementJob = () => {
           continue;
         }
 
-        console.log(" Trip completed — settling:", booking.bookingId);
+        console.log(" Trip completed - settling:", booking.bookingId);
 
         await completeTrip.execute(
           booking.bookingId,

@@ -58,10 +58,10 @@ export class FirebaseNotificationService implements INotificationService {
       const fcmError = error as { code?: string; message?: string };
       if (fcmError.code === 'messaging/invalid-registration-token' ||
         fcmError.code === 'messaging/registration-token-not-registered') {
-        console.warn('⚠️ Invalid FCM token, should be removed from database');
+        console.warn('Invalid FCM token, should be removed from database');
       } else {
         // Log the error but don't throw - FCM failures shouldn't break the main flow
-        console.error('❌ FCM notification failed:', fcmError.message || fcmError);
+        console.error('FCM notification failed:', fcmError.message || fcmError);
       }
     }
   }
@@ -90,9 +90,9 @@ export class FirebaseNotificationService implements INotificationService {
       };
 
       await this.sendNotification(token, title, message, notificationData);
-      console.log(`📱 FCM notification sent to ${recipientType} (${recipientId})`);
+      console.log(`FCM notification sent to ${recipientType} (${recipientId})`);
     } else {
-      console.warn(`⚠️ No FCM token found for ${recipientType} (${recipientId})`);
+      console.warn(`No FCM token found for ${recipientType} (${recipientId})`);
     }
 
     await this.notificationRepo.create({

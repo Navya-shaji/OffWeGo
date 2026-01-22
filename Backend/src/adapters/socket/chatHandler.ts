@@ -40,9 +40,9 @@ export class ChatHandler {
         if (this._chatRepository && data.chatId) {
             try {
                 const lastMessageText = data.messageType === 'location'
-                    ? '📍 Shared Location'
+                    ? 'Shared Location'
                     : data.messageType === 'image'
-                        ? '📷 Image'
+                        ? 'Image'
                         : data.messageContent;
 
                 await this._chatRepository.updateLastMessage(

@@ -7,7 +7,7 @@ export class StripeService implements IStripeService {
   constructor() {
     const secretKey = process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
-      console.warn("⚠️ STRIPE_SECRET_KEY is not defined in environment variables!");
+      console.warn("STRIPE_SECRET_KEY is not defined in environment variables!");
     }
     this.stripe = new Stripe(secretKey || "", {
       // @ts-expect-error - stripe api version typing mismatch

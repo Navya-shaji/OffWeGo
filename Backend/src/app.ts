@@ -62,12 +62,12 @@ export class App {
 
     // Serve static files from the public directory (frontend build)
     const publicPath = path.resolve(process.cwd(), "public");
-    console.log(`📂 Serving static files from: ${publicPath}`);
+    console.log(`Serving static files from: ${publicPath}`);
     this.app.use(express.static(publicPath));
 
     // SPA fallback: serve index.html for all non-API routes
     this.app.get("*", (req, res) => {
-      console.log(`🌐 SPA fallback for route: ${req.url}`);
+      console.log(`SPA fallback for route: ${req.url}`);
       res.sendFile(path.join(publicPath, "index.html"), (err) => {
         if (err) {
           console.error(`Error sending index.html: ${err.message}`);
@@ -84,11 +84,11 @@ export class App {
 
     try {
       await this.database.connect();
-      console.log("✅ Database connected successfully");
+      console.log("Database connected successfully");
 
 
       startAutoSettlementJob();
-      console.log("⏱️ Auto Settlement Cron Started");
+      console.log("Auto Settlement Cron Started");
 
 
       this.server = http.createServer(this.app);

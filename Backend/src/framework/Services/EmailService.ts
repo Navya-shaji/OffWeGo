@@ -139,7 +139,7 @@ export class EmailService implements IEmailService {
     const mailOptions = {
       from: `"OffWeGo Transactions" <${process.env.NODEMAILER_EMAIL}>`,
       to: to,
-      subject: `✈️ Ticket Confirmed: ${booking.selectedPackage.packageName}`,
+      subject: `Ticket Confirmed: ${booking.selectedPackage.packageName}`,
       html,
     };
 

@@ -20,7 +20,7 @@ export class OtpService implements IOtpService {
       retryStrategy: (times) => {
         if (times > 1) {
           if (!this.useLocalCache) {
-            console.warn("⚠️ OtpService: Redis unavailable. Using In-Memory Cache (OTPs will still work).");
+            console.warn("OtpService: Redis unavailable. Using In-Memory Cache (OTPs will still work).");
             this.useLocalCache = true;
           }
           return null;
@@ -39,7 +39,7 @@ export class OtpService implements IOtpService {
     });
 
     this.redis.on("connect", () => {
-      console.log("✅ Redis connected in OtpService");
+      console.log("Redis connected in OtpService");
       this.useLocalCache = false;
     });
   }
@@ -170,9 +170,8 @@ export class OtpService implements IOtpService {
       </head>
       <body>
         <div class="popup-box">
-          <div class="confetti">🎉🎊✨</div>
           <div class="title">You're Almost There!</div>
-          <div class="subtitle">Use the OTP below to complete your signup journey 🚀</div>
+          <div class="subtitle">Use the OTP below to complete your signup journey</div>
 
           <div class="otp-box">
             <div class="otp">${otp}</div>

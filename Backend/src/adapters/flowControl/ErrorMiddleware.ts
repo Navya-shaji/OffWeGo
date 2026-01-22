@@ -23,7 +23,7 @@ export const errorMiddleware = (
       params: req.params,
     });
 
-    console.error(color.red(`❌ [${statusCode}] ${req.method} ${req.originalUrl}:`), err.message);
+    console.error(color.red(`[${statusCode}] ${req.method} ${req.originalUrl}:`), err.message);
     if (err.stack) console.error(err.stack);
 
     res.status(statusCode).json({

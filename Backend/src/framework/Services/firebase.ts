@@ -3,7 +3,7 @@ import admin from "firebase-admin";
 const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT;
 
 if (!serviceAccountEnv) {
-  console.error("❌ FIREBASE_SERVICE_ACCOUNT environment variable is not set!");
+  console.error("FIREBASE_SERVICE_ACCOUNT environment variable is not set!");
 } else {
   try {
     let serviceAccount: admin.ServiceAccount;
@@ -24,9 +24,9 @@ if (!serviceAccountEnv) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    console.log("✅ Firebase Admin initialized successfully");
+    console.log("Firebase Admin initialized successfully");
   } catch (error) {
-    console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT:", error);
+    console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT:", error);
   }
 }
 
