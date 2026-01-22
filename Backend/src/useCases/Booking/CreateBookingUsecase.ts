@@ -52,7 +52,6 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     );
 
     const maxCapacity = packageData.maxGuests || 10;
-    const requestedSlots = 1; 
 
     if (currentBookingsCount >= maxCapacity) {
       throw new AppError("This package is fully booked for the selected date.", HttpStatus.CONFLICT);
@@ -80,7 +79,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         price: packageData.price,
         duration: packageData.duration,
         destinationName: destinationName,
-        packageImage: packageData.images?.[0] || "" 
+        packageImage: packageData.images?.[0] || ""
       },
       bookingId,
       paymentStatus: "succeeded",
@@ -114,7 +113,7 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
         );
       } catch (walletError) {
         console.error(" Wallet update failed:", walletError);
-       
+
       }
     }
 

@@ -31,10 +31,11 @@ export default function VendorForgotPassword() {
             setLoading(false);
             setSubmitted(true);
             toast.success("Password reset instructions sent to your email.");
-        } catch (error: any) {
+        } catch (error) {
+            const err = error as Error;
             setLoading(false);
-            console.error(error);
-            toast.error(error.message || "Failed to process request. Please check if the email is correct.");
+            console.error(err);
+            toast.error(err.message || "Failed to process request. Please check if the email is correct.");
         }
     };
 

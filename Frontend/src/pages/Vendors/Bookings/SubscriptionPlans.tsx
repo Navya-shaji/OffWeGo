@@ -55,9 +55,9 @@ export default function VendorSubscriptionPage() {
         }));
 
         setSubscriptions(transformedSubscriptions);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching data:", err);
-        const errorMessage = err.message || "Failed to load subscription plans";
+        const errorMessage = (err as Error).message || "Failed to load subscription plans";
         toast.error(errorMessage);
       } finally {
         setLoading(false);
@@ -129,10 +129,10 @@ export default function VendorSubscriptionPage() {
         console.error('Invalid response:', response);
         throw new Error("No payment URL provided in response");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Payment error:", err);
       // Only show the message from the backend, without extra prefixes
-      const errorMessage = err.message || "Failed to initiate payment";
+      const errorMessage = (err as Error).message || "Failed to initiate payment";
       toast.error(errorMessage);
       setBookingLoading(false);
     }

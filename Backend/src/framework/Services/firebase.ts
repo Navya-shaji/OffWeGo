@@ -6,7 +6,7 @@ if (!serviceAccountEnv) {
   console.error("❌ FIREBASE_SERVICE_ACCOUNT environment variable is not set!");
 } else {
   try {
-    let serviceAccount: any;
+    let serviceAccount: admin.ServiceAccount;
 
     // Check if it's Base64 encoded
     if (serviceAccountEnv.startsWith("{")) {
@@ -17,8 +17,8 @@ if (!serviceAccountEnv) {
     }
 
     // Fix private key formatting (newlines are often escaped in env vars)
-    if (serviceAccount && serviceAccount.private_key) {
-      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+    if (serviceAccount && (serviceAccount as any).private_key) {
+      (serviceAccount as any).private_key = (serviceAccount as any).private_key.replace(/\\n/g, "\n");
     }
 
     admin.initializeApp({

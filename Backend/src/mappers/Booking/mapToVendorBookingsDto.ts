@@ -6,7 +6,7 @@ export function mapBookingDataToDto(booking: Booking): BookingDataDto {
   return {
     _id: booking._id ?? "",
     userId: booking.userId,
-    vendorId: (booking.selectedPackage as any)?.vendorId,
+    vendorId: (booking.selectedPackage as unknown as { vendorId: string })?.vendorId,
     contactInfo: booking.contactInfo,
     adults: booking.adults,
     children: booking.children,

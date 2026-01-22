@@ -12,8 +12,8 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDt
     selectedPackage: (() => {
       const pkg = { ...b.selectedPackage };
       if (pkg && pkg._id && typeof pkg._id === 'object') {
-        // @ts-ignore - _id is populated
-        pkg._id = (pkg._id as any)._id?.toString() || pkg._id.toString();
+        // @ts-expect-error - _id is populated
+        pkg._id = (pkg._id as { _id: string })._id?.toString() || pkg._id.toString();
       }
       return pkg;
     })(),
@@ -28,7 +28,7 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDt
     vendorId: b.vendorId || (() => {
       const pkgId = b.selectedPackage?._id;
       if (pkgId && typeof pkgId === 'object') {
-        return (pkgId as any).vendorId;
+        return (pkgId as { vendorId: string }).vendorId;
       }
       return undefined;
     })()

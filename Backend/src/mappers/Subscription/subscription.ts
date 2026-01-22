@@ -2,7 +2,7 @@ import { SubscriptionBookingDto } from "../../domain/dto/Subscription/Subscripti
 import { ISubscriptionBooking } from "../../domain/entities/SubscriptionBookingEntity";
 
 export function mapBookingToSubscriptionBookingDto(
-  booking: any
+  booking: ISubscriptionBooking | any
 ): SubscriptionBookingDto {
   return {
     _id: booking._id.toString(),
@@ -28,6 +28,6 @@ export function mapBookingToSubscriptionBookingDto(
 // Keep the old one for backward compatibility if needed, but point it to the new one or update it
 export function mapBookingToCheckoutDTO(
   booking: ISubscriptionBooking
-): any {
+): SubscriptionBookingDto {
   return mapBookingToSubscriptionBookingDto(booking);
 }

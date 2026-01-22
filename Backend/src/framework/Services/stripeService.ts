@@ -10,7 +10,8 @@ export class StripeService implements IStripeService {
       console.warn("⚠️ STRIPE_SECRET_KEY is not defined in environment variables!");
     }
     this.stripe = new Stripe(secretKey || "", {
-      apiVersion: "2024-06-20" as any,
+      // @ts-expect-error - stripe api version typing mismatch
+      apiVersion: "2024-06-20",
     });
   }
 

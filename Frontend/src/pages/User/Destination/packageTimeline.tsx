@@ -37,6 +37,7 @@ export const PackageTimeline = () => {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [showFlightModal, setShowFlightModal] = useState(false);
   const [expandedDays, setExpandedDays] = useState<Record<number, boolean>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [userBookings, setUserBookings] = useState<any[]>([]);
 
   useEffect(() => {
@@ -98,6 +99,7 @@ export const PackageTimeline = () => {
     }
 
     // Double check for duplicate booking
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isBooked = userBookings.some((booking: any) =>
       booking.selectedPackage?._id === selectedPackage._id &&
       new Date(booking.selectedDate).toDateString() === selectedDate.toDateString() &&
@@ -450,6 +452,7 @@ export const PackageTimeline = () => {
                               if (date <= today) return true;
 
                               // Disable booked dates
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               return userBookings.some((booking: any) =>
                                 booking.selectedPackage?._id === selectedPackage._id &&
                                 new Date(booking.selectedDate).toDateString() === date.toDateString() &&

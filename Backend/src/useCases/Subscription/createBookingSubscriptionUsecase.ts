@@ -5,7 +5,6 @@ import { ICreateBookingSubscriptionRequest } from "../../domain/interface/Subscr
 import { ICreateBookingSubscriptionResponse } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionResponse";
 import { ICreateBookingSubscriptionUseCase } from "../../domain/interface/SubscriptionPlan/ICreateBookingSubscriptionUsecase";
 import { StripeService } from "../../framework/Services/stripeService";
-import { Role } from "../../domain/constants/Roles";
 import * as QRCode from "qrcode";
 
 export class CreateBookingSubscriptionUseCase

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ElementType } from "react";
 import {
   Search,
   Calendar,
@@ -155,7 +155,7 @@ export default function AllBookings() {
   };
 
   const getStatusBadge = (status: string) => {
-    const badges: Record<string, { bg: string; text: string; icon: any; border: string }> = {
+    const badges: Record<string, { bg: string; text: string; icon: ElementType; border: string }> = {
       pending: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", icon: Clock },
       confirmed: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", icon: CheckCircle },
       upcoming: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", icon: Calendar },

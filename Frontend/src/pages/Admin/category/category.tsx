@@ -57,7 +57,7 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
 
   const removeImage = () => {
     setImagePreview("");
-    setValue("image", undefined as any, { shouldValidate: true });
+    setValue("image", undefined as unknown as File, { shouldValidate: true });
   };
 
   const onSubmit = async (data: CategoryFormData) => {
@@ -94,9 +94,9 @@ export const CategoryForm = ({ onCategoryCreated }: CategoryFormProps = {}) => {
       // Reset form and UI state
       reset();
       setImagePreview("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Category submission error:", err);
-      toast.error(err.message || "Failed to add category. Please try again.");
+      toast.error((err as Error).message || "Failed to add category. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -87,7 +87,7 @@ export default function BookedSubscriptions() {
     };
 
     fetchInitialData();
-  }, []);
+  }, [fetchBookings]);
 
   useEffect(() => {
     let filtered = bookings;
