@@ -57,3 +57,8 @@ export const rescheduleBooking = async (bookingId: string, newDate: string) => {
     throw error;
   }
 };
+
+export const getMostOrderedPackage = async () => {
+  const response = await axiosInstance.get(`${ADMIN_ROUTES_BASE}/most-ordered-package`);
+  return response.data.data;
+};

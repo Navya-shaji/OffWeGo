@@ -256,4 +256,35 @@ export class BookingRepository implements IBookingRepository {
   async findAll(): Promise<Booking[]> {
     return (BookingModel as any).find().sort({ createdAt: -1 });
   }
+
+  async getMostOrderedPackage(): Promise<{ packageId: string; packageName: string; totalBookings: number } | null> {
+    const result = await (BookingModel as any).aggregate([
+      {
+        $match: {
+          bookingStatus: { $ne: "cancelled" } // Exclude cancelled bookings
+        }
+      },
+      {
+        $group: {
+          _id: "$selectedPackage._id",
+          packageName: { $first: "$selectedPackage.packageName" },
+          totalBookings: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { totalBookings: -1 }
+      },
+      {
+        $limit: 1
+      }
+    ]);
+
+    if (result.length === 0) return null;
+
+    return {
+      packageId: result[0]._id?.toString() || "",
+      packageName: result[0].packageName || "Unknown Package",
+      totalBookings: result[0].totalBookings || 0
+    };
+  }
 }

@@ -8,7 +8,7 @@ import { getAllUsers } from "@/services/admin/adminUserService";
 import { getAllVendors } from "@/services/admin/adminVendorService";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
 import { getSubscriptions, getAllSubscriptionBookings } from "@/services/subscription/subscriptionservice";
-import { getAllBookingsAdmin } from "@/services/Booking/bookingService";
+import { getAllBookingsAdmin, getMostOrderedPackage } from "@/services/Booking/bookingService";
 import { fetchAllPackages } from "@/services/packages/packageService";
 import { getWallet } from "@/services/Wallet/AdminWalletService";
 import { useSelector } from "react-redux";
@@ -29,6 +29,10 @@ interface DashboardStats {
     completed: number;
     pending: number;
   };
+  mostOrderedPackage: {
+    packageName: string;
+    totalBookings: number;
+  } | null;
 }
 
 interface MonthlyData {
@@ -56,6 +60,7 @@ const AdminDashboard: React.FC = () => {
       completed: 0,
       pending: 0,
     },
+    mostOrderedPackage: null,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +75,7 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const [usersData, vendorsData, destinationsData, subscriptionsData, bookingsData, packagesData, walletData, subHistory] =
+      const [usersData, vendorsData, destinationsData, subscriptionsData, bookingsData, packagesData, walletData, subHistory, mostOrderedPkg] =
         await Promise.all([
           getAllUsers(1, 1),
           getAllVendors(1, 1),
@@ -80,6 +85,7 @@ const AdminDashboard: React.FC = () => {
           fetchAllPackages(1, 1).catch(() => ({ totalPackages: 0 })),
           adminId ? getWallet(adminId).catch(() => null) : Promise.resolve(null),
           getAllSubscriptionBookings().catch(() => ({ data: [] })),
+          getMostOrderedPackage().catch(() => null),
         ]);
 
       const bookings = Array.isArray(bookingsData) ? bookingsData : [];
@@ -122,6 +128,10 @@ const AdminDashboard: React.FC = () => {
           completed: completedBookings,
           pending: pendingBookings,
         },
+        mostOrderedPackage: mostOrderedPkg ? {
+          packageName: mostOrderedPkg.packageName,
+          totalBookings: mostOrderedPkg.totalBookings
+        } : null,
       });
 
       setMonthlyData(monthlyStats);
@@ -352,6 +362,32 @@ const AdminDashboard: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Most Ordered Package Card */}
+        {stats.mostOrderedPackage && (
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-white/10 rounded-xl">
+                    <Package className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-white/80 text-sm font-medium">Most Ordered Package</p>
+                    <p className="text-3xl font-bold mt-2">{stats.mostOrderedPackage.packageName}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-4">
+                  <TrendingUp className="w-5 h-5 text-white/70" />
+                  <span className="text-white/80 text-sm">{stats.mostOrderedPackage.totalBookings} total bookings</span>
+                </div>
+              </div>
+              <div className="hidden md:block">
+                <div className="w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

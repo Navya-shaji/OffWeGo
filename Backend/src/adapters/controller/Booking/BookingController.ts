@@ -275,4 +275,21 @@ export class BookingController {
       });
     }
   }
+
+  async getMostOrderedPackage(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this._getAllBookingsUsecase.getMostOrderedPackage();
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Most ordered package fetched successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching most ordered package:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
 }

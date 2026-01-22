@@ -232,6 +232,12 @@ export class AdminRoute {
       (req, res) => bookingcontroller.getAllBookings(req, res)
     );
 
+    this.adminRouter.get(
+      "/most-ordered-package",
+      adminOnly,
+      (req, res) => bookingcontroller.getMostOrderedPackage(req, res)
+    );
+
     // -------------------- WALLET MANAGEMENT --------------------
 
     this.adminRouter.post(AdminRoutes.ADMIN_WALLET, adminOnly, (req, res) =>

@@ -9,7 +9,7 @@ export const addDestination = async (data: DestinationInterface) => {
   try {
     const state = store.getState();
     let base = USER_ROUTES_BASE;
-    let endpoint = AdminRoutes.CREATE_DESTINATION; // Same for vendor in this case
+    let endpoint = AdminRoutes.CREATE_DESTINATION;
     if (state.adminAuth.token) base = ADMIN_ROUTES_BASE;
     else if (state.vendorAuth.token) {
       base = VENDOR_ROUTES_BASE;

@@ -6,4 +6,8 @@ export class GetAllBookingsUsecase {
     async execute() {
         return await this._bookingRepo.findAll();
     }
+
+    async getMostOrderedPackage() {
+        return await this._bookingRepo.getMostOrderedPackage();
+    }
 }
