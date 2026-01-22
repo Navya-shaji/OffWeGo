@@ -97,8 +97,10 @@ const TravelPostDetailPage = () => {
     try {
       const response = await getSavedTravelPosts({ limit: 5 });
       setSavedPosts(response.data);
-    } catch {
-      console.error("Failed to fetch saved posts:");
+    } catch (err) {
+      // Silently fail if user is not authenticated or error occurs
+      // This is expected behavior for non-logged-in users
+      console.log("Could not fetch saved posts:", (err as Error).message);
     }
   };
 

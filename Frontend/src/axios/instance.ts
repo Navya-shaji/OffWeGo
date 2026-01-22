@@ -48,7 +48,10 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    if (err.response) {
+    // Check if this request should skip error toasts
+    const skipToast = originalRequest?.skipErrorToast;
+
+    if (err.response && !skipToast) {
       const status = err.response.status;
       const errorMessage = err.response.data?.message || err.response.data?.error || ERROR_MESSAGES.UNEXPECTED_ERROR;
 
@@ -61,7 +64,7 @@ axiosInstance.interceptors.response.use(
           toast.error(errorMessage);
         }
       }
-    } else {
+    } else if (!skipToast) {
       toast.error(ERROR_MESSAGES.NETWORK_ERROR);
     }
 

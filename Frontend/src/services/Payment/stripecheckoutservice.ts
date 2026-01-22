@@ -18,7 +18,6 @@ export interface SubscriptionBookingResponse {
   url?: string;
   checkoutUrl?: string;
   bookingId?: string;
-  qrCode?: string;
   message?: string;
 }
 
