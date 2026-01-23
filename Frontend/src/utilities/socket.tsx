@@ -41,8 +41,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
             // Fix for production deployment where localhost might be hardcoded in environment variables
             if (socketUrl.includes("localhost") && window.location.hostname !== "localhost") {
-                console.log("🛠️ Auto-fixing localhost socket URL for production hostname:", window.location.hostname);
-                socketUrl = socketUrl.replace("localhost", window.location.hostname);
+                console.log("🛠️ Auto-fixing localhost socket URL for production. Forcing use of:", window.location.origin);
+                socketUrl = window.location.origin;
             }
             console.log(`🔌 Initializing socket connection for ${role} (${userId}) to:`, socketUrl);
 

@@ -4,7 +4,8 @@ const url = import.meta.env.VITE_SOCKET_URL;
 let socketUrl = (url && !url.includes("undefined")) ? url : window.location.origin;
 
 if (socketUrl.includes("localhost") && window.location.hostname !== "localhost") {
-  socketUrl = socketUrl.replace("localhost", window.location.hostname);
+  console.log("🛠️ Auto-fixing legacy socket URL for production. Forcing use of:", window.location.origin);
+  socketUrl = window.location.origin;
 }
 
 const getToken = () => {
