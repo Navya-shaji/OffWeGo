@@ -9,7 +9,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
     private _vendorRepository: IVendorRepository,
     private _hashService: IPasswordService,
     private _tokenService: ITokenService
-  ) {}
+  ) { }
 
   async execute(
     data: LoginDTo,
@@ -57,7 +57,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
     }
 
     const payload = {
-      id: vendor._id,
+      id: vendor._id.toString(),
       email: vendor.email,
       role: "vendor",
     };

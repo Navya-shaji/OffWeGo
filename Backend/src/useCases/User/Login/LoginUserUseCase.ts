@@ -38,7 +38,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     }
 
     const payload = {
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       role: typeof user.role === "number" ? mapNumericRoleToString(user.role) : user.role,
     };
@@ -50,7 +50,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
       accessToken,
       refreshToken,
       fcmToken: savedFcmToken,
-      user: mapToLoginUserDto(user) ,
+      user: mapToLoginUserDto(user),
     };
   }
 
