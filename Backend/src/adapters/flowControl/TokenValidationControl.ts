@@ -32,6 +32,7 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
         userId: id
       };
 
+      console.log(req.user,"user")
       next();
     } catch (err) {
       return res

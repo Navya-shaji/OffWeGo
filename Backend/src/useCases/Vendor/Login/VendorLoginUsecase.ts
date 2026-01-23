@@ -57,7 +57,7 @@ export class VendorLoginUsecase implements IVendorLoginUsecase {
     }
 
     const payload = {
-      id: vendor._id.toString(),
+      id: vendor._id,
       email: vendor.email,
       role: "vendor",
     };

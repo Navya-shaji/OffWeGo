@@ -80,6 +80,7 @@ export class BookingController {
       }
 
       const bookings = await this._userbookingsUsecase.execute(userId);
+      console.log(bookings,"bookings")
 
       res.status(HttpStatus.OK).json({
         success: true,

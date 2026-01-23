@@ -14,12 +14,13 @@ export const ContactInfoSchema = new Schema({
 });
 
 export const SelectedPackageSchema = new Schema({
-  _id: { type: Schema.Types.ObjectId, ref: "Package", required: true },
+  packageId: { type: Schema.Types.ObjectId, ref: "Package", required: true },
   packageName: { type: String, required: true },
   price: { type: Number, required: true },
   duration: { type: Number, required: true },
   destinationName: { type: String },
   packageImage: { type: String },
+  vendorId: { type: Schema.Types.ObjectId, ref: "Vendor" },
 });
 
 export const BookingSchema = new Schema({

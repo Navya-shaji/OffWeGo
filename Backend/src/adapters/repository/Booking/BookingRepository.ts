@@ -37,27 +37,26 @@ export class BookingRepository implements IBookingRepository {
 
       if (!isValidObjectId(userId)) {
         console.warn(`⚠️ [BookingRepository] Invalid userId format: ${userId}. Attempting exact string search.`);
-        return await (BookingModel as any).find({ userId: userId })
-          .populate({ path: "selectedPackage._id", model: "Package" })
-          .sort({ createdAt: -1 }).lean().exec();
+        const docs = await (BookingModel as any).find({ userId: userId })
+          .populate("selectedPackage.packageId")
+          .sort({ createdAt: -1 })
+          .exec();
+        return (docs || []).map((doc: any) => doc.toObject());
       }
 
-      const bookings = await (BookingModel as any).find({
+      const docs = await (BookingModel as any).find({
         $or: [
           { userId: new Types.ObjectId(userId) },
           { userId: userId }
         ]
       })
-        .populate({
-          path: "selectedPackage._id",
-          model: "Package"
-        })
+        .populate("selectedPackage.packageId")
         .sort({ createdAt: -1 })
-        .lean()
         .exec();
 
+      const bookings = (docs || []).map((doc: any) => doc.toObject());
       console.log(`✅ [BookingRepository] Found ${bookings.length} bookings for user`);
-      return bookings || [];
+      return bookings;
     } catch (error) {
       console.error("❌ [BookingRepository] Error in findByUserId:", error);
       throw error;
@@ -69,7 +68,7 @@ export class BookingRepository implements IBookingRepository {
       {
         $lookup: {
           from: "packages",
-          localField: "selectedPackage._id",
+          localField: "selectedPackage.packageId",
           foreignField: "_id",
           as: "packageData",
         },
@@ -94,7 +93,7 @@ export class BookingRepository implements IBookingRepository {
 
     console.log(`🔍 [BookingRepository] Finding bookings for vendorId: ${vendorId}`);
     return (BookingModel as any).populate(results, {
-      path: "selectedPackage._id",
+      path: "selectedPackage.packageId",
       model: "Package"
     });
   }

@@ -12,13 +12,15 @@ export interface ContactInfo {
 }
 
 export interface PackageInfo {
-  _id: string;
+  _id?: string;
+  packageId?: string;
   packageName: string;
   price: number;
   description?: string;
   duration?: number;
   destinationName?: string;
   packageImage?: string;
+  vendorId?: string;
 }
 
 export interface Booking {

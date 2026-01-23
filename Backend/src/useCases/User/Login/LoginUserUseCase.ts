@@ -38,7 +38,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     }
 
     const payload = {
-      id: user._id.toString(),
+      id: user._id,
       email: user.email,
       role: typeof user.role === "number" ? mapNumericRoleToString(user.role) : user.role,
     };

@@ -78,12 +78,13 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     const bookingData: Booking = {
       ...data,
       selectedPackage: {
-        _id: packageData._id.toString(),
+        packageId: packageData._id.toString(),
         packageName: packageData.packageName,
         price: packageData.price,
         duration: packageData.duration,
         destinationName: destinationName,
-        packageImage: packageData.images?.[0] || ""
+        packageImage: packageData.images?.[0] || "",
+        vendorId: packageData.vendorId.toString()
       },
       bookingId,
       paymentStatus: "succeeded",
