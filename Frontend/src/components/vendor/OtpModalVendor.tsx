@@ -113,7 +113,7 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
       setIsVerified(true);
       toast.success("OTP Verified!");
     } catch (error) {
-      toast.error((error as Error).message);
+      console.error(error);
     } finally {
       setLoading(false);
     }

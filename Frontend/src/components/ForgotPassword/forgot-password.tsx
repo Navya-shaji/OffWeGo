@@ -24,11 +24,9 @@ export default function ForgotPasswordModal({ onClose }: { onClose: () => void }
       if (response?.success) {
         toast.success(response.message || "OTP sent to your email");
         setShowVerifyModal(true);
-      } else {
-        toast.error(response?.message || "Email not found");
       }
-    } catch  {
-      toast.error("Something went wrong");
+    } catch {
+      // Error handled by axios interceptor
     } finally {
       setLoading(false);
     }

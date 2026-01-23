@@ -80,7 +80,6 @@ export default function VerifyResetOtpModal({
       toast.success("OTP verified successfully!");
       setShowResetPasswordModal(true);
     } catch (error) {
-      toast.error("Invalid or expired OTP");
       console.error(error);
     }
   };

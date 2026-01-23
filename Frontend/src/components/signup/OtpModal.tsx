@@ -86,11 +86,9 @@ export default function OtpModal({
         setTimeout(() => {
           navigate("/login");
         }, 1500);
-      } else {
-        toast.error("Invalid OTP");
       }
     } catch {
-      toast.error("OTP verification failed");
+      // Error is handled by axios global interceptor
     }
   };
 

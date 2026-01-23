@@ -34,7 +34,6 @@ export default function ResetPasswordModal({ email, onClose }: ResetPasswordModa
       }, 1500);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to reset password");
     }
   };
 
@@ -76,8 +75,8 @@ export default function ResetPasswordModal({ email, onClose }: ResetPasswordModa
           onClick={handleSubmit}
           disabled={!password || !confirmPassword}
           className={`w-full font-medium py-3 rounded-full transition-all duration-200 ${password && confirmPassword
-              ? "bg-black text-white hover:bg-gray-800"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
+            ? "bg-black text-white hover:bg-gray-800"
+            : "bg-gray-300 text-gray-600 cursor-not-allowed"
             }`}
         >
           Reset Password
