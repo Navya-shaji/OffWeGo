@@ -47,9 +47,6 @@ export default function OtpModal({
 
       if (value && index < 5) {
         document.getElementById(`otp-${index + 1}`)?.focus();
-      } else if (value && index === 5) {
-        // Auto-submit when the last digit is entered
-        handleSubmit(newOtp.join(""));
       }
     }
   };
@@ -70,12 +67,8 @@ export default function OtpModal({
       });
       setOtp(newOtp);
 
-      if (pasteData.length === 6) {
-        handleSubmit(pasteData);
-      } else {
-        const nextIndex = Math.min(pasteData.length, 5);
-        document.getElementById(`otp-${nextIndex}`)?.focus();
-      }
+      const nextIndex = Math.min(pasteData.length, 5);
+      document.getElementById(`otp-${nextIndex}`)?.focus();
     }
   };
 
@@ -90,7 +83,9 @@ export default function OtpModal({
       const res = await VerifyOtp(userData, code);
       if (res.data.success) {
         toast.success("OTP Verified");
-        navigate("/login");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       } else {
         toast.error("Invalid OTP");
       }

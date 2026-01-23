@@ -75,8 +75,6 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
 
       if (value && index < 5) {
         document.getElementById(`otp-${index + 1}`)?.focus();
-      } else if (value && index === 5) {
-        handleVerifyOtp(newOtp.join(""));
       }
     }
   };
@@ -97,12 +95,8 @@ const OtpVendorModal: React.FC<Props> = ({ isOpen, onClose, vendorData }) => {
       });
       setOtp(newOtp);
 
-      if (pasteData.length === 6) {
-        handleVerifyOtp(pasteData);
-      } else {
-        const nextIndex = Math.min(pasteData.length, 5);
-        document.getElementById(`otp-${nextIndex}`)?.focus();
-      }
+      const nextIndex = Math.min(pasteData.length, 5);
+      document.getElementById(`otp-${nextIndex}`)?.focus();
     }
   };
 

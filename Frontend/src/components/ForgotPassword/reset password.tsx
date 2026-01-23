@@ -28,8 +28,10 @@ export default function ResetPasswordModal({ email, onClose }: ResetPasswordModa
     try {
       await resetPassword(email, password);
       toast.success("Password reset successfully!");
-      onClose(); 
-      navigate("/login"); 
+      setTimeout(() => {
+        onClose();
+        navigate("/login");
+      }, 1500);
     } catch (error) {
       console.error(error);
       toast.error("Failed to reset password");
@@ -73,11 +75,10 @@ export default function ResetPasswordModal({ email, onClose }: ResetPasswordModa
         <button
           onClick={handleSubmit}
           disabled={!password || !confirmPassword}
-          className={`w-full font-medium py-3 rounded-full transition-all duration-200 ${
-            password && confirmPassword
+          className={`w-full font-medium py-3 rounded-full transition-all duration-200 ${password && confirmPassword
               ? "bg-black text-white hover:bg-gray-800"
               : "bg-gray-300 text-gray-600 cursor-not-allowed"
-          }`}
+            }`}
         >
           Reset Password
         </button>
