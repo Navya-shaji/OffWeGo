@@ -3,7 +3,7 @@ export interface IWalletPaymentUseCase {
     userId: string,
     amount: number,
     description?: string,
-    bookingId?: string // ✅ optional bookingId
+    bookingId?: string 
   ): Promise<{
     success: boolean;
     message: string;

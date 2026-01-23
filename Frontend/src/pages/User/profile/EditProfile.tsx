@@ -312,8 +312,7 @@ export default function EditProfileModal({
         setPhone(updatedUserData.phone);
         setImagePreviewUrl(updatedUserData.imageUrl || null);
       } else {
-        console.warn("⚠️ No data in update response:", updated);
-        // Fallback: update with what we sent
+        console.warn(" No data in update response:", updated);
         dispatch(updateUserProfile({
           username: username.trim(),
           phone: phoneToSend ? String(phoneToSend) : (user.phone ? String(user.phone) : ""),

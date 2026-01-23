@@ -345,7 +345,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
             <span className="text-gray-500 italic text-sm">No activities</span>
             {hasInvalidActivities && (
               <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-md mt-1">
-                ⚠️ Invalid activity references
+                 Invalid activity references
               </div>
             )}
           </div>
@@ -369,7 +369,7 @@ const PackageTable: React.FC<PackageTableProps> = ({
           ))}
           {hasInvalidActivities && (
             <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-2 rounded-md">
-              ⚠️ Some activities not found
+               Some activities not found
             </div>
           )}
         </div>

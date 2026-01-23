@@ -154,7 +154,7 @@ const AddPackage: React.FC = () => {
       setIsCheckingSubscription(true);
 
       if (!vendorId) {
-        console.warn("⚠️ No vendor ID found, cannot check subscription");
+        console.warn(" No vendor ID found, cannot check subscription");
         setHasActiveSubscription(false);
         setShowSubscriptionModal(true);
         setIsCheckingSubscription(false);

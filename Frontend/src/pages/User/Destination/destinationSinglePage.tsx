@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { getsingleDestination } from "@/services/Destination/destinationService";
 import { getPackagesByDestination } from "@/services/packages/packageService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
-import { MapPin, ArrowLeft, Search, Loader2, Clock, Calendar, Star, Users } from "lucide-react";
+import { MapPin, ArrowLeft, Search, Loader2 } from "lucide-react";
 import Header from "@/components/home/navbar/Header";
 import { searchPackages } from "@/services/packages/packageService";
 import type { Package } from "@/interface/PackageInterface";
@@ -226,7 +226,7 @@ export const DestinationDetail = () => {
                     <span className="text-indigo-600 font-bold text-lg">₹{pkg.price.toLocaleString()}</span>
                   </div>
 
-                 
+
                 </div>
 
                 <div className="p-6">
@@ -237,7 +237,7 @@ export const DestinationDetail = () => {
                     {pkg.description}
                   </p>
 
-             
+
 
                   <button className="w-full mt-4 py-3 bg-gray-50 group-hover:bg-indigo-600 text-gray-900 group-hover:text-white font-medium rounded-xl transition-all">
                     View Details

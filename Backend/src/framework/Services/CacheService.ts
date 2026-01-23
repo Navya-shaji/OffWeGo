@@ -8,8 +8,7 @@ export class CacheService implements ICacheService {
   private _useLocalCache: boolean = false;
 
   constructor() {
-    this._localCache = new NodeCache({ stdTTL: 600 }); // 10 minutes default TTL
-
+    this._localCache = new NodeCache({ stdTTL: 600 }); 
     this._redisClient = new Redis({
       host: process.env.REDIS_HOST || "127.0.0.1",
       port: Number(process.env.REDIS_PORT) || 6379,
@@ -19,10 +18,10 @@ export class CacheService implements ICacheService {
       retryStrategy: (times) => {
         if (times > 1) {
           if (!this._useLocalCache) {
-            console.warn("⚠️ CacheService: Redis unavailable. Falling back to In-Memory Cache.");
+            console.warn("CacheService: Redis unavailable. Falling back to In-Memory Cache.");
             this._useLocalCache = true;
           }
-          return null; // Stop retrying
+          return null;
         }
         return 100;
       }
@@ -35,7 +34,7 @@ export class CacheService implements ICacheService {
     });
 
     this._redisClient.on("connect", () => {
-      console.log("✅ Redis connected in CacheService");
+      console.log(" Redis connected in CacheService");
       this._useLocalCache = false;
     });
   }

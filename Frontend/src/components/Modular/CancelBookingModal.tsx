@@ -61,7 +61,7 @@ export const CancelBookingModal: React.FC<CancelBookingModalProps> = ({
         <div className="mt-6 space-y-5">
           <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
             <p className="text-sm text-amber-800 font-medium">
-              ⚠️ Are you sure you want to cancel this booking? This action cannot be undone.
+               Are you sure you want to cancel this booking? This action cannot be undone.
             </p>
           </div>
 

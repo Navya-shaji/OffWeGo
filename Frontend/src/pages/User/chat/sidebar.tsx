@@ -124,7 +124,6 @@ const ChatSidebar = ({ isOpen, onClose }: ChatSidebarProps) => {
               Chats ({chats.length})
             </button>
 
-            {/* Vendors tab removed intentionally as strict booking rules apply */}
           </div>
         </div>
 
@@ -138,7 +137,7 @@ const ChatSidebar = ({ isOpen, onClose }: ChatSidebarProps) => {
           ) : error ? (
             <div className="flex items-center justify-center h-32 px-4">
               <div className="text-center">
-                <p className="text-red-400 text-sm mb-2">⚠️ {error}</p>
+                <p className="text-red-400 text-sm mb-2"> {error}</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="text-blue-400 text-sm hover:underline"

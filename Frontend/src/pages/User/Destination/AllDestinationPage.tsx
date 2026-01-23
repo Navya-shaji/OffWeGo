@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { MapPin, Loader2, Search, Star, Clock, Users, TrendingUp, Globe } from "lucide-react";
+import { MapPin, Loader2, Search, Star, TrendingUp, Globe } from "lucide-react";
 import { fetchAllDestinations } from "@/services/Destination/destinationService";
 import type { DestinationInterface } from "@/interface/destinationInterface";
 import { resolveCloudinaryUrl } from "@/utilities/cloudinaryUpload";
@@ -237,7 +237,7 @@ const AllDestinationsPage = () => {
                             {destination.description || "Explore this beautiful destination and experience unforgettable moments!"}
                           </p>
 
-                       
+
 
                           {/* Explore Button */}
                           <div className="mt-4">

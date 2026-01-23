@@ -411,7 +411,7 @@ const FlightsPage: React.FC = () => {
             >
               ✕
             </button>
-            <div className="mb-4 text-red-600 text-4xl">⚠️</div>
+            <div className="mb-4 text-red-600 text-4xl"></div>
             <h3 className="text-xl font-bold mb-2">Confirm Delete</h3>
             <p className="text-gray-600 mb-4">
               Are you sure you want to delete this flight?

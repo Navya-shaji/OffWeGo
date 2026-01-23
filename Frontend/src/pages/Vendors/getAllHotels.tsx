@@ -72,7 +72,7 @@ const HotelsTable: React.FC = () => {
       }));
 
       setHotels(hotelsWithId);
-      setOriginalHotels(hotelsWithId); // ✅ Preserve original data
+      setOriginalHotels(hotelsWithId); 
       setTotalPages(response.totalPages || 1);
       setTotalHotels(response.totalHotels || hotelsWithId.length);
       setPage(pageNum);

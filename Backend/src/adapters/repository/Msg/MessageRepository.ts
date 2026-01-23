@@ -25,7 +25,7 @@ export class MessageRepository {
             replyTo: data.replyTo
         });
         const saved = await newMessage.save();
-        console.log("✅ Message Saved Successfully:", saved._id);
+        console.log(" Message Saved Successfully:", saved._id);
 
         return saved.toObject();
     }

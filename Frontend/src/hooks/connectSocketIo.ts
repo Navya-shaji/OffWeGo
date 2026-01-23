@@ -16,9 +16,8 @@ const socket = io(socketUrl, {
   autoConnect: false,
 });
 
-// Legacy socket is disabled to prevent redundant connections.
-// All components should now use useSocket() from SocketProvider.
-console.warn("⚠️ Legacy socket singleton accessed. Use useSocket() instead.");
+
+console.warn("Legacy socket singleton accessed. Use useSocket() instead.");
 
 socket.on('connect', () => {
   console.log(" Socket CONNECTED! ID:", socket.id);

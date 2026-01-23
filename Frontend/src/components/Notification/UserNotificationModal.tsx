@@ -26,7 +26,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
 
   const loadNotifications = useCallback(async () => {
     if (!user?.id) {
-      console.warn("⚠️ No user ID found");
+      console.warn("No user ID found");
       setNotifications([]);
       return;
     }
@@ -39,7 +39,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
 
 
       if (!Array.isArray(data)) {
-        console.warn("⚠️ Data is not an array:", data);
+        console.warn(" Data is not an array:", data);
         setNotifications([]);
         if (onUnreadCountChange) {
           onUnreadCountChange(0);
@@ -64,7 +64,7 @@ export const UserNotificationModal: React.FC<UserNotificationModalProps> = ({
         onUnreadCountChange(unreadCount);
       }
     } catch (err) {
-      console.error("❌ Error loading notifications:", err);
+      console.error(" Error loading notifications:", err);
       setError(err instanceof Error ? err.message : "Failed to load notifications");
     } finally {
       setLoading(false);
