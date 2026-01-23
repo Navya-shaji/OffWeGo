@@ -220,6 +220,7 @@ const BookingDetailsSection = ({ embedded = false, onAction, refreshTrigger }: {
       }
       try {
         setLoading(true);
+        console.log("🔄 Fetching user bookings...");
         const data = await getUserBookings();
         const sorted = (data || []).sort(
           (a: any, b: any) => {
@@ -236,7 +237,24 @@ const BookingDetailsSection = ({ embedded = false, onAction, refreshTrigger }: {
         setLoading(false);
       }
     };
+
     fetchBookings();
+
+    // Re-fetch when window gains focus (e.g. returning from stripe)
+    const handleFocus = () => {
+      console.log("🪟 Window focused, re-fetching bookings...");
+      fetchBookings();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") fetchBookings();
+    });
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("visibilitychange", handleFocus);
+    };
   }, [user?.id, refreshTrigger]);
 
   useEffect(() => {

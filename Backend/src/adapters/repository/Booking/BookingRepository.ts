@@ -32,11 +32,26 @@ export class BookingRepository implements IBookingRepository {
     return updatedBooking;
   }
   async findByUserId(userId: string): Promise<Booking[]> {
-    return (BookingModel as any).find({ userId })
-      .populate("selectedPackage._id")
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    try {
+      console.log(`🔍 [BookingRepository] Finding bookings for userId: ${userId}`);
+
+      if (!isValidObjectId(userId)) {
+        console.warn(`⚠️ [BookingRepository] Invalid userId provided: ${userId}`);
+        return [];
+      }
+
+      return await (BookingModel as any).find({ userId: new Types.ObjectId(userId) })
+        .populate({
+          path: "selectedPackage._id",
+          model: "Package"
+        })
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec();
+    } catch (error) {
+      console.error("❌ [BookingRepository] Error in findByUserId:", error);
+      throw error;
+    }
   }
 
   async findByVendorId(vendorId: string): Promise<Booking[]> {
@@ -67,9 +82,11 @@ export class BookingRepository implements IBookingRepository {
       }
     ]);
 
-    // Populate manual if needed, but aggregation wipes populate. 
-    // We can re-populate using BookingModel.populate
-    return (BookingModel as any).populate(results, { path: "selectedPackage" });
+    console.log(`🔍 [BookingRepository] Finding bookings for vendorId: ${vendorId}`);
+    return (BookingModel as any).populate(results, {
+      path: "selectedPackage._id",
+      model: "Package"
+    });
   }
   async getBookedDatesByVendor(vendorId: string): Promise<Date[]> {
     const bookings = await (BookingModel as any).find({ vendorId })

@@ -17,7 +17,10 @@ export const createBooking = async (
 
 
 export const getUserBookings = async (config?: any) => {
-  const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.USER_BOOKINGS}`, config);
+  const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.USER_BOOKINGS}`, {
+    ...config,
+    skipServerErrorToast: true
+  });
   return response.data.data;
 };
 

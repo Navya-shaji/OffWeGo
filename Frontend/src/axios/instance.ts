@@ -49,6 +49,7 @@ axiosInstance.interceptors.response.use(
     }
 
     const skipToast = originalRequest?.skipErrorToast;
+    const skipServerErrorToast = originalRequest?.skipServerErrorToast;
 
     if (err.response && !skipToast) {
       const status = err.response.status;
@@ -58,7 +59,9 @@ axiosInstance.interceptors.response.use(
         if (status === 403) {
           toast.error(ERROR_MESSAGES.PERMISSION_DENIED);
         } else if (status >= 500) {
-          toast.error(ERROR_MESSAGES.SERVER_ERROR);
+          if (!skipServerErrorToast) {
+            toast.error(ERROR_MESSAGES.SERVER_ERROR);
+          }
         } else {
           toast.error(errorMessage);
         }
