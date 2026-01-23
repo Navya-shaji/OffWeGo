@@ -67,7 +67,17 @@ export class BookingController {
 
   async getUserBookings(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.userId || req.user?.id;
+      console.log("📥 [BookingController] Fetching bookings for user:", userId);
+
+      if (!userId) {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: "User not authenticated",
+          data: [],
+        });
+        return;
+      }
 
       const bookings = await this._userbookingsUsecase.execute(userId);
 

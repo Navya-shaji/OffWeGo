@@ -33,14 +33,21 @@ export class BookingRepository implements IBookingRepository {
   }
   async findByUserId(userId: string): Promise<Booking[]> {
     try {
-      console.log(`🔍 [BookingRepository] Finding bookings for userId: ${userId}`);
+      console.log(`🔍 [BookingRepository] Searching bookings for ID: ${userId}`);
 
       if (!isValidObjectId(userId)) {
-        console.warn(`⚠️ [BookingRepository] Invalid userId provided: ${userId}`);
-        return [];
+        console.warn(`⚠️ [BookingRepository] Invalid userId format: ${userId}. Attempting exact string search.`);
+        return await (BookingModel as any).find({ userId: userId })
+          .populate({ path: "selectedPackage._id", model: "Package" })
+          .sort({ createdAt: -1 }).lean().exec();
       }
 
-      return await (BookingModel as any).find({ userId: new Types.ObjectId(userId) })
+      const bookings = await (BookingModel as any).find({
+        $or: [
+          { userId: new Types.ObjectId(userId) },
+          { userId: userId }
+        ]
+      })
         .populate({
           path: "selectedPackage._id",
           model: "Package"
@@ -48,6 +55,9 @@ export class BookingRepository implements IBookingRepository {
         .sort({ createdAt: -1 })
         .lean()
         .exec();
+
+      console.log(`✅ [BookingRepository] Found ${bookings.length} bookings for user`);
+      return bookings || [];
     } catch (error) {
       console.error("❌ [BookingRepository] Error in findByUserId:", error);
       throw error;
