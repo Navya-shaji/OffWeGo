@@ -1,6 +1,7 @@
 import { IResetPasswordUseCase } from "../../../domain/interface/UsecaseInterface/IResetPasswordUseCase";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
 import { IPasswordService } from "../../../domain/interface/ServiceInterface/IhashpasswordService";
+import { ERROR_MESSAGES } from "../../../constants/messages";
 
 
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
@@ -17,7 +18,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
     if (!user) throw new Error("User not found");
 
     if (user.isGoogleUser) {
-      throw new Error("This account is linked with Google. Password reset is not allowed.");
+      throw new Error(ERROR_MESSAGES.GOOGLE_ACCOUNT_PASSWORD_RESET_NOT_ALLOWED);
     }
 
     const hashPassword = await this._passwordService.hashPassword(newPassword);

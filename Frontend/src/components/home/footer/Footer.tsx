@@ -25,16 +25,16 @@ const Footer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <Phone className="w-3.5 h-3.5 text-white/60" />
-                <span className="text-white/50 text-[13px] font-light">+1 (617) 555-0198</span>
+                <span className="text-white/50 text-[13px] font-light">8590834303</span>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <Mail className="w-3.5 h-3.5 text-white/60" />
-                <span className="text-white/50 text-[13px] font-light">support@offwego.com</span>
+                <span className="text-white/50 text-[13px] font-light">offwego@gmail.com</span>
               </div>
               <div className="flex items-start justify-center md:justify-start gap-3">
                 <MapPin className="w-3.5 h-3.5 text-white/60 mt-0.5" />
                 <span className="text-white/50 text-[13px] font-light leading-relaxed">
-                  132 Dartmouth St, Boston, MA
+                 Thrissur,India
                 </span>
               </div>
             </div>

@@ -48,7 +48,6 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Check if this request should skip error toasts
     const skipToast = originalRequest?.skipErrorToast;
 
     if (err.response && !skipToast) {

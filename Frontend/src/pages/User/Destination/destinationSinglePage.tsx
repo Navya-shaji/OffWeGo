@@ -197,13 +197,11 @@ export const DestinationDetail = () => {
           </div>
         </div>
 
-        {/* Section Header */}
         <div className="mb-10">
 
           <p className="text-gray-600 text-lg">Discover curated experiences for your journey</p>
         </div>
 
-        {/* Packages Grid */}
         {displayedPackages.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
             {displayedPackages.map((pkg) => (
@@ -212,7 +210,6 @@ export const DestinationDetail = () => {
                 onClick={() => navigate("/timeline", { state: { selectedPackage: pkg } })}
                 className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
               >
-                {/* Image */}
                 <div className="relative h-56 overflow-hidden">
                   {(pkg.images && pkg.images.length > 0) || (destination.imageUrls && destination.imageUrls.length > 0) ? (
                     <img
@@ -225,19 +222,13 @@ export const DestinationDetail = () => {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-                  {/* Price Badge */}
                   <div className="absolute top-4 right-4 px-4 py-2 bg-white rounded-full shadow-lg">
                     <span className="text-indigo-600 font-bold text-lg">₹{pkg.price.toLocaleString()}</span>
                   </div>
 
-                  {/* Rating Badge */}
-                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-semibold text-gray-900">4.8</span>
-                  </div>
+                 
                 </div>
 
-                {/* Content */}
                 <div className="p-6">
                   <h3 className="font-bold text-xl mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
                     {pkg.packageName}
@@ -246,23 +237,8 @@ export const DestinationDetail = () => {
                     {pkg.description}
                   </p>
 
-                  {/* Meta Info */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-1.5 text-gray-700">
-                      <Clock className="w-4 h-4 text-indigo-500" />
-                      <span className="text-sm font-medium">{pkg.duration} Days</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-gray-700">
-                      <Calendar className="w-4 h-4 text-indigo-500" />
-                      <span className="text-sm font-medium">Daily</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-gray-700">
-                      <Users className="w-4 h-4 text-indigo-500" />
-                      <span className="text-sm font-medium">2-10</span>
-                    </div>
-                  </div>
+             
 
-                  {/* View Details Button */}
                   <button className="w-full mt-4 py-3 bg-gray-50 group-hover:bg-indigo-600 text-gray-900 group-hover:text-white font-medium rounded-xl transition-all">
                     View Details
                   </button>
@@ -280,7 +256,6 @@ export const DestinationDetail = () => {
           </div>
         )}
 
-        {/* Map Section */}
         <div>
           <div className="mb-10">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Location Map</h2>

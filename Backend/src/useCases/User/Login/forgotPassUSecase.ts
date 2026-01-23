@@ -1,5 +1,6 @@
 import { IForgotpassUsecase } from "../../../domain/interface/UserLogin/IForgotPassUSecase";
 import { IUserRepository } from "../../../domain/interface/UserRepository/IuserRepository";
+import { ERROR_MESSAGES } from "../../../constants/messages";
 export class ForgotPassUsecase implements IForgotpassUsecase {
   constructor(private _userRepo: IUserRepository) { }
 
@@ -11,7 +12,7 @@ export class ForgotPassUsecase implements IForgotpassUsecase {
     }
 
     if (user.isGoogleUser) {
-      return { success: false, message: "This account is linked with Google. Please use Google Sign-In to access your account." };
+      return { success: false, message: ERROR_MESSAGES.GOOGLE_ACCOUNT_LINKED };
     }
 
     return { success: true, message: "OTP sent successfully" };

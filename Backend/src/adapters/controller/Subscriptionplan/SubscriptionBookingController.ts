@@ -4,9 +4,6 @@ import { ICreateBookingSubscriptionUseCase } from "../../../domain/interface/Sub
 import { ISubscriptionBookingRepository } from "../../../domain/interface/SubscriptionPlan/ISubscriptionBookingRepo";
 import { IGetVendorSubscriptionHistoryUseCase } from "../../../domain/interface/SubscriptionPlan/IGetVendorHistory";
 import { logErrorToFile } from "../../../framework/Logger/errorLogger";
-
-
-
 import { ERROR_MESSAGES } from "../../../constants/messages";
 
 export class SubscriptionBookingController {
@@ -24,7 +21,7 @@ export class SubscriptionBookingController {
       if (baseDomain && !baseDomain.startsWith("http")) {
         baseDomain = `https://${baseDomain}`;
       }
-      const domainUrl = baseDomain.replace(/\/$/, ""); // Remove trailing slash if any
+      const domainUrl = baseDomain.replace(/\/$/, ""); 
 
       const result = await this._createBookingSubscriptionUsecase.execute({
         vendorId,
@@ -51,7 +48,7 @@ export class SubscriptionBookingController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({
           success: false,
-          message: (error as Error).message, // Frontend looks for 'message' or 'error'
+          message: (error as Error).message, 
           error: (error as Error).message
         });
     }

@@ -4,5 +4,6 @@ export const ERROR_MESSAGES = {
     SERVER_ERROR: "Server error. Please try again later.",
     UNEXPECTED_ERROR: "An unexpected error occurred.",
     NETWORK_ERROR: "Network error. Please checks your connection.",
-    UNAUTHORIZED: "Unauthorized"
+    UNAUTHORIZED: "Unauthorized",
+    GOOGLE_ACCOUNT_LINKED: "This account is linked with Google. Please use Google Sign-In to access your account."
 };

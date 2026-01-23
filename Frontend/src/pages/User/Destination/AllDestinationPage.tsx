@@ -237,19 +237,7 @@ const AllDestinationsPage = () => {
                             {destination.description || "Explore this beautiful destination and experience unforgettable moments!"}
                           </p>
 
-                          {/* Quick Stats */}
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <div className="flex items-center gap-3 text-xs text-gray-500">
-                              <span className="flex items-center gap-1 font-bold">
-                                <Users className="w-3 h-3" />
-                                {destination.visitorCount || "Popular"}
-                              </span>
-                              <span className="flex items-center gap-1 font-bold">
-                                <Clock className="w-3 h-3" />
-                                {destination.bestTimeToVisit || "Year-round"}
-                              </span>
-                            </div>
-                          </div>
+                       
 
                           {/* Explore Button */}
                           <div className="mt-4">

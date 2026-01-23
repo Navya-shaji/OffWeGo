@@ -11,7 +11,7 @@ export class AdminTravelPostController {
   constructor(
     private _listTravelPostsUsecase: IListTravelPostsUsecase,
     private _approveTravelPostUsecase: IApproveTravelPostUsecase,
-    private _rejectTravelPostUsecase: IRejectTravelPostUsecase
+    private _rejectTravelPostUsecase: IRejectTravelPostUsecase,
   ) {}
 
   async listTravelPostsByStatus(req: Request, res: Response): Promise<void> {
@@ -97,7 +97,7 @@ export class AdminTravelPostController {
           ? await this._approveTravelPostUsecase.execute(postId)
           : await this._rejectTravelPostUsecase.execute(
               postId,
-              rejectedReason || ErrorMessages.OPERATION_NOT_ALLOWED
+              rejectedReason || ErrorMessages.OPERATION_NOT_ALLOWED,
             );
 
       res.status(HttpStatus.OK).json({
