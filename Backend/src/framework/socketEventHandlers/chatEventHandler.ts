@@ -15,12 +15,14 @@ export class ChatEventHandler {
     private _setHandler(): void {
 
         this._socket.on("register_user", ({ userId }: { userId: string }) => {
+            console.log("👤 [REGISTER_USER] User registering:", userId, "Socket ID:", this._socket.id);
             chatHandler.handleConnect(userId);
             const socketData = this._socket;
             socketData.data = socketData.data || {};
             socketData.data.role = 'user';
             socketData.data.userId = userId;
             this._socket.join(`user_${userId}`);
+            console.log("👤 [REGISTER_USER] User joined room: user_" + userId);
             this._io.emit("user-status-changed", {
                 userId: userId,
                 isOnline: true,
@@ -32,16 +34,19 @@ export class ChatEventHandler {
                 const id = role === 'vendor' ? (s).data?.vendorId : (s).data?.userId;
                 if (id) onlineIds.push(String(id));
             }
+            console.log("👤 [REGISTER_USER] Online users:", onlineIds);
             this._socket.emit('online-users', { onlineIds });
         });
 
         // Vendor registration
         this._socket.on("register_vendor", ({ vendorId }: { vendorId: string }) => {
+            console.log("🏢 [REGISTER_VENDOR] Vendor registering:", vendorId, "Socket ID:", this._socket.id);
             chatHandler.handleConnect(vendorId);
             (this._socket).data = (this._socket).data || {};
             (this._socket).data.role = 'vendor';
             (this._socket).data.vendorId = vendorId;
             this._socket.join(`vendor_${vendorId}`);
+            console.log("🏢 [REGISTER_VENDOR] Vendor joined room: vendor_" + vendorId);
             this._io.emit("vendor-status-changed", {
                 vendorId: vendorId,
                 isOnline: true,
@@ -53,33 +58,40 @@ export class ChatEventHandler {
                 const id = role === 'vendor' ? (s).data?.vendorId : (s).data?.userId;
                 if (id) onlineIds.push(String(id));
             }
+            console.log("🏢 [REGISTER_VENDOR] Online users:", onlineIds);
             this._socket.emit('online-users', { onlineIds });
         });
 
         this._socket.on("join_room", ({ roomId }: { roomId: string }) => {
+            console.log("🚪 [JOIN_ROOM] Socket", this._socket.id, "joining chat room:", roomId);
             this._socket?.join(roomId);
+            console.log("✅ [JOIN_ROOM] Socket joined room:", roomId);
         });
 
         this._socket.on("send_message", async (data, ack: (id: string) => void) => {
-
-
+            console.log("📨 [SEND_MESSAGE] Received from socket:", this._socket.id);
+            console.log("📨 [SEND_MESSAGE] Data:", JSON.stringify(data, null, 2));
 
             const socketData = this._socket.data as any;
+            console.log("📨 [SEND_MESSAGE] Socket data:", JSON.stringify(socketData, null, 2));
+
             if (socketData.role) {
                 data.senderType = socketData.role;
                 data.senderId = socketData.role === 'vendor' ? socketData.vendorId : socketData.userId;
+                console.log("📨 [SEND_MESSAGE] Injected senderType:", data.senderType, "senderId:", data.senderId);
             }
 
             const senderName = data.senderName || 'Someone';
             let id = "";
             try {
                 id = await chatHandler.handleSendMessage(data, senderName);
+                console.log("✅ [SEND_MESSAGE] Message saved to DB with ID:", id);
             } catch (error) {
-                console.error("Error in handleSendMessage:", error);
+                console.error("❌ [SEND_MESSAGE] Error in handleSendMessage:", error);
             }
             ack(id);
 
-
+            console.log("📤 [SEND_MESSAGE] Emitting to chatId room:", data.chatId);
             this._io.to(data.chatId).emit("receive-message", {
                 ...data,
                 _id: id,
@@ -93,6 +105,8 @@ export class ChatEventHandler {
                 const recipientRoom = isVendorSender
                     ? `user_${data.receiverId}`
                     : `vendor_${data.receiverId}`;
+
+                console.log("📤 [SEND_MESSAGE] Emitting to recipient room:", recipientRoom);
 
                 // We emit receive-message to the private room as well so the sidebar can update
                 this._io.to(recipientRoom).emit("receive-message", {
@@ -109,6 +123,7 @@ export class ChatEventHandler {
                     timestamp: new Date()
                 });
 
+                console.log("✅ [SEND_MESSAGE] Message broadcast complete");
             }
 
         });
