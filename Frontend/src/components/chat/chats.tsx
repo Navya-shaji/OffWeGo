@@ -370,12 +370,7 @@ const ChatPage = () => {
     const { socket: globalSocket } = useSocket() || {};
 
     useEffect(() => {
-        if (!senderId || !globalSocket) {
-            console.log("⚠️ [CHAT] Missing senderId or socket:", { senderId, hasSocket: !!globalSocket });
-            return;
-        }
-
-        console.log("🔌 [CHAT] Setting up socket listeners for user:", senderId);
+        if (!senderId || !globalSocket) return;
         socketRef.current = globalSocket;
         const socket = globalSocket;
 
@@ -383,26 +378,18 @@ const ChatPage = () => {
         // We only need to set up listeners here.
 
         const handleReceiveMessage = (newMessage: ChatMessage) => {
-            console.log("📩 [RECEIVE-MESSAGE] Got message:", newMessage);
-            console.log("📩 [RECEIVE-MESSAGE] Current chat:", selectedContact?._id, "Message chat:", newMessage.chatId);
-
             // Update messages list if it's the current chat
             if (String(newMessage.chatId) === String(selectedContact?._id)) {
-                console.log("✅ [RECEIVE-MESSAGE] Message is for current chat, adding to messages");
                 autoScrollRef.current = true;
                 setMessages((prev) => {
                     // Check if we already have this message by Real ID
-                    if (prev.some(msg => String(msg._id) === String(newMessage._id))) {
-                        console.log("⚠️ [RECEIVE-MESSAGE] Message already exists, skipping");
-                        return prev;
-                    }
+                    if (prev.some(msg => String(msg._id) === String(newMessage._id))) return prev;
 
                     // Check if we have this message by Temp ID (optimistically added)
                     // If so, replace the optimistic message with the real one from server
                     if (newMessage.tempId) {
                         const tempIndex = prev.findIndex(msg => msg._id === newMessage.tempId);
                         if (tempIndex !== -1) {
-                            console.log("🔄 [RECEIVE-MESSAGE] Replacing temp message with real one");
                             const updated = [...prev];
                             // Ensure delivery status is 'sent' as it came back from server
                             updated[tempIndex] = { ...newMessage, deliveryStatus: 'sent' };
@@ -410,11 +397,8 @@ const ChatPage = () => {
                         }
                     }
 
-                    console.log("➕ [RECEIVE-MESSAGE] Adding new message to list");
                     return [...prev, newMessage];
                 });
-            } else {
-                console.log("ℹ️ [RECEIVE-MESSAGE] Message is for different chat, updating sidebar only");
             }
 
             // Always update the contacts list (sidebar) regardless of which chat is open
@@ -435,7 +419,6 @@ const ChatPage = () => {
             }).sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()));
         };
 
-        console.log("🎧 [CHAT] Registering socket event listeners");
         socket.on("receive-message", handleReceiveMessage);
         socket.on("user-status-changed", (data: any) => setOnlineUsers(prev => {
             const next = new Set(prev);
@@ -526,32 +509,18 @@ const ChatPage = () => {
     }, [senderId, senderRole, chatId, navigate, onlineUsers, vendor]);
 
     useEffect(() => {
-        if (!selectedContact || !senderId) {
-            console.log("⚠️ [FETCH-MESSAGES] Missing selectedContact or senderId");
-            return;
-        }
-
-        console.log("💬 [FETCH-MESSAGES] Fetching messages for chat:", selectedContact._id);
+        if (!selectedContact || !senderId) return;
         const fetchMessages = async () => {
             try {
                 const userType = vendor ? 'vendor' : 'user';
                 const res = await getMessages(selectedContact._id, userType);
                 const msgs = res?.data?.messages || res?.data || res || [];
-                console.log("📥 [FETCH-MESSAGES] Loaded", msgs.length, "messages");
                 setMessages(msgs);
                 initialScrollRef.current = true;
                 autoScrollRef.current = true;
-
-                if (socketRef.current) {
-                    console.log("🚪 [JOIN-ROOM] Joining chat room:", selectedContact._id);
-                    socketRef.current.emit("join_room", { roomId: selectedContact._id });
-                }
-
+                if (socketRef.current) socketRef.current.emit("join_room", { roomId: selectedContact._id });
                 markMessagesAsSeen(selectedContact._id, senderId, userType).catch(() => { });
-            } catch (error) {
-                console.error("❌ [FETCH-MESSAGES] Error:", error);
-                setMessages([]);
-            }
+            } catch { setMessages([]); }
         };
         fetchMessages();
     }, [selectedContact, senderId, vendor]);
