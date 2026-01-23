@@ -35,9 +35,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                 return;
             }
 
-            const socketUrl = (import.meta.env.VITE_SOCKET_URL && !import.meta.env.VITE_SOCKET_URL.includes("undefined"))
+            let socketUrl = (import.meta.env.VITE_SOCKET_URL && !import.meta.env.VITE_SOCKET_URL.includes("undefined"))
                 ? import.meta.env.VITE_SOCKET_URL
                 : window.location.origin;
+
+            // Fix for production deployment where localhost might be hardcoded in environment variables
+            if (socketUrl.includes("localhost") && window.location.hostname !== "localhost") {
+                console.log("🛠️ Auto-fixing localhost socket URL for production hostname:", window.location.hostname);
+                socketUrl = socketUrl.replace("localhost", window.location.hostname);
+            }
             console.log(`🔌 Initializing socket connection for ${role} (${userId}) to:`, socketUrl);
 
             const newSocket = io(socketUrl, {
