@@ -371,8 +371,9 @@ const ChatPage = () => {
 
     useEffect(() => {
         if (!senderId || !globalSocket) return;
-        socketRef.current = globalSocket;
+
         const socket = globalSocket;
+        socketRef.current = socket;
 
         // Registration is now handled by SocketProvider on connect.
         // We only need to set up listeners here.
@@ -509,7 +510,8 @@ const ChatPage = () => {
     }, [senderId, senderRole, chatId, navigate, onlineUsers, vendor]);
 
     useEffect(() => {
-        if (!selectedContact || !senderId) return;
+        if (!selectedContact || !senderId || !globalSocket) return;
+
         const fetchMessages = async () => {
             try {
                 const userType = vendor ? 'vendor' : 'user';
@@ -518,12 +520,27 @@ const ChatPage = () => {
                 setMessages(msgs);
                 initialScrollRef.current = true;
                 autoScrollRef.current = true;
-                if (socketRef.current) socketRef.current.emit("join_room", { roomId: selectedContact._id });
+
+                // Always ensure room is joined when messages are fetched or socket becomes ready
+                if (globalSocket.connected) {
+                    console.log("🚪 Joining room:", selectedContact._id);
+                    globalSocket.emit("join_room", { roomId: selectedContact._id });
+                } else {
+                    // If not connected yet, wait for connection then join
+                    globalSocket.once("connect", () => {
+                        console.log("🚪 Joining room on reconnect:", selectedContact._id);
+                        globalSocket.emit("join_room", { roomId: selectedContact._id });
+                    });
+                }
+
                 markMessagesAsSeen(selectedContact._id, senderId, userType).catch(() => { });
-            } catch { setMessages([]); }
+            } catch (err) {
+                console.error("Error fetching messages:", err);
+                setMessages([]);
+            }
         };
         fetchMessages();
-    }, [selectedContact, senderId, vendor]);
+    }, [selectedContact, senderId, vendor, globalSocket]);
 
     const loadOlderMessages = async () => {
         if (!selectedContact || !senderId || loadingMoreMessages || !hasMoreMessages || messages.length === 0) return;
