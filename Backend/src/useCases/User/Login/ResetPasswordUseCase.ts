@@ -7,7 +7,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
   constructor(
     private _userRepository: IUserRepository,
     private _passwordService: IPasswordService
-  ) {}
+  ) { }
   async execute(
     email: string,
     newPassword: string
@@ -15,6 +15,10 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
     const user = await this._userRepository.findByEmail(email);
 
     if (!user) throw new Error("User not found");
+
+    if (user.isGoogleUser) {
+      throw new Error("This account is linked with Google. Password reset is not allowed.");
+    }
 
     const hashPassword = await this._passwordService.hashPassword(newPassword);
     await this._userRepository.updatePassword(email, hashPassword);
