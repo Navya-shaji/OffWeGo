@@ -35,7 +35,7 @@ export const getVendorWallet = async (id: string): Promise<IWallet> => {
 
           if (transaction.vendorId) {
             try {
-              const vendorResponse = await axiosInstance.get(`/api/vendor/${transaction.vendorId}`);
+              const vendorResponse = await axiosInstance.get(`/api/vendor/${transaction.vendorId}`, { skipErrorToast: true } as any);
               enhancedTransaction.vendorName = vendorResponse.data.name || vendorResponse.data.businessName || 'Unknown Vendor';
             } catch (error) {
               console.error('Failed to fetch vendor details:', error);
@@ -46,7 +46,7 @@ export const getVendorWallet = async (id: string): Promise<IWallet> => {
           // If there's a bookingId, fetch booking details
           if (transaction.bookingId) {
             try {
-              const bookingResponse = await axiosInstance.get(`/api/booking/${transaction.bookingId}`);
+              const bookingResponse = await axiosInstance.get(`/api/booking/${transaction.bookingId}`, { skipErrorToast: true } as any);
               const booking = bookingResponse.data;
               enhancedTransaction.bookingDetails = {
                 packageName: booking.package?.name || booking.packageName || 'Unknown Package',

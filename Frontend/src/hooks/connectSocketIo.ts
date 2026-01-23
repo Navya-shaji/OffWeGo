@@ -1,7 +1,11 @@
 import { io } from 'socket.io-client'
 
 const url = import.meta.env.VITE_SOCKET_URL;
-const socketUrl = (url && !url.includes('localhost')) ? url : (window.location.origin + "/");
+let socketUrl = (url && !url.includes("undefined")) ? url : window.location.origin;
+
+if (socketUrl.includes("localhost") && window.location.hostname !== "localhost") {
+  socketUrl = socketUrl.replace("localhost", window.location.hostname);
+}
 
 const getToken = () => {
   const userToken = localStorage.getItem('userToken');

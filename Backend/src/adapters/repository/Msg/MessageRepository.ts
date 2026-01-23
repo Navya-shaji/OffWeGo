@@ -21,7 +21,7 @@ export class MessageRepository {
             fileName: data.fileName,
             fileSize: data.fileSize,
             seen: data.seen ?? false,
-            sendedTime: data.sendedTime ?? new Date(),
+            sendedTime: new Date(),
             replyTo: data.replyTo
         });
         const saved = await newMessage.save();

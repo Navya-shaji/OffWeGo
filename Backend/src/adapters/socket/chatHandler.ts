@@ -48,7 +48,7 @@ export class ChatHandler {
                 await this._chatRepository.updateLastMessage(
                     data.chatId,
                     lastMessageText,
-                    data.sendedTime || new Date()
+                    message.sendedTime || new Date()
                 );
             } catch (error) {
                 console.error('Error updating last message:', error);

@@ -35,7 +35,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                 return;
             }
 
-            const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+            const socketUrl = (import.meta.env.VITE_SOCKET_URL && !import.meta.env.VITE_SOCKET_URL.includes("undefined"))
+                ? import.meta.env.VITE_SOCKET_URL
+                : window.location.origin;
             console.log(`🔌 Initializing socket connection for ${role} (${userId}) to:`, socketUrl);
 
             const newSocket = io(socketUrl, {
