@@ -171,7 +171,7 @@ export class TravelPostController {
   async toggleSaveTravelPost(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.userId || req.user?.id;
-      const { id } = req.params;
+      const { postId } = req.params;
 
       if (!userId) {
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -181,7 +181,7 @@ export class TravelPostController {
         return;
       }
 
-      const result = await this._toggleSaveTravelPostUsecase.execute(userId, id);
+      const result = await this._toggleSaveTravelPostUsecase.execute(userId, postId);
 
       res.status(HttpStatus.OK).json({
         success: true,
