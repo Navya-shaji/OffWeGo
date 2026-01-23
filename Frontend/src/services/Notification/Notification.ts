@@ -214,9 +214,8 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
       recipientType,
       recipientId,
     }, {
-      // @ts-ignore - skipErrorToast is a custom property handled by our interceptor
       skipErrorToast: true
-    });
+    } as any);
 
     if (!res || !res.data) {
       return [];

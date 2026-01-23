@@ -28,7 +28,6 @@ export default function WalletManagement({ embedded = false, refreshTrigger }: {
 
     const fetchWallet = async () => {
       try {
-        // @ts-ignore
         const data = await getUserWallet(user.id, { skipErrorToast: true });
         setWallet(data);
       } catch {

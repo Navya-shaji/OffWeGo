@@ -32,7 +32,6 @@ const Profile = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // @ts-ignore
         const bookings = await getUserBookings({ skipErrorToast: true });
         setBookingCount(bookings?.length || 0);
       } catch (error) {
