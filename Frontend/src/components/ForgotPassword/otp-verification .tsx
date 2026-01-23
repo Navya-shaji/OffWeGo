@@ -1,7 +1,6 @@
-import { useState, useRef } from "react";
-import { verifyOtpForReset } from "@/services/user/LoginService";
+import { useState, useEffect } from "react";
+import { verifyOtpForReset, sendOtpForReset } from "@/services/user/LoginService";
 import toast from "react-hot-toast";
-import { X } from "lucide-react";
 import ResetPasswordModal from "./reset password";
 import { Link } from "react-router-dom";
 
@@ -14,21 +13,60 @@ export default function VerifyResetOtpModal({
   email,
   onClose,
 }: VerifyResetOtpModalProps) {
-  const [otp, setOtp] = useState(Array(6).fill(""));
-  const inputRefs = useRef<HTMLInputElement[]>([]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
 
+  useEffect(() => {
+    setTimeLeft(60);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === 1) {
+          clearInterval(timer);
+          toast.error("OTP expired. Please resend.");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    document.getElementById("otp-0")?.focus();
+  }, []);
+
   const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const updatedOtp = [...otp];
-    updatedOtp[index] = value;
-    setOtp(updatedOtp);
-    if (value && index < 5) inputRefs.current[index + 1]?.focus();
+    if (/^\d?$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+
+      if (value && index < 5) {
+        document.getElementById(`otp-${index + 1}`)?.focus();
+      }
+    }
   };
 
-  const handleBackspace = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0)
-      inputRefs.current[index - 1]?.focus();
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData("text").slice(0, 6);
+    if (/^\d+$/.test(pasteData)) {
+      const newOtp = [...otp];
+      pasteData.split("").forEach((digit, i) => {
+        if (i < 6) newOtp[i] = digit;
+      });
+      setOtp(newOtp);
+
+      const nextIndex = Math.min(pasteData.length, 5);
+      document.getElementById(`otp-${nextIndex}`)?.focus();
+    }
   };
 
   const handleSubmit = async () => {
@@ -47,77 +85,93 @@ export default function VerifyResetOtpModal({
     }
   };
 
+  const handleResend = async () => {
+    try {
+      toast.loading("Resending OTP...");
+      await sendOtpForReset(email);
+      toast.dismiss();
+      toast.success("OTP resent successfully");
+      setTimeLeft(60);
+      setOtp(["", "", "", "", "", ""]);
+      document.getElementById("otp-0")?.focus();
+    } catch {
+      toast.error("Failed to resend OTP");
+    }
+  };
+
   if (showResetPasswordModal) {
-    return (
-      <ResetPasswordModal
-        email={email}
-        onClose={onClose} 
-      />
-    );
+    return <ResetPasswordModal email={email} onClose={onClose} />;
   }
 
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60)}:${s % 60 < 10 ? "0" : ""}${s % 60}`;
+
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="relative w-[380px] bg-white border border-gray-200 rounded-3xl shadow-xl p-8 flex flex-col items-center animate-fadeIn">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition"
-        >
-          <X size={22} />
-        </button>
-
-        <h2 className="text-2xl font-serif font-semibold text-gray-800 mb-8 text-center">
-          Verification
-        </h2>
-
-        <p className="text-sm font-semibold text-gray-700 mb-6 text-center">
-          Enter Verification Code
-        </p>
-
-        <div className="flex justify-center gap-3 mb-6">
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              type="text"
-              value={digit}
-              maxLength={1}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleBackspace(index, e)}
-              ref={(el) => {
-                if (el) inputRefs.current[index] = el;
-              }}
-              className="w-12 h-12 text-center text-lg font-semibold border border-gray-300 rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black transition-all"
-            />
-          ))}
+    <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+        <div className="bg-orange-100 p-5 pb-12 relative rounded-b-[60%] text-center">
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-4 text-gray-400 hover:text-red-500 text-xl"
+          >
+            &times;
+          </button>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Verify OTP</h2>
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png"
+            className="w-20 h-20 mx-auto"
+            alt="OTP Icon"
+          />
         </div>
 
-        <p className="text-sm text-gray-500 mb-8">
-          If you didn't receive a code,{" "}
-          <span className="text-red-500 cursor-pointer hover:underline">
-            Resend
-          </span>
-        </p>
-
-        <button
-          onClick={handleSubmit}
-          disabled={otp.some((digit) => digit === "")}
-          className={`w-full font-medium py-3 rounded-full transition-all duration-200 ${
-            otp.every((digit) => digit !== "")
-              ? "bg-black text-white hover:bg-gray-800"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
-          }`}
-        >
-          Verify
-        </button>
-
-        <div className="mt-8 w-full text-center">
-          <p className="text-xs text-gray-400 mb-2">Do you have an account?</p>
-          <Link
-            to="/signup"
-            className="w-full border border-gray-300 text-gray-700 font-medium py-2 rounded-full hover:bg-gray-50 transition-all duration-200 block"
+        <div className="p-8 -mt-8 text-center">
+          <p className="text-sm text-gray-600 mb-6">
+            We sent a 6-digit verification code to your email.
+          </p>
+          <div className="flex justify-between gap-3 mb-6">
+            {otp.map((digit, i) => (
+              <input
+                key={i}
+                id={`otp-${i}`}
+                type="text"
+                maxLength={1}
+                inputMode="numeric"
+                value={digit}
+                onChange={(e) => handleChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                onPaste={handlePaste}
+                className="w-12 h-14 text-center text-lg border rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            ))}
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={timeLeft === 0}
+            className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
           >
-            Sign up
-          </Link>
+            Verify
+          </button>
+          <p className="text-sm mt-4 text-gray-500">
+            OTP expires in: <strong>{formatTime(timeLeft)}</strong>
+          </p>
+          <p className="text-xs mt-2 text-gray-500">
+            Didn't receive the code?{" "}
+            <span
+              className={`cursor-pointer ${timeLeft === 0 ? "text-black font-semibold hover:underline" : "text-gray-400"}`}
+              onClick={timeLeft === 0 ? handleResend : undefined}
+            >
+              Resend
+            </span>
+          </p>
+          <div className="mt-8">
+            <p className="text-xs text-gray-400 mb-2">Remember your password?</p>
+            <Link
+              to="/login"
+              className="w-full border border-gray-300 text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition block"
+            >
+              Back to Login
+            </Link>
+          </div>
         </div>
       </div>
     </div>
