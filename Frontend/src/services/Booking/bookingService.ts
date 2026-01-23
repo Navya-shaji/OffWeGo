@@ -5,22 +5,19 @@ import { AdminRoutes, UserRoutes, VendorRoutes, USER_ROUTES_BASE, ADMIN_ROUTES_B
 export const createBooking = async (
   data: string,
   payment_id: string,
-
-
+  config?: any
 ) => {
-
   const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.CREATE_BOOKING}`, {
     data,
     payment_id,
-
-  });
+  }, config);
 
   return response.data;
 };
 
 
-export const getUserBookings = async () => {
-  const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.USER_BOOKINGS}`);
+export const getUserBookings = async (config?: any) => {
+  const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.USER_BOOKINGS}`, config);
   return response.data.data;
 };
 

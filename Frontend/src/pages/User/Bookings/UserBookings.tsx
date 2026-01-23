@@ -265,7 +265,7 @@ const BookingDetailsSection = ({ embedded = false, onAction }: { embedded?: bool
         const results = await Promise.all(
           idsToFetch.map(async (id) => {
             try {
-              const res = await getsingleDestination(id);
+              const res = await getsingleDestination(id, { skipErrorToast: true });
               const data = res?.data || res;
               const name =
                 data?.destination?.name ||

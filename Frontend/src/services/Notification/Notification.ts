@@ -213,6 +213,9 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     const res = await axiosInstance.post(endpoint, {
       recipientType,
       recipientId,
+    }, {
+      // @ts-ignore - skipErrorToast is a custom property handled by our interceptor
+      skipErrorToast: true
     });
 
     if (!res || !res.data) {

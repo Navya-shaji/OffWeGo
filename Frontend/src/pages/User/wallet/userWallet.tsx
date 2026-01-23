@@ -28,7 +28,8 @@ export default function WalletManagement({ embedded = false, refreshTrigger }: {
 
     const fetchWallet = async () => {
       try {
-        const data = await getUserWallet(user.id);
+        // @ts-ignore
+        const data = await getUserWallet(user.id, { skipErrorToast: true });
         setWallet(data);
       } catch {
         setError("Failed to load wallet");

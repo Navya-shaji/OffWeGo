@@ -83,9 +83,12 @@ export const updateDestination = async (
   }
 };
 
-export const getsingleDestination = async (id: string) => {
+export const getsingleDestination = async (id: string, config?: any) => {
   try {
-    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_SINGLE_DESTINATION.replace(":id", id)}`);
+    const res = await axiosInstance.get(
+      `${USER_ROUTES_BASE}${UserRoutes.GET_SINGLE_DESTINATION.replace(":id", id)}`,
+      config
+    );
 
     return res.data;
   } catch (error) {

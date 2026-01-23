@@ -22,9 +22,12 @@ export const createUserWallet = async (
   }
 };
 
-export const getUserWallet = async (id: string): Promise<IWallet> => {
+export const getUserWallet = async (id: string, config?: any): Promise<IWallet> => {
   try {
-    const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_USER_WALLET.replace(":id", id)}`);
+    const response = await axiosInstance.get(
+      `${USER_ROUTES_BASE}${UserRoutes.GET_USER_WALLET.replace(":id", id)}`,
+      config
+    );
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
