@@ -22,11 +22,16 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
     try {
       const decoded = await tokenService.verifyToken(token, "access");
       if (!decoded) throw new Error("Invalid or expired token");
-      req.user = decoded as JwtPayload & {
-        id: string;
-        email?: string;
-        role: string;
+
+      const payload = decoded as any;
+      const id = payload.userId || payload.id || payload.vendorId || payload.adminId;
+
+      req.user = {
+        ...payload,
+        id: id,
+        userId: id
       };
+
       next();
     } catch (err) {
       return res

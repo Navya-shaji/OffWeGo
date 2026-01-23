@@ -10,12 +10,12 @@ export class GoogleSignupController {
     private _googleSignupUsecase: IGoogleSignupUseCase,
     private _tokenService: ITokenService,
     private _createWalletUsecase: ICreateWalletUsecase
-  ) {}
+  ) { }
 
   async googleSignin(req: Request, res: Response): Promise<void> {
     try {
       const { token, fcmToken } = req.body;
-      
+
       if (!token) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -24,16 +24,16 @@ export class GoogleSignupController {
         return;
       }
 
-    
-      const user = await this._googleSignupUsecase.execute(token, fcmToken || "");
-     
 
-    
+      const user = await this._googleSignupUsecase.execute(token, fcmToken || "");
+
+
+
       const mappedUser = user as any
       const userId = mappedUser.id || mappedUser._id?.toString();
-      
-     
-      
+
+
+
       if (!user || !userId) {
         console.error(" User or userId is missing:", { user: !!user, userId: !!userId });
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -43,7 +43,7 @@ export class GoogleSignupController {
         return;
       }
 
-     
+
       try {
         await this._createWalletUsecase.execute(userId, "user");
       } catch (walletErr) {
@@ -51,12 +51,13 @@ export class GoogleSignupController {
       }
 
       const payload = {
+        id: userId,
         userId: userId,
         role: mappedUser.role || user.role || 'user',
         email: mappedUser.email || user.email,
       };
-      
-      
+
+
 
       const accessToken = this._tokenService.generateAccessToken(payload);
       const refreshToken = this._tokenService.generateRefreshToken(payload);

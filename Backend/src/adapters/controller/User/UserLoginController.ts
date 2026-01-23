@@ -26,7 +26,7 @@ export class UserLoginController {
       const loginPayload: LoginDTo = { email, password };
       const result = await this._loginUserUseCase.execute(loginPayload, fcmToken);
 
-      const user = result.user;
+      const { user, accessToken, refreshToken } = result;
 
       try {
         const userId = (user as any).id || (user as any)._id?.toString();
@@ -45,10 +45,6 @@ export class UserLoginController {
         });
         return;
       }
-
-      const payload = { userId: user.id, role: user.role };
-      const accessToken = this._tokenService.generateAccessToken(payload);
-      const refreshToken = this._tokenService.generateRefreshToken(payload);
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
