@@ -13,16 +13,16 @@ export class HotelController {
     private _editHotelUsecase: IEditHotelUsecase,
     private _deleteHotelUsecase: IDeleteHotelUsecase,
     private _searchHotelUsecase: ISearchHotelUsecase
-  ) {}
+  ) { }
 
   async createHotels(req: Request, res: Response) {
     try {
-      const destinationId = req.params.id;
+      const packageId = req.params.packageId;
       const hotelData = req.body;
 
       const result = await this._createHotelUsecase.execute(
         hotelData,
-        destinationId
+        packageId
       );
 
       res.status(HttpStatus.OK).json({
@@ -60,7 +60,7 @@ export class HotelController {
 
   async editHotel(req: Request, res: Response) {
     try {
-      const hotelId = req.params.id;
+      const hotelId = req.params.hotelId;
       const hotelData = req.body;
 
       const result = await this._editHotelUsecase.execute(hotelId, hotelData);
@@ -80,9 +80,9 @@ export class HotelController {
 
   async deleteHotel(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { hotelId } = req.params;
 
-      const result = await this._deleteHotelUsecase.execute(id);
+      const result = await this._deleteHotelUsecase.execute(hotelId);
 
       res.status(HttpStatus.OK).json({
         success: true,

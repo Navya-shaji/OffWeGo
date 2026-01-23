@@ -51,7 +51,7 @@ export const getCategory = async (
 
 export const editCategory = async (id: string, updatedData: CategoryType) => {
   try {
-    const res = await axiosInstance.put(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_CATEGORY.replace(":id", id)}`, updatedData);
+    const res = await axiosInstance.put(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_CATEGORY.replace(":categoryId", id)}`, updatedData);
 
     return res.data;
   } catch (error) {
@@ -63,7 +63,7 @@ export const editCategory = async (id: string, updatedData: CategoryType) => {
 };
 export const deleteCategory = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`${ADMIN_ROUTES_BASE}${AdminRoutes.DELETE_CATEGORY.replace(":id", id)}`);
+    const response = await axiosInstance.delete(`${ADMIN_ROUTES_BASE}${AdminRoutes.DELETE_CATEGORY.replace(":categoryId", id)}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

@@ -69,7 +69,7 @@ export class SubscriptionController {
 
   async updateSubscription(req: Request, res: Response) {
     try {
-      const id = req.params.id;
+      const id = req.params.subscriptionId;
       const updatedData: CreateSubscriptionDto = req.body;
 
       const result = await this._editSubscriptionUsecase.execute(
@@ -106,9 +106,9 @@ export class SubscriptionController {
 
   async deleteSubscription(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { subscriptionId } = req.params;
 
-      const result = await this._deleteSubscriptionUsecase.execute(id);
+      const result = await this._deleteSubscriptionUsecase.execute(subscriptionId);
 
       res.status(HttpStatus.OK).json({
         success: true,

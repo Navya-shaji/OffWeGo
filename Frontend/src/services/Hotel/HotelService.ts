@@ -6,7 +6,7 @@ import { VendorRoutes, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 export const createHotel = async (data: Hotel, destinationId: string) => {
   try {
     const res = await axiosInstance.post(
-      `${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_HOTEL.replace(":id", destinationId)}`,
+      `${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_HOTEL.replace(":packageId", destinationId)}`,
       data
     );
     return res;
@@ -60,7 +60,7 @@ export const getAllHotel = async (
 
 export const updateHotel = async (id: string, data: Hotel) => {
   try {
-    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_HOTEL.replace(":id", id)}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_HOTEL.replace(":hotelId", id)}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -72,7 +72,7 @@ export const updateHotel = async (id: string, data: Hotel) => {
 
 export const deleteHotel = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_HOTEL.replace(":id", id)}`);
+    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_HOTEL.replace(":hotelId", id)}`);
 
     return response.data;
   } catch (error) {

@@ -84,7 +84,7 @@ export const fetchAllPackages = async (
 
 export const editPackage = async (id: string, data: Package) => {
   try {
-    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_PACKAGE.replace(":id", id)}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_PACKAGE.replace(":packageId", id)}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -98,7 +98,7 @@ export const editPackage = async (id: string, data: Package) => {
 
 export const deletePackage = async (id: string): Promise<void> => {
   try {
-    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELET_PACKAGE.replace(":id", id)}`);
+    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELET_PACKAGE.replace(":packageId", id)}`);
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -131,7 +131,7 @@ export const getPackagesByDestination = async (
   packages: Package[];
 }> => {
   try {
-    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_ALL_PACKAGES.replace(":id", destinationId)}`);
+    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.GET_ALL_PACKAGES.replace(":destinationId", destinationId)}`);
 
     return res.data;
   } catch (error) {

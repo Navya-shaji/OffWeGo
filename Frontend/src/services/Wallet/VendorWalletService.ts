@@ -24,7 +24,7 @@ export const createVendorWallet = async (
 
 export const getVendorWallet = async (id: string): Promise<IWallet> => {
   try {
-    const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.GET_VENDOR_WALLET.replace(":id", id)}`);
+    const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.GET_VENDOR_WALLET.replace(":vendorId", id)}`);
 
     const wallet = response.data;
     if (wallet.transactions && Array.isArray(wallet.transactions)) {

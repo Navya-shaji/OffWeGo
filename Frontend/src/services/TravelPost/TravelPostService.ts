@@ -170,7 +170,7 @@ export const trackPostView = async (
   postId: string
 ): Promise<{ views: number }> => {
   try {
-    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_TRACK_VIEW.replace(":id", postId)}`);
+    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_TRACK_VIEW.replace(":postId", postId)}`);
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -189,7 +189,7 @@ export const toggleSavePost = async (
   postId: string
 ): Promise<{ saved: boolean; likes: number }> => {
   try {
-    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_SAVE_TOGGLE.replace(":id", postId)}`);
+    const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_SAVE_TOGGLE.replace(":postId", postId)}`);
     return response.data.data;
   } catch (error) {
     if (isAxiosError(error)) {

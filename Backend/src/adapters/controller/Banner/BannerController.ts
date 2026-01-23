@@ -16,7 +16,7 @@ export class BannerController {
     private _editBannerUsecase: IEditBannerUsecase,
     private _deleteBannerUsecase: IDeleteBannerUsecase,
     private _updateActionUsecase: IBannerActionUsecase
-  ) {}
+  ) { }
 
   async createBanner(req: Request, res: Response): Promise<void> {
     try {
@@ -70,7 +70,7 @@ export class BannerController {
 
   async editBanner(req: Request, res: Response): Promise<void> {
     try {
-      const bannerId = req.params.id?.trim();
+      const bannerId = req.params.bannerId?.trim();
       const bannerData = req.body;
 
       if (!bannerId) {
@@ -109,9 +109,9 @@ export class BannerController {
 
   async bannerDelete(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { bannerId } = req.params;
 
-      if (!id) {
+      if (!bannerId) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: ErrorMessages.INVALID_ID,
@@ -119,7 +119,7 @@ export class BannerController {
         return;
       }
 
-      const result = await this._deleteBannerUsecase.execute(id);
+      const result = await this._deleteBannerUsecase.execute(bannerId);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -144,10 +144,10 @@ export class BannerController {
 
   async bannerAction(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { bannerId } = req.params;
       const { action } = req.body;
 
-      if (!id || !action) {
+      if (!bannerId || !action) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: ErrorMessages.MISSING_REQUIRED_FIELDS,
@@ -155,7 +155,7 @@ export class BannerController {
         return;
       }
 
-      const updatedBanner = await this._updateActionUsecase.execute(id, action);
+      const updatedBanner = await this._updateActionUsecase.execute(bannerId, action);
 
       res.status(HttpStatus.OK).json({
         success: true,

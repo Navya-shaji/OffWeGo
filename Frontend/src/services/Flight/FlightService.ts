@@ -52,7 +52,7 @@ export const fetchAllFlights = async (): Promise<Flight[]> => {
 
 export const updateFlight = async (id: string, data: Flight) => {
   try {
-    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_FLIGHT.replace(":id", id)}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_FLIGHT.replace(":flightId", id)}`, data);
 
     return res.data?.data || res.data;
   } catch (error) {
@@ -65,7 +65,7 @@ export const updateFlight = async (id: string, data: Flight) => {
 
 export const deleteFlight = async (id: string): Promise<void> => {
   try {
-    const res = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_FLIGHT.replace(":id", id)}`);
+    const res = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_FLIGHT.replace(":flightId", id)}`);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {

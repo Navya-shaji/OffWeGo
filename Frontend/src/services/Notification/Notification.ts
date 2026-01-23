@@ -321,8 +321,8 @@ export const ReadNotification = async (id: string): Promise<Notification> => {
 
     const endpoint =
       recipientType === "vendor"
-        ? `${VENDOR_ROUTES_BASE}${VendorRoutes.READ_NOTIFICATION.replace(":id", id)}`
-        : `${USER_ROUTES_BASE}${UserRoutes.READ_NOTIFICATION.replace(":id", id)}`;
+        ? `${VENDOR_ROUTES_BASE}${VendorRoutes.READ_NOTIFICATION.replace(":notificationId", id)}`
+        : `${USER_ROUTES_BASE}${UserRoutes.READ_NOTIFICATION.replace(":notificationId", id)}`;
 
     const res = await axiosInstance.patch(endpoint);
 

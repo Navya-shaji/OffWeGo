@@ -18,7 +18,7 @@ export const createReviews = async (data: IReview) => {
 
 export const allReviews = async (packageName: string) => {
   try {
-    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.All_REVIEWS.replace(":id", encodeURIComponent(packageName))}`);
+    const res = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.All_REVIEWS.replace(":packageId", encodeURIComponent(packageName))}`);
 
     return res.data.data;
   } catch (error) {

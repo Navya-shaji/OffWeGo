@@ -132,7 +132,7 @@ export class AdminVendorController {
 
   async updateVendorApprovalStatus(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id?.trim();
+      const vendorId = req.params.vendorId?.trim();
       const { status, rejectionReason } = req.body;
 
       if (!vendorId) {
@@ -191,7 +191,7 @@ export class AdminVendorController {
 
   async blockOrUnblockVendor(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id?.trim();
+      const vendorId = req.params.vendorId?.trim();
       const { isBlocked } = req.body;
 
       if (!vendorId) {

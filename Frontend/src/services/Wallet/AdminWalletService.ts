@@ -24,7 +24,7 @@ export const createWallet = async (
 
 export const getWallet = async (id: string): Promise<IWallet> => {
   try {
-    const response = await axiosInstance.get(`${ADMIN_ROUTES_BASE}${AdminRoutes.GET_ADMIN_WALLET.replace(":id", id)}`);
+    const response = await axiosInstance.get(`${ADMIN_ROUTES_BASE}${AdminRoutes.GET_ADMIN_WALLET.replace(":adminId", id)}`);
 
     const wallet = response.data;
     if (wallet.transactions && Array.isArray(wallet.transactions)) {

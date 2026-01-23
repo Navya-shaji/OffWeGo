@@ -31,7 +31,7 @@ export const getBanner = async () => {
 
 export const actionBannerupdate = async (id: string, action: boolean) => {
   try {
-    const res = await axiosInstance.patch(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_BANNER.replace(":id", id)}`, {
+    const res = await axiosInstance.patch(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_BANNER.replace(":bannerId", id)}`, {
       action,
     });
 
@@ -48,7 +48,7 @@ export const actionBannerupdate = async (id: string, action: boolean) => {
 
 export const BannerDelete = async (id: string) => {
   try {
-    const result = await axiosInstance.delete(`${ADMIN_ROUTES_BASE}${AdminRoutes.DELETE_BANNER.replace(":id", id)}`);
+    const result = await axiosInstance.delete(`${ADMIN_ROUTES_BASE}${AdminRoutes.DELETE_BANNER.replace(":bannerId", id)}`);
     return result.data;
   } catch (error) {
     if (isAxiosError(error)) {

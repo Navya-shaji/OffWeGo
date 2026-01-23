@@ -171,7 +171,7 @@ const RescheduleModal = ({
   );
 };
 
-const BookingDetailsSection = ({ embedded = false, onAction }: { embedded?: boolean, onAction?: () => void }) => {
+const BookingDetailsSection = ({ embedded = false, onAction, refreshTrigger }: { embedded?: boolean, onAction?: () => void, refreshTrigger?: number }) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
 
@@ -237,7 +237,7 @@ const BookingDetailsSection = ({ embedded = false, onAction }: { embedded?: bool
       }
     };
     fetchBookings();
-  }, [user?.id]);
+  }, [user?.id, refreshTrigger]);
 
   useEffect(() => {
     const destinationIds = new Set<string>();

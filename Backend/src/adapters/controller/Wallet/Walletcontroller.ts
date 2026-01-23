@@ -15,7 +15,7 @@ export class WalletController {
     private _getCompletedBookingsUsecase: IGetCompletedBookingsUseCase,
     private _walletPaymentUsecase: IWalletPaymentUseCase,
     private _completeTripUsecase: ICompleteTripUseCase
-  ) {}
+  ) { }
 
   async createWallet(req: Request, res: Response): Promise<void> {
     try {
@@ -41,7 +41,7 @@ export class WalletController {
 
   async GetWallet(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
+      const id = req.params.adminId || req.params.userId || req.params.vendorId || req.params.id;
       const result = await this._getWalletUsecase.execute(id);
 
       res.status(HttpStatus.OK).json(result);

@@ -27,7 +27,7 @@ export const updateVendorStatus = async (
   status: "approved" | "blocked"
 ) => {
   const response = await axiosInstance.patch(
-    `${ADMIN_BASE}${AdminRoutes.ADMIN_VENDOR_APPROVAL.replace(":id", vendorId)}`,
+    `${ADMIN_BASE}${AdminRoutes.ADMIN_VENDOR_APPROVAL.replace(":vendorId", vendorId)}`,
     {
       status,
     }
@@ -40,7 +40,7 @@ export const updateVendorBlockStatus = async (
   isBlocked: boolean
 ) => {
   const response = await axiosInstance.patch(
-    `${ADMIN_BASE}${AdminRoutes.BLOCK_UNBLOCK_VENDOR.replace(":id", vendorId)}`,
+    `${ADMIN_BASE}${AdminRoutes.BLOCK_UNBLOCK_VENDOR.replace(":vendorId", vendorId)}`,
     {
       isBlocked,
     }

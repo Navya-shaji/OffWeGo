@@ -26,7 +26,7 @@ export const getAllUsers = async (
 export const updateUserStatus = async (
   userId: string,
   status: "active" | "blocked") => {
-  const response = await axiosInstance.patch(`${ADMIN_BASE}${AdminRoutes.UPDATE_USER_STATUS.replace(":id", userId)}`, {
+  const response = await axiosInstance.patch(`${ADMIN_BASE}${AdminRoutes.UPDATE_USER_STATUS.replace(":userId", userId)}`, {
     status,
   });
   return response.data;

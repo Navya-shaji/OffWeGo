@@ -5,7 +5,7 @@ import { VendorRoutes, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const createActivity = async (data: Activity, destinationId: string) => {
   try {
-    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_ACTIVITY.replace(":id", destinationId)}`, data);
+    const res = await axiosInstance.post(`${VENDOR_ROUTES_BASE}${VendorRoutes.CREATE_ACTIVITY.replace(":packageId", destinationId)}`, data);
     return res;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -57,7 +57,7 @@ export const getActivities = async (
 
 export const updateActivity = async (id: string, data: Activity) => {
   try {
-    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_ACTIVITY.replace(":id", id)}`, data);
+    const res = await axiosInstance.put(`${VENDOR_ROUTES_BASE}${VendorRoutes.EDIT_ACTIVITY.replace(":activityId", id)}`, data);
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -71,7 +71,7 @@ export const updateActivity = async (id: string, data: Activity) => {
 
 export const deleteActivity = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_ACTIVITY.replace(":id", id)}`);
+    const response = await axiosInstance.delete(`${VENDOR_ROUTES_BASE}${VendorRoutes.DELETE_ACTIVITY.replace(":activityId", id)}`);
 
     return response.data.data;
   } catch (error) {

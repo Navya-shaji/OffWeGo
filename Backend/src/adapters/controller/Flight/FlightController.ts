@@ -11,7 +11,7 @@ export class FlightController {
     private _getAllFlightUsecase: IGetAllFlightUsecase,
     private _editFlightUsecase: IEditFlightUsecase,
     private _deleteFlightUsecase: IDeleteFlightUsecase
-  ) {}
+  ) { }
 
   async addFlightDetails(req: Request, res: Response) {
     try {
@@ -47,7 +47,7 @@ export class FlightController {
 
   async EditFlight(req: Request, res: Response) {
     try {
-      const flightId = req.params.id;
+      const flightId = req.params.flightId;
       const flightData = req.body;
       const result = await this._editFlightUsecase.execute(flightId, flightData);
       res.status(HttpStatus.OK).json({
@@ -66,8 +66,8 @@ export class FlightController {
 
   async DeleteFlight(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const result = await this._deleteFlightUsecase.execute(id);
+      const { flightId } = req.params;
+      const result = await this._deleteFlightUsecase.execute(flightId);
       res.status(HttpStatus.OK).json({
         success: true,
         data: result,

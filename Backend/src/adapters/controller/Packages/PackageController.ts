@@ -47,7 +47,7 @@ export class PackageController {
 
   async getPackagesForUser(req: Request, res: Response) {
     try {
-      const destinationId = req.params.id;
+      const destinationId = req.params.destinationId;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 3;
 
@@ -146,7 +146,7 @@ export class PackageController {
 
   async EditPackage(req: Request, res: Response) {
     try {
-      const packageId = req.params.id;
+      const packageId = req.params.packageId;
       const packageData = req.body;
 
       const result = await this._editPackageUsecase.execute(
@@ -169,9 +169,9 @@ export class PackageController {
 
   async deletePackage(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { packageId } = req.params;
 
-      const result = await this._deletePackageUsecase.execute(id);
+      const result = await this._deletePackageUsecase.execute(packageId);
 
       res.status(HttpStatus.OK).json({
         success: true,

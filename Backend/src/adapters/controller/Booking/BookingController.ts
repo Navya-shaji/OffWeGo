@@ -93,7 +93,7 @@ export class BookingController {
 
   async getVendorsideBookings(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id;
+      const vendorId = req.params.vendorId;
 
       const bookings = await this._vendorsidebookingUsecase.execute(vendorId);
 
@@ -119,7 +119,7 @@ export class BookingController {
 
   async bookingDates(req: Request, res: Response): Promise<void> {
     try {
-      const vendorId = req.params.id;
+      const vendorId = req.params.vendorId;
 
       const bookingDates = await this._bookingDatesUsecase.execute(vendorId);
 
@@ -145,7 +145,7 @@ export class BookingController {
 
   async cancelBooking(req: Request, res: Response): Promise<void> {
     try {
-      const bookingId = req.params.id;
+      const bookingId = req.params.bookingId;
 
       const booking = await this._cancelBookingUsecase.execute(bookingId);
 
@@ -179,7 +179,7 @@ export class BookingController {
 
   async rescheduleBooking(req: Request, res: Response): Promise<void> {
     try {
-      const bookingId = req.params.id;
+      const bookingId = req.params.bookingId;
       const { newDate } = req.body;
 
       const updatedBooking = await this._rescheduleBookingUsecase.execute({

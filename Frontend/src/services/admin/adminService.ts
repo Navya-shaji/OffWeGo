@@ -22,7 +22,7 @@ export const getPendingVendors = async () => {
 };
 
 export const updateVendorStatus = async (vendorId: string, status: "approved" | "rejected", rejectionReason?: string) => {
-  const response = await axiosInstance.patch(`${ADMIN_BASE}${AdminRoutes.ADMIN_VENDOR_APPROVAL.replace(":id", vendorId)}`, {
+  const response = await axiosInstance.patch(`${ADMIN_BASE}${AdminRoutes.ADMIN_VENDOR_APPROVAL.replace(":vendorId", vendorId)}`, {
     status,
     rejectionReason,
   });
@@ -45,7 +45,7 @@ export const updateTravelPostStatus = async (
   rejectedReason?: string
 ): Promise<TravelPost> => {
   const response = await axiosInstance.patch(
-    `${ADMIN_BASE}${AdminRoutes.TRAVEL_POST_STATUS_UPDATE.replace(":id", postId)}`,
+    `${ADMIN_BASE}${AdminRoutes.TRAVEL_POST_STATUS_UPDATE.replace(":postId", postId)}`,
     {
       status,
       rejectedReason,

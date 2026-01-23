@@ -13,16 +13,16 @@ export class ActivityController {
     private _editActivityUsecase: IEditActivityUsecase,
     private _deleteActivityUsecase: IdeleteActivity,
     private _searchActivityUsecase: IsearchActivityUsecase
-  ) {}
+  ) { }
 
   async createActivities(req: Request, res: Response) {
     try {
-      const destinationId = req.params.id;
+      const packageId = req.params.packageId;
       const activityData = req.body;
 
       const result = await this._createActivityUsecase.execute(
         activityData,
-        destinationId
+        packageId
       );
 
       res.status(HttpStatus.OK).json({
@@ -60,7 +60,7 @@ export class ActivityController {
 
   async editActivities(req: Request, res: Response) {
     try {
-      const activityId = req.params.id;
+      const activityId = req.params.activityId;
       const activityData = req.body;
 
       const result = await this._editActivityUsecase.execute(
@@ -83,9 +83,9 @@ export class ActivityController {
 
   async deleteActivity(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { activityId } = req.params;
 
-      const result = await this._deleteActivityUsecase.execute(id);
+      const result = await this._deleteActivityUsecase.execute(activityId);
 
       res.status(HttpStatus.OK).json({
         success: true,

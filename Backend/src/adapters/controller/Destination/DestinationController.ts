@@ -34,7 +34,7 @@ export class DestinationController {
 
   async editDestinationHandler(req: Request, res: Response) {
     try {
-      const destinationId = req.params.id;
+      const destinationId = req.params.destinationId;
       const destinationData = req.body;
 
       const result = await this._editDestinationUsecase.execute(
@@ -89,8 +89,8 @@ export class DestinationController {
 
   async getSingleDestinationController(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const result = await this._getSingleDestinationUsecase.execute(id);
+      const { destinationId } = req.params;
+      const result = await this._getSingleDestinationUsecase.execute(destinationId);
 
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
@@ -104,8 +104,8 @@ export class DestinationController {
 
   async deleteDestinationController(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const result = await this._deleteDestinationUsecase.execute(id);
+      const { destinationId } = req.params;
+      const result = await this._deleteDestinationUsecase.execute(destinationId);
 
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {

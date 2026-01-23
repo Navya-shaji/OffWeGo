@@ -28,7 +28,7 @@ export class PackageWiseGroupingController {
 
   async GetPackageWiseGroups(req: Request, res: Response) {
     try {
-      const packageId = req.params.id;
+      const packageId = req.params.packageId;
       if (!packageId) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,

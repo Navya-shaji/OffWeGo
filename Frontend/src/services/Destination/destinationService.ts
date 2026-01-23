@@ -70,7 +70,7 @@ export const updateDestination = async (
   data: DestinationInterface
 ) => {
   try {
-    const res = await axiosInstance.put(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_DESTINATION.replace(":id", id)}`, data);
+    const res = await axiosInstance.put(`${ADMIN_ROUTES_BASE}${AdminRoutes.EDIT_DESTINATION.replace(":destinationId", id)}`, data);
 
     return res.data;
   } catch (error) {
@@ -86,7 +86,7 @@ export const updateDestination = async (
 export const getsingleDestination = async (id: string, config?: any) => {
   try {
     const res = await axiosInstance.get(
-      `${USER_ROUTES_BASE}${UserRoutes.GET_SINGLE_DESTINATION.replace(":id", id)}`,
+      `${USER_ROUTES_BASE}${UserRoutes.GET_SINGLE_DESTINATION.replace(":destinationId", id)}`,
       config
     );
 
@@ -115,7 +115,7 @@ export const deleteDestination = async (id: string): Promise<void> => {
       endpoint = VendorRoutes.DELETE_DESTINATION;
     }
 
-    const response = await axiosInstance.delete(`${base}${endpoint.replace(":id", id)}`);
+    const response = await axiosInstance.delete(`${base}${endpoint.replace(":destinationId", id)}`);
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {

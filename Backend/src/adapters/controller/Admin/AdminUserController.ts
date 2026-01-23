@@ -12,7 +12,7 @@ export class AdminUserController {
     private _getAllUserUsecase: IGetAllUserUsecase,
     private _updateUserStatusUseCase: IUpdateUserUseCase,
     private _searchUserUsecase: ISearchUserUsecase
-  ) {}
+  ) { }
 
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
@@ -48,7 +48,7 @@ export class AdminUserController {
 
   async updateStatus(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.id?.trim();
+      const userId = req.params.userId?.trim();
       const { status } = req.body;
 
       if (!userId) {

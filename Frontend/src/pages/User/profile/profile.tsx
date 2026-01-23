@@ -39,7 +39,7 @@ const Profile = () => {
       }
     };
     fetchStats();
-  }, []);
+  }, [refreshTrigger]);
 
   const badges = useMemo(() => {
     const list = [];
@@ -438,7 +438,7 @@ const Profile = () => {
                   exit={{ opacity: 0, x: -20 }}
                   className="bg-white rounded-[2rem] p-4 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100"
                 >
-                  <BookingDetailsSection embedded onAction={handleAction} />
+                  <BookingDetailsSection embedded onAction={handleAction} refreshTrigger={refreshTrigger} />
                 </motion.div>
               ) : (
                 <motion.div

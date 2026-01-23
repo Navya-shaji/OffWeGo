@@ -12,7 +12,7 @@ export class AdminTravelPostController {
     private _listTravelPostsUsecase: IListTravelPostsUsecase,
     private _approveTravelPostUsecase: IApproveTravelPostUsecase,
     private _rejectTravelPostUsecase: IRejectTravelPostUsecase,
-  ) {}
+  ) { }
 
   async listTravelPostsByStatus(req: Request, res: Response): Promise<void> {
     try {
@@ -24,7 +24,7 @@ export class AdminTravelPostController {
 
       const normalizedStatus =
         typeof statusParam === "string" &&
-        ["PENDING", "APPROVED", "REJECTED"].includes(statusParam.toUpperCase())
+          ["PENDING", "APPROVED", "REJECTED"].includes(statusParam.toUpperCase())
           ? (statusParam.toUpperCase() as "PENDING" | "APPROVED" | "REJECTED")
           : "PENDING";
 
@@ -70,7 +70,7 @@ export class AdminTravelPostController {
 
   async updateTravelPostStatus(req: Request, res: Response): Promise<void> {
     try {
-      const postId = req.params.id?.trim();
+      const postId = req.params.postId?.trim();
       const { status, rejectedReason } = req.body as {
         status?: "APPROVED" | "REJECTED";
         rejectedReason?: string;
@@ -96,9 +96,9 @@ export class AdminTravelPostController {
         status === "APPROVED"
           ? await this._approveTravelPostUsecase.execute(postId)
           : await this._rejectTravelPostUsecase.execute(
-              postId,
-              rejectedReason || ErrorMessages.OPERATION_NOT_ALLOWED,
-            );
+            postId,
+            rejectedReason || ErrorMessages.OPERATION_NOT_ALLOWED,
+          );
 
       res.status(HttpStatus.OK).json({
         success: true,

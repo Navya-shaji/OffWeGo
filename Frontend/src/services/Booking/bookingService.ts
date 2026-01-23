@@ -27,18 +27,18 @@ export const getAllBookingsAdmin = async () => {
 };
 
 export const getAllUserBookings = async (vendorId: string) => {
-  const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.USER_BOOKINGS.replace(":id", vendorId)}`);
+  const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.USER_BOOKINGS.replace(":vendorId", vendorId)}`);
 
   return response.data.data;
 };
 
 export const bookingdates = async (vendorId: string) => {
-  const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.BOOKING_DATES.replace(":id", vendorId)}`)
+  const response = await axiosInstance.get(`${VENDOR_ROUTES_BASE}${VendorRoutes.BOOKING_DATES.replace(":vendorId", vendorId)}`)
   console.log(response, "res")
   return response.data.data
 }
 export const cancelBooking = async (bookingId: string, reason?: string) => {
-  const response = await axiosInstance.patch(`${USER_ROUTES_BASE}${UserRoutes.CANCEL_BOOKING.replace(":id", bookingId)}`, {
+  const response = await axiosInstance.patch(`${USER_ROUTES_BASE}${UserRoutes.CANCEL_BOOKING.replace(":bookingId", bookingId)}`, {
     reason: reason || undefined,
   });
   return response.data;
@@ -46,7 +46,7 @@ export const cancelBooking = async (bookingId: string, reason?: string) => {
 
 export const rescheduleBooking = async (bookingId: string, newDate: string) => {
   try {
-    const response = await axiosInstance.patch(`${USER_ROUTES_BASE}${UserRoutes.BOOKING_RESHEDULE.replace(":id", bookingId)}`, {
+    const response = await axiosInstance.patch(`${USER_ROUTES_BASE}${UserRoutes.BOOKING_RESHEDULE.replace(":bookingId", bookingId)}`, {
       newDate,
     });
     return response.data;

@@ -9,7 +9,7 @@ export class NotificationController {
     private _sendNotificationUseCase: ISendNotificationUseCase,
     private _getNotificationUseCase: IGetNotification,
     private _readNotifictaionUsecase: IReadNotificationusecase
-  ) {}
+  ) { }
 
   async sendNotification(req: Request, res: Response): Promise<void> {
     try {
@@ -31,7 +31,7 @@ export class NotificationController {
     try {
       const recipientType = req.body.recipientType;
       const recipientId = req.body.recipientId
-      
+
       const notifications = await this._getNotificationUseCase.execute(
         recipientId,
         recipientType
@@ -52,7 +52,7 @@ export class NotificationController {
 
   async readNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const Id = req.params.id;
+      const Id = req.params.notificationId;
       const result = await this._readNotifictaionUsecase.execute(Id);
       res.status(HttpStatus.OK).json({
         success: true,

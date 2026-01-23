@@ -25,7 +25,7 @@ export const createUserWallet = async (
 export const getUserWallet = async (id: string, config?: any): Promise<IWallet> => {
   try {
     const response = await axiosInstance.get(
-      `${USER_ROUTES_BASE}${UserRoutes.GET_USER_WALLET.replace(":id", id)}`,
+      `${USER_ROUTES_BASE}${UserRoutes.GET_USER_WALLET.replace(":userId", id)}`,
       config
     );
     return response.data;

@@ -41,7 +41,7 @@ export class CreateCategoryController {
 
   async EditCategory(req: Request, res: Response) {
     try {
-      const categoryId = req.params.id;
+      const categoryId = req.params.categoryId;
       const categoryData = req.body;
       const result = await this._editCategoryUsecase.execute(
         categoryId,
@@ -68,15 +68,15 @@ export class CreateCategoryController {
 
   async DeleteCategory(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const { categoryId } = req.params;
 
-      if (!id) {
+      if (!categoryId) {
         return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, error: "Category ID is required" });
       }
 
-      const result = await this._deleteCategoryUsecase.execute(id);
+      const result = await this._deleteCategoryUsecase.execute(categoryId);
       res.status(HttpStatus.OK).json({ success: true, data: result });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to delete category";

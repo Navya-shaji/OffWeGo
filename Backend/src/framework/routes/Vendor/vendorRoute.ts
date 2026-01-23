@@ -265,18 +265,18 @@ export class VendorRoute {
     );
 
 
-    this.vendorRouter.post("/chat/send", (req: Request, res: Response) => {
+    this.vendorRouter.post(VendorRoutes.CHAT_SEND, (req: Request, res: Response) => {
       chatcontroller.findOrCreateChat(req, res);
     });
-    this.vendorRouter.get("/chat/messages/:chatId", (req: Request, res: Response) => {
+    this.vendorRouter.get(VendorRoutes.CHAT_MESSAGES, (req: Request, res: Response) => {
       chatcontroller.getMessages(req, res);
     });
-    this.vendorRouter.get("/chat/:vendorId", (req: Request, res: Response) => {
+    this.vendorRouter.get(VendorRoutes.CHAT_LIST, (req: Request, res: Response) => {
 
       req.query.userType = 'vendor';
       chatcontroller.getChats(req, res);
     });
-    this.vendorRouter.post("/chat/messages/mark-seen", (req: Request, res: Response) => {
+    this.vendorRouter.post(VendorRoutes.CHAT_MARK_SEEN, (req: Request, res: Response) => {
       chatcontroller.markMessagesSeen(req, res);
     });
     this.vendorRouter.post(
@@ -295,14 +295,14 @@ export class VendorRoute {
 
 
     this.vendorRouter.post(
-      "/notification/notify",
+      VendorRoutes.NOTIFY,
       checkRoleBasedcontrol([Role.VENDOR]),
       (req: Request, res: Response) => {
         notificationcontroller.getNotifications(req, res);
       }
     );
     this.vendorRouter.patch(
-      "/notification/read/:id",
+      VendorRoutes.READ_NOTIFICATION,
       checkRoleBasedcontrol([Role.VENDOR]),
       (req: Request, res: Response) => {
         notificationcontroller.readNotifications(req, res);
