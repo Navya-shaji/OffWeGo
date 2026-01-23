@@ -2,12 +2,17 @@ import { IBookingRepository } from "../../domain/interface/Booking/IBookingRepos
 import { IPackageRepository } from "../../domain/interface/Vendor/iPackageRepository";
 import { ICompleteTripUseCase } from "../../domain/interface/Wallet/ICompletedTripUsecase";
 import { IWalletRepository } from "../../domain/interface/Wallet/IWalletRepository";
+import { IUserRepository } from "../../domain/interface/UserRepository/IuserRepository";
+import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
+
 export class CompleteTripUseCase implements ICompleteTripUseCase {
   constructor(
     private _walletRepository: IWalletRepository,
     private _bookingRepository: IBookingRepository,
-    private _packageRepository: IPackageRepository
-  ) {}
+    private _packageRepository: IPackageRepository,
+    private _userRepository: IUserRepository,
+    private _vendorRepository: IVendorRepository
+  ) { }
 
   async execute(
     bookingRefId: string,
@@ -15,7 +20,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
     adminId: string,
     totalAmount: number
   ): Promise<void> {
-    console.log(bookingRefId, adminId,totalAmount, "booking refId in usecase");
+    console.log(bookingRefId, adminId, totalAmount, "booking refId in usecase");
 
     const bookings = await this._bookingRepository.findByRefId(bookingRefId);
 
@@ -29,7 +34,7 @@ export class CompleteTripUseCase implements ICompleteTripUseCase {
       const packageData = await this._packageRepository.getById(
         booking.selectedPackage._id
       );
-console.log(packageData,"packageData")
+      console.log(packageData, "packageData")
       if (!packageData) continue;
 
       const durationInDays = packageData.duration;
@@ -51,14 +56,20 @@ console.log(packageData,"packageData")
       if (existingTransaction.status === "completed") continue;
 
       const vendorAmount = booking.totalAmount * 0.9;
- 
+
+      const user = await this._userRepository.findById(booking.userId);
+      const vendorData = await this._vendorRepository.findById(packageData.vendorId);
+
+      const userName = user?.name || 'Unknown User';
+      const vendorName = vendorData?.name || 'Unknown Vendor';
+
 
       await this._walletRepository.updateBalance(
         adminId,
         "admin",
         vendorAmount,
         "debit",
-        `Settlement paid to vendor ${packageData.vendorId}`,
+        `Settlement paid to vendor ${vendorName} (User: ${userName})`,
         booking.bookingId
       );
 

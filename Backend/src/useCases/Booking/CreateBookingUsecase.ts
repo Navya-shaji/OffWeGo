@@ -14,6 +14,8 @@ import { IDestinationRepository } from "../../domain/interface/Admin/IDestinatio
 import { IEmailService } from "../../domain/interface/ServiceInterface/IEmailService";
 import { AppError } from "../../domain/errors/AppError";
 import { HttpStatus } from "../../domain/statusCode/Statuscode";
+import { IUserRepository } from "../../domain/interface/UserRepository/IuserRepository";
+import { IVendorRepository } from "../../domain/interface/Vendor/IVendorRepository";
 
 export class CreateBookingUseCase implements ICreateBookingUseCase {
   constructor(
@@ -22,7 +24,9 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     private _packageRepository: IPackageRepository,
     private _destinationRepository: IDestinationRepository,
     private _notificationService: INotificationService,
-    private _emailService: IEmailService
+    private _emailService: IEmailService,
+    private _userRepository: IUserRepository,
+    private _vendorRepository: IVendorRepository
   ) { }
 
   async execute({
@@ -103,12 +107,19 @@ export class CreateBookingUseCase implements ICreateBookingUseCase {
     if (result.paymentStatus === "succeeded") {
       try {
         const adminId = process.env.ADMIN_ID || "";
+
+        const user = await this._userRepository.findById(result.userId);
+        const vendor = await this._vendorRepository.findById(packageData.vendorId);
+
+        const userName = user?.name || result.contactInfo?.email || 'Unknown User';
+        const vendorName = vendor?.name || 'Unknown Vendor';
+
         await this._walletRepository.updateBalance(
           adminId,
           Role.ADMIN,
           result.totalAmount,
           "credit",
-          `Booking payment received. User`,
+          `Booking payment received. User: ${userName}, Vendor: ${vendorName}`,
           result.bookingId
         );
       } catch (walletError) {

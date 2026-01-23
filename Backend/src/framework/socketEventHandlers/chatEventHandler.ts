@@ -63,8 +63,20 @@ export class ChatEventHandler {
         this._socket.on("send_message", async (data, ack: (id: string) => void) => {
 
 
+
+            const socketData = this._socket.data as any;
+            if (socketData.role) {
+                data.senderType = socketData.role;
+                data.senderId = socketData.role === 'vendor' ? socketData.vendorId : socketData.userId;
+            }
+
             const senderName = data.senderName || 'Someone';
-            const id = await chatHandler.handleSendMessage(data, senderName);
+            let id = "";
+            try {
+                id = await chatHandler.handleSendMessage(data, senderName);
+            } catch (error) {
+                console.error("Error in handleSendMessage:", error);
+            }
             ack(id);
 
 

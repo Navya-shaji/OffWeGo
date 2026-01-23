@@ -3,15 +3,21 @@ import { WalletRepository } from "../../adapters/repository/Wallet/WalletReposit
 import { BookingRepository } from "../../adapters/repository/Booking/BookingRepository";
 import { PackageRepository } from "../../adapters/repository/Package/PackageRepository";
 import { CompleteTripUseCase } from "../../useCases/Wallet/completedTripUsecase";
+import { UserRepository } from "../../adapters/repository/User/UserRepository";
+import { VendorRepository } from "../../adapters/repository/Vendor/VendorRepository";
 
 const walletRepo = new WalletRepository();
 const bookingRepo = new BookingRepository();
 const packageRepo = new PackageRepository();
+const userRepo = new UserRepository();
+const vendorRepo = new VendorRepository();
 
 const completeTrip = new CompleteTripUseCase(
   walletRepo,
   bookingRepo,
-  packageRepo
+  packageRepo,
+  userRepo,
+  vendorRepo
 );
 
 
