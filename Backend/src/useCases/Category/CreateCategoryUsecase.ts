@@ -27,6 +27,7 @@ export class CreateCategory {
     const created = await this._categoryRepo.createCategory(data);
 console.log(created,"log created category")
     const vendors = await this._vendorRepo.findByStatus("approved");
+    console.log(vendors,"vendors")
 
 
     for (const vendor of vendors) {
