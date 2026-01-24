@@ -25,11 +25,13 @@ export class PackageController {
       const limit = parseInt(req.body.params?.limit) || 3;
       const vendorId = req.body.vendorId;
 
+      const role = (req.user?.role as Role) || Role.VENDOR;
+
       const result = await this._getPackagesUsecase.execute({
         vendorId,
         limit,
         page,
-        role: Role.VENDOR,
+        role,
       });
 
       res.status(HttpStatus.OK).json({

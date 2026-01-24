@@ -87,7 +87,7 @@ export class VendorRoute {
 
     this.vendorRouter.post(
       VendorRoutes.ALL_PACKAGES,
-      checkRoleBasedcontrol([Role.VENDOR]),
+      checkRoleBasedcontrol([Role.VENDOR, Role.ADMIN]),
       (req: Request, res: Response) => packagecontroller.getAllPackage(req, res)
     );
 

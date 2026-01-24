@@ -45,6 +45,10 @@ export class GetPackages implements IGetPackagesUsecase {
       );
       packages = result.packages;
       totalPackages = result.totalPackages;
+    } else if (role === Role.ADMIN) {
+      const result = await this._packageRepo.getAllPackages(skip, limit);
+      packages = result.packages;
+      totalPackages = result.totalPackages;
     }
 
     const totalPages = Math.ceil(totalPackages / limit);
