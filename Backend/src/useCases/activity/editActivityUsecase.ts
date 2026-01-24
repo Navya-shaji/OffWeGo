@@ -10,6 +10,7 @@ export class EditActivity implements IEditActivityUsecase {
     const existing = await this._ActivityRepo.findByTitle(updatedData.title);
     if (existing && existing.activityId) throw new Error("Activity with this title already exists");
     const updatedDoc = await this._ActivityRepo.edit(id, updatedData);
+    console.log(updatedData,"updatedData")
     return updatedDoc ? mapToActivityDto(updatedDoc) : null;
   }
 }
