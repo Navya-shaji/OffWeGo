@@ -11,7 +11,9 @@ export class AdminController {
   async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-
+      if (!email || !password) {
+        throw new Error("Email and password are required");
+      }
       const result = await this._adminLoginUseCase.execute({
         email,
         password,
