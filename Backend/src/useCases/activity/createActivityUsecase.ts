@@ -13,8 +13,10 @@ export class createActivityUsecase implements IcreateActivityUsecase {
     const existing = await this._activityRepo.findByTitle(data.title);
     console.log(existing,"existing activity")
     if (existing) throw new Error("Activity with this title already exists");
+   
     const activityDatawithDestination = { ...data, destinationId }
     const Activity = await this._activityRepo.createActivity(activityDatawithDestination);
+     console.log("Activity",Activity)
     return mapToActivityDto(Activity);
   }
 }
