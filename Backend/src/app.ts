@@ -56,9 +56,9 @@ export class App {
   }
 
   private setRoutes(): void {
-    this.app.use("/api", new UserRoute().userRouter);
     this.app.use("/api/admin", new AdminRoute().adminRouter);
     this.app.use("/api/vendor", new VendorRoute().vendorRouter);
+    this.app.use("/api", new UserRoute().userRouter);
 
     const publicPath = path.resolve(process.cwd(), "public");
     console.log(`Serving static files from: ${publicPath}`);

@@ -37,6 +37,9 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+let isRefreshing = false;
+let refreshPromise: Promise<string> | null = null;
+
 axiosInstance.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -48,19 +51,47 @@ axiosInstance.interceptors.response.use(
       err.response.data?.message === ERROR_MESSAGES.UNAUTHORIZED &&
       !originalRequest.retry
     ) {
+      if (isRefreshing) {
+        try {
+          const newAccessToken = await refreshPromise;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axiosInstance(originalRequest);
+        } catch (queueErr) {
+          return Promise.reject(queueErr);
+        }
+      }
+
+      originalRequest.retry = true;
+      isRefreshing = true;
+
+      refreshPromise = (async () => {
+        try {
+          const response = await axiosInstance.post("/api/refresh-token", {}, { skipErrorToast: true });
+          const newAccessToken = response.data.accessToken;
+          store.dispatch(setToken(newAccessToken));
+          return newAccessToken;
+        } catch (refreshErr) {
+          store.dispatch({ type: "auth/logout" });
+          store.dispatch({ type: "vendorAuth/logout" });
+          store.dispatch({ type: "adminAuth/logout" });
+          store.dispatch({ type: "token/removeToken" });
+
+          if (!originalRequest.skipErrorToast) {
+            toast.error(ERROR_MESSAGES.SESSION_EXPIRED);
+          }
+          throw refreshErr;
+        } finally {
+          isRefreshing = false;
+          refreshPromise = null;
+        }
+      })();
+
       try {
-        originalRequest.retry = true;
-        const response = await axiosInstance.post("/api/refresh-token");
-        const newAccessToken = response.data.accessToken;
-        store.dispatch(setToken(newAccessToken));
+        const newAccessToken = await refreshPromise;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
-      } catch (refreshErr) {
-        store.dispatch({ type: "token/removeToken" });
-        if (!originalRequest.skipErrorToast) {
-          toast.error(ERROR_MESSAGES.SESSION_EXPIRED);
-        }
-        return Promise.reject(refreshErr);
+      } catch (err) {
+        return Promise.reject(err);
       }
     }
 
