@@ -23,16 +23,26 @@ export const verifyTokenAndCheckBlackList = (tokenService: ITokenService) => {
       const decoded = await tokenService.verifyToken(token, "access");
       if (!decoded) throw new Error("Invalid or expired token");
 
-      const payload = decoded as any;
+      interface CustomJwtPayload extends JwtPayload {
+        userId?: string;
+        id?: string;
+        vendorId?: string;
+        adminId?: string;
+        role?: string;
+      }
+
+      const payload = decoded as CustomJwtPayload;
       const id = payload.userId || payload.id || payload.vendorId || payload.adminId;
+
+      if (!id) throw new Error("User ID not found in token");
 
       req.user = {
         ...payload,
         id: id,
-        userId: id
-      };
+        role: payload.role || "user"
+      } as JwtPayload & { id: string; role: string };
 
-      console.log(req.user,"user")
+      console.log(req.user, "user");
       next();
     } catch (err) {
       return res

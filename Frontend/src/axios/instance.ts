@@ -5,6 +5,20 @@ import { toast } from "react-hot-toast";
 
 import { ERROR_MESSAGES } from "@/constants/messages";
 
+declare module 'axios' {
+  export interface InternalAxiosRequestConfig {
+    skipErrorToast?: boolean;
+    skipServerErrorToast?: boolean;
+    retry?: boolean;
+  }
+  export interface AxiosRequestConfig {
+    skipErrorToast?: boolean;
+    skipServerErrorToast?: boolean;
+    retry?: boolean;
+  }
+}
+
+
 const baseURL = import.meta.env.VITE_BASE_URL?.replace(/\/?$/, "/");
 
 const axiosInstance = axios.create({

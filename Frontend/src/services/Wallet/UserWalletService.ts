@@ -1,4 +1,4 @@
-import { isAxiosError } from "axios";
+import { isAxiosError, type AxiosRequestConfig } from "axios";
 import axiosInstance from "@/axios/instance";
 import type { IWallet } from "@/interface/wallet";
 import { UserRoutes, USER_ROUTES_BASE } from "@/constants/apiRoutes";
@@ -22,7 +22,7 @@ export const createUserWallet = async (
   }
 };
 
-export const getUserWallet = async (id: string, config?: any): Promise<IWallet> => {
+export const getUserWallet = async (id: string, config?: AxiosRequestConfig): Promise<IWallet> => {
   try {
     const response = await axiosInstance.get(
       `${USER_ROUTES_BASE}${UserRoutes.GET_USER_WALLET.replace(":userId", id)}`,

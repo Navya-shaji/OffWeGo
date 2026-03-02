@@ -151,7 +151,7 @@ export const getPostBySlug = async (
   try {
     const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_BY_SLUG.replace(":slug", slug)}`, {
       skipErrorToast: true, // Don't show toast for this error - we handle it in the component
-    } as any);
+    });
     return response.data;
   } catch (error) {
     if (isAxiosError(error)) {
@@ -211,7 +211,7 @@ export const getSavedTravelPosts = async (
     const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.TRAVEL_POST_SAVED}`, {
       params,
       skipErrorToast: true, // Don't show toast for auth errors - expected for non-logged-in users
-    } as any);
+    });
 
     const payload = response.data || {};
 

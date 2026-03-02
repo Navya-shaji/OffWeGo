@@ -2,6 +2,22 @@ import { Socket } from "socket.io";
 import { Server as SocketIOServer } from "socket.io";
 import { chatHandler } from "../Di/Chat/ChatInjection";
 
+interface SocketData {
+    role?: 'user' | 'vendor';
+    userId?: string;
+    vendorId?: string;
+}
+
+interface ChatMessageData {
+    chatId: string;
+    messageContent: string;
+    receiverId?: string;
+    senderId?: string;
+    senderType?: 'user' | 'vendor';
+    senderName?: string;
+    replyTo?: string;
+}
+
 export class ChatEventHandler {
     private _socket: Socket;
     private _io: SocketIOServer;
@@ -17,10 +33,9 @@ export class ChatEventHandler {
         this._socket.on("register_user", ({ userId }: { userId: string }) => {
             console.log("👤 [REGISTER_USER] User registering:", userId, "Socket ID:", this._socket.id);
             chatHandler.handleConnect(userId);
-            const socketData = this._socket;
-            socketData.data = socketData.data || {};
-            socketData.data.role = 'user';
-            socketData.data.userId = userId;
+            const socketData = this._socket.data as SocketData;
+            socketData.role = 'user';
+            socketData.userId = userId;
             this._socket.join(`user_${userId}`);
             console.log("👤 [REGISTER_USER] User joined room: user_" + userId);
             this._io.emit("user-status-changed", {
@@ -30,8 +45,9 @@ export class ChatEventHandler {
 
             const onlineIds: string[] = [];
             for (const s of this._io.sockets.sockets.values()) {
-                const role = (s).data?.role;
-                const id = role === 'vendor' ? (s).data?.vendorId : (s).data?.userId;
+                const sData = s.data as SocketData;
+                const role = sData.role;
+                const id = role === 'vendor' ? sData.vendorId : sData.userId;
                 if (id) onlineIds.push(String(id));
             }
             console.log("👤 [REGISTER_USER] Online users:", onlineIds);
@@ -42,9 +58,9 @@ export class ChatEventHandler {
         this._socket.on("register_vendor", ({ vendorId }: { vendorId: string }) => {
             console.log("🏢 [REGISTER_VENDOR] Vendor registering:", vendorId, "Socket ID:", this._socket.id);
             chatHandler.handleConnect(vendorId);
-            (this._socket).data = (this._socket).data || {};
-            (this._socket).data.role = 'vendor';
-            (this._socket).data.vendorId = vendorId;
+            const socketData = this._socket.data as SocketData;
+            socketData.role = 'vendor';
+            socketData.vendorId = vendorId;
             this._socket.join(`vendor_${vendorId}`);
             console.log("🏢 [REGISTER_VENDOR] Vendor joined room: vendor_" + vendorId);
             this._io.emit("vendor-status-changed", {
@@ -54,8 +70,9 @@ export class ChatEventHandler {
 
             const onlineIds: string[] = [];
             for (const s of this._io.sockets.sockets.values()) {
-                const role = (s).data?.role;
-                const id = role === 'vendor' ? (s).data?.vendorId : (s).data?.userId;
+                const sData = s.data as SocketData;
+                const role = sData.role;
+                const id = role === 'vendor' ? sData.vendorId : sData.userId;
                 if (id) onlineIds.push(String(id));
             }
             console.log("🏢 [REGISTER_VENDOR] Online users:", onlineIds);
@@ -68,11 +85,11 @@ export class ChatEventHandler {
             console.log("✅ [JOIN_ROOM] Socket joined room:", roomId);
         });
 
-        this._socket.on("send_message", async (data, ack: (id: string) => void) => {
+        this._socket.on("send_message", async (data: ChatMessageData, ack: (id: string) => void) => {
             console.log("📨 [SEND_MESSAGE] Received from socket:", this._socket.id);
             console.log("📨 [SEND_MESSAGE] Data:", JSON.stringify(data, null, 2));
 
-            const socketData = this._socket.data as any;
+            const socketData = this._socket.data as SocketData;
             console.log("📨 [SEND_MESSAGE] Socket data:", JSON.stringify(socketData, null, 2));
 
             if (socketData.role) {

@@ -11,10 +11,11 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDt
     children: b.children || [],
     selectedPackage: (() => {
       const pkg = { ...b.selectedPackage };
-      const rawPkgId = (pkg as any).packageId || (pkg as any)._id;
+      const rawPkgId = pkg.packageId || pkg._id;
 
       if (rawPkgId && typeof rawPkgId === 'object') {
-        pkg._id = (rawPkgId as any)._id?.toString() || rawPkgId.toString();
+        const rawObj = rawPkgId as unknown as { _id?: { toString(): string }; toString(): string };
+        pkg._id = rawObj._id?.toString() || rawObj.toString();
       } else if (rawPkgId) {
         pkg._id = rawPkgId.toString();
       }
@@ -29,9 +30,10 @@ export const mapBookingToCreateBookingDto = (bookings: Booking[]): BookingDataDt
     settlementDone: b.settlementDone,
     createdAt: b.createdAt,
     vendorId: b.vendorId || (() => {
-      const pkgId = (b.selectedPackage as any)?.packageId || (b.selectedPackage as any)?._id;
+      const pkg = b.selectedPackage;
+      const pkgId = pkg.packageId || pkg._id;
       if (pkgId && typeof pkgId === 'object') {
-        return (pkgId as { vendorId: string }).vendorId;
+        return (pkgId as unknown as { vendorId: string }).vendorId;
       }
       return undefined;
     })()

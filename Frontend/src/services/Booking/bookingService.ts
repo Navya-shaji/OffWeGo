@@ -1,11 +1,12 @@
 /* eslint-disable no-useless-catch */
+import { type AxiosRequestConfig } from "axios";
 import axiosInstance from "@/axios/instance";
 import { AdminRoutes, UserRoutes, VendorRoutes, USER_ROUTES_BASE, ADMIN_ROUTES_BASE, VENDOR_ROUTES_BASE } from "@/constants/apiRoutes";
 
 export const createBooking = async (
   data: string,
   payment_id: string,
-  config?: any
+  config?: AxiosRequestConfig
 ) => {
   const response = await axiosInstance.post(`${USER_ROUTES_BASE}${UserRoutes.CREATE_BOOKING}`, {
     data,
@@ -16,7 +17,7 @@ export const createBooking = async (
 };
 
 
-export const getUserBookings = async (config?: any) => {
+export const getUserBookings = async (config?: AxiosRequestConfig) => {
   const response = await axiosInstance.get(`${USER_ROUTES_BASE}${UserRoutes.USER_BOOKINGS}`, {
     ...config,
     skipServerErrorToast: true

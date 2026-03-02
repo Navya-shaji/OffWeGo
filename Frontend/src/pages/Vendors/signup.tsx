@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -61,9 +62,14 @@ export default function VendorSignup() {
                 toast.error(errorMsg);
                 console.warn("Registration rejected by server:", errorMsg);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Critical error during registration:", error);
-            const errorMessage = error.response?.data?.message || error.message || "An unexpected error occurred. Please try again later.";
+            let errorMessage = "An unexpected error occurred. Please try again later.";
+            if (isAxiosError(error)) {
+                errorMessage = error.response?.data?.message || error.message || errorMessage;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
         } finally {
             setIsUploading(false);

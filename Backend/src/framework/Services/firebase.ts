@@ -17,8 +17,14 @@ if (!serviceAccountEnv) {
     }
 
     // Fix private key formatting (newlines are often escaped in env vars)
-    if (serviceAccount && (serviceAccount as any).private_key) {
-      (serviceAccount as any).private_key = (serviceAccount as any).private_key.replace(/\\n/g, "\n");
+    interface GoogleServiceAccount extends admin.ServiceAccount {
+      private_key?: string;
+    }
+
+    const sa = serviceAccount as GoogleServiceAccount;
+    if (sa.private_key) {
+      sa.private_key = sa.private_key.replace(/\\n/g, "\n");
+      sa.privateKey = sa.private_key; // Sync with the standard field if needed
     }
 
     admin.initializeApp({

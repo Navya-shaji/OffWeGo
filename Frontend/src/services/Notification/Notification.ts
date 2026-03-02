@@ -199,7 +199,7 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
       recipientId,
     }, {
       skipErrorToast: true
-    } as any);
+    });
 
     if (!res || !res.data) {
       return [];

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { jsPDF } from "jspdf";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -72,33 +72,49 @@ export default function VendorSubscriptionHistory() {
     }
   };
 
-  const fetchHistory = async (isLoadMore = false) => {
+  const fetchHistory = useCallback(async (isLoadMore = false) => {
     try {
       if (!isLoadMore) setLoading(true);
 
       const currentPage = isLoadMore ? page + 1 : 1;
       const response = await getVendorSubscriptionHistory(searchQuery, activeTab, currentPage, limit);
 
-      let historyData = [];
       const incomingData = response?.data || response?.bookings || [];
-      historyData = Array.isArray(incomingData) ? incomingData : [];
+      const historyData = Array.isArray(incomingData) ? incomingData : [];
 
-      const normalizedData = historyData.map((item: any) => ({
+      const normalizedData: SubscriptionHistory[] = historyData.map((item: {
+        _id?: string;
+        id?: string;
+        planName?: string;
+        amount?: number;
+        currency?: string;
+        duration?: number;
+        status?: string;
+        startDate?: string;
+        endDate?: string;
+        transactionId?: string;
+        stripeSessionId?: string;
+        paymentStatus?: string;
+        packageLimit?: number;
+        usedSlots?: number;
+        features?: string[];
+        vendorDetails?: { name: string; email: string };
+      }) => ({
         _id: item._id || item.id || '',
         planName: item.planName || 'Unknown Plan',
         amount: item.amount || 0,
         currency: item.currency || 'INR',
         duration: item.duration || 0,
-        status: (item.status || 'unknown').toLowerCase(),
+        status: (item.status || 'unknown').toLowerCase() as "active" | "expired" | "cancelled" | "pending",
         startDate: item.startDate || new Date().toISOString(),
         endDate: item.endDate || '',
         transactionId: item.transactionId || '',
         stripeSessionId: item.stripeSessionId || '',
-        paymentStatus: item.paymentStatus || 'paid',
+        paymentStatus: (item.paymentStatus as "paid" | "pending" | "failed") || 'paid',
         packageLimit: item.packageLimit || 0,
         usedSlots: item.usedSlots || 0,
         features: item.features || [],
-        vendorDetails: item.vendorDetails || {}
+        vendorDetails: item.vendorDetails || { name: '', email: '' }
       }));
 
       if (isLoadMore) {
@@ -115,14 +131,14 @@ export default function VendorSubscriptionHistory() {
     } finally {
       if (!isLoadMore) setLoading(false);
     }
-  };
+  }, [searchQuery, activeTab, page, limit]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchHistory();
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchQuery, activeTab]);
+  }, [fetchHistory]);
 
   const handleLoadMore = () => {
     fetchHistory(true);
