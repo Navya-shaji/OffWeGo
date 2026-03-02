@@ -150,11 +150,13 @@ const VendorNavbar: React.FC = () => {
         </div>
       </header>
 
-      <NotificationPanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        onUnreadCountChange={setNotificationUnreadCount}
-      />
+      {vendor?.id && (
+        <NotificationPanel
+          open={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          onUnreadCountChange={setNotificationUnreadCount}
+        />
+      )}
     </>
   );
 };

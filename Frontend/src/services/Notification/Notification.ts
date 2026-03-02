@@ -50,27 +50,11 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
       if (state.auth.isAuthenticated && state.auth.user?.id) {
         recipientType = "user";
         recipientId = state.auth.user.id;
-      } else if (state.auth.user?.id) {
-        recipientType = "user";
-        recipientId = state.auth.user.id;
       } else {
-        console.error(" On user route but no user authentication found!");
-        console.error(" Available auth:", {
-          userAuth: state.auth.isAuthenticated,
-          userId: state.auth.user?.id,
-          vendorAuth: state.vendorAuth.isAuthenticated,
-          vendorId: state.vendorAuth.vendor?.id,
-        });
-        console.warn(
-          " Returning empty array - user not authenticated on user route"
-        );
         return [];
       }
     } else if (isVendorRoute && !finalIsUserRoute) {
       if (state.vendorAuth.isAuthenticated && state.vendorAuth.vendor?.id) {
-        recipientType = "vendor";
-        recipientId = state.vendorAuth.vendor.id;
-      } else if (state.vendorAuth.vendor?.id) {
         recipientType = "vendor";
         recipientId = state.vendorAuth.vendor.id;
       } else {

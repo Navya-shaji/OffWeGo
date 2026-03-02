@@ -249,11 +249,13 @@ const Header: React.FC<HeaderProps> = ({ forceSolid = false }) => {
           </div>
         )}
       </div>
-      <NotificationPanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        onUnreadCountChange={setNotificationUnreadCount}
-      />
+      {isAuthenticated && (
+        <NotificationPanel
+          open={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          onUnreadCountChange={setNotificationUnreadCount}
+        />
+      )}
     </header>
   );
 };

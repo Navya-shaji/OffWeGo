@@ -61,9 +61,9 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           <div className="flex items-center">
-            <img 
-              src={logo} 
-              alt="logo" 
+            <img
+              src={logo}
+              alt="logo"
               className="w-35 h-10 mr-2 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => navigate("/")}
             />
@@ -89,7 +89,7 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center space-x-3">
-            
+
                 <div
                   className="relative cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   onClick={() => setPanelOpen(true)}
@@ -228,11 +228,13 @@ const Navbar = () => {
         </div>
       )}
 
-      <NotificationPanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        onUnreadCountChange={setNotificationUnreadCount}
-      />
+      {user && (
+        <NotificationPanel
+          open={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          onUnreadCountChange={setNotificationUnreadCount}
+        />
+      )}
     </nav>
   );
 };

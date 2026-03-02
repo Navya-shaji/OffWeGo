@@ -43,7 +43,9 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshErr) {
         store.dispatch({ type: "token/removeToken" });
-        toast.error(ERROR_MESSAGES.SESSION_EXPIRED);
+        if (!originalRequest.skipErrorToast) {
+          toast.error(ERROR_MESSAGES.SESSION_EXPIRED);
+        }
         return Promise.reject(refreshErr);
       }
     }
