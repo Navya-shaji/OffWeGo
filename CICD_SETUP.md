@@ -52,7 +52,7 @@ If you are deploying to a Linux server (DigitalOcean Droplet, EC2, Linode, etc.)
 |-------------|-------------|
 | `RAILWAY_TOKEN` | Your Railway Project Token |
 
-## 📦 Docker Registry
+## Docker Registry
 
 The pipeline pushes images to the **GitHub Container Registry** (`ghcr.io`).
 - **Backend Image**: `ghcr.io/<your-username>/offwego/backend:latest`
