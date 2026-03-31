@@ -708,7 +708,7 @@ const ChatPage = () => {
                                                             )}
                                                             <div className="relative">
                                                                 <div className={`${isOwn ? "pr-10 md:pr-12" : "pr-8 md:pr-10"} pb-1`}>
-                                                                    <p className={`whitespace-pre-wrap text-sm md:text-[15px] leading-relaxed ${isDeleted ? "italic opacity-60" : ""}`}>{msg.messageContent}</p>
+                                                                    <p className={`whitespace-pre-wrap break-all text-sm md:text-[15px] leading-relaxed ${isDeleted ? "italic opacity-60" : ""}`}>{msg.messageContent}</p>
                                                                 </div>
                                                                 <div className={`absolute bottom-0 right-0 flex items-center gap-1 text-[8px] md:text-[9px] font-bold ${isOwn ? "text-emerald-100" : "text-slate-300"}`}>
                                                                     <span>{formatTime(msg.sendedTime)}</span>
@@ -787,6 +787,7 @@ const ChatPage = () => {
                                         onKeyPress={handleKeyPress}
                                         onBlur={handleTypingStop}
                                         placeholder="Type a message..."
+                                        maxLength={1000}
                                         className="flex-1 bg-slate-100 border-none rounded-2xl h-10 px-4 text-sm focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400"
                                     />
                                     <button
